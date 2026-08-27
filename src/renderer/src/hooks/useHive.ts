@@ -16,7 +16,7 @@ import {
 } from '../../../shared/providerAutomation';
 import { DEFAULT_CONTEXT_TRIGGER, type ContextRule } from '../../../shared/triggers';
 import type { AgentProvider } from '../../../shared/agentProvider';
-import { bridgeOf, providerPreset } from '../../../shared/agentProvider';
+import { bridgeOf, isCbcodeCommand, providerPreset } from '../../../shared/agentProvider';
 import { isDurableRole, preferredAgentRole, roleForHiveSpawn } from '../../../shared/agentRole';
 import { inboxNudgeText } from '../../../shared/hiveNudge';
 import { acquireTerminal, resetTerminal, isTerminalAutomationSafe } from '@/components/terminalPool';
@@ -54,6 +54,10 @@ const SEED_BOOT_MS = 12_000;
  *  goal prepended onto queued PTY deliveries so an Edit Agent save still lands
  *  on the next drain cycle without a restart. */
 function usesHookStandingGoal(agent: Agent): boolean {
+  // cbcode infers as claude (hiveAware) but its lifecycle hooks are inert — it
+  // accepts `--settings` yet never fires SessionStart/UserPromptSubmit, so the
+  // goal would be delivered by neither path. Fall back to the PTY prepend.
+  if (isCbcodeCommand(agent.command)) return false;
   const provider = inferAgentProvider(agent.command, agent.provider);
   const preset = providerPreset(provider);
   if (preset.hiveAware) return true;

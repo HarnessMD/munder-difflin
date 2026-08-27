@@ -303,7 +303,14 @@ export function parseNpmCmdShim(shimPath: string, content: string): NpmShimTarge
   return { interpreter, scriptPath };
 }
 
-export function normalizePermissionMode(resolved: string, args: string[]): string[] {
+/** The single place that adapts a hive agent's argv to the RESOLVED binary.
+ *  cbcode refuses `--permission-mode bypassPermissions` (exit 1), so rewrite it
+ *  to the strictly-less-permissive `auto` — the rewrite only ever moves toward
+ *  less permission. Probes show cbcode accepts every other hive flag (`--settings`,
+ *  `--remote-control-session-name-prefix`, `--max-turns`, `--model`, `--add-dir`,
+ *  `--disallowedTools`), so nothing is stripped. A non-cbcode binary is returned
+ *  by reference, so a stock claude install is byte-identical to today. */
+export function normalizeArgsForBinary(resolved: string, args: string[]): string[] {
   if (!isCbcodeCommand(resolved)) return args;
   return args.map((a, i) => {
     if (a === 'bypassPermissions' && args[i - 1] === '--permission-mode') return 'auto';
@@ -545,7 +552,7 @@ export class PtyManager {
       return { ok: false, error: `cwd does not exist: ${opts.cwd}` };
     }
     const resolved = this.resolveCommand(opts.command).path;
-    if (opts.args) opts.args = normalizePermissionMode(resolved, opts.args);
+    if (opts.args) opts.args = normalizeArgsForBinary(resolved, opts.args);
     try {
       // Build a user-shell PATH so child can resolve subprocess deps. Cached
       // for the session (shellEnv.userShellPath, fenced against rc-file noise) —

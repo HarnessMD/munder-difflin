@@ -30,7 +30,7 @@ const loadTs = require('./load-ts.cjs');
 const {
   parseNpmCmdShim,
   buildCmdCommandLine,
-  normalizePermissionMode,
+  normalizeArgsForBinary,
   PtyManager
 } = loadTs('src/main/pty.ts');
 // The REAL escaper node-pty applies to an argv array on Windows. Testing against a
@@ -44,10 +44,43 @@ const SHIM = `${NPM_DIR}\\opencode.cmd`;
 test('cbcode uses auto permission mode without changing Claude arguments', () => {
   const args = ['--model', 'claude-opus-4-8', '--permission-mode', 'bypassPermissions'];
   assert.deepEqual(
-    normalizePermissionMode('/opt/homebrew/bin/cbcode', args),
+    normalizeArgsForBinary('/opt/homebrew/bin/cbcode', args),
     ['--model', 'claude-opus-4-8', '--permission-mode', 'auto']
   );
-  assert.deepEqual(normalizePermissionMode('/usr/local/bin/claude', args), args);
+  assert.deepEqual(normalizeArgsForBinary('/usr/local/bin/claude', args), args);
+});
+
+test('a non-cbcode binary is returned untouched, by reference', () => {
+  const args = ['--model', 'claude-opus-4-8', '--permission-mode', 'bypassPermissions',
+                '--settings', '/p/s.json', '--remote-control-session-name-prefix', 'Kevin'];
+  // `/opt/cbcode/claude` is a real claude inside a dir named cbcode — the leaf is
+  // `claude`, so the carve-out must NOT trigger. commandBinary pins this.
+  for (const exe of ['claude', '/usr/local/bin/claude', '~/.local/bin/claude',
+                     'C:\\npm\\claude.cmd', '/opt/cbcode/claude']) {
+    assert.strictEqual(normalizeArgsForBinary(exe, args), args, exe);
+  }
+});
+
+test('the rewrite can never escalate permissions', () => {
+  for (const args of [['--permission-mode', 'auto'], ['--permission-mode', 'plan'],
+                      ['bypassPermissions'], ['--disallowedTools', 'bypassPermissions'], []]) {
+    const out = normalizeArgsForBinary('cbcode', args);
+    const gained = out.join(' ').includes('bypassPermissions')
+                && !args.join(' ').includes('bypassPermissions');
+    assert.equal(gained, false, JSON.stringify(args));
+  }
+});
+
+test('cbcode accepts every other hive flag, so none are stripped (PROBE 2/3)', () => {
+  // The review assumed cbcode rejected --remote-control-session-name-prefix; the
+  // probe showed exit 0. Trust the probe — the flag and its value must survive.
+  assert.deepEqual(
+    normalizeArgsForBinary('cbcode',
+      ['--model', 'x', '--remote-control-session-name-prefix', 'Kevin', '--max-turns', '5',
+       '--settings', '/p/s.json']),
+    ['--model', 'x', '--remote-control-session-name-prefix', 'Kevin', '--max-turns', '5',
+     '--settings', '/p/s.json']
+  );
 });
 
 // ── real-world npm shim shapes ───────────────────────────────────────────────
