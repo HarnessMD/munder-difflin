@@ -1,0 +1,139 @@
+'use strict';
+
+// Unit tests for the pure helpers of md-slack-poller.cjs — the pull->replay
+// Slack poller. Requires the script as a module (it only runs main() when
+// invoked directly), the same pattern as slack.test.cjs / slack-trigger.cjs.
+
+const assert = require('assert');
+const { createHmac } = require('node:crypto');
+const {
+  parseArgs,
+  tsGreater,
+  maxTs,
+  selectNewMessages,
+  mentionsBot,
+  buildEventPayload,
+  computeSignature,
+} = require('../resources/md-slack-poller.cjs');
+
+let failures = 0;
+function test(name, fn) {
+  try { fn(); console.log(`  ✓ ${name}`); }
+  catch (err) { failures++; console.log(`  ✗ ${name}\n     ${err.message}`); }
+}
+
+const BOT = 'U0BOT';
+const CH = 'C0CHAN';
+
+console.log('slack poller tests (pull -> signed local replay)');
+
+// ─── arg parsing ─────────────────────────────────────────────────────────────
+test('parseArgs handles --key value, --key=value, and bare flags', () => {
+  const a = parseArgs(['--channel', 'C1', '--interval=10', '--watch', '--verbose']);
+  assert.strictEqual(a.channel, 'C1');
+  assert.strictEqual(a.interval, '10');
+  assert.strictEqual(a.watch, true);
+  assert.strictEqual(a.verbose, true);
+});
+
+// ─── ts comparison ───────────────────────────────────────────────────────────
+test('tsGreater compares Slack decimal-string ts numerically', () => {
+  assert.strictEqual(tsGreater('1700000000.000200', '1700000000.000100'), true);
+  assert.strictEqual(tsGreater('1700000000.000100', '1700000000.000200'), false);
+  assert.strictEqual(tsGreater('1700000000.000100', '1700000000.000100'), false);
+  assert.strictEqual(tsGreater('1', null), true, 'anything is newer than no baseline');
+  assert.strictEqual(tsGreater(null, '1'), false);
+});
+
+test('maxTs returns the newer ts', () => {
+  assert.strictEqual(maxTs('100.2', '100.1'), '100.2');
+  assert.strictEqual(maxTs('100.1', '100.2'), '100.2');
+  assert.strictEqual(maxTs(null, '5.0'), '5.0');
+});
+
+// ─── new-message selection (the dedup/no-replay core) ────────────────────────
+test('selectNewMessages returns only ts > lastTs, ascending', () => {
+  const msgs = [
+    { ts: '30.0', text: 'c', user: 'U1' },
+    { ts: '10.0', text: 'a', user: 'U1' },
+    { ts: '20.0', text: 'b', user: 'U1' },
+  ];
+  const out = selectNewMessages(msgs, '10.0', BOT);
+  assert.deepStrictEqual(out.map((m) => m.ts), ['20.0', '30.0']);
+});
+
+test('selectNewMessages with null lastTs returns all (sorted)', () => {
+  const msgs = [{ ts: '2.0', user: 'U1' }, { ts: '1.0', user: 'U1' }];
+  assert.deepStrictEqual(selectNewMessages(msgs, null, BOT).map((m) => m.ts), ['1.0', '2.0']);
+});
+
+test('selectNewMessages drops bot-authored + own-user messages (self-loop guard)', () => {
+  const msgs = [
+    { ts: '11.0', text: 'from bot_id', bot_id: 'B1' },
+    { ts: '12.0', text: 'from bot user', user: BOT },
+    { ts: '13.0', text: 'from human', user: 'U9' },
+  ];
+  const out = selectNewMessages(msgs, '10.0', BOT);
+  assert.deepStrictEqual(out.map((m) => m.ts), ['13.0']);
+});
+
+test('selectNewMessages tolerates non-array / malformed input', () => {
+  assert.deepStrictEqual(selectNewMessages(undefined, '1', BOT), []);
+  assert.deepStrictEqual(selectNewMessages([null, { text: 'no ts' }, {}], '0', BOT), []);
+});
+
+// ─── mention detection (thread-follow decision only) ─────────────────────────
+test('mentionsBot detects <@BOT> and ignores others', () => {
+  assert.strictEqual(mentionsBot(`hey <@${BOT}> do X`, BOT), true);
+  assert.strictEqual(mentionsBot('hey <@U0OTHER> do X', BOT), false);
+  assert.strictEqual(mentionsBot('no mention', BOT), false);
+  assert.strictEqual(mentionsBot('x', null), false);
+});
+
+// ─── synthetic event payload shape (what the server reads) ───────────────────
+test('buildEventPayload produces an event_callback the server accepts', () => {
+  const p = buildEventPayload(
+    { ts: '100.1', text: `<@${BOT}> hi`, user: 'U9' },
+    { channelId: CH, botUserId: BOT, teamId: 'T1' }
+  );
+  assert.strictEqual(p.type, 'event_callback');
+  assert.strictEqual(p.authorizations[0].user_id, BOT);
+  assert.strictEqual(p.event.type, 'message');
+  assert.strictEqual(p.event.channel, CH);
+  assert.strictEqual(p.event.ts, '100.1');
+  assert.strictEqual(p.event.text, `<@${BOT}> hi`);
+  assert.ok(!('subtype' in p.event), 'plain message has no subtype');
+});
+
+test('buildEventPayload preserves thread_ts and file_share + files', () => {
+  const p = buildEventPayload(
+    { ts: '100.2', text: 'see file', thread_ts: '100.1', subtype: 'file_share',
+      files: [{ url_private: 'https://x', name: 'a.png' }] },
+    { channelId: CH, botUserId: BOT, teamId: 'T1' }
+  );
+  assert.strictEqual(p.event.thread_ts, '100.1');
+  assert.strictEqual(p.event.subtype, 'file_share');
+  assert.strictEqual(p.event.files.length, 1);
+});
+
+test('buildEventPayload drops non-file_share subtypes (server would ignore them)', () => {
+  const p = buildEventPayload(
+    { ts: '100.3', text: 'edited', subtype: 'message_changed' },
+    { channelId: CH, botUserId: BOT, teamId: 'T1' }
+  );
+  assert.ok(!('subtype' in p.event));
+});
+
+// ─── signature parity with the server's verify() ─────────────────────────────
+test('computeSignature matches Slack v0 HMAC (server verify parity)', () => {
+  const secret = 'test-signing-secret';
+  const ts = '1700000000';
+  const body = JSON.stringify({ type: 'event_callback' });
+  const got = computeSignature(secret, ts, body);
+  const expected = 'v0=' + createHmac('sha256', secret).update(`v0:${ts}:${body}`).digest('hex');
+  assert.strictEqual(got, expected);
+  assert.ok(got.startsWith('v0='));
+});
+
+console.log(failures === 0 ? '\nall passed' : `\n${failures} failure(s)`);
+process.exit(failures === 0 ? 0 : 1);
