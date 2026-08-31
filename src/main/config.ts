@@ -333,6 +333,13 @@ export interface HarnessConfig {
   slackChannelId?: string;
   /** Local HTTP port the webhook server binds to (default 3847). */
   slackPort?: number;
+  /** Poll-only mode for a laptop behind corporate NAT with NO public tunnel.
+   *  When true, the webhook server binds to 127.0.0.1 ONLY and SKIPS opening a
+   *  public tunnel, while the loopback reply endpoint + done-observer still start
+   *  — so `md-slack-poller.cjs` can deliver locally AND replies work with no
+   *  inbound exposure. DEFAULT OFF: the classic single-user tunnel setup (Slack
+   *  pushes to a tunnelmole Request URL) is unchanged. See docs/local-slack-poller.md. */
+  slackPollingOnly?: boolean;
   /** Opt-in: allow APP/VOICE-INITIATED proactive posting into Slack (e.g. the
    *  renderer's "queued" acknowledgement). DEFAULT OFF per the human directive
    *  "stop posting into Slack by default". This does NOT gate the Slack-ORIGIN
@@ -453,6 +460,7 @@ const DEFAULTS: HarnessConfig = {
   slackBotToken: undefined,
   slackChannelId: undefined,
   slackPort: undefined,
+  slackPollingOnly: false,
   slackProactivePosting: false,
   freeflowEnabled: true,
   groqApiKey: undefined,

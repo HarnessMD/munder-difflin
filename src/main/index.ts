@@ -1597,6 +1597,11 @@ async function startSlackServer(): Promise<{ ok: boolean; url?: string; error?: 
     port: cfg.slackPort && cfg.slackPort > 0 ? cfg.slackPort : 3847,
     signingSecret: cfg.slackSigningSecret,
     channelId: cfg.slackChannelId,
+    // Poll-only mode (NAT, no tunnel): bind loopback-only + skip the public
+    // tunnel. `md-slack-poller.cjs` delivers events over 127.0.0.1, and the
+    // reply endpoint + done-observer below still start — so replies work with no
+    // inbound exposure. Default (unset) keeps the classic tunnel push flow.
+    skipTunnel: cfg.slackPollingOnly === true,
     // Fires from the HTTP server's event loop (not the IPC thread); route through
     // liveWebContents() so a message arriving during window teardown can't throw.
     // Downloads any file attachments (bot token stays in main; local paths go to IPC).
@@ -1623,7 +1628,10 @@ async function startSlackServer(): Promise<{ ok: boolean; url?: string; error?: 
   });
   const res = await slackServer.start();
   // ok:false means we never bound the port → drop the instance. ok:true with no
-  // url just means the tunnel is unavailable; the local handler is still live.
+  // url means either poll-only mode (tunnel skipped by design) or the tunnel was
+  // unavailable; either way the local handler is live, so we proceed to bring up
+  // the reply endpoint + done-observer below (this is what makes replies work on
+  // a poll-only, no-tunnel laptop).
   if (!res.ok) { slackServer = null; return res; }
   if (res.url) lastSlackUrl = res.url;
   // Bring up the loopback reply endpoint (token-gated, never tunneled) and drop

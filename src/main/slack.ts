@@ -75,6 +75,11 @@ export interface SlackWebhookServerOptions {
   signingSecret: string;
   /** Optional channel id filter — when set, events from other channels are dropped. */
   channelId?: string;
+  /** Poll-only mode: bind the HTTP server to 127.0.0.1 ONLY and DO NOT open a
+   *  public tunnel. Used on a laptop behind NAT where `md-slack-poller.cjs`
+   *  delivers events locally over loopback — no inbound exposure, no tunnel.
+   *  Signature verification is unchanged (still enforced on every request). */
+  skipTunnel?: boolean;
   /** Called once per accepted, de-mentioned message — with the Slack thread
    *  coordinates needed to reply back in the originating thread. May be async
    *  (e.g. to download file attachments before forwarding via IPC). */
@@ -115,6 +120,7 @@ export class SlackWebhookServer {
   private readonly port: number;
   private readonly signingSecret: string;
   private readonly channelId?: string;
+  private readonly skipTunnel: boolean;
   private readonly onMessage: (m: SlackInboundMessage) => void | Promise<void>;
   /** Bot's own Slack user id — learned from `authorizations[].user_id` on the
    *  first event_callback. Used to detect <@BOTID> text mentions. */
@@ -132,15 +138,21 @@ export class SlackWebhookServer {
     this.port = opts.port;
     this.signingSecret = opts.signingSecret;
     this.channelId = opts.channelId?.trim() || undefined;
+    this.skipTunnel = opts.skipTunnel === true;
     this.onMessage = opts.onMessage;
   }
 
   /**
-   * Bind the local HTTP server, then open a public tunnel to it. The HTTP
-   * handler (the security boundary) is live the instant `listen` resolves; the
-   * tunnel is opened afterwards and is non-fatal — if it can't be established
-   * (offline, loca.lt down, timed out) the server keeps running and we report
-   * the tunnel error without a URL.
+   * Bind the local HTTP server, then (unless `skipTunnel`) open a public tunnel
+   * to it. The HTTP handler (the security boundary) is live the instant `listen`
+   * resolves; the tunnel is opened afterwards and is non-fatal — if it can't be
+   * established (offline, loca.lt down, timed out) the server keeps running and
+   * we report the tunnel error without a URL.
+   *
+   * In `skipTunnel` (poll-only) mode the server binds to 127.0.0.1 ONLY and no
+   * tunnel is opened: `md-slack-poller.cjs` delivers events over loopback, so
+   * there is nothing to expose. It resolves `{ ok: true }` with no URL — the
+   * caller then still brings up the loopback reply endpoint + done-observer.
    */
   async start(): Promise<{ ok: boolean; url?: string; error?: string }> {
     if (this.server) return { ok: false, error: 'already running' };
@@ -151,6 +163,9 @@ export class SlackWebhookServer {
       this.stop();
       return { ok: false, error: `failed to bind port ${this.port}: ${errMsg(e)}` };
     }
+    // Poll-only: no public tunnel by design. The listener (bound to loopback) is
+    // up and verify() is fully enforced; report success with no URL.
+    if (this.skipTunnel) return { ok: true };
     try {
       const url = await this.openTunnel();
       if (!url) throw new Error('tunnelmole returned empty URL');
@@ -176,7 +191,10 @@ export class SlackWebhookServer {
       const server = createServer((req, res) => this.handleRequest(req, res));
       const onError = (e: Error): void => reject(e);
       server.once('error', onError);
-      server.listen(this.port, () => {
+      // Poll-only mode binds to loopback ONLY (never a public listener); tunnel
+      // mode binds all interfaces (undefined host) so tunnelmole can forward in.
+      const host = this.skipTunnel ? '127.0.0.1' : undefined;
+      server.listen(this.port, host, () => {
         server.off('error', onError);
         this.server = server;
         resolve();

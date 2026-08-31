@@ -119,8 +119,11 @@ the internal app retains Tier 3, you can poll more tightly.
    and the app **signing secret** into MD settings (the same fields MD already
    has: `slackBotToken`, `slackSigningSecret`). Set your **channel id**
    (`slackChannelId`) and **enable Slack** so the local endpoint is listening.
-   Tokens live in MD's `config.json` under the OS user profile — **never commit
-   or paste a token anywhere else.**
+   For a laptop behind NAT with no tunnel, also set **`slackPollingOnly: true`**
+   in `config.json` — this binds the endpoint to `127.0.0.1` only, skips the
+   public tunnel, and still starts the reply endpoint so replies work (see
+   below). Tokens live in MD's `config.json` under the OS user profile —
+   **never commit or paste a token anywhere else.**
 3. `/invite` the bot into the channel you want to pipe in.
 4. **Run the poller** — pick one:
    - one-shot (cron/launchd drives the cadence):
@@ -179,32 +182,33 @@ override with `--config`.
 - **Reads only what the bot can see.** The bot must be invited to a channel to
   read it — no broader visibility than the app was granted.
 
-## NAT / no-tunnel note (one integration item for god)
+## Poll-only mode: replies with no tunnel (`slackPollingOnly`)
 
-Polling itself needs no tunnel. But today `startSlackServer()` in `index.ts`
-opens `tunnelmole` as part of bringing the endpoint up, and on a NAT'd laptop
-where the tunnel can't be established, `SlackWebhookServer.start()` returns
-`ok:false` and `index.ts` drops the `slackServer` reference — which also skips
-starting the **reply endpoint** (`SlackReplyServer`) and the done-observer, even
-though the OS keeps the bound listener alive. For a **poll-only** colleague we
-want the local endpoint + reply endpoint up **without** a tunnel.
+Polling delivers messages *in* over loopback with no tunnel. The **reply** path
+(`md-slack-reply.cjs` → loopback `SlackReplyServer` → `chat.postMessage`) needs
+that reply endpoint running — and previously it only started as part of the
+tunnel bring-up, so on a NAT'd laptop where `tunnelmole` couldn't connect,
+`startSlackServer()` treated the failure as fatal and never started the reply
+endpoint or the done-observer.
 
-The endpoint's own code already intends this — its comment says "the local
-handler is the security boundary and stays up even if the tunnel can't be
-established," and `start()` doesn't tear the listener down on tunnel failure.
-The clean follow-up (a separate, small task — **not done here** per this task's
-boundaries) is one of:
+The **`slackPollingOnly`** config flag (default **off**) fixes this for poll-only
+laptops:
 
-1. Make `startSlackServer()` treat tunnel failure as non-fatal (keep
-   `slackServer`, start the reply endpoint + done-observer) — matching the
-   documented intent; **or**
-2. Add a `slackPollingOnly` config flag that binds the endpoint locally and
-   **skips** `openTunnel()` entirely for poll-only laptops.
+- `SlackWebhookServer` binds to **`127.0.0.1` only** and **skips `openTunnel()`
+  entirely** — no public listener is ever opened (a poll-only laptop is *less*
+  exposed, not more).
+- `start()` resolves `{ ok: true }` with **no URL**, so `startSlackServer()`
+  proceeds to start the **reply endpoint** and the **done-observer** exactly as
+  in tunnel mode.
+- **HMAC `verify()` is unchanged** — every request (including the poller's own
+  loopback delivery) is still signature-checked; a bad signature is still `403`.
 
-Either keeps the reply path (`md-slack-reply.cjs` → loopback → `chat.postMessage`)
-working behind NAT with no inbound exposure. On a laptop where the tunnel *does*
-come up (e.g. the current dev machine), the poller already works end-to-end as-is
-— verified below.
+The result: on a NAT'd, tunnel-free laptop, the poller delivers messages in over
+loopback, the office run happens locally, and the agent's reply posts back
+in-thread via the bot token — **all outbound-only, nothing exposed inbound.**
+
+The classic single-user setup is untouched: with `slackPollingOnly` unset/false,
+`startSlackServer()` opens the tunnel and pushes exactly as before.
 
 ## Verification performed
 
@@ -220,6 +224,12 @@ Against the live MD build (v0.4.5) and the live Slack channel:
 - **Unit tests:** `test/slack-poller.test.cjs` — 12 tests over the pure helpers
   (arg parsing, ts comparison, `selectNewMessages` dedup/ordering/self-loop
   guard, payload shape, and signature parity with the server's `verify()`).
+- **Poll-only mode:** `test/slack-polling-only.test.cjs` — 5 tests spinning up a
+  real `SlackWebhookServer` with `skipTunnel: true`: `start()` resolves ok with
+  no tunnel URL, a valid signed loopback event is accepted (`200`) and reaches
+  `onMessage`, a bad signature is rejected (`403`), the `url_verification`
+  handshake still works, and the default (tunnel) construction leaves poll-only
+  off. Full focused suite: **580 pass**.
 
 ## KG note
 
