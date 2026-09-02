@@ -234,5 +234,16 @@ test('MAX_THREAD_AGE_SEC is 90 days', () => {
   assert.equal(MAX_THREAD_AGE_SEC, 90 * 24 * 60 * 60);
 });
 
+test('90-day cutoff boundary: just-under is kept, just-over is pruned', () => {
+  const nowSec = 1_800_000_000;
+  const justUnder = String(nowSec - (MAX_THREAD_AGE_SEC - 1)); // age = 90d − 1s → keep
+  const justOver = String(nowSec - (MAX_THREAD_AGE_SEC + 1));  // age = 90d + 1s → prune
+  const state = { threads: { [justUnder]: { lastReplyTs: justUnder }, [justOver]: { lastReplyTs: justOver } } };
+  const pruned = pruneStaleThreads(state, nowSec, MAX_THREAD_AGE_SEC);
+  assert.equal(pruned, 1);
+  assert.ok(state.threads[justUnder], 'exactly under the cutoff is kept');
+  assert.ok(!state.threads[justOver], 'exactly over the cutoff is pruned');
+});
+
 console.log(failures === 0 ? '\nall passed' : `\n${failures} failure(s)`);
 process.exit(failures === 0 ? 0 : 1);
