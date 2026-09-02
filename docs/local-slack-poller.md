@@ -91,6 +91,12 @@ followed from two sources (bounded to the 50 newest, `--no-threads` disables):
    reply cursor is baselined to the **bot's own last reply** (`lastBotTs`), so
    only *newer* replies are forwarded — no thread-history replay.
 
+**Expiry.** The follow-set never grows forever: on every poll pass the poller
+drops any followed thread with no activity (root ts or last-seen reply ts) in the
+trailing **90 days**, in addition to the newest-50 cap. Main applies the same
+90-day cutoff to the persisted ledger (on load and on write), so stale
+activations are cleaned up on the trigger side too.
+
 ### Bot-thread ledger (`slack-bot-threads.json`)
 
 A second small file — `<userData>/slack-bot-threads.json`, mode `0600`,

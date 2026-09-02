@@ -1386,9 +1386,20 @@ function slackBotThreadsPath(): string {
 }
 /** Cap the ledger so it can't grow without bound; newest-by-`updated` are kept. */
 const BOT_THREADS_MAX = 500;
+/** Drop a bot thread with no activity in the trailing 90 days — stale activations
+ *  are cleaned up so the persisted set (and the poller's follow-set) stay bounded
+ *  in time as well as count. Mirrors MAX_THREAD_AGE_SEC in md-slack-poller.cjs. */
+const BOT_THREAD_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 interface BotThreadEntry { channel: string; lastBotTs?: string; updated: number }
 /** Lazily-loaded in-memory mirror of the ledger. */
 let botThreadLedger: Map<string, BotThreadEntry> | null = null;
+
+/** True when a ledger entry's last activity (max of `updated`, the bot's last
+ *  reply ts, and the thread root ts) is older than the 90-day cutoff. */
+function botThreadStale(threadTs: string, e: BotThreadEntry, nowMs: number): boolean {
+  const lastMs = Math.max(e.updated || 0, (Number(e.lastBotTs) || 0) * 1000, (Number(threadTs) || 0) * 1000);
+  return nowMs - lastMs > BOT_THREAD_MAX_AGE_MS;
+}
 
 /** Numeric max of two Slack decimal-string timestamps (either may be undefined). */
 function maxTsStr(a?: string, b?: string): string | undefined {
@@ -1402,13 +1413,16 @@ function loadBotThreadLedger(): Map<string, BotThreadEntry> {
   const m = new Map<string, BotThreadEntry>();
   try {
     const raw = JSON.parse(readFileSync(slackBotThreadsPath(), 'utf8')) as { threads?: Record<string, BotThreadEntry> };
+    const nowMs = Date.now();
     for (const [ts, e] of Object.entries(raw.threads ?? {})) {
       if (e && typeof e.channel === 'string') {
-        m.set(ts, {
+        const entry: BotThreadEntry = {
           channel: e.channel,
           lastBotTs: typeof e.lastBotTs === 'string' ? e.lastBotTs : undefined,
           updated: typeof e.updated === 'number' ? e.updated : 0,
-        });
+        };
+        // Skip activations older than 90 days — clean up stale threads on load.
+        if (!botThreadStale(ts, entry, nowMs)) m.set(ts, entry);
       }
     }
   } catch { /* missing or corrupt → start empty */ }
@@ -1417,6 +1431,9 @@ function loadBotThreadLedger(): Map<string, BotThreadEntry> {
 }
 
 function persistBotThreadLedger(m: Map<string, BotThreadEntry>): void {
+  // Drop entries past the 90-day cutoff, then cap to the newest BOT_THREADS_MAX.
+  const nowMs = Date.now();
+  for (const [ts, e] of [...m.entries()]) if (botThreadStale(ts, e, nowMs)) m.delete(ts);
   // Prune to the newest BOT_THREADS_MAX by `updated` before writing.
   if (m.size > BOT_THREADS_MAX) {
     const keep = [...m.entries()].sort((a, b) => b[1].updated - a[1].updated).slice(0, BOT_THREADS_MAX);

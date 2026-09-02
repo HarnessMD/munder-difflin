@@ -199,15 +199,34 @@ function mentionsBot(text, botUserId) {
  * number of newly-followed threads. The 50-thread bound is enforced by
  * pollThreads(); this never drops an already-followed thread's cursor.
  */
-function mergeLedgerThreads(state, ledgerRoots, channelId) {
+function mergeLedgerThreads(state, ledgerRoots, channelId, nowSec, maxAgeSec) {
   let added = 0;
   for (const e of Array.isArray(ledgerRoots) ? ledgerRoots : []) {
     if (!e || e.channel !== channelId || typeof e.ts !== 'string') continue;
     if (state.threads[e.ts]) continue; // already followed — poller owns the cursor
+    // Don't adopt a thread whose last activity is already past the cutoff.
+    if (nowSec && maxAgeSec && (nowSec - Math.max(Number(e.ts) || 0, Number(e.lastBotTs) || 0)) > maxAgeSec) continue;
     state.threads[e.ts] = { lastReplyTs: e.lastBotTs || e.ts };
     added++;
   }
   return added;
+}
+
+/** Number of seconds after which a followed thread with no newer activity is
+ *  dropped — the auto-follow set never grows without bound (secondary to the
+ *  50-thread cap). Last activity = max(root ts, last-seen reply ts). */
+const MAX_THREAD_AGE_SEC = 90 * 24 * 60 * 60; // 90 days
+
+/** Drop followed threads whose last activity is older than `maxAgeSec`. Mutates
+ *  `state.threads`; returns the number pruned. */
+function pruneStaleThreads(state, nowSec, maxAgeSec) {
+  let pruned = 0;
+  for (const root of Object.keys(state.threads || {})) {
+    const th = state.threads[root] || {};
+    const last = Math.max(Number(root) || 0, Number(th.lastReplyTs) || 0);
+    if (nowSec - last > maxAgeSec) { delete state.threads[root]; pruned++; }
+  }
+  return pruned;
 }
 
 /**
@@ -372,10 +391,16 @@ async function pollOnce(ctx) {
   //    server already activated these threads (via @-mention OR the persisted
   //    bot-thread ledger), so it triggers on the replies exactly as in push mode.
   if (args.threads !== false && args['no-threads'] !== true) {
-    // GATE 1: adopt every thread the bot has replied in (survives restart, and
-    // catches threads whose @-mention was delivered by the push path, not us).
-    const added = mergeLedgerThreads(state, loadBotThreadRoots(ctx.ledgerPath), channelId);
-    if (added > 0) { saveState(statePath, state); if (verbose) log(`following ${added} bot thread(s) from ledger`); }
+    const nowSec = Math.floor(Date.now() / 1000);
+    // Expire followed threads with no activity in the trailing 90 days (the set
+    // must not grow forever); then adopt every recent bot-replied thread from the
+    // ledger (survives restart; catches threads whose @-mention came via push).
+    const pruned = pruneStaleThreads(state, nowSec, MAX_THREAD_AGE_SEC);
+    const added = mergeLedgerThreads(state, loadBotThreadRoots(ctx.ledgerPath), channelId, nowSec, MAX_THREAD_AGE_SEC);
+    if (pruned > 0 || added > 0) {
+      saveState(statePath, state);
+      if (verbose) log(`threads: +${added} from ledger, -${pruned} stale (>90d)`);
+    }
     forwarded += await pollThreads(ctx, opts);
   }
 
@@ -495,6 +520,8 @@ module.exports = {
   selectNewMessages,
   mentionsBot,
   mergeLedgerThreads,
+  pruneStaleThreads,
+  MAX_THREAD_AGE_SEC,
   buildEventPayload,
   computeSignature,
 };

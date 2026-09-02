@@ -16,6 +16,8 @@ const {
   selectNewMessages,
   mentionsBot,
   mergeLedgerThreads,
+  pruneStaleThreads,
+  MAX_THREAD_AGE_SEC,
   loadBotThreadRoots,
   resolveLedgerPath,
   buildEventPayload,
@@ -195,6 +197,41 @@ test('mergeLedgerThreads tolerates malformed ledger input', () => {
   const state = { threads: {} };
   assert.equal(mergeLedgerThreads(state, undefined, CH), 0);
   assert.equal(mergeLedgerThreads(state, [null, {}, { ts: 5, channel: CH }], CH), 0);
+});
+
+// ─── T102 addendum: 90-day expiry of the follow-set ──────────────────────────
+test('pruneStaleThreads drops threads with no activity in >90 days, keeps recent', () => {
+  const nowSec = 1_800_000_000;
+  const old = String(nowSec - MAX_THREAD_AGE_SEC - 1000); // just past cutoff
+  const recent = String(nowSec - 60);                     // 1 min ago
+  const oldRootRecentReply = '100.0';                     // ancient root...
+  const state = { threads: {
+    [old]: { lastReplyTs: old },
+    [recent]: { lastReplyTs: recent },
+    [oldRootRecentReply]: { lastReplyTs: String(nowSec - 100) }, // ...but a recent reply
+  } };
+  const pruned = pruneStaleThreads(state, nowSec, MAX_THREAD_AGE_SEC);
+  assert.equal(pruned, 1);
+  assert.ok(!state.threads[old], 'stale thread dropped');
+  assert.ok(state.threads[recent], 'recent thread kept');
+  assert.ok(state.threads[oldRootRecentReply], 'old root with recent reply kept (activity = last reply)');
+});
+
+test('mergeLedgerThreads skips ledger roots already past the 90-day cutoff', () => {
+  const nowSec = 1_800_000_000;
+  const state = { threads: {} };
+  const stale = String(nowSec - MAX_THREAD_AGE_SEC - 5);
+  const fresh = String(nowSec - 30);
+  const added = mergeLedgerThreads(state, [
+    { ts: stale, channel: CH },
+    { ts: fresh, channel: CH },
+  ], CH, nowSec, MAX_THREAD_AGE_SEC);
+  assert.equal(added, 1, 'only the fresh thread is adopted');
+  assert.ok(state.threads[fresh] && !state.threads[stale]);
+});
+
+test('MAX_THREAD_AGE_SEC is 90 days', () => {
+  assert.equal(MAX_THREAD_AGE_SEC, 90 * 24 * 60 * 60);
 });
 
 console.log(failures === 0 ? '\nall passed' : `\n${failures} failure(s)`);
