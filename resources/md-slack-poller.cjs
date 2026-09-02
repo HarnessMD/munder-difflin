@@ -106,6 +106,31 @@ function resolveStatePath(args, configPath) {
   return path.join(path.dirname(configPath), 'slack-poller-state.json');
 }
 
+/** Resolve the bot-thread ledger path (written by MD's main process): --ledger,
+ *  else alongside config.json. This is the shared "threads the bot has replied
+ *  in" file — the poller READS it to auto-follow those threads (GATE 1). */
+function resolveLedgerPath(args, configPath) {
+  const p = args.ledger;
+  if (p && p !== true) return p;
+  return path.join(path.dirname(configPath), 'slack-bot-threads.json');
+}
+
+/** Read the bot-thread ledger → [{ ts, channel, lastBotTs }]. Best-effort: a
+ *  missing/corrupt file yields []. Never writes it (main owns writes). */
+function loadBotThreadRoots(ledgerPath) {
+  try {
+    const raw = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
+    const threads = (raw && raw.threads && typeof raw.threads === 'object') ? raw.threads : {};
+    const out = [];
+    for (const [ts, e] of Object.entries(threads)) {
+      if (e && typeof e.channel === 'string') {
+        out.push({ ts, channel: e.channel, lastBotTs: typeof e.lastBotTs === 'string' ? e.lastBotTs : undefined });
+      }
+    }
+    return out;
+  } catch { return []; }
+}
+
 /** Read + JSON-parse the poller state file, or an empty shape if absent/corrupt. */
 function loadState(statePath) {
   try {
@@ -161,6 +186,28 @@ function selectNewMessages(messages, lastTs, botUserId) {
  *  the authoritative trigger filter for every message we forward. */
 function mentionsBot(text, botUserId) {
   return !!botUserId && typeof text === 'string' && text.includes(`<@${botUserId}>`);
+}
+
+/**
+ * GATE 1 — auto-follow every thread the BOT HAS REPLIED IN (from the shared
+ * ledger main writes), not just ones where the poller forwarded an @-mention.
+ * Adds any ledger root for THIS channel that isn't already followed, baselining
+ * its reply cursor to the bot's own last reply (`lastBotTs`) so only replies
+ * NEWER than the bot's reply are forwarded — no thread-history replay, and no
+ * race with a human reply that arrived just before adoption. Falls back to the
+ * root ts when `lastBotTs` is unknown. Mutates `state.threads`; returns the
+ * number of newly-followed threads. The 50-thread bound is enforced by
+ * pollThreads(); this never drops an already-followed thread's cursor.
+ */
+function mergeLedgerThreads(state, ledgerRoots, channelId) {
+  let added = 0;
+  for (const e of Array.isArray(ledgerRoots) ? ledgerRoots : []) {
+    if (!e || e.channel !== channelId || typeof e.ts !== 'string') continue;
+    if (state.threads[e.ts]) continue; // already followed — poller owns the cursor
+    state.threads[e.ts] = { lastReplyTs: e.lastBotTs || e.ts };
+    added++;
+  }
+  return added;
 }
 
 /**
@@ -322,9 +369,13 @@ async function pollOnce(ctx) {
   }
 
   // 4) Follow activated threads: pull new replies and forward them too. The
-  //    server already activated these threads when we forwarded the mention, so
-  //    it triggers on the replies exactly as in push mode.
+  //    server already activated these threads (via @-mention OR the persisted
+  //    bot-thread ledger), so it triggers on the replies exactly as in push mode.
   if (args.threads !== false && args['no-threads'] !== true) {
+    // GATE 1: adopt every thread the bot has replied in (survives restart, and
+    // catches threads whose @-mention was delivered by the push path, not us).
+    const added = mergeLedgerThreads(state, loadBotThreadRoots(ctx.ledgerPath), channelId);
+    if (added > 0) { saveState(statePath, state); if (verbose) log(`following ${added} bot thread(s) from ledger`); }
     forwarded += await pollThreads(ctx, opts);
   }
 
@@ -400,8 +451,9 @@ async function main() {
   if (!channelId) fail('no channel to poll — set slackChannelId in MD settings or pass --channel C0123');
 
   const statePath = resolveStatePath(args, configPath);
+  const ledgerPath = resolveLedgerPath(args, configPath);
   const verbose = args.verbose === true;
-  const ctx = { botToken, signingSecret, channelId, port, statePath, args, verbose,
+  const ctx = { botToken, signingSecret, channelId, port, statePath, ledgerPath, args, verbose,
     get state() { return this._state; }, set state(v) { this._state = v; } };
   ctx.state = loadState(statePath);
 
@@ -434,12 +486,15 @@ module.exports = {
   defaultUserDataDir,
   resolveConfigPath,
   resolveStatePath,
+  resolveLedgerPath,
   loadState,
   saveState,
+  loadBotThreadRoots,
   tsGreater,
   maxTs,
   selectNewMessages,
   mentionsBot,
+  mergeLedgerThreads,
   buildEventPayload,
   computeSignature,
 };

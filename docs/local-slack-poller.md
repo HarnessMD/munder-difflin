@@ -73,13 +73,42 @@ There are two independent dedup layers: the poller's `last-seen ts` cursor, and
 the server's in-memory `channel:ts` cache — so even overlapping polls can't
 double-fire a run.
 
-### Threads
+### Threads — replies reach the bot with no @-mention (durable)
 
 `conversations.history` returns top-level channel messages (including the
-@-mentions that start threads). For follow-up **replies inside a thread**, the
-poller tracks threads where it forwarded a bot @-mention and pulls
-`conversations.replies` for each (bounded to the 50 newest threads). Disable with
-`--no-threads`.
+@-mentions that start threads) but **not** replies inside existing threads, and a
+new reply does **not** resurface its parent. So to catch a human's follow-up in a
+thread — *without* requiring them to re-@-mention — the bot must already be
+**following** that thread and polling `conversations.replies` for it. Threads are
+followed from two sources (bounded to the 50 newest, `--no-threads` disables):
+
+1. **@-mention** — when the poller forwards a message that @-mentions the bot, it
+   follows that thread (as before).
+2. **Bot participation (durable)** — the poller also auto-follows every thread the
+   **bot has replied in**, read from the shared **bot-thread ledger** (below).
+   This survives an app restart and catches threads whose original @-mention was
+   delivered by the push/tunnel path rather than the poller. On adoption, the
+   reply cursor is baselined to the **bot's own last reply** (`lastBotTs`), so
+   only *newer* replies are forwarded — no thread-history replay.
+
+### Bot-thread ledger (`slack-bot-threads.json`)
+
+A second small file — `<userData>/slack-bot-threads.json`, mode `0600`,
+**channel ids + thread timestamps only, NEVER a token** — is the shared record of
+"threads the bot has replied in". It is **written by MD's main process** whenever
+the bot posts a reply (the direct loopback `/reply` path and the done-summary
+fallback), keyed `threadTs → { channel, lastBotTs, updated }`, bounded to the 500
+newest. Two readers consume it:
+
+- **The webhook server** loads these roots at startup into its activated-thread
+  set (and adds to it live on every bot reply). A plain human reply in any of
+  these threads then triggers a run **with no @-mention, even after a restart** —
+  scoped strictly to bot-participated threads, so unrelated channel messages
+  never trigger. The HMAC `verify()` and self-loop guard are unchanged.
+- **The poller** reads the same file to build its follow-set (source 2 above).
+
+Because main is the only writer and the poller only reads it, there is no
+two-writer conflict; the poller keeps its own cursor in `slack-poller-state.json`.
 
 ## The shared Slack app — one-time security approval
 
@@ -160,6 +189,7 @@ override with `--config`.
 | `--no-threads` | don't follow thread replies |
 | `--config <path>` | override `config.json` location (or `MD_CONFIG` env) |
 | `--state <path>` | override the state-file location |
+| `--ledger <path>` | override the bot-thread ledger location (else alongside config) |
 | `--port <n>` | override the local webhook port (else `config.slackPort`) |
 | `--verbose` | log each forwarded message id |
 
@@ -221,15 +251,29 @@ Against the live MD build (v0.4.5) and the live Slack channel:
   `127.0.0.1:3847` endpoint returned **HTTP 200** (accepted + verified through
   the real ingestion path; a non-triggering message, so no run/reply — zero side
   effects), and a **bad** signature returned **HTTP 403** (verify enforced).
-- **Unit tests:** `test/slack-poller.test.cjs` — 12 tests over the pure helpers
-  (arg parsing, ts comparison, `selectNewMessages` dedup/ordering/self-loop
-  guard, payload shape, and signature parity with the server's `verify()`).
+- **Unit tests:** `test/slack-poller.test.cjs` — pure-helper tests (arg parsing,
+  ts comparison, `selectNewMessages` dedup/ordering/self-loop guard, payload
+  shape, signature parity with `verify()`, plus the bot-thread ledger reader and
+  the `mergeLedgerThreads` follow-set merge: baseline-to-`lastBotTs`, channel
+  filter, never clobber an existing cursor).
 - **Poll-only mode:** `test/slack-polling-only.test.cjs` — 5 tests spinning up a
   real `SlackWebhookServer` with `skipTunnel: true`: `start()` resolves ok with
   no tunnel URL, a valid signed loopback event is accepted (`200`) and reaches
   `onMessage`, a bad signature is rejected (`403`), the `url_verification`
   handshake still works, and the default (tunnel) construction leaves poll-only
-  off. Full focused suite: **580 pass**.
+  off.
+- **Durable thread activation (GATE 2):** `test/slack-thread-activation.test.cjs`
+  — 4 tests spinning a real `SlackWebhookServer` seeded with
+  `initialActivatedThreads` (exactly what startup does from the ledger): a plain
+  reply (no @-mention) in a seeded thread fires; unrelated thread + top-level
+  messages do not; `activateThread()` activates live; @-mention still works.
+- **End-to-end (real code, simulated restart):** wrote the ledger as main would,
+  booted a real server seeded from it → a plain reply (no @-mention) fired a run;
+  **tore the server down and booted a fresh one re-reading the same persisted
+  ledger → the plain reply fired again** (HTTP 200); an unrelated top-level
+  message did not fire; and the poller's `mergeLedgerThreads` followed the thread
+  with its cursor baselined to the bot's own reply. Full focused suite passing;
+  `typecheck:node` clean.
 
 ## KG note
 

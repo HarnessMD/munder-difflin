@@ -75,6 +75,12 @@ export interface SlackWebhookServerOptions {
   signingSecret: string;
   /** Optional channel id filter — when set, events from other channels are dropped. */
   channelId?: string;
+  /** Thread roots to pre-activate at startup — the threads the bot has already
+   *  replied in (loaded from the persistent bot-thread ledger). A subsequent
+   *  human reply in one of these threads triggers a run with NO @-mention, and
+   *  the activation survives an app restart. Strictly bot-participated threads,
+   *  so unrelated channel chatter is never activated. */
+  initialActivatedThreads?: string[];
   /** Poll-only mode: bind the HTTP server to 127.0.0.1 ONLY and DO NOT open a
    *  public tunnel. Used on a laptop behind NAT where `md-slack-poller.cjs`
    *  delivers events locally over loopback — no inbound exposure, no tunnel.
@@ -140,6 +146,19 @@ export class SlackWebhookServer {
     this.channelId = opts.channelId?.trim() || undefined;
     this.skipTunnel = opts.skipTunnel === true;
     this.onMessage = opts.onMessage;
+    // Seed persisted bot-participated threads so a plain reply in one triggers a
+    // run immediately after a restart (before any new @-mention re-populates the
+    // in-memory set).
+    for (const t of opts.initialActivatedThreads ?? []) {
+      if (typeof t === 'string' && t) this.activatedThreads.add(t);
+    }
+  }
+
+  /** Mark a thread root as activated live — called when the bot replies into a
+   *  thread, so subsequent human replies there trigger a run with no @-mention.
+   *  Bounded FIFO (same as @-mention activation); safe to call repeatedly. */
+  activateThread(threadTs: string): void {
+    if (threadTs) this.activatedThreads.add(threadTs);
   }
 
   /**
@@ -373,7 +392,7 @@ export function postSlackReply(opts: {
   channel: string;
   thread_ts: string;
   text: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<{ ok: boolean; error?: string; ts?: string }> {
   return new Promise((resolve) => {
     if (!opts.botToken) { resolve({ ok: false, error: 'missing bot token' }); return; }
     // CLAUSE-1 guard (fix-slack-integration): refuse any send that lacks an
@@ -400,8 +419,10 @@ export function postSlackReply(opts: {
       res.on('data', (c: Buffer) => chunks.push(c));
       res.on('end', () => {
         try {
-          const json = JSON.parse(Buffer.concat(chunks).toString('utf8')) as { ok?: boolean; error?: string };
-          resolve({ ok: json.ok === true, error: json.error });
+          const json = JSON.parse(Buffer.concat(chunks).toString('utf8')) as { ok?: boolean; error?: string; ts?: string };
+          // `ts` is the posted message's timestamp — used by the bot-thread ledger
+          // to baseline the poller's reply cursor to the bot's own last reply.
+          resolve({ ok: json.ok === true, error: json.error, ts: typeof json.ts === 'string' ? json.ts : undefined });
         } catch { resolve({ ok: false, error: 'bad response from Slack' }); }
       });
     });
@@ -420,7 +441,7 @@ export interface SlackReplyServerOptions {
   /** Fired with a thread_ts after an agent's DIRECT reply posts successfully through
    *  this loopback. Lets main record that the thread was already answered so the
    *  done-summary poller can skip it (the poller is a fallback, not a duplicator). */
-  onReplied?: (thread_ts: string) => void;
+  onReplied?: (thread_ts: string, channel: string, botMsgTs?: string) => void;
 }
 
 /**
@@ -436,7 +457,7 @@ export class SlackReplyServer {
   private server: Server | null = null;
   private readonly token: string;
   private readonly getBotToken: () => string | undefined;
-  private readonly onReplied?: (thread_ts: string) => void;
+  private readonly onReplied?: (thread_ts: string, channel: string, botMsgTs?: string) => void;
 
   constructor(opts: SlackReplyServerOptions) {
     this.token = opts.token;
@@ -497,11 +518,14 @@ export class SlackReplyServer {
         res.writeHead(400); res.end(JSON.stringify({ ok: false, error: 'channel, thread, text required' })); return;
       }
       const thread_ts = parsed.thread_ts;
-      postSlackReply({ botToken, channel: parsed.channel, thread_ts, text: parsed.text })
+      const channel = parsed.channel;
+      postSlackReply({ botToken, channel, thread_ts, text: parsed.text })
         .then((r) => {
           // A successful DIRECT reply means the agent already answered this thread —
-          // tell main so the done-summary poller treats it as a fallback and skips it.
-          if (r.ok) { try { this.onReplied?.(thread_ts); } catch { /* never break the reply */ } }
+          // tell main so the done-summary poller treats it as a fallback and skips
+          // it, AND so main records this bot-participated thread (persist activation
+          // + let the poller follow it for future replies).
+          if (r.ok) { try { this.onReplied?.(thread_ts, channel, r.ts); } catch { /* never break the reply */ } }
           res.writeHead(r.ok ? 200 : 502, { 'content-type': 'application/json' }); res.end(JSON.stringify(r));
         })
         .catch((e) => { res.writeHead(500); res.end(JSON.stringify({ ok: false, error: errMsg(e) })); });

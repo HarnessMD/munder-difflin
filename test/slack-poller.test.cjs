@@ -5,6 +5,9 @@
 // invoked directly), the same pattern as slack.test.cjs / slack-trigger.cjs.
 
 const assert = require('assert');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { createHmac } = require('node:crypto');
 const {
   parseArgs,
@@ -12,6 +15,9 @@ const {
   maxTs,
   selectNewMessages,
   mentionsBot,
+  mergeLedgerThreads,
+  loadBotThreadRoots,
+  resolveLedgerPath,
   buildEventPayload,
   computeSignature,
 } = require('../resources/md-slack-poller.cjs');
@@ -133,6 +139,62 @@ test('computeSignature matches Slack v0 HMAC (server verify parity)', () => {
   const expected = 'v0=' + createHmac('sha256', secret).update(`v0:${ts}:${body}`).digest('hex');
   assert.strictEqual(got, expected);
   assert.ok(got.startsWith('v0='));
+});
+
+// ─── GATE 1: bot-thread ledger reading + follow-set merge ────────────────────
+test('resolveLedgerPath: --ledger override, else alongside config.json', () => {
+  assert.equal(resolveLedgerPath({ ledger: '/x/l.json' }, '/y/config.json'), '/x/l.json');
+  assert.equal(resolveLedgerPath({}, '/y/z/config.json'), path.join('/y/z', 'slack-bot-threads.json'));
+});
+
+test('loadBotThreadRoots parses the ledger; tolerates missing/corrupt', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mdpoll-'));
+  const p = path.join(dir, 'ledger.json');
+  assert.deepEqual(loadBotThreadRoots(p), [], 'missing file → []');
+  fs.writeFileSync(p, 'not json{');
+  assert.deepEqual(loadBotThreadRoots(p), [], 'corrupt file → []');
+  fs.writeFileSync(p, JSON.stringify({
+    version: 1,
+    threads: {
+      '100.1': { channel: CH, lastBotTs: '100.5', updated: 1 },
+      '200.2': { channel: 'C_OTHER', updated: 2 },
+      'bad': { nochannel: true },
+    },
+  }));
+  const roots = loadBotThreadRoots(p);
+  assert.equal(roots.length, 2, 'entries without a channel are skipped');
+  const byTs = Object.fromEntries(roots.map((r) => [r.ts, r]));
+  assert.equal(byTs['100.1'].channel, CH);
+  assert.equal(byTs['100.1'].lastBotTs, '100.5');
+  assert.equal(byTs['200.2'].lastBotTs, undefined);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('mergeLedgerThreads follows this-channel bot threads, baselining to lastBotTs', () => {
+  const state = { threads: {} };
+  const ledger = [
+    { ts: '100.1', channel: CH, lastBotTs: '100.5' },   // adopt, baseline 100.5
+    { ts: '300.3', channel: CH },                        // adopt, baseline = root
+    { ts: '200.2', channel: 'C_OTHER', lastBotTs: '9' }, // other channel → skip
+  ];
+  const added = mergeLedgerThreads(state, ledger, CH);
+  assert.equal(added, 2);
+  assert.equal(state.threads['100.1'].lastReplyTs, '100.5', 'baseline = bot last reply → no history replay');
+  assert.equal(state.threads['300.3'].lastReplyTs, '300.3', 'no lastBotTs → baseline = root');
+  assert.ok(!state.threads['200.2'], 'other channel not followed');
+});
+
+test('mergeLedgerThreads never clobbers an already-followed thread cursor', () => {
+  const state = { threads: { '100.1': { lastReplyTs: '100.9' } } };
+  const added = mergeLedgerThreads(state, [{ ts: '100.1', channel: CH, lastBotTs: '100.5' }], CH);
+  assert.equal(added, 0);
+  assert.equal(state.threads['100.1'].lastReplyTs, '100.9', 'existing cursor preserved');
+});
+
+test('mergeLedgerThreads tolerates malformed ledger input', () => {
+  const state = { threads: {} };
+  assert.equal(mergeLedgerThreads(state, undefined, CH), 0);
+  assert.equal(mergeLedgerThreads(state, [null, {}, { ts: 5, channel: CH }], CH), 0);
 });
 
 console.log(failures === 0 ? '\nall passed' : `\n${failures} failure(s)`);
