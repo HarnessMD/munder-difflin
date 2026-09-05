@@ -34,7 +34,7 @@ import { MemoryReflector, type ReflectSettings } from './reflect';
 import { PersistStore } from './db';
 import { readAgentUsage, readContextTokens, seedSessionTranscript, resolveSessionCwd } from './transcript';
 import { listIssues, listCIRuns } from './github';
-import { SlackWebhookServer, SlackReplyServer, postSlackReply, type SlackEventFile } from './slack';
+import { SlackWebhookServer, SlackReplyServer, postSlackReply, slackFileHelpers, type SlackEventFile } from './slack';
 import {
   WebhookServer,
   type WebhookDispatch, type WebhookEndpointRef, type WebhookInbound, type WebhookTaskStatus
@@ -1504,50 +1504,97 @@ function downloadSlackFile(
       return;
     }
 
-    let urlObj: URL;
-    try {
-      urlObj = new URL(file.url_private);
-    } catch {
-      resolve(null);
-      return;
-    }
-    if (urlObj.protocol !== 'https:') { resolve(null); return; }
+    // Prefer url_private_download; fall back to url_private.
+    const startUrl = slackFileHelpers.slackFileUrl(file);
+    if (!startUrl) { resolve(null); return; }
 
-    const req = httpsRequest(
-      { hostname: urlObj.hostname, path: urlObj.pathname + urlObj.search, method: 'GET',
-        headers: { authorization: `Bearer ${botToken}` } },
-      (res) => {
-        if (res.statusCode && res.statusCode >= 400) {
-          res.resume(); // drain response body
-          resolve(null);
-          return;
-        }
-        let written = 0;
-        let aborted = false;
-        const stream = createWriteStream(destPath);
-        res.on('data', (chunk: Buffer) => {
-          if (aborted) return;
-          written += chunk.length;
-          if (written > SLACK_FILE_MAX_BYTES) {
-            aborted = true;
-            stream.destroy();
-            try { unlinkSync(destPath); } catch { /* best-effort cleanup */ }
-            res.destroy();
-            resolve(null);
+    // A file whose Slack metadata is itself HTML must NOT be rejected by the
+    // stub-guard below (that guard exists to catch a login/redirect page returned
+    // when auth fails — see looksLikeHtmlStub).
+    const expectHtml = /html/i.test(mimetype);
+
+    // Fetch, following redirects. Slack's files-pri URL 302-redirects (to a signed
+    // URL, or — when unauthenticated — to a login page whose 2-line HTML body was
+    // previously written to disk as the "file"). We now FOLLOW the redirect,
+    // re-sending the bot token ONLY to Slack hosts (never leaking it to a signed
+    // CDN target), and refuse to save an HTML auth-redirect stub.
+    const attempt = (rawUrl: string, redirectsLeft: number): void => {
+      let urlObj: URL;
+      try { urlObj = new URL(rawUrl); } catch { resolve(null); return; }
+      if (urlObj.protocol !== 'https:') { resolve(null); return; }
+
+      const headers: Record<string, string> = {};
+      if (slackFileHelpers.isSlackHost(urlObj.hostname)) headers.authorization = `Bearer ${botToken}`;
+
+      const req = httpsRequest(
+        { hostname: urlObj.hostname, path: urlObj.pathname + urlObj.search, method: 'GET', headers },
+        (res) => {
+          const status = res.statusCode ?? 0;
+
+          // Follow 3xx redirects (carry auth only to Slack hosts, via `headers` above).
+          if (status >= 300 && status < 400 && res.headers.location) {
+            res.resume(); // drain
+            if (redirectsLeft <= 0) {
+              console.error('[slack] file download: too many redirects — not saving');
+              resolve(null); return;
+            }
+            let nextUrl: string;
+            try { nextUrl = new URL(res.headers.location, urlObj).toString(); }
+            catch { resolve(null); return; }
+            attempt(nextUrl, redirectsLeft - 1);
             return;
           }
-          stream.write(chunk);
-        });
-        res.on('end', () => {
-          if (aborted) return;
-          stream.end(() => resolve({ path: destPath, name, mimetype }));
-        });
-        res.on('error', () => { stream.destroy(); resolve(null); });
-        stream.on('error', () => { res.destroy(); resolve(null); });
-      }
-    );
-    req.on('error', () => resolve(null));
-    req.end();
+
+          if (status < 200 || status >= 400) {
+            res.resume();
+            console.error(`[slack] file download failed: HTTP ${status} — not saving`);
+            resolve(null); return;
+          }
+
+          const contentType = typeof res.headers['content-type'] === 'string' ? res.headers['content-type'] : undefined;
+          let written = 0;
+          let aborted = false;
+          let sniffed = false;
+          let stream: ReturnType<typeof createWriteStream> | null = null;
+          const bail = (msg: string): void => {
+            aborted = true;
+            try { stream?.destroy(); } catch { /* noop */ }
+            try { unlinkSync(destPath); } catch { /* best-effort cleanup */ }
+            res.destroy();
+            console.error(`[slack] file download: ${msg}`);
+            resolve(null);
+          };
+
+          res.on('data', (chunk: Buffer) => {
+            if (aborted) return;
+            if (!sniffed) {
+              sniffed = true;
+              // Guard: never write a login/auth-redirect HTML stub as the file.
+              // Skipped when the file's own mimetype is HTML (a real .html upload).
+              if (!expectHtml && slackFileHelpers.looksLikeHtmlStub(contentType, chunk)) {
+                bail('received an HTML auth-redirect stub, not the file — check the bot token has files:read and access to this file');
+                return;
+              }
+              stream = createWriteStream(destPath);
+              stream.on('error', () => { res.destroy(); resolve(null); });
+            }
+            written += chunk.length;
+            if (written > SLACK_FILE_MAX_BYTES) { bail('exceeded size cap'); return; }
+            stream!.write(chunk);
+          });
+          res.on('end', () => {
+            if (aborted) return;
+            if (!stream) { console.error('[slack] file download: empty response — not saving'); resolve(null); return; }
+            stream.end(() => resolve({ path: destPath, name, mimetype }));
+          });
+          res.on('error', () => { try { stream?.destroy(); } catch { /* noop */ } resolve(null); });
+        }
+      );
+      req.on('error', () => resolve(null));
+      req.end();
+    };
+
+    attempt(startUrl, slackFileHelpers.SLACK_FILE_MAX_REDIRECTS);
   });
 }
 

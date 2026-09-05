@@ -33,6 +33,10 @@ const {
   ActivatedThreads: _ActivatedThreads,
   SeenEvents: _SeenEvents,
   dedupKey: _dedupKey,
+  slackFileUrl,
+  isSlackHost,
+  looksLikeHtmlStub,
+  SLACK_FILE_MAX_REDIRECTS,
 } = require('./slack-trigger.cjs') as {
     shouldTrigger: (
       ev: SlackPayload['event'],
@@ -43,7 +47,15 @@ const {
     ActivatedThreads: new (maxSize?: number) => _IActivatedThreads;
     SeenEvents: new (maxSize?: number) => _ISeenEvents;
     dedupKey: (ev: SlackPayload['event']) => string;
+    slackFileUrl: (file: { url_private?: string; url_private_download?: string }) => string | undefined;
+    isSlackHost: (host: string) => boolean;
+    looksLikeHtmlStub: (contentType: string | undefined, head: Buffer | string) => boolean;
+    SLACK_FILE_MAX_REDIRECTS: number;
   };
+
+// Re-export the pure Slack file-download helpers (defined in slack-trigger.cjs so
+// they stay unit-testable without electron) for index.ts's downloadSlackFile.
+export const slackFileHelpers = { slackFileUrl, isSlackHost, looksLikeHtmlStub, SLACK_FILE_MAX_REDIRECTS };
 
 interface _IActivatedThreads {
   add(threadTs: string): void;
@@ -61,6 +73,8 @@ interface _ISeenEvents {
 export interface SlackEventFile {
   id?: string;
   url_private: string;
+  /** Preferred download URL (Content-Disposition attachment); may be absent. */
+  url_private_download?: string;
   name?: string;
   mimetype?: string;
   size?: number;
@@ -365,6 +379,7 @@ interface SlackPayload {
     files?: {
       id?: string;
       url_private?: string;
+      url_private_download?: string;
       name?: string;
       mimetype?: string;
       size?: number;
