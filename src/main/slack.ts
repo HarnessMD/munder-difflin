@@ -102,6 +102,14 @@ export interface SlackWebhookServerOptions {
    *  delivers events locally over loopback — no inbound exposure, no tunnel.
    *  Signature verification is unchanged (still enforced on every request). */
   skipTunnel?: boolean;
+  /** Lazily read the bot token (from main's config) so a read-ack 👍 reaction can
+   *  be added to each newly-ingested inbound user message. The token stays in the
+   *  main process and is never logged. Omit to disable reactions entirely (e.g. a
+   *  test that doesn't exercise them). */
+  getBotToken?: () => string | undefined;
+  /** Reaction implementation — defaults to the real `addSlackReaction`. Injectable
+   *  so tests can assert the read-ack without real HTTP. */
+  reactFn?: AddReactionFn;
   /** Called once per accepted, de-mentioned message — with the Slack thread
    *  coordinates needed to reply back in the originating thread. May be async
    *  (e.g. to download file attachments before forwarding via IPC). */
@@ -143,6 +151,10 @@ export class SlackWebhookServer {
   private readonly signingSecret: string;
   private readonly channelId?: string;
   private readonly skipTunnel: boolean;
+  private readonly getBotToken?: () => string | undefined;
+  private readonly reactFn: AddReactionFn;
+  /** Emit the "missing reactions:write scope" hint at most once per run. */
+  private reactScopeWarned = false;
   private readonly onMessage: (m: SlackInboundMessage) => void | Promise<void>;
   /** Bot's own Slack user id — learned from `authorizations[].user_id` on the
    *  first event_callback. Used to detect <@BOTID> text mentions. */
@@ -161,6 +173,8 @@ export class SlackWebhookServer {
     this.signingSecret = opts.signingSecret;
     this.channelId = opts.channelId?.trim() || undefined;
     this.skipTunnel = opts.skipTunnel === true;
+    this.getBotToken = opts.getBotToken;
+    this.reactFn = opts.reactFn ?? addSlackReaction;
     this.onMessage = opts.onMessage;
     // Seed persisted bot-participated threads so a plain reply in one triggers a
     // run immediately after a restart (before any new @-mention re-populates the
@@ -175,6 +189,24 @@ export class SlackWebhookServer {
    *  Bounded FIFO (same as @-mention activation); safe to call repeatedly. */
   activateThread(threadTs: string): void {
     if (threadTs) this.activatedThreads.add(threadTs);
+  }
+
+  /** Best-effort read-ack: add a 👍 (`+1`) to a newly-ingested user message so the
+   *  sender sees it was received. Fire-and-forget — a reaction failure (network,
+   *  `already_reacted`, or a missing scope) must NEVER break ingestion. When the
+   *  bot lacks `reactions:write`, log the fix ONCE (not once per message). No-ops
+   *  when no bot-token accessor was wired (reactions disabled). */
+  private reactAck(channel: string, timestamp: string): void {
+    const token = this.getBotToken?.();
+    if (!token || !channel || !timestamp) return;
+    void this.reactFn({ botToken: token, channel, timestamp, name: '+1' })
+      .then((r) => {
+        if (!r.ok && r.missingScope && !this.reactScopeWarned) {
+          this.reactScopeWarned = true;
+          console.error('[slack] read-ack 👍 disabled: bot is missing the "reactions:write" scope — add it in the Slack app (OAuth & Permissions → Bot Token Scopes) and reinstall.');
+        }
+      })
+      .catch(() => { /* best-effort; never break ingestion */ });
   }
 
   /**
@@ -322,6 +354,9 @@ export class SlackWebhookServer {
             const msg: SlackInboundMessage = { text, channel, ts, thread_ts };
             if (rawFiles.length > 0) msg._rawFiles = rawFiles;
             try { void this.onMessage(msg); } catch { /* delivery is best-effort */ }
+            // Read-ack: 👍 the user's message now that it's accepted (becomes a
+            // kanban card). Fire-and-forget — must never block or break ingestion.
+            this.reactAck(channel, ts);
           }
         }
       }
@@ -552,6 +587,46 @@ export function uploadSlackFile(opts: {
 
 /** Signature of the file-upload function — injectable for tests. */
 export type UploadSlackFileFn = typeof uploadSlackFile;
+
+/** Map a raw `reactions.add` response to our result shape. Pure + exported for
+ *  tests. `already_reacted` is treated as SUCCESS — the read-ack is idempotent, so
+ *  re-reacting to the same message must never be an error. `missing_scope` is
+ *  surfaced via a flag so the caller can log a one-time "grant reactions:write" hint
+ *  (and must NOT be treated as a fake success). */
+export function mapReactionResult(
+  r: { ok?: boolean; error?: string }
+): { ok: boolean; error?: string; already?: boolean; missingScope?: boolean } {
+  if (r.ok === true) return { ok: true };
+  const err = r.error ? String(r.error) : 'reactions.add failed';
+  if (err === 'already_reacted') return { ok: true, already: true };
+  if (err === 'missing_scope') return { ok: false, error: err, missingScope: true };
+  return { ok: false, error: err };
+}
+
+/** Add an emoji reaction to a Slack message via `reactions.add` (raw form POST,
+ *  no `@slack/*` dep). Used as a READ-ACK: a 👍 (`+1`) on each inbound user message
+ *  so the sender sees it was received. The bot token lives in main and is passed in
+ *  by the caller; it appears ONLY in the Authorization header and is NEVER logged.
+ *  Idempotent (`already_reacted` → ok) and non-throwing — resolves a result the
+ *  fire-and-forget caller can ignore. */
+export function addSlackReaction(opts: {
+  botToken: string;
+  channel: string;
+  timestamp: string;
+  name?: string;
+}): Promise<{ ok: boolean; error?: string; already?: boolean; missingScope?: boolean }> {
+  return (async () => {
+    if (!opts.botToken) return { ok: false, error: 'missing bot token' };
+    if (!opts.channel?.trim() || !opts.timestamp?.trim()) return { ok: false, error: 'missing channel or timestamp' };
+    const r = await slackApiForm('reactions.add', opts.botToken, {
+      channel: opts.channel, timestamp: opts.timestamp, name: opts.name || '+1'
+    });
+    return mapReactionResult(r);
+  })().catch((e) => ({ ok: false, error: errMsg(e) }));
+}
+
+/** Signature of the reaction function — injectable for tests. */
+export type AddReactionFn = typeof addSlackReaction;
 
 /** Cap the file main will read from disk + upload (guards main memory; media is small). */
 const UPLOAD_MAX_BYTES = 100 * 1024 * 1024; // 100 MB

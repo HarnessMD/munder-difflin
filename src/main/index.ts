@@ -1752,6 +1752,9 @@ async function startSlackServer(): Promise<{ ok: boolean; url?: string; error?: 
     // reply endpoint + done-observer below still start — so replies work with no
     // inbound exposure. Default (unset) keeps the classic tunnel push flow.
     skipTunnel: cfg.slackPollingOnly === true,
+    // Read-ack: source the bot token lazily from main's config so the webhook
+    // server can 👍 each newly-ingested user message. Token never leaves main.
+    getBotToken: () => readConfig().slackBotToken,
     // Fires from the HTTP server's event loop (not the IPC thread); route through
     // liveWebContents() so a message arriving during window teardown can't throw.
     // Downloads any file attachments (bot token stays in main; local paths go to IPC).
