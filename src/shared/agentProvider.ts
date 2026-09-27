@@ -181,7 +181,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     canReceiveInbox: true,
     // Longest-context Claude variant — matches the "give Michael a bigger model"
     // advisory and the Recommended tag on the orchestrator picker.
-    recommendedOrchestratorModel: 'claude-opus-4-8[1m]',
+    recommendedOrchestratorModel: 'claude-opus-5-5',
     resumeFlag: '--resume',
     // Official Claude Code install (npm global). Used by the missing-CLI auto-install.
     installCommand: 'npm install -g @anthropic-ai/claude-code',
@@ -263,7 +263,17 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // `grok [PROMPT]` accepts the initial hive protocol as a positional prompt.
     positionalInitialPrompt: true,
     // Grok resumes interactively with `grok --resume <session-id-or-title>`.
-    resumeFlag: '--resume'
+    resumeFlag: '--resume',
+    // xAI's own installer, a standalone binary under ~/.grok/bin, no Node (I2,
+    // 23 Sep): the URLs the grok binary itself prints for an update, both
+    // answering 200 on 23 Sep 2026. No npm package exists, so the native rung
+    // is the only rung. Trusted, hardcoded, no double quotes (win32 is wrapped
+    // verbatim in `cmd /d /s /c "…"`, hence `^|`).
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://x.ai/cli/install.sh | bash',
+      win32: 'powershell -c irm https://x.ai/cli/install.ps1 ^| iex'
+    },
+    docsUrl: 'https://x.ai/cli'
   },
   {
     id: 'kimi',
@@ -280,7 +290,22 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // Kimi's interactive TUI has no positional initial-prompt form. It supports
     // lifecycle hooks, but Munder Difflin does not yet install a Kimi hook bridge,
     // so mail must bounce rather than being delivered with no drain path.
-    canReceiveInbox: false
+    canReceiveInbox: false,
+    // `kimi --session <id>` resumes that session (kimi 2.1.0 --help, 24 Sep
+    // 2026). Sessions live under ~/.kimi-code/sessions/wd_*/session_<id>, so
+    // the restart path can check the id exists before attaching it
+    // (shared/resumeStore.ts).
+    resumeFlag: '--session',
+    // Moonshot's own installer, a standalone binary under ~/.kimi-code/bin
+    // (with its own fd and rg), no Node (I2, 23 Sep): the script the kimi
+    // binary itself names (`<cdn>/install.sh`, `<cdn>/install.ps1`), both on
+    // cdn.kimi.com answering 200 on 23 Sep 2026. No npm package, so the
+    // native rung is the only rung.
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://cdn.kimi.com/kimi-code/install.sh | bash',
+      win32: 'powershell -c irm https://cdn.kimi.com/kimi-code/install.ps1 ^| iex'
+    },
+    docsUrl: 'https://www.kimi.com/code/docs/en/'
   },
   {
     // Google's official Gemini CLI. Unlike Antigravity (`agy`), this is the
@@ -319,7 +344,15 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     canReceiveInbox: true, // via the agy-hook bridge (Stop→drain); verified agy honors hook decisions
     initialPromptFlag: '-i', // agy --prompt-interactive: orient the session, then continue
     recommendedOrchestratorModel: 'Gemini 3.1 Pro (High)', // agy takes the display-name label
-    resumeFlag: '--conversation' // agy: resume a previous conversation by ID
+    resumeFlag: '--conversation', // agy: resume a previous conversation by ID
+    // Google's own installer, a standalone binary into ~/.local/bin, no Node
+    // (I2, 23 Sep): the script the blog documents; both URLs answered 200 on
+    // 23 Sep 2026. No npm package, so the native rung is the only rung.
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://antigravity.google/cli/install.sh | bash',
+      win32: 'powershell -c irm https://antigravity.google/cli/install.ps1 ^| iex'
+    },
+    docsUrl: 'https://antigravity.google/docs/cli'
   },
   {
     // qwen-code — the Qwen CLI (a gemini-cli fork) driving any OpenAI-compatible
@@ -343,7 +376,14 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     initialPromptFlag: '-i',
     // Qwen's long-context coder model for the orchestrator. // TODO-verify
     recommendedOrchestratorModel: 'qwen3-coder-plus',
-    resumeFlag: undefined
+    // `qwen --resume <id>` resumes that session by id (qwen 0.24.x --help,
+    // 24 Sep 2026; --continue is most-recent-for-project). Chats live under
+    // ~/.qwen/projects/<cwd slug>/chats/<id>.*, checked in resumeStore.ts.
+    resumeFlag: '--resume',
+    // The npm package the blog and Qwen's README name (I2, 23 Sep): 0.24.4 on
+    // the registry on 23 Sep 2026. Trusted, hardcoded.
+    installCommand: 'npm install -g @qwen-code/qwen-code@latest',
+    docsUrl: 'https://github.com/QwenLM/qwen-code'
   },
   {
     // OpenCode — the TypeScript AI coding agent (opencode.ai / anomalyco/opencode,
@@ -391,9 +431,11 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // every BYOK slug in the OpenCode model catalog stays one click away for
     // whoever has the key.
     recommendedOrchestratorModel: undefined,
-    // Capturing the TUI session id for resume is unverified; spawn fresh on respawn
-    // (protocol re-injected as the initial prompt), matching codex.
-    resumeFlag: undefined,
+    // `opencode --session <id>` continues that session (opencode 1.18 --help,
+    // 24 Sep 2026; -c/--continue is most-recent). OpenCode 1.x keeps sessions
+    // in opencode.db (SQLite), not a file per session, so resumeStore.ts has
+    // no spec for it: the recorded id is attached unchecked.
+    resumeFlag: '--session',
     installCommand: 'npm install -g opencode-ai@latest', // trusted, hardcoded
     // Node-free installers, for the rung that runs when npm is absent AND no Node
     // installer could be resolved (offline / unsupported platform) — until now
@@ -496,31 +538,34 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     docsUrl: 'https://pi.dev/docs/latest'
   },
   {
-    // GitHub Copilot CLI (`copilot`, npm @github/copilot). Driven in print mode:
-    // `copilot -p "<prompt>" -s --allow-all-tools --no-ask-user [--model]`, the
-    // documented non-interactive shape (single prompt, clean stdout, exits when
-    // done). Non-hiveAware: it has no --append-system-prompt/--settings, so the
-    // hive identity+protocol rides in as the initial prompt via `-p`.
+    // GitHub Copilot CLI (`copilot`, npm @github/copilot). Driven INTERACTIVE
+    // (0.5.3, founder retest 25 Sep: after sign in the terminal stayed white):
+    // `copilot -i "<prompt>" --allow-all-tools --no-ask-user [--model]` opens
+    // Copilot's own screen and runs the brief there (1.0.88 `-i, --interactive
+    // <prompt>`), so the person sees Copilot working and can type to it. Print
+    // mode (`-p -s`) printed nothing until its final answer and then exited.
+    // Non-hiveAware: it has no --append-system-prompt/--settings, so the hive
+    // identity+protocol rides in as the initial prompt via `-i`.
     id: 'copilot',
     label: 'Copilot',
     defaultCommand: 'copilot',
     commandGroups: [],
-    // Non-interactive autonomy: -s prints only the agent's final response (clean
-    // stdout), --allow-all-tools never blocks on a permission prompt (env:
+    // Autonomy: --allow-all-tools never blocks on a permission prompt (env:
     // COPILOT_ALLOW_ALL), --no-ask-user disables the ask_user tool so it never
-    // stops to ask. Gated by the floor `config.autoMode` toggle like the rest.
-    autoModeFlag: '-s --allow-all-tools --no-ask-user',
-    autoFlag: '-s --allow-all-tools --no-ask-user',
+    // stops to ask. No -s: that is print mode only. Gated by the floor
+    // `config.autoMode` toggle like the rest.
+    autoModeFlag: '--allow-all-tools --no-ask-user',
+    autoFlag: '--allow-all-tools --no-ask-user',
     supportsModel: true,
     modelFlag: '--model', // e.g. claude-sonnet-4.5 (default), gpt-5.4, or 'auto'
-    hiveAware: false, // no --append-system-prompt/--settings; protocol rides in via -p
-    initialPromptFlag: '-p', // copilot -p "<orchestrator/worker brief>" runs it non-interactively
+    hiveAware: false, // no --append-system-prompt/--settings; protocol rides in via -i
+    initialPromptFlag: '-i', // copilot -i "<orchestrator/worker brief>": interactive, runs the brief first
     recommendedOrchestratorModel: 'claude-sonnet-4.5', // Copilot's default; user may pick gpt-5.4
     // Copilot supports session resume by id (`--resume=<id>`); attached only when a
     // prior session id was recorded (no hook bridge captures it yet → best-effort).
     resumeFlag: '--resume',
-    // Print mode exits per turn and there is no hook bridge to drain on idle, so a
-    // copilot worker can't receive routed inbox mail (it bounces to the god).
+    // No hook bridge to drain on idle and its live mail path is unverified, so
+    // routed inbox mail still bounces to the god (unchanged by -i).
     canReceiveInbox: false,
     installCommand: 'npm install -g @github/copilot', // trusted, hardcoded
     docsUrl: 'https://docs.github.com/copilot/concepts/agents/about-copilot-cli'

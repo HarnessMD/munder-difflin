@@ -1,29 +1,33 @@
 'use strict';
 
 /**
- * The list of files kept out of an agent's mempalace/git index exists TWICE:
- * `src/main/hive.ts` writes it when an agent spawns, `src/main/memory.ts` writes
- * it on every mine cycle — and only the latter reaches agents that are not
- * currently running. Both carry a "MUST STAY IN SYNC" comment, which is exactly
- * the kind of invariant that drifts silently: adding a line to one file alone
- * has no visible symptom until a repo bloats again (PR #128: 7.5GB of .git from
- * versioned Codex transcripts). Pin it.
+ * The list of files kept out of an agent's mempalace and git index used to
+ * exist TWICE: `src/main/hive.ts` wrote it when an agent spawned,
+ * `src/main/memory.ts` on every mine cycle, and only the latter reached agents
+ * that were not running. Both carried a "MUST STAY IN SYNC" comment, which is
+ * exactly the kind of invariant that drifts with no symptom until a repo
+ * bloats again (PR #128: 7.5GB of .git from versioned Codex transcripts).
+ *
+ * There is one copy now, in `src/shared/hiveRepo.ts`, so the old test has
+ * nothing left to compare. What it pins instead is that the second copy does
+ * not come back: a `const MINE_IGNORE_LINES = [...]` reappearing in either file
+ * is how the drift started, and it would read as perfectly ordinary code.
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const loadTs = require('./load-ts.cjs');
 
-const read = (rel) => {
-  const src = fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
-  const m = src.match(/const MINE_IGNORE_LINES = (\[[^\]]*\]);/);
-  assert.ok(m, `MINE_IGNORE_LINES not found in ${rel}`);
-  return JSON.parse(m[1].replace(/'/g, '"'));
-};
+const { AGENT_IGNORE_LINES } = loadTs('src/shared/hiveRepo.ts');
+const read = (rel) => fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
 
-test('MINE_IGNORE_LINES is identical in hive.ts and memory.ts', () => {
-  const fromHive = read('src/main/hive.ts');
-  const fromMemory = read('src/main/memory.ts');
-  assert.deepEqual(fromMemory, fromHive);
-  assert.ok(fromHive.includes('.codex/'), 'Codex homes must stay out of the index');
+test('the ignore list has one home, and Codex homes are on it', () => {
+  assert.ok(AGENT_IGNORE_LINES.includes('.codex/'), 'Codex homes must stay out of the index');
+  for (const rel of ['src/main/hive.ts', 'src/main/memory.ts']) {
+    const src = read(rel);
+    assert.equal(/const MINE_IGNORE_LINES\s*=/.test(src), false, `${rel} declares its own copy again`);
+    assert.match(src, /AGENT_IGNORE_LINES/, `${rel} must use the shared list`);
+    assert.match(src, /from '\.\.\/shared\/hiveRepo'/, `${rel} must import it`);
+  }
 });

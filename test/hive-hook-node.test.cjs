@@ -26,6 +26,19 @@ const loadTs = require('./load-ts.cjs');
 const { HiveManager } = loadTs('src/main/hive.ts');
 
 const POSIX = process.platform !== 'win32';
+
+/**
+ * WAIT FOR THE SOCKET, do not sleep and hope. A hook writes to HIVE_SOCK from
+ * another process and this one has to be scheduled to read it; a fixed sleep is
+ * a guess at how busy the machine is, and the whole suite runs at concurrency
+ * two. The deadline keeps a hook that never arrives a failure, which is the
+ * thing these tests are actually for.
+ */
+const waitForCount = async (count, n, ms = 5000) => {
+  const deadline = Date.now() + ms;
+  while (count() < n && Date.now() < deadline) await new Promise((r) => setTimeout(r, 20));
+  return count();
+};
 const STRIPPED_PATH = '/usr/bin:/bin:/usr/sbin:/sbin';
 
 function tmpHome(prefix = 'md-hive-node-', root = os.tmpdir()) {
@@ -171,7 +184,12 @@ test('every hook installer routes through the launcher — none left on bare nod
   }
 });
 
-test('Codex hook commands survive a hive path containing spaces', { skip: !POSIX, timeout: 10_000 }, async (t) => {
+// The 10s budget this arrived with is not enough for what the test does. It
+// spawns real hook processes, and its sibling below, same shape and same work,
+// takes about 17s on this machine; alone the whole file takes under 7s, so the
+// budget only bites when the suite runs it in parallel with everything else.
+// Public main never caught it because that repo has no test CI.
+test('Codex hook commands survive a hive path containing spaces', { skip: !POSIX, timeout: 120_000 }, async (t) => {
   // Keep this root short enough for macOS's Unix-domain socket path limit while
   // putting the literal space after a unique component. The shell's first token
   // is then guaranteed absent, which makes the exit-127 negative control stable.
@@ -214,7 +232,7 @@ test('Codex hook commands survive a hive path containing spaces', { skip: !POSIX
 
   const after = await run(commands[0], env);
   assert.equal(after.code, 0, `Codex hook failed from a space-containing hive path: ${after.stderr}`);
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  await waitForCount(() => received.length, 1);
   assert.ok(received.length > 0, 'the quoted hook command never reached HIVE_SOCK');
 });
 
@@ -272,7 +290,7 @@ test('POSIX Gemini and Antigravity hooks survive a hive path containing spaces',
     });
     assert.equal(result.code, 0, `${provider} command failed: ${command}\n${result.stderr}`);
   }
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  await waitForCount(() => received.length, 2);
   assert.equal(received.length, 2, 'both provider hook shims must reach HIVE_SOCK');
 });
 
@@ -458,7 +476,7 @@ test('a hook fires with NO node on PATH, and its payload reaches HIVE_SOCK', { s
   const after = await run(settings.hooks.Stop[0].hooks[0].command, env);
   assert.equal(after.code, 0, `hook failed under a stripped PATH: ${after.stderr}`);
 
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  await waitForCount(() => received.length, 1);
   assert.ok(received.length > 0, 'nothing arrived at HIVE_SOCK');
   assert.match(received[0], /"hook_event_name"\s*:\s*"Stop"/);
 });

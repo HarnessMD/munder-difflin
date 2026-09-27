@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { ensureKilled } from './procKill';
 import { quarantineDirsToReap, quarantineStampMs, nextMineDelayMs } from './palaceReap';
+import { AGENT_IGNORE_LINES, mergeIgnoreLines } from '../shared/hiveRepo';
 
 /** Non-memory files `mempalace mine` must not ingest: the Claude Code hooks
  *  config (a large JSON blob that swamps the wake-up digest), the cursor, raw
@@ -25,12 +26,14 @@ import { quarantineDirsToReap, quarantineStampMs, nextMineDelayMs } from './pala
  *  mine` honors .gitignore, so we drop one in each agent dir rather than touch the
  *  mine command.
  *
- *  MUST STAY IN SYNC with MINE_IGNORE_LINES in hive.ts — that copy is written when
- *  an agent spawns, this one on every mine cycle, and only this one reaches agents
- *  that are not currently running. See hive.ts for why `.codex/` matters beyond
- *  mempalace: it is also what stopped the hive's git repo from versioning every
- *  Codex transcript and sqlite log into a 7.5GB history. */
-const MINE_IGNORE_LINES = ['settings.json', 'cursor.json', 'inbox/', 'outbox/', '.codex/'];
+ *  The list itself lives in shared/hiveRepo.ts. It used to be declared here AND
+ *  in hive.ts with a "MUST STAY IN SYNC" comment on both, which is the kind of
+ *  invariant that drifts with no symptom until a repo bloats again. There is one
+ *  copy now. See shared/hiveRepo.ts for why `.codex/` matters beyond mempalace:
+ *  it is also what stops the hive's git repo versioning every Codex transcript
+ *  and sqlite log, which reached 7.5GB of .git on one hive and far more on
+ *  others. This writer is still the important one: it runs on every mine cycle,
+ *  so it is the only one that reaches an agent that is not running. */
 
 /** Idempotently ensure `<agentDir>/.gitignore` excludes the non-memory files.
  *  Writes only the missing lines (append-only) so it's safe to call every cycle. */
@@ -38,11 +41,9 @@ function ensureMineIgnore(agentDir: string): void {
   const path = join(agentDir, '.gitignore');
   let existing = '';
   try { if (existsSync(path)) existing = readFileSync(path, 'utf8'); } catch { return; }
-  const have = new Set(existing.split('\n').map((l) => l.trim()));
-  const missing = MINE_IGNORE_LINES.filter((l) => !have.has(l));
-  if (missing.length === 0) return; // already covered — don't rewrite every cycle
-  const prefix = existing && !existing.endsWith('\n') ? existing + '\n' : existing;
-  try { writeFileSync(path, prefix + missing.join('\n') + '\n', 'utf8'); } catch { /* best-effort */ }
+  const merged = mergeIgnoreLines(existing, AGENT_IGNORE_LINES);
+  if (merged === null) return; // already covered — don't rewrite every cycle
+  try { writeFileSync(path, merged, 'utf8'); } catch { /* best-effort */ }
 }
 
 export type EmbeddingModel = 'minilm' | 'embeddinggemma';
@@ -433,7 +434,9 @@ export class MemoryManager {
 
   /** Semantic search across the shared palace. Returns the CLI's text output. */
   search(query: string, opts: { wing?: string; results?: number } = {}): Promise<{ ok: boolean; output: string; error?: string }> {
-    const args = ['search', query, '--results', String(opts.results ?? 5)];
+    // Eight, not five (0.5.2): on a palace that also holds mined source, the
+    // notes often sit behind a few code hits, and the tool ranks notes first.
+    const args = ['search', query, '--results', String(opts.results ?? 8)];
     if (opts.wing) args.push('--wing', opts.wing);
     return this.runCli(args, 'search');
   }

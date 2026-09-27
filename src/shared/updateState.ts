@@ -40,7 +40,10 @@ export const REPO = 'chaitanyagiri/munder-difflin';
  *  `downloadUrl` of its own (the native updater path never does). */
 export function installerUrl(version: string, platform: string, arch: string): string {
   const v = version.replace(/^v/, '');
-  const file = platform === 'darwin' ? `Munder-Difflin-${v}-mac-${arch}.dmg`
+  // The mac build is one universal DMG (electron-builder.yml mac.target), so
+  // the running arch does not pick the file; win and linux are x64 only.
+  void arch;
+  const file = platform === 'darwin' ? `Munder-Difflin-${v}-mac-universal.dmg`
     : platform === 'win32' ? `Munder-Difflin-${v}-win-x64-setup.exe`
     : `Munder-Difflin-${v}-linux-x86_64.AppImage`;
   return `https://github.com/${REPO}/releases/download/v${v}/${file}`;
@@ -120,6 +123,19 @@ export function shouldShowReleaseDrop(previous: string | null, current: string):
   return !isNewer(previous, current);
 }
 
+/**
+ * What one PAGE of the release drop is, for the renderer's memory of which
+ * pages a person has closed: the state and the version together. The same
+ * release reaching a later state (available, then downloaded) is a new page
+ * with a new reason to open; a re-push of the same state, or a fresh mount of
+ * the surface pulling the same status back out of main, is not. Null for a
+ * state that names no version, which can never carry a drop.
+ */
+export function releaseDropKey(status: UpdateStatus | null): string | null {
+  if (!status || !('version' in status)) return null;
+  return `${status.state}@${status.version}`;
+}
+
 /** Download percentages arrive as floats and, on a resumed/differential
  *  download, occasionally out of range. Clamp so the UI can't render `-0%`
  *  or `104%`. */
@@ -157,6 +173,25 @@ function versionOf(s: UpdateStatus): string | null {
  * lower-rank and lose. A genuinely NEWER version always wins, so a long-running
  * app that sees 0.3.7 while 0.3.6 is staged moves forward rather than sticking.
  */
+/**
+ * THE SECOND BUTTON (0.5.2, card v052-check-again-when-downloaded, founder
+ * 8 Sep 2026): with an update downloaded, Restart replaced the only button
+ * and the person could not check again. This names the states that carry a
+ * second, quieter action beside the primary one, so the two skins' update
+ * surfaces read one answer.
+ *
+ * WHAT CHECK AGAIN DOES TO A STAGED DOWNLOAD: nothing of ours. It is the same
+ * check as everywhere else. electron-updater re-validates the cached file
+ * against the feed's sha512 and keeps it when the feed still names that
+ * version, and only empties the cache and downloads afresh when the feed has
+ * moved (DownloadedUpdateHelper.js). So a check that finds nothing newer
+ * leaves the staged file where it is, and one that finds a newer release
+ * replaces it. Hand-rolled cache clearing here would only race that.
+ */
+export function secondaryUpdateAction(status: UpdateStatus | null): 'check' | null {
+  return status?.state === 'downloaded' ? 'check' : null;
+}
+
 export function reduceStatus(prev: UpdateStatus | null, next: UpdateStatus): UpdateStatus {
   if (!prev) return next;
   const pv = versionOf(prev);

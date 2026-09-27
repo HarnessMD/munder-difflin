@@ -19,6 +19,10 @@ import type { ControlRegistry } from './control';
 import type { CircuitBreaker } from './breaker';
 import { estimateCostUsd } from './pricing';
 import { validateHookEvent } from '../shared/hookEvents';
+import { liveModelOf } from '../shared/liveModel';
+import { renderResponseStyle } from '../shared/responseStyle';
+import { entryForHookEvent } from '../shared/activity';
+import type { ActivityDigest } from './activityDigest';
 
 /** Maximum JSON payload bytes in one newline-delimited hook frame. */
 const MAX_HOOK_FRAME_BYTES = 256 * 1024;
@@ -42,7 +46,9 @@ interface HookPayload {
   message?: string;
   /** CostSample payloads only (synthesized by the proxy-bridge sidecar for
    *  qwen). Raw token counts for one response, fed to the cost ledger. */
-  model?: string;
+  model?: string | { id?: string; display_name?: string };
+  /** Set by Claude Code and Codex on payloads sent from INSIDE a sub agent. */
+  agent_type?: string;
   input?: number;
   output?: number;
   cache_read?: number;
@@ -62,6 +68,9 @@ export class HookServer {
    *  get_agent_detail / list_agents) can report "how full is each agent's context"
    *  without depending on a renderer round-trip. */
   private contextById = new Map<string, { tokens: number; limit: number; ts: number }>();
+  /** agentId to the model last seen running, so the renderer is told on CHANGE
+   *  and not on every status line tick (0.5.3 bug 2). */
+  private modelById = new Map<string, string>();
   /** The goal last delivered to each agent's current session. Goals are durable
    *  roster state, so repeating an unchanged multi-kilobyte briefing on every
    *  prompt only bloats the transcript. One entry per agent is sufficient: an
@@ -83,7 +92,11 @@ export class HookServer {
     /** Optional observer of every hook boundary (agentId, event, message). The
      *  worker inbox-wake watchdog (workerWake.ts) feeds on this to learn when an
      *  agent is parked on a permission/HITL prompt so it never types into it. */
-    private onEvent?: (agentId: string | undefined, event: string, message: string | undefined) => void
+    private onEvent?: (agentId: string | undefined, event: string, message: string | undefined, tool?: string) => void,
+    /** v0.4.9 phase 2 (D4): the per agent activity digest. Optional so the
+     *  existing tests can omit it; when set, every real hook boundary worth a
+     *  line (shared/activity.ts entryForHookEvent) is recorded exactly once. */
+    private activity?: Pick<ActivityDigest, 'record'>
   ) {}
 
   start(): void {
@@ -151,7 +164,7 @@ export class HookServer {
   private handle(p: HookPayload): unknown {
     const agentId = p.agent_id ?? undefined;
     const event = p.hook_event_name ?? 'Unknown';
-    this.onEvent?.(agentId, event, p.message);
+    this.onEvent?.(agentId, event, p.message, p.tool_name);
     if (agentId && typeof p.transcript_path === 'string' && p.transcript_path) {
       this.transcriptPaths.set(agentId, p.transcript_path);
     }
@@ -166,6 +179,16 @@ export class HookServer {
     // payload's session_id adds nothing the real hooks don't already record,
     // and telemetry should never write to the registry. transcript_path IS
     // still captured above, where every payload shape benefits from it.
+    // 0.5.3 bug 2(a): the model the agent is actually running. Claude Code sends
+    // it on the status line and nowhere else, Codex on every hook payload, and
+    // neither was read, so a `/model` inside the CLI never reached the sidebar.
+    // BEFORE the Status return below: that tick is the only Claude source.
+    const liveModel = liveModelOf(p);
+    if (agentId && liveModel && this.modelById.get(agentId) !== liveModel) {
+      this.modelById.set(agentId, liveModel);
+      this.getWebContents()?.send('hive:modelUpdate', { agentId, model: liveModel });
+    }
+
     if (event === 'Status') {
       const cw = p.context_window;
       if (agentId && cw && typeof cw.total_input_tokens === 'number'
@@ -185,6 +208,11 @@ export class HookServer {
       }
       return {};
     }
+
+    // v0.4.9 phase 2 (D4): the activity digest. One record per real hook
+    // boundary, taken HERE so the statusLine tick above never reaches it and no
+    // branch below (halt, stop, deny, steer) can record twice or skip it.
+    this.digest(agentId, event, p);
 
     // 7C.3 — a graceful operator HALT overrides everything (incl. the inbox
     // drain below): stop the agent CLEANLY at this hook boundary rather than
@@ -218,8 +246,8 @@ export class HookServer {
           output,
           cacheRead,
           cacheCreation,
-          model: p.model ?? '',
-          usd: estimateCostUsd(p.model, {
+          model: liveModel ?? '',
+          usd: estimateCostUsd(liveModel, {
             inputTokens: input,
             outputTokens: output,
             cacheReadTokens: cacheRead,
@@ -337,12 +365,39 @@ export class HookServer {
       }
     }
 
-    if (steer || roster || goal) {
+    // Response style (v0.4.10) — the house brief for HOW to answer, user editable
+    // in Settings and read fresh from the config on every boundary, so a save
+    // reaches every hooks-bridge engine (claude, codex, gemini, grok) on its next
+    // turn with NO restart. The two engines with no hook bridge (cursor, copilot)
+    // get the identical block prepended to the text typed into their PTY by
+    // useHive.ts; both sides render through renderResponseStyle so they cannot
+    // drift. Every agent gets one — an absent/empty config value normalizes to
+    // the shipped default rather than to nothing.
+    //
+    // CACHE: this string is re-sent on every UserPromptSubmit, so it must be
+    // volatile free. shared/responseStyle.ts reads no clock, no counter and no
+    // agent id, which is why the same brief renders byte identical turn after
+    // turn. Same discipline as injectedPrompt()'s cache-invariance note.
+    const wantsStyle = (event === 'SessionStart' || event === 'UserPromptSubmit') && !!agentId;
+    const style = wantsStyle ? renderResponseStyle(this.getConfig().responseStyle) : null;
+
+    if (steer || roster || goal || style) {
       this.emit(agentId, event, p);
       return {
         hookSpecificOutput: {
           hookEventName: event,
-          additionalContext: [roster, goal, steer].filter(Boolean).join('\n\n')
+          // ORDER, deliberately: style, roster, goal, steer.
+          //  - The style leads because it is the only invariant piece. It is the
+          //    same text on every turn for every agent, so putting it ahead of the
+          //    roster (whose token/cost/ctx numbers move every turn) keeps the
+          //    stable prefix of this block stable.
+          //  - The style is HOW to answer and the goal is WHAT to do, so the goal
+          //    sits closer to the work: a standing tone brief must never read as
+          //    if it outranks the mission.
+          //  - The steer stays last, where it already was. It is the operator
+          //    speaking about THIS turn, and the most immediate instruction is
+          //    the one that should be read last.
+          additionalContext: [style, roster, goal, steer].filter(Boolean).join('\n\n')
         }
       };
     }
@@ -362,6 +417,26 @@ export class HookServer {
     // Forward everything else to the renderer so avatars reflect real activity.
     this.emit(agentId, event, p);
     return {};
+  }
+
+  /** Record the line this hook boundary deserves in the agent's activity digest
+   *  (shared/activity.ts decides which events are worth one). A PreToolUse the
+   *  operator has paused, gated or halted is not a tool that ran, so it is left
+   *  out; both control reads are pure. Best-effort: never throws into the hook. */
+  private digest(agentId: string | undefined, event: string, p: HookPayload): void {
+    if (!agentId || !this.activity) return;
+    try {
+      if (event === 'PreToolUse' && this.control
+        && (this.control.shouldHalt(agentId) || this.control.toolDecision(agentId, p.tool_name ?? '').deny)) return;
+      const entry = entryForHookEvent(event, {
+        tool: p.tool_name,
+        toolInput: p.tool_input,
+        message: p.message,
+        notificationType: p.notification_type,
+        source: p.source
+      }, Date.now());
+      if (entry) this.activity.record(agentId, entry);
+    } catch { /* the digest is a mirror, never a gate */ }
   }
 
   /** Fire a native desktop notification — gated on the user's `notifications`

@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { useStore, type Agent } from '@/store/store';
 import { buildSpawnCommand, inferAgentProvider, tokenizeCommand, type HarnessConfig } from '@/store/config';
 import { roleForHiveSpawn } from '@shared/agentRole';
+import { commandWithModel } from '@shared/liveModel';
 
 /** "Restore team" — respawn every worker from the previous session.
  *
@@ -21,6 +22,14 @@ let autoRestoring = false;
  *  component: `useRestoreTeam` is mounted from both the floor strip and the
  *  fullscreen rail, and without this each of them would kick off its own. */
 let autoStarted = false;
+/** How many of the run's spawns have ANSWERED, restored or failed. The boot
+ *  gate's line reads restorable minus this: spawns run as one batch and the
+ *  agents join the roster only after the whole batch, so without this count
+ *  the line sat on the full number until the last spawn answered and then
+ *  dropped to zero in one step (found with MD_RESTORE_SLOW_MS, 0.5.2). An
+ *  agent that turns out to be already live leaves the restorable list on
+ *  its own and is not counted here twice. */
+let landed = 0;
 const listeners = new Set<() => void>();
 
 /** How long to wait after boot before restoring on our own.
@@ -39,6 +48,25 @@ function emit(): void {
 function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => { listeners.delete(listener); };
+}
+
+/** The boot gate (store/bootGate.ts) follows the automatic restore from
+ *  here: not started, running, or over. Over with failures is over; the
+ *  failures are on the floor for the person to read. */
+export const subscribeRestore = subscribe;
+export function autoRestorePhase(): 'idle' | 'running' | 'done' {
+  if (!autoStarted) return 'idle';
+  // Running from the moment the automatic run is CLAIMED, not from the
+  // moment restoreTeam() marks itself busy one call later. The claim below
+  // emits between the two, the gate reads that tick as "started and over",
+  // and its latch held that answer for the life of the window: the blur
+  // came down the instant the restore began and never counted a spawn.
+  // Found by mounting the boot (test/boot-blur-replay.test.cjs, 0.5.2).
+  return restoring || autoRestoring ? 'running' : 'done';
+}
+/** Spawns answered so far in the run in flight; 0 between runs. */
+export function restoreLanded(): number {
+  return landed;
 }
 
 // useSyncExternalStore requires a stable snapshot identity — returning a fresh
@@ -72,6 +100,7 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
   const restoreTeam = async (): Promise<void> => {
     if (restoring) return;
     restoring = true;
+    landed = 0;
     note = null;
     emit();
     const prevSel = useStore.getState().selectedId;
@@ -82,6 +111,7 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
     let restored = 0;
     let alreadyLive = 0;
     const failures: string[] = [];
+    const fresh: string[] = [];
     try {
       // Restore every agent CONCURRENTLY. Each spawn is keyed by its own ptyId and
       // touches no cross-agent state in the renderer, and in the main process the
@@ -100,7 +130,10 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
         // entire restore a silent no-op after the first bad agent.
         try {
           const provider = inferAgentProvider(a.command, a.provider);
-          const command = (a.command ?? '').trim() || (config ? buildSpawnCommand(config, a.model, provider) : '');
+          // 0.5.3 bug 2(b): replay the saved command ON the model last seen running.
+          // The saved line alone lost it twice over: an old --model in it beat the
+          // saved `model`, and a line with no --model got today's floor default.
+          const command = commandWithModel(a.command, a.model, provider) || (config ? buildSpawnCommand(config, a.model, provider) : '');
           if (!command || !a.cwd) {
             // No spawn recipe (an old entry persisted before `command`, with no
             // config to rebuild one). Keep it restorable and SAY why rather than
@@ -151,6 +184,11 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
           });
           if (res.ok) {
             restored++;
+            // 0.5.3 bug 1: a session was on record and none of it could be resumed.
+            // The agent is up but EMPTY, and 'restored 5' over that is a lie.
+            if (res.resumeNotFound) fresh.push(a.name);
+            landed++;
+            emit();
             return {
                 ...a,
                 provider,
@@ -158,7 +196,7 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
                 archived: false,
                 status: 'idle',
                 // Surface the worktree fallback on the floor card; otherwise normal.
-                action: worktreeGone ? 'worktree gone — using base repo' : 'starting up',
+                action: worktreeGone ? 'worktree gone — using base repo' : res.resumeNotFound ? 'started fresh, last session not found' : 'starting up',
                 // The worktree is no longer on disk — drop it so this agent is treated
                 // as a plain base-cwd agent going forward (a future restore won't keep
                 // re-probing a dead path).
@@ -182,10 +220,14 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
             // outcome is shown on the floor, not buried in the devtools console.
             failures.push(`${a.name}: ${res.error ?? 'spawn failed'}`);
             console.error('[restore] spawn failed for', a.id, res.error);
+            landed++;
+            emit();
           }
         } catch (e) {
           failures.push(`${a.name}: ${e instanceof Error ? e.message : String(e)}`);
           console.error('[restore] error for', a.id, e);
+          landed++;
+          emit();
         }
         return null;
       }));
@@ -198,10 +240,12 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
       const sel = useStore.getState();
       if (prevSel && sel.agents.some((x) => x.id === prevSel)) sel.select(prevSel);
       restoring = false;
+      landed = 0;
       // ALWAYS surface a result so the button can never look inert.
       const parts: string[] = [];
       if (restored) parts.push(`restored ${restored}`);
       if (alreadyLive) parts.push(`${alreadyLive} already live`);
+      if (fresh.length) parts.push(`${fresh.length} started fresh, last session not found: ${fresh.join(', ')}`);
       if (failures.length) parts.push(`${failures.length} failed — ${failures.join('; ')}`);
       note = parts.length ? parts.join(' · ') : 'nothing to restore';
       emit();

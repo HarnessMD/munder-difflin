@@ -5,6 +5,7 @@ import { resolveCommand, userShellPath } from './shellEnv';
 import { expandTilde } from './fs';
 import { projectDir } from './transcript';
 import { ensureKilled } from './procKill';
+import { PTY_SUBMIT_DELAY_MS } from '../shared/providerAutomation';
 
 /**
  * Shared helper: run a HIDDEN interactive claude session (ephemeral PTY) and
@@ -186,9 +187,10 @@ export function runHiddenClaude(prompt: string, opts: HiddenClaudeOptions): Prom
       if (settled || promptSent) return;
       promptSent = true;
       if (bootTimer) { clearTimeout(bootTimer); bootTimer = null; }
-      // Bracketed paste + enter — same mechanism as submitToPty in useHive.ts.
+      // Bracketed paste + enter — same mechanism as submitToPty in useHive.ts,
+      // timed by the same shared constant so the two copies cannot drift.
       ptyProc.write(`\x1b[200~${prompt}\x1b[201~`);
-      setTimeout(() => { if (!settled) ptyProc.write('\r'); }, 140);
+      setTimeout(() => { if (!settled) ptyProc.write('\r'); }, PTY_SUBMIT_DELAY_MS);
     };
 
     bootMaxTimer = setTimeout(sendPrompt, bootCapMs);

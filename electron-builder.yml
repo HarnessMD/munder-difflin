@@ -75,6 +75,16 @@ extraResources:
   # repo resources/skills). Directory copy preserves the <id>/SKILL.md tree.
   - from: resources/skills
     to: skills
+  # Local transcription (0.5.3, F16). The bundled whisper model, one copy for
+  # every platform (about 60 MB, gitignored, fetched by
+  # tools/build-transcribe-helpers.mjs). The helpers themselves are per
+  # platform, see the mac, win and linux blocks: md-whisper (whisper.cpp) and,
+  # on macOS, md-speech (Apple's SpeechAnalyzer, tools/build-md-speech.sh).
+  # electron-builder signs Mach-O files under Resources with the app's
+  # identity, so a helper inherits the app's TCC grants as a child of the
+  # responsible process.
+  - from: resources/transcribe/models
+    to: transcribe/models
 
 asarUnpack:
   - "**/node_modules/node-pty/**"
@@ -100,7 +110,11 @@ mac:
     # The microphone is used by two opt-in, off-by-default voice features: Free
     # Flow dictation (Groq transcription) and Realtime Michael (live voice chat
     # with the orchestrator via OpenAI). Mic access only happens while one is on.
-    NSMicrophoneUsageDescription: "Munder Difflin uses your microphone only for its opt-in voice features: Free Flow dictation (transcribed by Groq into the message queue) and talking to Michael in real time (streamed to OpenAI). The mic is off unless you turn one of these on."
+    NSMicrophoneUsageDescription: "Munder Difflin uses your microphone only for its opt-in voice features: push to talk dictation into the composer or into any app, Stapler's meeting and message recorders, and talking to Michael in real time (streamed to OpenAI). Dictation and meetings are transcribed on this Mac unless you choose Groq. The mic is off unless you turn one of these on."
+    # 0.5.3, F16: dictation and meeting transcription run on the device through
+    # Apple's Speech framework (md-speech). Apple asks for this string whenever
+    # the framework is linked; it is shown only if macOS decides to prompt.
+    NSSpeechRecognitionUsageDescription: "Munder Difflin transcribes your dictation and meeting recordings on this Mac with Apple's on-device speech recognition. Nothing is sent anywhere."
   # Hardened runtime + entitlements so the spawned `claude` agents inherit this
   # app's TCC responsibility (one grant covers them all) and node-pty can load.
   hardenedRuntime: true
@@ -131,6 +145,35 @@ mac:
     - target: zip
       arch: [universal]
   artifactName: Munder-Difflin-${version}-mac-${arch}.${ext}
+  # F16: the whisper helper, one fat Mach-O (arm64 with Metal, x64 CPU) built by
+  # tools/build-transcribe-helpers.mjs --target darwin-universal. Both slices of
+  # the universal app get the same file. @electron/universal refuses a Mach-O
+  # that is identical in both slices unless x64ArchFiles names it (this stopped
+  # v0.5.3-rc.2), so every prebuilt fat helper here is named: kept as is, no lipo.
+  x64ArchFiles: "Contents/Resources/transcribe/darwin-universal/*"
+  # osx-sign walks Contents and signs every Mach-O it finds, so this gets the
+  # hardened runtime and entitlementsInherit like the app; it is listed under
+  # `binaries` as well so a future signer change cannot skip it.
+  extraResources:
+    - from: resources/transcribe/darwin-universal/md-whisper
+      to: transcribe/darwin-universal/md-whisper
+    - from: resources/transcribe/darwin-universal/md-speech
+      to: transcribe/darwin-universal/md-speech
+    # md-hotkey: the push to talk key, mic capture and paste for dictation into
+    # any app (tools/build-md-hotkey.sh). Signed with the app so the Accessibility
+    # and Microphone grants it inherits survive updates.
+    - from: resources/transcribe/darwin-universal/md-hotkey
+      to: transcribe/darwin-universal/md-hotkey
+    # md-tap: the other side of a call, ScreenCaptureKit audio of the display
+    # (tools/build-md-tap.sh). Signed with the app so the Screen Recording
+    # grant it inherits survives updates.
+    - from: resources/transcribe/darwin-universal/md-tap
+      to: transcribe/darwin-universal/md-tap
+  binaries:
+    - Contents/Resources/transcribe/darwin-universal/md-whisper
+    - Contents/Resources/transcribe/darwin-universal/md-speech
+    - Contents/Resources/transcribe/darwin-universal/md-hotkey
+    - Contents/Resources/transcribe/darwin-universal/md-tap
 
 dmg:
   title: Munder Difflin ${version}
@@ -143,6 +186,14 @@ win:
       arch: [x64]
     - target: portable
       arch: [x64]
+  # F16: built on a Windows runner by tools/build-transcribe-helpers.mjs --target win32-x64.
+  extraResources:
+    - from: resources/transcribe/win32-x64/md-whisper.exe
+      to: transcribe/win32-x64/md-whisper.exe
+    # F16, any app dictation on Windows: the C helper from tools/md-hotkey-native,
+    # built by the same script in the same run.
+    - from: resources/transcribe/win32-x64/md-hotkey.exe
+      to: transcribe/win32-x64/md-hotkey.exe
 
 nsis:
   oneClick: false
@@ -162,3 +213,12 @@ linux:
     - target: AppImage
       arch: [x64]
   artifactName: Munder-Difflin-${version}-linux-x86_64.AppImage
+  # F16: built on a Linux runner by tools/build-transcribe-helpers.mjs --target linux-x64.
+  extraResources:
+    - from: resources/transcribe/linux-x64/md-whisper
+      to: transcribe/linux-x64/md-whisper
+    # F16, any app dictation on Linux X11 (a Wayland session is refused with a
+    # Settings message): the C helper from tools/md-hotkey-native, dynamic
+    # against libX11, libXtst and libpulse-simple, which a desktop has.
+    - from: resources/transcribe/linux-x64/md-hotkey
+      to: transcribe/linux-x64/md-hotkey

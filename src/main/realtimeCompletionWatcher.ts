@@ -187,7 +187,8 @@ function summarize(pending: PendingDispatch, via: CompletionResult['via']): stri
 export function detectCompletion(pending: PendingDispatch, ctx: CompletionContext): CompletionResult {
   // (a) The dispatched card flipped to done.
   if (pending.taskId) {
-    const card = ctx.tasks.find((t) => t.id === pending.taskId);
+    // By key, or by the id it was dispatched with before the harness keyed it.
+    const card = ctx.tasks.find((t) => t.id === pending.taskId) ?? ctx.tasks.find((t) => (t as { alias?: string }).alias === pending.taskId);
     if (card && isDoneStatus(card.status)) {
       return { done: true, via: 'card-done', at: pending.dispatchedAt, summary: summarize(pending, 'card-done') };
     }

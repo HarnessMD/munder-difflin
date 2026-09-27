@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import type { HarnessConfig } from '@/store/config';
 import { useStore } from '@/store/store';
 import { disposeTerminal } from './terminalPool';
-import { PixelPanel } from './PixelPanel';
-import { PixelButton } from './PixelButton';
-import { Icon } from './Icon';
+import { ProIcon } from './pro/icons';
 import type { ThemeId } from '@/scene/office/themeRegistry';
+import { Btn, Panel } from './pro/ui';
+import { useConfigValue, useSettingsDraft } from './settings/SettingsFrame';
 
 // TV-show office themes (Phase 1 = the switch flow infra). Only `office` has a
 // real map+cast today; the five shows render via the loader's office fallback
@@ -25,30 +25,35 @@ const THEME_META: ThemeMeta[] = [
 
 /** Settings "Office Theme" section: an experimental flag toggle + a 6-card
  *  theme picker with the destructive switch flow (report §E). Self-contained so
- *  it stays out of SettingsModal's bulk. */
+ *  it stays out of SettingsModal's bulk.
+ *
+ *  0.5.3, one Save: the flag is staged in the page's draft, and a picked theme
+ *  is a draft task (`office:theme`). The confirm still comes at pick time, so
+ *  the person knows what Save will do; the agents are archived and the theme
+ *  written only when Save runs the task. */
 export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
   const { t } = useTranslation();
-  const [enabled, setEnabled] = useState(!!config.tvShowOffices);
+  const page = useSettingsDraft();
+  const [enabled, stageEnabled] = useConfigValue(config, 'tvShowOffices', false);
   const [current, setCurrent] = useState<ThemeId>((config.officeTheme as ThemeId) ?? 'office');
   const [pending, setPending] = useState<ThemeId | null>(null);
+  /** The theme Save will switch to, if one is waiting. */
+  const [chosen, setChosen] = useState<ThemeId | null>(null);
+  const waiting = chosen && page?.hasTask('office:theme') ? chosen : null;
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
 
   const archiveAgent = useStore((s) => s.archiveAgent);
   const setOfficeTheme = useStore((s) => s.setOfficeTheme);
 
-  const toggleFlag = async () => {
+  const toggleFlag = () => {
     const next = !enabled;
-    setEnabled(next);
     setNote('');
-    try {
-      await window.cth.updateConfig({ tvShowOffices: next });
-      // Flag off → the office renders regardless of the saved theme; flag on →
-      // restore the persisted theme.
-      setOfficeTheme(next ? current : 'office');
-    } catch {
-      setEnabled(!next); // revert optimistic toggle on failure
-    }
+    stageEnabled(next);
+    // Flag off → the office renders regardless of the saved theme; flag on →
+    // restore the persisted theme. Mirrored to the floor once Save wrote it.
+    page?.setTask('office:flag', next === !!config.tvShowOffices ? null : async () => { setOfficeTheme(next ? current : 'office'); });
+    if (!page) setOfficeTheme(next ? current : 'office');
   };
 
   const nonGodAgents = () =>
@@ -56,12 +61,23 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
 
   const onSelect = (id: ThemeId) => {
     setNote('');
-    if (busy || id === current) return;                 // no-op on the current theme
-    if (nonGodAgents().length === 0) { void applyTheme(id); return; } // god-only → instant
+    if (busy) return;
+    if (id === current) { setChosen(null); page?.setTask('office:theme', null); return; } // back to the current theme: nothing waits
+    if (nonGodAgents().length === 0) { choose(id); return; } // god-only → no confirm
     setPending(id);                                     // workers exist → confirm modal
   };
 
-  const applyTheme = async (id: ThemeId) => {
+  /** The confirmed pick waits for Save (or, outside Settings, runs now). */
+  const choose = (id: ThemeId) => {
+    setPending(null);
+    if (!page) { void applyTheme(id); return; }
+    setChosen(id);
+    page.setTask('office:theme', () => applyTheme(id, true));
+  };
+
+  /** `strict`: run as a Save task, so a failure throws and the task stays in
+   *  the draft for another Save, instead of only showing a note. */
+  const applyTheme = async (id: ThemeId, strict = false) => {
     setBusy(true);
     try {
       // Tear down every non-god agent through the EXISTING lifecycle (kill PTY →
@@ -71,18 +87,22 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       const victims = nonGodAgents();
       for (const a of victims) {
         if (a.ptyId) {
-          await window.cth.killPty(a.ptyId);
+          // 'sweep': the person chose a theme, not to discard what each agent
+          // had not committed. A dirty worktree is kept and listed in Settings.
+          await window.cth.killPty(a.ptyId, 'sweep');
           disposeTerminal(a.ptyId);
         }
       }
       for (const a of victims) archiveAgent(a.id);
       await window.cth.updateConfig({ officeTheme: id });
       setCurrent(id);
+      setChosen(null);
       setOfficeTheme(id); // → OfficeFloor rebuilds the scene on the new map/cast
       const meta = THEME_META.find((t) => t.id === id);
       if (meta && !meta.built) setNote(t('officeTheme.notBuiltYet', { label: meta.label }));
     } catch (e) {
       setNote(t('officeTheme.switchAborted', { error: e instanceof Error ? e.message : String(e) }));
+      if (strict) throw e;
     } finally {
       setBusy(false);
       setPending(null);
@@ -110,9 +130,9 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
             {t('officeTheme.desc')}
           </span>
         </div>
-        <PixelButton variant={enabled ? 'primary' : 'secondary'} size="sm" onClick={toggleFlag}>
+        <Btn kind={enabled ? 'primary' : 'default'} size="sm" onClick={toggleFlag}>
           {enabled ? t('common.on') : t('common.off')}
-        </PixelButton>
+        </Btn>
       </div>
 
       {/* Theme picker grid (only when the flag is on) */}
@@ -120,6 +140,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
         <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
           {THEME_META.map((theme) => {
             const isCurrent = theme.id === current;
+            const isWaiting = theme.id === waiting;
             return (
               <button
                 key={theme.id}
@@ -128,8 +149,8 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left',
                   padding: 8, cursor: busy ? 'default' : 'pointer',
-                  background: isCurrent ? 'var(--cth-paper-100)' : 'transparent',
-                  boxShadow: isCurrent
+                  background: isCurrent || isWaiting ? 'var(--cth-paper-100)' : 'transparent',
+                  boxShadow: isCurrent || isWaiting
                     ? 'inset 0 0 0 1.5px var(--cth-ink-500)'
                     : 'inset 0 0 0 1px var(--cth-ink-300)',
                   opacity: busy && !isCurrent ? 0.6 : 1,
@@ -149,7 +170,12 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
                         {t('officeTheme.current')}
                       </span>
                     )}
-                    {!theme.built && !isCurrent && (
+                    {isWaiting && (
+                      <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-ink-700)', textTransform: 'uppercase' }} data-theme-waiting>
+                        {t('officeTheme.onSave')}
+                      </span>
+                    )}
+                    {!theme.built && !isCurrent && !isWaiting && (
                       <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-ink-500)', textTransform: 'uppercase' }}>
                         {t('officeTheme.soon')}
                       </span>
@@ -174,8 +200,9 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
           label={pendingMeta.label}
           agents={nonGodAgents()}
           busy={busy}
+          onSave={!!page}
           onCancel={() => setPending(null)}
-          onConfirm={() => void applyTheme(pending)}
+          onConfirm={() => choose(pending)}
         />
       )}
     </div>
@@ -186,11 +213,13 @@ interface VictimAgent { id: string; status?: string; }
 
 /** Destructive confirm for a theme switch with live workers (report §E copy). */
 function ThemeSwitchConfirmModal({
-  label, agents, busy, onCancel, onConfirm,
+  label, agents, busy, onSave, onCancel, onConfirm,
 }: {
   label: string;
   agents: VictimAgent[];
   busy: boolean;
+  /** Inside Settings the switch waits for the page's Save; the button says so. */
+  onSave: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -208,7 +237,7 @@ function ThemeSwitchConfirmModal({
       }}
     >
       <div onClick={(e) => e.stopPropagation()} style={{ width: 480, maxWidth: '92vw' }}>
-        <PixelPanel variant="dialog" title={t('officeTheme.confirmTitle', { label: label.toUpperCase() })} noPadding>
+        <Panel title={t('officeTheme.confirmTitle', { label: label.toUpperCase() })} noPadding>
           <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
               <div style={{
@@ -217,7 +246,7 @@ function ThemeSwitchConfirmModal({
                 boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Icon name="bell" />
+                <ProIcon name="bell" />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{
@@ -246,15 +275,15 @@ function ThemeSwitchConfirmModal({
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <PixelButton variant="secondary" size="md" onClick={onCancel} disabled={busy}>
+              <Btn onClick={onCancel} disabled={busy}>
                 {t('common.cancel')}
-              </PixelButton>
-              <PixelButton variant="destructive" size="md" onClick={onConfirm} disabled={busy}>
-                {busy ? t('officeTheme.switching') : t('officeTheme.deleteSwitch', { count: n })}
-              </PixelButton>
+              </Btn>
+              <Btn kind="danger" onClick={onConfirm} disabled={busy}>
+                {busy ? t('officeTheme.switching') : onSave ? t('officeTheme.deleteOnSave', { count: n }) : t('officeTheme.deleteSwitch', { count: n })}
+              </Btn>
             </div>
           </div>
-        </PixelPanel>
+        </Panel>
       </div>
     </div>
   );

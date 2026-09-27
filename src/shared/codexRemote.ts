@@ -42,8 +42,50 @@ export function codexRemoteEndpoint(shortHome: string): string {
   return `unix://${join(shortHome, CODEX_REMOTE_SOCKET_RELATIVE)}`;
 }
 
-/** Global options must precede `resume`, so prepend the endpoint in all cases. */
+/** Pull every `--add-dir <dir>` (and `--add-dir=<dir>`) out of an argv.
+ *
+ *  Codex refuses the pair outright: `Error: --add-dir is not supported with
+ *  --remote. Configure additional workspace roots on the server.` A user hit
+ *  exactly that (0.5.3): the hive adds the agent folder and the hive root as
+ *  writable roots for auto mode, and remote control then killed the session at
+ *  launch. Under --remote the roots belong in the daemon's config instead
+ *  (`codexWritableRootsToml`). */
+export function splitCodexAddDirs(args: string[]): { args: string[]; dirs: string[] } {
+  const out: string[] = [];
+  const dirs: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--add-dir' && i + 1 < args.length) { dirs.push(args[++i]); continue; }
+    if (a.startsWith('--add-dir=')) { dirs.push(a.slice('--add-dir='.length)); continue; }
+    out.push(a);
+  }
+  return { args: out, dirs };
+}
+
+/** Put `dirs` into a Codex config.toml as `sandbox_workspace_write.writable_roots`,
+ *  the server side twin of --add-dir. Returns null when the config already sets
+ *  writable_roots itself: merging someone's own list is not ours to guess, and
+ *  the caller then keeps the plain local TUI, where --add-dir still works.
+ *
+ *  A dotted key has to sit above the first table header, and a second
+ *  `[sandbox_workspace_write]` header would be a duplicate table, so the line
+ *  goes under the user's header when there is one and at the top otherwise. */
+export function codexWritableRootsToml(toml: string, dirs: string[]): string | null {
+  if (dirs.length === 0) return toml;
+  if (/^\s*(sandbox_workspace_write\.)?writable_roots\s*=/m.test(toml)) return null;
+  const list = `[${dirs.map((d) => JSON.stringify(d)).join(', ')}]`;
+  const header = /^\s*\[sandbox_workspace_write\]\s*$/m.exec(toml);
+  if (header) {
+    const at = header.index + header[0].length;
+    return `${toml.slice(0, at)}\nwritable_roots = ${list}${toml.slice(at)}`;
+  }
+  return `sandbox_workspace_write.writable_roots = ${list}\n${toml}`;
+}
+
+/** Global options must precede `resume`, so prepend the endpoint in all cases.
+ *  --add-dir never survives next to --remote (see splitCodexAddDirs). */
 export function withCodexRemoteArgs(args: string[], endpoint: string): string[] {
-  if (args.includes('--remote')) return args;
-  return ['--remote', endpoint, ...args];
+  const rest = splitCodexAddDirs(args).args;
+  if (rest.includes('--remote')) return rest;
+  return ['--remote', endpoint, ...rest];
 }

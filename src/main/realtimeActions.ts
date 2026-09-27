@@ -10,10 +10,17 @@
  * (or stray audio) tries something, MAIN enforces the tiering, the distinct-token
  * confirm, and the hard allowlist.
  *
- * TIERING (locked by the human 2026-06-25, see board.md Phase-2):
- *   • SOFT writes  — ping, create/assign/update task, dispatch, steer — execute
- *     directly (low blast radius; fully reversible / advisory).
- *   • DESTRUCTIVE / expensive — spawn-hire, kill, pause, halt, edit_schedule —
+ * TIERING (locked by the human 2026-06-25; re-drawn by the founder 9 Sep 2026,
+ * 0.5.2 card v052-voice-michael-persona-rewrite: a yes only before something
+ * destructive, something that sends words to an agent, or something that
+ * spends or widens the floor; everything else just does):
+ *   • SOFT writes  — create/assign/update task, pause, resume, delivery,
+ *     gating, unarchive, enable/disable a schedule, most settings — execute
+ *     directly (reversible, nothing sent, nothing spent).
+ *   • CONFIRM — destructive (kill, halt, archive, clear_context, delete_task,
+ *     delete a schedule), words to an agent (ping, dispatch, steer,
+ *     create_schedule, which sends on a timer), and spend (spawn-hire, autoMode,
+ *     the three budget keys) —
  *     require a two-step VERBAL echo-back: (1) read back exact verb + target
  *     (+ a $ estimate for spawn/hire — STUBBED here; rt-9 wires the real number),
  *     (2) a DISTINCT confirm token (the verb word or "confirm" — NEVER a bare
@@ -99,31 +106,36 @@ export interface ActionResult {
   needsConfirm?: boolean;
 }
 
-type Tier = 'soft' | 'destructive';
+type Tier = 'soft' | 'confirm';
 
 /** Per-verb spec: tier + the human-facing word that must appear in a confirm. */
 const VERBS: Record<string, { tier: Tier; confirmWord: string; agentTargeted: boolean }> = {
-  ping: { tier: 'soft', confirmWord: 'ping', agentTargeted: true },
+  // words to an agent: a yes first (founder, 9 Sep 2026)
+  ping: { tier: 'confirm', confirmWord: 'ping', agentTargeted: true },
+  dispatch: { tier: 'confirm', confirmWord: 'dispatch', agentTargeted: true },
+  steer: { tier: 'confirm', confirmWord: 'steer', agentTargeted: true },
+  create_schedule: { tier: 'confirm', confirmWord: 'schedule', agentTargeted: false },
+  // destructive: a yes first
+  kill: { tier: 'confirm', confirmWord: 'kill', agentTargeted: true },
+  halt: { tier: 'confirm', confirmWord: 'halt', agentTargeted: true },
+  archive: { tier: 'confirm', confirmWord: 'archive', agentTargeted: true },
+  clear_context: { tier: 'confirm', confirmWord: 'clear', agentTargeted: true },
+  delete_task: { tier: 'confirm', confirmWord: 'delete', agentTargeted: false },
+  // edit_schedule: delete asks, enable and disable just do (proposeConfirm)
+  edit_schedule: { tier: 'confirm', confirmWord: 'schedule', agentTargeted: false },
+  // spend: a yes first (god's line, 9 Sep 2026: a misheard hire spends)
+  spawn: { tier: 'confirm', confirmWord: 'spawn', agentTargeted: false },
+  // update_setting: SETTING_POLICY says which keys ask
+  update_setting: { tier: 'confirm', confirmWord: 'setting', agentTargeted: false },
+  // everything else just does
   create_task: { tier: 'soft', confirmWord: 'create', agentTargeted: false },
   assign_task: { tier: 'soft', confirmWord: 'assign', agentTargeted: false },
   update_task: { tier: 'soft', confirmWord: 'update', agentTargeted: false },
-  dispatch: { tier: 'soft', confirmWord: 'dispatch', agentTargeted: true },
-  steer: { tier: 'soft', confirmWord: 'steer', agentTargeted: true },
-  spawn: { tier: 'destructive', confirmWord: 'spawn', agentTargeted: false },
-  kill: { tier: 'destructive', confirmWord: 'kill', agentTargeted: true },
-  pause: { tier: 'destructive', confirmWord: 'pause', agentTargeted: true },
-  halt: { tier: 'destructive', confirmWord: 'halt', agentTargeted: true },
-  edit_schedule: { tier: 'destructive', confirmWord: 'schedule', agentTargeted: false },
-  // ── v0.3.4 full-control extensions ──
+  pause: { tier: 'soft', confirmWord: 'pause', agentTargeted: true },
   resume: { tier: 'soft', confirmWord: 'resume', agentTargeted: true },
   auto_delivery: { tier: 'soft', confirmWord: 'delivery', agentTargeted: true },
   gate_tool: { tier: 'soft', confirmWord: 'gate', agentTargeted: true },
-  delete_task: { tier: 'soft', confirmWord: 'delete', agentTargeted: false },
-  unarchive: { tier: 'soft', confirmWord: 'unarchive', agentTargeted: true },
-  clear_context: { tier: 'destructive', confirmWord: 'clear', agentTargeted: true },
-  archive: { tier: 'destructive', confirmWord: 'archive', agentTargeted: true },
-  create_schedule: { tier: 'destructive', confirmWord: 'schedule', agentTargeted: false },
-  update_setting: { tier: 'destructive', confirmWord: 'setting', agentTargeted: false }
+  unarchive: { tier: 'soft', confirmWord: 'unarchive', agentTargeted: true }
 };
 
 /** v0.3.4 update_setting policy — the ONLY settings voice can touch, each with
@@ -141,22 +153,25 @@ const SETTING_POLICY: Record<string, {
   tvShowOffices: { tier: 'soft', type: 'boolean' },
   officeTheme: { tier: 'soft', type: 'string', values: ['office', 'friends', 'brooklyn99', 'siliconvalley', 'got', 'hogwarts'] },
   terminalTheme: { tier: 'soft', type: 'string', values: ['light', 'dark'] },
-  freeflowEnabled: { tier: 'soft', type: 'boolean' },
   strongKeepalive: { tier: 'soft', type: 'boolean' },
   autoUpdate: { tier: 'soft', type: 'boolean' },
   realtimeIdleDisconnectMs: { tier: 'soft', type: 'number', min: 30_000, max: 3_600_000 },
-  // confirm: behavior-changing — echo old→new + distinct token
+  // 0.5.2: behaviour keys apply at once too (founder: everything else just
+  // does); only the ones that spend or widen the floor still ask.
+  defaultModel: { tier: 'soft', type: 'string' },
+  godProvider: { tier: 'soft', type: 'string' },
+  godModel: { tier: 'soft', type: 'string' },
+  slackEnabled: { tier: 'soft', type: 'boolean' },
+  webhookEnabled: { tier: 'soft', type: 'boolean' },
+  semanticMemory: { tier: 'soft', type: 'boolean' },
+  multiWindow: { tier: 'soft', type: 'boolean' },
+  // confirm: the autonomy switch and the three budget limits — echo old→new
+  // + distinct token (god's line, 9 Sep 2026: a setting that removes a
+  // spending ceiling is in the same class as a hire)
   autoMode: { tier: 'confirm', type: 'boolean' },
-  defaultModel: { tier: 'confirm', type: 'string' },
-  godProvider: { tier: 'confirm', type: 'string' },
-  godModel: { tier: 'confirm', type: 'string' },
   maxConcurrentWorkers: { tier: 'confirm', type: 'number', min: 1, max: 16 },
   costCapTokens: { tier: 'confirm', type: 'number', min: 0, max: 1_000_000_000 },
-  maxTurns: { tier: 'confirm', type: 'number', min: 1, max: 1000 },
-  slackEnabled: { tier: 'confirm', type: 'boolean' },
-  webhookEnabled: { tier: 'confirm', type: 'boolean' },
-  semanticMemory: { tier: 'confirm', type: 'boolean' },
-  multiWindow: { tier: 'confirm', type: 'boolean' }
+  maxTurns: { tier: 'confirm', type: 'number', min: 1, max: 1000 }
 };
 
 const PENDING_TTL_MS = 120_000;
@@ -512,6 +527,21 @@ function execDeleteTask(deps: RealtimeActionDeps, a: Record<string, unknown>): A
   return { ok: true, spoken: `Deleted the task "${card.title}". Recreate it any time if that was wrong.` };
 }
 
+/** Pause just does (0.5.2, founder: resume undoes it, nothing is spent or
+ *  sent), but the hard allowlist still holds: never god, never everyone. */
+function execPause(deps: RealtimeActionDeps, a: Record<string, unknown>): ActionResult {
+  const rawTarget = str(a.agentId) || str(a.target) || str(a.name);
+  if (isMassTarget(rawTarget)) return { ok: false, spoken: 'pause on all agents at once is voice-forbidden. Do it agent by agent, or use the UI.' };
+  const r = resolveAgent(rawTarget, deps.hiveRegistry());
+  if ('error' in r) return { ok: false, spoken: r.error };
+  if (r.isGod) return { ok: false, spoken: 'pause on the god orchestrator is voice-forbidden. That has to be done in the UI.' };
+  const breaker = deps.controlSnapshot(r.id);
+  if (breaker?.paused) return { ok: true, spoken: `${r.name} is already paused.` };
+  deps.controlPause(r.id, true);
+  attribute(deps, 'pause', r.id);
+  return { ok: true, spoken: `Paused ${r.name}.` };
+}
+
 function execUnarchive(deps: RealtimeActionDeps, a: Record<string, unknown>): ActionResult {
   const r = resolveAgent(str(a.agentId) || str(a.target) || str(a.name), deps.hiveRegistry());
   if ('error' in r) return { ok: false, spoken: r.error };
@@ -586,27 +616,70 @@ function buildArchive(deps: RealtimeActionDeps, r: ResolvedAgent): () => Promise
   };
 }
 
+/** One schedule edit, applied now. The confirm path (delete) wraps it in a
+ *  commit; the soft path (enable, disable) calls it straight (0.5.2). */
+function editScheduleNow(deps: RealtimeActionDeps, mission: ScheduledMission, action: 'enable' | 'disable' | 'delete'): string {
+  const all = deps.listMissions();
+  let next: ScheduledMission[];
+  if (action === 'delete') next = all.filter((m) => m.id !== mission.id);
+  else next = all.map((m) => (m.id === mission.id ? { ...m, enabled: action === 'enable' } : m));
+  deps.saveMissions(next);
+  attribute(deps, 'edit_schedule', mission.id, { action });
+  return `${action === 'delete' ? 'Deleted' : action === 'enable' ? 'Enabled' : 'Disabled'} the "${mission.label}" schedule.`;
+}
+
 function buildEditSchedule(
   deps: RealtimeActionDeps,
   mission: ScheduledMission,
   action: 'enable' | 'disable' | 'delete'
 ): () => Promise<string> {
-  return async () => {
-    const all = deps.listMissions();
-    let next: ScheduledMission[];
-    if (action === 'delete') next = all.filter((m) => m.id !== mission.id);
-    else next = all.map((m) => (m.id === mission.id ? { ...m, enabled: action === 'enable' } : m));
-    deps.saveMissions(next);
-    attribute(deps, 'edit_schedule', mission.id, { action });
-    return `${action === 'delete' ? 'Deleted' : action === 'enable' ? 'Enabled' : 'Disabled'} the "${mission.label}" schedule.`;
-  };
+  return async () => editScheduleNow(deps, mission, action);
 }
 
 // ─── propose: classify, allowlist-gate, run-or-stage ────────────────────────
 
-function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<string, unknown>): ActionResult {
+function proposeConfirm(deps: RealtimeActionDeps, verb: string, a: Record<string, unknown>): ActionResult {
   const spec = VERBS[verb];
   const reg = deps.hiveRegistry();
+
+  // Words to an agent (0.5.2): ping, dispatch, steer read back what will be
+  // sent and to whom, then the ordinary exec runs on confirm. The target is
+  // resolved and the text checked NOW, so the read back names the agent and
+  // a missing objective is asked for before anyone says "confirm".
+  if (verb === 'ping' || verb === 'dispatch' || verb === 'steer') {
+    const r = resolveAgent(str(a.agentId) || str(a.target) || str(a.name), reg);
+    if ('error' in r) return { ok: false, spoken: r.error };
+    const text = verb === 'ping'
+      ? (str(a.message) || str(a.text) || 'Checking in.')
+      : verb === 'dispatch'
+        ? (str(a.objective) || str(a.task) || str(a.message))
+        : (str(a.text) || str(a.message) || str(a.steer));
+    if (!text) return { ok: false, spoken: verb === 'dispatch' ? 'What should I dispatch? I need an objective.' : 'What guidance should I steer them with?' };
+    const exec = verb === 'ping' ? execPing : verb === 'dispatch' ? execDispatch : execSteer;
+    pending = {
+      verb, confirmWord: spec.confirmWord, targetLabel: r.name, createdAt: Date.now(),
+      commit: async () => { const res = exec(deps, a); if (!res.ok) throw new Error(res.spoken); return res.spoken; }
+    };
+    return {
+      ok: true,
+      needsConfirm: true,
+      spoken: `${verb === 'dispatch' ? 'Dispatch to' : verb === 'ping' ? 'Ping' : 'Steer'} ${r.name}: "${text.slice(0, 120)}". Say "confirm" or "${spec.confirmWord}" to send it, "cancel" to drop it.`
+    };
+  }
+
+  // Deleting a card is destructive (0.5.2): read it back first.
+  if (verb === 'delete_task') {
+    const ref = str(a.taskId) || str(a.task) || str(a.title);
+    if (!ref) return { ok: false, spoken: 'Which task should I delete?' };
+    const { card, ambiguous } = findCard(deps, ref);
+    if (ambiguous) return { ok: false, spoken: `Which one — ${ambiguous.map((c) => `"${c.title}"`).join(', or ')}?` };
+    if (!card) return { ok: false, spoken: `I couldn't find a task matching "${ref}".` };
+    pending = {
+      verb, confirmWord: spec.confirmWord, targetLabel: card.title, createdAt: Date.now(),
+      commit: async () => { const res = execDeleteTask(deps, { taskId: card.id }); if (!res.ok) throw new Error(res.spoken); return res.spoken; }
+    };
+    return { ok: true, needsConfirm: true, spoken: `Delete the task "${card.title}"? Say "confirm" or "delete" to go ahead, "cancel" to keep it.` };
+  }
 
   // Agent-targeted destructive verbs: resolve + hard allowlist (god + mass).
   if (spec.agentTargeted) {
@@ -623,7 +696,6 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
 
     const commit =
       verb === 'kill' ? buildKill(deps, r)
-      : verb === 'pause' ? buildPause(deps, r)
       : verb === 'halt' ? buildHalt(deps, r)
       : verb === 'clear_context' ? buildClearContext(deps, r)
       : buildArchive(deps, r);
@@ -677,6 +749,11 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
     const raw = norm(str(a.action) || str(a.op));
     const action: 'enable' | 'disable' | 'delete' =
       raw.includes('delete') || raw.includes('remove') ? 'delete' : raw.includes('disable') || raw.includes('off') || raw.includes('pause') ? 'disable' : 'enable';
+    // 0.5.2: enabling or disabling is reversible and sends nothing now, so
+    // it just does; deleting is destructive and asks.
+    if (action !== 'delete') {
+      return { ok: true, spoken: editScheduleNow(deps, m, action) };
+    }
     pending = {
       verb,
       confirmWord: 'schedule',
@@ -778,8 +855,8 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
   return { ok: false, spoken: `I don't know how to ${verb}.` };
 }
 
-/** Top-level propose/execute for one verb. Soft writes run now; destructive ones
- *  stage a pending and ask for verbal confirm. */
+/** Top-level propose/execute for one verb. Soft writes run now; confirm-tier
+ *  ones stage a pending and ask for verbal confirm. */
 function runAction(deps: RealtimeActionDeps, verb: string, a: Record<string, unknown>): ActionResult {
   if (!deps.hiveEnabled()) return { ok: false, spoken: 'The hive is not configured, so I can\'t take that action.' };
   const spec = VERBS[verb];
@@ -788,21 +865,18 @@ function runAction(deps: RealtimeActionDeps, verb: string, a: Record<string, unk
   pending = null;
   if (spec.tier === 'soft') {
     switch (verb) {
-      case 'ping': return execPing(deps, a);
-      case 'dispatch': return execDispatch(deps, a);
-      case 'steer': return execSteer(deps, a);
+      case 'pause': return execPause(deps, a);
       case 'create_task': return execCreateTask(deps, a);
       case 'assign_task': return execAssignTask(deps, a);
       case 'update_task': return execUpdateTask(deps, a);
       case 'resume': return execResume(deps, a);
       case 'auto_delivery': return execAutoDelivery(deps, a);
       case 'gate_tool': return execGateTool(deps, a);
-      case 'delete_task': return execDeleteTask(deps, a);
       case 'unarchive': return execUnarchive(deps, a);
       default: return { ok: false, spoken: `I don't know how to ${verb}.` };
     }
   }
-  return proposeDestructive(deps, verb, a);
+  return proposeConfirm(deps, verb, a);
 }
 
 // ─── IPC registration ───────────────────────────────────────────────────────

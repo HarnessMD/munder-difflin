@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useAppTheme } from '@/design/theme';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -14,43 +15,67 @@ import { Icon } from './Icon';
 import { PixelButton } from './PixelButton';
 
 // ─── Theme matching CTH palette ─────────────────────────────────────────────
-const cthEditorTheme = EditorView.theme({
+// UNLIKE xterm AND MONACO, CodeMirror can read CSS. It emits real stylesheet
+// rules against real DOM nodes, so `var(--cth-*)` resolves at paint time and this
+// surface follows BOTH axes with no JavaScript at all — no token values are
+// re-stated here and none can drift. (xterm paints to a canvas and Monaco carries
+// its own colour model, which is why those two need design/surfaceTheme.ts.)
+//
+// It used to be hard-coded cream with `{ dark: false }` and `theme="light"` on
+// the component, so the file editor stayed light in Office DARK as well — a
+// shipped bug, not a Professional-only one.
+const cthEditorTheme = (dark: boolean) => EditorView.theme({
   '&': {
-    background: '#FCFAF0',
-    color: '#1A1320',
+    background: 'var(--cth-paper-100)',
+    color: 'var(--cth-ink-900)',
     height: '100%',
     fontFamily: 'VT323, "JetBrains Mono", monospace',
     fontSize: '16px'
   },
-  '.cm-content': { caretColor: '#FF6B6B', padding: '8px 0' },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#FF6B6B', borderLeftWidth: '2px' },
+  '.cm-content': { caretColor: 'var(--cth-coral)', padding: '8px 0' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--cth-coral)', borderLeftWidth: '2px' },
   '.cm-scroller': { fontFamily: 'inherit', overflow: 'auto' },
   '.cm-gutters': {
-    background: '#F0EAD2',
-    color: '#6B5878',
-    borderRight: '1px solid #D9CFE0'
+    background: 'var(--cth-cream-100)',
+    color: 'var(--cth-ink-500)',
+    borderRight: '1px solid var(--cth-ink-100)'
   },
-  '.cm-activeLineGutter': { background: '#FFEC99' },
-  '.cm-activeLine': { background: 'rgba(255, 217, 61, 0.10)' },
-  '.cm-selectionBackground, ::selection': { background: '#FFEC99 !important' },
-  '.cm-searchMatch': { background: '#A8E6E0', outline: '1px solid #1A1320' },
-  '.cm-searchMatch.cm-searchMatch-selected': { background: '#FFD93D' }
-}, { dark: false });
+  '.cm-activeLineGutter': { background: 'var(--cth-cream-200)' },
+  '.cm-activeLine': { background: 'var(--cth-cream-200)' },
+  '.cm-selectionBackground, ::selection': { background: 'var(--cth-cream-200) !important' },
+  '.cm-searchMatch': { background: 'var(--cth-lemon-light)', outline: '1px solid var(--cth-ink-900)' },
+  '.cm-searchMatch.cm-searchMatch-selected': { background: 'var(--cth-lemon)' }
+}, { dark });
 
-const cthSyntax = HighlightStyle.define([
-  { tag: tags.keyword,        color: '#B197FC' },
-  { tag: tags.operator,       color: '#6B5878' },
-  { tag: [tags.string, tags.regexp], color: '#6BCF7F' },
-  { tag: [tags.number, tags.bool, tags.null], color: '#FF6B6B' },
-  { tag: tags.comment,        color: '#6B5878', fontStyle: 'italic' },
-  { tag: tags.variableName,   color: '#1A1320' },
-  { tag: tags.function(tags.variableName), color: '#FFA07A' },
-  { tag: [tags.typeName, tags.className], color: '#4ECDC4' },
-  { tag: tags.propertyName,   color: '#3D2E4A' },
-  { tag: tags.heading,        color: '#1A1320', fontWeight: 'bold' as any },
-  { tag: tags.link,           color: '#4ECDC4', textDecoration: 'underline' as any },
-  { tag: tags.meta,           color: '#6B5878' }
-]);
+/* Syntax hues, the one part that is NOT a token. These describe code structure,
+   not our chrome, so there is no --cth-* slot for them — the same argument that
+   keeps the sixteen ANSI slots literal in design/surfaceTheme.ts. The dark set is
+   not invented: it reuses the Office dark ANSI hues already tuned for legibility
+   on a dark ground, which is what Monaco's dark rules use too, so the two editors
+   agree. Structural colours (variables, headings, operators, comments) go through
+   tokens and so follow the skin. */
+const SYNTAX = {
+  light: { keyword: '#B197FC', string: '#6BCF7F', number: '#FF6B6B', fn: '#FFA07A', type: '#4ECDC4' },
+  dark:  { keyword: '#A896E3', string: '#74C096', number: '#E08C82', fn: '#CFAA57', type: '#6FB3C4' }
+};
+
+const cthSyntax = (dark: boolean) => {
+  const c = dark ? SYNTAX.dark : SYNTAX.light;
+  return HighlightStyle.define([
+    { tag: tags.keyword,        color: c.keyword },
+    { tag: tags.operator,       color: 'var(--cth-ink-500)' },
+    { tag: [tags.string, tags.regexp], color: c.string },
+    { tag: [tags.number, tags.bool, tags.null], color: c.number },
+    { tag: tags.comment,        color: 'var(--cth-ink-500)', fontStyle: 'italic' },
+    { tag: tags.variableName,   color: 'var(--cth-ink-900)' },
+    { tag: tags.function(tags.variableName), color: c.fn },
+    { tag: [tags.typeName, tags.className], color: c.type },
+    { tag: tags.propertyName,   color: 'var(--cth-ink-700)' },
+    { tag: tags.heading,        color: 'var(--cth-ink-900)', fontWeight: 'bold' as any },
+    { tag: tags.link,           color: c.type, textDecoration: 'underline' as any },
+    { tag: tags.meta,           color: 'var(--cth-ink-500)' }
+  ]);
+};
 
 function extensionsFor(filename: string) {
   const ext = filename.split('.').pop()?.toLowerCase() ?? '';
@@ -78,6 +103,7 @@ export interface CodeEditorProps {
 export function CodeEditor({
   root, filePath, onOpenInIde, onCopyPath
 }: CodeEditorProps) {
+  const appTheme = useAppTheme();
   const [content, setContent] = useState<string>('');
   const [originalContent, setOriginalContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -142,8 +168,8 @@ export function CodeEditor({
   }, [save]);
 
   const extensions = useMemo(
-    () => [cthEditorTheme, syntaxHighlighting(cthSyntax), ...(filePath ? extensionsFor(filePath) : [])],
-    [filePath]
+    () => [cthEditorTheme(appTheme === 'dark'), syntaxHighlighting(cthSyntax(appTheme === 'dark')), ...(filePath ? extensionsFor(filePath) : [])],
+    [filePath, appTheme]
   );
 
   if (!filePath) {
@@ -232,7 +258,7 @@ export function CodeEditor({
             onChange={(v) => setContent(v)}
             extensions={extensions}
             height="100%"
-            theme="light"
+            theme={appTheme}
             basicSetup={{
               lineNumbers: true,
               highlightActiveLine: true,

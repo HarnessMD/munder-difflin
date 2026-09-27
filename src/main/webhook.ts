@@ -39,9 +39,11 @@
  * access, which lives in the main entrypoint); this class owns only transport,
  * the secret gate, schema validation, rate limiting, and the tunnel.
  */
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import { randomBytes, timingSafeEqual } from 'node:crypto';
-import { validateAgainstSchema, type InboundKind } from '../shared/triggers';
+import { createServer, type IncomingHttpHeaders, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { hasServiceSignature, inboundFromService, isServiceSource, verifyServiceSignature, type ServiceSource } from './serviceWebhooks';
+import { validateAgainstSchema, type InboundKind, type WebhookAuth, type WebhookSource } from '../shared/triggers';
+import type { BoundPort } from '../shared/boundPort';
 // NOTE: `tunnelmole` is an ESM-only package. The Electron main process is bundled
 // as CommonJS, so a static `import` gets externalized into `require('tunnelmole')`
 // and throws ERR_REQUIRE_ESM at load. It is imported dynamically inside
@@ -58,6 +60,11 @@ export interface WebhookEndpoint {
   secret: string;
   /** User-editable JSON Schema (serialised) inbound bodies are checked against. */
   schema: string;
+  /** GitHub, Linear or Telegram: their own signature and payload instead of
+   *  ours (main/serviceWebhooks.ts). Absent or `custom` is our contract. */
+  source?: WebhookSource;
+  /** A custom caller's proof: header (default), bearer or hmac. */
+  auth?: WebhookAuth;
 }
 
 /** What the dispatch handler is told about the endpoint a message arrived on.
@@ -104,6 +111,9 @@ export interface WebhookServerOptions {
   port: number;
   /** The endpoints to serve. May be swapped later with `setEndpoints`. */
   endpoints: WebhookEndpoint[];
+  /** How the public tunnel is opened. The app leaves this out and gets
+   *  tunnelmole; a test passes its own so no network is touched. */
+  openTunnel?: (port: number) => Promise<string>;
   /**
    * Turn a verified POST into hive work (or into a held message awaiting the
    * operator). Return null to signal a server-side failure (→ 500). The token it
@@ -143,7 +153,14 @@ const UNKNOWN_BUCKET = ':unknown';
 export class WebhookServer {
   private server: Server | null = null;
   private tunnelUrl: string | null = null;
-  private readonly port: number;
+  /** The port this server is bound to, or will try first. It moves when the
+   *  asked for port is taken (0.5.3, the rest of bug 11), and the tunnel follows. */
+  private port: number;
+  /** The port config asked for. Only ever reported, never bound again. */
+  private readonly requestedPort: number;
+  /** Set when the asked for port was taken and the server moved off it. */
+  private movedFromPort: number | undefined;
+  private readonly tunnelOpener?: (port: number) => Promise<string>;
   private endpoints = new Map<string, WebhookEndpoint>();
   private readonly onMessage: (msg: WebhookInbound, endpoint: WebhookEndpointRef) => WebhookDispatch | null;
   private readonly lookupStatus: (token: string) => WebhookTaskStatus | null;
@@ -157,6 +174,8 @@ export class WebhookServer {
 
   constructor(opts: WebhookServerOptions) {
     this.port = opts.port;
+    this.requestedPort = opts.port;
+    this.tunnelOpener = opts.openTunnel;
     this.onMessage = opts.onMessage;
     this.lookupStatus = opts.lookupStatus;
     this.setEndpoints(opts.endpoints);
@@ -194,6 +213,13 @@ export class WebhookServer {
     return this.tunnelUrl;
   }
 
+  /** Where the server really is, for Settings (shared/boundPort.ts). Empty when
+   *  it is not bound. */
+  boundPort(): BoundPort {
+    if (!this.server) return {};
+    return { port: this.port, ...(this.movedFromPort !== undefined ? { movedFrom: this.movedFromPort } : {}) };
+  }
+
   /** Is the local HTTP server bound? `start()` reports ok:false for a tunnel
    *  failure too, and in THAT case the security boundary is still live — the
    *  caller must keep the instance (or the listener leaks, unstoppable). */
@@ -207,24 +233,41 @@ export class WebhookServer {
    * opened afterwards and is non-fatal — if it can't be established the server
    * keeps running and we report the tunnel error without a URL.
    */
-  async start(): Promise<{ ok: boolean; url?: string; error?: string }> {
+  async start(): Promise<{ ok: boolean; url?: string; error?: string } & BoundPort> {
     if (this.server) return { ok: false, error: 'already running' };
     if (this.endpoints.size === 0) return { ok: false, error: 'no enabled webhook endpoints' };
+    this.movedFromPort = undefined;
     try {
-      await this.listen();
+      await this.listen(this.requestedPort);
     } catch (e) {
-      this.stop();
-      return { ok: false, error: `failed to bind port ${this.port}: ${errMsg(e)}` };
+      // 0.5.3, the rest of bug 11. A taken port used to leave every webhook off
+      // until the person found what held it. Callers through the tunnel do not
+      // know the local port, and the tunnel is opened below to whatever was
+      // bound, so for them a free port is as good. A LOCAL caller pointed at the
+      // configured port does break, which is why the move is reported
+      // (boundPort) and shown in Settings instead of being silent.
+      if ((e as NodeJS.ErrnoException)?.code !== 'EADDRINUSE') {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort}: ${errMsg(e)}` };
+      }
+      try {
+        await this.listen(0);
+        this.movedFromPort = this.requestedPort;
+      } catch (e2) {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort} (in use) or any free port: ${errMsg(e2)}` };
+      }
     }
+    const bound = this.boundPort();
     try {
       const url = await this.openTunnel();
       if (!url) throw new Error('tunnelmole returned empty URL');
       this.tunnelUrl = url;
       // tunnelmole runs in the background; there is no close handle to wire here.
-      return { ok: true, url };
+      return { ok: true, url, ...bound };
     } catch (e) {
       // Surface the tunnel failure rather than silently returning ok:true with no url.
-      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}` };
+      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}`, ...bound };
     }
   }
 
@@ -234,22 +277,27 @@ export class WebhookServer {
     this.tunnelUrl = null;
     try { this.server?.close(); } catch { /* noop */ }
     this.server = null;
+    this.movedFromPort = undefined;
   }
 
-  private listen(): Promise<void> {
+  private listen(port: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const server = createServer((req, res) => this.handleRequest(req, res));
       const onError = (e: Error): void => reject(e);
       server.once('error', onError);
-      server.listen(this.port, () => {
+      server.listen(port, () => {
         server.off('error', onError);
         this.server = server;
+        // Port 0 means "any": read back the one the system gave.
+        const addr = server.address();
+        this.port = addr && typeof addr === 'object' ? addr.port : port;
         resolve();
       });
     });
   }
 
   private async openTunnel(): Promise<string> {
+    if (this.tunnelOpener) return this.tunnelOpener(this.port);
     // TODO: optional persistent domain — pass `domain` here when config carries one.
     // Dynamic import keeps the ESM-only `tunnelmole` out of the CJS require graph.
     const { tunnelmole } = await import('tunnelmole');
@@ -310,10 +358,15 @@ export class WebhookServer {
 
   /** POST — verify this endpoint's secret, then buffer + validate + dispatch. */
   private handleCreate(req: IncomingMessage, res: ServerResponse, endpoint: WebhookEndpoint | null): void {
+    if (endpoint && isServiceSource(endpoint.source)) { this.handleServiceCreate(req, res, endpoint, endpoint.source); return; }
     // Authenticate BEFORE reading the body so an unauthenticated peer can't even
     // make us buffer (within the size cap). 401 on any failure — no detail leaked,
     // and an unknown id lands here too so it is answered identically.
-    if (!this.verifySecret(req, endpoint) || !endpoint) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+    // An HMAC caller signs the body, so only the header's presence can be
+    // checked now; the signature itself is checked once the body is in.
+    const hmac = endpoint?.auth === 'hmac';
+    if (hmac ? !hasCustomSignature(req.headers) : (!this.verifySecret(req, endpoint) || !endpoint)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+    if (!endpoint) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
 
     const chunks: Buffer[] = [];
     let size = 0;
@@ -326,8 +379,10 @@ export class WebhookServer {
     });
     req.on('end', () => {
       if (aborted) return;
+      const raw = Buffer.concat(chunks);
+      if (hmac && !verifyCustomSignature(req.headers, raw, endpoint.secret)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
       let parsed: unknown;
-      try { parsed = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+      try { parsed = JSON.parse(raw.toString('utf8')); }
       catch { json(res, 400, { ok: false, error: 'bad json' }); return; }
 
       // The endpoint's own schema decides what a valid body is. Echoing the
@@ -372,6 +427,44 @@ export class WebhookServer {
   }
 
   /**
+   * POST from GitHub, Linear or Telegram (0.5.3). Their signature covers the
+   * raw body, so the header's presence is checked first (nothing to prove,
+   * nothing buffered) and the signature itself once the body is in. Their own
+   * payload is turned into the message, so the endpoint's schema does not
+   * apply. An event with nothing for an agent answers 200 so the service does
+   * not retry it, and goes nowhere.
+   */
+  private handleServiceCreate(req: IncomingMessage, res: ServerResponse, endpoint: WebhookEndpoint, source: ServiceSource): void {
+    if (!hasServiceSignature(source, req.headers)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+    const chunks: Buffer[] = [];
+    let size = 0;
+    let aborted = false;
+    req.on('data', (c: Buffer) => {
+      if (aborted) return;
+      size += c.length;
+      if (size > MAX_BODY_BYTES) { aborted = true; json(res, 413, { ok: false, error: 'too large' }); req.destroy(); return; }
+      chunks.push(c);
+    });
+    req.on('end', () => {
+      if (aborted) return;
+      const raw = Buffer.concat(chunks);
+      if (!verifyServiceSignature(source, req.headers, raw, endpoint.secret)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+      let parsed: unknown;
+      try { parsed = JSON.parse(raw.toString('utf8')); }
+      catch { json(res, 400, { ok: false, error: 'bad json' }); return; }
+      const got = inboundFromService(source, req.headers, parsed);
+      if (got.skip) { json(res, 200, { ok: true, ignored: got.reason }); return; }
+      const inbound: WebhookInbound = { message: got.message, title: got.title, ...(got.from ? { from: got.from } : {}) };
+      let out: WebhookDispatch | null = null;
+      try { out = this.onMessage(inbound, { id: endpoint.id, name: endpoint.name }); }
+      catch { json(res, 500, { ok: false, error: 'could not create task' }); return; }
+      if (!out) { json(res, 500, { ok: false, error: 'could not create task' }); return; }
+      json(res, out.pending ? 202 : 200, out.pending ? { ok: true, pending: true, status: 'awaiting-approval' } : { ok: true, taskId: out.taskId });
+    });
+    req.on('error', () => { if (!aborted) { try { res.writeHead(400); res.end(); } catch { /* socket gone */ } } });
+  }
+
+  /**
    * Constant-time check that `x-md-webhook-secret` equals THIS endpoint's secret.
    * A length mismatch is itself a failure and short-circuits before the compare
    * (timingSafeEqual throws on unequal lengths).
@@ -381,7 +474,9 @@ export class WebhookServer {
    * the same as "wrong secret" and answers with the same 401.
    */
   private verifySecret(req: IncomingMessage, endpoint: WebhookEndpoint | null): boolean {
-    const provided = req.headers['x-md-webhook-secret'];
+    // 'bearer' reads the secret from Authorization; 'header' (and an unknown
+    // id) from x-md-webhook-secret. Either way the compare below is the same.
+    const provided = endpoint?.auth === 'bearer' ? bearerToken(req.headers.authorization) : req.headers['x-md-webhook-secret'];
     if (typeof provided !== 'string') return false;
     const a = Buffer.from(provided);
     const b = Buffer.from(endpoint ? endpoint.secret : this.decoySecret);
@@ -389,6 +484,27 @@ export class WebhookServer {
     const equal = timingSafeEqual(a, b);
     return endpoint ? equal : false;
   }
+}
+
+/** The token of an `Authorization: Bearer <token>` header, or null. */
+export function bearerToken(h: string | undefined): string | null {
+  const m = typeof h === 'string' ? /^Bearer\s+(\S+)\s*$/i.exec(h) : null;
+  return m ? m[1] : null;
+}
+
+/** The header an HMAC caller signs with, and its `sha256=<hex>` value. */
+export const CUSTOM_SIGNATURE_HEADER = 'x-md-signature';
+function hasCustomSignature(headers: IncomingHttpHeaders): boolean {
+  const v = headers[CUSTOM_SIGNATURE_HEADER];
+  return typeof v === 'string' && v.length > 0;
+}
+/** Does `x-md-signature` carry sha256=HMAC(secret, body)? Constant time. */
+export function verifyCustomSignature(headers: IncomingHttpHeaders, rawBody: Buffer, secret: string): boolean {
+  const got = headers[CUSTOM_SIGNATURE_HEADER];
+  if (typeof got !== 'string' || !secret) return false;
+  const want = Buffer.from(`sha256=${createHmac('sha256', secret).update(rawBody).digest('hex')}`);
+  const have = Buffer.from(got.trim().toLowerCase());
+  return have.length === want.length && timingSafeEqual(have, want);
 }
 
 /**

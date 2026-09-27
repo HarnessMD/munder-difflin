@@ -44,15 +44,53 @@ export async function deliverWithAcknowledgement(
  *
  * Fails CLOSED on an unknown `ptyQuietMs` (no reading, or a PTY that has never
  * emitted): silence we cannot measure is not evidence of silence.
+ *
+ * `questionOpen` (0.5.3 bug 19) overrides every status, `idle` included. A
+ * multiple choice menu waiting for a person is silent, and silence is what
+ * lands an agent on `idle`: the quiescence fallback does it after twelve
+ * seconds and the idle Notification does it after a minute. The status cannot
+ * be trusted to say a menu is up, so the tool call that opened it is asked
+ * directly (shared/openQuestion.ts).
  */
 export function canDeliverToAgent(
   status: string,
   ptyQuietMs: number | null,
-  quiesceMs: number
+  quiesceMs: number,
+  questionOpen = false
 ): boolean {
+  if (questionOpen) return false;
   if (status === 'idle') return true;
   if (status !== 'looping') return false;
   return ptyQuietMs !== null && ptyQuietMs >= quiesceMs;
+}
+
+/**
+ * What the agent's status becomes the moment a message has been typed into its
+ * terminal and Return pressed (0.5.3 bug 7).
+ *
+ * Only two things ever set `working`: a hook event from the agent's own CLI, and
+ * the terminal parser, which runs only while that agent's terminal is open. The
+ * app typing a task into an agent is a third fact, and the app is the one party
+ * that knows it for certain. Without this an engine with no hook bridge (kimi,
+ * cursor, copilot, custom) never read as working unless someone was looking at
+ * its terminal, so the orchestrator could hand it a task, the card could read
+ * "doing", and the row stayed grey with the header counting one agent active.
+ *
+ * Safe for every engine because the quiescence fallback takes `working` back
+ * after the terminal has been silent, hooks or no hooks.
+ *
+ * Null means leave the status alone:
+ *  - a slash command starts no turn (/clear, /model, /context), and /compact
+ *    reports itself through PreCompact;
+ *  - a breaker pinned agent stays `looping`, the pin outranks everything.
+ */
+export function statusAfterDelivery(
+  text: string,
+  breakerArmed: boolean
+): { status: 'working'; action: string } | null {
+  const typed = text.trim();
+  if (!typed || typed.startsWith('/') || breakerArmed) return null;
+  return { status: 'working', action: 'reading a new message' };
 }
 
 /** The subset of a QueuedMessage this module needs. Kept structural so the
@@ -89,4 +127,29 @@ export async function checkPrecondition(
   } catch {
     return 'send';
   }
+}
+
+/**
+ * SEND NOW GOES STRAIGHT IN (founder, 25 Sep 2026): "Send now" on a queued
+ * message types it into the agent's own CLI at once and submits it, even
+ * mid-turn, so the CLI's own queue holds it. It jumps every other app-queued
+ * message and leaves the app queue once the CLI has it.
+ *
+ * Only CLIs known to take input typed mid-turn: Claude Code queues a message
+ * submitted while it works and runs it after the turn. Every other engine is
+ * unverified, so it keeps the old rule (front of the queue, typed once idle).
+ *
+ * A question on screen still holds it, as does `waiting` / `blocked`: the
+ * Return that submits would ANSWER the prompt, the same reason the ordinary
+ * gate refuses those (canDeliverToAgent above).
+ */
+export const MID_TURN_INPUT_PROVIDERS: readonly string[] = ['claude'];
+
+export function takesInputMidTurn(provider: string): boolean {
+  return MID_TURN_INPUT_PROVIDERS.includes(provider);
+}
+
+export function canSendNowMidTurn(status: string, provider: string, questionOpen = false): boolean {
+  if (questionOpen || !takesInputMidTurn(provider)) return false;
+  return status === 'idle' || status === 'working' || status === 'thinking' || status === 'looping';
 }

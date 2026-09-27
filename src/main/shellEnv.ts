@@ -55,6 +55,24 @@ function captureFromLoginShellUncached(script: string): string | null {
   }
 }
 
+/** Forget the cached shell PATH and every cached capture, so the next lookup
+ *  boots a fresh login shell. For the moments a CLI may have just landed
+ *  somewhere new: an install ended, or the person set one up by hand (batch 4).
+ *  A native installer (kimi, grok) adds its own bin folder to the rc files,
+ *  which the PATH read at app start never saw. */
+export function forgetShellLookups(): void {
+  cachedPath = null;
+  shellCapture.clear();
+}
+
+/** Folders the vendors' own installers put their binary in, checked after
+ *  `which` (0.5.3): npm's user prefix, Claude's local install, Volta, and the
+ *  native kimi and grok installers, whose folders are on no PATH until a new
+ *  shell reads the line they added. */
+export function commonBinDirs(home: string): string[] {
+  return ['/opt/homebrew/bin', '/usr/local/bin', `${home}/.local/bin`, `${home}/.claude/local`, `${home}/.volta/bin`, `${home}/.kimi-code/bin`, `${home}/.grok/bin`];
+}
+
 /** The user's interactive-shell PATH, queried once and cached for the session. */
 export function userShellPath(): string {
   if (cachedPath !== null) return cachedPath;
@@ -163,13 +181,7 @@ export function resolveCommand(command: string): string {
     const path = which.trim().split('\n').map((l) => l.trim()).filter(Boolean).pop();
     if (path && existsSync(path)) return path;
   }
-  const candidates = [
-    `/opt/homebrew/bin/${command}`,
-    `/usr/local/bin/${command}`,
-    `${process.env.HOME ?? ''}/.local/bin/${command}`,
-    `${process.env.HOME ?? ''}/.claude/local/${command}`,
-    `${process.env.HOME ?? ''}/.volta/bin/${command}`
-  ];
+  const candidates = commonBinDirs(process.env.HOME ?? '').map((d) => `${d}/${command}`);
   for (const c of candidates) if (existsSync(c)) return c;
   return command;
 }

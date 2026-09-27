@@ -1,0 +1,297 @@
+{
+ "model": "ggml-small.en-q5_1.bin",
+ "whisper": "a44e07845931421bb6f3447ce0010ed9dc76a118",
+ "ref": {
+  "you": "Yes, the installer passed the gate last night and the notes are written. That is what I am fixing today, the labels and the echo from the speakers. Sure, I will send them this afternoon. I saw that, finance is correcting it and a new invoice goes out on Friday. Thursday at ten works for me, talk then.",
+  "them": "Morning. Can you give me a quick update on the desktop release and whether the installer is ready. Good. The customer in Berlin asked about the meeting transcripts, they want the speaker labels to be right. Please send me the numbers when you have them, and copy the support team on the thread. One more thing, the invoice for September still shows the old price for the team plan. Perfect. Let us talk again on Thursday at ten."
+ },
+ "them": [
+  {
+   "t0": 0,
+   "t1": 6,
+   "text": "Morning, can you give me a quick update on the desktop release and whether the installer is ready."
+  },
+  {
+   "t0": 14,
+   "t1": 21,
+   "text": "Good, the customer in Berlin asked about the meeting transcripts, they want the speaker labels to be right."
+  },
+  {
+   "t0": 28,
+   "t1": 33,
+   "text": "Please send me the numbers when you have them, and copy the support team on the thread."
+  },
+  {
+   "t0": 37,
+   "t1": 43,
+   "text": "One more thing, the invoice for September still shows the old price for the team plan."
+  },
+  {
+   "t0": 50,
+   "t1": 54,
+   "text": "Perfect, let us talk again on Thursday at 10."
+  },
+  {
+   "t0": 58,
+   "t1": 60.06,
+   "text": "you"
+  }
+ ],
+ "scenarios": {
+  "none": {
+   "you": [
+    {
+     "t0": 0,
+     "t1": 22.12,
+     "text": "Yes, the installer passed the gate last night and the notes are written."
+    },
+    {
+     "t0": 22.12,
+     "t1": 31.26,
+     "text": "That is what I am fixing today, the labels and the echo from the speakers."
+    },
+    {
+     "t0": 31.26,
+     "t1": 44.5,
+     "text": "Sure, I will send them this afternoon."
+    },
+    {
+     "t0": 44.5,
+     "t1": 54.58,
+     "text": "I saw that, finances correcting it and a new invoice goes out on Friday."
+    },
+    {
+     "t0": 54.58,
+     "t1": 57,
+     "text": "Thursday at 10 works for me, talk then."
+    }
+   ]
+  },
+  "quiet": {
+   "you": [
+    {
+     "t0": 0,
+     "t1": 6,
+     "text": "Morning. Can you give me a quick update on the desktop release and whether the installer is ready."
+    },
+    {
+     "t0": 8,
+     "t1": 13,
+     "text": "Yes, the installer passed the gate last night and the notes are written."
+    },
+    {
+     "t0": 14,
+     "t1": 21,
+     "text": "Good. The customer in Berlin asked about the meeting transcripts. They want the speaker labels to be right."
+    },
+    {
+     "t0": 22,
+     "t1": 27,
+     "text": "That is what I am fixing today, the labels and the echo from the speakers."
+    },
+    {
+     "t0": 28,
+     "t1": 32,
+     "text": "Please send me the numbers when you have them, and copy the support team on the thread."
+    },
+    {
+     "t0": 33,
+     "t1": 35,
+     "text": "Sure, I will send them this afternoon."
+    },
+    {
+     "t0": 37,
+     "t1": 42,
+     "text": "One more thing, the invoice for September still shows the old price for the team plan."
+    },
+    {
+     "t0": 44,
+     "t1": 49,
+     "text": "I saw that, finances correcting it and a new invoice goes out on Friday."
+    },
+    {
+     "t0": 50,
+     "t1": 53,
+     "text": "Perfect. Let us talk again on Thursday at 10."
+    },
+    {
+     "t0": 54,
+     "t1": 57,
+     "text": "Thursday at 10 works for me, talk then."
+    },
+    {
+     "t0": 58,
+     "t1": 60,
+     "text": "Thanks for watching!"
+    }
+   ]
+  },
+  "medium": {
+   "you": [
+    {
+     "t0": 0,
+     "t1": 4.46,
+     "text": "morning can you give me a quick update on the desktop release and whether the"
+    },
+    {
+     "t0": 4.46,
+     "t1": 11.34,
+     "text": "installer is ready yes the installer passed the gate last night and the"
+    },
+    {
+     "t0": 11.34,
+     "t1": 17.3,
+     "text": "notes are written good the customer in Berlin asked about the meeting"
+    },
+    {
+     "t0": 17.3,
+     "t1": 23.16,
+     "text": "transcripts they want the speaker labels to be right that is what I am fixing"
+    },
+    {
+     "t0": 23.16,
+     "t1": 29.94,
+     "text": "today the labels and the echo from the speakers please send me the numbers when"
+    },
+    {
+     "t0": 29.94,
+     "t1": 34.4,
+     "text": "you have them and copy the support team on the thread sure I will send them"
+    },
+    {
+     "t0": 34.4,
+     "t1": 40.74,
+     "text": "this afternoon one more thing the invoice for September still shows the"
+    },
+    {
+     "t0": 40.74,
+     "t1": 47.48,
+     "text": "old price for the team plan I saw that finances correcting it and a new invoice"
+    },
+    {
+     "t0": 47.48,
+     "t1": 55.26,
+     "text": "goes out on Friday perfect let us talk again on Thursday at 10 Thursday at 10"
+    },
+    {
+     "t0": 55.26,
+     "t1": 58.78,
+     "text": "works for me talk then"
+    }
+   ]
+  },
+  "loud": {
+   "you": [
+    {
+     "t0": 0,
+     "t1": 4.46,
+     "text": "morning can you give me a quick update on the desktop release and whether the"
+    },
+    {
+     "t0": 4.46,
+     "t1": 11.34,
+     "text": "installer is ready yes the installer passed the gate last night and the"
+    },
+    {
+     "t0": 11.34,
+     "t1": 17.34,
+     "text": "notes are written good the customer in Berlin asked about the meeting"
+    },
+    {
+     "t0": 17.34,
+     "t1": 23.16,
+     "text": "transcripts they want the speaker labels to be right that is what I am fixing"
+    },
+    {
+     "t0": 23.16,
+     "t1": 29.94,
+     "text": "today the labels and the echo from the speakers please send me the numbers when"
+    },
+    {
+     "t0": 29.94,
+     "t1": 34.4,
+     "text": "you have them and copy the support team on the thread sure I will send them"
+    },
+    {
+     "t0": 34.4,
+     "t1": 40.74,
+     "text": "this afternoon one more thing the invoice for September still shows the"
+    },
+    {
+     "t0": 40.74,
+     "t1": 47.48,
+     "text": "old price for the team plan I saw that finances correcting it and a new invoice"
+    },
+    {
+     "t0": 47.48,
+     "t1": 55.26,
+     "text": "goes out on Friday perfect let us talk again on Thursday at 10 Thursday at 10"
+    },
+    {
+     "t0": 55.26,
+     "t1": 58.78,
+     "text": "works for me talk then"
+    }
+   ]
+  },
+  "loud-skew": {
+   "you": [
+    {
+     "t0": 0,
+     "t1": 7,
+     "text": "Morning. Can you give me a quick update on the desktop release and whether the installer is ready?"
+    },
+    {
+     "t0": 7,
+     "t1": 13,
+     "text": "Yes, the installer passed the gate last night and the notes are written."
+    },
+    {
+     "t0": 15,
+     "t1": 22,
+     "text": "Good. The customer in Berlin asked about the meeting transcripts. They want the speaker labels to be right."
+    },
+    {
+     "t0": 22,
+     "t1": 27,
+     "text": "That is what I am fixing today, the labels and the echo from the speakers."
+    },
+    {
+     "t0": 29,
+     "t1": 33,
+     "text": "Please send me the numbers when you have them and copy the support team on the thread."
+    },
+    {
+     "t0": 33,
+     "t1": 35,
+     "text": "I will send them this afternoon."
+    },
+    {
+     "t0": 38,
+     "t1": 43,
+     "text": "One more thing. The invoice for September still shows the old price for the team plan."
+    },
+    {
+     "t0": 44,
+     "t1": 49,
+     "text": "I saw that. Finance is correcting it and a new invoice goes out on Friday."
+    },
+    {
+     "t0": 51,
+     "t1": 54,
+     "text": "Perfect. Let us talk again on Thursday at 10."
+    },
+    {
+     "t0": 54,
+     "t1": 57,
+     "text": "Thursday at 10 works for me. Talk then."
+    },
+    {
+     "t0": 59,
+     "t1": 60,
+     "text": "Thank you."
+    }
+   ]
+  }
+ }
+}

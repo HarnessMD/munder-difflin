@@ -1,6 +1,8 @@
 import { ClipboardEvent, DragEvent, KeyboardEvent, type MouseEvent as ReactMouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { attachmentsFromPaste } from './pasteAttachments';
+import { useAppSkin } from '@/design/skin';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import { useStore, type Agent, type QueuedMessage } from '@/store/store';
@@ -8,8 +10,16 @@ import { clearTerminalDraft, dismissTerminalPicker, terminalAutomationBlockFor }
 import type { TerminalAutomationBlock } from './terminalAutomation';
 import { freeflowRecorder, useFreeflow } from '@/freeflow/recorder';
 import { useTerminalFontSize } from './terminalFontSize';
+
+/** Dispatched with `{ detail: { id } }` to focus the composer of that agent. */
+export const FOCUS_COMPOSER_EVENT = 'cth:focus-composer';
+export function requestComposerFocus(id: string): void {
+  window.dispatchEvent(new CustomEvent(FOCUS_COMPOSER_EVENT, { detail: { id } }));
+}
 import { isComposingKey } from '@shared/imeGuard';
 import { useRtl } from '@/i18n/useDirection';
+import { GROQ_KEYS_URL, saveGroqKey } from '@/voice/keyEntry';
+import { attachWants, type AttachWant } from '@shared/attachDialog';
 
 const EMPTY_QUEUE: QueuedMessage[] = [];
 
@@ -32,6 +42,18 @@ export interface MessageQueueComposerProps {
  */
 export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   const { t } = useTranslation();
+  // The agent menu's Message (0.5.3, F25): open the agent, then put the
+  // caret here. A window event rather than a store field, because focus is
+  // a one-off, not state anyone else reads.
+  const boxRef = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    const onFocus = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id;
+      if (!id || id === agent.id) boxRef.current?.focus();
+    };
+    window.addEventListener(FOCUS_COMPOSER_EVENT, onFocus);
+    return () => window.removeEventListener(FOCUS_COMPOSER_EVENT, onFocus);
+  }, [agent.id]);
   const rtl = useRtl();
   const queue = useStore((s) => s.messageQueues[agent.id]) ?? EMPTY_QUEUE;
   const enqueueMessage = useStore((s) => s.enqueueMessage);
@@ -45,18 +67,16 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   const setDraft = useStore((s) => s.setDraft);
   const setText = (t: string) => setDraft(agent.id, t);
 
-  // Free Flow voice dictation (entry point A). The mic button shows only when the
-  // feature is enabled in Settings; a transcript is appended to this draft for
-  // review before sending (never auto-sent). When enabled but no Groq key is set,
-  // the button stays VISIBLE but DISABLED with a tooltip pointing to Settings
+  // Free Flow voice dictation (entry point A). The mic button always shows
+  // (0.5.3 batch 3: no off switch); a transcript is appended to this draft for
+  // review before sending (never auto-sent). When no engine can transcribe, the
+  // button stays VISIBLE but DISABLED with a tooltip pointing to Settings
   // (hasGroqKey is boolean presence only — the key value never reaches the store).
-  const freeflowEnabled = useStore((s) => s.freeflowEnabled);
   const hasGroqKey = useStore((s) => s.hasGroqKey);
+  const canDictate = useStore((s) => s.canDictate);
   const ff = useFreeflow();
   const ffMine = ff.targetAgentId === agent.id;
-  const ffHint = !freeflowEnabled
-    ? null
-    : ffMine && ff.status === 'recording'
+  const ffHint = ffMine && ff.status === 'recording'
     ? t('queueComposer.recording')
     : ffMine && ff.status === 'transcribing'
     ? t('queueComposer.transcribing')
@@ -67,6 +87,10 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   // The draft box is the terminal's twin — it should read at the same size the
   // agent's output does, at every zoom level.
   const composerFontSize = useTerminalFontSize();
+  // PRO reads the box as a message field, not a terminal line: the UI face,
+  // rounded, three lines tall. Classic keeps the mono box that matches the
+  // terminal above it. Behaviour is identical in both.
+  const inPro = useAppSkin() === 'professional';
   const composerLineHeight = Math.round(composerFontSize * 1.4);
 
   const idle = agent.status === 'idle';
@@ -89,9 +113,10 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   const removeAttachment = (path: string) =>
     setAttachments((prev) => prev.filter((a) => a.path !== path));
 
-  // '+' button → OS picker (images group + all files).
-  const pickFiles = async () => {
-    const res = await window.cth.attachFiles();
+  // '+' button → OS picker: any file, PDFs and videos included, and folders
+  // (0.5.3, I8); where one picker cannot take both, one button per kind.
+  const pickFiles = async (want: AttachWant) => {
+    const res = await window.cth.attachFiles(want);
     if (res.ok) addAttachments(res.files);
   };
 
@@ -109,25 +134,11 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
 
   // Paste a screenshot (no path → persist the native clipboard image to a temp
   // file) or paste files copied from the OS file manager (carry a real path).
+  // The rule and the handler are shared with the professional composers
+  // (0.5.3, bug 8): components/pasteAttachments.
   const onPaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = Array.from(e.clipboardData?.items ?? []);
-    const hasImage = items.some((it) => it.kind === 'file' && it.type.startsWith('image/'));
-    if (hasImage) {
-      e.preventDefault();
-      const res = await window.cth.saveClipboardImage();
-      if (res.ok) addAttachments([res.file]);
-      return;
-    }
-    const files = Array.from(e.clipboardData?.files ?? []);
-    if (files.length) {
-      const atts = files
-        .map((f) => ({ path: window.cth.pathForFile(f), name: f.name }))
-        .filter((a) => a.path);
-      if (atts.length) {
-        e.preventDefault();
-        addAttachments(atts);
-      }
-    }
+    const atts = await attachmentsFromPaste(e);
+    if (atts.length) addAttachments(atts);
   };
 
   const canSend = !!text.trim() || attachments.length > 0;
@@ -346,13 +357,15 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
           with file/image attachment chips + paste-to-attach (rich-composer). */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <textarea
+          ref={boxRef}
+          data-freeflow-target
           dir={rtl ? 'auto' : undefined}
           className="cth-input"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKey}
           onPaste={onPaste}
-          rows={5}
+          rows={inPro ? 3 : 5}
           placeholder={idle ? t('queueComposer.messagePlaceholder', { name: agent.name }) : t('queueComposer.busyPlaceholder', { name: agent.name })}
           style={{
             width: '100%',
@@ -361,15 +374,16 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
             // buttons) instead of a hardcoded 13px. On a large display the
             // terminal text scaled up while this box stayed tiny; box height is
             // derived from the same size so the visible line count is stable.
-            minHeight: composerLineHeight * 5 + 14,
+            minHeight: composerLineHeight * (inPro ? 3 : 5) + 14,
             maxHeight: composerLineHeight * 18,
-            padding: '6px 8px',
-            background: 'var(--cth-paper-100)',
+            padding: inPro ? '9px 12px' : '6px 8px',
+            background: inPro ? 'var(--cth-cream-50)' : 'var(--cth-paper-100)',
             border: 'none',
+            borderRadius: inPro ? 10 : undefined,
             // Border lives in .cth-input so :focus can change it — an inline
             // boxShadow here would outrank the stylesheet and the focus state
             // would silently never apply.
-            fontFamily: 'var(--cth-font-mono)',
+            fontFamily: inPro ? 'var(--cth-font-ui)' : 'var(--cth-font-mono)',
             fontSize: composerFontSize, lineHeight: `${composerLineHeight}px`,
             color: 'var(--cth-ink-900)',
             outline: 'none',
@@ -381,12 +395,14 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
             pushing Send off-screen. */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, rowGap: 6, flexWrap: 'wrap', minWidth: 0 }}>
           <span style={{ flex: 1 }} />
-          <PixelButton variant="secondary" size="sm" onClick={pickFiles}>
-            <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-              <Icon name="plus" /> {t('queueComposer.files')}
-            </span>
-          </PixelButton>
-          {freeflowEnabled && <FreeFlowButton agentId={agent.id} hasGroqKey={hasGroqKey} />}
+          {attachWants(window.cth.platform).map((w) => (
+            <PixelButton key={w} variant="secondary" size="sm" onClick={() => { void pickFiles(w); }}>
+              <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+                <Icon name="plus" /> {t(w === 'folders' ? 'queueComposer.folder' : 'queueComposer.files')}
+              </span>
+            </PixelButton>
+          ))}
+          <FreeFlowButton agentId={agent.id} hasGroqKey={hasGroqKey || canDictate} />
           <PixelButton variant="primary" size="sm" onClick={queueIt} disabled={!canSend}>
             <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
               {t('commandBar.send')} <Icon name="arrow-right" />
@@ -571,15 +587,31 @@ function FreeFlowButton({ agentId, hasGroqKey }: { agentId: string; hasGroqKey: 
   const busyElsewhere = ff.status !== 'idle' && !mine;
   const noKey = !hasGroqKey;
 
-  const hintRef = useRef<HTMLSpanElement | null>(null);
-  const iconRef = useRef<HTMLButtonElement | null>(null);
+  // The anchor is the mic's own wrapper: the mic is the door to the card.
+  const iconRef = useRef<HTMLSpanElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [hint, setHint] = useState<{ left: number; top: number } | null>(null);
   const hintOpen = hint !== null;
 
+  // 0.4.11: the key box sits in the card itself (founder, 6 Sep 2026: "just
+  // show the groq api key input box"). The draft is local and short lived; the
+  // save hands it to main and the card closes once presence flips.
+  const [keyDraft, setKeyDraft] = useState('');
+  const [keyNote, setKeyNote] = useState('');
+  const [saving, setSaving] = useState(false);
+  const saveKey = async (): Promise<void> => {
+    if (!keyDraft.trim() || saving) return;
+    setSaving(true);
+    setKeyNote('');
+    const r = await saveGroqKey(keyDraft);
+    setSaving(false);
+    if (r.ok) { setKeyDraft(''); setHint(null); return; }
+    setKeyNote(t('settings.voice.couldNotSave'));
+  };
+
   const HINT_W = 244;
   const HINT_GAP = 8;
-  const EST_H = 188;
+  const EST_H = 236;
 
   const title = noKey
     ? t('queueComposer.ffNoKeyTitle')
@@ -590,8 +622,7 @@ function FreeFlowButton({ agentId, hasGroqKey }: { agentId: string; hasGroqKey: 
   /** Same placement rule as RealtimeMichaelToggle's hint: prefer above (the
    *  composer sits low in the panel), flip below only when there is no room, and
    *  clamp both axes so it can never hang off an edge. */
-  const toggleHint = (e: ReactMouseEvent): void => {
-    e.stopPropagation();
+  const toggleHint = (): void => {
     if (hint) { setHint(null); return; }
     const r = iconRef.current?.getBoundingClientRect();
     if (!r) return;
@@ -606,7 +637,7 @@ function FreeFlowButton({ agentId, hasGroqKey }: { agentId: string; hasGroqKey: 
     const onDown = (ev: globalThis.MouseEvent): void => {
       const t = ev.target as Node;
       // Portalled, so an inside-click has to be tested against BOTH nodes.
-      if (hintRef.current?.contains(t) || panelRef.current?.contains(t)) return;
+      if (iconRef.current?.contains(t) || panelRef.current?.contains(t)) return;
       setHint(null);
     };
     const onKey = (ev: globalThis.KeyboardEvent): void => { if (ev.key === 'Escape') setHint(null); };
@@ -634,12 +665,19 @@ function FreeFlowButton({ agentId, hasGroqKey }: { agentId: string; hasGroqKey: 
       {/* Wrap in a (non-disabled) span so the native tooltip still shows on hover
           even when the inner button is disabled — Chromium suppresses tooltips on
           a disabled <button> itself. */}
-      <span title={title} style={{ display: 'inline-flex' }}>
+      <span ref={iconRef} title={title} style={{ display: 'inline-flex' }}>
+        {/* Without a key the mic is NOT disabled (0.4.11, founder 6 Sep 2026:
+            "the drop down modal that opens when user clicks on microphone"):
+            a disabled button swallows the click that should open the card.
+            It reads muted, and the handler never reaches the recorder while
+            the key is missing. The info mark that used to sit beside it is
+            gone; the mic is the door. */}
         <PixelButton
           variant={recording ? 'destructive' : 'secondary'}
           size="sm"
-          onClick={() => { if (noKey) return; freeflowRecorder.toggle(agentId); }}
-          disabled={noKey || transcribing || busyElsewhere}
+          onClick={() => { if (noKey) { toggleHint(); return; } freeflowRecorder.toggle(agentId); }}
+          disabled={!noKey && (transcribing || busyElsewhere)}
+          style={noKey ? { opacity: 0.7 } : undefined}
         >
           <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
             <Icon name="mic" />
@@ -653,23 +691,7 @@ function FreeFlowButton({ agentId, hasGroqKey }: { agentId: string; hasGroqKey: 
           two facts that would make someone act (it is FREE, and there is a
           hold-to-talk shortcut) were written down nowhere in the UI. */}
       {noKey && (
-        <span ref={hintRef} style={{ display: 'inline-flex', flexShrink: 0 }}>
-          <button
-            ref={iconRef}
-            type="button"
-            aria-label={t('queueComposer.ffHowEnable')}
-            aria-expanded={hintOpen}
-            onClick={toggleHint}
-            style={{
-              border: 'none', background: 'none', padding: 0, cursor: 'pointer',
-              display: 'inline-flex', alignItems: 'center',
-              color: 'var(--cth-ink-500)',
-              opacity: hintOpen ? 1 : 0.75
-            }}
-          >
-            <Icon name="info" />
-          </button>
-
+        <span style={{ display: 'inline-flex', flexShrink: 0 }}>
           {hint && createPortal(
             <div
               ref={panelRef}
@@ -700,14 +722,38 @@ function FreeFlowButton({ agentId, hasGroqKey }: { agentId: string; hasGroqKey: 
                 <li>
                   {t('queueComposer.ffCreateKey')}{' '}
                   <a
-                    href="https://console.groq.com/keys"
-                    onClick={(e) => { e.preventDefault(); void window.cth.openExternal('https://console.groq.com/keys'); }}
+                    href={GROQ_KEYS_URL}
+                    onClick={(e) => { e.preventDefault(); void window.cth.openExternal(GROQ_KEYS_URL); }}
                     style={{ color: 'var(--cth-ink-900)' }}
                   >console.groq.com/keys</a>
                 </li>
                 <li>{t('queueComposer.ffPasteKey')}</li>
                 <li>{t('queueComposer.ffClickOrHold')}</li>
               </ol>
+
+              {/* The key box, right where the steps point. Saving closes the
+                  card: presence flips in the store and the mic lights up. */}
+              <div data-groq-key-entry style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <input
+                  type="password"
+                  value={keyDraft}
+                  onChange={(e) => setKeyDraft(e.target.value)}
+                  onKeyDown={(e) => { if (isComposingKey(e)) return; if (e.key === 'Enter') void saveKey(); }}
+                  placeholder="gsk_…"
+                  aria-label={t('settings.voice.groqKey')}
+                  autoFocus
+                  style={{
+                    flex: 1, minWidth: 0, height: 24, padding: '0 6px', boxSizing: 'border-box',
+                    border: 'none', boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500)',
+                    background: 'var(--cth-cream-50)', fontFamily: 'var(--cth-font-mono)', fontSize: 11,
+                    color: 'var(--cth-ink-900)', outline: 'none'
+                  }}
+                />
+                <PixelButton variant="primary" size="sm" onClick={() => { void saveKey(); }} disabled={!keyDraft.trim() || saving}>
+                  {t('settings.voice.save')}
+                </PixelButton>
+              </div>
+              {keyNote && <span style={{ color: 'var(--cth-coral)' }}>{keyNote}</span>}
 
               <span style={{ color: 'var(--cth-ink-500)' }}>
                 {t('queueComposer.ffHoldHint')}

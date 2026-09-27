@@ -21,27 +21,22 @@ import { COMMAND_GROUPS } from '@shared/claudeCommands';
 import { roleForHiveSpawn } from '@shared/agentRole';
 import { useStore, triggerHistoryVisible, type Agent } from '@/store/store';
 import { usePtyParser } from '@/hooks/usePtyParser';
-import {
-  buildSpawnCommand,
-  decodeProviderModel,
-  encodeProviderModel,
-  inferAgentProvider,
-  isClaudeProvider,
-  modelProvidersForAgent,
-  modelsForProvider,
-  providerPreset,
-  tokenizeCommand,
-  AGENT_PROVIDER_PRESETS,
-  type AgentProvider
-} from '@/store/config';
+import { AGENT_PROVIDER_PRESETS, type AgentProvider, buildSpawnCommand, type HarnessConfig, decodeProviderModel, encodeProviderModel, inferAgentProvider, isClaudeProvider, modelProvidersForAgent, modelsForProvider, modelWord, providerPreset, tokenizeCommand } from '@/store/config';
+import { orchestratorEngineOptions } from '../../../shared/engineOptions';
 import { canReceiveInbox } from '@shared/agentProvider';
 import { isComposingKey } from '@shared/imeGuard';
 import { useRtl } from '@/i18n/useDirection';
+import { CommandField } from './pro/CommandField';
+import { planAgentRestart } from '@shared/agentRestart';
 
 /** Michael's control surface. Shown instead of the plain terminal/files panel
  *  when the god agent is selected: terminal + queue, the floor roster (with
  *  per-agent model + dispatch + assistant access), a memory view, and a live
- *  activity feed / board / usage meter. */
+ *  activity feed / board / usage meter.
+ *
+ *  CLASSIC ONLY since v0.4.9 (phase 3): under PRO the orchestrator has his
+ *  own screen (components/pro/GodScreen.tsx) and this panel is never
+ *  mounted, so the skin gate that used to cut it to three tabs is gone. */
 
 // Both the AskMe (#human) tab and the Triggers tab live here. Triggers replaced
 // the old Schedules tab: schedules are now one of four trigger types, and the
@@ -165,7 +160,7 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
           boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
         }}>
-          <SpritePortrait character={agent.character} scale={1} />
+          <SpritePortrait character={agent.character} scale={1} description={agent.description} isGod={agent.isGod} />
         </div>
         {/* Title + subtitle truncate; the control cluster never shrinks. At
             sidebar width the old header wrapped its 24-char display-font title
@@ -300,6 +295,7 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
                 <PtyTerminalView
                   key={terminalInstanceKey(agent.ptyId, agent.terminalGeneration)}
                   ptyId={agent.ptyId}
+                  provider={agent.provider}
                   onStreamData={onPtyStream}
                   onUserPrompt={(t) => {
                     updateAgent(agent.id, { lastPrompt: t });
@@ -364,6 +360,13 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
   const [engineProvider, setEngineProvider] = useState<AgentProvider>('claude');
   const [engineModel, setEngineModel] = useState<string | undefined>(undefined);
   const [restartErrors, setRestartErrors] = useState<Record<string, string>>({});
+  // Hand edits to an agent's command box, keyed by agent id. No entry means the
+  // box shows the stored line; a restart or a model pick drops the entry.
+  const [commandDrafts, setCommandDrafts] = useState<Record<string, string>>({});
+  const dropDraft = (id: string) => setCommandDrafts((d) => { const { [id]: _dropped, ...rest } = d; return rest; });
+  // The whole config, for the line an agent's picks resolve to (the box's
+  // "use resolved"). Loaded with the fields below.
+  const [floorConfig, setFloorConfig] = useState<HarnessConfig | null>(null);
   // The harness's own default model (Settings → default model). Michael and every
   // new agent spawn on this, so the picker marks it — otherwise the only entry
   // reading "default" was the CLI's, which is a different thing entirely.
@@ -379,6 +382,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
 
   useEffect(() => {
     window.cth.getConfig().then((c) => {
+      setFloorConfig(c);
       setRepos(c.registeredRepos ?? []);
       setTokenCap(c.costCapTokens);
       setAgentTokenCaps(c.agentTokenCaps ?? {});
@@ -413,6 +417,9 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
        *  error. A model change wants the soft one: the user asked to change
        *  model, and an agent with no recorded session still has to get one. */
       resumeOptional?: boolean;
+      /** The exact line to run, from the agent's command box. Unset rebuilds
+       *  the line from the model pick, as a model change always has. */
+      command?: string;
     } = {}
   ) => {
     if (!a.ptyId) return;
@@ -459,7 +466,9 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
         rows = oldEntry.term.rows;
       } catch { /* host not sized yet */ }
 
-      const killed = await window.cth.killPty(a.ptyId);
+      // 'restart': the person chose to restart, not to discard. Main keeps the
+      // worktree and keeps tracking it, and the agent comes back IN it.
+      const killed = await window.cth.killPty(a.ptyId, 'restart');
       // A pty that is ALREADY gone is the state this kill was trying to reach, so
       // it is not a failure. This is the single most common way to arrive at
       // "Restart & Continue": the session died on its own — a crash, or Ctrl-C
@@ -469,10 +478,22 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       if (!killed.ok && !/^no pty:/.test(killed.error ?? '')) {
         throw new Error(killed.error ?? 'Could not stop the current process.');
       }
+      // 0.5.3 bug 22, the agent restart half. The resume path used to throw
+      // this agent's terminal away HERE, before the spawn below that can still
+      // fail (a refused resume throws after it too). Every one of those throws
+      // then left a fresh blank xterm in the pool with the scrollback gone for
+      // good (node-pty keeps none) and the label stuck on "recreating
+      // terminal…": a pane that ignores the mouse because there is nothing on
+      // it. The replacement is now created only once spawnPty has accepted it.
+      // Ported from public PR #575 by TTAWDTT.
       if (!resume) {
         resetTerminal(a.ptyId);
       }
-      const command = buildSpawnCommand(cfg, model, provider);
+      // The box, not a rebuild from the picks: a rebuild threw a hand edit away
+      // (founder, 24 Sep). Stored BEFORE the spawn, so an app restart starts on
+      // the same line even if this one fails half way.
+      const command = opts.command ?? buildSpawnCommand(cfg, model, provider);
+      if (opts.command) updateAgent(a.id, { command: command.trim(), model });
       const [exe, ...args] = tokenizeCommand(command.trim());
       const hive = {
         id: a.id,
@@ -485,7 +506,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       };
       const res = await window.cth.spawnPty({
         id: a.ptyId,
-        cwd: a.cwd,
+        cwd: a.worktreePath ?? a.cwd,
         command: exe,
         args,
         provider,
@@ -501,18 +522,15 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
         throw new Error('Resume was refused; no replacement session was accepted.');
       }
       if (resume) {
-        // The replacement is accepted, so NOW it is safe to throw the old
-        // terminal away. (It used to run BEFORE spawnPty, so one of the throws
-        // above left a fresh blank xterm in the pool with the scrollback gone
-        // forever — node-pty keeps none — and the label stuck at
-        // 'recreating terminal…'.) A blank xterm can retain corrupt
-        // renderer/DOM/subscription state even after its PTY is healthy, which
-        // is why the resume path replaces it at all; the spawn answer beat the
-        // CLI's first frame, so no startup output can be missed.
+        // The replacement is accepted, so NOW the old terminal can go. A blank
+        // xterm can retain corrupt renderer/DOM/subscription state even after
+        // its PTY is healthy, which is why the resume path replaces it at all.
+        // The spawn answer beat the CLI's first frame, so no startup output is
+        // missed, and the remount's attach asks the pty for a redraw for
+        // anything it raced. Bump the key so React remounts only this agent's
+        // terminal card.
         disposeTerminal(a.ptyId);
         acquireTerminal(a.ptyId);
-        // Bump the key so React remounts only this agent's terminal card; the
-        // remount's attach re-requests a PTY redraw for anything it raced.
         updateAgent(a.id, {
           terminalGeneration: (a.terminalGeneration ?? 0) + 1,
           status: 'idle',
@@ -543,6 +561,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
               action: provider === previousProvider ? 'restarting…' : `switching to ${providerPreset(provider).label}…`
             };
         updateAgent(a.id, patch);
+        dropDraft(a.id);
       }
     } catch (error) {
       setRestartErrors((errors) => ({
@@ -702,6 +721,18 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
           const rateLabel = rateVal > 0 ? `${fmtTokens(rateVal)}/m` : 'rate';
           const currentModelKnown = modelsForProvider(agentProvider)
             .some((model) => model.id === a.model);
+          // THE LINE THIS AGENT RUNS, editable here in the right panel next to
+          // its model and restart (founder, 24 Sep). Same rules as the PRO
+          // details panel: planAgentRestart runs an empty box as the resolved
+          // line, refuses a line for another engine, and takes the model a
+          // `--model` names.
+          const resolvedLine = !floorConfig || agentProvider === 'custom' ? '' : buildSpawnCommand(floorConfig, a.model, agentProvider);
+          const storedLine = (a.command ?? '').trim() || resolvedLine;
+          const draftLine = commandDrafts[a.id] ?? storedLine;
+          const draftDirty = draftLine.trim() !== storedLine.trim();
+          const plan = planAgentRestart(draftLine, resolvedLine, agentProvider, a.model);
+          const conflictText = plan.conflict ? t('pro.sheet.commandOtherEngine', { engine: providerPreset(plan.conflict).label, picked: agentPreset.label }) : null;
+          const runBlocked = restarting === a.id || !a.ptyId || !!plan.conflict || !plan.command;
           return (
           <div key={a.id} style={{
             display: 'flex', flexDirection: 'column', gap: 4,
@@ -714,7 +745,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                 boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
                 display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
               }}>
-                <SpritePortrait character={a.character} scale={1} />
+                <SpritePortrait character={a.character} scale={1} description={a.description} isGod={a.isGod} />
               </div>
               <button
                 onClick={() => select(a.id)}
@@ -808,6 +839,8 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                 onChange={(value) => {
                   const choice = decodeProviderModel(value);
                   if (!choice) return;
+                  // A pick rewrites the line, so an unsaved edit goes with it.
+                  dropDraft(a.id);
                   // Switching model within the SAME provider continues the
                   // conversation — that's the whole point of switching mid-task
                   // ("this got hard, go up a tier"), and starting fresh threw
@@ -824,7 +857,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
               >
                 {(!agentPreset.supportsModel || !currentModelKnown) && (
                   <option value={encodeProviderModel(agentProvider, a.model)}>
-                    {agentPreset.label} · {a.model ?? 'current'}
+                    {agentPreset.label} · {modelWord(agentProvider, a.model) ?? 'current'}
                   </option>
                 )}
                 {modelProvidersForAgent(a.isGod).map((preset) => (
@@ -860,14 +893,42 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                 <PixelButton
                   variant="secondary"
                   size="sm"
-                  disabled={restarting === a.id}
-                  onClick={() => restartWithModel(a, a.model, { resume: true })}
+                  disabled={runBlocked}
+                  onClick={() => restartWithModel(a, plan.model, { resume: true, resumeOptional: draftDirty, command: plan.command })}
                 >
-                  <span title={t('commandCenter.restartContinueTitle')}>
+                  <span title={t('commandCenter.restartContinueTitle', { name: a.name })}>
                     {t('commandCenter.restartContinue')}
                   </span>
                 </PixelButton>
               </>}
+            </div>
+            )}
+            {!a.isGod && (
+            <div data-floor-command={a.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <CommandField
+                ariaLabel={t('pro.sheet.command')}
+                value={draftLine}
+                resolved={resolvedLine}
+                onChange={(next) => setCommandDrafts((d) => ({ ...d, [a.id]: next }))}
+                disabled={restarting === a.id}
+                testId="floor"
+                error={conflictText}
+              />
+              {/* ALWAYS here, for every engine (restart & continue shows only
+                  where a session can resume). Runs the line in the box. */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <PixelButton
+                  variant={draftDirty ? 'primary' : 'secondary'}
+                  size="sm"
+                  disabled={runBlocked}
+                  onClick={() => restartWithModel(a, plan.model, { resume: true, resumeOptional: true, command: plan.command })}
+                >
+                  {restarting === a.id ? t('common.restarting') : t('commandCenter.restartOnLine')}
+                </PixelButton>
+                <span style={{ fontSize: 11, color: 'var(--cth-ink-500)' }}>
+                  {draftDirty ? t('pro.agent.restartToApply') : t('commandCenter.commandLineHint')}
+                </span>
+              </div>
             </div>
             )}
             {restartErrors[a.id] && (
@@ -888,9 +949,11 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                     setEngineModel(preset?.recommendedOrchestratorModel);
                   }}
                 >
-                  {AGENT_PROVIDER_PRESETS.filter((p) => canReceiveInbox(p.id)).map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.label}{p.id === 'claude' ? ' ★' : ''}
+                  {/* Every engine is listed; the ones that cannot run him are disabled
+                      and say why (0.5.3 feature 17, shared/engineOptions.ts). */}
+                  {orchestratorEngineOptions(t('onboarding.orchestrator.workersOnly')).map((o) => (
+                    <option key={o.value} value={o.value} disabled={o.disabled} title={o.disabled ? t('onboarding.orchestrator.workersOnlyHint') : undefined}>
+                      {o.label}{o.value === 'claude' ? ' ★' : ''}
                     </option>
                   ))}
                 </Select>
@@ -1057,7 +1120,7 @@ function ArchivedSection() {
             boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
             display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
           }}>
-            <SpritePortrait character={a.character} scale={1} />
+            <SpritePortrait character={a.character} scale={1} description={a.description} isGod={a.isGod} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-700)' }}>{a.name}</div>

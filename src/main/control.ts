@@ -19,8 +19,8 @@
 
 /** Max steer notes queued per agent before the OLDEST is dropped. Each note
  *  rides the next hook's additionalContext; a stalled/halted agent never drains
- *  the queue, so without a cap a burst of steers (closing-time loop, a stuck
- *  caller) would grow memory forever. The latest instruction wins: when full we
+ *  the queue, so without a cap a burst of steers (a looping caller, a stuck
+ *  one) would grow memory forever. The latest instruction wins: when full we
  *  drop from the front (FIFO) so a busy agent still hears the most recent note. */
 const MAX_PENDING_STEERS = 20;
 
@@ -90,7 +90,12 @@ export class ControlRegistry {
   }
   /** Request a graceful stop at the next hook boundary. */
   halt(id: string): void { this.ensure(id).halted = true; }
-  /** Drop all queued-but-undelivered steer notes (e.g. closing time cancelled
+  /** Cancel a pending halt before a hook boundary consumed it. The stop-after
+   *  control is a toggle, and the second click means "keep going" — this
+   *  touches ONLY the halt flag: pause, gated tools and queued steers stay
+   *  exactly as they are (resume() is the broader clear). */
+  unhalt(id: string): void { const c = this.map.get(id); if (c) c.halted = false; }
+  /** Drop all queued-but-undelivered steer notes (e.g. a steer withdrawn
    *  before a busy agent's next hook boundary consumed the instruction). */
   clearSteers(id: string): void { const c = this.map.get(id); if (c) c.steerQueue.length = 0; }
   /** Clear pause + halt (lets a paused/halted agent run again). Keeps gates. */

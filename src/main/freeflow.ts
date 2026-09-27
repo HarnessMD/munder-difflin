@@ -39,6 +39,9 @@ export interface TranscribeOptions {
   filename?: string;
   /** Groq model id. Defaults to DEFAULT_GROQ_MODEL. */
   model?: string;
+  /** Ask for lines with their times (a meeting clip for the You and Them
+   *  merge). The local helpers always have them; Groq only when asked. */
+  timestamps?: boolean;
   /** Optional ISO-639-1 language hint to improve accuracy/latency. */
   language?: string;
 }
@@ -47,6 +50,11 @@ export interface TranscribeResult {
   ok: boolean;
   text?: string;
   error?: string;
+  /** Lines with times inside the clip, seconds, when the engine has them
+   *  (md-whisper and md-speech always, Groq with `timestamps`). The You and
+   *  Them merge (shared/meetingMerge.ts) reads these; absent, the caller
+   *  treats the whole clip as one line. */
+  segments?: { t0: number; t1: number; text: string }[];
 }
 
 /**
@@ -70,7 +78,9 @@ export async function transcribeWithGroq(opts: TranscribeOptions): Promise<Trans
   form.append('model', model);
   // `response_format=text` returns the bare transcript, but JSON is more robust to
   // parse defensively; we ask for json and read `.text`.
-  form.append('response_format', 'json');
+  // A meeting clip asks for the lines with their times (verbose_json); a
+  // dictation reads `.text` and nothing else.
+  form.append('response_format', opts.timestamps ? 'verbose_json' : 'json');
   if (opts.language) form.append('language', opts.language);
   form.append('file', new Blob([toArrayBuffer(bytes)], { type: mimeType }), filename);
 
@@ -90,15 +100,21 @@ export async function transcribeWithGroq(opts: TranscribeOptions): Promise<Trans
       return { ok: false, error: `Groq ${res.status}: ${extractError(raw) || res.statusText}` };
     }
     let text = '';
+    let segments: TranscribeResult['segments'];
     try {
-      const json = JSON.parse(raw) as { text?: unknown };
+      const json = JSON.parse(raw) as { text?: unknown; segments?: unknown };
       text = typeof json.text === 'string' ? json.text.trim() : '';
+      if (Array.isArray(json.segments)) {
+        segments = json.segments
+          .filter((s): s is { start: number; end: number; text: string } => !!s && typeof s === 'object' && typeof (s as { text?: unknown }).text === 'string')
+          .map((s) => ({ t0: Number(s.start) || 0, t1: Number(s.end) || 0, text: String(s.text) }));
+      }
     } catch {
       // response_format fallback: a bare-text body.
       text = raw.trim();
     }
     if (!text) return { ok: false, error: 'no speech detected' };
-    return { ok: true, text };
+    return segments ? { ok: true, text, segments } : { ok: true, text };
   } catch (e) {
     const aborted = e instanceof Error && e.name === 'AbortError';
     return { ok: false, error: aborted ? 'transcription timed out' : errMsg(e) };

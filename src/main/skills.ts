@@ -20,10 +20,11 @@
  * third-party skill means running someone else's instructions inside an agent
  * that has the user's tools, and that decision stays with the user.
  */
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSync, rmSync, rmdirSync, renameSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import { join, basename, dirname, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
-import { getText } from './fetchText';
+import { getBytes, getText } from './fetchText';
 
 export interface LocalSkill {
   id: string;
@@ -273,11 +274,81 @@ export async function loadCatalog(
  */
 
 /** GitHub's per-directory listing. Only the fields we actually consume. */
-interface GhEntry { name: string; path: string; type: string; size?: number; download_url?: string | null }
+export interface GhEntry { name: string; path: string; type: string; size?: number; download_url?: string | null }
 
-const MAX_FILES = 60;
-const MAX_TOTAL_BYTES = 2 * 1024 * 1024;
-const MAX_DEPTH = 5;
+/**
+ * What one install may fetch. 0.5.3, bug 9 (Jinbo, 13 Sep 2026): the old caps
+ * were 60 files and 2 MiB, picked before anybody measured a real skill.
+ * Measured on 20 Sep 2026 against github.com/anthropics/skills: canvas-design is
+ * 83 files and 5.3 MB (54 of them fonts), claude-api is 70 files, docx is 61.
+ * All three were refused. The caps stay, because a source URL is somebody
+ * else's repository, but they now sit about three times above the largest
+ * skill that exists. The refusals say the numbers, so the next one to hit a
+ * cap can be judged from the message alone.
+ */
+export const SKILL_INSTALL_LIMITS = {
+  maxFiles: 250,
+  maxTotalBytes: 16 * 1024 * 1024,
+  maxFileBytes: 4 * 1024 * 1024,
+  maxDepth: 5
+} as const;
+/** How many files are in flight at once during an install. */
+const DOWNLOADS_AT_ONCE = 6;
+export type SkillInstallLimits = { maxFiles: number; maxTotalBytes: number; maxFileBytes: number; maxDepth: number };
+
+/** Why an install was refused before anything was fetched. The renderer turns
+ *  the code into a sentence in the person's language; `error` is the English. */
+export type SkillInstallRefusal = 'too-many-files' | 'too-large' | 'file-too-large' | 'too-deep';
+/** The numbers a refusal sentence needs, so the renderer can say them in any language. */
+export interface SkillRefusalDetail { files?: number; mb?: string; levels?: number; name?: string; fileMb?: string }
+type PlanRefusal = { error: string; code?: SkillInstallRefusal; detail?: SkillRefusalDetail };
+
+export interface PlannedSkillFile { path: string; url: string; size: number }
+
+const mb = (bytes: number) => (bytes / (1024 * 1024)).toFixed(1);
+
+/**
+ * Walk a skill folder through a directory lister and decide, before a single
+ * file is fetched, whether it fits. Pure apart from the lister, which is the
+ * GitHub contents API in the app and a table in the tests.
+ */
+export async function planSkillInstall(
+  listDir: (path: string) => Promise<GhEntry[]>,
+  skillPath: string,
+  limits: SkillInstallLimits = SKILL_INSTALL_LIMITS
+): Promise<{ files: PlannedSkillFile[]; total: number } | PlanRefusal> {
+  const files: PlannedSkillFile[] = [];
+  let total = 0;
+  const walk = async (path: string, depth: number): Promise<PlanRefusal | null> => {
+    if (depth > limits.maxDepth) return { code: 'too-deep', detail: { levels: limits.maxDepth }, error: `the folder nests deeper than the ${limits.maxDepth} levels this installer will follow` };
+    let listing: GhEntry[];
+    try {
+      listing = await listDir(path);
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : String(e) };
+    }
+    for (const it of listing) {
+      if (it.type === 'dir') {
+        const err = await walk(it.path, depth + 1);
+        if (err) return err;
+        continue;
+      }
+      // Only regular files. A symlink/submodule entry is skipped, never followed.
+      if (it.type !== 'file' || !it.download_url) continue;
+      if (files.length >= limits.maxFiles) return { code: 'too-many-files', detail: { files: limits.maxFiles }, error: `that skill has more than the ${limits.maxFiles} files this installer will fetch` };
+      const size = it.size ?? 0;
+      if (size > limits.maxFileBytes) return { code: 'file-too-large', detail: { name: it.name, fileMb: mb(size), mb: mb(limits.maxFileBytes) }, error: `${it.name} is ${mb(size)} MB and this installer fetches files up to ${mb(limits.maxFileBytes)} MB` };
+      total += size;
+      if (total > limits.maxTotalBytes) return { code: 'too-large', detail: { mb: mb(limits.maxTotalBytes) }, error: `that skill is larger than the ${mb(limits.maxTotalBytes)} MB this installer will fetch` };
+      const rel = skillPath ? it.path.slice(skillPath.length).replace(/^\/+/, '') : it.path;
+      files.push({ path: rel, url: it.download_url, size });
+    }
+    return null;
+  };
+  const err = await walk(skillPath, 0);
+  if (err) return err;
+  return { files, total };
+}
 
 /**
  * A GitHub source URL → the pieces the contents API needs.
@@ -395,10 +466,19 @@ async function resolveSourceUrl(url: string): Promise<string | null> {
  * Returns a structured refusal rather than throwing, so the UI can say WHY —
  * "not installable" and "install failed" are different answers for the user.
  */
+/** The three things an install reaches outside the process for. The app passes
+ *  none of them; a test passes all three and installs into a temp folder. */
+export interface InstallSkillDeps {
+  listDir?: (path: string) => Promise<GhEntry[]>;
+  fetchBytes?: (url: string, opts: { maxBytes: number }) => Promise<Buffer>;
+  root?: string;
+}
+
 export async function installSkill(
   entryUrl: string,
-  entryName: string
-): Promise<{ ok: true; path: string } | { ok: false; error: string; unsupported?: boolean }> {
+  entryName: string,
+  deps: InstallSkillDeps = {}
+): Promise<{ ok: true; path: string } | { ok: false; error: string; unsupported?: boolean; code?: SkillInstallRefusal; detail?: SkillRefusalDetail }> {
   const source = await resolveSourceUrl(entryUrl);
   if (!source) {
     return { ok: false, unsupported: true, error: 'No downloadable source — open Learn more to install it by hand.' };
@@ -411,10 +491,11 @@ export async function installSkill(
   const api = (p: string) =>
     `https://api.github.com/repos/${gh.owner}/${gh.repo}/contents/${p ? encodeURI(p) : ''}`
     + (gh.ref ? `?ref=${encodeURIComponent(gh.ref)}` : '');
-  const listDir = async (p: string): Promise<GhEntry[]> => {
+  const listDir = deps.listDir ?? (async (p: string): Promise<GhEntry[]> => {
     const res = await getJson<GhEntry[] | GhEntry>(api(p));
     return Array.isArray(res) ? res : [res];
-  };
+  });
+  const fetchBytes = deps.fetchBytes ?? getBytes;
 
   // A repo-root source names a repository, not necessarily a skill folder —
   // locate the SKILL.md directory first so the size/file caps bound the skill,
@@ -429,60 +510,95 @@ export async function installSkill(
   const dirName = safeSkillDirName(skillPath || entryName);
   if (!dirName) return { ok: false, error: 'That skill has a name this app will not create a folder for.' };
 
-  const root = join(homedir(), '.claude', 'skills');
+  const root = deps.root ?? join(homedir(), '.claude', 'skills');
   const dest = join(root, dirName);
   if (existsSync(dest)) return { ok: false, error: `Already installed at ${dest}` };
 
-  const files: { path: string; url: string; size: number }[] = [];
-  let total = 0;
-  const walk = async (path: string, depth: number): Promise<string | null> => {
-    if (depth > MAX_DEPTH) return 'the folder nests deeper than this installer will follow';
-    let listing: GhEntry[];
-    try {
-      const res = await getJson<GhEntry[] | GhEntry>(api(path));
-      listing = Array.isArray(res) ? res : [res];
-    } catch (e) {
-      return e instanceof Error ? e.message : String(e);
-    }
-    for (const it of listing) {
-      if (files.length >= MAX_FILES) return 'that skill has more files than this installer will fetch';
-      if (it.type === 'dir') {
-        const err = await walk(it.path, depth + 1);
-        if (err) return err;
-        continue;
-      }
-      // Only regular files. A symlink/submodule entry is skipped, never followed.
-      if (it.type !== 'file' || !it.download_url) continue;
-      const size = it.size ?? 0;
-      total += size;
-      if (total > MAX_TOTAL_BYTES) return 'that skill is larger than this installer will fetch';
-      const rel = skillPath ? it.path.slice(skillPath.length).replace(/^\/+/, '') : it.path;
-      files.push({ path: rel, url: it.download_url, size });
-    }
-    return null;
-  };
-
-  const walkErr = await walk(skillPath, 0);
-  if (walkErr) return { ok: false, error: walkErr };
+  const plan = await planSkillInstall(listDir, skillPath);
+  if ('error' in plan) return { ok: false, error: plan.error, code: plan.code, detail: plan.detail };
+  const files = plan.files;
   if (files.length === 0) return { ok: false, error: 'No files found at that source.' };
 
-  // Write only after the whole tree resolved, so a mid-download failure cannot
-  // leave a half-installed skill that an agent would then load.
-  const written: string[] = [];
+  // STAGED, then moved into place in one step (review finding 5). Two screens can
+  // start the same install, and `existsSync(dest)` above is checked before the
+  // network walk, so both used to pass it, both wrote into `dest`, and the one
+  // that failed ran `rmSync(dest)` on the other's finished install: the person
+  // was told the skill was installed and it was not on disk. Each install now
+  // owns a private folder that only IT ever deletes, and `dest` appears whole or
+  // not at all, so an agent can never load a half written skill either. The
+  // staging parent starts with a dot and holds no SKILL.md of its own, so
+  // nothing scans it as a skill.
+  const staging = join(root, '.installing', `${dirName}-${randomBytes(6).toString('hex')}`);
+  const dropStaging = (): void => {
+    try { rmSync(staging, { recursive: true, force: true }); } catch { /* best effort */ }
+    try { rmdirSync(join(root, '.installing')); } catch { /* not empty: another install is staging */ }
+  };
   try {
-    for (const f of files) {
-      const target = resolve(dest, f.path);
+    // Containment first, for every path, before the first byte is asked for.
+    const targets = files.map((f) => {
+      const target = resolve(staging, f.path);
       // Post-resolution containment: the only check that survives a crafted path.
-      if (target !== dest && !target.startsWith(dest + sep)) {
+      if (target !== staging && !target.startsWith(staging + sep)) {
         throw new Error(`refusing to write outside the skill folder: ${f.path}`);
       }
-      const body = await getText(f.url);
-      mkdirSync(dirname(target), { recursive: true });
-      writeFileSync(target, body);
-      written.push(target);
+      return target;
+    });
+    // A few at a time. One at a time, canvas-design's 83 files took 25 seconds
+    // on a home line; the person is looking at a spinner the whole while.
+    //
+    // Six in flight means a failure is no longer the end of the work: five
+    // others are still running when it happens. So the first failure is
+    // RECORDED, every worker checks for it before it writes, and nothing is
+    // cleaned up until all of them have stopped. Deleting the folder while they
+    // ran let them write it back, which left the half installed skill the
+    // comment above promises cannot exist.
+    let next = 0;
+    let arrived = 0;
+    let failure: { error: string; code?: SkillInstallRefusal; detail?: SkillRefusalDetail } | null = null;
+    const worker = async (): Promise<void> => {
+      for (let i = next++; i < files.length && !failure; i = next++) {
+        try {
+          // Bytes, not text: a skill may carry fonts and images (canvas-design
+          // has a folder of them), and decoding those as UTF-8 writes them broken.
+          const body = await fetchBytes(files[i].url, { maxBytes: Math.max(files[i].size, SKILL_INSTALL_LIMITS.maxFileBytes) });
+          if (failure) return;
+          // The plan added up sizes the LISTING declared. This adds up what
+          // came, because a listing can say zero for every file and each one
+          // would still pass its own per file check.
+          arrived += body.length;
+          if (arrived > SKILL_INSTALL_LIMITS.maxTotalBytes) {
+            failure = { code: 'too-large', detail: { mb: mb(SKILL_INSTALL_LIMITS.maxTotalBytes) }, error: `that skill is larger than the ${mb(SKILL_INSTALL_LIMITS.maxTotalBytes)} MB this installer will fetch` };
+            return;
+          }
+          mkdirSync(dirname(targets[i]), { recursive: true });
+          writeFileSync(targets[i], body);
+        } catch (e) {
+          failure ??= { error: e instanceof Error ? e.message : String(e) };
+          return;
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(DOWNLOADS_AT_ONCE, files.length) }, worker));
+    if (failure) {
+      const f: { error: string; code?: SkillInstallRefusal; detail?: SkillRefusalDetail } = failure;
+      dropStaging();
+      return { ok: false, error: f.error, code: f.code, detail: f.detail };
     }
+    // Into place. Somebody else may have finished first while this one was
+    // downloading: theirs stays, ours goes, and nothing of theirs is touched.
+    // renameSync onto an existing NON EMPTY folder fails on every platform, which
+    // is the second line of defence if the two checks ever race.
+    if (existsSync(dest)) { dropStaging(); return { ok: false, error: `Already installed at ${dest}` }; }
+    try { renameSync(staging, dest); }
+    catch (e) {
+      dropStaging();
+      return existsSync(dest)
+        ? { ok: false, error: `Already installed at ${dest}` }
+        : { ok: false, error: e instanceof Error ? e.message : String(e) };
+    }
+    dropStaging();
   } catch (e) {
-    try { rmSync(dest, { recursive: true, force: true }); } catch { /* best effort */ }
+    dropStaging();
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
   return { ok: true, path: dest };

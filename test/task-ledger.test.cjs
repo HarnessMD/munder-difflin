@@ -165,7 +165,7 @@ test('hive.writeTasks can still empty the ledger', (t) => {
 
   hive.writeTasks([richCard(), { id: 'other', title: 'Other', status: 'todo' }]);
   hive.writeTasks([{ id: 'other', title: 'Other', status: 'todo' }]);
-  assert.deepEqual(ledger().map((t) => t.id), ['other']);
+  assert.deepEqual(ledger().map((t) => t.alias ?? t.id), ['other']);
 
   hive.writeTasks([]);
   assert.deepEqual(ledger(), []);

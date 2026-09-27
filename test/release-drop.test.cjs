@@ -106,8 +106,25 @@ const readDrop = () => require('node:fs').readFileSync(
   'utf8'
 );
 
+/**
+ * The same file with comments removed.
+ *
+ * The note above says this suite inspects the ATTRIBUTE and never the file text,
+ * and until now it did not: the sandbox check matched `sandbox="..."` anywhere,
+ * prose included. It went green only because nothing had yet written the
+ * attribute inside a comment, and it failed the moment something did — on a
+ * block explaining why the sandbox is what it is, which is exactly the "fails on
+ * the warning rather than on a real grant" case it was written to avoid.
+ *
+ * A guard that cannot tell code from a comment about the code punishes the
+ * people documenting it.
+ */
+const readDropCode = () => readDrop()
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/^\s*\/\/.*$/gm, '');
+
 test('ReleaseDrop grants allow-popups and nothing else', () => {
-  const attrs = [...readDrop().matchAll(/sandbox="([^"]*)"/g)].map((m) => m[1]);
+  const attrs = [...readDropCode().matchAll(/sandbox="([^"]*)"/g)].map((m) => m[1]);
   // Exactly one frame, granting exactly one capability. allow-scripts alone is
   // already arbitrary code in the frame; paired with allow-same-origin it lets
   // the frame delete its own sandbox. allow-top-navigation would let a release

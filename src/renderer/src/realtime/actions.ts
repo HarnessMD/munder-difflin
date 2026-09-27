@@ -5,7 +5,9 @@
  * / dispatch / steer / task CRUD / spawn-hire / kill / pause / halt / edit-schedule.
  * These are THIN — every tool just forwards a {verb, ...args} to the main process
  * (src/main/realtimeActions.ts), which owns the entire safety spine: the soft-vs-
- * destructive tiering, the two-step verbal echo-back confirm, the distinct-token
+ * confirm tiering (0.5.2: a yes only before something destructive, something
+ * that sends words to an agent, or something that spends), the two-step verbal
+ * echo-back confirm, the distinct-token
  * rule, the hard allowlist (kill-god / mass-ops forbidden), and the michael-voice
  * attribution. The renderer is the untrusted side, so it holds NO policy — it only
  * speaks back what main returns (`res.spoken`).
@@ -52,7 +54,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'ping_agent',
       description:
-        'Send a short message to one agent (a nudge or note). Soft action — runs immediately, no confirm. Use for "tell Oscar X" or "check in with Jim".',
+        'Send a short message to one agent (a nudge or note). Sends words to an agent, so it ASKS FIRST: returns a one-line read-back; after the user confirms, call confirm_action. Use for "tell Oscar X" or "check in with Jim".',
       parameters: {
         type: 'object',
         properties: {
@@ -67,7 +69,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'dispatch_agent',
       description:
-        'Give an agent a task as a structured 4-part work order (objective, context, constraints, done-when) delivered to their inbox. Soft action — runs immediately. Use for "have Jim build X" or "ask Oscar to investigate Y".',
+        'Give an agent a task as a structured 4-part work order (objective, context, constraints, done-when) delivered to their inbox. Sends words to an agent, so it ASKS FIRST: returns a one-line read-back; after the user confirms, call confirm_action. Use for "have Jim build X" or "ask Oscar to investigate Y".',
       parameters: {
         type: 'object',
         properties: {
@@ -85,7 +87,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'steer_agent',
       description:
-        'Inject live guidance into a running agent to redirect it without stopping it. Soft action — runs immediately. This is the priority verb: "tell Jim to focus on the bug first", "steer Oscar away from that approach".',
+        'Inject live guidance into a running agent to redirect it without stopping it. Sends words to an agent, so it ASKS FIRST: returns a one-line read-back; after the user confirms, call confirm_action. This is the priority verb: "tell Jim to focus on the bug first", "steer Oscar away from that approach".',
       parameters: {
         type: 'object',
         properties: {
@@ -183,7 +185,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'spawn_agent',
       description:
-        'Hire a NEW agent worker (provider engine + optional role). This does NOT run immediately; it asks for verbal confirmation first. After the user confirms, call confirm_action.',
+        'Hire a NEW agent worker (provider engine + optional role). It starts a paid session, so it ASKS FIRST: returns a read-back; after the user confirms, call confirm_action.',
       parameters: {
         type: 'object',
         properties: {
@@ -212,7 +214,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'pause_agent',
       description:
-        'Pause a running agent (it stops acting until resumed). DESTRUCTIVE — does NOT run immediately; returns an echo-back and asks for verbal confirmation. After the user confirms, call confirm_action.',
+        'Pause a running agent (it stops acting until resumed). Runs immediately, no confirm: resume_agent undoes it. Never the orchestrator, never all agents at once.',
       parameters: {
         type: 'object',
         properties: { agentId: { type: 'string', description: 'Agent name or id to pause.' } },
@@ -236,7 +238,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'edit_schedule',
       description:
-        'Enable, disable, or delete a recurring scheduled mission. DESTRUCTIVE — does NOT run immediately; returns an echo-back and asks for verbal confirmation. After the user confirms, call confirm_action.',
+        'Enable, disable, or delete a recurring scheduled mission. Enable and disable run immediately. Delete is destructive and ASKS FIRST: returns a read-back; after the user confirms, call confirm_action.',
       parameters: {
         type: 'object',
         properties: {
@@ -296,7 +298,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'delete_task',
       description:
-        'Delete one task card from the board by title or id. Soft action — runs immediately (recreate it if wrong).',
+        'Delete one task card from the board by title or id. Destructive, so it ASKS FIRST: returns a read-back; after the user confirms, call confirm_action.',
       parameters: {
         type: 'object',
         properties: { taskId: { type: 'string', description: 'Task title or id to delete.' } },
@@ -343,7 +345,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'create_schedule',
       description:
-        'Create a NEW recurring schedule that messages an agent on an interval. DESTRUCTIVE — returns an echo-back and asks for verbal confirmation. After the user confirms, call confirm_action.',
+        'Create a NEW recurring schedule that messages an agent on an interval. It will send words to an agent on a timer, so it ASKS FIRST: returns a read-back; after the user confirms, call confirm_action.',
       parameters: {
         type: 'object',
         properties: {
@@ -360,7 +362,7 @@ export function realtimeActionTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'update_setting',
       description:
-        "Change one app setting from the voice-allowed list. Cosmetic/low-risk keys (notifications, officeTheme, terminalTheme, freeflowEnabled, strongKeepalive, autoUpdate, tvShowOffices, realtimeIdleDisconnectMs) apply immediately; behavior-changing keys (autoMode, defaultModel, godProvider, godModel, maxConcurrentWorkers, costCapTokens, maxTurns, slackEnabled, webhookEnabled, semanticMemory, multiWindow) return an echo-back with old→new and need verbal confirmation ('setting' or 'confirm') — then call confirm_action. Secrets, folders and anything not listed are refused.",
+        "Change one app setting from the voice-allowed list. Most keys apply immediately (notifications, officeTheme, terminalTheme, strongKeepalive, autoUpdate, tvShowOffices, realtimeIdleDisconnectMs, defaultModel, godProvider, godModel, slackEnabled, webhookEnabled, semanticMemory, multiWindow). The autonomy switch and the budget limits (autoMode, maxConcurrentWorkers, costCapTokens, maxTurns) ASK FIRST: an echo-back with old→new, then confirm_action after the user says 'setting' or 'confirm'. Secrets, folders and anything not listed are refused.",
       parameters: {
         type: 'object',
         properties: {

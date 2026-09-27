@@ -1,0 +1,5 @@
+
+Opening browser for Kimi device login: https://www.kimi.ai/code/authorize_device?user_code=VAM5-PYA2
+If the browser did not open, paste the URL above and enter code: VAM5-PYA2
+Code expires in 1800s.
+Waiting for authorization to complete…

@@ -28,7 +28,7 @@ import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { Readable } from 'node:stream';
 import {
   type IntegrationRecord,
-  buildAuthHeaders,
+  buildAuthRequest,
   resolveUpstreamUrl,
   authTypeNeedsSecret
 } from '../shared/integrations';
@@ -241,11 +241,14 @@ export class IntegrationBroker {
       else if (typeof v === 'string') outHeaders[key] = v;
     }
     if (!outHeaders['user-agent']) outHeaders['user-agent'] = DEFAULT_USER_AGENT;
-    const injected = buildAuthHeaders(rec.authType, rec.authHeader, secret);
+    const { headers: injected, query: injectedQuery } = buildAuthRequest(rec, secret);
     for (const [k, v] of Object.entries(injected)) {
       delete outHeaders[k]; // ensure the worker can't shadow an injected header
       outHeaders[k] = v;
     }
+    // A query-parameter API carries its credential in the URL. `set` (not
+    // `append`) so a worker that supplied the same parameter cannot shadow it.
+    for (const [k, v] of Object.entries(injectedQuery)) upstream.searchParams.set(k, v);
 
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), UPSTREAM_TIMEOUT_MS);

@@ -83,6 +83,14 @@ export class CharacterSprite {
     this.sprite.mask = this.cropMask;
   }
 
+  /** Swap the whole frame grid (an edited custom avatar). Direction, animation
+   *  and the seat crop are kept; the sprite keeps playing on the new textures. */
+  replaceFrames(frames: Texture[][]): void {
+    this.frames = frames;
+    this.sprite.textures = this.getFrames(this.currentDirection, this.currentAnim);
+    this.sprite.play();
+  }
+
   private getFrames(direction: Direction, anim: AnimState): Texture[] {
     const row = DIRECTION_ROW[direction];
     return ANIM_FRAMES[anim].map((col) => this.frames[row][col]);

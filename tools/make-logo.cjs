@@ -1,5 +1,9 @@
 'use strict';
 /**
+ * SUPERSEDED in 0.5.3: the shipped assets come from tools/make-logo-from-ph.py
+ * (founder: the Product Hunt thumbnail's static frame, full bleed, no border).
+ * Running this file puts the older rounded, bordered framing back.
+ *
  * Munder Difflin brand mark — Michael's portrait on the brand yellow tile.
  *
  * THE SVG IS THE SOURCE OF TRUTH. docs/logo.svg is authored here as pure

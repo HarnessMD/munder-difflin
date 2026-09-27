@@ -1,0 +1,153 @@
+Anthropic
+Claude
+Claude Code
+Opus
+Sonnet
+Haiku
+OpenAI
+ChatGPT
+GPT
+Codex
+Gemini
+Google DeepMind
+Antigravity
+Grok
+xAI
+Llama
+Meta AI
+Mistral
+DeepSeek
+Qwen
+Kimi
+Moonshot
+Perplexity
+Cursor
+Windsurf
+Copilot
+GitHub
+GitLab
+Vercel
+Netlify
+Supabase
+Firebase
+Cloudflare
+AWS
+Azure
+GCP
+Kubernetes
+Docker
+Terraform
+Datadog
+PagerDuty
+Sentry
+Grafana
+Snowflake
+Databricks
+Postgres
+MongoDB
+Redis
+Kafka
+Airflow
+Hugging Face
+LangChain
+LlamaIndex
+Pinecone
+Weaviate
+Ollama
+vLLM
+PyTorch
+TensorFlow
+JAX
+CUDA
+Nvidia
+AMD
+Apple Silicon
+Metal
+Electron
+React
+Next.js
+Node.js
+TypeScript
+Python
+Rust
+Go
+Swift
+Kotlin
+Flutter
+Tailwind
+Figma
+Notion
+Slack
+Discord
+Zoom
+Linear
+Jira
+Asana
+Trello
+Airtable
+Zapier
+HubSpot
+Salesforce
+Stripe
+Razorpay
+Shopify
+Intercom
+Zendesk
+Mailchimp
+Loops
+PostHog
+Mixpanel
+Amplitude
+Segment
+Twilio
+Auth0
+Okta
+1Password
+Y Combinator
+a16z
+Sequoia
+seed round
+Series A
+pre seed
+SAFE note
+cap table
+term sheet
+runway
+burn rate
+ARR
+MRR
+churn
+CAC
+LTV
+product market fit
+go to market
+MVP
+OKR
+KPI
+roadmap
+sprint
+standup
+retro
+pull request
+code review
+CI/CD
+deploy
+rollback
+API
+SDK
+CLI
+LLM
+RAG
+fine tuning
+agent
+orchestrator
+MCP
+prompt engineering
+token
+context window
+inference
+latency
+Munder Difflin
+Stapler
+Michael
+hive

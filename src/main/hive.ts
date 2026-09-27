@@ -25,10 +25,14 @@ import {
 } from 'node:fs';
 import { join, dirname, basename, isAbsolute, relative } from 'node:path';
 import { homedir } from 'node:os';
+import { grokThemeEnv } from '../shared/grokTheme';
 import { spawnSync, spawn, type ChildProcess } from 'node:child_process';
 import { randomBytes, createHash } from 'node:crypto';
 import type { AgentUsageSample } from './usage';
+import type { MemoryIndexRow } from './memoryIndex';
 import { COMMAND_GROUPS } from '../shared/claudeCommands';
+import { pushSessionHistory } from '../shared/resumeKey';
+import { normalizeClaudeOutputStyle } from '../shared/outputStyle';
 import {
   isClaudeProvider,
   isHiveAwareProvider,
@@ -40,9 +44,17 @@ import {
 import { MCP_CATALOG } from '../shared/mcpCatalog';
 import { selectBroadcastTargets } from '../shared/broadcast';
 import { preferredAgentRole } from '../shared/agentRole';
-import { mergeTaskLedger } from '../shared/taskLedger';
+import { applyTaskPatches, mergeTaskLedger } from '../shared/taskLedger';
+import { assignTicketKeys, isTicketPrefix, readTicketMeta, resolveTask, type TicketMeta } from '../shared/ticketKeys';
+import { stampTaskTimes } from '../shared/taskTimes';
+import { entryForMessage, type ActivityEntry } from '../shared/activity';
 import { expandTilde } from './fs';
 import { resolveGodName } from '../shared/godIdentity';
+import {
+  AGENT_IGNORE_LINES, HIVE_IGNORE_LINES, REPO_SIZE_WARN_BYTES, boundGcMemory, ignoreOversized,
+  mergeIgnoreLines, packedBytes, untrackIgnored, type GitRun, type RepoFs
+} from '../shared/hiveRepo';
+import { HIVE_COMPACT_SCRIPT } from '../shared/hiveCompact';
 
 /** The subset of HarnessConfig the hive consumes for the default-MCP merge.
  *  Kept as a local shape so hive.ts never imports the foundation-owned config
@@ -66,6 +78,15 @@ export interface HiveMessage {
   requires_reply: boolean;
   needs_human: boolean;
   created_at: string;
+}
+
+/** What the Pro rail's badge needs about one agent's mail to the person:
+ *  how many since the person last opened that agent, when the newest came,
+ *  and the first three, short (0.5.3, F25). */
+export interface HumanMailSummary {
+  count: number;
+  latest: string;
+  texts: { id: string; at: string; subject: string; body: string }[];
 }
 
 /** One hive message reshaped for the voice read-layer (`hive:messages`): the
@@ -101,10 +122,16 @@ export interface HumanQA {
   askedAt?: string;
   answeredAt?: string;
   dismissedAt?: string;
+  /** The agent whose question this is (0.5.3); scopes it to that agent's tab. */
+  from?: string;
 }
 
 export interface HiveTask {
+  /** The ticket key the harness assigns (V53-299), or an older card's own id. */
   id: string;
+  /** The id a writer gave the card before the harness keyed it (0.5.3). A
+   *  dependsOn, blockedBy or humanQA naming it still resolves (resolveTask). */
+  alias?: string;
   title: string;
   description?: string;
   assignee?: string;
@@ -161,6 +188,11 @@ export interface RegistryAgent extends AgentMeta {
    *  resume after a crash/restart) AND the cost accounting/dedup key on every
    *  AgentUsageSample / cost-ledger row. */
   sessionId?: string;
+  /** The keys `sessionId` displaced, most recent first, bounded (0.5.3 bug 1).
+   *  The current key is not always the agent's conversation: see
+   *  shared/resumeKey.ts. A restart walks these when the current key has no
+   *  transcript, so the real session is still findable. */
+  sessionHistory?: string[];
   /** Whether `cwd` is actually usable for a (re)spawn — i.e. an ABSOLUTE path
    *  that exists as a directory. Computed + persisted at spawn so the roster
    *  reliably exposes each worker's environment validity. A non-absolute fragment
@@ -223,19 +255,17 @@ function shortRand(): string {
 const PROXY_BIND_ATTEMPTS = 3;
 const PROXY_BIND_BACKOFF_MS = [250, 750];
 
-const MINE_IGNORE_LINES = ['settings.json', 'cursor.json', 'inbox/', 'outbox/', '.codex/'];
-
 /** Idempotently ensure `<agentDir>/.gitignore` excludes the non-memory files.
- *  Append-only: writes only the missing lines, leaving any existing entries. */
+ *  Append-only: writes only the missing lines, leaving any existing entries.
+ *  The list lives in shared/hiveRepo.ts beside the hive root's, because the
+ *  untrack pass reads whatever these files say rather than a path list. */
 function ensureMineIgnore(agentDir: string): void {
   const path = join(agentDir, '.gitignore');
   let existing = '';
   try { if (existsSync(path)) existing = readFileSync(path, 'utf8'); } catch { return; }
-  const have = new Set(existing.split('\n').map((l) => l.trim()));
-  const missing = MINE_IGNORE_LINES.filter((l) => !have.has(l));
-  if (missing.length === 0) return;
-  const prefix = existing && !existing.endsWith('\n') ? existing + '\n' : existing;
-  try { writeFileSync(path, prefix + missing.join('\n') + '\n', 'utf8'); } catch { /* best-effort */ }
+  const merged = mergeIgnoreLines(existing, AGENT_IGNORE_LINES);
+  if (merged === null) return;
+  try { writeFileSync(path, merged, 'utf8'); } catch { /* best-effort */ }
 }
 
 /**
@@ -289,6 +319,22 @@ export function redactSecrets(text: unknown): string {
 }
 
 // ─── HiveManager ────────────────────────────────────────────────────────────
+
+/**
+ * The Teams bridge, as the router sees it (plan 4.6, extended by 0.4.9's
+ * nickname). hive.ts never imports the bridge, so a solo build has an empty
+ * object here and every branch that needs it falls through to a bounce.
+ *
+ * `resolve` answers a `to` that is neither an agent on this floor nor a
+ * `member:` address: a teammate's own name, or the nickname their orchestrator
+ * goes by. It is synchronous because routing is, so a roster that has not been
+ * read yet answers null and starts the read rather than blocking the message.
+ */
+export interface RemoteBridge {
+  send?: (msg: HiveMessage) => void;
+  rosterLine?: () => string | null;
+  resolve?: (name: string) => { memberId: string } | { ambiguous: string[] } | null;
+}
 
 /**
  * Repair only literal CR/LF characters that occur inside JSON strings.
@@ -348,6 +394,21 @@ function repairLiteralLineBreaksInJsonStrings(raw: string): { text: string; chan
   return { text, changed };
 }
 
+/** The person's Grok config, read and never written. Missing is normal. */
+function readGrokConfigToml(): string | null {
+  try { return readFileSync(join(process.env.GROK_HOME || join(homedir(), '.grok'), 'config.toml'), 'utf8'); } catch { return null; }
+}
+
+/** The name of the per user shim bundle: a short hash over every file in it
+ *  (name and text), so two app versions whose shim or launcher text differ get
+ *  two bundles side by side and an older floor is never handed a newer shim.
+ *  Pure, so a test can predict the directory from the texts on disk. */
+export function shimBundleHash(files: Record<string, string>): string {
+  const h = createHash('sha256');
+  for (const name of Object.keys(files).sort()) h.update(name).update('\0').update(files[name]).update('\0');
+  return h.digest('hex').slice(0, 16);
+}
+
 export class HiveManager {
   /**
    * @param getHome  Lazily resolve harnessHome so the hive follows config changes.
@@ -361,6 +422,10 @@ export class HiveManager {
   ) {}
 
   private routerTimer: NodeJS.Timeout | null = null;
+
+  /** A nickname claimed on the relay before this machine had a workspace. Held
+   *  until `ensureHive` has somewhere to write it. See `presetGodName`. */
+  private pendingGodName: string | null = null;
 
   /** The embedded OTLP collector's loopback URL, set by the main process once the
    *  collector is bound (telemetry.ts). null = telemetry off → no OTel env is
@@ -398,12 +463,84 @@ export class HiveManager {
    *  builder can decide whether to tell god the spawn queue is available. Set at
    *  bootstrap and on every config write; hive.ts deliberately does not import
    *  the config module. */
-  private _maySpawn = false;
+  private _maySpawn = true;
   setOrchestratorMaySpawn(on: boolean): void {
     this._maySpawn = on;
   }
   orchestratorMaySpawn(): boolean {
     return this._maySpawn;
+  }
+
+  /** Settings > Tasks: the ticket key prefix the person chose, mirrored here
+   *  from config like orchestratorMaySpawn. null = the one in tasks.json, else
+   *  derived from the workspace folder name. */
+  private _ticketPrefix: string | null = null;
+  setTicketPrefix(prefix: string | null | undefined): void {
+    this._ticketPrefix = isTicketPrefix(prefix) ? prefix : null;
+  }
+  /** The ticket meta for a tasks.json object: its own, the chosen prefix over it. */
+  ticketMeta(file: unknown): TicketMeta {
+    const meta = readTicketMeta(file, basename(this.getHome() ?? ''));
+    return this._ticketPrefix ? { ...meta, prefix: this._ticketPrefix } : meta;
+  }
+  /** The archived cards, so a key number is never handed out twice. */
+  private archivedTasks(): unknown[] {
+    const root = this.root();
+    if (!root) return [];
+    const a = this.readJson<{ tasks?: unknown }>(join(root, 'tasks-archive.json'), { tasks: [] });
+    return Array.isArray(a?.tasks) ? a.tasks : [];
+  }
+  /** Write the live ledger with its ticket meta, keeping any other top level
+   *  field an agent put in the file. Every card that needs a key gets one here,
+   *  in the same atomic write as the counter, and every status change is
+   *  stamped against the cards on disk (startedAt, doneAt, reopenedAt,
+   *  updatedAt; 0.5.3 date filter). */
+  private writeLedger(path: string, current: unknown, cards: unknown[]): unknown[] {
+    const keyed = assignTicketKeys(cards, this.ticketMeta(current), this.archivedTasks());
+    const base = current && typeof current === 'object' && !Array.isArray(current) ? current as Record<string, unknown> : {};
+    const prev = Array.isArray(base.tasks) ? base.tasks as unknown[] : [];
+    const { tasks } = stampTaskTimes(prev, keyed.tasks, new Date().toISOString());
+    this.writeJson(path, { ...base, tasks, ticket: keyed.meta });
+    if (path === this.livePath()) this.tasksSeen = tasks;
+    return tasks;
+  }
+  private livePath(): string | null {
+    const root = this.root();
+    return root ? join(root, 'tasks.json') : null;
+  }
+
+  /** Agents edit tasks.json by hand. On each router tick, when the file has
+   *  changed since we last saw it, key any card an agent wrote without one
+   *  (0.5.3 ticket keys), and stamp the status changes the agent made against
+   *  the board as we last saw it (0.5.3 task times). The first look after a
+   *  start only remembers the board: with nothing to compare against, a stamp
+   *  would put every card in Today. Returns how many cards were keyed. */
+  private tasksSeenMtime = 0;
+  private tasksSeen: unknown[] | undefined;
+  keyAgentTasks(): number {
+    const root = this.root();
+    if (!root) return 0;
+    const path = join(root, 'tasks.json');
+    let mtime = 0;
+    try { mtime = statSync(path).mtimeMs; } catch { return 0; }
+    if (mtime === this.tasksSeenMtime) return 0;
+    let current: unknown;
+    try { current = JSON.parse(readFileSync(path, 'utf8')); } catch { return 0; } // mid write or hand broken: next tick
+    const cards = current && typeof current === 'object' && Array.isArray((current as { tasks?: unknown }).tasks) ? (current as { tasks: unknown[] }).tasks : null;
+    if (!cards) { this.tasksSeenMtime = mtime; return 0; }
+    const keyed = assignTicketKeys(cards, this.ticketMeta(current), this.archivedTasks());
+    const hasMeta = !!(current as { ticket?: unknown }).ticket;
+    const stamped = this.tasksSeen ? stampTaskTimes(this.tasksSeen, keyed.tasks, new Date().toISOString()) : { tasks: keyed.tasks, changed: false };
+    this.tasksSeen = stamped.tasks;
+    if (!keyed.changed && !stamped.changed && hasMeta) { this.tasksSeenMtime = mtime; return 0; }
+    const before = cards.filter((c, i) => c !== keyed.tasks[i]).length;
+    this.writeJson(path, { ...(current as Record<string, unknown>), tasks: stamped.tasks, ticket: keyed.meta });
+    try { this.tasksSeenMtime = statSync(path).mtimeMs; } catch { /* next tick */ }
+    if (before) {
+      this.appendLog({ kind: 'tasks-keyed', count: before });
+      this.commit(`hive: keyed ${before} task(s)`);
+    }
+    return before;
   }
 
   // — paths —
@@ -572,6 +709,72 @@ export class HiveManager {
     return [this.nodeLauncher() ?? 'node', script, ...args].join(' ');
   }
 
+  /**
+   * The FLOOR INDEPENDENT home of the hook shims that live in a user's GLOBAL
+   * CLI config (agy's `~/.gemini/…/hooks.json`, Grok's `~/.grok/hooks/`). Set by
+   * the main process to `app.getPath('appData')/munder-difflin/shared/bin`;
+   * hive.ts deliberately does not import electron. null (tests, headless) keeps
+   * the legacy per floor path.
+   *
+   * Why: those hook files are one per USER, but the shim they named lived under
+   * `<hive root>/bin/`, one per FLOOR. Two floors wrote the same text to two
+   * paths and the last writer won the hook file; the hook then broke the moment
+   * that floor's hive was moved or deleted, or when the two floors ran different
+   * app versions (B23 point 5). The shim reads the socket from the agent's own
+   * HIVE_SOCK env, never from the file, so one shared copy serves every floor.
+   */
+  private _sharedBinDir: string | null = null;
+  setSharedBinDir(dir: string | null): void {
+    this._sharedBinDir = dir;
+  }
+  sharedBinDir(): string | null {
+    return this._sharedBinDir;
+  }
+
+  /** The launcher text `writeNodeLauncher` bakes: it carries process.execPath,
+   *  so it is part of the bundle hash (a moved or updated app gets a new bundle
+   *  rather than overwriting the one a still running floor is using). */
+  private nodeLauncherText(): string {
+    return process.platform === 'win32'
+      ? `@echo off\r\nset ELECTRON_RUN_AS_NODE=1\r\n"${process.execPath}" %*\r\n`
+      : `#!/bin/sh\nELECTRON_RUN_AS_NODE=1 exec "${process.execPath}" "$@"\n`;
+  }
+
+  /**
+   * Write the shared shim bundle (both global config shims plus the bundled
+   * node launcher they run under) into the shared bin under ONE content hashed
+   * directory and return the paths a hook command for `name` should name.
+   * Idempotent: an identical bundle is left untouched, a different text lands
+   * in a new directory, nothing is ever deleted. null when no shared dir is
+   * configured or the write failed, and the caller stays on the legacy per
+   * floor paths (exactly the pre fix behaviour).
+   */
+  private installSharedShim(name: 'agy-hook.cjs' | 'grok-hook.cjs'): { shim: string; launcher: string } | null {
+    const base = this._sharedBinDir;
+    if (!base) return null;
+    try {
+      const launcherName = process.platform === 'win32' ? 'hive-node.cmd' : 'hive-node';
+      const files: Record<string, string> = {
+        [launcherName]: this.nodeLauncherText(),
+        'agy-hook.cjs': AGY_HOOK_SHIM,
+        'grok-hook.cjs': GROK_HOOK_SHIM
+      };
+      const dir = join(base, shimBundleHash(files));
+      mkdirSync(dir, { recursive: true });
+      for (const [file, body] of Object.entries(files)) {
+        const p = join(dir, file);
+        let current: string | null = null;
+        if (existsSync(p)) { try { current = readFileSync(p, 'utf8'); } catch { current = null; } }
+        if (current !== body) writeFileSync(p, body, 'utf8');
+        if (file === launcherName && process.platform !== 'win32') chmodSync(p, 0o755);
+      }
+      return { shim: join(dir, name), launcher: join(dir, launcherName) };
+    } catch (e) {
+      console.error('[hive] installSharedShim failed:', e);
+      return null;
+    }
+  }
+
   /** One proxy sidecar per live proxy-tier agent, keyed by agentId. Spawned in
    *  ensureAgent, killed on PTY exit / removeAgent / app quit (index.ts) — so a
    *  dead agent never leaks an orphan loopback listener. */
@@ -617,18 +820,25 @@ export class HiveManager {
     // so it tracks the bundled list).
     writeFileSync(join(root, 'COMMANDS.md'), COMMANDS_MD, 'utf8');
 
-    // Keep the churny/ephemeral live files out of the hive git repo.
+    // Keep the churny/ephemeral live files, and every machine generated tree,
+    // out of the hive git repo. The list and the reasoning are in
+    // shared/hiveRepo.ts; `repoHygiene` below drops whatever is already in the
+    // index, because an ignore line alone does not stop git tracking a file it
+    // already tracks.
     const gitignore = join(root, '.gitignore');
+    // log.jsonl joined this list in 0.4.10 for exactly the reason the cost
+    // ledger is on it: it takes a line per routed message, and `commit()` does
+    // `git add -A` on every hive mutation, so the repo was storing a fresh copy
+    // of the whole event log constantly.
     // `crashes/` holds raw PTY output from abnormal agent exits. It is
     // DELIBERATELY ignored: that output is whatever the provider printed, which
     // can include tokens, paths and prompt fragments, and the hive repo is
     // committed on every change — a secret written there would be permanent.
     // log.jsonl gets the structured, non-sensitive fields; the dump stays local.
-    const want = ['fleet.json', 'hooks.sock', 'cost-ledger.jsonl', 'crashes/', '.DS_Store'];
-    let lines: string[] = [];
-    if (existsSync(gitignore)) { try { lines = readFileSync(gitignore, 'utf8').split('\n'); } catch { lines = []; } }
-    const missing = want.filter((w) => !lines.includes(w));
-    if (missing.length) writeFileSync(gitignore, [...lines.filter(Boolean), ...missing].join('\n') + '\n', 'utf8');
+    let existingIgnore = '';
+    if (existsSync(gitignore)) { try { existingIgnore = readFileSync(gitignore, 'utf8'); } catch { existingIgnore = ''; } }
+    const mergedIgnore = mergeIgnoreLines(existingIgnore, HIVE_IGNORE_LINES);
+    if (mergedIgnore !== null) writeFileSync(gitignore, mergedIgnore, 'utf8');
 
     // The hook shim: a dumb pipe between a `claude` hook and our UDS. Refreshed
     // on every bootstrap so it tracks code changes.
@@ -636,6 +846,13 @@ export class HiveManager {
     writeFileSync(this.shimPath()!, HOOK_SHIM, 'utf8');
     // The proxy-bridge sidecar for hookless CLIs (qwen). Same refresh policy.
     writeFileSync(this.proxyShimPath()!, PROXY_BRIDGE_SHIM, 'utf8');
+    // The one thing the app will not do to a person's repo by itself: give back
+    // the space a pre-fix history is still holding. Shipped here so a hive that
+    // grew huge has the tool next to it, and named in the warning below.
+    try {
+      writeFileSync(join(root, 'bin', 'hive-compact.cjs'), HIVE_COMPACT_SCRIPT, 'utf8');
+      chmodSync(join(root, 'bin', 'hive-compact.cjs'), 0o755);
+    } catch { /* best-effort */ }
     // The bundled-node launcher every shim above is invoked through — MUST be
     // written before any hook installer runs (they probe for it).
     this.writeNodeLauncher();
@@ -645,6 +862,16 @@ export class HiveManager {
     if (!existsSync(join(root, '.git'))) {
       this.git(['init', '-q'], root);
       this.commit('hive: init');
+    }
+
+    // A name taken before there was anywhere to put it (see `presetGodName`):
+    // onboarding claims the orchestrator's nickname on step 3 and the workspace
+    // is not chosen until step 4, so the claim lands here instead. Cleared
+    // FIRST, which is what stops `presetGodName` calling back into this.
+    const deferred = this.pendingGodName;
+    if (deferred) {
+      this.pendingGodName = null;
+      this.presetGodName(deferred);
     }
   }
 
@@ -684,6 +911,9 @@ export class HiveManager {
        *  old env-var spelling. */
       kgCliPath?: string;
       theme?: 'light' | 'dark';
+      /** Claude Code's own output style for this agent (0.5.3 feature 19), from
+       *  config.claudeOutputStyle. Undefined falls back to Concise. */
+      outputStyle?: string;
       /** Consent state for the default-MCP bundle (W3). Threaded from the live
        *  HarnessConfig by the caller; undefined → catalog defaults apply. */
       mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -788,6 +1018,18 @@ export class HiveManager {
     // per-agent config dirs below. A running TUI does not re-read this: new
     // agents pick up the current theme, running ones keep the one they started with.
     if (opts.theme) env.COLORFGBG = opts.theme === 'dark' ? '15;0' : '0;15';
+    // 0.5.3, bug 18. Grok never reads COLORFGBG on a desktop: it starts in its
+    // dark default, or follows the OPERATING SYSTEM when set to auto. It does
+    // take GROK_THEME, so a Grok agent is told the app's theme that way, unless
+    // the person already picked a theme of their own (@shared/grokTheme).
+    if ((meta.provider ?? 'claude') === 'grok') {
+      const grokTheme = grokThemeEnv(opts.theme, readGrokConfigToml(), process.env.GROK_THEME ?? process.env.LC_GROK_THEME);
+      if (grokTheme) env.GROK_THEME = grokTheme;
+      // Measured 24 Sep on Grok 1.0.41: GROK_THEME=grokday alone paints a white
+      // background, but with COLORFGBG=0;15 beside it the same Grok paints black
+      // again. Grok does not need the generic hint on a desktop, so it gets none.
+      delete env.COLORFGBG;
+    }
 
     const claudeProvider = isClaudeProvider(meta.provider ?? 'claude');
 
@@ -962,7 +1204,7 @@ export class HiveManager {
     if (sock && shim) {
       env.HIVE_SOCK = sock;
       const settingsPath = join(dir, 'settings.json');
-      this.writeJson(settingsPath, this.hookSettings(shim, meta.cwd, opts.mcpDefaults, opts.theme, this.sandboxWritableDirs(meta, dir, root, opts.extraWritableDirs)));
+      this.writeJson(settingsPath, this.hookSettings(shim, meta.cwd, opts.mcpDefaults, opts.theme, this.sandboxWritableDirs(meta, dir, root, opts.extraWritableDirs), opts.outputStyle));
       args.push('--settings', settingsPath);
     }
     return { args, env };
@@ -1040,6 +1282,10 @@ export class HiveManager {
 
       agent.onHold = hold;
       this.writeJson(join(root, 'registry.json'), reg);
+      // The rail draws the 1:1 chip from the store's copy; a hold set from the
+      // agent screen, the menu or a teammate's machine reaches every surface
+      // through this push, not only the screen that is open (Pam's audit 4).
+      this.emit?.('hive:agentHold', { agentId: id, onHold: hold });
 
       const fleetPath = join(root, 'fleet.json');
       if (existsSync(fleetPath)) {
@@ -1100,6 +1346,45 @@ export class HiveManager {
   }
 
   /**
+   * 0.4.9 nickname: name the orchestrator whether or not it has spawned yet.
+   * Registered, this is `renameAgent`. Not yet registered (a fresh workspace,
+   * onboarding just wrote the config), the registry gets the god's row with
+   * this name and nothing else, which is exactly what the renderer's spawn
+   * effect reads back (`resolveGodName(reg.agents.god.name)`) before its first
+   * `ensureAgent`; that call then fills the row in. Without this the claim the
+   * relay accepted would sign as "Michael" on this machine until a restart.
+   */
+  presetGodName(name: string): { ok: boolean; name?: string; error?: string; deferred?: boolean } {
+    const nextName = name.trim();
+    if (!nextName) return { ok: false, error: 'Name is required' };
+    const root = this.root();
+    // NO WORKSPACE YET IS NOT A FAILURE. Onboarding names the orchestrator on
+    // "Meet your team", one step BEFORE the workspace is created, so there is
+    // no registry to write into at the moment the name is chosen. The relay has
+    // already taken the word by this point, which is the half that matters and
+    // the half that cannot be redone, so refusing here would report a failure
+    // for a claim that succeeded and leave the person stuck on the step. Hold
+    // it instead; `ensureHive` writes it the moment there is a hive.
+    if (!root) {
+      this.pendingGodName = nextName;
+      return { ok: true, name: nextName, deferred: true };
+    }
+    const reg = this.registry();
+    const godId = reg.godId ?? 'god';
+    if (reg.agents[godId]) return this.renameAgent(godId, nextName);
+    try {
+      this.ensureHive();
+      reg.godId = godId;
+      reg.agents[godId] = { id: godId, name: nextName, cwd: this.getHome() ?? '', isGod: true, status: 'idle', lastSeen: Date.now() };
+      this.writeJson(join(root, 'registry.json'), reg);
+      this.appendLog({ kind: 'rename', agentId: godId, previousName: null, name: nextName });
+      return { ok: true, name: nextName };
+    } catch {
+      return { ok: false, error: 'Could not name the orchestrator' };
+    }
+  }
+
+  /**
    * Persist the agent's Claude Code session_id (Lane A #6.6a). Captured from hook
    * payloads; written only when it actually changes (a new session), so this is a
    * no-op on the vast majority of hook events. The id is the `--resume` key for
@@ -1113,6 +1398,7 @@ export class HiveManager {
       const reg = this.registry();
       const agent = reg.agents[agentId];
       if (!agent || agent.sessionId === sessionId) return; // unknown agent or unchanged → no write
+      agent.sessionHistory = pushSessionHistory(agent.sessionHistory, agent.sessionId);
       agent.sessionId = sessionId;
       agent.lastSeen = Date.now();
       this.atomicWriteJson(join(root, 'registry.json'), reg);
@@ -1125,6 +1411,14 @@ export class HiveManager {
    *  `claude --resume <id>` spawn so a restarted agent resumes its thread. */
   lastSession(agentId: string): string | undefined {
     return this.registry().agents[agentId]?.sessionId;
+  }
+
+  /** Every session a restart may try, the current key first and then the keys
+   *  it displaced. The caller resumes the first one whose transcript exists. */
+  resumeCandidates(agentId: string): string[] {
+    const agent = this.registry().agents[agentId];
+    if (!agent) return [];
+    return pushSessionHistory(agent.sessionHistory, agent.sessionId);
   }
 
   /** Claude Code settings that route every relevant hook through the shim, plus
@@ -1143,7 +1437,7 @@ export class HiveManager {
     return Array.from(new Set(out));
   }
 
-  private hookSettings(shim: string, cwd: string, cfg: McpDefaultsMap, theme?: 'light' | 'dark', writableDirs: string[] = []): unknown {
+  private hookSettings(shim: string, cwd: string, cfg: McpDefaultsMap, theme?: 'light' | 'dark', writableDirs: string[] = [], outputStyle?: string): unknown {
     // Bundled node, NOT bare `node` — see nodeLauncherPath(). Claude runs each of
     // these through `sh -c` with a stripped PATH, where `node` is often absent.
     const cmd = this.nodeRun(shim);
@@ -1165,6 +1459,10 @@ export class HiveManager {
       // listens. The terminal reports the current theme the moment the CLI enables
       // 2031, so startup still matches without pinning anything.
       ...(theme ? { theme: 'auto' } : {}),
+      // 0.5.3 feature 19: Claude Code's own output style, Concise unless the user
+      // chose another (shared/outputStyle.ts). Per session settings only, so a
+      // person's own `claude` outside the app keeps whatever style they set.
+      outputStyle: normalizeClaudeOutputStyle(outputStyle),
       // W3 — default skills/MCP bundle. Written into the PER-SESSION settings file
       // only (never ~/.claude), so the user's own MCP servers are never clobbered;
       // Claude merges this additively. Omitted entirely when empty so a settings
@@ -1439,77 +1737,101 @@ export class HiveManager {
     // Native-separator path helpers — see the 🪟 note above.
     const inDir = (...parts: string[]): string => join(dir, ...parts);
     const inRoot = (...parts: string[]): string => join(root, ...parts);
-    // Resolved ONCE here, at THIS agent's own spawn — same prompt-cache-stable
-    // shape as name/id/dir/root above it, not a live re-read on every turn.
-    // Needed only for the PREP ASSISTANT persona below, which refers to god by
-    // name in prose; god's own prompt already gets its name via `meta.name`.
+    // Resolved ONCE here, at THIS agent's own spawn (prompt-cache-stable, like
+    // name/id/dir/root). Only the PREP ASSISTANT persona names god in prose.
     const godRegistry = meta.isAssistant ? this.registry() : null;
     const godNameForPrompt = godRegistry
       ? resolveGodName(godRegistry.agents[godRegistry.godId ?? 'god']?.name)
       : '';
-    const ctxLine = 'LIVE CONTEXT: each agent row in the LIVE ROSTER carries a `ctx NN%` tag — its live context-window occupancy. Treat it as the real headroom signal when routing: prefer an agent with a LOW `ctx` for a big task; treat a HIGH `ctx` (near 100%) as busy rather than idle, even if the cumulative token count looks modest.';
+    const hiveNode = this.nodeCommand();
+    const kgCli = kgCliPath || (process.platform === 'win32' ? '%KG_CLI%' : '$KG_CLI');
+    const rt = this.runtimeInfo();
+
+    // 0.4.11 (founder, 6 Sep 2026): "we should say temps everywhere not
+    // workers", and the prompts "written cleanly, in short". One vocabulary for
+    // prompts and screens, defined once, then short numbered rules. Every rule
+    // the long form carried is still here; only the prose is gone.
+    const wordsLine = 'WORDS: an "agent" is a member of this office with a lasting session. A "temp" is a short lived agent the orchestrator starts for one job; it does the job, reports done, and is torn down. The orchestrator\'s address is "god".';
+
+    const guardrailsLine = 'GUARDRAILS: a circuit breaker watches the floor. A "Circuit breaker: steer" or "constrain" message means you are looping or overspending: stop repeating, summarize what you tried, and follow it. Be token frugal; a floor wide or per agent budget can pause you. The shared plan has two parts: board.md (freeform; god is its only writer) and tasks.json (a kanban: todo, doing, blocked, done).';
 
     const memoryLine = semanticMemory
       // The palace location is named, not spelled as `$MEMPALACE_PALACE_PATH`:
       // `mempalace` reads that env var itself, and the POSIX `$` form was noise
       // (or an empty expansion) for a Windows agent that tried to use it literally.
-      ? 'Semantic memory: the whole hive shares a searchable MemPalace at the path in your MEMPALACE_PALACE_PATH environment variable. To recall relevant past knowledge across the team, run `mempalace search "<query>"`; run `mempalace wake-up` at the start of a task for a memory digest. Your notes in memory.md are mined into the palace automatically — write durable facts there.'
+      ? 'SEMANTIC MEMORY: the office shares a searchable MemPalace at the path in your MEMPALACE_PALACE_PATH environment variable. Run `mempalace wake-up` at the start of a task for a digest and `mempalace search "<query>"` to recall what the team knows. Your memory.md is mined into it automatically, so write durable facts there.'
       : '';
+    // 0.4.11: "temporary agents should be able to fetch context from any agent's
+    // memories". The index is written by main when a temp starts; every agent is
+    // told, because the same reading pays whenever a task touches another agent's work.
+    const sharedMemoryLine = `Shared memory: every agent that has been on this floor keeps its durable notes at ${inRoot('agents')}/<id>/memory.md, and ${inRoot('memory-index.md')} (written by the harness when a temp starts) lists them with path, size and last update. Read any of them when a task names another agent or touches their work. Write only your own memory.md.`;
     // Enterprise Knowledge Graph (opt-in). Volatile-free: the bundled-node launcher
-    // and the KG CLI are both fixed absolute paths for an install, so baking them
-    // keeps the prefix prompt-cache-stable while making the command runnable in
-    // cmd.exe/PowerShell as well as a POSIX shell.
-    const hiveNode = this.nodeCommand();
-    const kgCli = kgCliPath || (process.platform === 'win32' ? '%KG_CLI%' : '$KG_CLI');
+    // and the KG CLI are both fixed absolute paths for an install.
     const knowledgeLine = knowledgeGraph
-      ? `Enterprise knowledge: this organisation has a private Knowledge Graph of its own documents, policies, and business context. When a task needs that context — company-specific facts, house style, internal processes — query it instead of guessing: run \`"${hiveNode}" "${kgCli}" search "<query>"\` for ranked passages, \`"${hiveNode}" "${kgCli}" list\` to see what is available, and \`"${hiveNode}" "${kgCli}" get <id>\` for a full document. (That first path is the harness's bundled Node — use it instead of bare \`node\`, which may not be on your PATH.)`
+      ? `ENTERPRISE KNOWLEDGE: this organisation keeps a private Knowledge Graph of its documents, policies and business context. When a task needs company facts, house style or an internal process, query it instead of guessing: \`"${hiveNode}" "${kgCli}" search "<query>"\` for ranked passages, \`"${hiveNode}" "${kgCli}" list\` for what exists, \`"${hiveNode}" "${kgCli}" get <id>\` for a full document. That first path is the harness's bundled Node; use it, not bare \`node\`.`
       : '';
-    // Item 13: state the build. Agents had no way to tell which version, or even
-    // which KIND of build, they were running inside, so anything that varies
-    // between a packaged app and a local dev run (umask being the one that bit
-    // us) was invisible to every investigation.
-    const rt = this.runtimeInfo();
+    // Every agent gets the skills folder at spawn (copyBundledSkills), but only
+    // the temp dispatch used to say so. Said once here for everyone, with the one
+    // difference stated: the integrations broker is a temp's, by its env.
+    const capabilitiesLine = `CAPABILITIES: your skills are in ${inDir('.claude', 'skills')}. Read ${inDir('.claude', 'skills', 'capabilities', 'SKILL.md')} once (or run /capabilities): it lists what you can do and how to call it. The date skills (/today, /lastWeek, /last30Days, /lastQuarter and more) resolve any time window; use them for time scoped work instead of computing dates by hand. Integrations go through the loopback broker and are available only when MD_BROKER_URL is set in your environment (a temp's); without it, ask god.`;
+    // Item 13: state the build, so anything that differs between a packaged app
+    // and a local dev run (umask being the one that bit us) is visible.
     const runtimeLine = rt
-      ? `RUNNING BUILD: Munder Difflin v${rt.version}, ${rt.packaged ? 'packaged app' : 'local dev build'}${rt.appPath ? `, from ${rt.appPath}` : ''}. Say this version if asked which one is running, and do not assume behaviour from an older one. A local dev build inherits the launching shell's environment (umask included) where a packaged app does not, so file modes and inherited env can legitimately differ between the two. \`log.jsonl\` records an \`app-start\` event on every launch, which is how you spot a restart or a build switch.`
+      ? `RUNNING BUILD: Munder Difflin v${rt.version}, ${rt.packaged ? 'packaged app' : 'local dev build'}${rt.appPath ? `, from ${rt.appPath}` : ''}. Say this version when asked which one is running; do not assume behaviour from an older one. A local dev build inherits the launching shell's environment (umask included) and a packaged app does not, so file modes and env can differ. log.jsonl records an app-start event on every launch; that is how you spot a restart or a build switch.`
       : '';
-    // Item 11: god could not find the spawn queue. The mechanism has worked since
-    // v0.4.4, but nothing told him it existed — the prompt said "spawn" without
-    // saying how, COMMANDS.md and PROTOCOL.md did not mention it, and the only
-    // description lived in a source comment. So he fell back to writing a hire
-    // manifest, which needs a human to click confirm, and it looked like nothing
-    // happened. Gated on the toggle: advertising a disabled path is worse than
-    // saying nothing, and COMMANDS.md documents it either way for the case where
-    // the operator turns it on after god was already running.
-    const spawnQueueLine = meta.isGod && this.orchestratorMaySpawn()
-      ? `SPAWNING A WORKER: you can start an ephemeral worker yourself by writing ONE JSON file into ${inRoot('spawn-requests')}/<id>.json. Required: \`objective\` (what the worker must do) and \`cwd\` (the repo it runs in). Optional: \`name\`, \`command\`, \`provider\`, \`model\`, \`isolate\` (default true = its own git worktree), \`tokenCap\`, and \`slack\` ({channel, thread_ts}) to route its failures back to a thread. The harness polls that directory, spawns \`worker-<id>\`, and moves the request to \`spawn-requests/.done/\` on success or \`.failed/\` with a reason. This is the ONLY way you can spawn; a hire manifest under research/hires/ needs the human to confirm it in the UI, so it is not a route you can complete on your own. Reuse an existing agent first, as above — a worker is a fresh spend every time.`
-      : '';
-    const godLine = meta.isGod
-      ? 'You are the GOD / ORCHESTRATOR of this hive — your job is to ORCHESTRATE, not to implement: maintain live situational awareness and delegate the work. (1) AWARENESS — always know what is going on: keep an accurate picture of every agent (active vs archived/idle), the task board, and all in-flight work; drain your inbox continually and triage every other agent\'s requests, answering clarifications so the team runs autonomously. (2) DELEGATE — decompose work and fan it out to the hive agents via their inboxes (route messages and assign owners; do not do their jobs); do NOT take on grunt implementation yourself. Stay aware of who is already on the floor and delegate OPPORTUNISTICALLY: BEFORE you spawn anything, CHECK THE LIVE ROSTER (active agents in registry.json + their state in fleet.json) and prefer routing to an EXISTING agent that fits — above all when the request names one ("ask Pam to…", "have Jim…"), route to that agent instead of reflexively creating a new one. Reuse an idle or already-running agent whose role matches; only spawn a fresh agent when no existing one is a sensible fit, and say that you checked. One capable owner beats a duplicate. (3) OWN ONLY THE IMPORTANT, high-leverage things — task decomposition, dispatch decisions, sign-offs, conflict resolution, branch integration, and final QA — and remain the sole scribe of board.md. You are otherwise fully autonomous — there is NO separate approval queue. For the genuinely critical (destructive actions, spending real money, scope changes, unresolvable conflicts), ask the human directly in your own session and let the tool-permission prompt gate the action; the human approves natively, including remotely from their phone via /remote-control. Keep the team unblocked. When you DISPATCH a task, write it as a 4-part contract so the agent can run autonomously: (1) OBJECTIVE — the concrete goal; (2) OUTPUT — the expected deliverable/format; (3) TOOLS — what to use or avoid, and any references to read instead of re-deriving; (4) BOUNDARIES — scope limits + the definition of done. Pass references (file paths, message ids, board sections), not pasted content — keep dispatches short.'
-        + ` MONITOR the floor by reading ${inRoot('fleet.json')} (live per-agent tokens, cost, status, last tool, breaker level, inbox backlog) and ${inRoot('registry.json')} — note that running 'claude agents' will NOT list your hive's sibling agents. A full Claude Code command reference is at ${inRoot('COMMANDS.md')} (slash commands act ONLY on your own session; CLI commands run in your shell and can target the fleet). You periodically receive scheduler / "Heartbeat" standup requests — on each, review every agent via fleet.json, re-engage anyone stalled, over-budget, or breaker-armed, and keep board.md and tasks.json accurate. In tasks.json, ALWAYS set each task's "assignee" to the worker's agent id the moment you dispatch it, and NEVER clear it on status changes — a done card must still say who did the work (the human reads the board by who-did-what). HUMAN FEEDBACK is first-class in the ledger: when a task can only proceed with the human's input — a QUESTION to answer OR an ACTION only the human can perform (create an account, approve a purchase, provide credentials/screenshots, test on their device) — set its status to "blocked" and append the concrete ask to the card's "humanQA" array (push {"q":"...","askedAt":"<iso>"}; phrase actions as clear to-dos; keep every past entry — the history documents the card's decisions). WRITE THE ASK SHORT AND IN MARKDOWN. The human reads it on a CARD, not in a terminal, so an ask longer than a short paragraph plus its options (roughly 700 characters) is a report, not a question — cut the narrative, keep the decision. Open with ONE **bold** sentence saying exactly what you need from them; put paths, commands, values and identifiers in \`backticks\`; give each option or step its own "-" bullet or "1." number; leave a blank line between paragraphs (a single newline is a line break, so each option stays on its own line). When the ask originates in another agent's report, REWRITE it into that shape — never paste the report body in as the question, and never make the human read the investigation to find the decision. The harness surfaces open questions on the office floor's ASK ME board; the human's answer lands in the same entry ("a") AND arrives as an inbox message to you — read it, act on it, and unblock the card so work continues. Do NOT park human questions in separate files (no HumanQuestion.md) and never sit waiting on the human in your own session. Steward the token budget.`
+
+    // The orchestrator's brief: numbered, one rule per line.
+    const godLines = meta.isGod ? [
+      'YOU ARE THE ORCHESTRATOR (address "god"). You run the office; you do not do the work yourself.',
+      '1. KNOW THE FLOOR. Keep an accurate picture of every agent (active, idle, archived), the board, and all work in flight. Drain your inbox continually and answer other agents\' questions so nobody waits.',
+      `2. DELEGATE. Decompose work, hand each piece to an owner through its inbox, and do not take on implementation. Before starting anyone new, check the live roster (${inRoot('registry.json')} for who exists, ${inRoot('fleet.json')} for their state) and prefer an agent already on the floor, above all the one a request names ("ask Pam to..."). Start a temp only when nobody fits, and say that you checked. One capable owner beats a duplicate.`,
+      '3. OWN ONLY THE IMPORTANT: decomposition, dispatch, sign offs, conflicts, branch integration, final QA. You are the only writer of board.md.',
+      '4. NO APPROVAL QUEUE. You are autonomous. For the genuinely critical (destructive actions, real money, scope changes, conflicts you cannot settle) ask the human in your own session; the tool permission prompt gates the action, and the human can approve from their phone with /remote-control. Keep the team unblocked.',
+      '5. DISPATCH AS A CONTRACT with four parts: OBJECTIVE (the goal), OUTPUT (the deliverable and its format), TOOLS (what to use or avoid, and what to read instead of re deriving), BOUNDARIES (scope and the definition of done). Pass references (paths, message ids, board sections), never pasted content. Keep it short.',
+      `6. MONITOR with ${inRoot('fleet.json')} (per agent tokens, cost, status, last tool, breaker level, inbox backlog) and ${inRoot('registry.json')}. \`claude agents\` does not list this office. The command reference is ${inRoot('COMMANDS.md')}: slash commands act on your own session only; CLI commands run in your shell. On every Heartbeat standup, review each agent, re engage anyone stalled, over budget or breaker armed, and keep board.md and tasks.json accurate.`,
+      '7. TASKS.JSON: set "assignee" to the agent id the moment you dispatch and never clear it; a done card must say who did the work. Leave "id" out of a new card; the harness assigns the ticket key (e.g. V53-299). Refer to cards by that key.',
+      '8. ASKING THE HUMAN: when a card can move only with the human (a question, or an action only they can do: create an account, approve a spend, hand over credentials, test on their device), set the card "blocked" and push {"q":"...","askedAt":"<iso>","from":"<agent id>"} onto its "humanQA" array, where "from" is the agent whose question it is (leave it out for your own, floor wide question); keep every past entry. Write the ask short, in markdown, under about 700 characters: one **bold** sentence saying what you need, `backticks` for paths and values, one "-" bullet or "1." line per option, a blank line between paragraphs. Rewrite an agent\'s report into that shape; never paste it. The ask shows on the ASK ME board; the answer lands in the same entry as "a" and reaches your inbox: act on it and unblock the card. Never park questions in files and never sit waiting for a reply.',
+      '9. STEWARD THE TOKEN BUDGET.'
+    ] : [];
+    // Item 11, redone for 0.4.11: the spawn mechanism is ALWAYS stated to god,
+    // switch or not, because the switch is read at his spawn and a later flip
+    // never reached a running prompt. The switch itself is explained instead.
+    const spawnLines = meta.isGod ? [
+      `STARTING A TEMP: write ONE JSON file into ${inRoot('spawn-requests')}/<id>.json with "objective" (the job) and "cwd" (the repo it runs in). Optional: "name", "command", "provider", "model", "isolate" (default true: its own git worktree), "tokenCap", "slack" ({channel, thread_ts}: its replies and failures go to that thread), "character" and "accent" (its look on the floor). The harness starts the temp with id worker-<id>, files the request under spawn-requests/.done/ when it starts or .failed/ with a reason, briefs it with the objective, the memory index and its capabilities, and tears it down when it reports done. This is the only way you can start anyone; a hire manifest under research/hires/ needs the human to confirm it in the UI.`,
+      'THE SWITCH: the human allows temps under Settings, Autonomy & Budgets (on by default; they can turn it off) and caps how many run at once. While it is off your request is neither failed nor deleted: it waits in spawn-requests/ and runs when the switch is turned on. A request that has not moved means the switch is off; raise it with the human instead of retrying.',
+      'WHEN THE HUMAN ASKS FOR TEMPS OR WORKERS ("use temps", "spin up workers", "get two workers on this"), that is the request: start them with STARTING A TEMP above, one request per temp, and tell the human which you started. Do not do the work yourself instead, and do not start them any other way.',
+      'LIVE ROSTER: you receive the live roster on every turn. Each row carries ctx NN%, that agent\'s context window occupancy. Prefer a low ctx agent for a big task; treat a near full one as busy even if its token count looks small.'
+    ] : [];
+    const roleLine = meta.isGod
+      ? ''
       : meta.isAssistant
-      ? `You are ${godNameForPrompt}'s PREP ASSISTANT. You will be handed short, possibly vague instructions (each begins with "ENRICH TASK:"). For each one: (1) figure out which project it concerns and cd into the most relevant repo — you start in ${godNameForPrompt}'s home directory; (2) gather concrete context READ-ONLY (exact file paths, current state, relevant code, conventions, active branch, gotchas) — NEVER modify, create, or delete files; (3) rewrite the instruction into ONE clear, self-contained prompt that ${godNameForPrompt} can execute autonomously, preserving the user's original intent without inventing scope. Then deliver it: write ONE message JSON into your outbox with "to":"god", "act":"request", a short subject, and the finished prompt as the body. Do NOT perform the task yourself — your only output is the improved prompt sent to ${godNameForPrompt}.`
-      : 'For anything ambiguous, cross-cutting, or needing sign-off, address a message to "god".';
-    const guardrailsLine = 'Guardrails: a circuit breaker watches the floor — a "Circuit breaker: steer/constrain" message means you are looping or overspending, so STOP repeating, summarize what you tried, and follow it. Be token-frugal (a floor-wide or per-agent token budget can pause you). The shared plan has two parts: board.md (freeform; god is the sole scribe) and tasks.json (structured kanban — todo/doing/blocked/done).';
+        ? `You are ${godNameForPrompt}'s PREP ASSISTANT. You receive short, possibly vague instructions, each starting with "ENRICH TASK:". For each: (1) work out which project it concerns and cd into that repo (you start in ${godNameForPrompt}'s home directory); (2) gather concrete context READ ONLY (exact paths, current state, relevant code, conventions, active branch, gotchas); never modify, create or delete files; (3) rewrite the instruction into ONE clear, self contained prompt ${godNameForPrompt} can run autonomously, keeping the original intent and inventing no scope. Deliver it as ONE outbox message with "to":"god", "act":"request", a short subject, and the prompt as the body. Do not do the task yourself.`
+        : meta.role === 'temp'
+          ? 'YOU ARE A TEMP: one job, then done. Your dispatch from god carries the job, the memory index and your reply rules. When finished send god ONE outbox message with "act":"done" and a short result; that releases you. Do not push to any remote; god integrates.'
+          : 'For anything ambiguous, cross cutting, or needing sign off, message "god".';
     const slackLine = meta.isGod
-      ? 'SLACK REPLIES: When composing a Slack reply (or writing the `result` field of a Slack-origin kanban card), you MUST: (1) directly address what the user asked — never a bare "done"; (2) include the relevant specifics, outcome, and details; (3) format for Slack mrkdwn — open with a short *bold* headline, use bullet points for multiple items, wrap code/paths in `backtick` blocks, keep it concise (no walls of text). When finishing a Slack-origin task, always write a complete, user-facing, well-formatted `result` on the kanban card — the system posts it verbatim to Slack as the done reply.'
-      : `SLACK REPLIES: If god dispatches you a task that came from Slack, it will include an exact \`"${hiveNode}" "<helper>" --channel … --thread … --text "…"\` reply command — when you finish, run it VERBATIM to post your result back to that thread yourself. The reply must be SUBSTANTIVE Slack mrkdwn (a short *bold* headline + the actual outcome/specifics/links), NEVER a bare "done".`;
+      ? 'SLACK: requests can arrive from Slack. Settings, Connections sets the triage. Default: each request comes to you first; hand it to the right agent or start a temp. Alternative: a temp takes each request at once (the harness starts it, switch or not) and you receive one inform per request; do not redo that work, step in only when it fails. A Slack reply, and the "result" of a Slack origin kanban card (posted to the thread verbatim when the card is done), must answer what was asked with the specifics, in Slack mrkdwn: a short *bold* headline, bullets for several items, `backticks` for code and paths, no walls of text, never a bare "done".'
+      : `SLACK: when god dispatches you a task that came from Slack, the dispatch includes an exact reply command ("${hiveNode}" "<helper>" --channel ... --thread ... --text "..."). When you finish, run it verbatim to post your result to that thread: a short *bold* headline plus the outcome, specifics and links, never a bare "done".`;
     return [
-      `You are "${meta.name}" (${meta.id}), an autonomous agent in a collaborating hive of Claude agents.`,
+      `You are "${meta.name}" (${meta.id}), an autonomous agent in a collaborating office of AI agents.`,
       `Your private workspace is ${dir}. The shared hive is ${root}. Full protocol: ${inRoot('PROTOCOL.md')}.`,
-      '',
-      'HIVE PROTOCOL — follow it every task:',
+      wordsLine,
+      'HIVE PROTOCOL, follow it every task:',
       `1. At the START of a task, read ${inDir('memory.md')} and EVERY file in ${inDir('inbox')} (messages other agents sent you). After handling an inbox message, move its file into ${inDir('inbox', '.done')}.`,
       `2. Record durable facts, decisions, and context by appending to ${inDir('memory.md')}.`,
-      `3. To ask another agent for something or share information, write ONE message JSON into ${inDir('outbox')} (schema in PROTOCOL.md). NEVER write into another agent's folder — the orchestrator delivers your outbox.`,
-      '4. At the END of a task, append what you learned to memory.md so future-you remembers.',
+      `3. To ask another agent for something or share information, write ONE message JSON into ${inDir('outbox')} (schema in PROTOCOL.md). NEVER write into another agent's folder; the harness delivers your outbox.`,
+      '4. At the END of a task, append what you learned to memory.md so future you remembers.',
       guardrailsLine,
       memoryLine,
+      sharedMemoryLine,
       knowledgeLine,
-      godLine,
-      spawnQueueLine,
+      capabilitiesLine,
+      ...godLines,
+      ...spawnLines,
+      roleLine,
       runtimeLine,
       slackLine,
-      ctxLine,
+      `CONNECTIONS: to add or change an inbound webhook, Slack or the default agents yourself, write a request file as ${inRoot('connections', 'README.md')} explains; never edit config files.`,
       `Env vars available to you: AGENT_ID, AGENT_NAME, HIVE_ROOT, AGENT_DIR.`
     ].filter(Boolean).join('\n');
   }
@@ -1553,6 +1875,18 @@ export class HiveManager {
     return msg;
   }
 
+  /**
+   * Teams (plan 4.6). The bridge to other machines registers here; hive.ts
+   * itself never imports it, so a solo build's router is the upstream one
+   * plus this one branch. `send` takes a message addressed `member:<id>`;
+   * `rosterLine` adds the teammates on other machines to god's roster.
+   */
+  private remote: RemoteBridge = {};
+
+  setRemote(remote: RemoteBridge): void {
+    this.remote = remote;
+  }
+
   private routeMessage(msg: HiveMessage): void {
     if (msg.hops > HOP_CAP) {
       // loop guard — drop a runaway message rather than let agents ping-pong.
@@ -1562,6 +1896,26 @@ export class HiveManager {
     }
     const reg = this.registry();
     const godId = reg.godId ?? 'god';
+    // A teammate on another machine, BEFORE the registry lookup: `member:` is
+    // not an agent id and never will be. The bridge seals, sends and records
+    // the delivery; without a bridge (a solo build, or a machine that is not
+    // in a team) the message bounces to god with the reason, like every other
+    // undeliverable address.
+    if (msg.to.startsWith('member:')) {
+      if (this.remote.send) {
+        this.remote.send(msg);
+        this.appendLog({ kind: 'route', via: 'teams', from: msg.from, to: msg.to, id: msg.id, act: msg.act });
+        this.noteOutbox(msg, reg);
+      } else {
+        this.appendLog({ kind: 'drop', reason: 'no-teams', from: msg.from, to: msg.to, id: msg.id });
+        this.deliver({
+          ...msg,
+          to: godId,
+          subject: `[undeliverable — "${msg.to}" is a teammate on another machine and this machine is not in a team] ${msg.subject}`
+        }, godId);
+      }
+      return;
+    }
     // The hive has no separate human-approval queue — approvals are native to
     // each agent's Claude Code session (and approvable remotely). A message aimed
     // at "human" is handled by the god/orchestrator, the human's proxy here.
@@ -1625,6 +1979,31 @@ export class HiveManager {
         continue;
       }
       if (this.deliver(msg, t)) { delivered.push(t); continue; }
+      // 0.4.9: not an agent on this floor, so maybe a TEAMMATE by name. The
+      // bridge answers from its cached roster: a person's name or an
+      // orchestrator's nickname that matches exactly one row rewrites the
+      // address to member:<id> and rides the Teams path above; two or more
+      // matches bounce to god naming them; no match falls through to the
+      // undeliverable bounce below. God and broadcast never reach here.
+      if (t !== godId && !reg.agents[t] && this.remote.resolve) {
+        const found = this.remote.resolve(t);
+        if (found && 'memberId' in found && this.remote.send) {
+          const to = `member:${found.memberId}`;
+          this.remote.send({ ...msg, to });
+          this.appendLog({ kind: 'route', via: 'teams', from: msg.from, to, id: msg.id, act: msg.act, name: t });
+          delivered.push(to);
+          continue;
+        }
+        if (found && 'ambiguous' in found) {
+          this.appendLog({ kind: 'drop', reason: 'ambiguous-name', from: msg.from, to: t, id: msg.id });
+          this.deliver({
+            ...msg,
+            to: godId,
+            subject: `[undeliverable — "${t}" matches more than one teammate: ${found.ambiguous.join('; ')}; write to one by member:<id>] ${msg.subject}`
+          }, godId);
+          continue;
+        }
+      }
       // No agents/<t>/inbox — an id that isn't on the floor. This was the one
       // delivery failure with neither bounce nor log, so the sender saw a routed
       // message and the mail simply ceased to exist. Record the drop beside the
@@ -1639,17 +2018,38 @@ export class HiveManager {
       }
     }
     this.appendLog({ kind: 'message', from: msg.from, to: msg.to, act: msg.act, subject: msg.subject, id: msg.id, delivered });
+    this.noteOutbox(msg, reg);
     this.emitMessage(msg, targets);
-    // Main-process observer (e.g. the closing-time controller watching for the
-    // team's ACKs and the god's COMPLETE). Best-effort, never breaks routing.
+    // Main-process observer seam for features that react to hive traffic.
+    // Best-effort, never breaks routing. No caller wires it today.
     try { this.routedObserver?.(msg, targets); } catch { /* observer error */ }
   }
 
   /** Observer invoked for EVERY routed message with its resolved targets.
-   *  Used by main-process features that react to hive traffic (closing time). */
+   *  A seam for main-process features that react to hive traffic. */
   private routedObserver: ((msg: HiveMessage, targets: string[]) => void) | null = null;
   setRoutedObserver(cb: ((msg: HiveMessage, targets: string[]) => void) | null): void {
     this.routedObserver = cb;
+  }
+
+  /** v0.4.9 phase 2 (D4): where a routed message lands in its SENDER's activity
+   *  digest (main/activityDigest.ts). Set by the main process; a no-op in tests
+   *  and headless runs. */
+  private activitySink: ((agentId: string, entry: ActivityEntry) => void) | null = null;
+  setActivitySink(cb: ((agentId: string, entry: ActivityEntry) => void) | null): void {
+    this.activitySink = cb;
+  }
+
+  /** The sender's outbox line. Only an agent on the floor has a digest: a
+   *  person's dispatch ('human'), system mail and an id that is not in the
+   *  registry have no card to show it on. Best-effort, never breaks routing. */
+  private noteOutbox(msg: HiveMessage, reg: Registry): void {
+    if (!this.activitySink) return;
+    if (msg.from === 'human' || msg.from === 'system' || !reg.agents[msg.from]) return;
+    const created = Date.parse(msg.created_at);
+    const entry = entryForMessage(msg.subject, Number.isFinite(created) ? created : Date.now());
+    if (!entry) return;
+    try { this.activitySink(msg.from, entry); } catch { /* the digest is a mirror, never a gate */ }
   }
 
   /** Tell the renderer a message was routed, with its resolved recipients, so
@@ -1709,6 +2109,7 @@ export class HiveManager {
   routeOnce(): number {
     const root = this.root();
     if (!root) return 0;
+    try { this.keyAgentTasks(); } catch { /* keying is best effort; routing must go on */ }
     const agentsDir = join(root, 'agents');
     if (!existsSync(agentsDir)) return 0;
     let routed = 0;
@@ -1775,6 +2176,70 @@ export class HiveManager {
     return root ? this.readJson(join(root, 'tasks.json'), { tasks: [] }) : { tasks: [] };
   }
 
+  // — hygiene (v0.4.9 W-A): the archive ledger, the board archive, the latch —
+
+  /** The archive ledger beside the live one: `<root>/tasks-archive.json`, the
+   *  same shape plus `archivedAt`, `archiveReason` and `archiveNote` on each
+   *  card, newest first. Read by `hive:tasksArchive` for the Archived chip. */
+  tasksArchive(): unknown {
+    const root = this.root();
+    return root ? this.readJson(join(root, 'tasks-archive.json'), { tasks: [] }) : { tasks: [] };
+  }
+
+  /** The sweep's one write to the two ledgers. `live` is the raw list the
+   *  caller just read (so the plan and the write see the same cards); `apply`
+   *  is the pure shared/taskHygiene.applySweepPlan bound to that plan. Raw
+   *  cards go back to disk as they came, so a field the god hand-wrote and the
+   *  app never modelled survives the move. One commit for both files. */
+  applyTaskHygiene(
+    live: unknown[],
+    apply: (archive: unknown[]) => { live: unknown[]; archive: unknown[]; archived: number; stamped: number }
+  ): { archived: number; stamped: number } {
+    const root = this.root();
+    if (!root) return { archived: 0, stamped: 0 };
+    this.ensureHive();
+    const archivePath = join(root, 'tasks-archive.json');
+    const current = this.readJson<{ tasks?: unknown }>(archivePath, { tasks: [] });
+    const archive = Array.isArray(current?.tasks) ? current.tasks : [];
+    const next = apply(archive);
+    if (!next.archived && !next.stamped) return { archived: 0, stamped: 0 };
+    if (next.archived) this.writeJson(archivePath, { tasks: next.archive });
+    const livePath = join(root, 'tasks.json');
+    this.writeLedger(livePath, this.readJson<unknown>(livePath, { tasks: [] }), next.live);
+    this.appendLog({ kind: 'tasks-hygiene', archived: next.archived, stamped: next.stamped, live: live.length - next.archived });
+    this.commit(`hive: archived ${next.archived} task(s), stamped ${next.stamped}`);
+    return { archived: next.archived, stamped: next.stamped };
+  }
+
+  /** Append one dated block to `<root>/board-archive.md` and return its path.
+   *  Append only: this file is the record of every board the god was asked to
+   *  condense, and nothing ever rewrites it. */
+  appendBoardArchive(entry: string): string {
+    const root = this.root()!;
+    const p = join(root, 'board-archive.md');
+    if (!existsSync(p)) {
+      writeFileSync(p, '# Board archive\n\n_Every full copy of board.md taken before it was condensed. Append only; the god condenses board.md, never this file._\n', 'utf8');
+    }
+    appendFileSync(p, entry, 'utf8');
+    return p;
+  }
+
+  /** The board latch, in `<root>/hygiene.json`: when the outstanding "condense
+   *  the board" ask was sent, or null when none is outstanding. On disk so a
+   *  restart does not ask again while the same crossing is still open. */
+  hygieneState(): { boardAskedAt: number | null } {
+    const root = this.root();
+    if (!root) return { boardAskedAt: null };
+    const s = this.readJson<{ boardAskedAt?: unknown }>(join(root, 'hygiene.json'), {});
+    return { boardAskedAt: typeof s?.boardAskedAt === 'number' ? s.boardAskedAt : null };
+  }
+  setHygieneState(state: { boardAskedAt: number | null }): void {
+    const root = this.root();
+    if (!root) return;
+    this.writeJson(join(root, 'hygiene.json'), state);
+    this.commit('hive: hygiene state');
+  }
+
   /** Persist the task ledger to hive/tasks.json and commit it. Mirrors the
    *  board/message persist pattern: write JSON, log the change, single-commit.
    *
@@ -1794,8 +2259,16 @@ export class HiveManager {
     this.ensureHive();
     const path = join(root, 'tasks.json');
     const current = this.readJson<{ tasks?: unknown }>(path, { tasks: [] });
-    const merged = mergeTaskLedger(current?.tasks, tasks);
-    this.writeJson(path, { tasks: merged });
+    // A writer holding a copy from before the harness keyed a card (the UI
+    // between polls, Slack, a webhook) still names it by its old id: map that
+    // to the key first, or the merge would treat it as a new card and drop the
+    // fields only the disk has.
+    const onDisk = Array.isArray(current?.tasks) ? current.tasks as HiveTask[] : [];
+    const incoming = (Array.isArray(tasks) ? tasks : []).map((c) => {
+      const hit = c && typeof c.id === 'string' ? resolveTask(onDisk, c.id) : undefined;
+      return hit && hit.id !== c.id ? { ...c, id: hit.id } : c;
+    });
+    const merged = this.writeLedger(path, current, mergeTaskLedger(current?.tasks, incoming));
     this.appendLog({ kind: 'tasks', count: merged.length });
     this.commit(`hive: tasks (${merged.length})`);
   }
@@ -1806,7 +2279,7 @@ export class HiveManager {
   addTask(task: HiveTask): boolean {
     const ledger = this.tasks() as { tasks?: HiveTask[] };
     const tasks = Array.isArray(ledger?.tasks) ? ledger.tasks : [];
-    if (tasks.some((current) => current?.id === task.id)) return false;
+    if (task.id && resolveTask(tasks, task.id)) return false;
     this.writeTasks([...tasks, task]);
     return true;
   }
@@ -1816,20 +2289,45 @@ export class HiveManager {
   patchTask(id: string, patch: Partial<Omit<HiveTask, 'id'>>): boolean {
     const ledger = this.tasks() as { tasks?: HiveTask[] };
     const tasks = Array.isArray(ledger?.tasks) ? ledger.tasks : [];
-    const index = tasks.findIndex((task) => task?.id === id);
+    // By key, or by the id the writer gave it before it was keyed (Slack and
+    // webhooks patch the card they made by the id they made it with).
+    const hit = resolveTask(tasks, id);
+    const index = hit ? tasks.indexOf(hit) : -1;
     if (index < 0) return false;
     const next = tasks.slice();
-    next[index] = { ...tasks[index], ...patch, id };
+    next[index] = { ...tasks[index], ...patch, id: tasks[index].id };
     this.writeTasks(next);
     return true;
+  }
+
+  /** Patch many cards in ONE read, ONE write and ONE commit (0.5.3, founder on
+   *  rc.4: Dismiss all "is doing it one by one and then stopping midway").
+   *  patchTask per card meant a full rewrite and a git commit per question,
+   *  in series, so a long list crawled and one failed commit ended the run.
+   *  A card that is gone is skipped, never an error for the rest. Returns the
+   *  ids that were patched. */
+  patchTasks(patches: ReadonlyArray<{ id: string; patch: Partial<Omit<HiveTask, 'id'>> }>): string[] {
+    const ledger = this.tasks() as { tasks?: HiveTask[] };
+    const tasks = Array.isArray(ledger?.tasks) ? ledger.tasks : [];
+    // A patch may name a card by its pre-key id (alias); apply it to the key.
+    const keyOf = new Map<string, string>();
+    const keyed = patches.map(({ id, patch }) => {
+      const key = resolveTask(tasks, id)?.id ?? id;
+      if (!keyOf.has(key)) keyOf.set(key, id);
+      return { id: key, patch };
+    });
+    const { next, applied } = applyTaskPatches(tasks, keyed);
+    if (applied.length) this.writeTasks(next);
+    return applied.map((key) => keyOf.get(key) ?? key);
   }
 
   /** Delete only the named card from the latest on-disk ledger. */
   deleteTask(id: string): boolean {
     const ledger = this.tasks() as { tasks?: HiveTask[] };
     const tasks = Array.isArray(ledger?.tasks) ? ledger.tasks : [];
-    const next = tasks.filter((task) => task?.id !== id);
-    if (next.length === tasks.length) return false;
+    const hit = resolveTask(tasks, id);
+    const next = tasks.filter((task) => task !== hit);
+    if (!hit || next.length === tasks.length) return false;
     this.writeTasks(next);
     return true;
   }
@@ -1852,6 +2350,39 @@ export class HiveManager {
       return readFileSync(p, 'utf8').trim().length > 200;
     } catch { return false; }
   }
+  /** One row per registered agent, active and archived alike, for the memory
+   *  index a temp reads at spawn (0.4.11, memoryIndex.ts). `empty` is the
+   *  existing hasMemory() judgement; size and time come from a stat so a file
+   *  that was never written still gets a row with its would be path. Never
+   *  throws: a stat failure reads as never written. */
+  memoryIndexRows(): MemoryIndexRow[] {
+    const root = this.root();
+    if (!root) return [];
+    const reg = this.registry();
+    const rows: MemoryIndexRow[] = [];
+    for (const [id, agent] of Object.entries(reg.agents ?? {})) {
+      const path = join(this.agentDir(id), 'memory.md');
+      let bytes = 0;
+      let updatedAt: string | undefined;
+      try {
+        const st = statSync(path);
+        bytes = st.size;
+        updatedAt = st.mtime.toISOString();
+      } catch { /* never written */ }
+      rows.push({
+        id,
+        name: agent?.name || id,
+        role: agent?.role,
+        cwd: agent?.cwd,
+        path,
+        bytes,
+        updatedAt,
+        empty: !this.hasMemory(id),
+        archived: !!agent?.archived
+      });
+    }
+    return rows;
+  }
   inbox(id: string): HiveMessage[] {
     return this.listMessages(join(this.agentDir(id), 'inbox'));
   }
@@ -1871,7 +2402,7 @@ export class HiveManager {
    *   - { id }                → the single message with that id, wherever it lives.
    *   - { agentId }           → recent messages in that agent's mailbox only.
    *   - {}                    → recent messages across the whole floor, newest first.
-   * `limit` caps the list (default 12, max 40); `includeArchived` (default true)
+   * `limit` caps the list (default 12, max 200; the voice layer asks for 12, PRO's Inbox for the full 200); `includeArchived` (default true)
    * also reads the handled subfolders (inbox/.done, outbox/.sent).
    *
    * SECURITY: every subject + body is passed through redactSecrets() here, in
@@ -1937,7 +2468,7 @@ export class HiveManager {
     out.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
     if (wantId) return out.slice(0, 1);
     const lim = typeof opts.limit === 'number' && isFinite(opts.limit)
-      ? Math.max(1, Math.min(40, Math.round(opts.limit)))
+      ? Math.max(1, Math.min(200, Math.round(opts.limit)))
       : 12;
     return out.slice(0, lim);
   }
@@ -1962,13 +2493,18 @@ export class HiveManager {
   private installAgyHooks(): void {
     const root = this.root();
     if (!root) return;
-    const shim = join(root, 'bin', 'agy-hook.cjs');
+    // The per floor copy is still written for one release: a floor on 0.5.2
+    // rewrites the hook file to name THIS path, and must find a shim there.
+    const legacy = join(root, 'bin', 'agy-hook.cjs');
     mkdirSync(join(root, 'bin'), { recursive: true });
-    writeFileSync(shim, AGY_HOOK_SHIM, 'utf8');
+    writeFileSync(legacy, AGY_HOOK_SHIM, 'utf8');
+    // The hook file itself names the per user, floor independent copy.
+    const shared = this.installSharedShim('agy-hook.cjs');
+    const shim = shared?.shim ?? legacy;
     // Bundled node, not bare `node` — agy's hooks run with a stripped PATH too.
     const command = (event: string) => process.platform === 'win32'
-      ? this.nodeRunUnquoted(shim, event)
-      : this.nodeRun(shim, event);
+      ? (shared ? [shared.launcher, shim, event].join(' ') : this.nodeRunUnquoted(shim, event))
+      : (shared ? [`"${shared.launcher}"`, `"${shim}"`, event].join(' ') : this.nodeRun(shim, event));
     const tool = (event: string) => ({
       matcher: '*',
       hooks: [{ type: 'command', command: command(event), timeout: 0 }]
@@ -2383,15 +2919,20 @@ export class HiveManager {
     const root = this.root();
     if (!root) return;
     try {
-      const shim = join(root, 'bin', 'grok-hook.cjs');
+      // Per floor copy kept for one release (a 0.5.2 floor names it), the hook
+      // file names the shared per user copy. See installSharedShim.
+      const legacy = join(root, 'bin', 'grok-hook.cjs');
       mkdirSync(join(root, 'bin'), { recursive: true });
-      writeFileSync(shim, GROK_HOOK_SHIM, 'utf8');
+      writeFileSync(legacy, GROK_HOOK_SHIM, 'utf8');
+      const shared = this.installSharedShim('grok-hook.cjs');
+      const shim = shared?.shim ?? legacy;
+      const command = shared ? [`"${shared.launcher}"`, `"${shim}"`].join(' ') : this.nodeRun(shim);
       const tool = (matcher?: string) => ({
         ...(matcher ? { matcher } : {}),
         // Let Grok apply its event-aware defaults (5s normally, 600s for Stop).
         // Grok is a HOOK bridge (not a proxy sidecar), so it is hit by the same
         // `node: command not found` 127 — bundled node here too.
-        hooks: [{ type: 'command', command: this.nodeRun(shim) }]
+        hooks: [{ type: 'command', command }]
       });
       const hooks = {
         PreToolUse: [tool('.*')],
@@ -2524,7 +3065,10 @@ export class HiveManager {
             + 'are still running and their terminal is alive, so this is not a reason to archive '
             + 'them or spawn a replacement. The human flips it off when they are done. '
           : '')
-        + 'Route work to someone on this list before spawning anyone new.';
+        + 'Route work to someone on this list before spawning anyone new.'
+        // Teammates on OTHER machines (Teams, plan 4.6), addressed member:<id>.
+        // One line, only when this machine is in a team and the roster is known.
+        + (this.remote.rosterLine?.() ? ` ${this.remote.rosterLine?.()}` : '');
     } catch { return null; }
   }
   logTail(n = 200): unknown[] {
@@ -2532,6 +3076,57 @@ export class HiveManager {
     if (!root || !existsSync(join(root, 'log.jsonl'))) return [];
     const lines = readFileSync(join(root, 'log.jsonl'), 'utf8').trim().split('\n').filter(Boolean);
     return lines.slice(-n).map((l) => { try { return JSON.parse(l); } catch { return { raw: l }; } });
+  }
+
+  /**
+   * UNREAD MAIL TO THE PERSON, PER AGENT (0.5.3, F25, the Pro rail's badge;
+   * Pam's audit item 2). A message an agent addressed to "human" is routed to
+   * the orchestrator as the person's proxy, and the sender's own copy is
+   * archived under its outbox/.sent: that archive is the one durable record
+   * per sender, so it is what is counted here. `since` is the renderer's
+   * per agent last-opened stamp (ISO); a sender with no stamp counts every
+   * message it ever sent the person. Only the count, the stamps and the
+   * first three texts (newest first, subject and a short head of the body)
+   * travel, never whole threads: AgentInbox's 200 message load per agent is
+   * exactly what this door exists to avoid.
+   */
+  humanMailSince(since: Record<string, string> = {}): Record<string, HumanMailSummary> {
+    const root = this.root();
+    if (!root) return {};
+    const agentsDir = join(root, 'agents');
+    if (!existsSync(agentsDir)) return {};
+    let owners: string[];
+    try { owners = readdirSync(agentsDir).filter((id) => !id.startsWith('.')); } catch { return {}; }
+    const out: Record<string, HumanMailSummary> = {};
+    for (const owner of owners) {
+      const base = join(agentsDir, owner, 'outbox');
+      const stampRaw = since[owner];
+      const stamp = typeof stampRaw === 'string' ? Date.parse(stampRaw) : NaN;
+      const floor = Number.isFinite(stamp) ? stamp : -Infinity;
+      const hits: { at: number; msg: HiveMessage }[] = [];
+      for (const dir of [base, join(base, '.sent')]) {
+        for (const m of this.listMessages(dir)) {
+          if (m.from !== owner) continue;
+          if (m.to !== 'human' && m.needs_human !== true) continue;
+          const at = Date.parse(m.created_at);
+          if (!Number.isFinite(at) || at <= floor) continue;
+          hits.push({ at, msg: m });
+        }
+      }
+      if (hits.length === 0) continue;
+      hits.sort((a, b) => b.at - a.at);
+      out[owner] = {
+        count: hits.length,
+        latest: new Date(hits[0].at).toISOString(),
+        texts: hits.slice(0, 3).map(({ at, msg }) => ({
+          id: msg.id,
+          at: new Date(at).toISOString(),
+          subject: redactSecrets(msg.subject).slice(0, 200),
+          body: redactSecrets(msg.body).replace(/\s+/g, ' ').trim().slice(0, 240)
+        }))
+      };
+    }
+    return out;
   }
 
   private listMessages(dir: string): HiveMessage[] {
@@ -2651,24 +3246,21 @@ export class HiveManager {
   private readJson<T>(p: string, fallback: T): T {
     try { return JSON.parse(readFileSync(p, 'utf8')) as T; } catch { return fallback; }
   }
-  // Both call sites end up here now - writeJson used to write in place
-  // (writeFileSync straight to the target path), which meant a crash or
-  // forced-quit mid-write (very much a real scenario for an app that gets
-  // force-killed) could leave registry.json/tasks.json/etc as truncated or
-  // invalid JSON. readJson's catch-all silently falls back to an EMPTY
-  // structure on any parse failure, so the visible symptom was an agent
-  // roster or task board that just vanished, with no error anywhere. The
-  // temp-file+rename pattern atomicWriteJson already used elsewhere makes
-  // every write all-or-nothing: renameSync is atomic on the same volume, so
-  // readers only ever see the fully-written old file or the fully-written
-  // new one, never a partial one.
+  // Every JSON write is temp file then rename (public #529, UsryAce): a crash
+  // mid write left registry.json or tasks.json torn, and readJson reads a torn
+  // file as empty, so the roster or the board vanished without an error.
   private writeJson(p: string, data: unknown): void {
     this.atomicWriteJson(p, data);
   }
   private atomicWriteJson(p: string, data: unknown): void {
     const tmp = `${p}.tmp-${shortRand()}`;
-    writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
-    renameSync(tmp, p);
+    try {
+      writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+      renameSync(tmp, p);
+    } catch (e) {
+      try { rmSync(tmp, { force: true }); } catch { /* the temp file is disposable */ }
+      throw e;
+    }
   }
 
   // — git (single committer, retry + stale-lock recovery) —
@@ -2690,79 +3282,112 @@ export class HiveManager {
   //
   // The gc still happens — this only stops it from outliving the command that
   // triggered it, which is what "single committer" was supposed to mean.
-  private git(args: string[], cwd: string): { ok: boolean; out: string; err: string } {
+  //
+  // `opts.timeoutMs` exists for the one time index rewrite: dropping tens of
+  // thousands of paths does not finish in eight seconds, and a timeout there
+  // would leave the repo half fixed and report success. `opts.input` is how
+  // those paths are handed over, since an argv cannot hold them.
+  private git(
+    args: string[],
+    cwd: string,
+    opts?: { timeoutMs?: number; input?: string }
+  ): { ok: boolean; out: string; err: string } {
     const res = spawnSync('git', ['-c', 'commit.gpgsign=false', '-c', 'gc.autoDetach=false', '-c', 'user.name=Hive', '-c', 'user.email=hive@local', ...args], {
-      cwd, encoding: 'utf8', timeout: 8000
+      cwd, encoding: 'utf8', timeout: opts?.timeoutMs ?? 8000, input: opts?.input,
+      maxBuffer: 64 * 1024 * 1024
     });
     return { ok: res.status === 0, out: res.stdout ?? '', err: res.stderr ?? '' };
   }
 
-  /** Has the one-time cost-ledger untrack pass run in this process yet? */
-  private untrackedCostLedger = false;
-
-  /**
-   * Stop versioning the cost ledger.
-   *
-   * `cost-ledger.jsonl` is append-only and gains a row per usage sample, so a
-   * repo that tracks it stores a fresh copy of the WHOLE file on every hive
-   * commit — and the hive commits constantly. A quarter-gigabyte ledger with a
-   * few thousand commits behind it is several hundred gigabytes of blob that
-   * git has to walk, which is what turns a routine `gc` into a multi-gigabyte
-   * `pack-objects` run. The ignore line in ensureHive keeps new copies out;
-   * this drops the one already in the index, because git keeps recording a
-   * file it is already tracking no matter what .gitignore says — so the ignore
-   * line alone reads as a fix while the repo goes on growing. The ledger stays
-   * on disk, so the cost history the app reads is untouched.
-   */
-  private untrackCostLedger(root: string): void {
-    if (this.untrackedCostLedger) return;
-    this.untrackedCostLedger = true;
-    // Probe before mutating: `rm --cached` on a repo that never tracked it
-    // would still rewrite the index on every launch, inside the retry path.
-    const tracked = this.git(['ls-files', '--', 'cost-ledger.jsonl'], root);
-    if (!tracked.ok || !tracked.out.trim()) return;
-    this.git(['rm', '--cached', '-q', '--ignore-unmatch', '--', 'cost-ledger.jsonl'], root);
-    console.warn('[hive] untracked the cost ledger from the hive repo');
+  /** The hive root's git, as the runner shared/hiveRepo.ts takes. */
+  private gitRunner(root: string): GitRun {
+    return (args, opts) => this.git(args, root, opts);
   }
 
-  /** Has the one-time Codex-home untrack pass run in this process yet? */
-  private untrackedCodexHomes = false;
+  /** Real filesystem for the hygiene pass. Every call swallows its error: a
+   *  hygiene pass must never be the reason a hive commit fails. */
+  private static readonly repoFs: RepoFs = {
+    read(p: string): string | null {
+      try { return existsSync(p) ? readFileSync(p, 'utf8') : ''; } catch { return null; }
+    },
+    write(p: string, body: string): void {
+      try { writeFileSync(p, body, 'utf8'); } catch { /* best-effort */ }
+    },
+    sizeOf(p: string): number | null {
+      try { const st = statSync(p); return st.isFile() ? st.size : null; } catch { return null; }
+    }
+  };
+
+  /** Has the one-time index repair run in this process yet? */
+  private repoHygieneDone = false;
 
   /**
-   * Stop versioning Codex worker homes that are ALREADY in the index.
+   * Stop the hive repo versioning what it should never have taken.
    *
-   * Adding `.codex/` to each agent's .gitignore only keeps NEW paths out; git
-   * happily keeps recording a file it is already tracking, so a hive that
-   * predates that ignore line goes on committing every SQLite and transcript
-   * revision exactly as before — the .gitignore reads as a fix while the repo
-   * keeps growing. This closes that: once per process, refresh every agent's
-   * ignore file (agents that are not running never pass through spawn, and the
-   * mine loop only reaches them if mempalace is installed) and drop any tracked
-   * `.codex` path from the index. The files stay on disk, so `codex --resume`
-   * is unaffected; only their history stops.
+   * Runs once per process, from the first commit. Two halves:
+   *
+   *   1. Refresh every agent's .gitignore. An agent that is not running never
+   *      passes through spawn, and the mine loop only reaches it when mempalace
+   *      is installed, so without this pass a dormant agent's Codex home keeps
+   *      its ignore file from whenever it was last awake.
+   *   2. Drop from the index every tracked file the ignore rules now cover.
+   *      git goes on recording a file it already tracks however many .gitignore
+   *      lines name it, so the ignore line alone reads as a fix while the repo
+   *      keeps growing. That is not hypothetical: on the hive this was written
+   *      from, `log.jsonl` had been ignored since 0.4.10 and was still tracked,
+   *      190MB of packed history and counting, and the Codex homes an earlier
+   *      pass claimed to have untracked were all still in the index.
+   *
+   * The question asked in step 2 is "what does git track that git ignores",
+   * not a list of paths, so it cannot drift out of step with the rules and
+   * there is no pathspec to get wrong. Nothing leaves the disk: `rm --cached`
+   * only touches the index, so `codex --resume`, the cost history and the logs
+   * are all unaffected.
    */
-  private untrackCodexHomes(root: string): void {
-    if (this.untrackedCodexHomes) return;
-    this.untrackedCodexHomes = true;
+  private repoHygiene(root: string): void {
+    if (this.repoHygieneDone) return;
+    this.repoHygieneDone = true;
+    const run = this.gitRunner(root);
+    boundGcMemory(run);
     const agentsDir = join(root, 'agents');
-    if (!existsSync(agentsDir)) return;
-    try {
-      for (const id of readdirSync(agentsDir)) ensureMineIgnore(join(agentsDir, id));
-    } catch { /* best-effort */ }
-    // Probe before mutating: `rm --cached` on a clean repo would still rewrite
-    // the index on every launch, and this runs inside the commit retry path.
-    const tracked = this.git(['ls-files', '--', 'agents/*/.codex'], root);
-    if (!tracked.ok || !tracked.out.trim()) return;
-    this.git(['rm', '-r', '--cached', '-q', '--ignore-unmatch', '--', 'agents/*/.codex'], root);
-    console.warn('[hive] untracked previously-committed Codex homes from the hive repo');
+    if (existsSync(agentsDir)) {
+      try {
+        for (const id of readdirSync(agentsDir)) ensureMineIgnore(join(agentsDir, id));
+      } catch { /* best-effort */ }
+    }
+    const { paths, ok } = untrackIgnored(run);
+    if (!ok) {
+      console.warn('[hive] could not untrack ignored files from the index');
+    } else if (paths.length > 0) {
+      console.warn(`[hive] untracked ${paths.length} ignored file(s) from the hive repo; they stay on disk`);
+      this.appendLog({ kind: 'hive-repo-untracked', count: paths.length, sample: paths.slice(0, 10) });
+    }
+    // Keeping files OUT cannot shrink what is already in. Say so, once, with
+    // the command that can, rather than leaving a person to find a 200GB .git
+    // on their own.
+    const bytes = packedBytes(run);
+    if (bytes !== null && bytes > REPO_SIZE_WARN_BYTES) {
+      const gb = (bytes / (1024 * 1024 * 1024)).toFixed(1);
+      const tool = join(root, 'bin', 'hive-compact.cjs');
+      console.warn(`[hive] the hive repo is ${gb}GB of history. With the app closed: node "${tool}"`);
+      this.appendLog({ kind: 'hive-repo-large', bytes, compact: tool });
+    }
   }
 
   /** Commit all hive changes. No-op if there is nothing staged. */
   commit(message: string): void {
     const root = this.root();
     if (!root || !existsSync(join(root, '.git'))) return;
-    this.untrackCostLedger(root);
-    this.untrackCodexHomes(root);
+    this.repoHygiene(root);
+    // Before `add -A` can take it. A name list always lags the next tool that
+    // writes something enormous into the hive, so anything UNTRACKED over the
+    // cap gets its own anchored ignore line instead of a place in history.
+    // Untracked only: a file already in the repo keeps its history, so a long
+    // memory.md is never dropped by the size rule.
+    const oversized = ignoreOversized(this.gitRunner(root), HiveManager.repoFs, root, join);
+    if (oversized.length) {
+      console.warn(`[hive] too big for the hive repo, ignored (left on disk): ${oversized.join(', ')}`);
+    }
     for (let attempt = 0; attempt < 5; attempt++) {
       this.clearStaleLock(root);
       const add = this.git(['add', '-A'], root);
@@ -2821,6 +3446,10 @@ You are one of several Claude agents sharing this hive. Coordination is entirely
 file-based; the harness (main process) is the only thing that runs git and the
 only thing that moves messages between agents.
 
+**Words.** An *agent* is a member of this office with a lasting session. A *temp* is a short lived agent
+the orchestrator starts for one job; it does the job, reports done, and is torn down. The orchestrator's
+address is \`god\`.
+
 ## Your workspace — \`agents/<your-id>/\`
 - \`identity.md\`  — who you are (read-only; the harness writes it).
 - \`memory.md\`    — your long-term memory. Read at the start of a task; append to it as you learn.
@@ -2836,7 +3465,7 @@ Write one JSON file into \`outbox/\` (any filename ending in \`.json\`):
 
 \`\`\`json
 {
-  "to": "<agent-id> | god | broadcast",
+  "to": "<agent-id> | god | broadcast | member:<memberId> (a teammate on another machine; Teams only, ids come from the roster line)",
   "act": "request | inform | propose | query | agree | refuse | done",
   "subject": "one-line summary",
   "body": "the details",
@@ -2866,6 +3495,7 @@ There are two shared surfaces, both in the hive root:
 - \`board.md\` — the freeform narrative plan. The god agent is its sole scribe; others \`propose\` edits.
 - \`tasks.json\` — the structured task ledger (a kanban: \`todo / doing / blocked / done\`, with title,
   assignee, priority, deps). Keep the task you're working reflected in its status.
+  Leave \`id\` out; the harness assigns the ticket key (e.g. V53-299). Refer to cards by that key.
 
 ## Asking the human (the ASK ME card)
 When a card can only move with the human — a question to answer, or an action only they can do
@@ -2873,8 +3503,11 @@ When a card can only move with the human — a question to answer, or an action 
 card \`"status": "blocked"\` and appends the ask to its \`humanQA\` array:
 
 \`\`\`json
-{ "q": "the ask, in markdown", "askedAt": "<iso timestamp>" }
+{ "q": "the ask, in markdown", "askedAt": "<iso timestamp>", "from": "<agent id>" }
 \`\`\`
+
+\`"from"\` is the agent whose question it is: the ask shows on that agent's own tab. Leave it out for a
+floor wide question; that one shows on the orchestrator's tab.
 
 The harness shows the open ask on the ASK ME board and in the ASK ME tab, and the human's reply lands
 in the same entry as \`"a"\` plus an inbox message to god. Every past entry stays on the card — that
@@ -2912,13 +3545,12 @@ look at one agent, read its \`agents/<id>/memory.md\` and \`inbox/\`, or send it
 Claude Code command reference (slash = your own session only; CLI = your shell, can target the fleet)
 is in \`COMMANDS.md\` in the hive root.
 
-## Spawning a worker (orchestrator)
-You can start an ephemeral worker yourself. Write ONE JSON file into \`spawn-requests/<id>.json\` in
-the hive root:
+## Starting a temp (orchestrator)
+You can start a temp yourself. Write ONE JSON file into \`spawn-requests/<id>.json\` in the hive root:
 
 \`\`\`json
 {
-  "objective": "what the worker must do (required)",
+  "objective": "the job (required)",
   "cwd": "/absolute/path/to/the/repo (required)",
   "name": "display name (optional)",
   "command": "engine CLI (optional; defaults to the configured one)",
@@ -2932,21 +3564,27 @@ the hive root:
 }
 \`\`\`
 
-The harness polls that directory, spawns \`worker-<id>\`, and moves the request to
-\`spawn-requests/.done/\` once it starts or to \`spawn-requests/.failed/\` with a reason. \`isolate\`
-defaults to true, giving the worker its own git worktree. \`slack\` routes its failures back to a
-thread. This is the ONLY spawn route you can complete on your own: a hire manifest under
+The harness polls that directory, starts the temp with id \`worker-<id>\`, briefs it with the objective,
+the memory index and its capabilities, and moves the request to \`spawn-requests/.done/\` once it starts
+or to \`spawn-requests/.failed/\` with a reason. \`isolate\` defaults to true, giving the temp its own git
+worktree. \`slack\` sends its replies and failures to that thread. \`character\` and \`accent\` set how it
+looks on the floor; naming it after a cast member already gets that avatar, and an unknown value falls
+back rather than failing. This is the only way you can start anyone: a hire manifest under
 \`research/hires/\` needs the human to confirm it in the UI.
 
-\`character\` and \`accent\` set how the worker looks on the office floor, and both are optional.
-Naming a worker after a cast member already gets you that avatar, so you only need \`character\` when
-the name and the face should differ. An unrecognised value falls back rather than failing the spawn.
+**The switch.** The human allows temps under Settings, Autonomy & Budgets. It is ON by default (0.5.3); the
+human can turn it off, and it caps how many run at once. While it is off your request
+is neither failed nor deleted: it waits in \`spawn-requests/\` and runs when the switch is turned on. A
+request that has not moved means the switch is off; raise it with the human instead of retrying. When
+Slack triage is set to temps, the harness starts those temps itself, switch or not. Route work to an
+agent already on the floor first either way.
 
-**It can be switched off.** The operator controls this under Settings → Autonomy & Budgets, and it is
-OFF by default, because every worker you start spends tokens nobody approved. While it is off your
-request is NOT failed or deleted, it waits in \`spawn-requests/\` and runs if the operator turns it on.
-If a request of yours has sat there without moving, that is why, and it is a decision to raise with the
-human rather than retry. Route work to an agent already on the floor first either way.
+## Capabilities
+Your skills are copied into \`agents/<your-id>/.claude/skills/\` when you start. Read
+\`capabilities/SKILL.md\` there once (or run \`/capabilities\`): it lists the date skills (\`/today\`,
+\`/lastWeek\`, \`/last30Days\`, \`/lastQuarter\` and more), which resolve any time window so you never
+compute dates by hand, and the integrations reached through the loopback broker. The broker is a temp's:
+it is available only when \`MD_BROKER_URL\` is set in your environment. Without it, ask \`god\`.
 
 ## Semantic memory (optional — when \`mempalace\` is installed)
 When \`MEMPALACE_PALACE_PATH\` is set in your environment, the hive shares a

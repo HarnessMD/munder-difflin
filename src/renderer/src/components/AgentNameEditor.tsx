@@ -7,6 +7,12 @@ export interface AgentNameEditorProps {
   /** Cards render names in their established all-caps display style. */
   uppercase?: boolean;
   fontSize?: number | string;
+  /** A counter: each new value opens the editor, so a menu's Rename can
+   *  start the same edit a click on the name does (0.5.3, F25). */
+  editRequest?: number;
+  /** False hides the ✎ beside the name (the 236px card has a right click
+   *  Rename and the double click; the pencil cost the orchestrator its name). */
+  pencil?: boolean;
 }
 
 /** Inline display-name editor shared by the floor card and agent detail header. */
@@ -14,7 +20,9 @@ export function AgentNameEditor({
   name,
   onCommit,
   uppercase = false,
-  fontSize = 'var(--cth-text-display-sm)'
+  fontSize = 'var(--cth-text-display-sm)',
+  editRequest,
+  pencil = true
 }: AgentNameEditorProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(name);
@@ -25,6 +33,15 @@ export function AgentNameEditor({
   useEffect(() => {
     if (!editing) setDraft(name);
   }, [editing, name]);
+  // The first render's request is not a request; only a change is.
+  const seenRequest = useRef(editRequest);
+  useEffect(() => {
+    if (editRequest === undefined || editRequest === seenRequest.current) return;
+    seenRequest.current = editRequest;
+    setDraft(name);
+    setError(undefined);
+    setEditing(true);
+  }, [editRequest, name]);
 
   const beginEditing = () => {
     setDraft(name);
@@ -107,7 +124,7 @@ export function AgentNameEditor({
           minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
         }}
       >{uppercase ? name.toUpperCase() : name}</span>
-      <button
+      {pencil && <button
         type="button"
         draggable={false}
         aria-label={`Rename ${name}`}
@@ -120,7 +137,7 @@ export function AgentNameEditor({
           border: 'none', background: 'transparent', cursor: 'text',
           color: 'var(--cth-ink-500)', fontFamily: 'var(--cth-font-ui)', fontSize: 9, lineHeight: 1
         }}
-      >✎</button>
+      >✎</button>}
     </span>
   );
 }

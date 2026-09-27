@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const loadTs = require('./load-ts.cjs');
 
 const {
+  PTY_SUBMIT_DELAY_MS,
   clearCommandForProvider,
   compactionCommandForProvider,
   contextCommandsForProvider,
@@ -138,4 +139,56 @@ test('continuous TUI repainting cannot block terminal readiness', () => {
   assert.equal(terminalReadyToReceive(true, 499, 'codex'), false);
   assert.equal(terminalReadyToReceive(true, 500, 'codex'), true);
   assert.equal(terminalReadyToReceive(undefined, 500, 'codex'), true);
+});
+
+// ── the submit gap: one constant, both writers ──────────────────────────────
+//
+// The Return that submits a delivered message is written a fixed gap after the
+// text. That gap was a literal 140 in two files and named in neither, so raising
+// one looked done and was not (0.5.1, the stuck-input diagnosis). Both writers
+// import the one constant now; these tests keep it that way.
+
+const fs = require('node:fs');
+const path = require('node:path');
+const readSource = (rel) => fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
+
+test('the submit gap is the founder\'s 240ms', () => {
+  assert.equal(PTY_SUBMIT_DELAY_MS, 240);
+});
+
+test('both submit sites time their Return by the shared constant, never a literal', () => {
+  const hive = readSource('src/renderer/src/hooks/useHive.ts');
+  // F2: useHive types through typeAndSubmit, which times its Return by the
+  // constant (and, since F2, also waits for the text to show first).
+  assert.match(hive, /await typeAndSubmit\(/, 'useHive.ts submits through the shared typeAndSubmit');
+  const shared = readSource('src/shared/providerAutomation.ts');
+  const body = shared.slice(shared.indexOf('export async function typeAndSubmit'));
+  assert.match(body, /await io\.sleep\(PTY_SUBMIT_DELAY_MS\);\n\s*let before = box\(\);\n\s*await io\.write\('\\r'\)/, 'the Return follows PTY_SUBMIT_DELAY_MS');
+
+  const hidden = readSource('src/main/hiddenClaude.ts');
+  assert.match(
+    hidden,
+    /import \{[^}]*\bPTY_SUBMIT_DELAY_MS\b[^}]*\} from '\.\.\/shared\/providerAutomation'/,
+    'hiddenClaude.ts must import the constant from shared/providerAutomation'
+  );
+  assert.match(
+    hidden,
+    /ptyProc\.write\('\\r'\); \}, PTY_SUBMIT_DELAY_MS\)/,
+    'hiddenClaude.ts: the Return must follow the text after PTY_SUBMIT_DELAY_MS'
+  );
+
+  // And no Return write in either file may be timed by a bare number: that is
+  // the shape that drifted. Look at the two lines above every '\r' write.
+  for (const [name, src] of [['useHive.ts', hive], ['hiddenClaude.ts', hidden]]) {
+    const lines = src.split('\n');
+    lines.forEach((line, i) => {
+      if (!/write(?:Pty)?\([^)]*'\\r'\)/.test(line)) return;
+      const above = lines.slice(Math.max(0, i - 2), i + 1).join('\n');
+      assert.doesNotMatch(
+        above,
+        /setTimeout\([^)]*,\s*\d[\d_]*\s*\)/,
+        `${name}:${i + 1} times its Return by a literal instead of PTY_SUBMIT_DELAY_MS`
+      );
+    });
+  }
 });

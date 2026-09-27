@@ -40,12 +40,26 @@ function harness(initialGoal = 'Ship the release safely.') {
 
 const context = (res) => res?.hookSpecificOutput?.additionalContext ?? '';
 
+// PRO carries one more thing in this block than public main does: hooks.ts also
+// renders the response-style brief on every SessionStart and UserPromptSubmit,
+// and an absent config value normalizes to the shipped default rather than to
+// nothing. So the context here is never the empty string, and 'no goal was
+// re-sent' has to be said a different way.
+//
+// It is said without giving anything up. additionalContext is
+// [style, roster, goal, steer].filter(Boolean).join('\n\n'), so a context that
+// is EXACTLY the style brief proves the same three absences the empty string
+// proved upstream: no goal, no roster, no steer.
+const { renderResponseStyle } = loadTs('src/shared/responseStyle.ts');
+const STYLE_ONLY = renderResponseStyle(undefined);
+const assertOnlyStyle = (res) => assert.equal(context(res), STYLE_ONLY);
+
 test('an unchanged standing goal is injected once, not on every prompt', () => {
   const { fire } = harness();
 
   assert.match(context(fire('SessionStart')), /Ship the release safely/);
-  assert.equal(context(fire('UserPromptSubmit')), '');
-  assert.equal(context(fire('UserPromptSubmit')), '');
+  assertOnlyStyle(fire('UserPromptSubmit'));
+  assertOnlyStyle(fire('UserPromptSubmit'));
 });
 
 test('a goal edit is delivered on the next prompt and only once', () => {
@@ -54,7 +68,7 @@ test('a goal edit is delivered on the next prompt and only once', () => {
 
   setGoal('Prepare the customer handoff.');
   assert.match(context(fire('UserPromptSubmit')), /Prepare the customer handoff/);
-  assert.equal(context(fire('UserPromptSubmit')), '');
+  assertOnlyStyle(fire('UserPromptSubmit'));
 });
 
 test('a new session receives the standing goal even when its text is unchanged', () => {
@@ -62,14 +76,14 @@ test('a new session receives the standing goal even when its text is unchanged',
   fire('SessionStart', 'session-1');
 
   assert.match(context(fire('SessionStart', 'session-2')), /Ship the release safely/);
-  assert.equal(context(fire('UserPromptSubmit', 'session-2')), '');
+  assertOnlyStyle(fire('UserPromptSubmit', 'session-2'));
 });
 
 test('a prompt that arrives before SessionStart still receives the goal once', () => {
   const { fire } = harness();
 
   assert.match(context(fire('UserPromptSubmit')), /Ship the release safely/);
-  assert.equal(context(fire('UserPromptSubmit')), '');
+  assertOnlyStyle(fire('UserPromptSubmit'));
 });
 
 test('clearing a goal explicitly revokes the old briefing', () => {
@@ -78,7 +92,7 @@ test('clearing a goal explicitly revokes the old briefing', () => {
 
   setGoal(null);
   assert.match(context(fire('UserPromptSubmit')), /Cleared by the operator/);
-  assert.equal(context(fire('UserPromptSubmit')), '');
+  assertOnlyStyle(fire('UserPromptSubmit'));
 });
 
 test('goal delivery state is isolated per agent', () => {
@@ -86,5 +100,5 @@ test('goal delivery state is isolated per agent', () => {
   fire('SessionStart', 'session-1', 'jim-1');
 
   assert.match(context(fire('UserPromptSubmit', 'session-1', 'pam-1')), /Ship the release safely/);
-  assert.equal(context(fire('UserPromptSubmit', 'session-1', 'jim-1')), '');
+  assertOnlyStyle(fire('UserPromptSubmit', 'session-1', 'jim-1'));
 });

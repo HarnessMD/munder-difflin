@@ -1,18 +1,28 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PixelPanel } from './PixelPanel';
-import { PixelBadge, StatusKind } from './PixelBadge';
+import { PixelBadge, labelKeyByStatus, StatusKind } from './PixelBadge';
 import { useHasTerminalDraft } from './terminalPool';
 import { SpritePortrait } from './SpritePortrait';
 import { RealtimeMichaelToggle } from './RealtimeMichaelToggle';
 import { CostHud } from '@/realtime/CostHud';
 import { AccentColorName } from '@/design/tokens';
-import { OfficeCharacterName } from '@/scene/office/cast';
+import { OfficeCharacterName } from '@/scene/office/castRoster';
 import { AgentNameEditor } from './AgentNameEditor';
+import { EngineBadge } from './pro/Engine';
+import { ENGINE_NAME } from '@shared/engine';
+import { modelWord } from '@/store/config';
+import type { AgentProvider } from '@shared/agentProvider';
+import type { AgentExit } from '@shared/agentExit';
+import { Ago } from './agentRow/Ago';
+import { ContextGauge, contextPercent, percentColor, segmentsOf } from './agentRow/ContextGauge';
 
 export interface AgentCardProps {
   name: string;
   character: OfficeCharacterName;
+  /** The hire one-liner. Office ignores it; Professional infers the agent's
+   *  role glyph from it (DESIGN-PROFESSIONAL.md section 9). */
+  description?: string;
   accent: AccentColorName;
   status: StatusKind;
   /** This agent's pty, if it has one. Only used to notice that the USER has
@@ -34,105 +44,93 @@ export interface AgentCardProps {
   onClick?: () => void;
   /** Persists an inline display-name edit; identity and hive paths stay unchanged. */
   onRename?: (name: string) => Promise<{ ok: boolean; error?: string }>;
-  /** Number of ledger tasks this agent is actively DOING — rendered as a blue
-   *  sticky note stuck to the card. Clicking it opens the first task's detail. */
+  /** Number of ledger tasks this agent is actively DOING. Since 0.5.3 the card
+   *  names the ticket on its live line instead of a sticky; the count is the
+   *  ticket line's tooltip. Clicking the ticket id opens the first one. */
   doingCount?: number;
   onTaskNoteClick?: () => void;
   draggable?: boolean; // must sit on the <button> itself — Chromium won't start a drag on an ancestor from inside a form control
-  /** Private note — rendered as the card's own row (v0.3.4) so it can never
-   *  cover the context gauge. First line only; full text in the tooltip. */
+  /** Private note, kept on the record; the card no longer draws it (0.5.3,
+   *  Pam's Classic cards: the strip card is 236 × 92, one size for every
+   *  agent). The roster row and the editor still show it. */
   note?: string;
-  /** Opens the note editor (the strip owns the editing overlay). When set, the
-   *  card shows a small ✎ affordance on its note row. */
+  /** Opens the note editor (the strip owns the editing overlay). */
   onEditNote?: () => void;
+  /* ---- 0.5.3, F25: what the new card says that the old one did not ------ */
+  provider?: AgentProvider;
+  model?: string;
+  /** The ticket the agent is on (store/taskLedger ticketOf): id on the live line. */
+  ticketId?: string;
+  ticketTitle?: string;
+  /** When the agent last did anything (the activity digest), for the age. */
+  lastTs?: number;
+  /** Set when the process ended on its own (feature 18): the live line says so. */
+  exit?: AgentExit;
+  onHold?: boolean;
+  /** Right click: the surface's agent menu. */
+  onContextMenu?: (e: React.MouseEvent) => void;
+  /** A counter; each new value opens the name editor (the menu's Rename). */
+  editRequest?: number;
 }
 
-const fmtK = (n: number): string => `${Math.round(n / 1000)}k`;
+export const CARD_W = 236;
+export const CARD_H = 92;
 
 /**
- * v0.3.4 compact redesign: one identity row (name + status), one context line
- * (action while working, repo while idle — both in the tooltip), one note row,
- * and a slim gauge pinned to the bottom edge. Nothing overlaps anything.
+ * THE STRIP CARD, 0.5.3 (Pam's Classic cards, hive/shared/design/sidebar-free/
+ * final, card 2). One size for every agent: 236 × 92. A portrait tile on the
+ * accent ground; the name in the display face with the BOSS tag and the
+ * status chip beside it; the engine tile, the model and the context percent;
+ * then the ticket id and the live action on one line with its age; and the
+ * eight segment gauge along the bottom edge. The orchestrator's card is
+ * lemon-light with a lemon border and stands proud of the row, as before.
  */
 export function AgentCard({
-  name, character, accent, status, ptyId, project, action, progress = 0,
+  name, character, description, accent, status, ptyId, project, action, progress = 0,
   contextTokens, contextLimit, selected, isGod, onClick, onRename,
-  doingCount = 0, onTaskNoteClick, draggable, note, onEditNote
+  doingCount = 0, onTaskNoteClick, draggable,
+  provider, model, ticketId, ticketTitle, lastTs, exit, onHold, onContextMenu, editRequest
 }: AgentCardProps) {
   const { t } = useTranslation();
   const [hover, setHover] = useState(false);
   const typing = useHasTerminalDraft(ptyId);
-  // IDENTITY and SELECTION are two different things, and conflating them is why
-  // selecting Michael appeared to do nothing.
-  //
-  // The card used to pass `isGod || selected` into PixelPanel's 'active' variant,
-  // whose frame is `inset 1px + 3px accent + 5px ink` — five pixels of border in
-  // the agent's OWN accent. Three problems in one: the selection cue changed
-  // colour per agent (the "blue halo" on a sky agent), it was invisible on god
-  // because god was framed unconditionally, and stacking the selection ring
-  // outside it made the boss card visibly fatter than its neighbours.
-  //
-  // Now: god is marked by its SURFACE (see godSurface), everyone shares the same
-  // 1px panel border, and selection is one accent-independent ring — identical on
-  // every card, god included.
 
-  // The selected card wears an ink ring OUTSIDE its border. ink-900 rather than
-  // an accent so the cue is identical on every agent, and it flips with the
-  // theme (near-black on cream, near-white on the dark ground), staying legible
-  // over whatever accent the card already carries.
+  // IDENTITY and SELECTION are two different things: god is marked by its
+  // SURFACE, everyone shares the same 1px panel border, and selection is one
+  // accent-independent ring, identical on every card, god included.
   const selectionRing = selected ? '0 0 0 2px var(--cth-ink-900)' : '';
-
-  // Context gauge as ONE clean fill (0..8 → 0..100%). Colour escalates as the
-  // window fills: accent while comfortable, amber from 6/8, coral from 7/8.
-  const pct = Math.min(8, Math.max(0, progress)) / 8 * 100;
-  const gaugeColor = progress >= 7 ? 'var(--cth-coral)'
-    : progress >= 6 ? 'var(--cth-lemon)'
-      : `var(--cth-${accent})`;
-  const gaugeTitle = contextTokens !== undefined && contextLimit
-    ? t('agentCard.contextTitle', { used: fmtK(contextTokens), limit: fmtK(contextLimit), pct: Math.round((contextTokens / contextLimit) * 100) })
-    : t('agentCard.contextGaugeTitle');
-
-  // ONE card size for every agent. God used to be 216x86 against everyone
-  // else's 196x76, so the dock never lined up — and once the selection ring was
-  // added outside its 5px accent frame, the boss card grew a visibly thicker
-  // edge than any other. Distinction now comes from the card's SURFACE, not from
-  // making its box bigger or its border heavier.
-  // 196 was too tight once god's row carried NAME + BOSS + status: the name
-  // truncated to "MIC…" — the one word on the card that must never be the thing
-  // that gets cut. Widened for every card so the dock stays uniform, with enough
-  // slack that Talk's info mark (which only appears when the OpenAI key is
-  // missing) has somewhere to sit rather than pushing the row apart.
-  const width = 220;
-  const height = 78;
   const lift = (isGod ? -2 : 0) - (hover ? 1 : 0) - (selected ? 1 : 0);
-  /** God's distinction: a tinted surface plus a thin accent border all the way
-   *  around — NOT the 3px rule that used to sit on the top edge alone. That rule
-   *  read as a stray yellow bar rather than as part of the card, and an edge
-   *  treatment that only exists on one side always looks like a mistake or a
-   *  progress bar. Same 1px geometry as every other card, so the box is
-   *  unchanged and the selection ring still means exactly one thing everywhere. */
   const godSurface: React.CSSProperties = isGod
-    ? {
-        background: `var(--cth-${accent}-light)`,
-        boxShadow: `inset 0 0 0 1px var(--cth-${accent})`
-      }
+    ? { background: `var(--cth-${accent}-light)`, boxShadow: `inset 0 0 0 1px var(--cth-${accent})` }
     : {};
   const dropShadow = isGod
     ? `2px 3px 0 0 rgba(26,19,32,${hover ? 0.2 : 0.14})`
     : (hover ? '1px 2px 0 0 rgba(26,19,32,0.12)' : 'none');
-  // Ring first so it sits tight to the card, then the existing drop shadow.
-  const outerShadow = [selectionRing, dropShadow === 'none' ? '' : dropShadow]
-    .filter(Boolean).join(', ') || 'none';
+  const outerShadow = [selectionRing, dropShadow === 'none' ? '' : dropShadow].filter(Boolean).join(', ') || 'none';
 
-  // One context line: what it's DOING while working, WHERE it lives while idle.
-  const infoLine = (status !== 'idle' && action) ? action : project;
-  const noteFirstLine = (note ?? '').split('\n').find((l) => l.trim()) ?? '';
+  // The gauge is the classic 0..8 `progress`; the percent is the session's own
+  // arithmetic, the same two fields Pro's row prints. Null means no session.
+  const pct = contextPercent(contextTokens, contextLimit);
+  const segments = pct !== null ? segmentsOf(pct) : Math.min(8, Math.max(0, progress));
+  const gaugeTitle = pct !== null ? t('agentRow.contextTitle', { pct }) : t('agentCard.contextGaugeTitle');
+  const engine = ENGINE_NAME[provider ?? 'claude'];
+  const word = modelWord(provider, model) ?? t('fullscreenTerminal.cliDefault');
+  const crashed = exit?.verdict === 'crashed';
+  // The live line: the ticket id, then what the agent is doing now, or the
+  // ticket's title while it says nothing, or its status word (a waiting agent
+  // with nothing to say is waiting, not idle). A dead agent says so.
+  const liveText = exit
+    ? `${crashed ? t('agentRow.crashed') : exit.verdict === 'finished' ? t('agentRow.finished') : t('agentRow.stopped')} · ${exit.exitCode !== undefined ? `exit ${exit.exitCode}` : exit.signal !== undefined ? `signal ${exit.signal}` : ''}`.replace(/ · $/, '')
+    : (status !== 'idle' && action) ? action : (ticketTitle || action || t(labelKeyByStatus[status]));
+  const ticketTip = doingCount > 1 ? t('agentCard.doingTasksPlural', { count: doingCount }) : doingCount === 1 ? t('agentCard.doingTasks', { count: doingCount }) : ticketTitle;
 
   return (
     <div
       role="button"
       tabIndex={0}
+      data-agent-strip-card={name}
       onClick={onClick}
+      onContextMenu={onContextMenu}
       onKeyDown={(event) => {
         if (event.target !== event.currentTarget) return;
         if (event.key === 'Enter' || event.key === ' ') {
@@ -143,12 +141,10 @@ export function AgentCard({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       draggable={draggable}
-      // The ring is the visual answer to "which terminal is open"; this is the
-      // same answer for a screen reader. Matches SidebarRow in fullscreen.
       aria-current={selected ? 'true' : undefined}
       className="cth-titlebar-nodrag"
       style={{
-        width, minWidth: width, height,
+        width: CARD_W, minWidth: CARD_W, height: CARD_H,
         padding: 0, border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left',
         position: 'relative',
         transform: lift ? `translateY(${lift}px)` : 'none',
@@ -156,155 +152,97 @@ export function AgentCard({
         transition: 'transform 90ms steps(2, end), box-shadow 90ms steps(2, end)'
       }}
     >
-      {/* The taken note, stuck to the card like on the desk: this worker is
-          actively DOING a ledger task. Click → the task's detail overlay. */}
-      {doingCount > 0 && (
-        <span
-          title={doingCount === 1
-            ? t('agentCard.doingTasks', { count: doingCount })
-            : t('agentCard.doingTasksPlural', { count: doingCount })}
-          onClick={(e) => { e.stopPropagation(); onTaskNoteClick?.(); }}
-          style={{
-            position: 'absolute', right: -4, bottom: -5, zIndex: 2,
-            width: 20, height: 18,
-            background: 'var(--cth-sky)',
-            boxShadow: 'inset 0 0 0 1px var(--cth-ink-300), 1px 2px 0 rgba(26,19,32,0.18)',
-            transform: 'rotate(4deg)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'var(--cth-font-display)', fontSize: 8, color: 'var(--cth-ink-900)',
-            cursor: 'pointer'
-          }}
-        >
-          {doingCount > 1 ? doingCount : '✎'}
-        </span>
-      )}
       <PixelPanel
         variant="default"
-        style={{ height: '100%', padding: '6px 8px', ...godSurface }}
+        style={{ height: '100%', padding: '6px 8px 8px', ...godSurface }}
         noPadding
       >
         <div style={{ display: 'flex', gap: 8, height: '100%' }}>
           {/* Portrait tile — vertically centred so the card reads calm and even. */}
           <div style={{
-            width: 36, height: isGod ? 50 : 46, alignSelf: 'center',
-            // God's CARD is now accent-light, so the tile cannot be — it would
-            // vanish into its own background. Paper reads as an inset frame
-            // against the tint, which is what the tile is meant to look like.
+            width: 36, height: 56, alignSelf: 'center',
             background: isGod ? 'var(--cth-paper-100)' : `var(--cth-${accent}-light)`,
             boxShadow: `inset 0 0 0 1px var(--cth-ink-${isGod ? '300' : '100'})`,
-            // Anchor the sprite's TOP: the 56px-tall portrait overflows this
-            // tile, and bottom-anchoring cropped the head — crop feet, not face.
             display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden',
             flexShrink: 0
           }}>
-            <SpritePortrait character={character} scale={2} />
+            <SpritePortrait character={character} scale={2} description={description} isGod={isGod} status={status} />
           </div>
-
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-            {/* Identity row: name (+ BOSS tag) + status. */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'space-between', minWidth: 0 }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0, flex: 1 }}>
-                {onRename ? (
-                  <AgentNameEditor name={name} onCommit={onRename} uppercase />
-                ) : (
-                  <span style={{
-                    fontFamily: 'var(--cth-font-display)',
-                    fontSize: 'var(--cth-text-display-sm)',
-                    lineHeight: 'var(--cth-lh-display-sm)',
-                    color: 'var(--cth-ink-900)',
-                    flex: 1, minWidth: 0,
-                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                  }}>{name.toUpperCase()}</span>
-                )}
-                {isGod && (
-                  <span style={{
-                    fontFamily: 'var(--cth-font-display)', fontSize: 7, lineHeight: '11px',
-                    background: `var(--cth-${accent})`, color: 'var(--cth-ink-900)',
-                    padding: '1px 4px 0', flexShrink: 0
-                  }}>{t('agentCard.boss')}</span>                )}
-              </span>
-              {/* flexShrink:0 — the badge is a fixed 2-to-5 character chip; when
+            {/* Line 1: name, BOSS, 1:1, the status chip. */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, height: 14 }}>
+              {onRename ? (
+                <AgentNameEditor name={name} onCommit={onRename} uppercase fontSize={8} editRequest={editRequest} pencil={false} />
+              ) : (
+                <span style={{
+                  fontFamily: 'var(--cth-font-display)', fontSize: 8, lineHeight: '13px',
+                  color: 'var(--cth-ink-900)', flex: 1, minWidth: 0,
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                }}>{name.toUpperCase()}</span>
+              )}
+              {isGod && (
+                <span data-boss style={{
+                  fontFamily: 'var(--cth-font-display)', fontSize: 7, lineHeight: '11px',
+                  background: `var(--cth-${accent})`, color: 'var(--cth-ink-900)',
+                  padding: '1px 4px 0', flexShrink: 0
+                }}>{t('agentCard.boss')}</span>
+              )}
+              {onHold && (
+                <span data-hold title={t('agentRow.oneOnOne')} style={{
+                  fontSize: 9, lineHeight: '12px', padding: '0 3px', flexShrink: 0,
+                  background: 'var(--cth-cream-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)', color: 'var(--cth-ink-500)'
+                }}>1:1</span>
+              )}
+              {/* flexShrink:0: the chip is a fixed 2-to-5 character thing; when
                   it was allowed to shrink, the browser resolved the overflow by
-                  eating the NAME instead. Truncation should land on the longest,
-                  most redundant thing, not on the identity. */}
-              <PixelBadge status={typing ? 'typing' : status} style={{ flexShrink: 0 }} />
+                  eating the NAME instead. */}
+              {/* The chip at card scale: the orchestrator's row holds NAME, BOSS
+                  and the chip in 176px, and the chip's default padding took
+                  the name down to "MICHA…". Same chip, tighter box. */}
+              <PixelBadge status={typing ? 'typing' : status} style={{ flexShrink: 0, marginLeft: 'auto', padding: '1px 5px 0', gap: 4, fontSize: 10.5, lineHeight: '14px' }} />
             </div>
-
-            {/* Context line: action while working, repo while idle. */}
+            {/* Line 2: engine tile, model, context percent. */}
+            <div data-engine-line style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, height: 14, fontSize: 10.5, color: 'var(--cth-ink-500)' }}>
+              <EngineBadge provider={provider} size={13} title={`${engine} · ${word}`} />
+              <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{word}</span>
+              {pct !== null && (
+                <span data-context-pct title={gaugeTitle} style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: percentColor(pct) }}>{pct}%</span>
+              )}
+            </div>
+            {/* Line 3: the ticket id and the live action, its age at the end.
+                A crash takes the whole line in coral. */}
             <div
-              title={`${project}${action && status !== 'idle' ? ` — ${action}` : ''}`}
+              data-live-line
+              title={exit ? liveText : `${project}${action ? `: ${action}` : ''}`}
               style={{
+                display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, height: 14,
                 fontSize: 11, lineHeight: '14px',
-                color: 'var(--cth-ink-500)',
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                color: exit ? 'var(--cth-coral)' : 'var(--cth-ink-500)'
               }}
-            >{infoLine}</div>
-
-            {/* God: voice on its own compact row. Workers: the private note row.
-                Both sit ABOVE the gauge, so it is never covered. */}
-            {isGod ? (
-              // Talk grows an info mark when the OpenAI key is missing, so this
-              // row can hold three things instead of two. `overflow: hidden` is
-              // the guard: the toggle's label shrinks first (it has minWidth:0),
-              // and if it still does not fit, the row clips INSIDE the card
-              // instead of spilling over its border.
+            >
+              {!exit && ticketId && (
+                <span
+                  data-ticket={ticketId} title={ticketTip}
+                  onClick={(e) => { if (onTaskNoteClick) { e.stopPropagation(); onTaskNoteClick(); } }}
+                  style={{ flexShrink: 0, fontFamily: 'var(--cth-font-mono, ui-monospace, Menlo, monospace)', fontSize: 10, color: 'var(--cth-ink-500)', cursor: onTaskNoteClick ? 'pointer' : undefined }}
+                >{ticketId}</span>
+              )}
+              <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{liveText}</span>
+              {!exit && <Ago ts={lastTs} style={{ fontSize: 10 }} />}
+            </div>
+            {/* God: voice on its own compact row, above the gauge as before. */}
+            {isGod && (
               <div
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  minWidth: 0, overflow: 'hidden'
-                }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, overflow: 'hidden', height: 14 }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <RealtimeMichaelToggle />
                 <CostHud compact />
               </div>
-            ) : (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0, minHeight: 14 }}
-              >
-                {noteFirstLine ? (
-                  <span
-                    title={note}
-                    style={{
-                      flex: 1, minWidth: 0, fontSize: 10.5, lineHeight: '14px',
-                      color: 'var(--cth-ink-500)', fontStyle: 'italic',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                    }}
-                  >{noteFirstLine}</span>
-                ) : <span style={{ flex: 1 }} />}
-                {onEditNote && (
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => { e.stopPropagation(); onEditNote(); }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); onEditNote(); }
-                    }}
-                    title={note ? t('agentCard.editNote') : t('agentCard.addNote')}
-                    aria-label={t('agentCard.editNoteAria', { name })}
-                    style={{
-                      flexShrink: 0, width: 15, height: 14,
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, lineHeight: 1, cursor: 'pointer',
-                      // Quiet until the card is hovered — discoverable, not noisy.
-                      color: hover ? 'var(--cth-ink-500)' : 'var(--cth-ink-300)'
-                    }}
-                  >✎</span>
-                )}
-              </div>
             )}
-
-            {/* Context gauge — slim fill bar pinned to the card's bottom edge. */}
-            <div style={{ marginTop: 'auto' }} title={gaugeTitle}>
-              <div style={{
-                height: 4, width: '100%',
-                background: 'var(--cth-cream-200)',
-                boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)',
-                overflow: 'hidden'
-              }}>
-                <div style={{ width: `${pct}%`, height: '100%', background: gaugeColor }} />
-              </div>
+            {/* The gauge, pinned to the card's bottom edge. */}
+            <div style={{ marginTop: 'auto', display: 'flex' }} title={gaugeTitle}>
+              <ContextGauge segments={segments} accent={accent} height={4} />
             </div>
           </div>
         </div>

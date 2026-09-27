@@ -72,3 +72,32 @@ test('(e) rendering a body with no drop block is untouched', () => {
   );
   assert.match(toast, /drop/i, 'UpdateToast still decides on the drop block itself');
 });
+
+// ── (f)-(g) the drop must reach BOTH skins ──────────────────────────────────
+//
+// The 0.4.9 plan ruled the drop Classic only; the founder reversed that on
+// 5 Sep 2026 ("make sure that our release drop shows up with the new
+// update"). A drop that fires on every install but renders under only one
+// skin misses everyone who took the Professional default, which is the same
+// class of defect as (a): the moment exists and almost nobody sees it. So
+// reachability is pinned per skin, on the surface each skin mounts.
+
+const renderer = (p) => fs.readFileSync(
+  path.resolve(__dirname, '..', 'src/renderer/src/components', p), 'utf8'
+);
+
+test('(f) Classic mounts the drop from UpdateToast, on the authored-block condition', () => {
+  const toast = renderer('UpdateToast.tsx');
+  assert.match(toast, /<ReleaseDrop\b/, 'Classic renders the drop');
+  assert.match(toast, /extractDropHtml/, 'the authored block decides');
+});
+
+test('(g) PRO mounts the SAME drop from its transients, on the SAME condition', () => {
+  const pro = renderer('pro/ProTransients.tsx');
+  assert.match(pro, /<ReleaseDrop\b/, 'PRO renders the drop, not a fork of it');
+  assert.match(pro, /extractDropHtml/, 'the same authored-block condition decides');
+  assert.match(pro, /'just-updated'/, 'the boot-after-update state reaches the drop under PRO too');
+  // The reversed ruling must not survive as prose that misleads the next
+  // reader into re-fencing the drop.
+  assert.doesNotMatch(pro, /stays Classic only/i);
+});

@@ -1,5 +1,5 @@
-- **The interface speaks Chinese and Arabic.** Set it in Settings.
-- **Updates install themselves.** Download, restart, done.
-- **Fonts ship inside the app.** No Google Fonts fetch on launch.
-- **Hardened how engine commands launch.**
-- **Settings has one Save button.** Connections get their own tab.
+- **Dictate into any app.** Hold Option on the Mac and talk.
+- **Transcription on your machine.** Whisper ships inside the app.
+- **Meetings hear both sides**, You and Them.
+- **A missing CLI installs and signs in** from the app.
+- **One Save in Settings**, and your agents in your order.

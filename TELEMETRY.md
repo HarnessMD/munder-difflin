@@ -35,6 +35,44 @@ The events:
 | `message_sent` | `surface` — one of `terminal`, `composer`, `steer`, `hive` | Each time **you** send a message to an agent. A count of messages and nothing else: the message itself is never read, measured, or hashed |
 | `feature_used` | `feature` — one of `slack_trigger`, `webhook_trigger`, `hire_install`, `voice_dictation` | At most once per feature per app session |
 | `session_ended` | `duration_bucket` — one of `<5m`, `5-30m`, `30m-2h`, `2-8h`, `8h+` | On quit (coarse bucket, never raw duration) |
+| `agent_run_ended` | `provider` (CLI engine name, as on `agent_spawned`); `duration_bucket` — one of `<30s`, `30s-2m`, `2-10m`, `10-30m`, `30m-2h`, `2h+`; `ended_reason` — one of `completed`, `error`, `stopped`, `unknown` | An agent run ended (coarse bucket, never raw duration) |
+| `paywall_shown` | `plan` — one of `pro`, `teams`; `trigger` — one of `pro_feature`, `seat_limit`, `licence_missing`, `licence_expired`, `manual` | A screen offering to sell you something was drawn |
+| `checkout_opened` | `plan`; `seats_bucket` — one of `1`, `2-5`, `6-20`, `21+` (individual purchases only) | You left for the browser to buy. The seat count is a coarse bucket, never a number |
+| `checkout_finished` | `plan`; `outcome` — one of `succeeded`, `failed`, `abandoned`, `scheduled_call`; `reason` — one of `card_declined`, `auth_failed`, `network`, `timeout`, `user_cancelled`, `other` (only on a failure) | How that attempt ended. No amount, no payment id, no card detail |
+| `licence_activated` | `plan`; `source` — one of `checkout`, `key_entry`, `invite`; `period` — one of `monthly`, `annual` (only when `source` is `checkout`) | A licence became active on this machine. Never the key, never any part of it. The period is what the licence is billed by, as the checkout answered it |
+| `access_blocked` | `plan`; `block` — one of `no_seat`, `seat_limit_reached`, `org_required`, `licence_missing`, `org_lapsed` | The app refused entry and offered nothing to buy. `no_seat` is your own seat being suspended or removed; `org_lapsed` is the organisation's plan ending |
+| `invite_redeemed` | `role` — one of `member`, `admin` | An invite was redeemed. Never the invite code, the org, or who invited you |
+
+**`no_seat` means your own seat was suspended or removed, and nothing else.**
+It does not cover the organisation's plan ending, which is `org_lapsed`. The two
+were one value until 0.5.0 shipped, and they were separated before any data
+existed under the old wider meaning — so every `no_seat` ever recorded means the
+narrow thing. Widening it back would make old and new rows say different things
+under one name, and nothing later could tell them apart.
+
+**A team `checkout_opened` carries no `seats_bucket`, and that absence is a fact
+about the app rather than missing data.** The seat count is chosen on the web
+page the app hands off to, so the app has never seen it. Rather than invent a
+bucket or add an `unknown` member to a closed list, the property is simply not
+sent: an individual purchase is always one machine and says `1`, a team
+purchase says nothing at all.
+
+**`period` moved from `checkout_opened` to `licence_activated` in 0.5.1.** Until
+0.5.1 every `checkout_opened` carried `period: monthly`, because the app opens
+one checkout and the browser chooses the period after the handoff, so the app
+could only ever assert a constant there. A property whose only truthful value
+is a constant is noise in the allowlist. The licence the checkout then claims
+does know what it is billed by, so from 0.5.1 the period is sent there, at the
+checkout door only: a key typed by hand and an invited seat carry no period,
+because the app never learns it on those paths. A courtesy licence, or one never
+billed, reads `monthly`, which is what the record says.
+
+**`checkout_finished` never reports `scheduled_call`, and that is a known zero
+rather than a finding.** The value is in the list because the outcome is real —
+booking a call instead of paying is a success, not an abandonment — but the exit
+that produces it is on the website's seat picker, and the app has no way to see
+it. Anyone grouping this event by outcome will find no scheduled calls; that
+means the app cannot report them, not that nobody books one.
 
 ### About `message_sent`
 
@@ -66,6 +104,13 @@ No prompts. No agent transcripts or output. No file paths, repo names, branch
 names, or hostnames. No email addresses, account identifiers, machine
 identifiers, or API keys. Nothing free-form — the property allowlist in
 `analytics.ts` drops anything not in the tables above.
+
+From the purchase events specifically: **no licence key or any part of one, no
+invite code, no organisation name or id, no payment or subscription id, no card
+detail, and no amount.** The seat count is only ever one of four buckets, never
+a number, so the largest customer is no more identifiable than the smallest.
+The purchase events also check every VALUE against its list, not just every
+property name, and drop the whole event if one is unrecognised.
 
 ## How it stays anonymous
 

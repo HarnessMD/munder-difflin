@@ -44,8 +44,43 @@ export interface ReleaseDropProps {
 }
 
 // Landing site palette (docs/DESIGN.md §2). Restated here because the modal is
-// app chrome and cannot reach the site's stylesheet; kept in one place so the
-// frame's tokens in shared/releaseDrop.ts and this chrome never drift apart.
+// app chrome and cannot reach the site's stylesheet.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// THIS SURFACE IS A DELIBERATE EXEMPTION FROM THE SKIN SYSTEM. DO NOT TOKENISE IT.
+//
+// Every other surface in the renderer follows `--cth-*` and therefore follows
+// data-cth-skin and data-cth-theme. This one does not, and must not, and the
+// reason is STRUCTURAL rather than a matter of taste:
+//
+// The drop's content is an authored HTML document rendered into a `srcdoc`
+// iframe under `sandbox="allow-popups"` and a `default-src 'none'` CSP. A srcdoc
+// iframe is a SEPARATE DOCUMENT, so CSS custom properties do not cross into it —
+// the frame cannot read `--cth-*` from this document and no amount of work here
+// can make it. It carries its own `:root` palette in shared/releaseDrop.ts, and
+// that palette is fixed by the CSP-hardened contract the drop is authored
+// against.
+//
+// So tokenising THIS chrome would not make the drop follow the skin. It would
+// paint a Professional-dark window frame around a permanently warm-paper
+// document — the chrome and the thing it frames disagreeing, unfixably, because
+// the boundary that stops the mismatch is the same boundary that makes the drop
+// safe to render at all. Half-following is strictly worse than not following,
+// and here it is the only reachable outcome.
+//
+// The positive reason stands too: this is the `.win` window from munderdiffl.in,
+// so the drop reads as the same product the user downloaded from. It is the
+// site's surface hosted in the app, not the app's surface.
+//
+// WHAT THAT COSTS, STATED PLAINLY: the drop does not follow dark mode today and
+// never has, and it will not follow Professional either. That is the accepted
+// price of the exemption, not an oversight.
+//
+// The six constants below MUST equal the matching `:root` values in
+// shared/releaseDrop.ts, or the chrome and the framed document drift apart.
+// test/release-drop-exemption.test.cjs asserts both halves of this comment: that
+// no `--cth-*` token appears in this file, and that these six still match.
+// ─────────────────────────────────────────────────────────────────────────────
 const PAPER = '#FFFDF7';
 const INK = '#1B1B1B';
 const INK_FAINT = '#8A867A';

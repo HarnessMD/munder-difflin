@@ -4,7 +4,6 @@ import {
   DEFAULT_WEBHOOK_SCHEMA,
   type ContextRule,
   type ContextTriggerConfig,
-  type OrgTriggerConfig,
   type WebhookTrigger
 } from '@shared/triggers';
 
@@ -134,21 +133,11 @@ export function newWebhook(secret: string, index: number): WebhookTrigger {
     enabled: false,
     mode: DEFAULT_TRIGGER_MODE,
     schema: DEFAULT_WEBHOOK_SCHEMA,
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    // ON for a NEW endpoint, and left alone on every endpoint that already
+    // exists: a caller nobody has vetted yet is the one to hold at arm's
+    // length, and quietly changing what a live endpoint sends is not ours to do.
+    guardrails: true
   };
 }
 
-/* ───────────────────────────── organisation ──────────────────────────────── */
-
-/** `null` on failure; the store mirror stands. */
-export async function getOrgTrigger(): Promise<OrgTriggerConfig | null> {
-  try {
-    return (await window.cth.getOrgTrigger()) ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export function setOrgTrigger(cfg: OrgTriggerConfig): void {
-  void window.cth.setOrgTrigger(cfg).catch(() => { /* optimistic */ });
-}

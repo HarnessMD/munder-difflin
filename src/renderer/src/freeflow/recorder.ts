@@ -17,6 +17,7 @@
  *
  * Exposed as a module singleton + a `useFreeflow()` hook (useSyncExternalStore).
  */
+import { blobToWav16k } from '../audio/toWav';
 import { useSyncExternalStore } from 'react';
 import { useStore } from '@/store/store';
 
@@ -90,6 +91,12 @@ function deliverTranscript(agentId: string, text: string): void {
 async function start(agentId: string): Promise<void> {
   if (state.status !== 'idle' || opening) return;
   if (!agentId) { setState({ error: 'no agent selected' }); return; }
+  // The key check the buttons and the hold gesture make lives here as well, so
+  // no caller can reach getUserMedia without a key: the clip would only fail
+  // after the upload, and the person would have paid a permission prompt for
+  // an error message.
+  // 0.5.3, F16: a local engine or a Groq key, either opens the mic.
+  if (!useStore.getState().hasGroqKey && !useStore.getState().canDictate) { setState({ error: 'no transcription engine' }); return; }
   if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
     setState({ error: 'microphone not available' });
     return;
@@ -155,12 +162,15 @@ async function finish(agentId: string): Promise<void> {
   }
   setState({ status: 'transcribing', error: null });
   try {
-    const buf = await blob.arrayBuffer();
+    // 0.5.3, F16: the local recognisers read wav; the clip is decoded and
+    // resampled here, and only an undecodable clip goes out as recorded.
+    const wav = await blobToWav16k(blob, 'dictation');
+    const buf = wav ? wav.audio : await blob.arrayBuffer();
     const ext = type.includes('ogg') ? 'ogg' : 'webm';
     const res = await window.cth.freeflowTranscribe({
       audio: buf,
-      mimeType: type.split(';')[0],
-      filename: `dictation.${ext}`
+      mimeType: wav ? wav.mimeType : type.split(';')[0],
+      filename: wav ? wav.filename : `dictation.${ext}`
     });
     if (res.ok && res.text) {
       deliverTranscript(agentId, res.text);

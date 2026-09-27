@@ -9,79 +9,21 @@
  * every 6h, so there was no way to ask.
  *
  * All of the "what does this state say and do" logic lives in
- * src/shared/updateState.ts so it can be unit-tested without Electron; this file
- * is wiring and pixels.
+ * src/shared/updateState.ts so it can be unit-tested without Electron; the
+ * subscription, the click and the two one-off notices live in
+ * updateBadgeState.ts (shared with the PRO titlebar's version chip); this
+ * file is the Classic pixels.
  */
-import { useCallback, useEffect, useState } from 'react';
-import { describeUpdate, manualDownloadUrl, manualInstallSteps, pendingVersion, reduceStatus, type UpdateStatus } from '@shared/updateState';
+import { useState } from 'react';
+import { useUpdateBadge } from './updateBadgeState';
 import { PixelButton } from './PixelButton';
 
 declare const __APP_VERSION__: string;
 
 export function UpdateBadge() {
-  const [status, setStatus] = useState<UpdateStatus | null>(null);
-  const [busy, setBusy] = useState(false);
+  const { view, busy, started, dismissStarted, checkedOk, pending, steps, click: onClick, interactive } = useUpdateBadge();
   const [hover, setHover] = useState(false);
-  /** The version whose download was just started, for the "now replace the
-   *  app" notice. Local state: it is a one-off explanation, not an update state. */
-  const [started, setStarted] = useState<string | null>(null);
-  /** Brief, positive "checked, you are current" flash after a MANUAL check that
-   *  found no update. Without it a successful check settles silently back to the
-   *  grey "latest" chip, which is indistinguishable from a click that did
-   *  nothing, and that is exactly why the badge read as broken. */
-  const [checkedOk, setCheckedOk] = useState(false);
 
-  useEffect(() => {
-    // Subscribe first, then pull — main may have emitted before this window
-    // finished loading (or before a reload), and `update:current` re-serves it.
-    const off = window.cth.onUpdateStatus?.((next) => setStatus((prev) => reduceStatus(prev, next)));
-    void window.cth.updateCurrent?.().then((cur) => {
-      if (cur) setStatus((prev) => reduceStatus(prev, cur));
-    }).catch(() => { /* older main without the handler — the push channel still works */ });
-    return off;
-  }, []);
-
-  // The acknowledgement is a flash, not a mode: clear it after a few seconds so
-  // the badge returns to its quiet resting state.
-  useEffect(() => {
-    if (!checkedOk) return;
-    const t = setTimeout(() => setCheckedOk(false), 3500);
-    return () => clearTimeout(t);
-  }, [checkedOk]);
-
-  const view = describeUpdate(status, __APP_VERSION__);
-
-  const onClick = useCallback(async () => {
-    if (view.action === 'none' || busy) return;
-    setBusy(true);
-    try {
-      if (view.action === 'check') {
-        const res = await window.cth.updateCheckNow();
-        // A successful "already current" check has to say so out loud. runCheck
-        // has settled lastStatus by the time this resolves, so read it back: a
-        // no-update result flashes the acknowledgement; an available update is
-        // already loud on its own (the chip changes) so it is left alone.
-        if (res?.ok) {
-          const cur = await window.cth.updateCurrent?.();
-          const st = cur?.state;
-          if (!st || st === 'not-available' || st === 'idle' || st === 'just-updated') setCheckedOk(true);
-        }
-      }
-      else if (view.action === 'download') await window.cth.updateDownload();
-      else if (view.action === 'restart') await window.cth.updateRestartAndInstall();
-      else if (view.action === 'manual' && status) {
-        // The click IS the download. Auto-update lives in Settings.
-        const url = manualDownloadUrl(status, window.cth.platform, window.cth.arch);
-        if (url) {
-          await window.cth.updateOpenRelease(url);
-          setStarted(pendingVersion(status, __APP_VERSION__));
-        }
-      }
-    } catch { /* the emitted status carries the failure — nothing to do here */ }
-    setBusy(false);
-  }, [view.action, busy, status]);
-
-  const interactive = view.action !== 'none' && !view.busy;
   // The chip only earns colour when it wants something: ready = mint (act on
   // me), warn = amber (something went wrong), busy/idle stay in the titlebar's
   // own greys so a quiet app looks exactly like it did before.
@@ -90,8 +32,6 @@ export function UpdateBadge() {
       : view.tone === 'warn' ? 'var(--cth-amber-light, #f6e2b3)'
         : 'transparent';
 
-  const pending = pendingVersion(status, __APP_VERSION__);
-  const steps = manualInstallSteps(window.cth.platform ?? 'darwin');
   const INK = 'var(--cth-ink-900)';
 
   return (
@@ -113,7 +53,7 @@ export function UpdateBadge() {
         margin: 0,
         background: chipBg,
         border: 'none',
-        borderRadius: 2,
+        borderRadius: 'var(--cth-radius-sm, 2px)',
         // 'latest' is a quiet word after the version, not a chip asking for a click.
         boxShadow: view.label && view.tone !== 'idle' ? 'inset 0 0 0 1px var(--cth-ink-300)' : 'none',
         fontFamily: 'var(--cth-font-ui)',
@@ -186,7 +126,7 @@ export function UpdateBadge() {
           {steps.steps.map((t) => <li key={t}>{t}</li>)}
         </ol>
         <div style={{ display: 'flex', gap: 8, marginTop: 10, justifyContent: 'flex-end' }}>
-          <PixelButton variant="ghost" size="sm" onClick={() => setStarted(null)}>got it</PixelButton>
+          <PixelButton variant="ghost" size="sm" onClick={dismissStarted}>got it</PixelButton>
         </div>
       </div>
     )}
@@ -209,7 +149,7 @@ export function UpdateBadge() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--cth-font-mono, monospace)', fontWeight: 700, fontSize: 13 }}>
           <span aria-hidden style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 18, height: 18, borderRadius: 999,
+            width: 18, height: 18, borderRadius: 'var(--cth-radius-pill, 999px)',
             background: 'var(--cth-mint-light, #d0f0e0)', color: 'var(--cth-ink-900)', fontSize: 12
           }}>&#10003;</span>
           You are on the latest version.

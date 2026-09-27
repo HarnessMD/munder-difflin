@@ -16,10 +16,10 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Icon } from '@/components/Icon';
 import { useWorkspaceImage } from '@/hooks/useWorkspaceImage';
 import { formatBytes, isSvgPath } from '@shared/imageTypes';
-import { ideBarStyle, ideTextBtn } from './chrome';
+import { ideBarStyle, ideIconBtn, ideTextBtn } from './chrome';
+import { FileIcon, IdeIcon } from './ideIcons';
 
 export interface ImagePreviewProps {
   /** Absolute workspace root the path is confined to. */
@@ -46,9 +46,9 @@ export function ImagePreview({ root, rel, onCopyPath, onViewSource }: ImagePrevi
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={ideBarStyle}>
-        <Icon name="image" />
+        <FileIcon rel={rel} size={14} />
         <span
-          style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'var(--cth-font-mono)' }}
+          style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'var(--cth-font-mono)', color: 'var(--cth-ink-900)' }}
           title={rel}
         >{rel}</span>
 
@@ -60,27 +60,34 @@ export function ImagePreview({ root, rel, onCopyPath, onViewSource }: ImagePrevi
           {img.status === 'ready' ? ` · ${formatBytes(img.size)}` : ''}
         </span>
 
-        <span style={{ display: 'inline-flex', gap: 0 }}>
+        {/* 0.4.11: the kit's segmented control, the same one the markdown
+            view switch uses in the crumb bar. */}
+        <span role="radiogroup" style={{ display: 'inline-flex', padding: 2, gap: 1, background: 'var(--cth-cream-100)', border: '1px solid var(--cth-ink-300)', borderRadius: 'var(--cth-radius-md, 7px)' }}>
           {([true, false] as const).map((v) => (
             <button
               key={String(v)}
+              type="button"
+              role="radio"
+              aria-checked={fit === v}
               onClick={() => setFit(v)}
               title={v ? t('imagePreview.fitTitle') : t('imagePreview.oneToOneTitle')}
               style={{
-                ...ideTextBtn,
-                background: fit === v ? 'var(--cth-sky-light)' : 'var(--cth-cream-100)',
-                boxShadow: fit === v ? 'inset 0 0 0 1px var(--cth-ink-500)' : 'inset 0 0 0 1px var(--cth-ink-100)'
+                height: 20, padding: '0 8px', border: 'none', borderRadius: 5, font: 'inherit', fontSize: 11.5, cursor: 'pointer',
+                background: fit === v ? 'var(--cth-cream-50)' : 'transparent', color: fit === v ? 'var(--cth-ink-900)' : 'var(--cth-ink-500)',
+                fontWeight: fit === v ? 500 : 400, boxShadow: fit === v ? '0 1px 2px rgba(0,0,0,0.08)' : undefined
               }}
             >{v ? t('imagePreview.fit') : '1:1'}</button>
           ))}
         </span>
 
         {onViewSource && (
-          <button onClick={onViewSource} title={t('imagePreview.viewSourceTitle')} style={ideTextBtn}>
-            {t('imagePreview.viewSource')}
+          <button type="button" onClick={onViewSource} title={t('imagePreview.viewSourceTitle')} style={{ ...ideTextBtn, border: '1px solid transparent', background: 'transparent', color: 'var(--cth-ink-500)' }}>
+            <IdeIcon name="code" size={13} />{t('imagePreview.viewSource')}
           </button>
         )}
-        <button onClick={onCopyPath} title="Copy absolute path" style={ideTextBtn}>copy path</button>
+        <button type="button" onClick={onCopyPath} title={t('idePanel.copyPath')} aria-label={t('idePanel.copyPath')} style={ideIconBtn}>
+          <IdeIcon name="copy" size={14} />
+        </button>
       </div>
 
       <div style={{

@@ -1,4 +1,4 @@
-import { readdir, lstat, open, realpath, stat } from 'node:fs/promises';
+import { lstat, mkdir, open, readFile, readdir, realpath, rename, stat, writeFile } from 'node:fs/promises';
 import type { FileHandle } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path';
@@ -286,6 +286,252 @@ export async function writeFileText(root: string, rel: string, content: string):
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   } finally {
     await fh?.close().catch(() => {});
+  }
+}
+
+/* ─────────────────────────── repo-wide search (0.4.9 phase 9) ──────────────
+ * The IDE could open a file and edit it and never once answer "where is this
+ * string?". ⌘F searched the buffer in front of you, which is the question
+ * nobody was asking.
+ *
+ * Node, not ripgrep. Shelling out to a binary the user may not have, on a path
+ * we would then have to quote, to search a tree we already walk, buys speed we
+ * do not need at this size and costs a dependency and an injection surface.
+ * What it does buy is bounds, and those are set explicitly below instead.
+ */
+
+/** Directories that are never source and are usually enormous. `.git` is not
+ *  optional; the rest are conventions, and a dot-directory that is not on this
+ *  list (`.github`, `.claude`) IS searched, because people keep real files
+ *  there. */
+const SEARCH_SKIP_DIRS = new Set([
+  '.git', 'node_modules', 'dist', 'out', 'build', 'coverage', '.next', '.nuxt',
+  '.cache', '.turbo', '.parcel-cache', '__pycache__', '.venv', 'venv',
+  '.mypy_cache', '.pytest_cache', 'target', 'vendor', 'Pods', '.gradle', '.dart_tool'
+]);
+
+/** A file bigger than this is a bundle, a lockfile or a fixture, not something
+ *  a person is searching for a word in. */
+const SEARCH_MAX_FILE_BYTES = 1024 * 1024;
+/** Sniffed from the head of the file: one null byte and it is not text. */
+const SEARCH_SNIFF_BYTES = 8192;
+
+export interface SearchHit {
+  rel: string;
+  /** 1-based, so it can be handed straight to an editor. */
+  line: number;
+  /** 1-based column of the match within the line. */
+  col: number;
+  /** The whole line, clipped: a minified file would otherwise send back a
+   *  megabyte of one "line" per hit. */
+  text: string;
+  /** Length of the match, so the renderer can mark it without re-running the
+   *  pattern (and without disagreeing with the matcher about what matched). */
+  length: number;
+}
+
+export interface SearchOptions {
+  regex?: boolean;
+  caseSensitive?: boolean;
+  wholeWord?: boolean;
+  /** Stop after this many hits and say so. */
+  maxHits?: number;
+  /** Wall-clock ceiling. A search is interactive; one that runs longer than
+   *  this has already lost, so it returns what it has. */
+  timeBudgetMs?: number;
+}
+
+export type SearchOutcome =
+  | { ok: true; hits: SearchHit[]; truncated: boolean; filesScanned: number }
+  | { ok: false; error: string };
+
+const MAX_LINE_CHARS = 400;
+
+/** Build the matcher. A literal query is escaped, so a search for `a.b` does
+ *  not quietly match `axb`, which is the bug every naive search ships with. */
+function buildMatcher(query: string, o: SearchOptions): RegExp | { error: string } {
+  const flags = o.caseSensitive ? 'g' : 'gi';
+  let source: string;
+  if (o.regex) {
+    source = query;
+  } else {
+    source = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  if (o.wholeWord) source = `\\b(?:${source})\\b`;
+  try {
+    return new RegExp(source, flags);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'bad pattern' };
+  }
+}
+
+/**
+ * Search every text file under `root` for `query`.
+ *
+ * Confined by the same `safeResolve` as every other entry point here, and bounded
+ * four ways: hits, files scanned, per-file size, and wall clock. It returns
+ * `truncated` rather than pretending a capped result is the whole answer,
+ * because a search that silently lies about completeness is worse than one
+ * that says it gave up.
+ */
+export async function searchInRoot(root: string, query: string, opts: SearchOptions = {}): Promise<SearchOutcome> {
+  const absRoot = await safeResolve(root, '');
+  if (!absRoot) return { ok: false, error: 'path escapes root' };
+  if (!query) return { ok: true, hits: [], truncated: false, filesScanned: 0 };
+  const matcher = buildMatcher(query, opts);
+  if ('error' in matcher) return { ok: false, error: matcher.error };
+
+  const maxHits = Math.min(Math.max(opts.maxHits ?? 500, 1), 5000);
+  const deadline = Date.now() + Math.min(Math.max(opts.timeBudgetMs ?? 5000, 250), 30_000);
+  const hits: SearchHit[] = [];
+  let filesScanned = 0;
+  let truncated = false;
+
+  const walk = async (dirAbs: string, dirRel: string): Promise<void> => {
+    if (truncated) return;
+    let entries;
+    try {
+      entries = await readdir(dirAbs, { withFileTypes: true });
+    } catch {
+      return; // an unreadable directory is not a failed search
+    }
+    for (const e of entries) {
+      if (truncated) return;
+      if (Date.now() > deadline) { truncated = true; return; }
+      const rel = dirRel ? `${dirRel}/${e.name}` : e.name;
+      if (e.isDirectory()) {
+        if (SEARCH_SKIP_DIRS.has(e.name)) continue;
+        await walk(join(dirAbs, e.name), rel);
+        continue;
+      }
+      // A symlink is not followed: it can point outside the root, and the
+      // confinement guard is about the path we were given, not where the
+      // filesystem chooses to send us.
+      if (!e.isFile()) continue;
+      let buf: Buffer;
+      try {
+        const s = await stat(join(dirAbs, e.name));
+        if (s.size > SEARCH_MAX_FILE_BYTES) continue;
+        buf = await readFile(join(dirAbs, e.name));
+      } catch {
+        continue;
+      }
+      if (buf.subarray(0, SEARCH_SNIFF_BYTES).includes(0)) continue;
+      filesScanned++;
+      const lines = buf.toString('utf8').split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        matcher.lastIndex = 0;
+        let m: RegExpExecArray | null;
+        while ((m = matcher.exec(line)) !== null) {
+          hits.push({
+            rel, line: i + 1, col: m.index + 1,
+            text: line.length > MAX_LINE_CHARS ? `${line.slice(0, MAX_LINE_CHARS)}…` : line,
+            length: m[0].length
+          });
+          if (hits.length >= maxHits) { truncated = true; return; }
+          // A zero-width match (`a*`, `^`) would spin here forever.
+          if (m[0].length === 0) matcher.lastIndex++;
+        }
+      }
+    }
+  };
+
+  await walk(absRoot, '');
+  return { ok: true, hits, truncated, filesScanned };
+}
+
+/* ─────────────────────── file operations (0.4.9 phase 9) ───────────────────
+ * New file, new folder, rename. Every one of them resolves through safeResolve,
+ * and the two-ended ones (rename) resolve BOTH ends: a rename whose
+ * destination escapes the root is a write outside the root with extra steps.
+ *
+ * None of them overwrite. `wx` and mkdir's own EEXIST do the refusing, rather
+ * than a stat-then-write that races anything else touching the tree.
+ */
+
+export type FsOpResult = { ok: true; path: string; rel: string } | { ok: false; error: string };
+
+/** Reject the names a path component may not have, before the filesystem is
+ *  asked. A `..` component is caught by safeResolve; these are the ones that
+ *  would otherwise succeed and produce something unusable. */
+function badName(rel: string): string | null {
+  if (!rel || !rel.trim()) return 'name is empty';
+  if (rel.includes('\0')) return 'name contains a null byte';
+  if (rel.length > 1024) return 'name is too long';
+  const parts = rel.split('/').filter(Boolean);
+  if (!parts.length) return 'name is empty';
+  for (const p of parts) {
+    if (p === '.' || p === '..') return 'name contains a path segment that is not a name';
+    if (p.trim() !== p) return 'name starts or ends with a space';
+  }
+  return null;
+}
+
+export async function makeDirIn(root: string, rel: string): Promise<FsOpResult> {
+  const bad = badName(rel);
+  if (bad) return { ok: false, error: bad };
+  const abs = await safeResolve(root, rel);
+  if (!abs) return { ok: false, error: 'path escapes root' };
+  try {
+    // Not recursive-silent: `recursive: true` succeeds on an existing folder,
+    // which would tell the person they made something they did not.
+    await mkdir(abs, { recursive: false });
+    return { ok: true, path: abs, rel };
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code === 'EEXIST') return { ok: false, error: 'already exists' };
+    if (err.code === 'ENOENT') return { ok: false, error: 'the folder above it does not exist' };
+    return { ok: false, error: err.message ?? String(e) };
+  }
+}
+
+/** Create an EMPTY file. Never truncates: `wx` fails if anything is there. */
+export async function createFileIn(root: string, rel: string): Promise<FsOpResult> {
+  const bad = badName(rel);
+  if (bad) return { ok: false, error: bad };
+  const abs = await safeResolve(root, rel);
+  if (!abs) return { ok: false, error: 'path escapes root' };
+  try {
+    const h = await open(abs, 'wx');
+    await h.close();
+    return { ok: true, path: abs, rel };
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code === 'EEXIST') return { ok: false, error: 'already exists' };
+    if (err.code === 'ENOENT') return { ok: false, error: 'the folder above it does not exist' };
+    return { ok: false, error: err.message ?? String(e) };
+  }
+}
+
+/** Rename or move, both ends confined. Refuses to clobber an existing path:
+ *  `rename` on POSIX silently replaces the destination, which would delete a
+ *  file the person never named. */
+export async function renameIn(root: string, fromRel: string, toRel: string): Promise<FsOpResult> {
+  const bad = badName(fromRel) ?? badName(toRel);
+  if (bad) return { ok: false, error: bad };
+  const from = await safeResolve(root, fromRel);
+  const to = await safeResolve(root, toRel);
+  if (!from || !to) return { ok: false, error: 'path escapes root' };
+  if (from === to) return { ok: true, path: to, rel: toRel };
+  try {
+    await stat(to);
+    return { ok: false, error: 'already exists' };
+  } catch { /* the destination is free, which is what we want */ }
+  try {
+    // The destination's parent has to exist; mkdir -p on the caller's behalf
+    // would turn a typo'd rename into a tree of empty folders.
+    await stat(dirname(to));
+  } catch {
+    return { ok: false, error: 'the folder above it does not exist' };
+  }
+  try {
+    await rename(from, to);
+    return { ok: true, path: to, rel: toRel };
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code === 'ENOENT') return { ok: false, error: 'not found' };
+    return { ok: false, error: err.message ?? String(e) };
   }
 }
 

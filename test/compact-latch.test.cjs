@@ -75,7 +75,7 @@ const hive = fs.readFileSync(
 );
 
 test('(a) fire() refuses an undeliverable agent BEFORE it enqueues', () => {
-  assert.match(hive, /if \(!canDeliverToAgent\(a\.status, ptyQuietMs\(a\.ptyId, now\), QUIESCE_IDLE_MS\)\) continue;/);
+  assert.match(hive, /if \(!canDeliverToAgent\(a\.status, ptyQuietMs\(a\.ptyId, now\), QUIESCE_IDLE_MS, openQuestions\.isOpen\(a\.id\)\)\) continue;/);
   // the gate must sit ahead of the enqueue, not after it
   const gate = hive.indexOf("Gate #109-2");
   const enqueue = hive.indexOf('enqueueMessage', gate);

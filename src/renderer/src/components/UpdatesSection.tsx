@@ -1,5 +1,5 @@
 /**
- * Settings → General → "Updates".
+ * Settings → General → "Updates", in Classic.
  *
  * The toolbar already carries an update chip (UpdateBadge), but a chip that
  * stays blank when everything is fine is not somewhere you go to *ask* — and
@@ -7,126 +7,17 @@
  * This block always answers it: the version you're on, whether it's the latest,
  * and one button that names what pressing it does.
  *
- * Same status stream as the badge, same reducer, same states — only the wording
- * differs (`describeUpdateSettings` vs `describeUpdate`), so the two can never
- * disagree about what is installed.
+ * Every answer comes from useUpdatesSection(), which PRO's own Updates screen
+ * also renders, so the two skins can never disagree about what is installed.
+ * This file is the Classic drawing of it and nothing else.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { summarizeReleaseNotes } from '@shared/releaseNotes';
-import { describeUpdateSettings, manualDownloadUrl, manualInstallSteps, pendingVersion, reduceStatus, clampPercent, type UpdateStatus } from '@shared/updateState';
-import { PixelButton } from './PixelButton';
-
-declare const __APP_VERSION__: string;
+import { useUpdatesSection } from './updates/useUpdatesSection';
+import { Btn } from './pro/ui';
 
 export function UpdatesSection() {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<UpdateStatus | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    // Subscribe before pulling: main may have emitted while this modal was
-    // closed, and `update:current` re-serves the last known state.
-    const off = window.cth.onUpdateStatus?.((next) => setStatus((prev) => reduceStatus(prev, next)));
-    void window.cth.updateCurrent?.().then((cur) => {
-      if (cur) setStatus((prev) => reduceStatus(prev, cur));
-    }).catch(() => { /* older main without the handler — the push channel still works */ });
-    return off;
-  }, []);
-
-  const view = describeUpdateSettings(status, __APP_VERSION__);
-  /** The manual path is always on offer next to the automatic one. */
-  const pending = pendingVersion(status, __APP_VERSION__);
-  const [manualStarted, setManualStarted] = useState<string | null>(null);
-  const steps = manualInstallSteps(window.cth.platform ?? 'darwin');
-  const downloadManually = () => {
-    if (!status) return;
-    const url = manualDownloadUrl(status, window.cth.platform, window.cth.arch);
-    if (!url) return;
-    void window.cth.updateOpenRelease(url);
-    setManualStarted(pending);
-  };
-
-  // The shared describeUpdateSettings() renders English prose (it also feeds the
-  // toolbar badge and the toast, which are not i18n'd yet). For THIS block we
-  // re-derive the three prose fields from the status through i18n, keeping the
-  // shared function as the single source of truth for tone/action/busy.
-  const v = __APP_VERSION__;
-  const localized: { headline: string; detail: string; button: string | null } = (() => {
-    switch (status?.state) {
-      case 'checking':
-        return { headline: t('updatesSection.onVersion', { v }), detail: t('updatesSection.checkingDetail'), button: null };
-      case 'available':
-        return {
-          headline: t('updatesSection.availableHeadline', { version: status.version }),
-          detail: t('updatesSection.availableDetail', { v }),
-          button: t('updatesSection.downloadBtn', { version: status.version })
-        };
-      case 'downloading':
-        return {
-          headline: t('updatesSection.downloadingHeadline', { version: status.version }),
-          detail: t('updatesSection.downloadingDetail', { percent: clampPercent(status.percent) }),
-          button: null
-        };
-      case 'downloaded':
-        return {
-          headline: t('updatesSection.downloadedHeadline', { version: status.version }),
-          detail: t('updatesSection.downloadedDetail', { v }),
-          button: t('updatesSection.restartBtn')
-        };
-      case 'available-manual':
-        return {
-          headline: t('updatesSection.availableHeadline', { version: status.version }),
-          detail: status.reason
-            ? t('updatesSection.manualDetailReason', { reason: status.reason })
-            : t('updatesSection.manualDetail'),
-          button: t('updatesSection.openReleaseBtn')
-        };
-      case 'error':
-        return {
-          headline: t('updatesSection.errorHeadline'),
-          detail: t('updatesSection.errorDetail', { message: status.message, v }),
-          button: t('updatesSection.retryBtn')
-        };
-      case 'not-available':
-        return {
-          headline: t('updatesSection.latestHeadline', { v }),
-          detail: t('updatesSection.latestDetail'),
-          button: t('updatesSection.checkAgainBtn')
-        };
-      case 'idle':
-      default:
-        return {
-          headline: t('updatesSection.onVersion', { v }),
-          detail: t('updatesSection.idleDetail'),
-          button: t('updatesSection.checkBtn')
-        };
-    }
-  })();
-  const viewText = { ...view, headline: localized.headline, detail: localized.detail, button: localized.button };
-
-  // Same digest the update toast renders (src/shared/releaseNotes.ts), for the
-  // same reason: the release body is already in hand, and "what would I get?"
-  // is the second question anyone asks after "is there a new version?". Only
-  // the states that carry notes have any — the rest render nothing extra.
-  const notes = useMemo(
-    () => summarizeReleaseNotes(status && 'notes' in status ? status.notes : undefined),
-    [status]
-  );
-
-  const onClick = useCallback(async () => {
-    if (view.action === 'none' || busy) return;
-    setBusy(true);
-    try {
-      if (view.action === 'restart') await window.cth.updateRestartAndInstall();
-      else if (view.action === 'download') await window.cth.updateDownload();
-      else if (view.action === 'check') await window.cth.updateCheckNow();
-      else if (view.action === 'open-release') {
-        await window.cth.updateOpenRelease(status?.state === 'available-manual' ? status.url : undefined);
-      }
-    } catch { /* the emitted status carries the failure — nothing to do here */ }
-    setBusy(false);
-  }, [view.action, busy, status]);
+  const { view, pending, steps, manualStarted, downloadManually, run, busy, notes, checkAgain, checkAgainLabel } = useUpdatesSection();
 
   return (
     <div>
@@ -142,43 +33,50 @@ export function UpdatesSection() {
             fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)',
             // Only an actionable state earns emphasis; "you're up to date" is
             // information, not a call to action.
-            fontWeight: viewText.tone === 'ready' ? 600 : 400
+            fontWeight: view.tone === 'ready' ? 600 : 400
           }}>
-            {viewText.headline}
+            {view.headline}
           </span>
           <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-            {viewText.detail}
+            {view.detail}
           </span>
         </div>
         <div style={{ display: 'flex', gap: 8, flexShrink: 0, alignItems: 'center' }}>
           {pending && (
-            <PixelButton
-              variant="secondary"
+            <Btn
               size="sm"
               onClick={downloadManually}
-              style={{ whiteSpace: 'nowrap' }}
               title={t('updatesSection.downloadManuallyTitle', { version: pending })}
             >
               {t('updatesSection.downloadManually')}
-            </PixelButton>
+            </Btn>
           )}
-          {viewText.button && (
-            <PixelButton
-              variant={viewText.tone === 'ready' ? 'primary' : 'secondary'}
+          {/* 0.5.2, card v052-check-again-when-downloaded: the second button,
+              quieter, before the primary one. Same flexShrink rule as the
+              primary, for the same reason. */}
+          {checkAgain && (
+            <Btn size="sm" onClick={checkAgain} disabled={busy || view.busy} style={{ flexShrink: 0 }}>
+              {checkAgainLabel}
+            </Btn>
+          )}
+          {view.button && (
+            <Btn
+              kind={view.tone === 'ready' ? 'primary' : 'default'}
               size="sm"
-              onClick={() => { void onClick(); }}
-              disabled={busy || viewText.busy}
-              // The label is a phrase ("Check for updates", "Restart to update"),
-              // and this row is a flex line whose left column carries two lines of
-              // prose. Without these the button is the flexible item: it gets
-              // squeezed, the label wraps to two lines, and because the button's
-              // height comes from its size variant the second line prints straight
-              // through the bottom border. Refuse to shrink and refuse to wrap —
-              // the prose column already has minWidth: 0, so it yields instead.
-              style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+              onClick={run}
+              disabled={busy || view.busy}
+              /* The label is a phrase ("Check for updates", "Restart to update"),
+                 and this row is a flex line whose left column carries two lines of
+                 prose. Without this the button is the flexible item: it gets
+                 squeezed, the label wraps to two lines, and because the button's
+                 height is fixed by its size the second line prints straight
+                 through the bottom border. The kit already refuses to wrap; what
+                 it cannot know is that this particular row has a prose column
+                 beside it with minWidth: 0, which is what yields instead. */
+              style={{ flexShrink: 0 }}
             >
-              {viewText.button}
-            </PixelButton>
+              {view.button}
+            </Btn>
           )}
         </div>
       </div>
@@ -196,7 +94,7 @@ export function UpdatesSection() {
             pick the same project. On {steps.os}:
           </Trans>
           <ol style={{ margin: '4px 0 0', paddingLeft: 18, color: 'var(--cth-ink-700)' }}>
-            {steps.steps.map((t) => <li key={t}>{t}</li>)}
+            {steps.steps.map((line) => <li key={line}>{line}</li>)}
           </ol>
         </div>
       )}

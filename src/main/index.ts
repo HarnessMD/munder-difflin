@@ -11,22 +11,32 @@ import { homedir } from 'node:os';
 import { request as httpsRequest } from 'node:https';
 import { PtyManager, type SpawnOptions } from './pty';
 import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellEnv';
+import { releaseClaudeSession } from './claudeSessionRelease';
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
 import {
-  readConfig, writeConfig, setAgentTokenCap, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
-  modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
-} from './config';
-import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
+  readConfig, writeConfig, setAgentTokenCap, setAgentMcp, saveAvatar, deleteAvatar, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
+  modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission, pruneRecentHivesOnDisk } from './config';
+import { asAttachWant, attachDialogOptions, attachName } from '../shared/attachDialog';
+import { effectiveMcp, sanitizeAgentMcp } from '../shared/agentMcp';
+import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde, searchInRoot, makeDirIn, createFileIn, renameIn, safeResolve } from './fs';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
+import { anyAppStandsAside, type DictationFocus } from '../shared/dictationFocus';
 import {
   getBranch, getStatus, getLog, getBranches, getAheadBehind, isRepo, getDiff, mainRepoRoot,
   addWorktree, removeWorktree, worktreeHasUnintegratedWork, worktreeIsGcSafe,
   getLogGraph, getCommitFiles, getFileAtRev, compareRefs, listWorktrees, checkoutRef
 } from './git';
 import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
-import { HiveManager, type AgentMeta, type HiveMessage, type HiveTask } from './hive';
+import { HiveManager, redactSecrets, type AgentMeta, type HiveMessage, type HiveTask } from './hive';
 import { HookServer } from './hooks';
+import { acquireFloorAtBoot, openFloorPicker, registerFloorIpc, setFloorSpawner, type FloorGateDeps } from './floorGate';
+import { parseFloorArgs, floorDataDirFor, floorSpawnPlan, floorSpawnEnv, seedFloorConfig } from './floorArgs';
+import { setSharedDataDir, sharedDataDir, isFloorProcess } from './sharedData';
+import { claimFloorNumber, releaseFloorNumber, liveOfficeCount, officeLabel } from './floorNumber';
+import { pidAlive } from './floorLock';
+import { ActivityDigest } from './activityDigest';
+import { ACTIVITY_RING } from '../shared/activity';
 import { CircuitBreaker, type BreakerInput } from './breaker';
 import { CumulativeSampleGate, type UsageProvider } from './usage';
 import { MemoryManager } from './memory';
@@ -35,41 +45,88 @@ import { MemoryReflector, type ReflectSettings } from './reflect';
 import { PersistStore } from './db';
 import { readAgentUsage, readContextTokens, seedSessionTranscript, resolveSessionCwd } from './transcript';
 import { listIssues, listCIRuns } from './github';
-import { SlackWebhookServer, SlackReplyServer, postSlackReply, type SlackEventFile } from './slack';
+import { SlackWebhookServer, SlackReplyServer, postSlackReply, setSlackPostSink, type SlackEventFile, type SlackInboundMessage } from './slack';
+import { appendSlackHistory, listSlackHistory } from './slackHistory';
+import { handleInboundSlack, onTempFinished, type SlackInbound } from './slackInbound';
+import { SlackPoller, fetchThread, slackAuthTest, slackListChannels } from './slackPoller';
+import { SlackSocketClient, slackConnectionsOpenTest } from './slackSocket';
+import { SLACK_BOT_SCOPES, SLACK_MODES, SLACK_PROACTIVE_OFF_REASON, resolveCatchupSeconds, resolvePollSeconds, resolveSlackMode, type SlackMode, type SlackStatus, type SlackTestDraft, type SlackTestResult } from '../shared/slackMode';
+import { selectBroadcastTargets } from '../shared/broadcast';
+import { memoryContextBlock, writeMemoryIndex } from './memoryIndex';
+import { appendWorkerHistory, listWorkerHistory, setWorkerHistoryWorktree } from './workerHistory';
+import { startTaskHygiene, stopTaskHygiene } from './taskHygiene';
+import { startRetention } from './retention';
+import type { WorkerResult } from '../shared/workerHistory';
 import {
   WebhookServer,
   type WebhookDispatch, type WebhookEndpointRef, type WebhookInbound, type WebhookTaskStatus
 } from './webhook';
+import { processConnectionRequests, type ConnDeps } from './connectionRequests';
 import {
-  classifyInboundKind, isAutoAllowed,
-  DEFAULT_CONTEXT_TRIGGER, DEFAULT_ORG_TRIGGER, DEFAULT_TRIGGER_MODE, DEFAULT_WEBHOOK_SCHEMA,
-  type ContextRule, type ContextTriggerConfig, type InboundKind, type OrgTriggerConfig,
+  classifyInboundKind, isAutoAllowed, isWebhookAuth, isWebhookSource, webhookBriefing,
+  DEFAULT_CONTEXT_TRIGGER, DEFAULT_TRIGGER_MODE, DEFAULT_WEBHOOK_SCHEMA,
+  type ContextRule, type ContextTriggerConfig, type InboundKind,
   type TriggerHistoryEntry, type TriggerMode, type WebhookTrigger
 } from '../shared/triggers';
+import { resolveWebhookRecipient } from '../shared/responder';
 import {
   appendTriggerHistory, clearTriggerHistory, listTriggerHistory, updateTriggerHistory
 } from './triggerHistory';
 import { transcribeWithGroq, DEFAULT_GROQ_MODEL } from './freeflow';
+import { TranscribeRouter } from './transcribe/router';
+import { withTranscribeDefaults, cleanCustomWords, defaultPushToTalkKeyFor, type TranscribeConfig } from '../shared/transcribeConfig';
+import { registerPuck, puckMicLive, isPuckContents, meetingSystemAudio, toggleMeetingByKey, captureByKey, puckDictationEvent } from './puck';
+import { MeetingHotkey } from './transcribe/meetingHotkey';
+import { hotkeyProblem, meetingKeyFor, defaultMeetingKey, sameChord, captureKeyFor, defaultCaptureKey, needsNewHelperKey } from '../shared/hotkeyName';
+import { SystemTap, mdTapAvailable, mdTapPath, isTapDenied } from './transcribe/systemTap';
 import { registerRealtimeIpc } from './realtime';
 import { registerRealtimeActionIpc } from './realtimeActions';
 import { initCompletionWatcher } from './realtimeCompletionWatcher';
 import type { TaskCard, InboxMessage } from './realtimeCompletionWatcher';
 import { TelemetryCollector } from './telemetry';
 import { CostLedgerTotals } from './costLifetime';
-import { analytics, isRendererMessageSurface } from './analytics';
-import type { SpawnFailReason } from './analytics';
+import { analytics, isFunnelEvent, isRendererMessageSurface, runDurationBucket, runEndReason } from './analytics';
+import type { CheckoutReason, SpawnFailReason } from './analytics';
 import { IntegrationBroker } from './integrationBroker';
 import * as integrations from './integrations';
-import { validateBaseUrl, buildAuthHeaders, resolveUpstreamUrl, secretRefFor, INTEGRATION_TEMPLATES } from '../shared/integrations';
+import { customSecretEnv, customSecretNames, customSecretRef, secretNameProblem } from '../shared/customSecrets';
+import { validateBaseUrl, buildAuthRequest, resolveUpstreamUrl, secretRefFor, INTEGRATION_TEMPLATES } from '../shared/integrations';
 import { RosterStore } from './roster';
 import { buildWorkerLaunch } from './workerLaunch';
 import { ControlRegistry } from './control';
 import { WorkerWakeWatchdog, type WorkerWakeFacts } from './workerWake';
+import { finalizeAgentWorktree } from './agentWorktree';
+import { listOwnedWorktrees, removeOwnedWorktree, worktreeSize, worktreeWork, type WorktreeAdminContext } from './worktreeAdmin';
+import { RESPAWNING, reasonFromRenderer, type TeardownReason } from '../shared/worktreeFate';
+import { spawnedCard } from '../shared/spawnedCard';
+import { IdeDirtyLedger, ideQuitWarning } from '../shared/ideBuffers';
+import { pickResumableSession, sampleProvesConversation } from '../shared/resumeKey';
+import { chooseResumeSession, providerSessionStore, type DirLister, type StoreContext } from '../shared/resumeStore';
 import { inboxNudgeText } from '../shared/hiveNudge';
 import { resolveGodName } from '../shared/godIdentity';
+import { slowSpawnDelayMs } from '../shared/restoreSlow';
+import { stripTerminalControl, terminalForVoice } from '../shared/voiceText';
+import { excerptAround, keywordThreshold, keywordsOf, scoreLine } from '../shared/voiceMemory';
 import { fetchHireManifest, readHireManifestFiles } from './hire';
+import * as deviceIdentity from './deviceIdentity';
+import { fetchBilling, patchMe, teamRoster } from './relay';
+import { markVerified, setYouAllow, setYouAllowDefault } from './teamPins';
+import * as teamsEnrol from './teamsEnrol';
+import * as teamsGate from './teamsGate';
+import * as soloLicense from './soloLicense';
+import * as freeAccount from './freeAccount';
+import * as teamsSession from './teamsSession';
+import * as teamsBridge from './teamsBridge';
+import * as teamsOrg from './teamsOrg';
+import { parseBillingWire, type BillingSummary } from '../shared/billing';
+import { readMembership, forgetMembership, setBossNameNeeded } from './teamsMembership';
+import { validateBossName } from '../shared/bossName';
+import { parseTeamsDeepLink } from '../shared/teams';
+import { parseFreeDeepLink } from '../shared/freeTier';
+import { parseProCheckoutDeepLink } from '../shared/proCheckout';
+import * as proCheckoutShared from '../shared/proCheckout';
+import * as proCheckout from './proCheckout';
 import { parseHireDeepLink, type HireManifest } from '../shared/hire';
-import { ClosingTimeController } from './closingTime';
 import {
   argsWithAutoModeFlag,
   inferAgentProvider,
@@ -79,7 +136,12 @@ import {
   installInfoForProvider,
   type AgentProvider
 } from '../shared/agentProvider';
-import { buildMissingCliScript, chooseInstallRung } from './cliInstall';
+import { buildLoginScript, buildManualSetupScript, buildMissingCliScript, chooseInstallRung, describeMissingCli } from './cliInstall';
+import { installerTail, type CliMissingState } from '../shared/cliMissing';
+import { isPrintModeRun, loginCommandLine, offerSignInAfterExit, providerLoginArgs, setupCanGoManual, setupCanStart, setupCanStartAnyway, type CliSetupState } from '../shared/cliSetup';
+import { checkSignedIn, hasSignInCheck } from './cliReadiness';
+import { CliLoginWatcher } from './cliLoginWatcher';
+import { loginHostAllowed, type LoginEvent } from '../shared/cliLogin';
 import { detectNodeVersion, nodeIsUsable, resolveNodeInstaller } from './nodeInstall';
 import { toolCatalog, type ToolStatus } from '../shared/toolCatalog';
 import { listLocalSkills, loadCatalog, installSkill, uninstallSkill, type LocalSkill } from './skills';
@@ -90,10 +152,46 @@ import {
   codexRemoteAliasPath,
   codexRemoteEndpoint,
   codexRemoteSocketFits,
+  codexWritableRootsToml,
+  splitCodexAddDirs,
   withCodexRemoteArgs
 } from '../shared/codexRemote';
 
 const isDev = !!process.env.ELECTRON_RENDERER_URL;
+
+// DEV ONLY, AND FIRST: a dev instance pointed at its own userData can run
+// beside the packaged app without sharing its state or its single instance
+// lock (the lock scopes to userData). Must precede every userData read and
+// requestSingleInstanceLock below. The packaged app never honors it, so a
+// stray env var can never move real data.
+if (!app.isPackaged && process.env.MD_USER_DATA) {
+  app.setPath('userData', process.env.MD_USER_DATA);
+}
+
+// 0.5.3, B23 PART 2: A FLOOR IS A PROCESS. New Floor spawns this same binary
+// with `--floor-data=<dir>`, its own userData (so its own single instance
+// lock, config, windows, hook server and hive), and `--floor-shared=<dir>`,
+// the main install's userData, which is where the solo licence and the solo
+// device key are read from by every floor: one machine, one licence. Honoured
+// in packaged builds, which is exactly where New Floor runs, and before every
+// userData read. The picker's folder arrives as `--floor-home` and goes into
+// this floor's config on its first boot, so the floor opens on that hive and
+// never sees the onboarding wizard.
+const floorArgs = parseFloorArgs(process.argv, process.env);
+if (floorArgs) {
+  app.setPath('userData', floorArgs.dataDir);
+  setSharedDataDir(floorArgs.sharedDir);
+  // First boot of this floor: its config is the main install's, seeded once
+  // (onboarding done, models, keys, dictation), minus the per hive and per
+  // listener keys, on the picker's folder. Later boots keep the floor's own.
+  const floorConfig = join(floorArgs.dataDir, 'config.json');
+  if (floorArgs.home && !existsSync(floorConfig)) {
+    let seed: Record<string, unknown> = {};
+    try { seed = JSON.parse(readFileSync(join(floorArgs.sharedDir, 'config.json'), 'utf8')) as Record<string, unknown>; } catch { /* a main install with no config yet: defaults */ }
+    mkdirSync(floorArgs.dataDir, { recursive: true });
+    writeFileSync(floorConfig, JSON.stringify(seedFloorConfig(seed, floorArgs.home), null, 2), 'utf8');
+  }
+}
 
 // Keep the main process alive on an unexpected throw/rejection. The harness is a
 // multi-agent supervisor — a single stray throw (e.g. node-pty's ConPTY console
@@ -109,6 +207,16 @@ process.on('unhandledRejection', (reason) => {
 });
 
 const ptyManager = new PtyManager();
+/** I2 part 2: a fresh CLI's sign in prompt, read from its output and shown
+ *  to the terminal that owns the pty as a modal. The watcher is told which
+ *  pty runs which provider at spawn and forgets it at teardown. */
+const ptyOwners = new Map<string, Electron.WebContents | null>();
+const loginWatcher = new CliLoginWatcher((id, e) => {
+  const owner = ptyOwners.get(id);
+  const wc = (owner && !owner.isDestroyed()) ? owner : liveWebContents();
+  try { wc?.send(`pty:login:${id}`, e); } catch { /* window gone */ }
+});
+ptyManager.setDataHook((id, data) => loginWatcher.observe(id, data));
 
 function runCodexDaemonCommand(
   executable: string,
@@ -184,6 +292,20 @@ async function enableCodexRemoteForSpawn(
       symlinkSync(realHome, alias, 'dir');
     }
 
+    // --add-dir is refused next to --remote, so the writable roots move into
+    // this worker's own config.toml before the daemon reads it.
+    const { dirs } = splitCodexAddDirs(opts.args ?? []);
+    if (dirs.length > 0) {
+      const configPath = join(realHome, 'config.toml');
+      const toml = existsSync(configPath) ? readFileSync(configPath, 'utf8') : '';
+      const next = codexWritableRootsToml(toml, dirs);
+      if (next === null) {
+        console.warn('[codex-remote] config.toml sets writable_roots itself; starting local TUI');
+        return false;
+      }
+      writeFileSync(configPath, next, 'utf8');
+    }
+
     const socket = join(alias, CODEX_REMOTE_SOCKET_RELATIVE);
     const env: NodeJS.ProcessEnv = {
       ...process.env,
@@ -233,6 +355,170 @@ const ptyToAgent = new Map<string, string>();
  *  install disabled) so the freshly-installed CLI launches in the SAME pty/window —
  *  no user click. Cleared the moment it's consumed, so it can never loop installs. */
 const pendingInstallRelaunch = new Map<string, { opts: AgentSpawnOptions; owner: Electron.WebContents | null; bin: string; rung: string }>();
+/** I2 (0.5.3): a spawn that found no binary and stopped at the card. The
+ *  Install button (pty:installCli) re-runs the same spawn with `installNow`,
+ *  which is the only way the installer starts. Kept after a failed install so
+ *  Try again works; dropped once the CLI is running. */
+const pendingCliMissing = new Map<string, { opts: AgentSpawnOptions; owner: Electron.WebContents | null; state: CliMissingState }>();
+/** Tell the terminal that owns this pty to draw the card (or to draw it again
+ *  with the failure). */
+function sendCliMissing(id: string, owner: Electron.WebContents | null, state: CliMissingState): void {
+  const wc = (owner && !owner.isDestroyed()) ? owner : liveWebContents();
+  try { wc?.send(`pty:cli-missing:${id}`, state); } catch { /* window gone */ }
+}
+/** Batch 2 (0.5.3): an agent between "Install pressed" and "started". While
+ *  installing, and while the provider's login runs after a clean install, the
+ *  terminal belongs to that program: the composer and the queue hold, and the
+ *  panel above the composer says why. "Setup complete, start agent"
+ *  (pty:cliSetupStart) discards the terminal and starts the agent fresh. */
+const pendingCliSetup = new Map<string, { opts: AgentSpawnOptions; owner: Electron.WebContents | null; state: CliSetupState; poll?: ReturnType<typeof setInterval> }>();
+/** Batch 2 (founder, 24 Sep 2026: an installed Copilot that was not signed in
+ *  got no setup panel). Each agent run that started, with the spawn as it was
+ *  asked for, so the exit handler can offer the sign in panel for a run that
+ *  ended the way a signed out CLI ends, and "Setup complete, start agent" can
+ *  start the same agent again. `printMode` marks a run that answers once and
+ *  exits (Copilot -p), whose clean exit is a finished task. */
+const agentRuns = new Map<string, { opts: AgentSpawnOptions; owner: Electron.WebContents | null; provider: AgentProvider; printMode: boolean; startedAt: number }>();
+/** Batch 2 (e): while the sign in panel is up, ask the CLI's own status
+ *  command every few seconds (claude, codex, cursor only), with the agent's
+ *  spawn environment, one check at a time. A yes lights the panel; nothing
+ *  else changes it. Stops the moment the setup ends. */
+const SIGNIN_POLL_MS = 3000;
+function watchSignIn(id: string, provider: AgentProvider, binPath: string, env: Record<string, string>, cwd: string): void {
+  const entry = pendingCliSetup.get(id);
+  if (!entry || !hasSignInCheck(provider)) return;
+  let running = false;
+  entry.poll = setInterval(() => {
+    const cur = pendingCliSetup.get(id);
+    if (cur !== entry || cur.state.phase !== 'signin' || cur.state.signedIn) { clearInterval(entry.poll); return; }
+    if (running) return;
+    running = true;
+    void checkSignedIn(provider, binPath, env, cwd).then((st) => {
+      running = false;
+      if (st !== 'signed-in' || pendingCliSetup.get(id) !== entry) return;
+      entry.state = { ...entry.state, signedIn: true };
+      sendCliSetup(id, entry.owner, entry.state);
+      clearInterval(entry.poll);
+    });
+  }, SIGNIN_POLL_MS);
+}
+function endCliSetup(id: string): { opts: AgentSpawnOptions; owner: Electron.WebContents | null; state: CliSetupState } | undefined {
+  const entry = pendingCliSetup.get(id);
+  if (!entry) return undefined;
+  if (entry.poll) clearInterval(entry.poll);
+  pendingCliSetup.delete(id);
+  return entry;
+}
+/** Run the provider's login in the agent's pty, through spawnAgentCore so it
+ *  gets the agent's own env. A CLI with no login command still gets the (e)
+ *  check there; one that turns out to be signed in already starts at once. */
+function runLoginStep(id: string): void {
+  const entry = pendingCliSetup.get(id);
+  if (!entry) return;
+  const bin = entry.opts.command.trim().split(/\s+/)[0] || entry.opts.command;
+  const binPath = ptyManager.commandPath(bin) ?? bin;
+  const loginArgs = providerLoginArgs(entry.state.provider);
+  // Marked running BEFORE the spawn: a login that exits at once must still
+  // land in the exit handler's sign in branch, not in the agent teardown.
+  if (loginArgs) {
+    entry.state = { ...entry.state, login: 'running' };
+    sendCliSetup(id, entry.owner, entry.state);
+  }
+  void spawnAgentCore({
+    ...entry.opts,
+    noAutoInstall: true,
+    isolate: false,
+    resume: false,
+    loginScript: loginArgs ? buildLoginScript(binPath, loginArgs, entry.state.label, process.platform) : ''
+  }, entry.owner).then((r) => {
+    if (r.signedIn) { void startAgentAfterSetup(id); return; }
+    const cur = pendingCliSetup.get(id);
+    if (cur !== entry || !loginArgs || r.ok) return;
+    cur.state = { ...cur.state, login: 'failed' };
+    sendCliSetup(id, cur.owner, cur.state);
+  });
+}
+/** Discard the setup terminal and start the agent fresh into the same pty:
+ *  the button, and a CLI that turned out to be signed in already. */
+function startAgentAfterSetup(id: string): Promise<Awaited<ReturnType<typeof spawnAgentCore>>> | { ok: false; error: string } {
+  const setup = endCliSetup(id);
+  if (!setup) return { ok: false, error: 'nothing-to-start' };
+  loginWatcher.forget(id);
+  ptyManager.kill(id); // a login that already ended answers not-found; harmless
+  if (setup.state.login === 'running') closeLoginModal(id, setup.owner, 'failure');
+  sendCliSetup(id, setup.owner, null);
+  const wc = (setup.owner && !setup.owner.isDestroyed()) ? setup.owner : liveWebContents();
+  try { wc?.send(`pty:relaunch:${id}`); } catch { /* window gone */ }
+  const { installNow: _i, guidedSetup: _g, loginScript: _l, manualSetup: _m, ...opts } = setup.opts;
+  if (setup.state.phase === 'manual') {
+    // Batch 4: the person installed or signed in by hand, so the CLI may be
+    // somewhere the startup lookup never saw (a native installer's own bin
+    // folder, a PATH line it added to the rc files). Look again from scratch,
+    // and let a CLI that is still missing bring the card back rather than
+    // die as "process exited (code 1)".
+    ptyManager.forgetLookups();
+    return spawnAgentCore({ ...opts, noAutoInstall: false }, setup.owner);
+  }
+  return spawnAgentCore({ ...opts, noAutoInstall: true }, setup.owner);
+}
+/** Batch 4 (founder, 24 Sep 2026): "Set up manually". The install failed, or
+ *  the sign in failed or cannot be seen, so the app hands the person a
+ *  terminal: the agent's own pty and environment, with the install command
+ *  (install failed) or the CLI itself (sign in) running in it, then their own
+ *  shell. "Setup complete, start agent" is live from the start; it discards
+ *  this terminal and starts the agent. */
+function openManualSetup(id: string): { ok: boolean; error?: string } {
+  const setup = pendingCliSetup.get(id);
+  const missing = pendingCliMissing.get(id);
+  let opts: AgentSpawnOptions;
+  let owner: Electron.WebContents | null;
+  let state: CliSetupState;
+  if (setup && setupCanGoManual(setup.state)) {
+    const bin = setup.opts.command.trim().split(/\s+/)[0] || setup.opts.command;
+    const binPath = ptyManager.commandPath(bin) ?? bin;
+    const binName = bin.split('/').pop() || bin;
+    endCliSetup(id);
+    ({ opts, owner } = setup);
+    state = { phase: 'manual', provider: setup.state.provider, label: setup.state.label, loginCommand: null, manual: { reason: 'signin', command: binName } };
+    opts = { ...opts, loginScript: buildManualSetupScript({ reason: 'signin', label: state.label, binName, shown: binName, exec: binPath }, process.platform) };
+  } else if (missing && !pendingCliSetup.has(id) && missing.state.provider !== 'custom' && (missing.state.command ?? missing.state.manualCommand)) {
+    const command = (missing.state.command ?? missing.state.manualCommand) as string;
+    pendingCliMissing.delete(id);
+    ({ opts, owner } = missing);
+    state = { phase: 'manual', provider: missing.state.provider, label: missing.state.label, loginCommand: null, manual: { reason: 'install', command } };
+    opts = { ...opts, loginScript: buildManualSetupScript({ reason: 'install', label: state.label, binName: missing.state.bin, shown: command, exec: command }, process.platform) };
+  } else {
+    return { ok: false, error: 'nothing-to-set-up' };
+  }
+  loginWatcher.forget(id);
+  ptyManager.kill(id); // a login still running; an ended one answers not-found
+  pendingInstallRelaunch.delete(id);
+  // The killed login's modal goes with it (founder drill, 24 Sep: its dead
+  // code sat over the manual terminal).
+  if (setup?.state.login === 'running') closeLoginModal(id, owner, 'failure');
+  const wc = (owner && !owner.isDestroyed()) ? owner : liveWebContents();
+  // A clean grid for the manual terminal, then the panel (the reset clears
+  // any panel, so the order matters; one channel keeps it).
+  try { wc?.send(`pty:relaunch:${id}`); } catch { /* window gone */ }
+  pendingCliSetup.set(id, { opts: { ...opts, manualSetup: true }, owner, state });
+  sendCliSetup(id, owner, state);
+  void spawnAgentCore({ ...opts, manualSetup: true, noAutoInstall: true, isolate: false, resume: false }, owner).then((r) => {
+    if (!r.ok) console.error('[cli-setup] manual terminal did not start:', r.error);
+  });
+  return { ok: true };
+}
+/** Close the sign in modal a login step raised: the same "done" event the
+ *  watcher sends. A killed login never reaches the exit handler (its exit is
+ *  stale once the id is reused), so the paths that kill it close it here. */
+function closeLoginModal(id: string, owner: Electron.WebContents | null, outcome: 'success' | 'failure'): void {
+  const wc = (owner && !owner.isDestroyed()) ? owner : liveWebContents();
+  const done: LoginEvent = { done: { outcome, line: '' } };
+  try { wc?.send(`pty:login:${id}`, done); } catch { /* window gone */ }
+}
+function sendCliSetup(id: string, owner: Electron.WebContents | null, state: CliSetupState | null): void {
+  const wc = (owner && !owner.isDestroyed()) ? owner : liveWebContents();
+  try { wc?.send(`pty:cli-setup:${id}`, state); } catch { /* window gone */ }
+}
 const hive = new HiveManager(
   () => readConfig().harnessHome,
   (channel, payload) => {
@@ -300,6 +586,12 @@ function standingGoalFromRoster(agentId: string): string | null {
 // background window can't leave a worker parked on an unread inbox forever).
 // HookServer feeds it the hook stream so a permission/HITL prompt blocks nudges.
 const workerWake = new WorkerWakeWatchdog();
+// v0.4.9 phase 2 (D4): the per agent activity digest. The HookServer feeds it
+// every real hook boundary and the hive router feeds it outbox mail; each
+// record is pushed live on hive:agentActivity and the ring is read back by the
+// hive:agentActivity invoke, so a renderer reload keeps the morning.
+const activity = new ActivityDigest(() => liveWebContents());
+hive.setActivitySink((agentId, entry) => activity.record(agentId, entry));
 // HookServer needs BOTH: Oscar's control registry (HITL pause/gate/steer/halt via
 // hook returns) AND Jim's breaker (feed recordToolUse on each PostToolUse).
 const hookServer = new HookServer(
@@ -309,8 +601,16 @@ const hookServer = new HookServer(
   control,
   breaker,
   standingGoalFromRoster,
-  (agentId, event, message) => workerWake.noteHook(agentId, event, message)
+  // I2 part 2: a hook event means the CLI is working, past any sign in, so
+  // the watcher stops reading that agent's pty first (loginPastOnHook is
+  // always true); the digest stays the last argument.
+  (agentId, event, message, tool) => loginPastOnHook(agentId) && workerWake.noteHook(agentId, event, message, undefined, tool),
+  activity
 );
+function loginPastOnHook(agentId: string | undefined): true {
+  if (agentId) for (const [pty, a] of ptyToAgent) if (a === agentId) loginWatcher.pastLogin(pty);
+  return true;
+}
 const memory = new MemoryManager(
   () => readConfig().harnessHome,
   () => { const c = readConfig(); return { enabled: c.semanticMemory !== false, model: c.embeddingModel ?? 'minilm' }; }
@@ -354,9 +654,43 @@ const allWindows = new Set<BrowserWindow>();
  *  each floor's renderer state (localStorage: agents, queues, selection) is
  *  isolated from every other window's. */
 let floorSeq = 0;
+/**
+ * MD_RESTORE_SLOW_MS, DEV BUILDS ONLY (0.5.2, card
+ * v052-restore-loading-test-command): how many agent spawns this run has
+ * made, so each one waits longer than the last and the boot restore can be
+ * watched slowly on purpose. Counts every spawn, not only restores, because
+ * the gate has no way to tell them apart and neither does a person watching
+ * it. Dead in a packaged app, like MD_NO_GOD: `slowSpawnDelayMs` answers 0
+ * there whatever the environment says.
+ */
+let restoreSlowSeq = 0;
 
 /** When true, skip the quit interceptor (user already confirmed). */
 let allowQuit = false;
+/** Unsaved IDE files per window, told to us by the renderer as a COUNT, never
+ *  the text (review finding 15). The quit warning used to fire only for live
+ *  terminals, so Command Q with a dirty IDE and no agents simply quit, and the
+ *  red button on macOS closed the window, unmounted the panel and dropped every
+ *  unsaved edit without a word. */
+const ideDirtyByWindow = new IdeDirtyLedger();
+/** When a person last said "lose them", so one quit asks once: before-quit is
+ *  followed by each window's own close, and both come through here. */
+let ideLossAcceptedAt = 0;
+ipcMain.on('ide:dirty', (evt, n: unknown) => {
+  // The edits changed, so an earlier answer no longer covers them.
+  if (ideDirtyByWindow.report(evt.sender.id, n)) ideLossAcceptedAt = 0;
+});
+/** True when it is fine to go on: nothing unsaved, or the person said so. */
+function confirmLosingIdeEdits(win: BrowserWindow | null, unsaved: number): boolean {
+  if (unsaved <= 0) return true;
+  if (Date.now() - ideLossAcceptedAt < 10_000) return true;
+  const text = ideQuitWarning(unsaved);
+  const opts = { type: 'warning' as const, buttons: ['Go back', 'Lose the changes'], defaultId: 0, cancelId: 0, message: text.message, detail: text.detail };
+  const choice = win && !win.isDestroyed() ? dialog.showMessageBoxSync(win, opts) : dialog.showMessageBoxSync(opts);
+  if (choice !== 1) return false;
+  ideLossAcceptedAt = Date.now();
+  return true;
+}
 
 /** Agents spawned with `isolate: true` get a dedicated git worktree; this maps
  *  the agent/pty id → the worktree path so we can tear it down on kill. */
@@ -377,6 +711,11 @@ interface WorkerRec {
   /** Per-worker TOTAL-token cap from the spawn-request (overrides the config
    *  default). 0/undefined = no per-request cap. P4 plumbing — unlimited today. */
   tokenCap?: number;
+  /** The objective as dispatched, kept for the ledger row teardownPty writes. */
+  job: string;
+  /** Why this worker is being torn down, set by the kill site right before it
+   *  calls teardownPty. Unset means the PTY ended on its own (`exited`). */
+  result?: WorkerResult;
 }
 /** Live ephemeral workers by id. Populated by the spawn-request watcher; consulted
  *  by teardownPty so a finished/crashed/reaped worker's worktree is PRESERVED (not
@@ -421,6 +760,8 @@ interface PreservedWorktree {
  *  sweep drains this: an entry is removed (worktree + scratch GC'd) only when the
  *  work is provably integrated, or when the worktree is already gone from disk. */
 const preservedWorktrees = new Map<string, PreservedWorktree>();
+/** pty id to the branch a NORMAL agent's worktree was cut from (0.5.3). */
+const worktreeBases = new Map<string, string>();
 
 /**
  * Tear down everything tied to a PTY id: archive its hive agent, remove its
@@ -440,13 +781,29 @@ const preservedWorktrees = new Map<string, PreservedWorktree>();
  * step is wrapped so a teardown error can never crash the caller (an IPC
  * handler or node-pty's onExit).
  */
-function teardownPty(id: string): void {
+/** wtPath to the teardown still deciding its fate. A Restart pressed in that
+ *  window used to respawn the agent into a folder `git worktree remove` then
+ *  took from under it; spawnAgentCore waits on this first. */
+const worktreeFinalizing = new Map<string, Promise<unknown>>();
+
+// NO DEFAULT REASON, ON PURPOSE (shared/worktreeFate.ts has the history). A
+// default of "a person ended it" is what let three callers that are not a
+// person keep force removing uncommitted work after the fix that was meant to
+// stop it. Leaving the reason out is a compile error.
+function teardownPty(id: string, reason: TeardownReason): void {
+  loginWatcher.forget(id); ptyOwners.delete(id); // I2 part 2: nothing to read from a dead pty
   // Ephemeral-worker flag, read BEFORE the cleanup below deletes the entry. All
   // worker deaths (done-release, idle/token reap, manual stop, crash) funnel
   // through here, so this is the one place their floor card gets archived
   // (workers card via the hive:agentSpawned broadcast in processSpawnRequest).
   // pty id == worker id == agent id for workers.
   const wasWorker = liveWorkers.has(id);
+  // The Temps ledger row (workerHistory.ts), written HERE because this is the
+  // one funnel every worker death passes, and written FIRST because step 1
+  // below forgets the telemetry counter the token figure comes from. The kill
+  // site stamped `result`; no stamp means the PTY ended on its own.
+  const workerRec = liveWorkers.get(id);
+  if (workerRec) recordWorkerTeardown(workerRec);
   // 0) Revoke this id's broker capability (if any). Idempotent + harmless for a
   //    non-worker PTY; ensures a dead worker's token can never reach an integration.
   try { integrationBroker.revoke(id); } catch { /* best-effort */ }
@@ -460,6 +817,8 @@ function teardownPty(id: string): void {
     try { breaker.forget(agentId); } catch { /* best-effort */ }
     // A replacement using this id needs a new usage counter, not the dead PTY's.
     try { telemetry.forgetAgent(agentId); } catch { /* best-effort */ }
+    // Same for its activity digest: a replacement's card must not open on the dead one's morning.
+    try { activity.forget(agentId); } catch { /* best-effort */ }
     // Same reason, for the Grok ledger gate: a respawned agent's first sample
     // must be admitted rather than matched against the dead one's last row.
     try { grokLedgerGate.forget(agentId); } catch { /* best-effort */ }
@@ -474,8 +833,15 @@ function teardownPty(id: string): void {
   const wtPath = worktreePaths.get(id);
   if (wtPath) {
     const origCwd = worktreeOrigins.get(id) ?? wtPath;
-    worktreePaths.delete(id);
-    worktreeOrigins.delete(id);
+    // A restart or a revive respawns under the SAME pty id with isolate off, so
+    // nothing would ever track this folder again. Forgetting it here is what
+    // made a kept folder unremovable: a person's later Stop found no path. Keep
+    // the three entries and the folder stays this agent's.
+    const respawning = RESPAWNING.includes(reason);
+    if (!respawning) {
+      worktreePaths.delete(id);
+      worktreeOrigins.delete(id);
+    }
     // Ephemeral workers get a SAFETY-GATED teardown: never auto-remove a worktree
     // that holds unintegrated work. This sits INSIDE teardownPty so it covers ALL
     // teardown routes — a worker that finished (controller kill), crashed, or was
@@ -485,9 +851,27 @@ function teardownPty(id: string): void {
       liveWorkers.delete(id);
       void finalizeWorkerWorktree(wtPath, origCwd, worker);
     } else {
-      void removeWorktree(origCwd, wtPath)
-        .then(r => { if (!r.ok) console.error('[worktree] removeWorktree failed:', r.error); })
-        .catch(e => console.error('[worktree] removeWorktree threw:', e));
+      // 0.5.3: a normal agent's tree used to be force removed on EVERY route, a
+      // crash included, which deleted whatever it had not committed. A person
+      // ending it still removes it. A process that ended on its own keeps a
+      // dirty tree (shared/worktreeFate.ts, main/agentWorktree.ts).
+      const base = worktreeBases.get(id) ?? 'main';
+      if (!respawning) worktreeBases.delete(id);
+      const finalizing = finalizeAgentWorktree(wtPath, origCwd, base, reason)
+        .then((out) => {
+          if (out.fate === 'remove-failed') { console.error('[worktree] removeWorktree failed:', out.detail); return; }
+          if (out.fate !== 'kept' || respawning) return;
+          console.warn(`[worktree] KEPT after the agent ended on its own, uncommitted work inside: ${wtPath} (${out.detail})`);
+          informGod(
+            `[agent worktree kept] ${agentId ?? id}`,
+            `Agent ${agentId ?? id} ${reason === 'guardrail' ? 'was stopped by the circuit breaker' : reason === 'sweep' ? 'was closed with the rest of the floor' : 'ended on its own (crashed, was killed from outside, or quit)'} with UNCOMMITTED work in its worktree, so the folder was NOT removed.\n`
+            + `Worktree: ${wtPath}\nBranch: ${out.branch ?? '(unknown)'}\nState: ${out.detail}\n`
+            + `Restarting the agent brings it back in that folder. To discard it instead: git -C "${origCwd}" worktree remove --force "${wtPath}"`
+          );
+        })
+        .catch(e => console.error('[worktree] finalizeAgentWorktree threw (worktree left in place):', e))
+        .finally(() => { if (worktreeFinalizing.get(wtPath) === finalizing) worktreeFinalizing.delete(wtPath); });
+      worktreeFinalizing.set(wtPath, finalizing);
     }
   }
   // A worker whose isolation failed (non-repo cwd) has no worktree to gate above —
@@ -502,10 +886,31 @@ function teardownPty(id: string): void {
   syncKeepAwake();
 }
 
-/** Send an inform to the god agent (the human's proxy). The ephemeral-worker
- *  controller uses this to surface every terminal failure AND to carry the Slack
- *  {channel,thread_ts} so god can post a 'couldn't complete' reply — closing the
- *  Slack loop (the success path is the worker replying in-thread itself). */
+/** One ledger row per worker teardown, then a poke so the Temps screen
+ *  re-reads. Best-effort: the ledger must never fail the teardown. */
+function recordWorkerTeardown(rec: WorkerRec): void {
+  try {
+    const cfg = readConfig();
+    const defaultCap = typeof cfg.defaultWorkerTokenCap === 'number' && cfg.defaultWorkerTokenCap > 0 ? cfg.defaultWorkerTokenCap : 0;
+    const effCap = (rec.tokenCap && rec.tokenCap > 0) ? rec.tokenCap : defaultCap;
+    appendWorkerHistory({
+      workerId: rec.workerId, reqId: rec.reqId, name: rec.name ?? rec.workerId, job: rec.job,
+      baseBranch: rec.baseBranch, hasSlack: !!rec.slack, spawnedAt: rec.spawnedAt,
+      tokensUsed: workerTokensUsed(rec.workerId), tokenCap: effCap > 0 ? effCap : null,
+      result: rec.result ?? 'exited'
+    });
+  } catch (e) { console.error('[worker] history append failed:', e); }
+  notifyWorkerHistoryUpdated();
+}
+function notifyWorkerHistoryUpdated(): void {
+  try { liveWebContents()?.send('workers:historyUpdated'); } catch { /* window gone */ }
+}
+
+/** Send an inform to the god agent (the human's proxy). The temp controller uses
+ *  this to surface every terminal failure AND to carry the Slack {channel,thread_ts}
+ *  so god can post a 'couldn't complete' reply, closing the Slack loop (the success
+ *  path is the temp replying in the thread itself). The sender is "temps": the
+ *  harness speaking for a temp, never the temp's own id. */
 function informGod(subject: string, body: string, slack?: { channel: string; thread_ts: string }): void {
   try {
     const slackLine = slack
@@ -515,7 +920,7 @@ function informGod(subject: string, body: string, slack?: { channel: string; thr
       // whole reply command was dead on Windows).
       ? `\n\n[SLACK] Close the loop — post a reply to channel ${slack.channel} thread ${slack.thread_ts} via:\n  "${hive.nodeCommand()}" "${slackReplyScriptPath()}" --channel ${slack.channel} --thread ${slack.thread_ts} --text "<your message>"`
       : '';
-    hive.send({ to: 'god', act: 'inform', subject, body: body + slackLine }, 'ephemeral-worker');
+    hive.send({ to: 'god', act: 'inform', subject, body: body + slackLine }, 'temps');
   } catch (e) {
     console.error('[worker] informGod failed:', e);
   }
@@ -538,6 +943,7 @@ async function finalizeWorkerWorktree(wtPath: string, origCwd: string, worker: W
         workerId: worker.workerId, wtPath, origCwd, baseBranch: worker.baseBranch,
         scratchDir: workerScratchDir(worker.workerId), slack: worker.slack, preservedAt: Date.now()
       });
+      try { setWorkerHistoryWorktree(worker.workerId, 'preserved'); notifyWorkerHistoryUpdated(); } catch { /* ledger is best-effort */ }
       informGod(
         `[worker worktree preserved] ${worker.workerId}`,
         `Ephemeral worker ${worker.workerId} ended but its worktree holds unintegrated work, so it was NOT auto-removed (you are the sole integrator).\n`
@@ -549,6 +955,7 @@ async function finalizeWorkerWorktree(wtPath: string, origCwd: string, worker: W
     }
     const r = await removeWorktree(origCwd, wtPath);
     if (!r.ok) { console.error('[worker] removeWorktree failed:', r.error); return; }
+    try { setWorkerHistoryWorktree(worker.workerId, 'removed'); notifyWorkerHistoryUpdated(); } catch { /* ledger is best-effort */ }
     // Worktree is gone (clean/integrated at teardown), but DEFER its scratch-dir
     // cleanup to the throttled GC sweep rather than deleting it synchronously here:
     // HIVE_ROOT/agents/<id> holds the worker's memory.md and the MemPalace miner
@@ -609,26 +1016,129 @@ ptyManager.setExitHandler((id, exitCode, info) => {
     }
   } catch (e) { console.error('[pty] recordAgentExit failed:', e); }
 
+  // Batch 2: the login step's own process ended. Exit 0 means the sign in
+  // finished and Start may be pressed; anything else offers Sign in again.
+  // Not an agent, so nothing below (archive, teardown, run ended) applies.
+  const inSetup = pendingCliSetup.get(id);
+  // Batch 4: the manual terminal's shell ended (the person typed exit). The
+  // panel stays: they may still press Start, which is what they came for.
+  if (inSetup && inSetup.state.phase === 'manual') return;
+  if (inSetup && inSetup.state.phase === 'signin' && inSetup.state.login === 'running') {
+    inSetup.state = { ...inSetup.state, login: exitCode === 0 ? 'done' : 'failed' };
+    sendCliSetup(id, inSetup.owner, inSetup.state);
+    loginWatcher.forget(id);
+    // The sign in modal must not outlive the login it came from: its link is
+    // dead once the process is gone.
+    closeLoginModal(id, inSetup.owner, exitCode === 0 ? 'success' : 'failure');
+    return;
+  }
   const pending = pendingInstallRelaunch.get(id);
   if (pending) {
     pendingInstallRelaunch.delete(id);
     // Activation funnel: did the auto-installer actually complete? A non-zero exit
     // is the Linux-installer-cannot-finish-unattended signal that used to be silent.
     const provider = pending.opts.provider ?? inferAgentProvider(pending.opts.command, undefined);
-    if (exitCode === 0) {
+    // A zero exit is only half the proof: the binary must now resolve too (an
+    // install into a prefix that is not on PATH, or a Windows installer whose
+    // script cannot carry its exit code, both end at 0 with no CLI).
+    // A native installer (kimi, grok) puts its binary in its own folder and
+    // adds that to the rc files, which the PATH read at app start never saw:
+    // look again from scratch before deciding (batch 4).
+    if (exitCode === 0) ptyManager.forgetLookups();
+    if (exitCode === 0 && ptyManager.isCommandAvailable(pending.bin)) {
       analytics.track('agent_install_finished', { provider, rung: pending.rung, outcome: 'agent_launched' });
-      // Re-arm the renderer's pooled terminal (clear the "process exited" line +
-      // re-enable input) so the freshly-spawned CLI paints onto a clean, typeable
-      // grid, then re-run the normal spawn — which now finds the installed binary.
-      const wc = (pending.owner && !pending.owner.isDestroyed()) ? pending.owner : liveWebContents();
-      try { wc?.send(`pty:relaunch:${id}`); } catch { /* window gone */ }
-      void spawnAgentCore({ ...pending.opts, noAutoInstall: true }, pending.owner);
+      pendingCliMissing.delete(id); // the card's job is done (I2)
+      if (!pending.opts.guidedSetup) {
+        // Nobody pressed Install (a god dispatched worker, a voice hire), so
+        // nobody is there to sign in or press start: re-arm the grid and start
+        // the agent at once, as before batch 2.
+        const wc = (pending.owner && !pending.owner.isDestroyed()) ? pending.owner : liveWebContents();
+        try { wc?.send(`pty:relaunch:${id}`); } catch { /* window gone */ }
+        void spawnAgentCore({ ...pending.opts, noAutoInstall: true }, pending.owner);
+        return;
+      }
+      // Batch 2 (founder, 24 Sep 2026): no automatic start. The install output
+      // stays on the grid, the provider's own login runs under it in this same
+      // terminal, and the agent starts only when the person presses "Setup
+      // complete, start agent". The old relaunch cleared the installer's output
+      // the moment it ended, and a CLI that was not signed in then failed or,
+      // in Copilot's silent print mode, showed nothing at all.
+      const state: CliSetupState = { phase: 'signin', provider, label: installInfoForProvider(provider).label, loginCommand: loginCommandLine(pending.bin, provider) };
+      pendingCliSetup.set(id, { opts: pending.opts, owner: pending.owner, state });
+      sendCliSetup(id, pending.owner, state);
+      runLoginStep(id);
       return; // an install PTY has no agent/worktree to tear down
     }
-    // Non-zero exit = install failed; leave its honest manual-fix message on screen.
+    // Non-zero exit = install failed. The installer's own last lines stay on the
+    // grid, and the card comes back over them with Try again (I2): the spawn is
+    // kept so the button re-runs the same install, nothing is typed by hand.
     analytics.track('agent_install_finished', { provider, rung: pending.rung, outcome: 'install_failed' });
+    endCliSetup(id);
+    sendCliSetup(id, pending.owner, null);
+    const paused = pendingCliMissing.get(id);
+    if (paused) {
+      paused.state = { ...paused.state, failed: { exitCode: exitCode || 1, tail: installerTail(info?.tail) } };
+      sendCliMissing(id, pending.owner, paused.state);
+    }
+    return;
   }
-  teardownPty(id);
+  /* `agent_run_ended` (0.5.1, Ryan's spec). Read BEFORE teardownPty drops the
+     pty->agent mapping, and only for an agent PTY: an installer PTY (above)
+     never maps to an agent, so an install exit is agent_install_finished and
+     not a run. From `info`, ONLY `signal` and `startedAt` are read. `tail` is
+     raw terminal output, `command` a command line and `cwd` a path, and none
+     of them may reach telemetry (TELEMETRY.md); the duration is a coarse
+     bucket, never raw ms. `provider` is the registry's, the same value
+     agent_spawned carried. */
+  // 0.5.3 feature 18: tell the floor. Until now a death reached the renderer only
+  // as a per terminal `pty:exit:<id>` event, which nothing hears unless that
+  // agent's terminal has been opened, so a worker nobody was looking at died in
+  // silence. AFTER the installer branch above (a relaunch is not a death) and
+  // BEFORE teardownPty drops the pty to agent mapping. A deliberate kill never
+  // reaches this handler, so everything sent here ended on its own.
+  // Batch 2: was this an installed CLI that could not sign in? Read before the
+  // teardown (which drops the mapping). Only for a person's agent: a god
+  // dispatched worker has nobody to press Sign in, and the orchestrator has
+  // its own restart. Nothing is restarted here; the panel waits for a person.
+  const run = agentRuns.get(id);
+  agentRuns.delete(id);
+  let signInOffer: { line: string | null } | null = null;
+  if (run && ptyToAgent.has(id) && !run.opts.hive?.isGod && !liveWorkers.has(id)) {
+    const o = offerSignInAfterExit({ provider: run.provider, exitCode: exitCode ?? 0, signal: info?.signal, ranMs: Date.now() - run.startedAt, tail: info?.tail ?? '' });
+    if (o.offer) signInOffer = { line: o.line };
+  }
+  try {
+    const goneAgent = ptyToAgent.get(id);
+    // printMode: a clean exit of a print mode run is "Finished its task".
+    if (goneAgent) liveWebContents()?.send('hive:agentExited', { agentId: goneAgent, exitCode, signal: info?.signal, ...(run?.printMode ? { printMode: true } : {}) });
+  } catch { /* window torn down */ }
+  try {
+    const endedAgent = ptyToAgent.get(id);
+    const startedAt = info?.startedAt;
+    if (endedAgent && typeof startedAt === 'number') {
+      const provider = inferAgentProvider(undefined, hive.registry().agents[endedAgent]?.provider);
+      analytics.track('agent_run_ended', {
+        provider,
+        duration_bucket: runDurationBucket(Date.now() - startedAt),
+        ended_reason: runEndReason(exitCode, info?.signal)
+      });
+    }
+  } catch (e) { console.error('[pty] agent_run_ended failed:', e); }
+  // The ONE caller where nobody chose this: the process ended on its own. A
+  // run offered the sign in panel is about to start again in the same folder,
+  // so its worktree is kept and still tracked, as for a revive.
+  if (signInOffer) teardownPty(id, 'revive');
+  else teardownPty(id, 'exit');
+  if (signInOffer && run) {
+    const bin = run.opts.command.trim().split(/\s+/)[0] || run.opts.command;
+    const state: CliSetupState = {
+      phase: 'signin', provider: run.provider, label: installInfoForProvider(run.provider).label,
+      loginCommand: loginCommandLine(bin, run.provider), cause: 'exit',
+      ...(signInOffer.line ? { authLine: signInOffer.line } : {})
+    };
+    pendingCliSetup.set(id, { opts: run.opts, owner: run.owner, state });
+    sendCliSetup(id, run.owner, state);
+  }
 });
 
 /** Keep the system from suspending the harness while agents are running.
@@ -1236,7 +1746,11 @@ function runBreakerBeat(progressWindowMs: number): void {
     // (it was already being written to the cost ledger one line above). Same id,
     // same liveness gate; recordSession writes only on change, so this is a
     // no-op once the hooks are flowing.
-    if (sample?.sessionId) hive.recordSession(id, sample.sessionId);
+    // 0.5.3 bug 1: but NOT a sample that proves no conversation. The "most recent
+    // live session" under an agent's id is also any child process that inherited
+    // its telemetry environment, and one of those, zero tokens and no transcript
+    // on disk, sat in a live registry as the resume key for two days.
+    if (sample?.sessionId && sampleProvesConversation(sample)) hive.recordSession(id, sample.sessionId);
     if (id === reg.godId) continue;            // breaker skips god
     // Progress = fresh coordination files OR a recent OTel tool span. The span
     // leg closes the background-work blind spot: subagent/Workflow tool calls
@@ -1270,7 +1784,9 @@ function runBreakerBeat(progressWindowMs: number): void {
       breakerToast(`${name} constrained`, reason);
     } else if (d.action === 'stop') {
       const ptyId = ptyForAgent(d.state.agentId);
-      if (ptyId) { try { ptyManager.kill(ptyId); } catch { /* already gone */ } teardownPty(ptyId); }
+      // A guardrail, not a person: nobody is at the keyboard, and an agent that is
+      // looping or over budget is the likeliest of all to be halfway through an edit.
+      if (ptyId) { try { ptyManager.kill(ptyId); } catch { /* already gone */ } teardownPty(ptyId, 'guardrail'); }
       breakerToast(`${name} stopped by circuit breaker`, reason);
     }
   }
@@ -1387,6 +1903,10 @@ let slackReplyServer: SlackReplyServer | null = null;
 /** Last public tunnel URL handed out — persisted so Settings can re-show the
  *  Request URL after a reopen (Slack reuses it until the server is stopped). */
 let lastSlackUrl: string | undefined;
+/** 0.4.11: the other two ways Slack reaches the office. One at a time, so at
+ *  most one of `slackServer`, `slackPoller`, `slackSocket` is ever set. */
+let slackPoller: SlackPoller | null = null;
+let slackSocket: SlackSocketClient | null = null;
 
 /** AUTONOMOUS REQUEST PROTOCOL — built PER MESSAGE (not a static const) so it can
  *  embed the request's concrete `channel`, `thread_ts`, and the resolved helper
@@ -1398,15 +1918,33 @@ let lastSlackUrl: string | undefined;
  *  only — the human-facing kanban card TITLE stays the user's raw text (the
  *  renderer keeps them split). Trailing space is intentional so the user's message
  *  reads naturally after it. */
-function buildAutonomousRequestProtocol(channel: string, threadTs: string, helperPath: string): string {
-  return `[AUTONOMOUS REQUEST PROTOCOL — this request arrived via Slack; no interactive human is watching] Handle it under this protocol:
-1. ROUTE FAST — triage and hand this to the single most-relevant agent right away. CHECK THE LIVE ROSTER FIRST (active agents in registry.json + their state in fleet.json) and prefer an EXISTING agent that fits — especially when the request names one ("ask Pam…", "have Jim…"): route to that agent and only spawn a new one if none is a sensible fit. Decompose only if it genuinely needs several. Don't sit on it.
-2. DELEGATE WITH THE REPLY HANDLE — tell that agent to do the work autonomously AND to post its result back to THIS Slack thread itself when done, using exactly: "${hive.nodeCommand()}" "${helperPath}" --channel ${channel} --thread ${threadTs} --text "<substantive result>" (that first path is the harness's bundled Node, already resolved for this machine — pass it verbatim; bare "node" is not on the hook/agent PATH on many machines.)
-3. AUTONOMOUS EXECUTION — no interactive questions. PAUSE/ask ONLY for high-severity actions: pushing to main or any remote; buying or spawning infrastructure or paid services; deleting an existing repo, file, or folder it did not create. Stay READ-ONLY at critical infrastructure and git-push-type changes unless explicitly approved.
-4. DIRECT, SUBSTANTIVE REPLY — the agent posts a real Slack-mrkdwn answer (short *bold* headline + the actual outcome/specifics/links), NEVER a bare "done"/":white_check_mark:".
-5. REPORT TO GOD — the agent then tells you (Michael) what it did.
-6. ASYNC QUESTIONS — if a decision is genuinely needed, don't block: post the question + numbered OPTIONS to the thread via that reply command, and record {q, options, askedAt (ISO + day & time), thread_ts ${threadTs}} so the threaded human reply correlates back and resumes.
-The user's message starts now: `;
+/** The autonomy rules that ride in front of a Slack request. Two readers: god,
+ *  who triages it (the renderer queue), and a temp the harness started for it
+ *  (the dispatch prefix). 0.4.11: one short numbered text per reader. The old
+ *  single text told a temp that "the agent then tells you (Michael)". */
+function buildAutonomousRequestProtocol(channel: string, threadTs: string, helperPath: string, reader: 'god' | 'temp' = 'god'): string {
+  // The bundled Node, spelled as an absolute path: bare "node" is not on the
+  // hook or agent PATH on many machines, and $VAR forms are dead on Windows.
+  const reply = `"${hive.nodeCommand()}" "${helperPath}" --channel ${channel} --thread ${threadTs} --text "<your reply>"`;
+  const verbatim = '(that first path is the harness\'s bundled Node, already resolved for this machine; pass it verbatim)';
+  const pause = 'Pause only for a high severity action: pushing to main or any remote, buying or provisioning anything paid, deleting a repo, file or folder you did not create.';
+  const mrkdwn = 'A reply is Slack mrkdwn with substance: a short *bold* headline plus the outcome, specifics and links, never a bare "done".';
+  if (reader === 'temp') {
+    return `[SLACK JOB] You are a temp. This job arrived from Slack and no human is watching in the app.
+1. Do it autonomously; no interactive questions. ${pause}
+2. When done, post your result to the thread yourself with exactly: ${reply} ${verbatim}. ${mrkdwn}
+3. Then send god ONE outbox message with "act":"done" and a short summary; that releases you.
+4. If you need a decision, post the question with numbered options to the thread via that command and record {q, options, askedAt (ISO), thread_ts ${threadTs}}; god picks up the human's threaded reply.
+The job: `;
+  }
+  return `[SLACK REQUEST] This arrived from Slack and no human is watching in the app.
+1. ROUTE FAST. Check the live roster (registry.json, fleet.json) and hand it to the one agent that fits, above all the one it names ("ask Pam..."); start a temp only if nobody fits. Split it only if it truly needs several people. Do not sit on it.
+2. DELEGATE WITH THE REPLY COMMAND. Tell that agent to do the work autonomously and to post its own result to this thread with exactly: ${reply} ${verbatim}.
+3. NO INTERACTIVE QUESTIONS. ${pause}
+4. ${mrkdwn}
+5. The agent reports back to you when done.
+6. If a decision is needed, do not block: post the question with numbered options to the thread via that command and record {q, options, askedAt (ISO), thread_ts ${threadTs}} so the human's threaded reply resumes it.
+The message: `;
 }
 
 // ─── Slack done-notifier (Slack-origin task → done → one summary reply) ───────
@@ -1590,7 +2128,7 @@ const TERMINAL_SLACK_ERRORS = new Set<string>([
  *  result/description (falling back to the title), trimmed Slack-friendly. */
 function slackDoneSummary(task: HiveTask): string {
   const body = (task.result ?? task.description ?? '').trim();
-  const head = `:white_check_mark: *${task.title}*`;
+  const head = `:white_check_mark: *${/^[A-Z][A-Z0-9]{2}-\d+$/.test(task.id) ? `${task.id} ` : ''}${task.title}*`;
   const text = body ? `${head}\n\n${body}` : head;
   return text.length > 2800 ? `${text.slice(0, 2799)}…` : text;
 }
@@ -1688,31 +2226,21 @@ async function startSlackServer(): Promise<{ ok: boolean; url?: string; error?: 
     // Fires from the HTTP server's event loop (not the IPC thread); route through
     // liveWebContents() so a message arriving during window teardown can't throw.
     // Downloads any file attachments (bot token stays in main; local paths go to IPC).
-    onMessage: async (m) => {
-      const localFiles = await downloadSlackFiles(
-        m._rawFiles ?? [],
-        readConfig().slackBotToken
-      );
-      // `text` stays the user's RAW Slack text → drives the readable kanban card
-      // title. `autonomyPreamble` is the authoritative policy block the renderer
-      // prepends ONLY to god's working instruction (his PTY prompt), keeping the
-      // card title human-facing-clean. Built PER MESSAGE so the AUTONOMOUS REQUEST
-      // PROTOCOL carries THIS request's concrete channel, thread_ts, and the
-      // resolved helper path — god hands the worker an exact reply command.
-      // Server-side so it applies to every session.
-      const ipcMsg: { text: string; channel: string; ts: string; thread_ts: string; autonomyPreamble: string; files?: typeof localFiles } = {
-        text: m.text, channel: m.channel, ts: m.ts, thread_ts: m.thread_ts,
-        autonomyPreamble: buildAutonomousRequestProtocol(m.channel, m.thread_ts, slackReplyScriptPath())
-      };
-      if (localFiles.length > 0) ipcMsg.files = localFiles;
-      try { liveWebContents()?.send('slack:incomingMessage', ipcMsg); }
-      catch { /* window torn down */ }
-    }
+    // 0.4.11: the webhook is one of three ways in, and all three land on the
+    // same door, which hands the request to a temp instead of Michael's queue.
+    onMessage: (m) => onSlackTransportMessage(m)
   });
   const res = await slackServer.start();
-  // ok:false means we never bound the port → drop the instance. ok:true with no
-  // url just means the tunnel is unavailable; the local handler is still live.
-  if (!res.ok) { slackServer = null; return res; }
+  // 0.5.3, bug 11: a taken port is no longer fatal, the server moves to a free
+  // one and the tunnel follows. Say so once, so a log explains a port nobody set.
+  if (res.movedFrom !== undefined) console.warn(`[slack] port ${res.movedFrom} was in use (an older Munder Difflin may still be running); listening on ${res.port} instead`);
+  // A SECOND WAY TO THE SAME ERROR, found reading this for bug 11. start() also
+  // answers ok:false when the port bound fine and only the TUNNEL failed
+  // (offline, tunnelmole down). This line used to drop the instance without
+  // stopping it, so the server nobody held any more kept the port, and every
+  // later Turn on in this session failed with EADDRINUSE until the app was
+  // restarted. Stop it before letting go of it.
+  if (!res.ok) { slackServer.stop(); slackServer = null; return res; }
   if (res.url) lastSlackUrl = res.url;
   // Bring up the loopback reply endpoint (token-gated, never tunneled) and drop
   // the discovery file for the bundled helper. Best-effort: reply path being
@@ -1762,6 +2290,281 @@ function stopSlackServer(): void {
   try { if (existsSync(slackReplyConfigPath())) unlinkSync(slackReplyConfigPath()); } catch { /* noop */ }
 }
 
+// ─── Slack, the three ways (0.4.11) ──────────────────────────────────────────
+// Founder, 6 Sep 2026: "instead of relying on webhooks they can just rely on
+// polling", then Socket Mode as a second way, webhooks kept as the third, one
+// at a time. Every way lands on the same door, onSlackTransportMessage. Who
+// answers is the ONE responder setting (0.5.2, founder ruling, Option A,
+// config.responder, @shared/responder), shared with the teammate channel: the
+// orchestrator unless the person pointed it at an agent that is running. The
+// 0.4.11 temps route (a temp hired per request, slackInbound.ts) no longer
+// has a branch choosing it; the module stays for a later ruling.
+
+/** Where the poller keeps its cursor and hot threads. Under userData, never in
+ *  the hive repo, never a token. Shared by the polling and the socket way. */
+function slackPollStatePath(): string {
+  return join(app.getPath('userData'), 'slack-poll.json');
+}
+
+/** The gated "received" post, the same words on both routes. */
+const SLACK_RECEIVED_TEXT = ':hourglass_flowing_sand: *Received.* The office is on it and will reply here when done.';
+
+/** The one door: attachments down, ledger row, then whoever handles it. */
+async function onSlackTransportMessage(m: SlackInboundMessage): Promise<void> {
+  const localFiles = await downloadSlackFiles(m._rawFiles ?? [], readConfig().slackBotToken);
+  appendSlackHistory({ direction: 'inbound', channel: m.channel, thread_ts: m.thread_ts, text: m.text, ok: true });
+  notifySlackHistoryUpdated();
+  // ONE route (0.5.2, founder ruling, Option A). The text lands in the
+  // renderer's queue with the autonomous request protocol ahead of it and the
+  // card gets the thread, exactly as the orchestrator's route always did. WHO
+  // takes it is the responder setting, sent along as the configured id: the
+  // renderer resolves it against the agents that are actually running and
+  // falls back to the orchestrator (@shared/responder), the same rule the
+  // teams bridge applies to a teammate's message. The gated "received" post
+  // is main's.
+  const cfg = readConfig();
+  const ipcMsg: { text: string; channel: string; ts: string; thread_ts: string; responder: string; autonomyPreamble: string; files?: typeof localFiles } = {
+    text: m.text, channel: m.channel, ts: m.ts, thread_ts: m.thread_ts,
+    responder: cfg.responder ?? '',
+    autonomyPreamble: buildAutonomousRequestProtocol(m.channel, m.thread_ts, slackReplyScriptPath())
+  };
+  if (localFiles.length > 0) ipcMsg.files = localFiles;
+  try { liveWebContents()?.send('slack:incomingMessage', ipcMsg); } catch { /* window torn down */ }
+  if (cfg.slackProactivePosting && cfg.slackBotToken) {
+    void postSlackReply({ botToken: cfg.slackBotToken, channel: m.channel, thread_ts: m.thread_ts, text: SLACK_RECEIVED_TEXT });
+  }
+}
+
+/** The folder a Slack temp opens: the saved one, else the newest agent's, else
+ *  the workspace. A temp needs a real folder; a git repo also gets a worktree. */
+function resolveSlackTempCwd(): string {
+  const cfg = readConfig();
+  const saved = typeof cfg.slackTempCwd === 'string' && cfg.slackTempCwd.trim() ? expandTilde(cfg.slackTempCwd.trim()) : '';
+  if (saved && existsSync(saved)) return saved;
+  try {
+    // The registry is keyed by id in registration order, so the last entry is
+    // the newest hire.
+    const agents = Object.values(hive.registry().agents);
+    for (let i = agents.length - 1; i >= 0; i -= 1) {
+      const a = agents[i];
+      if (a.isGod || a.archived || !a.cwd || !existsSync(a.cwd)) continue;
+      return a.cwd;
+    }
+  } catch { /* no registry yet */ }
+  return cfg.harnessHome && existsSync(cfg.harnessHome) ? cfg.harnessHome : app.getPath('home');
+}
+
+function slackInboundDeps(): Parameters<typeof handleInboundSlack>[1] {
+  return {
+    spawnRequestsDir: () => {
+      const dir = spawnRequestsDir();
+      if (dir) { try { mkdirSync(dir, { recursive: true }); } catch { /* the watcher makes it too */ } }
+      return dir;
+    },
+    liveThreadOwner: liveSlackThreadOwner,
+    threadSoFar: async (channel, thread_ts) => {
+      const token = readConfig().slackBotToken;
+      if (!token) return [];
+      try { return await fetchThread(token, channel, thread_ts); } catch { return []; }
+    },
+    tempCwd: resolveSlackTempCwd,
+    replyCommand: (channel, thread_ts) =>
+      `"${hive.nodeCommand()}" "${slackReplyScriptPath()}" --channel ${channel} --thread ${thread_ts} --text "<substantive result>"`,
+    hive,
+    // The "received" post stays behind the gate the renderer's post used to be
+    // behind (CLAUSE-3, "stop posting into Slack by default"): off unless opted in.
+    ack: readConfig().slackProactivePosting
+      ? async (m) => {
+        const token = readConfig().slackBotToken;
+        if (!token) return;
+        await postSlackReply({ botToken: token, channel: m.channel, thread_ts: m.thread_ts, text: SLACK_RECEIVED_TEXT });
+      }
+      : undefined,
+    informGod
+  };
+}
+
+/**
+ * Which way is chosen and what it still lacks, before anything starts.
+ *
+ * ONLY POLLING NEEDS A CHANNEL (7 Sep 2026). Polling asks Slack for one named
+ * channel's history on a timer, so without an id it has nothing to ask about.
+ * The socket is pushed every event the app is subscribed to and each one CARRIES
+ * its channel, so a channel id here was a field the transport never read: it
+ * refused to start over an answer it was going to ignore. The webhook was
+ * already exempt for the same reason.
+ */
+function slackReadiness(cfg: HarnessConfig): { mode: SlackMode; error?: string } {
+  const mode = resolveSlackMode(cfg);
+  if (!cfg.slackEnabled) return { mode, error: 'slack disabled' };
+  if (mode === 'webhook') return cfg.slackSigningSecret ? { mode } : { mode, error: 'missing signing secret' };
+  if (!cfg.slackBotToken) return { mode, error: 'missing bot token' };
+  if (mode === 'socket') return cfg.slackAppToken ? { mode } : { mode, error: 'missing app token' };
+  if (!cfg.slackChannelId?.trim()) return { mode, error: 'missing channel' };
+  return { mode };
+}
+
+/** One Slack line to BOTH console and hive/log.jsonl, best effort.
+ *
+ *  6 Sep 2026, card slack-bridge-never-starts: the founder's correctly-enabled
+ *  install refused to start over a missing channel and left NO trace anywhere
+ *  a person can look. Every console.log in a packaged app goes to a stderr
+ *  nobody reads, and nothing on the Slack path wrote to log.jsonl, so an hour
+ *  went into proving a negative. Every start attempt, refusal, failure and
+ *  stop now lands in the log a person (and god) actually reads. */
+function slackLog(event: string, detail?: Record<string, unknown>): void {
+  console.log(`[slack] ${event}`, detail ? JSON.stringify(detail) : '');
+  try { hive.appendLog({ kind: 'slack', event, ...detail }); } catch { /* hive not bootstrapped yet */ }
+}
+
+/** Start the chosen way, and only it. Whatever was running stops first. */
+async function startSlackIngestion(): Promise<{ ok: boolean; url?: string; error?: string }> {
+  const cfg = readConfig();
+  const ready = slackReadiness(cfg);
+  slackLog('start-attempt', { mode: ready.mode });
+  if (ready.error) {
+    // The silent path that cost the founder his morning: enabled, tokens
+    // saved, and the one missing field refused here without a word.
+    slackLog('refused', { mode: ready.mode, error: ready.error });
+    return { ok: false, error: ready.error };
+  }
+  stopSlackIngestion();
+  if (ready.mode === 'webhook') {
+    const r = await startSlackServer();
+    slackLog(r.ok ? 'started' : 'failed', { mode: ready.mode, ...(r.ok ? {} : { error: r.error ?? 'unknown' }) });
+    return r;
+  }
+  const common = {
+    botToken: cfg.slackBotToken as string,
+    // Optional now: readiness only insists on a channel for polling, so this
+    // can legitimately be empty on the socket. Do not assert the string.
+    channelId: (cfg.slackChannelId ?? '').trim(),
+    stateFile: slackPollStatePath(),
+    onMessage: onSlackTransportMessage,
+    // The transports speak on failures, stops and rate limits, not per poll,
+    // so mirroring them into log.jsonl is cheap and makes a dying bridge
+    // visible after the fact.
+    log: (line: string) => slackLog('transport', { line })
+  };
+  let res: { ok: boolean; error?: string };
+  if (ready.mode === 'polling') {
+    slackPoller = new SlackPoller({ ...common, intervalMs: resolvePollSeconds(cfg.slackPollSeconds) * 1000 });
+    res = await slackPoller.start();
+    if (!res.ok) { slackPoller.stop(); slackPoller = null; slackLog('failed', { mode: ready.mode, error: res.error ?? 'unknown' }); return res; }
+  } else {
+    slackSocket = new SlackSocketClient({ ...common, appToken: cfg.slackAppToken as string, catchupMs: resolveCatchupSeconds(cfg.slackSocketCatchupSeconds) * 1000 });
+    res = await slackSocket.start();
+    if (!res.ok) { slackSocket.stop(); slackSocket = null; slackLog('failed', { mode: ready.mode, error: res.error ?? 'unknown' }); return res; }
+  }
+  // The reply endpoint for the temps' helper and the done poller run in every
+  // way; the webhook branch above starts them inside startSlackServer.
+  await startSlackReplyServer();
+  startSlackDoneObserver();
+  analytics.trackFeature('slack_trigger');
+  slackLog('started', { mode: ready.mode });
+  return res;
+}
+
+/** Stop every way. Safe when nothing runs. */
+function stopSlackIngestion(): void {
+  const wasRunning = slackPoller != null || slackSocket != null || slackServer != null;
+  try { slackPoller?.stop(); } catch (e) { console.error('[slack] poller stop failed:', e); }
+  slackPoller = null;
+  try { slackSocket?.stop(); } catch (e) { console.error('[slack] socket stop failed:', e); }
+  slackSocket = null;
+  stopSlackServer();
+  if (wasRunning) slackLog('stopped');
+}
+
+/** What Settings and the Inbox draw. Fields a way does not have are absent. */
+function slackStatusNow(): SlackStatus {
+  const cfg = readConfig();
+  const mode = resolveSlackMode(cfg);
+  const tempsLive = [...liveWorkers.values()].filter((w) => !!w.slack).length;
+  if (slackPoller) {
+    const s = slackPoller.status();
+    return { running: s.running, mode, team: s.team, botName: s.botName, lastPollAt: s.lastPollAt, nextPollAt: s.nextPollAt, lastError: s.lastError, hotThreads: s.hotThreads, tempsLive };
+  }
+  if (slackSocket) {
+    const s = slackSocket.status();
+    return { running: s.running, mode, team: s.team, botName: s.botName, socketConnectedAt: s.connected ? s.connectedAt : undefined, lastCatchupAt: s.lastCatchupAt, lastError: s.lastError, hotThreads: s.hotThreads, tempsLive };
+  }
+  // Nothing runs: say WHY it cannot start, so a surface drawing this status
+  // can name the missing field instead of a silent Off (the founder's morning,
+  // 6 Sep 2026: enabled with no channel looked exactly like healthy-but-quiet).
+  return { running: slackServer != null, mode, url: lastSlackUrl, ...(slackServer?.boundPort() ?? {}), tempsLive, configError: slackReadiness(cfg).error };
+}
+
+/**
+ * Test the connection, starting nothing and saving nothing.
+ *
+ * This is the ONE control that is allowed to run on an incomplete config,
+ * because it exists to say what is incomplete. It is deliberately not gated on
+ * `slackReadiness`: gating the diagnostic on the fault it diagnoses left the
+ * founder on a screen that said Not connected and offered nothing to press
+ * (7 Sep 2026). Whatever it can check it checks, and it names what it could not
+ * reach rather than refusing at the door.
+ *
+ * `draft` is what is on screen. Testing the field you just pasted, rather than
+ * whatever was last written to disk, is the difference between a diagnostic and
+ * a save with extra steps.
+ *
+ * It also fetches the channel list, so the same press that proves the token
+ * works is the one that removes the channel question entirely.
+ */
+async function slackTestNow(draft?: SlackTestDraft): Promise<SlackTestResult> {
+  const cfg = readConfig();
+  const mode = draft?.mode ?? resolveSlackMode(cfg);
+  const botToken = (draft?.botToken ?? cfg.slackBotToken ?? '').trim();
+  const appToken = (draft?.appToken ?? cfg.slackAppToken ?? '').trim();
+  const signingSecret = (draft?.signingSecret ?? cfg.slackSigningSecret ?? '').trim();
+
+  // What the chosen way still lacks, in the form's own words and its own order.
+  // Filled in first so an early return still carries it.
+  const missing: string[] = [];
+  if (mode === 'webhook' && !signingSecret) missing.push('signing secret');
+  if (mode !== 'webhook' && !botToken) missing.push('bot token');
+  if (mode === 'socket' && !appToken) missing.push('app token');
+
+  const out: SlackTestResult = { ok: false, ...(missing.length ? { missing } : {}) };
+
+  if (!botToken) {
+    // The webhook can be configured with no bot token at all (it only needs the
+    // secret to receive), so this is not always a failure of the way itself.
+    out.error = 'no bot token to test yet';
+    out.ok = mode === 'webhook' && missing.length === 0;
+    return out;
+  }
+
+  const auth = await slackAuthTest(botToken);
+  // Scopes first: they arrive on the response header, so a token that is real
+  // but under-scoped can still say which permission it lacks. Naming the one
+  // thing left to grant beats printing a correct list to diff by eye.
+  if (auth.scopes) {
+    out.grantedScopes = auth.scopes;
+    out.missingScopes = SLACK_BOT_SCOPES[mode].filter((s) => !auth.scopes?.includes(s));
+  }
+  if (!auth.ok) { out.error = auth.error ?? 'auth.test failed'; return out; }
+  out.team = auth.team;
+  out.botName = auth.botName;
+  out.ok = missing.length === 0;
+
+  // The channel list, best effort. A workspace that will not grant the read
+  // scopes still works; it just goes back to being asked for an id.
+  const chans = await slackListChannels(botToken);
+  if (chans.ok) out.channels = chans.channels;
+  else if (chans.needsScope) out.channelsNeedScope = true;
+  else out.channelsError = chans.error;
+
+  if (mode === 'socket') {
+    if (!appToken) { out.socket = { ok: false, error: 'missing app token' }; out.ok = false; return out; }
+    const sock = await slackConnectionsOpenTest(appToken);
+    out.socket = sock;
+    if (!sock.ok) out.ok = false;
+  }
+  return out;
+}
+
 // ─── Generic inbound webhook + status API (multi-endpoint) ───────────────────
 /** The running generic-webhook server, or null when disabled/stopped. A PUBLIC
  *  (tunnel-forwarded) surface — secret-gated, unlike the loopback /reply. ONE
@@ -1772,6 +2575,11 @@ let webhookServer: WebhookServer | null = null;
 /** Last public tunnel URL handed out — retained so Settings can re-show the
  *  endpoint after a reopen (the tunnel rotates it per restart). */
 let lastWebhookUrl: string | undefined;
+/** 0.5.3 (founder retest 25 Sep, "the address takes a while"): Settings shows
+ *  "Creating address" while a start is under way, and the reason in red when
+ *  the last start failed (a port, the tunnel), with a retry. */
+let webhookStarting = false;
+let lastWebhookError: string | undefined;
 
 /** Local port the shared server binds to. The port is a property of the SERVER,
  *  not of any one trigger — `webhookPort` stays the (legacy) override. */
@@ -1862,7 +2670,23 @@ function dispatchWebhookWork(arg: {
   tokenHash?: string;
   /** 'webhook' | 'org' — only for the subject line and the god-facing note. */
   origin: 'webhook' | 'org';
+  /** The endpoint's standing instruction and guardrails switch (0.4.9 phase 4).
+   *  Passed in rather than looked up here, because BOTH callers already hold the
+   *  endpoint and only one of them can still find it: by the time an operator
+   *  approves a held message the endpoint may have been renamed or deleted. */
+  prompt?: string;
+  guardrails?: boolean;
+  /** The endpoint's own answering agent (0.5.3); absent is the webhook
+   *  default, `webhookResponder`, and that absent is the orchestrator. */
+  to?: string;
 }): boolean {
+  // Who gets it (0.5.3, founder 24 Sep: "the message will be sent to that
+  // particular agent which is set"). Resolved against the agents that can take
+  // mail now, so a gone or archived choice falls back to the orchestrator and
+  // the message is never lost. The org origin has no picker: always god.
+  const to = arg.origin === 'webhook'
+    ? resolveWebhookRecipient(arg.to, readConfig().webhookResponder, selectBroadcastTargets(hive.registry().agents, ''), 'god')
+    : 'god';
   try {
     const card: HiveTask = {
       id: arg.taskId,
@@ -1883,15 +2707,17 @@ function dispatchWebhookWork(arg: {
     console.error('[webhook] could not create task card:', e instanceof Error ? e.message : e);
     return false;
   }
-  // Body carries ONLY the sender's message + the card id (so whoever finishes it
-  // updates that card's status/result for the caller's GET) — never the secret,
-  // never the raw token.
+  // Body carries the endpoint's guardrails, its standing instruction, the
+  // sender's message and the card id (so whoever finishes it updates that
+  // card's status/result for the caller's GET) — never the secret, never the
+  // raw token. Built by webhookBriefing so the auto-allowed and the approved
+  // path cannot say different things.
   try {
     hive.send({
-      to: 'god',
+      to,
       act: 'request',
       subject: `[${arg.origin}] ${arg.title}`,
-      body: `${arg.message}\n\n(Inbound via the generic ${arg.origin} API, tracked as kanban card ${arg.taskId}. When this work is finished, set that card's status to 'done' and fill its 'result' so the caller's status check reflects the outcome.)`,
+      body: webhookBriefing({ message: arg.message, taskId: arg.taskId, origin: arg.origin, prompt: arg.prompt, guardrails: arg.guardrails }),
       requires_reply: false
     }, 'webhook');
   } catch (e) {
@@ -1954,7 +2780,7 @@ function handleWebhookMessage(msg: WebhookInbound, endpoint: WebhookEndpointRef)
   }
 
   const taskId = `webhook-${randomBytes(8).toString('hex')}`;
-  if (!dispatchWebhookWork({ taskId, title, message: msg.message, tokenHash, origin: 'webhook' })) return null;
+  if (!dispatchWebhookWork({ taskId, title, message: msg.message, tokenHash, origin: 'webhook', prompt: trigger?.prompt, guardrails: trigger?.guardrails, to: trigger?.to })) return null;
   appendTriggerHistory({ ...base, decision: 'auto-allowed', taskId });
   notifyTriggerHistoryUpdated();
   return { token, taskId, pending: false };
@@ -2096,11 +2922,21 @@ async function startWebhookServer(): Promise<{ ok: boolean; url?: string; error?
     lookupStatus: lookupWebhookStatus
   });
   webhookServer = server;
-  const res = await server.start();
+  webhookStarting = true;
+  lastWebhookError = undefined;
+  let res: Awaited<ReturnType<WebhookServer['start']>>;
+  try { res = await server.start(); } finally { webhookStarting = false; }
+  if (!res.ok) lastWebhookError = res.error ?? 'could not start';
   // ok:false covers BOTH "never bound the port" (fatal → drop the instance) and
   // "bound fine, tunnel unavailable" (the security boundary is live and must stay
   // reachable/stoppable — dropping it there would leak an unstoppable listener).
   if (!res.ok && !server.listening()) { webhookServer = null; return res; }
+  // 0.5.3, the rest of bug 11: a taken port moves the server instead of leaving
+  // every webhook off. Tunnel callers are unaffected; a LOCAL caller pointed at
+  // the configured port is, so say it here and in Settings (webhooks:status).
+  // Bug 11's second cause (the instance dropped without being stopped) does not
+  // exist here: the line above keeps a bound server so it stays stoppable.
+  if (res.movedFrom !== undefined) console.warn(`[webhook] port ${res.movedFrom} was in use; listening on ${res.port} instead. A local caller must use ${res.port} for this session.`);
   analytics.trackFeature('webhook_trigger');
   if (res.url) lastWebhookUrl = res.url;
   startWebhookDoneObserver();
@@ -2136,6 +2972,7 @@ function webhookEndpointUrls(): { id: string; url: string }[] {
 function stopWebhookServer(): void {
   try { webhookServer?.stop(); } catch (e) { console.error('[webhook] stop failed:', e); }
   webhookServer = null;
+  lastWebhookError = undefined;
   // The done-observer deliberately OUTLIVES the server (it is a ledger concern,
   // not a transport one) — it is torn down with the process/hive, not here.
 }
@@ -2224,9 +3061,121 @@ async function handleHireLink(link: string): Promise<void> {
   analytics.trackFeature('hire_install');
 }
 
+/**
+ * Every `munderdifflin://` link lands here and is dispatched by action. Teams
+ * first: `teams/enrol?grant=&state=` is the browser coming back from the Clerk
+ * sign-in (plan 2.2), and it is accepted only against the `state` this app
+ * minted, so a page cannot push a grant into an app that never asked. A cold
+ * start with a teams link has no sign-in pending and is refused for that
+ * reason; the refusal is logged, never rendered, because there is no screen
+ * waiting for it.
+ */
+function handleDeepLink(link: string): void {
+  const teams = parseTeamsDeepLink(link);
+  if (teams) {
+    const r = teamsEnrol.receiveGrant({ grant: teams.grant, state: teams.state }, 'link');
+    if (!r.ok) console.warn('[teams] deep link refused:', r.detail);
+    return;
+  }
+  // The free door (5 Sep 2026): its own route and its own pending state, so a
+  // crafted link cannot steer one flow into the other. shared/freeTier.ts.
+  const free = parseFreeDeepLink(link);
+  if (free) {
+    const r = freeAccount.receiveFreeGrant({ grant: free.grant, state: free.state }, 'link');
+    if (!r.ok) console.warn('[free] deep link refused:', r.detail);
+    return;
+  }
+  /* The claim's refusal, in the funnel's own vocabulary (0.5.0 spec §2).
+     `offline` and `unavailable` are both "we never reached the route", which
+     is `network`; the rest are server-side conditions with no closer word than
+     `other`, and `other` existing is what keeps this total without ever
+     needing a free-form sentence. `entitlement_inactive` and `unauthorized`
+     never reach here — both are handled as outcomes above, not as failures. */
+  const checkoutReasonOf = (e: proCheckoutShared.ProClaimError): CheckoutReason =>
+    (e === 'offline' || e === 'unavailable') ? 'network' : 'other';
+
+  // The paywall's return (item 2, contract agreed with Kevin 7 Sep 2026):
+  // its own route again, so no crafted link can steer the checkout answer
+  // into the enrol or the free parser. shared/proCheckout.ts.
+  const checkout = parseProCheckoutDeepLink(link);
+  if (checkout) {
+    const r = proCheckout.receiveCheckoutReturn(checkout.grant, checkout.state);
+    if (!r.ok) {
+      console.warn('[pro] checkout deep link refused:', r.reason);
+      for (const w of BrowserWindow.getAllWindows()) {
+        w.webContents.send('pro:checkout:return', { ok: false, reason: r.reason });
+      }
+      return;
+    }
+    // The state is ours and it held. Spend the grant, then redeem the key it
+    // answers with. `claimAndRedeem` never hands the key back here; the
+    // renderer is told the OUTCOME, not the credential.
+    void proCheckout.claimAndRedeem(r.grant).then((out) => {
+      /* `checkout_finished` + `licence_activated` (0.5.0 funnel). This is the
+         one place the app learns how a checkout ended, so it is the only place
+         either can be fired honestly. Three shapes, and the middle one is the
+         reason this is not a two-way branch:
+
+          - redeemed        → succeeded, and the licence is live: both events.
+          - entitlement_inactive → the grant is good and there is no licence
+            behind it, which IS the person backing out of the browser without
+            paying. That is `abandoned` / `user_cancelled`, NOT a failure: a
+            failed purchase and a declined purchase are different questions and
+            counting them together answers neither.
+          - unauthorized    → the grant is spent, which is what a SECOND deep
+            link looks like once the first one worked (Kevin's rule). Firing
+            anything here would invent a failure for every person who clicks
+            the same link twice, so this branch reports nothing at all. */
+      if (out.ok && out.redeemed.ok) {
+        /* No `reason` on a success: the property answers "why not", and a
+           success carrying `other` would put a reason on every row and make
+           the failure breakdown useless to group by. */
+        analytics.trackFunnel('checkout_finished', {
+          plan: 'pro', outcome: 'succeeded'
+        });
+        /* `period` (0.5.1) comes from the claim answer, the one honest source:
+           the browser owned the choice after the handoff, and the licence this
+           machine just claimed knows what it is billed by. A console that omits
+           the field leaves the property absent; nothing is guessed. */
+        analytics.trackFunnel('licence_activated', {
+          plan: 'pro', source: 'checkout', ...(out.period ? { period: out.period } : {})
+        });
+      } else if (!out.ok && out.claim.error === 'entitlement_inactive') {
+        analytics.trackFunnel('checkout_finished', {
+          plan: 'pro', outcome: 'abandoned', reason: 'user_cancelled'
+        });
+      } else if (out.ok || out.claim.error !== 'unauthorized') {
+        analytics.trackFunnel('checkout_finished', {
+          plan: 'pro', outcome: 'failed',
+          reason: out.ok ? 'other' : checkoutReasonOf(out.claim.error)
+        });
+      }
+      const payload = out.ok && out.redeemed.ok
+        ? { ok: true as const }
+        // Kevin's rule: `unauthorized` is what a SECOND deep link looks like
+        // once the grant is spent, so a recoverable refusal must read as
+        // "finish with your key", never as a failure to somebody who has just
+        // paid. `unavailable` covers the endpoint not existing yet.
+        : {
+          ok: false as const,
+          reason: out.ok ? 'redeem-failed' as const : out.claim.error,
+          recoverable: out.ok ? true : proCheckoutShared.claimIsRecoverable(out.claim.error)
+        };
+      for (const w of BrowserWindow.getAllWindows()) {
+        w.webContents.send('pro:checkout:return', payload);
+      }
+    });
+    return;
+  }
+  void handleHireLink(link);
+}
+
 // Register the protocol. In dev (electron .) Windows needs the explicit
 // exe+args form or the registration points at electron.exe with no entry.
-if (process.defaultApp) {
+// A floor never registers: deep links belong to the main install (B23 part 2).
+if (isFloorProcess()) {
+  /* the main install owns munderdifflin:// */
+} else if (process.defaultApp) {
   if (process.argv.length >= 2) {
     app.setAsDefaultProtocolClient('munderdifflin', process.execPath, [resolve(process.argv[1])]);
   }
@@ -2249,17 +3198,479 @@ if (!gotInstanceLock) {
       mainWindow.focus();
     }
     const link = argv.find((a) => a.startsWith('munderdifflin://'));
-    if (link) void handleHireLink(link);
+    if (link) handleDeepLink(link);
   });
 }
 
 app.on('open-url', (evt, url) => {
   evt.preventDefault();
-  void handleHireLink(url);
+  handleDeepLink(url);
 });
 
 // IPC: the renderer signals readiness and PULLS anything queued (deep links
 // that arrived before the window/subscription existed, incl. cold starts).
+// ─── Teams: device identity ────────────────────────────────────────────────
+// The public half only. There is deliberately no handler that returns the
+// secret key: it stays in this process, encrypted at rest by the OS.
+//
+// None of these run at boot. A solo install reaches `has` at most, which does
+// not generate anything, so 9,187 accountless installs never meet a keypair.
+
+ipcMain.handle('teams:identity:has', () => deviceIdentity.hasIdentity());
+
+/* The roster, already joined with this machine's local trust pins and youAllow
+   overrides. The renderer never sees the raw relay shape, so it cannot
+   accidentally read `verified` off the wire — there is nothing on the wire to
+   read. Returns a REFUSAL rather than throwing, so D7 can render the reason. */
+ipcMain.handle('teams:roster', async () => {
+  if (!deviceIdentity.hasIdentity()) {
+    return { ok: false, error: 'not_enrolled', detail: null };
+  }
+  return teamRoster();
+});
+
+/** A human confirmed a key out of band. The only path to `verified: true`.
+ *  Anything the bridge held for D13 is offered again against the new pin. */
+ipcMain.handle('teams:verify', (_e, deviceId: string, fingerprint: string) => {
+  markVerified(deviceId, fingerprint);
+  void teamsBridge.retryHeld();
+  return { ok: true };
+});
+
+/** Your personal override for one teammate. Local only, never sent. */
+ipcMain.handle('teams:setYouAllow', (_e, memberId: string, level: string | null) => {
+  setYouAllow(memberId, level as never);
+  return { ok: true };
+});
+
+/** This machine's default for everyone without an override; null follows the
+ *  org default again. Local only, never sent: the message path reads it. */
+ipcMain.handle('teams:setYouAllowDefault', (_e, level: string | null) => {
+  setYouAllowDefault(level as never);
+  return { ok: true };
+});
+
+/* `teams:identity:ensure` is GONE. It generated a key with no enrolment behind
+   it, which was the fixture D3 ran on; the only path to a key now is a relay
+   that accepted it (`teams:enrol` below), and a key without a membership is a
+   machine the gate reads as solo. */
+
+ipcMain.handle('teams:identity:forget', () => {
+  deviceIdentity.forgetIdentity();
+  forgetMembership();
+  teamsGate.notify();
+  return { ok: true };
+});
+
+/**
+ * TEAM BACK TO INDIVIDUAL (founder, 6 Sep 2026, item 5).
+ *
+ * The teardown is `teams:identity:forget`'s, unchanged. What this adds is the
+ * ONE CONDITION the founder put on the direction: it is allowed only when the
+ * team has exactly one member, which is you. With teammates on the roster,
+ * leaving is not a personal setting: their agents hold threads with yours,
+ * their approvals point at your seat, and a machine that walked out on its own
+ * would leave them talking to something that is gone.
+ *
+ * THE COUNT COMES FROM THE RELAY, NOT FROM DISK. `teamRoster()` already splits
+ * self out of `teammates`, so "exactly one member" reads as an empty
+ * teammates list. Asking the server rather than a cached file is the point:
+ * this is the one moment where being wrong about who else is in the org does
+ * real damage, and a stale local answer is exactly how you would be wrong.
+ * A relay that cannot be reached refuses and says so, because "I could not
+ * check" must never read as "there is nobody there".
+ */
+ipcMain.handle('teams:leave', async () => {
+  if (!deviceIdentity.hasIdentity()) {
+    // Already individual. Idempotent rather than an error: the caller wanted
+    // to end up solo and it already is.
+    return { ok: true, alreadySolo: true };
+  }
+  const roster = await teamRoster();
+  if (!roster.ok) {
+    return { ok: false, reason: 'unreachable', detail: roster.detail ?? null };
+  }
+  const others = roster.data.teammates.length;
+  if (others > 0) {
+    return { ok: false, reason: 'has-teammates', teammates: others };
+  }
+  deviceIdentity.forgetIdentity();
+  forgetMembership();
+  teamsGate.notify();
+  return { ok: true, alreadySolo: false };
+});
+
+// ─── Teams: the gate and the join (plan sections 2.2, 4.1, 5) ──────────────
+// The renderer reads `mode` once at mount and subscribes; main pushes on every
+// change. Nothing here runs at boot: `mode()` is two file reads, and the solo
+// path stops there.
+
+ipcMain.handle('teams:mode', () => teamsGate.mode());
+
+/** What the renderer may know about the membership. No key material. */
+ipcMain.handle('teams:membership', () => {
+  const m = readMembership();
+  if (!m) return null;
+  return {
+    orgId: m.orgId, orgName: m.orgName, memberId: m.memberId, deviceId: m.deviceId,
+    enrolledAt: m.enrolledAt, lastVerifiedAt: m.lastVerifiedAt,
+    ...(m.bossNameNeeded ? { bossNameNeeded: true } : {}),
+  };
+});
+
+/* ---- the solo licence bridge (SoloProBridge in @shared/soloPro) ----------
+   The three doors the onboarding licence step reads off window.cth. Main owns
+   the record and the round trip; the renderer never sees the endpoint. */
+ipcMain.handle('solo:license', () => soloLicense.readLicense());
+/* `licence_activated` (0.5.0 funnel) fires HERE and not inside redeemLicense,
+   because the key and the checkout reach the same redemption by different
+   doors and `source` is the whole point of the property. This door is a person
+   typing a key they already hold. */
+ipcMain.handle('solo:license:redeem', async (_e, key: unknown) => {
+  const res = await soloLicense.redeemLicense(typeof key === 'string' ? key : '');
+  if (res.ok) analytics.trackFunnel('licence_activated', { plan: 'pro', source: 'key_entry' });
+  return res;
+});
+soloLicense.onLicenseChange((v) => {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('solo:license', v);
+});
+
+/* The free door (5 Sep 2026). Main owns free.json and the sign-in round trip;
+   the renderer sees the record, never the endpoint. shared/freeTier.ts. */
+ipcMain.handle('free:account', () => freeAccount.readFreeAccount());
+ipcMain.handle('free:signin:begin', () => freeAccount.beginFreeSignIn());
+ipcMain.handle('free:signin:paste', (_e, pasted: unknown) =>
+  freeAccount.receiveFreeGrant({ grant: typeof pasted === 'string' ? pasted : '' }, 'paste'));
+ipcMain.handle('free:signin:cancel', () => { freeAccount.cancelFreeSignIn(); return { ok: true }; });
+ipcMain.handle('free:register', () => freeAccount.registerFree());
+
+/** Item 2: open the console's solo checkout with a fresh state. The browser
+ *  already holds the session from step one, so nobody signs in twice; the app
+ *  sends no identity of its own, on purpose. */
+ipcMain.handle('pro:checkout:begin', async () => {
+  const { url } = await proCheckout.beginProCheckout();
+  /* `checkout_opened` (0.5.0 funnel) fires HERE rather than on the paywall's
+     button, because this is the line that actually opened a checkout: the
+     button also has a fallback path, and a click that opened nothing is not a
+     started purchase. `seats_bucket` is '1' as a fact about this door — it is
+     the solo PRO checkout, one machine, and the seat picker lives on the team
+     side of the site. No `period` (0.5.1): the browser chooses it after this
+     line, so the app could only ever have asserted a constant here. The
+     licence the claim answers with carries it, on `licence_activated`. */
+  analytics.trackFunnel('checkout_opened', { plan: 'pro', seats_bucket: '1' });
+  return { ok: true as const, url };
+});
+/* Sign out (5 Sep 2026): this machine forgets the account it signed in with
+   and any licence it holds, and both gates hear it. The way back in is the
+   entry door; a key redeemed again simply rebinds. */
+ipcMain.handle('free:signout', () => {
+  freeAccount.cancelFreeSignIn();
+  freeAccount.clearFreeAccount();
+  soloLicense.forgetLicense();
+  return { ok: true };
+});
+freeAccount.onFreeAccountChange((v) => {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('free:account', v);
+});
+
+/**
+ * 0.4.9 nickname (founder order, 3 Sep): ONE door names this machine's
+ * orchestrator. It claims the word on the relay first, because uniqueness is
+ * the org's to decide, and only a claim the relay accepted renames the agent
+ * here. That ordering is the whole feature: a rename that skipped the relay
+ * would put two Michaels back on one roster.
+ *
+ * Solo, or on a relay too old to know the route, or with the network down,
+ * the rename still happens locally and the caller is told which of those it
+ * was, so the UI can say whether teammates can see the name yet. A `conflict`
+ * renames nothing: the word belongs to someone else.
+ */
+ipcMain.handle('teams:bossName:set', async (_e, raw: unknown) => {
+  const parsed = validateBossName(String(raw ?? ''));
+  if (!parsed.ok) return { ok: false as const, error: 'invalid' as const, detail: parsed.problem };
+  const name = parsed.name;
+  const local = (): { ok: true; name: string } | { ok: false; error: 'invalid'; detail: string } => {
+    const r = hive.presetGodName(name);
+    return r.ok ? { ok: true as const, name } : { ok: false as const, error: 'invalid' as const, detail: r.error ?? 'rename failed' };
+  };
+
+  if (!readMembership()) return local();
+
+  const res = await patchMe({ bossName: name });
+  if (res.ok) {
+    setBossNameNeeded(false);
+    return local();
+  }
+  if (res.error === 'conflict') return { ok: false as const, error: 'conflict' as const, detail: res.detail ?? null };
+  // An older relay answers `not_found` for a route it does not have. That is
+  // not a refusal of the name, so the machine keeps it and says so.
+  if (res.error === 'not_found') return { ...local(), unsupported: true };
+  return { ...local(), offline: true };
+});
+
+/**
+ * 0.5.2: the PERSON's display name, set from the machine. Until now it was
+ * whatever the console held, often nothing, and every surface fell back to
+ * the machine's name. Unlike the nickname there is no local half: the name
+ * lives on the relay and nowhere else, so a refusal or an outage saves
+ * nothing here and says so. '' or null clears it. `unsupported` is a relay
+ * that has the route but not the field (`invalid_body` naming `name`) or no
+ * route at all (`not_found`); the field tells the person the relay needs an
+ * update rather than pretending the word went through.
+ */
+ipcMain.handle('teams:name:set', async (_e, raw: unknown) => {
+  const trimmed = typeof raw === 'string' ? raw.trim() : '';
+  const name: string | null = trimmed === '' ? null : trimmed;
+  if (name !== null && name.length > 80) return { ok: false as const, error: 'invalid' as const, detail: 'length' };
+  if (!readMembership()) return { ok: false as const, error: 'solo' as const };
+  const res = await patchMe({ name });
+  if (res.ok) {
+    // The cached roster still carries the old row; the next read fetches.
+    teamsBridge.rosterInvalidate();
+    return { ok: true as const, name };
+  }
+  if (res.error === 'not_found' || (res.error === 'invalid_body' && (res.detail ?? '').includes('unknown field: name'))) {
+    return { ok: false as const, error: 'unsupported' as const };
+  }
+  return { ok: false as const, error: 'offline' as const, detail: res.detail ?? res.error };
+});
+
+/** D2's Continue: mint `state` and open the browser at the sign-in page. */
+ipcMain.handle('teams:signin:begin', () => teamsEnrol.beginSignIn());
+
+/** The paste fallback: the person typed what the browser showed. */
+ipcMain.handle('teams:signin:paste', (_e, pasted: string) =>
+  teamsEnrol.receiveGrant({ grant: String(pasted ?? '') }, 'paste'));
+
+ipcMain.handle('teams:signin:cancel', () => { teamsEnrol.cancelSignIn(); return { ok: true }; });
+
+/**
+ * D3. Generates, registers, verifies, and only then writes.
+ *
+ * 0.4.9 nickname: a machine that ALREADY has a named orchestrator claims that
+ * name for the org the moment it joins, so its teammates see the word it
+ * already signs with. That is the Classic first run and PRO's join on an
+ * onboarded machine. A fresh install has no orchestrator row yet and claims
+ * nothing here: onboarding asks for the name and claims it explicitly, which
+ * is what stops every new machine racing for the same default.
+ *
+ * A refused claim never fails the join. The seat is in and the word is not,
+ * and the flag is what makes the Team screen ask for another one.
+ */
+/**
+ * `invite_redeemed` + `licence_activated:invite` (0.5.0 funnel), and WHY they
+ * do not fire in the handler below.
+ *
+ * The spec's `role` is `member` or `admin`, and at the moment an invite is
+ * redeemed this app does not know which. The relay's enrol answer carries
+ * `deviceId`, `memberId`, `orgId`, `orgName`, `fingerprint`, `relayUrl` and
+ * `enrolledAt` (relay.ts `EnrolResponse`) — no role — and `EnrolResult` passes
+ * none through either. `you.isAdmin` arrives one step later, on the first `/me`
+ * the org poll fetches.
+ *
+ * So the events fire on that first view instead. It is the same business
+ * moment a second later, and the alternative was defaulting to `member`, which
+ * would report a value nothing had checked — the one thing the closed-enum
+ * rule exists to prevent. The flag is one-shot: an ordinary `/me` refresh on a
+ * machine that has been enrolled for a month must not look like a redemption.
+ *
+ * The cost of doing it this way, stated rather than hidden: a machine that
+ * enrols and never reaches `/me` (offline straight after joining) reports
+ * neither event. A lost row beats a wrong one.
+ */
+let awaitingInviteRole = false;
+teamsOrg.onChange((v) => {
+  if (!awaitingInviteRole || !v.available || !v.you) return;
+  awaitingInviteRole = false;
+  analytics.trackFunnel('invite_redeemed', { role: v.you.isAdmin ? 'admin' : 'member' });
+});
+
+ipcMain.handle('teams:enrol', async (_e, input: { code: string }) => {
+  const res = await teamsEnrol.enrol({ code: String(input?.code ?? '') }, { appVersion: app.getVersion() });
+  if (!res.ok) return res;
+  /* `licence_activated` fires HERE and not with `invite_redeemed` below
+     (Ryan's ruling, 7 Sep 2026). Both its properties are known the instant the
+     enrol succeeds, so it has nothing to wait for — the variable is called
+     `awaitingInviteRole` and this event is not waiting for a role. Riding
+     along with it meant a machine that enrolled and went offline before its
+     first `/me` lost a LICENCE ACTIVATION, and that is the one event whose
+     whole justification is proving money turned into working software.
+     Losing an invite row there is a fair trade; losing this is not. */
+  analytics.trackFunnel('licence_activated', { plan: 'teams', source: 'invite' });
+  awaitingInviteRole = true;
+  const existing = hive.registry().agents[hive.registry().godId ?? 'god']?.name;
+  const parsed = existing ? validateBossName(existing) : null;
+  if (parsed?.ok) {
+    const claim = await patchMe({ bossName: parsed.name });
+    setBossNameNeeded(!claim.ok && claim.error === 'conflict');
+  }
+  return res;
+});
+
+// ─── Teams: the socket and the takeover (plan sections 4.3, 4.5) ───────────
+// Main is the only writer of the connection state. The session runs whenever
+// the gate says this machine is enrolled (live, degraded, OR locked: a locked
+// machine reconnecting is how it unlocks) and stops the moment it is not.
+
+ipcMain.handle('teams:connection', () => teamsSession.current());
+ipcMain.handle('teams:lock', () => teamsGate.lockInfo());
+ipcMain.handle('teams:reconnect', () => { teamsSession.reconnectNow(); return { ok: true }; });
+
+// ─── Teams: Michael to Michael (plan section 4.6) ──────────────────────────
+// The bridge seals what the hive router addresses `member:` and opens what the
+// socket spooled; D11 reads the thread store and D10 the request queue.
+
+ipcMain.handle('teams:thread', (_e, memberId: string) => teamsBridge.threadFor(String(memberId ?? '')));
+/* 0.4.10: the WHOLE DRAFT crosses, not a flattened string. `String(body ?? '')`
+   was the narrow door: a subject, an act and `expectsReply` all had to be
+   folded into one line to fit through it. The draft is passed as it arrives and
+   `sendFromPerson` re-checks it against @shared/teamMessage on THIS side, so
+   the contract holds for anything reaching the door, not only for the composer
+   that happens to check first. */
+ipcMain.handle('teams:send', (_e, memberId: string, draft: unknown) =>
+  teamsBridge.sendFromPerson(String(memberId ?? ''), draft));
+ipcMain.handle('teams:requests', () => teamsBridge.pendingRequests());
+ipcMain.handle('teams:request:decide', (_e, id: string, decision: string) =>
+  teamsBridge.decide(String(id ?? ''), decision as never));
+
+/* ─── Teams: your status, and what your clones allow (0.4.10) ───────────────
+   THE PIN STORE IS THE ONE TRUTH. These read and write `teamPins`, which is
+   also what `teamsBridge` enforces on every send and receive, so the control
+   in Team's right sidebar cannot show a value the message path disagrees with.
+   Everything goes through `teamsBridge` rather than importing `teamPins` here,
+   which keeps main's Teams surface to the one namespace it already has.
+
+   Nothing is trusted from the renderer: `normalizePolicy` and
+   `normalizeSchedule` run inside `teamPins`, and both fail closed. */
+ipcMain.handle('teams:policy', (_e, memberIds: unknown) =>
+  teamsBridge.policyView(Array.isArray(memberIds) ? memberIds.filter((x): x is string => typeof x === 'string') : []));
+ipcMain.handle('teams:setStatus', (_e, policy: unknown) => teamsBridge.setStatus(policy as never));
+ipcMain.handle('teams:setSchedule', (_e, schedule: unknown) => teamsBridge.setSchedule(schedule));
+ipcMain.handle('teams:setPolicy', (_e, memberId: unknown, policy: unknown) =>
+  teamsBridge.setPolicy(String(memberId ?? ''), policy as never));
+ipcMain.handle('teams:setPolicyDefault', (_e, policy: unknown) => teamsBridge.setPolicyDefault(policy as never));
+
+/* The schedule moves the status on a timer inside the bridge. Without this
+   push the one control would sit showing yesterday's choice while the message
+   path already enforced the window, which is the exact class of defect this
+   release exists to remove. */
+teamsBridge.onPolicy(() => {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('teams:policy', null);
+});
+
+/* ─── Teams: an agent handing a teammate a FILE (0.4.10) ────────────────────
+   A local path is a dead reference on another machine, so the bridge mints a
+   share and puts the LINK in the body instead. Two things are injected here
+   and only here:
+
+     create        the app's ONE `FileShareStore`, declared beside its own IPC
+                   further down this file. Registered as a CLOSURE, which is
+                   what lets the wiring sit next to the other Teams doors: the
+                   arrow is not called until a message is actually sent, long
+                   after this module has finished evaluating.
+     workspaceFor  the directory an agent was hired into, from the hive
+                   registry. It is the guard: an agent may publish a file
+                   inside the workspace the person already scoped it to, and
+                   nothing else. The reasoning is in @shared/fileShareMessage. */
+teamsBridge.attachShares({
+  create: (path) => fileShareStore.create(path),
+  workspaceFor: (agentId) => hive.registry().agents[agentId]?.cwd ?? null,
+});
+
+// ─── Teams: the org channel (plan section 4.4, Pam's S1) ───────────────────
+ipcMain.handle('teams:org', () => teamsOrg.view());
+/**
+ * `billing:summary` (PRO phase 5): the admin's billing view from the relay.
+ * THE SECOND WALL (plan 6.4). The renderer's `can(standing, 'billing.view')`
+ * decides what is drawn; this decides what is fetched, from the relay-verified
+ * `/me` answer main holds (teamsOrg.view().you.isAdmin), never from the
+ * renderer's word. A non-admin is refused here with no network call, and the
+ * relay would refuse again with `forbidden` if it were asked.
+ */
+ipcMain.handle('billing:summary', async (): Promise<BillingSummary> => {
+  const org = teamsOrg.view();
+  if (!org.available || org.you?.isAdmin !== true) return { ok: false, reason: 'refused' };
+  const r = await fetchBilling();
+  if (!r.ok) {
+    if (r.status === 404 || r.error === 'not_found') return { ok: false, reason: 'unavailable' };
+    if (r.status === 0) return { ok: false, reason: 'offline' };
+    return { ok: false, reason: 'error', error: r.error };
+  }
+  const view = parseBillingWire(r.data);
+  return view ? { ok: true, view } : { ok: false, reason: 'error', error: 'invalid_body' };
+});
+ipcMain.handle('teams:org:verify', () => teamsOrg.verifyKey());
+ipcMain.handle('teams:org:refresh', () => teamsOrg.refresh());
+
+{
+  const push = (channel: string, payload: unknown): void => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send(channel, payload);
+  };
+  teamsGate.onChange((mode) => push('teams:mode', mode));
+  teamsEnrol.onGrant(() => push('teams:signin:grant', null));
+  freeAccount.onFreeGrant(() => push('free:signin:grant', null));
+  teamsEnrol.onProgress((step) => push('teams:enrol:progress', step));
+  teamsSession.onChange((v) => push('teams:connection', v));
+  teamsSession.onPresence(() => push('teams:presence', null));
+  teamsBridge.onThread((memberId) => push('teams:thread', memberId));
+  teamsBridge.onRequests(() => push('teams:requests', null));
+  teamsOrg.onChange((v) => push('teams:org', v));
+
+  // The bridge and the hive meet here and nowhere else: hive.ts never imports
+  // Teams, and the bridge sees three calls of the hive.
+  teamsBridge.attach({
+    send: (partial, from) => hive.send(partial, from),
+    appendLog: (event) => hive.appendLog(event),
+    godId: () => hive.registry().godId ?? 'god',
+    // 0.5.2: the sending agent's display name, sealed into the message so
+    // the other floor can say which agent wrote. Null for `you` and for an
+    // id that is not an agent here.
+    agentName: (id) => hive.registry().agents[id]?.name ?? null,
+    // 0.5.2 (founder ruling, Option A): who answers a teammate's message,
+    // and which agents can take mail right now. The predicate is the one
+    // broadcast fan-out uses (not archived, not the send-only assistant),
+    // called with no sender so nobody is excluded on that ground; the bridge
+    // resolves the two through @shared/responder and falls back to god.
+    responder: () => readConfig().responder,
+    activeAgentIds: () => selectBroadcastTargets(hive.registry().agents, ''),
+  });
+  hive.setRemote({
+    send: (msg) => { void teamsBridge.send(msg); },
+    rosterLine: () => teamsBridge.teammatesLine(),
+    // 0.4.9: an agent may write to a teammate by the person's name or by the
+    // name their orchestrator goes by, not only by member:<id>.
+    resolve: (name) => teamsBridge.resolveTeammate(name),
+  });
+
+  let bridgeOff: (() => void) | null = null;
+  let orgOff: (() => void) | null = null;
+  const enrolled = (mode: string) => mode === 'live' || mode === 'degraded' || mode === 'locked';
+  const follow = (mode: string): void => {
+    if (enrolled(mode)) {
+      teamsSession.start();
+      teamsGate.startLeaseClock();
+      if (!bridgeOff) bridgeOff = teamsBridge.start();
+      if (!orgOff) orgOff = teamsOrg.start();
+    } else {
+      teamsSession.stop();
+      teamsGate.stopLeaseClock();
+      bridgeOff?.();
+      bridgeOff = null;
+      orgOff?.();
+      orgOff = null;
+    }
+  };
+  teamsGate.onChange(follow);
+  // Nothing runs before the app is ready, and a solo install runs nothing here
+  // at all: `mode()` is two file reads and `follow('solo')` stops what was
+  // never started.
+  app.whenReady().then(() => follow(teamsGate.mode()));
+  // The laptop lid: a socket that slept is a socket the relay closed for
+  // missed pings. Come back at once rather than waiting for a timer to notice.
+  powerMonitor.on('resume', () => { if (enrolled(teamsGate.mode())) teamsSession.reconnectNow(); });
+  app.on('before-quit', () => { teamsSession.stop(); teamsGate.stopLeaseClock(); });
+}
+
 ipcMain.handle('hire:drainPending', () => {
   rendererReadyForHires = true;
   const out = pendingHires.splice(0, pendingHires.length);
@@ -2285,6 +3696,34 @@ ipcMain.handle('hire:openFile', async () => {
   };
 });
 
+// Which office is which (0.5.3, founder 25 Sep): every floor is the same app,
+// so the Dock shows one icon and one name per office. The main install is 1,
+// a floor takes the lowest free number from 2; with more than one office open
+// each gets "Munder Difflin N" as its window title and N as a Dock badge. One
+// office alone keeps the plain name and no badge (floorNumber.ts).
+let officeNumber = 1;
+let officeTimer: ReturnType<typeof setInterval> | null = null;
+function officeTitle(): string {
+  return officeLabel(officeNumber, liveOfficeCount(sharedDataDir(), pidAlive)).title;
+}
+function applyOfficeLabel(): void {
+  try {
+    const { title, badge } = officeLabel(officeNumber, liveOfficeCount(sharedDataDir(), pidAlive));
+    for (const w of BrowserWindow.getAllWindows()) if (!w.isDestroyed() && w.getTitle() !== title) w.setTitle(title);
+    if (process.platform === 'darwin' && app.dock && app.dock.getBadge() !== badge) app.dock.setBadge(badge);
+  } catch { /* a label is never worth a crash */ }
+}
+if (gotInstanceLock) {
+  app.whenReady().then(() => {
+    officeNumber = claimFloorNumber(sharedDataDir(), { floor: isFloorProcess(), dataDir: app.getPath('userData'), pid: process.pid }, pidAlive);
+    applyOfficeLabel();
+    // Another office opening or closing changes this one's label too.
+    officeTimer = setInterval(applyOfficeLabel, 4000);
+  });
+  app.on('browser-window-created', () => setImmediate(applyOfficeLabel));
+  app.on('will-quit', () => { if (officeTimer) clearInterval(officeTimer); releaseFloorNumber(sharedDataDir(), process.pid); });
+}
+
 /**
  * Create a window. The PRIMARY window (no opts) restores saved geometry, uses
  * the default session, runs the hive, and keeps the existing app-quit warning.
@@ -2308,7 +3747,7 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
     ...(geom && geom.x !== undefined && geom.y !== undefined ? { x: geom.x, y: geom.y } : {}),
     minWidth: MIN_WIN.width,
     minHeight: MIN_WIN.height,
-    title: isFloor ? 'Munder Difflin — Floor' : 'Munder Difflin',
+    title: officeTitle(),
     backgroundColor: '#FFF8E7',
     titleBarStyle: 'hiddenInset',
     show: false,
@@ -2330,10 +3769,14 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
       ...(isFloor ? { partition: `persist:floor-${++floorSeq}` } : {})
     }
   });
+  // The page's <title> would put the plain name back over the office number.
+  win.on('page-title-updated', (e) => { e.preventDefault(); });
 
   // Capture the webContents once: after 'closed' the window is gone, but this
   // reference stays valid as the per-PTY ownership key.
   const wc = win.webContents;
+  /** Read now: a destroyed webContents throws on `.id`, and 'closed' runs after. */
+  const wcId = wc.id;
 
   allWindows.add(win);
   // Global timer events follow the user — the most-recently-focused window is
@@ -2341,32 +3784,32 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   win.on('focus', () => { mainWindow = win; });
   if (!isFloor) mainWindow = win;
 
-  // Permission gate for the renderer (our own trusted, local content). The only
-  // permission we constrain is microphone capture: it's allowed ONLY while a mic
-  // feature is actually live — Free Flow dictation (`freeflowEnabled`) OR a
-  // Realtime Michael voice session (`realtimeVoiceEnabled`, flipped on by the
-  // session at start() before getUserMedia, off at stop()). With both flags off,
-  // there's zero mic access even at the Electron layer. We deliberately do NOT
-  // gate on OpenAI-key presence: that key (`apikey:openai`) is shared with the CLI
-  // engines, so a CLI-only user must not have the mic gate opened. Every other
+  // Permission gate for the renderer (our own trusted, local content). The
+  // only permission we constrain is microphone capture. Since 0.5.3 batch 3
+  // Free Flow has no off switch (founder: the composer mic works with whatever
+  // engine is picked), so an app window's own dictation is always a live mic
+  // feature. The puck's page shares this session and stays gated as before:
+  // only while it is actually recording (main/puck.ts flips it), or while a
+  // Realtime Michael voice session (`realtimeVoiceEnabled`) is on. Every other
   // permission keeps the app's prior permissive behavior (e.g. clipboard for
   // xterm/editor copy must keep working).
-  const micFeatureLive = (): boolean => {
+  const micFeatureLive = (wc: Electron.WebContents | null): boolean => {
+    if (!isPuckContents(wc)) return true;
     const cfg = readConfig();
-    return cfg.freeflowEnabled === true || cfg.realtimeVoiceEnabled === true;
+    return cfg.realtimeVoiceEnabled === true || puckMicLive();
   };
   const ses = win.webContents.session;
-  ses.setPermissionRequestHandler((_wc, permission, callback, details) => {
+  ses.setPermissionRequestHandler((wc, permission, callback, details) => {
     if (permission === 'media') {
       const mediaTypes = details && 'mediaTypes' in details ? details.mediaTypes : undefined;
       const wantsAudio = !mediaTypes || mediaTypes.includes('audio');
-      callback(micFeatureLive() && wantsAudio);
+      callback(micFeatureLive(wc) && wantsAudio);
       return;
     }
     callback(true);
   });
-  ses.setPermissionCheckHandler((_wc, permission) => {
-    if (permission === 'media') return micFeatureLive();
+  ses.setPermissionCheckHandler((wc, permission) => {
+    if (permission === 'media') return micFeatureLive(wc);
     return true;
   });
 
@@ -2404,6 +3847,8 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   // intercept it the same way before-quit does so PTY users aren't surprised.
   win.on('close', (e) => {
     if (allowQuit) return;
+    // Closing a window unmounts its IDE and every unsaved buffer in it.
+    if (!confirmLosingIdeEdits(win, ideDirtyByWindow.get(wc.id) ?? 0)) { e.preventDefault(); return; }
     if (isFloor) {
       // A floor's close is NOT an app quit — confirm only its OWN terminals,
       // via a self-contained native dialog (no renderer modal). Confirming lets
@@ -2439,6 +3884,8 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   // so a later deep link would otherwise queue and sit until a full reload).
   win.webContents.on('did-start-navigation', (details) => {
     if (details.isMainFrame) rendererReadyForHires = false;
+    // A reloaded page lost its unsaved IDE text; its count goes with it.
+    if (details.isMainFrame && !details.isSameDocument) ideDirtyByWindow.forget(wcId);
   });
 
   if (isDev && process.env.ELECTRON_RENDERER_URL) {
@@ -2449,6 +3896,8 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
 
   win.on('closed', () => {
     allWindows.delete(win);
+    // Its unsaved IDE text went with it, so the next quit must not ask about it.
+    ideDirtyByWindow.forget(wcId);
     // A closed floor must not leave its terminals running headless. (Natural
     // onExit teardown — archive + worktree cleanup — still runs per PTY.)
     if (isFloor) { try { ptyManager.killByOwner(wc); } catch { /* best-effort */ } }
@@ -2479,7 +3928,9 @@ function installAppMenu(): void {
   const newFloorItem = {
     label: 'New Floor',
     accelerator: 'CmdOrCtrl+Shift+N',
-    click: () => { openFloor(); }
+    // 0.5.3, B21: ask where to start (the picker in the focused window), not
+    // a second window of this floor. openFloor() stays for the flag-off path.
+    click: () => { openFloorPicker(); }
   };
   const template: Electron.MenuItemConstructorOptions[] = [
     ...(isMac ? [{ role: 'appMenu' as const }] : []),
@@ -2586,7 +4037,21 @@ function findCodexHomeForSession(sessionId: string, siblingsRoot: string): strin
 
 /** Spawn options shared by the `pty:spawn` IPC handler and the god-triggered
  *  ephemeral-worker watcher. */
-type AgentSpawnOptions = SpawnOptions & { hive?: AgentMeta; isolate?: boolean; resume?: boolean; requireResume?: boolean; resumeSessionId?: string; provider?: AgentProvider; noAutoInstall?: boolean };
+type AgentSpawnOptions = SpawnOptions & { hive?: AgentMeta; isolate?: boolean; resume?: boolean; requireResume?: boolean; resumeSessionId?: string; provider?: AgentProvider; noAutoInstall?: boolean;
+  /** I2: the person pressed Install on the card, so a missing binary runs its
+   *  installer now. Without it a missing binary only draws the card. */
+  installNow?: boolean;
+  /** Batch 2: run this login script in the agent's pty, with the agent's own
+   *  environment (its per agent CLI home), instead of the agent itself. */
+  loginScript?: string;
+  /** Batch 4: the loginScript is the manual setup terminal, not a login: no
+   *  sign in check first, and no link watcher (the person drives it). */
+  manualSetup?: boolean;
+  /** Batch 2: this install was started by a person pressing Install on the
+   *  card, so a clean install stops at the sign in step. An install nobody is
+   *  watching (a god dispatched worker, a voice hire) starts the agent at once,
+   *  as before. */
+  guidedSetup?: boolean };
 
 /** Map a `ptyManager.spawn` failure string to the closed `agent_spawn_failed.reason`
  *  enum (analytics.ts). The two known strings come from PtyManager.spawn; anything
@@ -2614,7 +4079,7 @@ ipcMain.handle('pty:spawn', async (evt, opts: AgentSpawnOptions) => {
  *  it can ALSO be invoked by the god-triggered ephemeral-worker watcher (which has
  *  no renderer `evt`). `owner` is the window that should receive this PTY's output
  *  (null → the primary window). Behavior-identical to the prior inline handler. */
-async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
+async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string; cliMissing?: CliMissingState; signedIn?: boolean }> {
   // ── cwd INGESTION — expand `~` exactly once, here ───────────────────────────
   // This is the single door every agent spawn comes through (`pty:spawn` IPC and
   // the god-triggered ephemeral-worker watcher), so it is where a user-typed
@@ -2625,6 +4090,21 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // returned to the caller so the renderer records the same absolute path.
   opts.cwd = expandTilde(opts.cwd);
   if (opts.hive) opts.hive = { ...opts.hive, cwd: expandTilde(opts.hive.cwd) };
+  // The spawn as asked for, before the steps below add to it (the hive's args
+  // and env, a worktree): what a later "start agent" re-runs (agentRuns).
+  const asGiven: AgentSpawnOptions = { ...opts };
+  // A teardown may still be deciding whether the folder we are about to start
+  // in is removed (it asks git, which takes seconds on a large repo). The
+  // crashed row offers Restart the instant the process dies, so a quick click
+  // used to start the agent in a folder that was then taken from under it.
+  // Wait for the decision; if the folder goes, the usual missing folder path
+  // below handles it and says so.
+  try {
+    const here = resolve(opts.cwd);
+    for (const [wt, pending] of worktreeFinalizing) {
+      if (here === resolve(wt) || here.startsWith(resolve(wt) + sep)) await pending.catch(() => undefined);
+    }
+  } catch { /* an unresolvable cwd is reported further down */ }
   // Which CLI is this? Explicit wins; else inferred from the binary
   // (claude/codex/grok/agy). Non-Claude providers skip every Claude-only spawn step
   // below. Persist the resolved provider onto opts (+ hive meta) so the registry
@@ -2655,6 +4135,19 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // isn't archived and no worktree is torn down) before the relaunch takes over.
   {
     const bin = opts.command.trim().split(/\s+/)[0] || opts.command;
+    // Batch 2, the same rule for the setup panel: an ordinary start of this
+    // id (a Restart on a good line, the Start button's own spawn) ends any
+    // install or sign in step still recorded, so no panel sits over a
+    // running agent. The login step and the installer are the setup's own.
+    if (opts.loginScript === undefined && !opts.installNow && pendingCliSetup.has(opts.id)) {
+      const ended = endCliSetup(opts.id);
+      sendCliSetup(opts.id, ended?.owner ?? owner, null);
+    }
+    // A spawn of this id whose CLI IS here replaces the card an earlier line
+    // left (founder, 24 Sep: a restart on a mistyped line, then on a good one).
+    // Without this, pty:cliMissingState kept answering with the old card and a
+    // reopened screen drew it over a running agent.
+    if (!bin || opts.noAutoInstall || ptyManager.isCommandAvailable(bin)) pendingCliMissing.delete(opts.id);
     if (bin && !opts.noAutoInstall && !ptyManager.isCommandAvailable(bin)) {
       // The installer commands are `npm install -g …`. Probe for npm the same way
       // we probe for the engine CLI, so a no-Node machine gets the node-free rung
@@ -2670,6 +4163,18 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
       // simply drops the ladder to the native/manual rung.
       const nodeInstaller = npmAvailable ? null : await resolveNodeInstaller();
       const rung = chooseInstallRung(installInfoForProvider(provider), npmAvailable, nodeInstaller);
+      // I2 (0.5.3): nothing runs until the person presses Install. The terminal
+      // draws a calm card with the rung's exact command; a spawn with no pty is
+      // still ok for the caller (the agent exists, its terminal says what is
+      // missing), and pty:installCli re-enters here with installNow. The manual
+      // rung has nothing to run, so it is the same spawn failure it always was.
+      if (!opts.installNow) {
+        const state = describeMissingCli(provider, bin, npmAvailable, process.platform, nodeInstaller);
+        pendingCliMissing.set(opts.id, { opts, owner, state });
+        sendCliMissing(opts.id, owner, state);
+        if (rung.kind === 'manual') analytics.track('agent_spawn_failed', { provider, reason: 'cli_missing' });
+        return { ok: true, cwd: opts.cwd, cliMissing: state };
+      }
       const res = ptyManager.spawn(
         {
           id: opts.id,
@@ -2692,6 +4197,13 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
       // to replace.
       if (res.ok && rung.command) {
         pendingInstallRelaunch.set(opts.id, { opts, owner, bin, rung: rung.kind });
+        // Batch 2: the terminal is the installer's until it ends; the composer
+        // and the queue hold, and the panel says so.
+        if (opts.guidedSetup) {
+          const setup: CliSetupState = { phase: 'installing', provider, label: installInfoForProvider(provider).label, loginCommand: null };
+          pendingCliSetup.set(opts.id, { opts, owner, state: setup });
+          sendCliSetup(opts.id, owner, setup);
+        }
         // The auto-installer PTY is running; agent_install_finished on its exit says
         // whether it actually produced an agent (rung is non-manual here by construction).
         analytics.track('agent_install_started', { provider, rung: rung.kind });
@@ -2737,6 +4249,7 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
           opts.cwd = wtPath;
           worktreePaths.set(opts.id, wtPath);
           worktreeOrigins.set(opts.id, origCwd);
+          worktreeBases.set(opts.id, baseBranch);
           const deps = await linkWorktreeDeps(origCwd, wtPath);
           if (!deps.ok) console.error('[worktree] dependency link failed:', deps.error);
         } else {
@@ -2778,8 +4291,10 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
           // Windows floor. Empty when the KG is off (the line isn't emitted then).
           kgCliPath: knowledge.env().KG_CLI,
           theme: readConfig().terminalTheme ?? 'light',
-          // W3 — default-MCP consent state + the bundled skills source dir.
-          mcpDefaults: readConfig().mcpDefaults,
+          outputStyle: readConfig().claudeOutputStyle,
+          // W3 — MCP consent, resolved for THIS agent: its own rows in
+          // config.agentMcp over the floor-wide mcpDefaults (PRO phase 3).
+          mcpDefaults: effectiveMcp(readConfig().mcpDefaults, sanitizeAgentMcp(readConfig().agentMcp), opts.hive.id),
           skillsDir: skillsResourceDir(),
           // The shared palace is mutated by the agent's own `mempalace` calls, so
           // the OS sandbox must let it through (empty when memory is off).
@@ -2799,6 +4314,31 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
       // Hive provisioning is best-effort; never block a spawn on it.
       console.error('[hive] ensureAgent failed:', e);
     }
+  }
+  // Batch 2: the sign in step after an install. Here, and not earlier, because
+  // the hive has just put the agent's own CLI home into opts.env (CODEX_HOME,
+  // PI_CODING_AGENT_DIR and the rest): a login run with any other environment
+  // would sign in somewhere the agent never reads. It is not the agent, so it
+  // is never mapped to one (its exit archives nothing) and nothing is resumed.
+  if (opts.loginScript !== undefined) {
+    const bin = opts.command.trim().split(/\s+/)[0] || opts.command;
+    const binPath = ptyManager.commandPath(bin) ?? bin;
+    const checkEnv = ptyManager.childEnv(opts.env);
+    // (e): a CLI that says it is signed in (with this agent's own home) needs
+    // no sign in step; the caller starts the agent. Anything else, including
+    // a check that failed or ran over, is "cannot tell": the step is shown.
+    if (!opts.manualSetup && hasSignInCheck(provider) && await checkSignedIn(provider, binPath, checkEnv, opts.cwd) === 'signed-in') {
+      return { ok: true, cwd: opts.cwd, signedIn: true };
+    }
+    if (!opts.loginScript) return { ok: true, cwd: opts.cwd };
+    const res = ptyManager.spawn({ id: opts.id, cwd: opts.cwd, command: bin, cols: opts.cols, rows: opts.rows, env: opts.env, shellScript: opts.loginScript }, owner);
+    if (res.ok && opts.manualSetup) ptyOwners.set(opts.id, owner);
+    else if (res.ok) {
+      loginWatcher.track(opts.id, provider);
+      ptyOwners.set(opts.id, owner);
+      watchSignIn(opts.id, provider, binPath, checkEnv, opts.cwd);
+    }
+    return { ...res, cwd: opts.cwd };
   }
   // Long-run guardrails + tiering (Lane A #6.4/#6.6). All additive to the args
   // already assembled (incl. the hive injection); an explicit choice always wins.
@@ -2859,17 +4399,31 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
     // actually present (already or after the copy); otherwise fall back to a fresh
     // session rather than launching a `--resume` against a missing id.
     const explicitSid = typeof opts.resumeSessionId === 'string' ? opts.resumeSessionId.trim() : '';
-    const sid = explicitSid || (opts.resume === true ? hive.lastSession(opts.hive.id) : undefined);
-    if (sid && !args.includes('--resume')) {
-      if (seedSessionTranscript(opts.cwd, sid)) {
+    // 0.5.3 bug 1: the current key is not always the agent's conversation (see
+    // shared/resumeKey.ts), so walk the keys it displaced and resume the first
+    // one whose transcript exists, instead of trusting one id and dropping the
+    // flag when it turns out to be a ghost.
+    const candidates = [explicitSid || undefined, ...(opts.resume === true ? hive.resumeCandidates(opts.hive.id) : [])];
+    if (!args.includes('--resume') && candidates.some(Boolean)) {
+      const cwd = opts.cwd;
+      const sid = pickResumableSession(candidates, (s) => seedSessionTranscript(cwd, s));
+      if (sid) {
+        if (sid !== candidates.find(Boolean)) console.warn(`[resume] ${opts.hive.id}: recorded session has no transcript, resuming the earlier session "${sid}"`);
         args.push('--resume', sid);
         didResume = true;
-      } else if (explicitSid) {
-        // The user typed a session id in the Add Agent dialog but it isn't in any
-        // Claude project dir — we fall back to a FRESH session rather than a broken
-        // `--resume`. Make that non-silent: warn on the floor and flag it back to
-        // the renderer so the dialog can tell the user 'started fresh'.
-        console.warn(`[resume] session "${explicitSid}" not found in any Claude project dir — starting a fresh session`);
+        // Claude refuses --resume while its registry says another process or
+        // a background session holds the id ("attach or stop it"). The old
+        // agent process may still be exiting, or the session was sent to the
+        // background; free it first (claudeSessionRelease.ts).
+        const claudeDir = opts.env?.CLAUDE_CONFIG_DIR || process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+        const released = await releaseClaudeSession(sid, claudeDir, resolveCliCommand(opts.command || 'claude'));
+        if (released.length > 0) console.warn(`[resume] ${opts.hive.id}: freed session ${sid}: ${released.join(', ')}`);
+      } else {
+        // A session was on record and none of it is on disk. We start FRESH rather
+        // than launch a broken `--resume`, and that is never silent: it used to be
+        // flagged only for an id a person typed, so a restore reported success
+        // over an empty agent. Every caller can now say 'started fresh'.
+        console.warn(`[resume] ${opts.hive.id}: no recorded session has a transcript in any Claude project dir — starting a fresh session`);
         resumeNotFound = true;
       }
     }
@@ -2892,10 +4446,42 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
     // resumeSessionId was read ONLY in the Claude branch, so a Codex agent
     // silently ignored it and started a brand-new empty session.
     const typedSid = typeof opts.resumeSessionId === 'string' ? opts.resumeSessionId.trim() : '';
-    const sid = typedSid || (opts.resume === true ? hive.lastSession(opts.hive.id) : undefined);
+    // The founder, 24 Sep 2026: a restart must not lose the session for ANY
+    // provider. The same three rules the Claude path got in bug 1, for every
+    // CLI with a resume form: walk the recorded keys (the current one first,
+    // then the ones it displaced), only attach an id the CLI's own store has
+    // (shared/resumeStore.ts, the layouts read off disk per provider), and
+    // when none is left start fresh and say so. A provider whose store is
+    // unknown, or a machine where that store was never created, attaches the
+    // newest recorded id unchecked: dropping a possibly good id would lose a
+    // session to save a maybe.
+    const walked = typedSid ? [typedSid] : (opts.resume === true ? hive.resumeCandidates(opts.hive.id) : []);
+    const listDir: DirLister = (d) => { try { return readdirSync(d); } catch { return null; } };
+    let sid: string | undefined = walked.find(Boolean);
     if (sid && rf) {
-      const args = opts.args ?? [];
-      if (!args.includes(rf)) { args.push(rf, sid); opts.args = args; didResume = true; }
+      // The store is resolved from the environment the CLI will actually run
+      // with: the pty hands the child process.env with the agent's env over
+      // it (buildPtyEnv), and the agent's env already carries the per agent
+      // homes the hive set (pi's PI_CODING_AGENT_DIR above all). Reading the
+      // person's ~ instead would call a good pi id missing (Kevin, #90).
+      const storeCtx: StoreContext = {
+        env: { ...process.env, ...(opts.env ?? {}) },
+        home: homedir(),
+        cwd: opts.cwd,
+        readText: (f) => { try { return readFileSync(f, 'utf8'); } catch { return null; } }
+      };
+      const picked = chooseResumeSession(walked, providerSessionStore(provider, storeCtx), listDir);
+      if (picked.checked && picked.sid && picked.sid !== sid) {
+        console.warn(`[resume] ${opts.hive.id}: recorded ${provider} session is not in its store, resuming the earlier session "${picked.sid}"`);
+      }
+      sid = picked.sid;
+      if (!sid) {
+        console.warn(`[resume] ${opts.hive.id}: no recorded ${provider} session exists in its store - starting a fresh session`);
+        resumeNotFound = true;
+      } else {
+        const args = opts.args ?? [];
+        if (!args.includes(rf)) { args.push(rf, sid); opts.args = args; didResume = true; }
+      }
     } else if (sid && rsub) {
       // Subcommand form (Codex): `codex resume [OPTIONS] [SESSION_ID]` — the
       // subcommand MUST be argv[0], the id trails the flags. Codex indexes
@@ -2905,10 +4491,13 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
       // home has both the rollout and the sqlite index).
       const myHome = (opts.env ?? {}).CODEX_HOME;
       const agentsRoot = myHome ? dirname(dirname(myHome)) : '';
-      const ownerHome = agentsRoot ? findCodexHomeForSession(sid, agentsRoot) : null;
-      if (!ownerHome) {
-        console.warn(`[resume] codex session "${sid}" not found in any agent CODEX_HOME - starting fresh`);
-        if (typedSid) resumeNotFound = true;
+      // The same walk as the flag path: the recorded id first, then the ids
+      // it displaced, resuming the first one a CODEX_HOME actually owns.
+      sid = agentsRoot ? pickResumableSession(walked, (s) => !!findCodexHomeForSession(s, agentsRoot)) : sid;
+      const ownerHome = agentsRoot && sid ? findCodexHomeForSession(sid, agentsRoot) : null;
+      if (!ownerHome || !sid) {
+        console.warn(`[resume] no recorded codex session found in any agent CODEX_HOME - starting fresh`);
+        resumeNotFound = true;
       } else {
         if (ownerHome !== myHome) opts.env = { ...(opts.env ?? {}), CODEX_HOME: ownerHome };
         const args = opts.args ?? [];
@@ -3002,6 +4591,13 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
     }
     opts.env = { ...(opts.env ?? {}), ...extra };
   }
+  // Custom secrets (Settings > Keys & Secrets, founder batch 3): every agent,
+  // whatever its CLI, gets each one as the env var of its name. Read MAIN ONLY
+  // here; never over the harness's own vars (shared/customSecrets.ts).
+  if (opts.hive) {
+    const custom = customSecretEnv(customSecretNames(integrations.listSecretRefs()), integrations.getSecret, opts.env ?? {});
+    if (Object.keys(custom).length > 0) opts.env = { ...(opts.env ?? {}), ...custom };
+  }
   // Codex Remote is daemon-based (there is no `/remote-control` slash command).
   // Start/enable the daemon under this agent's isolated CODEX_HOME and connect
   // the TUI to it so the thread is visible in ChatGPT mobile. Best-effort: an
@@ -3009,9 +4605,27 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   if (provider === 'codex' && opts.hive?.id) {
     await enableCodexRemoteForSpawn(opts, opts.hive.id);
   }
+  // The dev stagger, immediately before the real spawn and after every
+  // step that could still refuse it, so a refused spawn does not wait for
+  // nothing and the wait is the last thing between the gate and the PTY.
+  const wait = slowSpawnDelayMs(process.env.MD_RESTORE_SLOW_MS, ++restoreSlowSeq, app.isPackaged);
+  if (wait > 0) {
+    console.log(`[dev] MD_RESTORE_SLOW_MS: spawn ${opts.id} waits ${wait} ms`);
+    await new Promise((r) => setTimeout(r, wait));
+  }
   const res = ptyManager.spawn(opts, owner);
   if (res.ok) analytics.track('agent_spawned', { provider });
   else analytics.track('agent_spawn_failed', { provider, reason: spawnFailReason(res.error) });
+  if (res.ok) { loginWatcher.track(opts.id, provider); ptyOwners.set(opts.id, owner); }
+  if (res.ok) {
+    // Started again in the SAME folder: a worktree made above is reused, not
+    // made twice (the renderer's revive does the same, isolate off).
+    const wt = worktreePaths.get(opts.id);
+    agentRuns.set(opts.id, {
+      opts: { ...asGiven, ...(wt ? { cwd: wt, isolate: false } : {}), installNow: undefined, guidedSetup: undefined },
+      owner, provider, printMode: isPrintModeRun(provider, opts.args ?? []), startedAt: Date.now()
+    });
+  } else agentRuns.delete(opts.id);
   syncKeepAwake(); // arm the power-save blocker while ≥1 agent PTY is alive (#18)
   // Hand the resolved worktree path back to the renderer so it can persist it on
   // the agent (only set when isolation actually provisioned a worktree above).
@@ -3022,8 +4636,104 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // record matches what the registry and the PTY actually used.
   return { ...res, cwd: opts.cwd, ...(worktreePath ? { worktreePath } : {}), ...(resumeNotFound ? { resumeNotFound: true } : {}), ...(didResume ? { resumed: true } : {}), ...(seedPrompt ? { seedPrompt } : {}) };
 }
+/** I2: the card's one button. Install and Try again run the rung the card
+ *  named, in this terminal; Check again (manual rung, or a CLI installed by
+ *  hand meanwhile) re-probes PATH. Both are the same spawn again with
+ *  `installNow`: a binary that is there now starts normally into the same pty
+ *  (the grid is cleared first, like the relaunch after an install), a binary
+ *  still missing runs its installer, and the manual rung just draws the card
+ *  again. Only a spawn that stopped at the card can be resumed this way. */
+/** I2 part 2: the sign in modal's buttons. The link opened is the one main
+ *  read from the CLI, never a string the renderer sends; a pasted code goes
+ *  into the pty followed by Enter, as the person would have typed it;
+ *  dismiss closes this ask for good. */
+ipcMain.handle('pty:loginAct', async (_evt, payload: unknown) => {
+  const p = (payload ?? {}) as { id?: unknown; action?: unknown; text?: unknown };
+  if (typeof p.id !== 'string') return { ok: false, error: 'invalid id' };
+  const prompt = loginWatcher.current(p.id);
+  if (p.action === 'dismiss') { loginWatcher.dismiss(p.id); return { ok: true }; }
+  if (!prompt) return { ok: false, error: 'no-prompt' };
+  if (p.action === 'open-link') {
+    // Only a link this provider's own recipe read, on that provider's sign in
+    // host: a terminal carries model and tool output too, and the app vouches
+    // for nothing it did not recognise (the modal shows such a link as text).
+    if (!prompt.trusted || prompt.recipe !== 'provider' || !loginHostAllowed(prompt.provider, prompt.url)) return { ok: false, error: 'link-not-vouched' };
+    await shell.openExternal(prompt.url as string);
+    return { ok: true };
+  }
+  if (p.action === 'paste') {
+    if (typeof p.text !== 'string' || !p.text.trim()) return { ok: false, error: 'text required' };
+    // One line, no control characters: a code, never a script.
+    const code = p.text.replace(/[\u0000-\u001f\u007f]/g, '').trim();
+    return ptyManager.write(p.id, code + '\r');
+  }
+  return { ok: false, error: 'unknown action' };
+});
+ipcMain.handle('pty:installCli', async (_evt, id: unknown) => {
+  if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
+  const paused = pendingCliMissing.get(id);
+  if (!paused) return { ok: false, error: 'nothing-to-install' };
+  const bin = paused.opts.command.trim().split(/\s+/)[0] || paused.opts.command;
+  if (ptyManager.isCommandAvailable(bin)) {
+    // Installed by hand since the card was drawn: start it, no installer.
+    pendingCliMissing.delete(id);
+    const wc = (paused.owner && !paused.owner.isDestroyed()) ? paused.owner : liveWebContents();
+    try { wc?.send(`pty:relaunch:${id}`); } catch { /* window gone */ }
+    return spawnAgentCore({ ...paused.opts, noAutoInstall: true }, paused.owner);
+  }
+  if (paused.state.rung === 'manual') {
+    sendCliMissing(id, paused.owner, paused.state);
+    return { ok: true, cwd: paused.opts.cwd, cliMissing: paused.state };
+  }
+  return spawnAgentCore({ ...paused.opts, installNow: true, guidedSetup: true }, paused.owner);
+});
+// F3 (0.5.3, founder 24 Sep 2026): the card's push reaches only a terminal
+// that is already listening. A pty that stopped at the card BEFORE its
+// terminal existed (an agent respawned at app start, a screen opened later)
+// left a silent blank grid, so the pool asks once at acquire.
+ipcMain.handle('pty:cliMissingState', (_evt, id: unknown) => {
+  if (typeof id !== 'string') return null;
+  return pendingCliMissing.get(id)?.state ?? null;
+});
+/** Batch 2: the setup phase for a terminal opened after it began (same reason
+ *  as pty:cliMissingState). */
+ipcMain.handle('pty:cliSetupState', (_evt, id: unknown) => {
+  if (typeof id !== 'string') return null;
+  return pendingCliSetup.get(id)?.state ?? null;
+});
+/** Batch 2: "Setup complete, start agent". The login terminal (and the install
+ *  output above it) is discarded: the login is killed if it is still running,
+ *  the renderer wipes the grid, and the agent starts fresh into the same pty.
+ *  Refused while the installer still runs: there is nothing to start yet. */
+ipcMain.handle('pty:cliSetupStart', async (_evt, id: unknown, opts?: unknown) => {
+  if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
+  const setup = pendingCliSetup.get(id);
+  if (!setup) return { ok: false, error: 'nothing-to-start' };
+  if (setup.state.phase === 'installing') return { ok: false, error: 'still-installing' };
+  const anyway = opts === 'anyway';
+  if (!setupCanStart(setup.state) && !(anyway && setupCanStartAnyway(setup.state))) return { ok: false, error: 'not-signed-in' };
+  return startAgentAfterSetup(id);
+});
+/** Batch 4: "Set up manually", from the failed install card or the sign in
+ *  panel. */
+ipcMain.handle('pty:cliSetupManual', (_evt, id: unknown) => {
+  if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
+  return openManualSetup(id);
+});
+/** Batch 2: "Sign in again" after a login that did not finish. */
+ipcMain.handle('pty:cliSetupLogin', (_evt, id: unknown) => {
+  if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
+  const setup = pendingCliSetup.get(id);
+  if (!setup || setup.state.phase !== 'signin' || setup.state.login === 'running' || !setup.state.loginCommand) return { ok: false, error: 'nothing-to-run' };
+  runLoginStep(id);
+  return { ok: true };
+});
 ipcMain.handle('pty:write', (_evt, id: string, data: string) => {
   if (typeof id !== 'string' || typeof data !== 'string') return { ok: false, error: 'invalid args' };
+  // I2 part 2: a line the person submits to the CLI means they are at its
+  // prompt, past any sign in; the watcher stops reading this pty (unless its
+  // ask is still open: they may be typing the code in the terminal).
+  if (/[\r\n]/.test(data)) loginWatcher.pastLogin(id);
   return ptyManager.write(id, data);
 });
 ipcMain.handle('pty:resize', (_evt, id: string, cols: number, rows: number) => {
@@ -3034,13 +4744,23 @@ ipcMain.handle('pty:redraw', (_evt, id: string) => {
   if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
   return ptyManager.redraw(id);
 });
-ipcMain.handle('pty:kill', (_evt, id: string) => {
+ipcMain.handle('pty:kill', (_evt, id: string, why?: unknown) => {
   if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
+  // ONE channel carries a person's Stop, a Restart, the automatic revive after
+  // sleep and the theme switch, and it used to give all of them one reason. The
+  // renderer now says which. It can only make the teardown SAFER: anything it
+  // sends that is not a known safer reason is a person (reasonFromRenderer).
+  const reason = reasonFromRenderer(why);
   // Kill the process, then run the shared lifecycle teardown (archive the agent,
   // remove its isolated worktree, drop the maps). teardownPty is idempotent, so
   // node-pty firing onExit once the child actually dies is a harmless no-op.
   const res = ptyManager.kill(id);
-  teardownPty(id);
+  teardownPty(id, reason);
+  // A Stop or Restart during install or sign in ends that setup too; a later
+  // spawn under this id starts from the card again if the CLI is still missing.
+  pendingInstallRelaunch.delete(id);
+  endCliSetup(id);
+  agentRuns.delete(id);
   return res;
 });
 ipcMain.handle('pty:list', () => ptyManager.list());
@@ -3061,6 +4781,49 @@ ipcMain.handle('pty:list', () => ptyManager.list());
 ipcMain.handle('analytics:messageSent', (_evt, surface: unknown) => {
   if (!isRendererMessageSurface(surface)) return { ok: false };
   analytics.trackMessageSent(surface);
+  return { ok: true };
+});
+
+/**
+ * The two money-funnel events the renderer is the only one who can see:
+ * `paywall_shown` (a purchase surface was drawn) and `access_blocked` (a dead
+ * end was drawn instead). Everything else in the funnel happens in main and is
+ * fired there, closer to the fact.
+ *
+ * THIS IS NOT A GENERAL WAY INTO track(). `isFunnelEvent` refuses any name
+ * outside the six, and `trackFunnel` then checks every VALUE against its
+ * closed enum and drops the whole event if one is unrecognised — because the
+ * allowlist filters keys, not values, and everything arriving here is
+ * untrusted input. Same reasoning as `isRendererMessageSurface` above.
+ *
+ * The two main-only events are refused here as well: they are fired at the
+ * lines that actually know the outcome, so a renderer able to name them could
+ * only ever double-count something main has already counted.
+ */
+const RENDERER_FUNNEL_EVENTS: ReadonlySet<string> = new Set([
+  'paywall_shown', 'access_blocked', 'checkout_opened'
+]);
+ipcMain.handle('analytics:funnel', (_evt, event: unknown, props: unknown) => {
+  if (!isFunnelEvent(event) || !RENDERER_FUNNEL_EVENTS.has(event)) return { ok: false };
+  const clean: Record<string, string> = {};
+  if (props && typeof props === 'object') {
+    for (const [k, v] of Object.entries(props as Record<string, unknown>)) {
+      if (typeof v === 'string') clean[k] = v;
+    }
+  }
+  /* `checkout_opened` crosses this seam for TEAMS AND ONLY TEAMS.
+     The PRO checkout is opened by `pro:checkout:begin` above, which fires it in
+     main at the line that actually opens the URL — so a renderer allowed to
+     name a PRO checkout could only ever double-count one main already counted.
+     A teams checkout is a plain `window.open` in the renderer and main never
+     sees it, which is why it has to cross at all. Refusing any other plan here
+     makes that double count structurally impossible rather than a rule someone
+     has to remember. */
+  if (event === 'checkout_opened' && clean.plan !== 'teams') return { ok: false };
+  /* No period is stamped here (0.5.1): `checkout_opened` no longer carries
+     one, and a renderer that sends it is refused by the allowlist like any
+     other unknown key. */
+  analytics.trackFunnel(event, clean);
   return { ok: true };
 });
 
@@ -3158,6 +4921,24 @@ ipcMain.handle('providerKey:clear', (_evt, backend: unknown) => {
   try { integrations.deleteSecret(providerKeyRef(backend)); return { ok: true }; }
   catch (e) { return { ok: false, error: e instanceof Error ? e.message : String(e) }; }
 });
+// ─── IPC: custom secrets (write only) ───────────────────────────────────────
+// Settings > Keys & Secrets > Add custom secret. A name and a value; the value
+// is encrypted in the same store as the provider keys under `env:<NAME>` and
+// never comes back: the renderer can list NAMES, set one, or remove one.
+ipcMain.handle('customSecret:list', () => customSecretNames(integrations.listSecretRefs()));
+ipcMain.handle('customSecret:set', (_evt, payload: unknown) => {
+  const p = (payload ?? {}) as { name?: unknown; value?: unknown };
+  if (typeof p.name !== 'string') return { ok: false, error: 'name required' };
+  const problem = secretNameProblem(p.name);
+  if (problem) return { ok: false, error: `${p.name || 'name'}: ${problem === 'reserved' ? 'the harness sets this one itself' : 'use only capitals, digits and underscores'}` };
+  if (typeof p.value !== 'string' || !p.value) return { ok: false, error: 'value required' };
+  return integrations.setSecret(customSecretRef(p.name), p.value);
+});
+ipcMain.handle('customSecret:remove', (_evt, name: unknown) => {
+  if (typeof name !== 'string' || secretNameProblem(name)) return { ok: false, error: 'unknown secret' };
+  try { integrations.deleteSecret(customSecretRef(name)); return { ok: true }; }
+  catch (e) { return { ok: false, error: e instanceof Error ? e.message : String(e) }; }
+});
 // Probe an integration's reachability through the broker's own auth path (admin-only;
 // runs in main, so the secret is used but never returned — only the upstream status).
 ipcMain.handle('integrations:test', async (_evt, payload: unknown) => {
@@ -3174,7 +4955,10 @@ ipcMain.handle('integrations:test', async (_evt, payload: unknown) => {
   const target = resolveUpstreamUrl(rec.baseUrl, typeof p.path === 'string' ? p.path : '');
   if (!target) return { ok: false, error: 'path escapes the integration baseUrl', code: 'bad_request' };
   const secret = integrations.getSecret(rec.secretRef);
-  const headers = buildAuthHeaders(rec.authType, rec.authHeader, secret);
+  // Both halves: a query-parameter API carries its credential in the URL, so a
+  // probe that merged only the headers would report 401 on a working key.
+  const { headers, query } = buildAuthRequest(rec, secret);
+  for (const [k, v] of Object.entries(query)) target.searchParams.set(k, v);
   try {
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), 15_000);
@@ -3188,6 +4972,14 @@ ipcMain.handle('integrations:test', async (_evt, payload: unknown) => {
 
 // ─── IPC: config ────────────────────────────────────────────────────────────
 ipcMain.handle('config:get', (): HarnessConfig => readConfig());
+// `--no-god` / MD_NO_GOD=1, DEV BUILDS ONLY: the renderer skips booting the
+// orchestrator. Every launch otherwise spawns a real, paid `claude` session
+// (resolved by absolute path, so a stripped PATH does not stop it); a UI check
+// on a throwaway home has no use for one. Ignored in a packaged app so the
+// switch can never reach a user.
+const DEV_NO_GOD = !app.isPackaged && (process.argv.includes('--no-god') || process.env.MD_NO_GOD === '1');
+if (DEV_NO_GOD) console.log('[dev] --no-god: the orchestrator will not be spawned');
+ipcMain.handle('dev:noGod', (): boolean => DEV_NO_GOD);
 ipcMain.handle('config:update', (_evt, patch: Partial<HarnessConfig>) => {
   // FIRST RUN: every hive-bound service is started by bootstrapHiveServices(),
   // which runs once at app-ready and early-returns on `!hive.enabled()` — i.e.
@@ -3207,6 +4999,16 @@ ipcMain.handle('config:update', (_evt, patch: Partial<HarnessConfig>) => {
   // transition so ordinary config writes never re-enter it.
   const hiveWasEnabled = hive.enabled();
   const wasOnboarded = readConfig().onboardingComplete;
+  // 0.5.2: the responder is an agent id or nothing. '' from the Settings
+  // select means "the orchestrator" and is stored as ABSENT, so a cleared
+  // field and an older config.json with no field read the same.
+  if ('responder' in patch) {
+    patch.responder = typeof patch.responder === 'string' && patch.responder.trim() ? patch.responder.trim() : undefined;
+  }
+  // 0.5.3: the webhook default is stored the same way.
+  if ('webhookResponder' in patch) {
+    patch.webhookResponder = typeof patch.webhookResponder === 'string' && patch.webhookResponder.trim() ? patch.webhookResponder.trim() : undefined;
+  }
   const next = writeConfig(patch);
   // Live opt-in/out from Settings → Privacy (TELEMETRY.md).
   if (typeof patch?.telemetryEnabled === 'boolean') analytics.setEnabled(patch.telemetryEnabled);
@@ -3220,6 +5022,7 @@ ipcMain.handle('config:update', (_evt, patch: Partial<HarnessConfig>) => {
   // config per tick so it gates immediately; this is for the PROMPT, which is
   // built per spawn, so flipping the toggle reaches god the next time he starts.
   if (typeof patch?.orchestratorMaySpawn === 'boolean') hive.setOrchestratorMaySpawn(patch.orchestratorMaySpawn);
+  if (patch && 'ticketPrefix' in patch) hive.setTicketPrefix(patch.ticketPrefix);
   if (!hiveWasEnabled && hive.enabled()) {
     console.log('[hive] harnessHome configured — bootstrapping hive services');
     try { bootstrapHiveServices(); } catch (e) { console.error('[hive] bootstrap after onboarding:', e); }
@@ -3229,6 +5032,13 @@ ipcMain.handle('config:update', (_evt, patch: Partial<HarnessConfig>) => {
 ipcMain.handle('config:setAgentTokenCap', (_evt, agentId: unknown, tokenCap: unknown) =>
   setAgentTokenCap(agentId, tokenCap)
 );
+ipcMain.handle('config:setAgentMcp', (_evt, agentId: unknown, mcpId: unknown, enabled: unknown) =>
+  setAgentMcp(agentId, mcpId, enabled)
+);
+// Sprite editor: create / update / delete a custom avatar. Validated and merged
+// in main against the config on disk, like the two handlers above.
+ipcMain.handle('config:saveAvatar', (_evt, input: unknown) => saveAvatar(input));
+ipcMain.handle('config:deleteAvatar', (_evt, id: unknown) => deleteAvatar(id));
 ipcMain.handle('config:ensureHome', (_evt, path: unknown) => {
   if (typeof path !== 'string' || path.length === 0) return { ok: false, error: 'invalid path' };
   return ensureHarnessHome(path);
@@ -3274,7 +5084,7 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   try { integrationBroker.stop(); } catch (e) { console.error('[changeHome] broker.stop:', e); }
   try { hive.stopRouter(); } catch (e) { console.error('[changeHome] stopRouter:', e); }
   try { hookServer.stop(); } catch (e) { console.error('[changeHome] hookServer.stop:', e); }
-  try { stopSlackServer(); } catch (e) { console.error('[changeHome] slack.stop:', e); }
+  try { stopSlackIngestion(); } catch (e) { console.error('[changeHome] slack.stop:', e); }
   try { stopWebhookServer(); } catch (e) { console.error('[changeHome] webhook.stop:', e); }
   try { memory.stop(); } catch (e) { console.error('[changeHome] memory.stop:', e); }
   try { reflector.stop(); } catch (e) { console.error('[changeHome] reflector.stop:', e); }
@@ -3298,7 +5108,7 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
       // repointed) so the user loses nothing, and surface the error — no relaunch.
       bootstrapHiveServices();
       const cfg = readConfig();
-      if (cfg.slackEnabled && cfg.slackSigningSecret) void startSlackServer();
+      if (cfg.slackEnabled) void startSlackIngestion();
       reconcileWebhookServer();
       return { ok: false, error: `Could not copy data: ${e instanceof Error ? e.message : String(e)}` };
     }
@@ -3371,6 +5181,60 @@ ipcMain.handle('fs:revealPath', async (_evt, p: unknown) => {
   return err ? { ok: false, error: err } : { ok: true };
 });
 
+/* ─── IPC: search and file operations (0.4.9 phase 9, the IDE) ──────────────
+ * Same root confinement as every handler above: the renderer names a root and
+ * a path relative to it, and fs.ts decides whether that pair is allowed. The
+ * renderer is never trusted with an absolute path here.
+ */
+ipcMain.handle('fs:search', (_evt, root: unknown, query: unknown, opts: unknown) => {
+  if (typeof root !== 'string' || typeof query !== 'string') return { ok: false, error: 'invalid args' };
+  if (query.length > 1024) return { ok: false, error: 'query too long' };
+  const o = (opts && typeof opts === 'object' ? opts : {}) as Record<string, unknown>;
+  return searchInRoot(root, query, {
+    regex: o.regex === true,
+    caseSensitive: o.caseSensitive === true,
+    wholeWord: o.wholeWord === true,
+    maxHits: typeof o.maxHits === 'number' ? o.maxHits : undefined
+  });
+});
+ipcMain.handle('fs:mkdir', (_evt, root: unknown, rel: unknown) => {
+  if (typeof root !== 'string' || typeof rel !== 'string') return { ok: false, error: 'invalid args' };
+  return makeDirIn(root, rel);
+});
+ipcMain.handle('fs:createFile', (_evt, root: unknown, rel: unknown) => {
+  if (typeof root !== 'string' || typeof rel !== 'string') return { ok: false, error: 'invalid args' };
+  return createFileIn(root, rel);
+});
+ipcMain.handle('fs:rename', (_evt, root: unknown, from: unknown, to: unknown) => {
+  if (typeof root !== 'string' || typeof from !== 'string' || typeof to !== 'string') {
+    return { ok: false, error: 'invalid args' };
+  }
+  return renameIn(root, from, to);
+});
+/**
+ * Delete means TRASH, and it is not a policy this handler is free to revisit.
+ *
+ * `shell.trashItem` puts the path in the OS bin, where the person who deleted
+ * the wrong thing can get it back with the gesture they already know. An
+ * `unlink` here would be the app permanently destroying a file on behalf of a
+ * click in a tree — and the tree is one row tall, so the click that deletes
+ * the file is one pixel from the click that opens it.
+ */
+ipcMain.handle('fs:trash', async (_evt, root: unknown, rel: unknown) => {
+  if (typeof root !== 'string' || typeof rel !== 'string') return { ok: false, error: 'invalid args' };
+  if (!rel.trim() || rel.includes('\0')) return { ok: false, error: 'invalid args' };
+  const abs = await safeResolve(root, rel);
+  if (!abs) return { ok: false, error: 'path escapes root' };
+  // Trashing the root itself would take the workspace with it.
+  if (abs === await safeResolve(root, '')) return { ok: false, error: 'that is the workspace itself' };
+  try {
+    await shell.trashItem(abs);
+    return { ok: true as const, path: abs };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+});
+
 // ─── IPC: git ───────────────────────────────────────────────────────────────
 ipcMain.handle('git:isRepo', (_evt, cwd: unknown) => {
   if (typeof cwd !== 'string') return false;
@@ -3437,6 +5301,45 @@ ipcMain.handle('git:worktrees', (_evt, cwd: unknown) => {
   if (typeof cwd !== 'string') return { error: 'invalid args' };
   return listWorktrees(cwd);
 });
+// 0.5.3, feature 24: the worktree list (main/worktreeAdmin.ts holds the rules).
+/** What only the running app knows: where the app makes worktrees, which
+ *  terminals are running and in which folder, and the base it recorded. A folder
+ *  that is still being set up has no terminal yet, so the tracked paths count as
+ *  live as well. */
+function worktreeAdminContext(): WorktreeAdminContext {
+  const roots = new Set<string>();
+  const home = readConfig().harnessHome;
+  if (home) roots.add(join(home, 'worktrees'));
+  for (const p of worktreePaths.values()) roots.add(dirname(p));
+  for (const e of preservedWorktrees.values()) roots.add(dirname(e.wtPath));
+  const bases = new Map<string, string>();
+  for (const [id, p] of worktreePaths) { const b = worktreeBases.get(id) ?? liveWorkers.get(id)?.baseBranch; if (b) bases.set(p, b); }
+  for (const e of preservedWorktrees.values()) bases.set(e.wtPath, e.baseBranch);
+  return {
+    roots: [...roots],
+    liveCwds: [...ptyManager.list().map(t => t.cwd), ...worktreePaths.values()],
+    baseFor: (p) => bases.get(p)
+  };
+}
+ipcMain.handle('worktrees:list', () => listOwnedWorktrees(worktreeAdminContext()));
+ipcMain.handle('worktrees:work', (_evt, wtPath: unknown) => {
+  if (typeof wtPath !== 'string') return null;
+  return worktreeWork(wtPath, worktreeAdminContext());
+});
+ipcMain.handle('worktrees:size', (_evt, wtPath: unknown) => {
+  if (typeof wtPath !== 'string') return null;
+  return worktreeSize(wtPath, worktreeAdminContext().roots);
+});
+ipcMain.handle('worktrees:remove', async (_evt, wtPath: unknown, confirmed: unknown) => {
+  if (typeof wtPath !== 'string') return { ok: false, code: 'outside' };
+  const res = await removeOwnedWorktree(wtPath, confirmed === true, worktreeAdminContext());
+  if (res.ok) {
+    // A preserved temp's tree removed by hand: stop the sweep watching it.
+    preservedWorktrees.delete(wtPath);
+    console.warn(`[worktree] removed by a person from the worktree list: ${wtPath}`);
+  }
+  return res;
+});
 ipcMain.handle('git:checkout', async (_evt, cwd: unknown, ref: unknown, detach: unknown) => {
   if (typeof cwd !== 'string' || typeof ref !== 'string') return { ok: false, error: 'invalid args' };
   // Guard: never swap files under an actively-working agent. Objective signal
@@ -3479,8 +5382,349 @@ ipcMain.handle('hive:setAgentHold', (_evt, id: unknown, hold: unknown) => {
   }
   return hive.setAgentHold(id, hold);
 });
+// 0.5.3, F25: the Pro rail's unread badge. The renderer hands in its per agent
+// last-opened stamps and gets counts, stamps and three short texts back.
+ipcMain.handle('hive:humanMailSince', (_evt, since: unknown) => {
+  const map: Record<string, string> = {};
+  if (since && typeof since === 'object') {
+    for (const [k, v] of Object.entries(since as Record<string, unknown>)) if (typeof v === 'string') map[k] = v;
+  }
+  return hive.humanMailSince(map);
+});
 ipcMain.handle('hive:board', () => hive.board());
+
+// ─── Dictate into any app (0.5.3, F16, macOS) ─────────────────────────────
+// The loop lives in src/main/transcribe/anyApp.ts; these handlers are what a
+// Settings section calls. The renderer starts it with the key, stops it, asks
+// for the three permission states and opens the right pane. Events (key down,
+// transcribing, injected, errors) go to the window as 'anyApp:event'. The
+// transcriber is md-speech on macOS 26; the router (Kevin's PR) replaces
+// `anyAppTranscriber` so md-whisper serves older Macs.
+let anyAppLoop: AnyAppDictation | null = null;
+let anyAppSpeech: MdSpeech | null = null;
+const anyAppResources = (): string => (app.isPackaged ? process.resourcesPath : join(__dirname, '../../resources'));
+/** Why the switch is off here, or null: a floor (B23, the main floor owns the
+ *  machine wide key), no helper in this build, or a Wayland session. */
+const anyAppReason = () => anyAppUnavailableReason(anyAppResources(), process.platform, process.env, { floor: isFloorProcess() });
+function anyAppTranscriber(): AnyAppTranscriber | null {
+  // 24 Sep: the loop follows the engine the router picks for dictation. Apple
+  // keeps md-speech and its stream; anything else goes through the router.
+  const router = getTranscribeRouter();
+  const engine = router.status().chosen.dictation;
+  if (engine !== 'apple') {
+    if (!engine) return null;
+    return anyAppViaRouter((wav) => router.transcribe({ audio: wav, mimeType: 'audio/wav', mode: 'dictation' }));
+  }
+  if (!mdSpeechAvailable(anyAppResources())) return null;
+  anyAppSpeech ??= new MdSpeech(mdSpeechPath(anyAppResources()));
+  const speech = anyAppSpeech;
+  return {
+    transcribe: (req, onPartial) => speech.transcribe({ ...req, autoInstall: true }, onPartial),
+    // The streamed path: chunks while the key is held, final text a moment
+    // after key up. The loop falls back to transcribe() if this is refused.
+    openStream: (req, onPartial) => speech.openStream(req, onPartial)
+  };
+}
+/** Reserve the asset and load the model before the first press: a cold
+ *  helper made the first utterance wait 3 to 4 s (23 Sep). Once per helper. */
+let anyAppWarmed: MdSpeech | null = null;
+function warmAnyAppSpeech(): void {
+  const speech = anyAppSpeech;
+  if (!speech || anyAppWarmed === speech) return;
+  anyAppWarmed = speech;
+  void speech.install('en_US').then(() => speech.warm('en_US'))
+    .then((r) => console.log(`[anyApp] md-speech warm in ${r.ms} ms`))
+    .catch((e) => { anyAppWarmed = null; console.log(`[anyApp] warm: ${e instanceof Error ? e.message : String(e)}`); });
+}
+/** Every any app event goes to the Stapler (0.5.3, founder 24 Sep: its
+ *  eyes, a live level, start and stop sounds); all but the level also go to
+ *  the main window, which has no meter to feed. */
+function anyAppEvent(e: AnyAppEvent): void {
+  puckDictationEvent(e, withTranscribeDefaults(readConfig().transcribe).dictationSounds);
+  if (e.type === 'level') return;
+  const wc = mainWindow?.webContents;
+  if (wc && !wc.isDestroyed()) wc.send('anyApp:event', e);
+}
+/** What has focus inside the main window, as its renderer last said
+ *  (shared/dictationFocus). */
+let mainDictationFocus: DictationFocus = 'other';
+ipcMain.on('dictation:focus', (e, focus: unknown) => {
+  if (!mainWindow || e.sender !== mainWindow.webContents) return;
+  mainDictationFocus = focus === 'composer' || focus === 'field' || focus === 'password' ? focus : 'other';
+});
+/** Our own window focused: a held Option in a text field is dictated into
+ *  that field from here, like in any app (founder, 25 Sep 2026: "like memory
+ *  search"); on the composer or the terminal Free Flow's own hold owns it
+ *  when on (freeflow/holdOption.ts), so this take is dropped rather than both
+ *  recording the same words; a password field is nobody's. */
+function anyAppIgnoresTake(): boolean {
+  const focused = BrowserWindow.getFocusedWindow();
+  if (!focused || focused !== mainWindow) return false;
+  // Free Flow is always on (batch 3): it takes the composer's holds.
+  return anyAppStandsAside(true, mainDictationFocus);
+}
+ipcMain.handle('anyApp:status', async () => {
+  // F16, Windows and Linux (23 Sep): available on every platform that has its
+  // helper, except a Wayland session or a floor; `reason` says why when it is
+  // not, so nobody flips a switch that would silently do nothing.
+  const reason = anyAppReason();
+  const available = reason === null;
+  const loop = anyAppLoop ?? (available ? new AnyAppDictation({ helperPath: mdHotkeyPath(anyAppResources()), key: defaultPushToTalkKeyFor(process.platform), transcriber: { transcribe: async () => ({ text: '' }) } }) : null);
+  let permissions: AnyAppPermissions | null = null;
+  if (loop) { try { permissions = await loop.permissions(); } catch { permissions = null; } }
+  if (!anyAppLoop && loop) await loop.stop();
+  return { available, reason, platform: process.platform, armed: anyAppLoop?.armed ?? null, transcriber: anyAppTranscriber() ? getTranscribeRouter().status().chosen.dictation : null, permissions };
+});
+/** Arm the push to talk key with this vocabulary. Words are read fresh for
+ *  every utterance from the router (the shipped list plus the user's), unless
+ *  a caller pins a list. */
+async function startAnyApp(key: string, words?: string[]): Promise<{ ok: true; key: string; keyCode: number; stream: boolean } | { ok: false; error: string; detail?: string }> {
+  // The hotkey is machine wide (a CGEventTap on macOS, a low level keyboard
+  // hook on Windows, an X grab on Linux): two floors armed would both dictate
+  // and both paste. The main install arms it; a floor never does.
+  if (isFloorProcess()) return { ok: false, error: 'main-floor-only', detail: 'Dictate into any app is armed by the main floor' };
+  const reason = anyAppReason();
+  if (reason) return { ok: false, error: 'not-available', detail: reason };
+  const transcriber = anyAppTranscriber();
+  if (!transcriber) return { ok: false, error: 'no-transcriber' };
+  if (anyAppLoop) await anyAppLoop.stop();
+  anyAppLoop = new AnyAppDictation({
+    helperPath: mdHotkeyPath(anyAppResources()),
+    key: key || defaultPushToTalkKeyFor(process.platform),
+    transcriber,
+    words: words ? () => words : () => getTranscribeRouter().words(),
+    onEvent: anyAppEvent,
+    ignore: anyAppIgnoresTake
+  });
+  try {
+    const r = await anyAppLoop.start();
+    if (getTranscribeRouter().status().chosen.dictation === 'apple') warmAnyAppSpeech();
+    return { ok: true, ...r };
+  } catch (e) {
+    const code = e instanceof HelperError ? e.code : 'start-failed';
+    await anyAppLoop.stop().catch(() => { /* gone */ });
+    anyAppLoop = null;
+    return { ok: false, error: code, detail: e instanceof Error ? e.message : String(e) };
+  }
+}
+/** 0.5.3, F16: the switch in Settings is the truth. On, with this key: armed;
+ *  off: disarmed. Called at launch and after every transcribe:setConfig. */
+async function syncAnyAppToConfig(t: TranscribeConfig = withTranscribeDefaults(readConfig().transcribe)): Promise<void> {
+  if (anyAppReason()) return;
+  if (!t.anyApp) { if (anyAppLoop) { await anyAppLoop.stop(); anyAppLoop = null; } return; }
+  if (anyAppLoop && anyAppLoop.armed === t.pushToTalkKey) return;
+  const r = await startAnyApp(t.pushToTalkKey);
+  if (!r.ok) { console.log(`[anyApp] could not arm ${t.pushToTalkKey}: ${r.error}${r.detail ? ` (${r.detail})` : ''}`); return; }
+  await askAnyAppPermissionsOnce();
+}
+/** On by default since 0.5.3, so the first arm is the first use: ask for
+ *  the Microphone and Accessibility the normal way, once per launch, and when
+ *  either is still missing tell the Stapler, which shows one button to fix it.
+ *  Without Accessibility the Option hold is never heard at all, so waiting
+ *  for a press to find out would be a silent failure. */
+let anyAppAsked = false;
+async function askAnyAppPermissionsOnce(): Promise<void> {
+  const loop = anyAppLoop;
+  if (!loop) return;
+  try {
+    let p = await loop.permissions();
+    if (!anyAppAsked) {
+      anyAppAsked = true;
+      if (p.mic === 'notDetermined') await loop.requestMic();
+      if (!p.accessibility) await loop.requestAccessibility();
+      p = await loop.permissions();
+    }
+    const missing = p.mic !== 'authorized' ? 'microphone' : !p.accessibility ? 'accessibility' : null;
+    if (missing) puckDictationEvent({ type: 'error', error: 'permission', detail: missing }, false);
+  } catch (e) {
+    console.log(`[anyApp] permissions: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+/** THE MEETING CHORD (0.5.3, F16, founder 23 Sep): Shift+Command+Space on
+ *  the Mac, Control+Shift+Space on Windows and Linux, or the chord under
+ *  Dictation & Meetings. One press starts a Stapler meeting through the same
+ *  path as a click on the puck's recorder, a second press stops it. Its own
+ *  md-hotkey process (the tap op), beside the any app loop. Armed at launch
+ *  and after every transcribe:setConfig; a floor never arms it (a chord is
+ *  machine wide, the main install owns it, exactly as any app). */
+let meetingHotkey: MeetingHotkey | null = null;
+let meetingHotkeyError: { reason: string; detail?: string } | null = null;
+function meetingHotkeyReason(): string | null {
+  // The chord and push to talk share the helper and its limits, so one
+  // function answers for both (anyAppReason: a floor, a Wayland session, no
+  // helper in this build), known from the environment before the helper is
+  // spawned for nothing. This row's word for a missing helper is not-available.
+  const r = anyAppReason();
+  return r === 'no-helper' ? 'not-available' : r;
+}
+async function syncMeetingHotkeyToConfig(t: TranscribeConfig = withTranscribeDefaults(readConfig().transcribe)): Promise<void> {
+  if (meetingHotkeyReason()) return;
+  const key = meetingKeyFor(t.meetingKey, process.platform);
+  if (meetingHotkey && meetingHotkey.armed === key) return;
+  if (meetingHotkey) { await meetingHotkey.stop(); meetingHotkey = null; }
+  const problem = hotkeyProblem(key, process.platform);
+  if (problem) { meetingHotkeyError = { reason: 'bad-key', detail: problem }; console.log(`[meetingKey] not a chord: ${key} (${problem})`); return; }
+  // One chord, one meaning: the helpers refuse a chord held by the other
+  // slot (in-use-by-arm); the same answer here without asking, and before
+  // any app is even on, so Settings says it the moment it is typed.
+  if (sameChord(key, t.pushToTalkKey)) { meetingHotkeyError = { reason: 'register-failed', detail: 'in-use-by-arm' }; console.log(`[meetingKey] ${key} is the push to talk key`); return; }
+  const loop = new MeetingHotkey({
+    helperPath: mdHotkeyPath(anyAppResources()),
+    key,
+    onToggle: () => { const r = toggleMeetingByKey(); console.log(`[meetingKey] ${key}: ${r.ok ? 'toggled' : r.error}`); }
+  });
+  try {
+    await loop.start();
+    meetingHotkey = loop;
+    meetingHotkeyError = null;
+    console.log(`[meetingKey] armed ${key}`);
+  } catch (e) {
+    meetingHotkeyError = { reason: e instanceof HelperError ? e.code : 'start-failed', detail: e instanceof Error ? e.message : String(e) };
+    console.log(`[meetingKey] could not arm ${key}: ${meetingHotkeyError.reason} (${meetingHotkeyError.detail})`);
+  }
+}
+/** THE CAPTURE CHORD (I6, founder 23 Sep 2026): a press opens the Stapler's
+ *  capture box, a second takes the picture. Its own md-hotkey process, the
+ *  same tap op and the same checks as the meeting chord. Armed by default:
+ *  Control+Shift+5 on the Mac, Control+Shift+PrintScreen elsewhere. */
+let captureHotkey: MeetingHotkey | null = null;
+let captureHotkeyError: { reason: string; detail?: string } | null = null;
+async function syncCaptureHotkeyToConfig(t: TranscribeConfig = withTranscribeDefaults(readConfig().transcribe)): Promise<void> {
+  if (meetingHotkeyReason()) return;
+  const key = captureKeyFor(t.captureKey, process.platform);
+  if (captureHotkey && captureHotkey.armed === key) return;
+  if (captureHotkey) { await captureHotkey.stop(); captureHotkey = null; }
+  captureHotkeyError = null;
+  const problem = hotkeyProblem(key, process.platform);
+  if (problem) { captureHotkeyError = { reason: 'bad-key', detail: problem }; console.log(`[captureKey] not a chord: ${key} (${problem})`); return; }
+  // One chord, one meaning: never the push to talk key, never the meeting's.
+  if (sameChord(key, t.pushToTalkKey)) { captureHotkeyError = { reason: 'register-failed', detail: 'in-use-by-arm' }; return; }
+  if (sameChord(key, meetingKeyFor(t.meetingKey, process.platform))) { captureHotkeyError = { reason: 'register-failed', detail: 'in-use-by-meeting' }; return; }
+  const loop = new MeetingHotkey({
+    helperPath: mdHotkeyPath(anyAppResources()),
+    key,
+    onToggle: () => { void captureByKey().then((r) => console.log(`[captureKey] ${key}: ${r.ok ? r.step : r.error}`)); }
+  });
+  try {
+    await loop.start();
+    captureHotkey = loop;
+    console.log(`[captureKey] armed ${key}`);
+  } catch (e) {
+    captureHotkeyError = { reason: e instanceof HelperError ? e.code : 'start-failed', detail: e instanceof Error ? e.message : String(e) };
+    // PrintScreen comes with the next Windows and Linux helper build (#60):
+    // an older helper refusing it is a build to wait for, not a wrong chord.
+    if (captureHotkeyError.reason === 'bad-key' && needsNewHelperKey(key)) captureHotkeyError = { reason: 'needs-helper' };
+    console.log(`[captureKey] could not arm ${key}: ${captureHotkeyError.reason} (${captureHotkeyError.detail})`);
+  }
+}
+ipcMain.handle('captureHotkey:status', () => {
+  const t = withTranscribeDefaults(readConfig().transcribe);
+  return {
+    platform: process.platform,
+    key: captureKeyFor(t.captureKey, process.platform),
+    defaultKey: defaultCaptureKey(process.platform),
+    armed: captureHotkey?.armed ?? null,
+    reason: meetingHotkeyReason() ?? captureHotkeyError?.reason ?? null,
+    detail: captureHotkeyError?.detail
+  };
+});
+ipcMain.handle('meetingHotkey:status', () => {
+  const t = withTranscribeDefaults(readConfig().transcribe);
+  return {
+    platform: process.platform,
+    key: meetingKeyFor(t.meetingKey, process.platform),
+    defaultKey: defaultMeetingKey(process.platform),
+    armed: meetingHotkey?.armed ?? null,
+    reason: meetingHotkeyReason() ?? meetingHotkeyError?.reason ?? null,
+    detail: meetingHotkeyError?.detail
+  };
+});
+ipcMain.handle('anyApp:start', async (_evt, key: unknown, words: unknown) => {
+  const list = Array.isArray(words) ? words.filter((w): w is string => typeof w === 'string') : undefined;
+  return startAnyApp(typeof key === 'string' && key ? key : defaultPushToTalkKeyFor(process.platform), list && list.length ? list : undefined);
+});
+/* ---- the other side of the call, macOS (0.5.3, F16, PR 2) ------------------
+ * One resident md-tap for the app's life, spawned on first use. Its chunks
+ * go straight into the puck's ring (meetingSystemAudio.push), which cuts them
+ * to the microphone's segments. The grant is asked of the helper and kept
+ * here so a meeting start does not wait on a round trip; `systemAudio:status`
+ * refreshes it for the Settings row (PR 5). */
+let systemTap: SystemTap | null = null;
+let systemTapGranted = false;
+const systemTapResources = (): string => (app.isPackaged ? process.resourcesPath : join(__dirname, '../../resources'));
+function systemTapReady(): boolean { return mdTapAvailable(systemTapResources()); }
+function getSystemTap(): SystemTap | null {
+  if (!systemTapReady()) return null;
+  systemTap ??= new SystemTap(mdTapPath(systemTapResources()), (e) => {
+    if (e.type === 'chunk') meetingSystemAudio.push(e.chunk.pcm16, e.chunk.ts);
+    else if (e.type === 'error') { console.log(`[systemTap] ${e.error}${e.detail ? `: ${e.detail}` : ''}`); if (e.error === 'screen-denied') systemTapGranted = false; }
+    else if (e.type === 'helper-exited') console.log(`[systemTap] helper exited: ${e.why}`);
+  });
+  return systemTap;
+}
+async function systemAudioStatus(): Promise<{ platform: NodeJS.Platform; available: boolean; granted: boolean; source: 'helper' | 'renderer' | null; reason?: string; detail?: string }> {
+  if (process.platform === 'darwin') {
+    if (!systemTapReady()) return { platform: 'darwin', available: false, granted: false, source: null, reason: mdTapAvailable(systemTapResources(), 'darwin', '22.0.0') ? 'macos-too-old' : 'no-helper' };
+    const tap = getSystemTap();
+    try { systemTapGranted = (await tap!.permissions()).screen; } catch { systemTapGranted = false; }
+    return { platform: 'darwin', available: true, granted: systemTapGranted, source: systemTapGranted ? 'helper' : null, reason: systemTapGranted ? undefined : 'screen-not-granted' };
+  }
+  // Windows: Electron's loopback capture of the screen's audio, no grant to
+  // ask for (PR 3).
+  if (process.platform === 'win32') return { platform: 'win32', available: true, granted: true, source: 'renderer' };
+  // Linux (PR 4): the monitor of the output device, as the puck last found
+  // it; nothing to grant, X11 or Wayland alike. No monitor listed: the
+  // meeting is the microphone alone and the Settings row says why.
+  if (process.platform === 'linux') {
+    return linuxMonitor
+      ? { platform: 'linux', available: true, granted: true, source: 'renderer', detail: linuxMonitor.label }
+      : { platform: 'linux', available: false, granted: true, source: null, reason: 'no-monitor' };
+  }
+  return { platform: process.platform, available: false, granted: false, source: null, reason: 'not-yet' };
+}
+/** Linux: what the puck's renderer found in enumerateDevices, reported at
+ *  its load and on every device change (puck/systemAudio.ts watchMonitor). */
+let linuxMonitor: { deviceId: string; label: string } | null = null;
+ipcMain.on('systemAudio:monitor', (_e, m: unknown) => {
+  const ok = !!m && typeof m === 'object' && typeof (m as { deviceId?: unknown }).deviceId === 'string' && typeof (m as { label?: unknown }).label === 'string';
+  const next = ok ? { deviceId: (m as { deviceId: string }).deviceId, label: (m as { label: string }).label } : null;
+  if ((next?.label ?? null) !== (linuxMonitor?.label ?? null)) console.log(`[systemAudio] linux monitor: ${next ? next.label : 'none'}`);
+  linuxMonitor = next;
+});
+ipcMain.handle('systemAudio:status', () => systemAudioStatus());
+ipcMain.handle('systemAudio:request', async () => {
+  const tap = getSystemTap();
+  if (!tap) return { ok: false, error: 'not-available' };
+  try { const r = await tap.requestPermission(); systemTapGranted = r.screen; return { ok: true, granted: r.screen }; } catch (e) { return { ok: false, error: e instanceof Error ? e.message : String(e) }; }
+});
+ipcMain.handle('systemAudio:openSettings', async () => {
+  const tap = getSystemTap();
+  if (!tap) return { ok: false, error: 'not-available' };
+  return { ok: await tap.openSettings() };
+});
+// Read the grant once at launch so the first meeting knows.
+void systemAudioStatus().catch(() => { /* answered on the next status */ });
+
+ipcMain.handle('anyApp:stop', async () => { if (anyAppLoop) { await anyAppLoop.stop(); anyAppLoop = null; } return { ok: true }; });
+async function withAnyAppHelper<T>(fn: (loop: AnyAppDictation) => Promise<T>): Promise<T | { ok: false; error: string }> {
+  if (anyAppReason()) return { ok: false, error: 'not-available' };
+  if (anyAppLoop) return fn(anyAppLoop);
+  const tmp = new AnyAppDictation({ helperPath: mdHotkeyPath(anyAppResources()), key: defaultPushToTalkKeyFor(process.platform), transcriber: { transcribe: async () => ({ text: '' }) } });
+  try { return await fn(tmp); } finally { await tmp.stop(); }
+}
+ipcMain.handle('anyApp:requestMic', () => withAnyAppHelper(async (l) => ({ ok: true, mic: await l.requestMic() })));
+ipcMain.handle('anyApp:requestAccessibility', () => withAnyAppHelper(async (l) => ({ ok: true, accessibility: await l.requestAccessibility() })));
+ipcMain.handle('anyApp:openSettings', (_evt, pane: unknown) => withAnyAppHelper(async (l) => ({ ok: await l.openSettings(pane === 'microphone' ? 'microphone' : 'accessibility') })));
+ipcMain.handle('anyApp:testPaste', (_evt, text: unknown) => withAnyAppHelper(async (l) => {
+  try { return { ok: true, ...(await l.inject(typeof text === 'string' ? text : 'Munder Difflin can type here.')) }; }
+  catch (e) { return { ok: false, error: e instanceof HelperError ? e.code : 'inject-failed' }; }
+}));
+app.on('will-quit', () => { void anyAppLoop?.stop(); void anyAppSpeech?.stop(); });
+
 ipcMain.handle('hive:tasks', () => hive.tasks());
+// 0.5.3 ticket keys: the prefix new cards get now (Settings shows it).
+ipcMain.handle('hive:ticketPrefix', () => hive.ticketMeta(hive.tasks()).prefix);
+ipcMain.handle('hive:tasksArchive', () => hive.tasksArchive());
 ipcMain.handle('hive:log', (_evt, n: unknown) => hive.logTail(typeof n === 'number' ? n : 200));
 ipcMain.handle('hive:memory', (_evt, id: unknown) => (typeof id === 'string' ? hive.memory(id) : ''));
 ipcMain.handle('hive:inbox', (_evt, id: unknown) => (typeof id === 'string' ? hive.inbox(id) : []));
@@ -3490,6 +5734,15 @@ ipcMain.handle('hive:inbox', (_evt, id: unknown) => (typeof id === 'string' ? hi
 ipcMain.handle('hive:messages', (_evt, opts: unknown) =>
   hive.voiceMessages(opts && typeof opts === 'object' ? (opts as Parameters<typeof hive.voiceMessages>[0]) : {})
 );
+// v0.4.9 phase 2 (D4): an agent's activity digest, oldest first, at most `limit`
+// entries (the ring size when the renderer does not say). The renderer reads
+// updatedAt off the last entry; there is no second channel for it. A bad id is
+// an empty list, never a throw into the renderer.
+ipcMain.handle('hive:agentActivity', (_evt, agentId: unknown, limit: unknown) => {
+  if (typeof agentId !== 'string' || !agentId.trim()) return [];
+  const n = typeof limit === 'number' && Number.isInteger(limit) && limit > 0 ? limit : ACTIVITY_RING;
+  return activity.list(agentId, n);
+});
 ipcMain.handle('hive:send', (_evt, partial: Partial<HiveMessage>, from: unknown) => {
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
   const sender = typeof from === 'string' ? from : 'system';
@@ -3515,6 +5768,20 @@ ipcMain.handle('hive:patchTask', (_evt, id: unknown, patch: unknown) => {
   }
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
   return { ok: hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>) };
+});
+// Many cards in one write and one commit (askMeBulk, Dismiss all). An entry
+// that is not { id, patch } is skipped, not a reason to refuse the rest.
+ipcMain.handle('hive:patchTasks', (_evt, patches: unknown) => {
+  if (!Array.isArray(patches)) return { ok: false, applied: [], error: 'invalid task patches' };
+  if (!hive.enabled()) return { ok: false, applied: [], error: 'hive disabled (no harnessHome)' };
+  const valid = patches.filter((p): p is { id: string; patch: Partial<Omit<HiveTask, 'id'>> } =>
+    !!p && typeof p === 'object' && typeof (p as { id?: unknown }).id === 'string' && !!(p as { id: string }).id
+    && !!(p as { patch?: unknown }).patch && typeof (p as { patch: unknown }).patch === 'object' && !Array.isArray((p as { patch: unknown }).patch));
+  try {
+    return { ok: true, applied: hive.patchTasks(valid) };
+  } catch (err) {
+    return { ok: false, applied: [], error: err instanceof Error ? err.message : String(err) };
+  }
 });
 ipcMain.handle('hive:deleteTask', (_evt, id: unknown) => {
   if (typeof id !== 'string' || !id) return { ok: false, error: 'invalid task id' };
@@ -3710,19 +5977,16 @@ ipcMain.handle('kg:addFiles', async (evt) => {
 // The message queue pipes raw text into a Claude CLI PTY, so attachments travel
 // as a file PATH the agent reads with its Read tool (same convention as Slack).
 // Picker offers an Images group + All Files.
-ipcMain.handle('dialog:attachFiles', async (evt) => {
+// Any file, a PDF or a video included, and folders (0.5.3, I8). The Mac takes
+// both kinds in one picker; Windows and Linux cannot, so their composers ask
+// for one kind per button (shared/attachDialog).
+ipcMain.handle('dialog:attachFiles', async (evt, want: unknown) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   if (!win) return { ok: false as const, error: 'no window' };
-  const res = await dialog.showOpenDialog(win, {
-    properties: ['openFile', 'multiSelections'],
-    title: 'Attach images or files',
-    filters: [
-      { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'heic', 'tiff', 'avif'] },
-      { name: 'All Files', extensions: ['*'] }
-    ]
-  });
+  const res = await dialog.showOpenDialog(win, attachDialogOptions(process.platform, asAttachWant(want)));
   if (res.canceled || res.filePaths.length === 0) return { ok: false as const, error: 'cancelled' };
-  return { ok: true as const, files: res.filePaths.map((p) => ({ path: p, name: basename(p) })) };
+  const isFolder = (p: string): boolean => { try { return statSync(p).isDirectory(); } catch { return false; } };
+  return { ok: true as const, files: res.filePaths.map((p) => ({ path: p, name: attachName(p, isFolder(p)) })) };
 });
 
 // Persist the current native clipboard image to a temp PNG so a pasted
@@ -3738,6 +6002,35 @@ ipcMain.handle('clipboard:saveImage', async () => {
     const dest = join(dir, name);
     writeFileSync(dest, img.toPNG());
     return { ok: true as const, file: { path: dest, name } };
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : String(e) };
+  }
+});
+
+// Persist a dropped File that carried no resolvable path. macOS file-promise
+// sources (the Cmd Shift 5 screenshot thumbnail among them) can hand Chromium
+// the file's bytes without a stable path webUtils.getPathForFile can name, and
+// the message body needs a PATH the agent Reads. The renderer sends the bytes;
+// the copy written here is app-owned, so it also cannot vanish the way the
+// screencaptureui staging file under TemporaryItems does. (founder, 5 Sep 2026)
+const DROP_SAVE_MAX_BYTES = 64 * 1024 * 1024;
+ipcMain.handle('drop:saveFile', async (_evt, name: unknown, bytes: unknown) => {
+  try {
+    if (!(bytes instanceof Uint8Array) || bytes.byteLength === 0) {
+      return { ok: false as const, error: 'no bytes' };
+    }
+    if (bytes.byteLength > DROP_SAVE_MAX_BYTES) {
+      return { ok: false as const, error: 'file too large to persist' };
+    }
+    // The name names a file on the user's disk: strip separators and control
+    // characters, keep the tail so the extension survives, never trust it raw.
+    const raw = typeof name === 'string' && name ? name : 'drop';
+    const safe = raw.replace(/[/\\]/g, '').replace(/[\u0000-\u001f]/g, '').slice(-80) || 'drop';
+    const dir = join(app.getPath('temp'), 'cth-drops');
+    mkdirSync(dir, { recursive: true });
+    const dest = join(dir, `${Date.now()}-${safe}`);
+    writeFileSync(dest, bytes);
+    return { ok: true as const, file: { path: dest, name: safe } };
   } catch (e) {
     return { ok: false as const, error: e instanceof Error ? e.message : String(e) };
   }
@@ -3761,8 +6054,9 @@ ipcMain.handle('history:search', (_evt, query: unknown, limit: unknown) =>
   persist.searchHistory(typeof query === 'string' ? query : '', typeof limit === 'number' ? limit : undefined));
 
 // ─── IPC: quit confirmation ─────────────────────────────────────────────────
-/** Tear the harness down and quit. Shared by the hard "kill all & quit" path
- *  and the closing-time conclusion (after the god confirmed the floor saved). */
+/** Tear the harness down and quit. The "kill all & quit" path: every PTY dies
+ *  at once (whatever an agent held in working memory and had not written to
+ *  disk goes with it), everything already on disk stays, then the app exits. */
 function teardownAndQuit(): void {
   allowQuit = true;
   // Each teardown step is best-effort: a throw here (e.g. a dying child or a
@@ -3773,9 +6067,10 @@ function teardownAndQuit(): void {
   try { stopEphemeralWorkerWatcher(); } catch (e) { console.error('[quit] stopWorkerWatcher:', e); }
   try { integrationBroker.stop(); } catch (e) { console.error('[quit] broker.stop:', e); }
   try { hive.stopRouter(); } catch (e) { console.error('[quit] stopRouter:', e); }
+  try { stopTaskHygiene(); } catch (e) { console.error('[quit] stopTaskHygiene:', e); }
   try { hookServer.stop(); } catch (e) { console.error('[quit] hookServer.stop:', e); }
   try { telemetry.stop(); } catch (e) { console.error('[quit] telemetry.stop:', e); }
-  try { stopSlackServer(); } catch (e) { console.error('[quit] slack.stop:', e); }
+  try { stopSlackIngestion(); } catch (e) { console.error('[quit] slack.stop:', e); }
   try { stopWebhookServer(); } catch (e) { console.error('[quit] webhook.stop:', e); }
   try { memory.stop(); } catch (e) { console.error('[quit] memory.stop:', e); }
   try { reflector.stop(); } catch (e) { console.error('[quit] reflector.stop:', e); }
@@ -3785,7 +6080,6 @@ function teardownAndQuit(): void {
   app.quit();
 }
 ipcMain.handle('app:confirmClose', () => {
-  closingTime.cancel(); // a hard quit overrides a closing time in progress
   teardownAndQuit();
 });
 ipcMain.handle('app:cancelClose', () => {
@@ -3796,33 +6090,13 @@ ipcMain.handle('app:cancelClose', () => {
   abortPendingRestart();
 });
 
-// Open a new floor (independent office window). Gated by the multiWindow flag
-// inside openFloor(); returns whether a window opened so a renderer button can
-// reflect availability. The app-menu "New Floor" item calls openFloor() directly.
-ipcMain.handle('window:newFloor', () => {
-  const win = openFloor();
-  return { ok: win != null };
+// New Floor from the renderer (0.5.3, B21): the picker opens in the asking
+// window; the app-menu item does the same for the focused one. The old
+// second-window path (openFloor) is no longer an entry point.
+ipcMain.handle('window:newFloor', (evt) => {
+  if (!readConfig().multiWindow) return { ok: false };
+  return { ok: openFloorPicker(BrowserWindow.fromWebContents(evt.sender)) };
 });
-
-// ─── IPC: closing time (graceful, data-loss-free shutdown) ──────────────────
-// The third quit-dialog button. The god broadcasts closing time, every worker
-// saves its memory and ACKs, the god concludes with CLOSING-TIME-COMPLETE —
-// only then does the harness tear down. See closingTime.ts for the protocol.
-const closingTime = new ClosingTimeController(
-  hive,
-  // Roster source: agents with a live PTY right now (ptyToAgent is pruned on
-  // every teardown). The registry alone would include ghost workers from
-  // sessions that ended with a hard quit — never archived, never able to ACK.
-  () => [...new Set(ptyToAgent.values())],
-  () => liveWebContents(),
-  () => teardownAndQuit(),
-  // #7C.2 steering — the graceful interrupt that reaches deeply busy agents
-  // at their next hook boundary instead of waiting for a Stop.
-  control
-);
-hive.setRoutedObserver((msg, targets) => closingTime.onRouted(msg, targets));
-ipcMain.handle('app:startClosingTime', () => closingTime.start());
-ipcMain.handle('app:cancelClosingTime', () => closingTime.cancel());
 
 // ─── IPC: full reset (wipe data + config, relaunch into onboarding) ──────────
 ipcMain.handle('app:resetAll', () => {
@@ -3834,9 +6108,10 @@ ipcMain.handle('app:resetAll', () => {
   try { stopEphemeralWorkerWatcher(); } catch (e) { console.error('[reset] stopWorkerWatcher:', e); }
   try { integrationBroker.stop(); } catch (e) { console.error('[reset] broker.stop:', e); }
   try { hive.stopRouter(); } catch (e) { console.error('[reset] stopRouter:', e); }
+  try { stopTaskHygiene(); } catch (e) { console.error('[reset] stopTaskHygiene:', e); }
   try { hookServer.stop(); } catch (e) { console.error('[reset] hookServer.stop:', e); }
   try { telemetry.stop(); } catch (e) { console.error('[reset] telemetry.stop:', e); }
-  try { stopSlackServer(); } catch (e) { console.error('[reset] slack.stop:', e); }
+  try { stopSlackIngestion(); } catch (e) { console.error('[reset] slack.stop:', e); }
   try { memory.stop(); } catch (e) { console.error('[reset] memory.stop:', e); }
   try { reflector.stop(); } catch (e) { console.error('[reset] reflector.stop:', e); }
   try { persist.close(); } catch (e) { console.error('[reset] persist.close:', e); }
@@ -3977,14 +6252,21 @@ ipcMain.handle('control:steer', (_evt, agentId: unknown, text: unknown) => {
   if (typeof agentId !== 'string' || typeof text !== 'string') return null;
   control.steer(agentId, text);
   // A steer typed into the control strip is a human message. Counted HERE, at
-  // the IPC seam, and deliberately not inside control.steer(): closingTime and
-  // the voice action layer call that directly, and neither is a person typing.
+  // the IPC seam, and deliberately not inside control.steer(): the voice
+  // action layer calls that directly, and it is not a person typing.
   analytics.trackMessageSent('steer');
   return control.snapshot(agentId);
 });
 ipcMain.handle('control:halt', (_evt, agentId: unknown) => {
   if (typeof agentId !== 'string') return null;
   control.halt(agentId);
+  return control.snapshot(agentId);
+});
+// The stop-after control is a toggle: unhalt cancels a pending halt and ONLY
+// the halt (control:resume also clears a pause, which the toggle must not).
+ipcMain.handle('control:unhalt', (_evt, agentId: unknown) => {
+  if (typeof agentId !== 'string') return null;
+  control.unhalt(agentId);
   return control.snapshot(agentId);
 });
 ipcMain.handle('control:snapshot', (_evt, agentId: unknown) =>
@@ -4016,8 +6298,15 @@ ipcMain.handle('hive:textSearch', (_evt, query: unknown) => {
   if (typeof query !== 'string' || !query.trim()) return { ok: false, results: [] };
   const root = hive.root();
   if (!root) return { ok: false, results: [] };
-  const q = query.toLowerCase();
-  const results: Array<{ source: string; excerpt: string }> = [];
+  const q = query.trim().toLowerCase();
+  // 0.5.2 (card v052-voice-michael-memory-dead-ends): a spoken question is a
+  // sentence, and no line of anyone's notes contains the whole sentence. A
+  // line now counts when it carries half the question's words (the whole
+  // phrase still wins outright), and the best lines across every file come
+  // back first. A query with no usable words keeps the old substring match.
+  const keywords = keywordsOf(q);
+  const threshold = keywordThreshold(keywords);
+  const scored: Array<{ source: string; excerpt: string; score: number }> = [];
   // Each target file is (path, readable label). agents/<id>/memory.md is expanded below.
   const targets: Array<{ path: string; source: string }> = [
     { path: join(root, 'board.md'), source: 'board.md' },
@@ -4031,17 +6320,19 @@ ipcMain.handle('hive:textSearch', (_evt, query: unknown) => {
   }
   for (const { path, source } of targets) {
     if (!existsSync(path)) continue;
-    let hits = 0;
+    const mine: Array<{ source: string; excerpt: string; score: number }> = [];
     for (const line of readFileSync(path, 'utf8').split('\n')) {
-      if (hits >= 3) break;
-      const idx = line.toLowerCase().indexOf(q);
-      if (idx === -1) continue;
-      // ~40 chars of context on either side of the match.
-      const excerpt = line.slice(Math.max(0, idx - 40), idx + q.length + 40).trim();
-      results.push({ source, excerpt });
-      hits++;
+      const lower = line.toLowerCase();
+      const phrase = lower.includes(q);
+      const score = phrase ? keywords.length + 1 : keywords.length ? scoreLine(lower, keywords) : 0;
+      if (phrase ? false : keywords.length ? score < threshold : true) continue;
+      mine.push({ source, excerpt: excerptAround(line, keywords.length ? keywords : [q]), score });
     }
+    mine.sort((a, b) => b.score - a.score);
+    scored.push(...mine.slice(0, 3));
   }
+  scored.sort((a, b) => b.score - a.score);
+  const results = scored.slice(0, 14).map(({ source, excerpt }) => ({ source, excerpt }));
   return { ok: true, results };
 });
 
@@ -4079,28 +6370,53 @@ ipcMain.handle('app:setLoginItem', (_evt, enabled: unknown) => {
 });
 
 // ─── IPC: Slack integration ─────────────────────────────────────────────────
-ipcMain.handle('slack:start', () => startSlackServer());
+ipcMain.handle('slack:start', () => startSlackIngestion());
 /** Stop must survive a restart. Boot re-arms from `slackEnabled`, so stopping
- *  without clearing it silently brought the server back on the next launch —
- *  the user pressed Stop and Slack was live again.
+ *  without clearing it silently brought the way back on the next launch: the
+ *  user pressed Stop and Slack was live again. Public main fixed that on the
+ *  webhook-only stop; 0.4.11 runs three ways behind `stopSlackIngestion`, so
+ *  the clear belongs here.
  *
  *  Persist BEFORE tearing down. If the write throws (read-only volume, ENOSPC)
- *  the server is still up and the UI stays truthful; the other order leaves a
- *  dead server that still reads as Connected with the flag set, which is this
- *  same bug again with no error to show for it.
+ *  the way is still up and the UI stays truthful; the other order leaves a dead
+ *  transport that still reads as Connected with the flag set, which is this same
+ *  bug again with no error to show for it.
  *
  *  Only this handler clears the flag. changeHome / quit / reset call
- *  `stopSlackServer()` directly and must not: they are lifecycle, not a user
+ *  `stopSlackIngestion()` directly and must not: they are lifecycle, not a user
  *  turning the integration off. (Start persists the flag from the renderer, in
  *  `SettingsModal.startSlack`, not here.) */
 ipcMain.handle('slack:stop', () => {
   writeConfig({ slackEnabled: false });
-  stopSlackServer();
+  stopSlackIngestion();
   return { ok: true };
 });
-/** Current connection state + last Request URL — lets Settings hydrate the
- *  "Connected" badge and re-show the persisted tunnel URL on reopen. */
-ipcMain.handle('slack:status', () => ({ running: slackServer != null, url: lastSlackUrl }));
+/** The live way's state (0.4.11): which way, running, team and bot, the poll or
+ *  socket times, the webhook's Request URL, the last error, live temps. */
+ipcMain.handle('slack:status', (): SlackStatus => slackStatusNow());
+/** Test the connection. Starts nothing and SAVES NOTHING: the renderer sends
+ *  the fields as typed, so this answers about the token on screen. Never gated
+ *  on readiness, because naming what is missing is its whole job. */
+ipcMain.handle('slack:test', (_evt, draft: unknown) => {
+  const d = (draft ?? {}) as Record<string, unknown>;
+  const str = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
+  return slackTestNow({
+    mode: (SLACK_MODES as readonly string[]).includes(String(d.mode)) ? (d.mode as SlackMode) : undefined,
+    botToken: str(d.botToken),
+    appToken: str(d.appToken),
+    signingSecret: str(d.signingSecret)
+  });
+});
+// The Slack ledger (slackHistory.ts): every inbound thread message and every
+// post we made, newest first. PRO's Inbox reads it as the Slack thread.
+ipcMain.handle('slack:history', () => listSlackHistory());
+function notifySlackHistoryUpdated(): void {
+  try { liveWebContents()?.send('slack:historyUpdated'); } catch { /* window gone */ }
+}
+setSlackPostSink((r) => {
+  appendSlackHistory({ direction: 'outbound', channel: r.channel, thread_ts: r.thread_ts, text: r.text, ok: r.ok, error: r.error });
+  notifySlackHistoryUpdated();
+});
 /** Absolute path to the bundled reply helper, for the prompt the office worker
  *  runs to post its summary back in-thread. No secret crosses this boundary. */
 ipcMain.handle('slack:replyScriptPath', () => slackReplyScriptPath());
@@ -4114,7 +6430,13 @@ ipcMain.handle('slack:reply', (_evt, arg: unknown) => {
   // OFF unless the user opts in via Settings → Slack. The Slack-ORIGIN done-reply
   // round-trip (done-poller) and an agent's own direct /reply are NOT routed
   // through here, so they are unaffected and always stay on.
-  if (!cfg.slackProactivePosting) return { ok: false, error: 'app-initiated Slack posting disabled (enable in Settings → Slack)' };
+  // Name the switch as the SCREEN names it, not as the code names it. This
+  // string is what a person sees when a reply does not appear, and "app-initiated
+  // proactive posting" is not a phrase on any surface they can go and look at
+  // (founder, 7 Sep 2026: "it is not even clear what it does").
+  if (!cfg.slackProactivePosting) {
+    return { ok: false, error: SLACK_PROACTIVE_OFF_REASON };
+  }
   const botToken = cfg.slackBotToken;
   if (!botToken) return { ok: false, error: 'no bot token' };
   if (typeof p.channel !== 'string' || typeof p.thread_ts !== 'string' || typeof p.text !== 'string') {
@@ -4128,27 +6450,100 @@ ipcMain.handle('slack:reply', (_evt, arg: unknown) => {
   }
   return postSlackReply({ botToken, channel: p.channel, thread_ts: p.thread_ts, text: p.text });
 });
-ipcMain.handle('slack:setConfig', (_evt, patch: unknown) => {
+ipcMain.handle('slack:setConfig', (_evt, patch: unknown) => writeSlackConfig(patch));
+/** Write the Slack fields a patch carries, and stop what the change breaks.
+ *  Settings' Save and an agent's slack.set request both come through here. */
+function writeSlackConfig(patch: unknown): { ok: true } {
   const p = (patch ?? {}) as {
-    signingSecret?: unknown; botToken?: unknown; channelId?: unknown; port?: unknown; enabled?: unknown;
-    proactivePosting?: unknown;
+    signingSecret?: unknown; botToken?: unknown; appToken?: unknown; channelId?: unknown; port?: unknown; enabled?: unknown;
+    proactivePosting?: unknown; mode?: unknown; pollSeconds?: unknown; catchupSeconds?: unknown; tempCwd?: unknown; triage?: unknown;
   };
+  const before = slackReadiness(readConfig());
   const next: Partial<HarnessConfig> = {};
   // Trim string fields; an emptied field clears back to undefined.
   if (typeof p.signingSecret === 'string') next.slackSigningSecret = p.signingSecret.trim() || undefined;
   if (typeof p.botToken === 'string') next.slackBotToken = p.botToken.trim() || undefined;
+  if (typeof p.appToken === 'string') next.slackAppToken = p.appToken.trim() || undefined;
   if (typeof p.channelId === 'string') next.slackChannelId = p.channelId.trim() || undefined;
   if (typeof p.port === 'number' && Number.isFinite(p.port)) next.slackPort = p.port;
   if (typeof p.enabled === 'boolean') next.slackEnabled = p.enabled;
   if (typeof p.proactivePosting === 'boolean') next.slackProactivePosting = p.proactivePosting;
+  // 0.4.11: the way, the two frequency pickers and the temps folder. A value
+  // outside its range reads as the default (shared/slackMode), never as garbage.
+  if (typeof p.mode === 'string' && (SLACK_MODES as readonly string[]).includes(p.mode)) next.slackMode = p.mode as SlackMode;
+  if (typeof p.pollSeconds === 'number') next.slackPollSeconds = resolvePollSeconds(p.pollSeconds);
+  if (typeof p.catchupSeconds === 'number') next.slackSocketCatchupSeconds = resolveCatchupSeconds(p.catchupSeconds);
+  if (typeof p.tempCwd === 'string') next.slackTempCwd = p.tempCwd.trim() || undefined;
+  // `triage` (0.4.11) is accepted and ignored: who answers moved to
+  // config.responder (0.5.2), the one setting for every inbound channel,
+  // written through config:update. An older renderer sending it breaks nothing.
+  void p.triage;
   writeConfig(next);
-  // Reconcile the running server: disabling (or clearing the secret) stops it. We
-  // deliberately do NOT auto-(re)start here — the user presses Start in Settings
-  // to fetch the fresh (ephemeral) tunnel URL.
-  const cfg = readConfig();
-  if (!cfg.slackEnabled || !cfg.slackSigningSecret) stopSlackServer();
+  // Reconcile what runs: disabling, clearing the chosen way's token, or choosing
+  // another way (one at a time) stops the running transport. Nothing restarts
+  // here; the person presses Turn on (or Start, for the webhook's fresh URL).
+  const after = slackReadiness(readConfig());
+  if (after.error || after.mode !== before.mode) stopSlackIngestion();
   return { ok: true };
-});
+}
+
+// ─── Agents set up connections themselves (0.5.3 batch 3 #6) ────────────────
+// An agent writes a request into $AGENT_DIR/connections/requests; this applies
+// it through the same doors Settings uses (storeWebhooks, writeSlackConfig)
+// and answers in $AGENT_DIR/connections/results. See connectionRequests.ts.
+const connectionDeps: ConnDeps = {
+  hiveRoot: () => hive.root(),
+  listWebhooks: () => readConfig().webhookTriggers ?? [],
+  saveWebhooks: (list) => storeWebhooks(list),
+  mintSecret: () => randomBytes(32).toString('hex'),
+  newWebhookId: () => `wh-${Date.now().toString(36)}-${randomBytes(3).toString('hex')}`,
+  endpointUrl: (id) => webhookEndpointUrls().find((e) => e.id === id)?.url ?? '',
+  applySlack: (patch) => {
+    // Like Settings' Save: stop, write, then start when it is on and ready.
+    stopSlackIngestion();
+    writeSlackConfig(patch);
+    const c = readConfig();
+    if (c.slackEnabled && !slackReadiness(c).error) void startSlackIngestion();
+  },
+  setDefaults: (d) => {
+    writeConfig({
+      ...(typeof d.webhookResponder === 'string' ? { webhookResponder: d.webhookResponder || undefined } : {}),
+      ...(typeof d.responder === 'string' ? { responder: d.responder || undefined } : {})
+    });
+  },
+  snapshot: () => connectionSnapshot(),
+  log: (e) => hive.appendLog(e),
+  now: () => Date.now(),
+  onChanged: () => { try { liveWebContents()?.send('webhooks:changed'); } catch { /* window gone */ } }
+};
+
+/** state.json: what is set up, with no secret and no token in it. */
+function connectionSnapshot(): Record<string, unknown> {
+  const c = readConfig();
+  const urls = webhookEndpointUrls();
+  return {
+    note: 'Written by the app. Read only; to change anything, see README.md.',
+    webhookServer: { running: webhookServer != null, url: lastWebhookUrl ?? '' },
+    webhookResponder: c.webhookResponder ?? '',
+    webhooks: (c.webhookTriggers ?? []).map((w) => ({
+      id: w.id, name: w.name, source: w.source ?? 'custom', ...(w.source ? {} : { auth: w.auth ?? 'header' }),
+      to: w.to ?? '', enabled: w.enabled, mode: w.mode, description: w.description ?? '',
+      hasPrompt: !!w.prompt, url: urls.find((e) => e.id === w.id)?.url ?? ''
+    })),
+    slack: {
+      enabled: c.slackEnabled === true, mode: c.slackMode ?? '', channelId: c.slackChannelId ?? '', responder: c.responder ?? '',
+      botTokenSet: !!c.slackBotToken, appTokenSet: !!c.slackAppToken, signingSecretSet: !!c.slackSigningSecret
+    }
+  };
+}
+
+let connectionTimer: NodeJS.Timeout | null = null;
+function startConnectionRequests(): void {
+  if (connectionTimer) return;
+  connectionTimer = setInterval(() => {
+    try { processConnectionRequests(connectionDeps); } catch (e) { console.error('[connections]', e instanceof Error ? e.message : e); }
+  }, 3000);
+}
 
 // ─── IPC: Triggers — context (auto-compact / auto-clear) ────────────────────
 ipcMain.handle('triggers:getContext', () => readConfig().contextTrigger ?? DEFAULT_CONTEXT_TRIGGER);
@@ -4183,10 +6578,47 @@ function sanitizeContextRule(patch: Partial<ContextRule> | undefined, current: C
   };
 }
 
+// ─── IPC: file share (one local file, one public link, dead in an hour) ─────
+// The cross MACHINE path for a file. The composer's attachment pastes a LOCAL
+// PATH, which only works when the agent shares a filesystem with the sender;
+// this publishes the file on a tunnel link, and the link expires in an hour.
+//
+// `FileShareStore` owns the whole thing — the loopback server, the single
+// tunnel in front of it, the per share revoker and the sweep. Everything here
+// is bridge. The import sits with its one consumer so the feature reads as one
+// block; it is hoisted like every other import in this module.
+import { FileShareStore } from './fileShare';
+import { AnyAppDictation, anyAppUnavailableReason, mdHotkeyPath, type AnyAppEvent, type AnyAppPermissions, type AnyAppTranscriber } from './transcribe/anyApp';
+import { HelperError } from './transcribe/lineHelper';
+import { MdSpeech, mdSpeechAvailable, mdSpeechPath } from './transcribe/mdSpeech';
+import { anyAppViaRouter } from './transcribe/anyAppEngine';
+
+/** One store for the app. It binds nothing until the first share exists and
+ *  closes the listener again when the last one goes. */
+const fileShareStore = new FileShareStore();
+
+/** Publish one file for an hour. The renderer's path is a REQUEST, never a
+ *  fact: the store re-checks that it is absolute, resolves it through any
+ *  symlink, refuses anything that is not a regular file and refuses anything
+ *  over the size cap. A refusal comes back as a CODE, so no path and no token
+ *  can ride out inside a message. Share IDS are what goes in a log line here;
+ *  the token never does. */
+ipcMain.handle('fileShare:create', (_evt, arg: unknown) => fileShareStore.create(arg));
+/** Live shares only. The store sweeps before it answers. */
+ipcMain.handle('fileShare:list', () => fileShareStore.list());
+/** Kill one link early. Deletes NOTHING on disk: a share is a link, not a copy. */
+ipcMain.handle('fileShare:revoke', (_evt, arg: unknown) => fileShareStore.revoke(arg));
+// Every share dies with the app. `will-quit` rather than `before-quit` because
+// before-quit can be cancelled (agents still running), and a cancelled quit
+// must not have silently revoked somebody's links on the way past.
+app.on('will-quit', () => { try { fileShareStore.stop(); } catch { /* noop */ } });
+
 // ─── IPC: Triggers — webhooks (many endpoints, one server, one tunnel) ──────
 ipcMain.handle('webhooks:list', () => readConfig().webhookTriggers ?? []);
-ipcMain.handle('webhooks:save', (_evt, arg: unknown) => {
-  const incoming = Array.isArray(arg) ? arg : [];
+ipcMain.handle('webhooks:save', (_evt, arg: unknown) => storeWebhooks(Array.isArray(arg) ? arg : []));
+/** Sanitise, store and re-point the live server. Settings, Automations and an
+ *  agent's connection request (connectionRequests.ts) all write through here. */
+function storeWebhooks(incoming: unknown[]): WebhookTrigger[] {
   const existing = readConfig().webhookTriggers ?? [];
   const list: WebhookTrigger[] = [];
   const seen = new Set<string>();
@@ -4199,7 +6631,7 @@ ipcMain.handle('webhooks:save', (_evt, arg: unknown) => {
   writeConfig({ webhookTriggers: list });
   reconcileWebhookServer();
   return list;
-});
+}
 ipcMain.handle('webhooks:delete', (_evt, arg: unknown) => {
   const id = typeof arg === 'string' ? arg : '';
   const list = (readConfig().webhookTriggers ?? []).filter((t) => t.id !== id);
@@ -4212,13 +6644,48 @@ ipcMain.handle('webhooks:delete', (_evt, arg: unknown) => {
 /** Mint a strong (256-bit) secret for the operator to paste into their caller.
  *  Not persisted here — it belongs to whichever endpoint the UI saves it onto. */
 ipcMain.handle('webhooks:generateSecret', () => randomBytes(32).toString('hex'));
+/** 0.5.3 (Integrations, Telegram): point a Telegram bot at one endpoint. The
+ *  bot token is used for this one call and never stored; Telegram then signs
+ *  every update with the endpoint's secret as its secret_token. Only a
+ *  Telegram endpoint that exists, and only its own URL, can be registered. */
+ipcMain.handle('telegram:setWebhook', async (_evt, arg: unknown) => {
+  const a = (arg && typeof arg === 'object' ? arg : {}) as { id?: unknown; botToken?: unknown };
+  const botToken = typeof a.botToken === 'string' ? a.botToken.trim() : '';
+  if (!/^\d{5,16}:[A-Za-z0-9_-]{20,64}$/.test(botToken)) return { ok: false, error: 'bad-token' };
+  const t = (readConfig().webhookTriggers ?? []).find((w) => w.id === a.id && w.source === 'telegram');
+  if (!t || !t.secret) return { ok: false, error: 'no-endpoint' };
+  const url = webhookEndpointUrls().find((e) => e.id === t.id)?.url ?? '';
+  if (!url) return { ok: false, error: 'no-public-url' };
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url, secret_token: t.secret, allowed_updates: ['message', 'edited_message', 'channel_post'] }),
+      signal: AbortSignal.timeout(10_000)
+    });
+    const body = await res.json().catch(() => ({})) as { ok?: boolean; description?: string };
+    return body.ok ? { ok: true } : { ok: false, error: body.description ?? `http ${res.status}` };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+});
 /** Server state + the tunnel root + one public URL per configured endpoint (the
  *  UI offers a copy button per webhook, so the root alone isn't enough). */
 ipcMain.handle('webhooks:status', () => ({
   running: webhookServer != null,
+  starting: webhookStarting,
+  ...(lastWebhookError ? { error: lastWebhookError } : {}),
   url: lastWebhookUrl,
+  ...(webhookServer?.boundPort() ?? {}),
   endpoints: webhookEndpointUrls()
 }));
+/** Retry after a failed start: a server that bound but never got a tunnel is
+ *  stopped first, because a running server only re-points its endpoints. */
+ipcMain.handle('webhooks:retry', async () => {
+  if (webhookStarting) return { ok: false, error: 'already starting' };
+  if (webhookServer && !webhookServer.publicUrl()) stopWebhookServer();
+  return startWebhookServer();
+});
 
 /** Normalise one endpoint coming back from the renderer. Unknown/blank fields
  *  fall back to what is already persisted, so a UI that round-trips a partially
@@ -4242,30 +6709,33 @@ function sanitizeWebhookTrigger(raw: unknown, existing: WebhookTrigger[]): Webho
     enabled: secret ? (typeof r.enabled === 'boolean' ? r.enabled : prior?.enabled ?? false) : false,
     mode,
     schema: typeof r.schema === 'string' && r.schema.trim() ? r.schema : prior?.schema ?? DEFAULT_WEBHOOK_SCHEMA,
-    createdAt: typeof r.createdAt === 'number' && r.createdAt > 0 ? r.createdAt : prior?.createdAt ?? Date.now()
+    createdAt: typeof r.createdAt === 'number' && r.createdAt > 0 ? r.createdAt : prior?.createdAt ?? Date.now(),
+    // 0.4.9 phase 4. Both are OPTIONAL and both fall back to what is already
+    // stored, which is the whole migration: an endpoint written before these
+    // existed keeps behaving as it did until someone edits it. The prompt is
+    // bounded because it rides with EVERY request this endpoint accepts, and an
+    // unbounded one would be an unbounded cost per call.
+    ...(typeof r.prompt === 'string' ? (r.prompt.trim() ? { prompt: r.prompt.trim().slice(0, WEBHOOK_PROMPT_MAX) } : {}) : (prior?.prompt ? { prompt: prior.prompt } : {})),
+    ...(typeof r.guardrails === 'boolean' ? { guardrails: r.guardrails } : (prior?.guardrails ? { guardrails: true } : {})),
+    // 0.5.3 (settings redesign): who sends, who answers, and what it is for.
+    // Optional and falling back to what is stored, like the two above. `to` is
+    // an agent id or nothing; '' from the picker means the webhook default.
+    ...(isWebhookSource(r.source) ? { source: r.source } : (prior?.source ? { source: prior.source } : {})),
+    ...(typeof r.to === 'string' ? (/^[A-Za-z0-9._-]{1,80}$/.test(r.to.trim()) ? { to: r.to.trim() } : {}) : (prior?.to ? { to: prior.to } : {})),
+    ...(typeof r.description === 'string' ? (r.description.trim() ? { description: r.description.trim().slice(0, 200) } : {}) : (prior?.description ? { description: prior.description } : {})),
+    // 0.5.3 batch 3: how a custom caller proves itself. 'header' is the
+    // default and is not stored.
+    ...(isWebhookAuth(r.auth) ? (r.auth === 'header' ? {} : { auth: r.auth }) : (prior?.auth ? { auth: prior.auth } : {}))
   };
 }
+
+/** A standing instruction rides with every request the endpoint accepts, so it
+ *  is bounded: an unbounded one is an unbounded cost per call. */
+const WEBHOOK_PROMPT_MAX = 2000;
 
 function isTriggerMode(v: unknown): v is TriggerMode {
   return v === 'strict' || v === 'allow-all' || v === 'communication-only';
 }
-
-// ─── IPC: Triggers — organisation (persistence only; no transport yet) ──────
-ipcMain.handle('org:getTrigger', () => readConfig().orgTrigger ?? DEFAULT_ORG_TRIGGER);
-ipcMain.handle('org:setTrigger', (_evt, arg: unknown) => {
-  const current = readConfig().orgTrigger ?? DEFAULT_ORG_TRIGGER;
-  const p = (arg ?? {}) as Partial<OrgTriggerConfig>;
-  // PERSIST ONLY — the peer messaging service does not exist yet, so nothing
-  // reads `apiKey` beyond the settings surface that shows it. Deliberately no
-  // start/stop, no network, no side effect of any kind.
-  const next: OrgTriggerConfig = {
-    apiKey: typeof p.apiKey === 'string' ? p.apiKey.trim() : current.apiKey,
-    enabled: typeof p.enabled === 'boolean' ? p.enabled : current.enabled,
-    mode: isTriggerMode(p.mode) ? p.mode : current.mode
-  };
-  writeConfig({ orgTrigger: next });
-  return next;
-});
 
 // ─── IPC: Triggers — history ledger + the approval gate ─────────────────────
 ipcMain.handle('triggerHistory:list', () => listTriggerHistory());
@@ -4305,7 +6775,13 @@ ipcMain.handle('triggerHistory:decide', (_evt, arg: unknown) => {
   const taskId = `webhook-${randomBytes(8).toString('hex')}`;
   const tokenHash = heldTokenHashFor(id);
   const title = entry.title ?? (entry.body.length > 80 ? `${entry.body.slice(0, 79)}…` : entry.body);
-  if (!dispatchWebhookWork({ taskId, title, message: entry.body, tokenHash, origin: entry.source })) {
+  // The endpoint's standing instruction and guardrails, as they stand NOW. An
+  // approved message must reach the orchestrator with the same briefing an
+  // auto-allowed one would have had, or "approved" quietly means something
+  // weaker than "allowed". An endpoint deleted while the message was held has
+  // no briefing left to give, and the message goes with the message alone.
+  const held = (readConfig().webhookTriggers ?? []).find((h) => h.id === entry.sourceId);
+  if (!dispatchWebhookWork({ taskId, title, message: entry.body, tokenHash, origin: entry.source, prompt: held?.prompt, guardrails: held?.guardrails, to: held?.to })) {
     // The card is what the caller polls and what god works from. Leave the entry
     // pending so the operator can approve again once the hive is writable.
     return entry;
@@ -4327,7 +6803,7 @@ ipcMain.handle('triggerHistory:decide', (_evt, arg: unknown) => {
 ipcMain.handle('webhook:start', () => startWebhookServer());
 ipcMain.handle('webhook:stop', () => { stopWebhookServer(); return { ok: true }; });
 /** Current state + last public endpoint URL, for the Settings badge/URL field. */
-ipcMain.handle('webhook:status', () => ({ running: webhookServer != null, url: lastWebhookUrl }));
+ipcMain.handle('webhook:status', () => ({ running: webhookServer != null, url: lastWebhookUrl, ...(webhookServer?.boundPort() ?? {}) }));
 /** Mint a strong (256-bit) secret, persist it, and return it so Settings can show
  *  it for the user to copy into their client. The previous secret is replaced. */
 ipcMain.handle('webhook:generateSecret', () => {
@@ -4383,10 +6859,67 @@ function upsertLegacyWebhookTrigger(patch: { secret?: string; enabled?: boolean 
 // the Fn key to Electron (electron#16714) and a faithful native Fn helper
 // (CGEventTap) is deferred; hold-Option is the human-chosen v1 activation.
 
+// 0.5.3, F16: one router picks the engine (Apple on device, whisper.cpp, or
+// Groq as the fallback) for the composer, Stapler and the any app loop. Built
+// on first use so a test import of this module spawns nothing.
+let transcribeRouter: TranscribeRouter | null = null;
+function getTranscribeRouter(): TranscribeRouter {
+  transcribeRouter ??= new TranscribeRouter({
+    resourcesPath: app.isPackaged ? process.resourcesPath : join(__dirname, '../../resources'),
+    userDataPath: app.getPath('userData'),
+    readConfig,
+    log: (line) => console.log(line)
+  });
+  return transcribeRouter;
+}
+app.on('will-quit', () => { transcribeRouter?.stop(); });
+
+ipcMain.handle('transcribe:status', () => getTranscribeRouter().status());
+ipcMain.handle('transcribe:setConfig', async (_evt, patch: unknown) => {
+  const p = (patch ?? {}) as Partial<Record<keyof TranscribeConfig, unknown>>;
+  const cur = withTranscribeDefaults(readConfig().transcribe);
+  const next = withTranscribeDefaults({
+    ...cur,
+    ...(p.engine !== undefined ? { engine: p.engine } : {}),
+    ...(p.model !== undefined ? { model: p.model } : {}),
+    ...(p.customWords !== undefined ? { customWords: cleanCustomWords(p.customWords) } : {}),
+    ...(p.defaultVocabulary !== undefined ? { defaultVocabulary: p.defaultVocabulary } : {}),
+    ...(p.pushToTalkKey !== undefined ? { pushToTalkKey: p.pushToTalkKey } : {}),
+    ...(p.anyApp !== undefined ? { anyApp: p.anyApp } : {}),
+    // The other side of calls (F16, PR 5): read at every meeting start.
+    ...(p.meetingSystemAudio !== undefined ? { meetingSystemAudio: p.meetingSystemAudio } : {}),
+    ...(p.meetingKey !== undefined ? { meetingKey: p.meetingKey } : {}),
+    ...(p.captureKey !== undefined ? { captureKey: p.captureKey } : {}),
+    ...(p.dictationSounds !== undefined ? { dictationSounds: p.dictationSounds } : {}),
+    // The two fields whose default moved in 0.5.3 remember being chosen, so
+    // a later default never overrides the user (transcribeConfig `chosen`).
+    chosen: [...cur.chosen, ...(p.anyApp !== undefined ? ['anyApp' as const] : []), ...(p.pushToTalkKey !== undefined ? ['pushToTalkKey' as const] : [])]
+  });
+  writeConfig({ transcribe: next });
+  // A new engine means a new transcriber for the any app loop (24 Sep: it
+  // follows the chosen engine), so an armed loop is re-armed with it.
+  if (next.engine !== cur.engine && anyAppLoop) { await anyAppLoop.stop(); anyAppLoop = null; }
+  // The any app loop follows the switch and the key at once; so does the
+  // meeting chord.
+  await syncAnyAppToConfig(next);
+  await syncMeetingHotkeyToConfig(next);
+  await syncCaptureHotkeyToConfig(next);
+  return { ok: true, config: next, status: getTranscribeRouter().status() };
+});
+ipcMain.handle('transcribe:downloadModel', async (evt, id: unknown) => {
+  if (id !== 'small') return { ok: false, error: 'unknown model' };
+  const wc = evt.sender;
+  const r = await getTranscribeRouter().downloadModel('small', (received, total) => {
+    if (!wc.isDestroyed()) wc.send('transcribe:downloadProgress', { id, received, total });
+  });
+  return r;
+});
+
 ipcMain.handle('freeflow:setConfig', (_evt, patch: unknown) => {
-  const p = (patch ?? {}) as { enabled?: unknown; apiKey?: unknown; model?: unknown };
+  // No `enabled` any more: Free Flow is always on (batch 3); an old caller's
+  // `enabled` is ignored.
+  const p = (patch ?? {}) as { apiKey?: unknown; model?: unknown };
   const next: Partial<HarnessConfig> = {};
-  if (typeof p.enabled === 'boolean') next.freeflowEnabled = p.enabled;
   // Trim string fields; an emptied key clears back to undefined.
   if (typeof p.apiKey === 'string') next.groqApiKey = p.apiKey.trim() || undefined;
   if (typeof p.model === 'string') next.freeflowModel = p.model.trim() || DEFAULT_GROQ_MODEL;
@@ -4394,19 +6927,19 @@ ipcMain.handle('freeflow:setConfig', (_evt, patch: unknown) => {
   return { ok: true };
 });
 
-/** Transcribe one captured audio clip via Groq. Gated on the flag + a key being
- *  present, so a disabled feature can NEVER reach the network. The Groq key stays
+/** Transcribe one captured audio clip through the router (Groq only when that
+ *  engine is picked and a key is present). The Groq key stays
  *  in main — only the audio bytes cross IPC inbound and the transcript outbound. */
 ipcMain.handle('freeflow:transcribe', async (_evt, arg: unknown) => {
   const cfg = readConfig();
-  if (!cfg.freeflowEnabled) return { ok: false, error: 'Free Flow is disabled' };
-  if (!cfg.groqApiKey) return { ok: false, error: 'no Groq API key set' };
   const a = (arg ?? {}) as { audio?: unknown; mimeType?: unknown; filename?: unknown; language?: unknown };
   if (!(a.audio instanceof ArrayBuffer) && !(a.audio instanceof Uint8Array)) {
     return { ok: false, error: 'no audio' };
   }
-  const out = await transcribeWithGroq({
-    apiKey: cfg.groqApiKey,
+  // 0.5.3, F16: the router picks the engine; Groq is one of its choices and
+  // still needs the key, the local engines do not.
+  const out = await getTranscribeRouter().transcribe({
+    mode: 'dictation',
     audio: a.audio,
     mimeType: typeof a.mimeType === 'string' ? a.mimeType : undefined,
     filename: typeof a.filename === 'string' ? a.filename : undefined,
@@ -4422,6 +6955,87 @@ ipcMain.handle('freeflow:transcribe', async (_evt, arg: unknown) => {
 // short-lived EPHEMERAL client secret; the real key never crosses IPC. All wiring
 // lives in ./realtime so this stays a single registration line.
 registerRealtimeIpc();
+
+// ─── IPC: the puck (Pro, 7 Sep 2026) ──────────────────────────────────────────
+// The floating always-on-top window, its capture overlay and its folder of
+// screenshots and meeting transcripts. All of it lives in ./puck; this site
+// only injects the doors it already has: the config, the hive's send (a human
+// request to the orchestrator, counted like one), and the Groq transcriber
+// Free Flow uses. The puck's window is deliberately NOT in allWindows.
+registerPuck({
+  readConfig,
+  writeConfig,
+  onConfigWritten,
+  hiveEnabled: () => hive.enabled(),
+  hiveSend: (partial, from) => {
+    const msg = hive.send(partial, from);
+    if (from === 'human') analytics.trackMessageSent('hive');
+    return msg;
+  },
+  transcribe: (opts) => getTranscribeRouter().transcribe({ ...opts, mode: opts.mode ?? 'meeting' }),
+  canTranscribe: () => getTranscribeRouter().canTranscribe('meeting'),
+  // The other side of the call (0.5.3, F16): on a Mac with the tap helper
+  // and the Screen Recording grant, the helper feeds main; the grant is
+  // read at every meeting start so one given in the meantime counts.
+  // Windows: the renderer opens the loopback (PR 3); Linux: the renderer
+  // opens the monitor when one is listed (PR 4); the Mac: the tap helper.
+  systemAudioSource: () => (process.platform === 'win32' ? 'renderer' : process.platform === 'linux' ? (linuxMonitor ? 'renderer' : null) : systemTapReady() && systemTapGranted ? 'helper' : null),
+  startSystemAudio: async (startedAt) => {
+    const tap = getSystemTap();
+    if (!tap) return;
+    try {
+      await tap.start();
+    } catch (e) {
+      if (isTapDenied(e)) systemTapGranted = false;
+      throw e;
+    }
+    void startedAt;
+  },
+  stopSystemAudio: async () => { await systemTap?.stop(); },
+  broadcast: (channel, payload) => {
+    for (const w of allWindows) {
+      if (w.isDestroyed() || w.webContents.isDestroyed()) continue;
+      w.webContents.send(channel, payload);
+    }
+  },
+  // The puck's "Open Voice settings": the app's window comes forward and
+  // takes the same door into Settings as the titlebar gear (App relays
+  // `settings:open` onto the `cth:open-settings` event).
+  openSettings: (section) => {
+    const w = mainWindow && !mainWindow.isDestroyed() ? mainWindow : [...allWindows].find((x) => !x.isDestroyed()) ?? null;
+    if (!w) return;
+    if (w.isMinimized()) w.restore();
+    w.show();
+    w.focus();
+    w.webContents.send('settings:open', { section });
+  },
+  // Who a capture may be addressed to (0.5.2). Registered, not archived, and
+  // with a terminal actually alive: an agent whose process is gone cannot read
+  // its inbox, so offering it as a destination would be offering a hole.
+  agentIds: () => {
+    if (!hive.enabled()) return [];
+    try {
+      return Object.entries(hive.registry().agents)
+        .filter(([id, a]) => !a.archived && !!ptyForAgent(id))
+        .map(([id]) => id);
+    } catch { return []; }
+  },
+  // What the Stapler calls whoever a capture reaches (0.5.3). The orchestrator
+  // goes through resolveGodName so a renamed one is honoured and an unnamed one
+  // still reads as the default; before this the Stapler window could only ever
+  // print the default, because it has no store to learn the live name from.
+  agentName: (id: string) => {
+    try {
+      const reg = hive.registry();
+      const godId = reg.godId ?? 'god';
+      if (id === godId || id === 'god') return resolveGodName(reg.agents[godId]?.name);
+      return reg.agents[id]?.name?.trim() || id;
+    } catch { return id; }
+  },
+  preload: join(__dirname, '../preload/index.js'),
+  rendererUrl: isDev && process.env.ELECTRON_RENDERER_URL ? process.env.ELECTRON_RENDERER_URL : null,
+  rendererDir: join(__dirname, '../renderer')
+});
 
 // ─── IPC: Realtime Michael voice ACTIONS (rt-5, Phase 2) ─────────────────────
 // Thin adapters over the SAME main fns the god PTY already uses. ALL of the safety
@@ -4476,7 +7090,7 @@ registerRealtimeActionIpc({
   controlSnapshot: (id) => control.snapshot(id),
   killAgent: (id) => {
     const r = ptyManager.kill(id);
-    teardownPty(id);
+    teardownPty(id, 'person');
     // A voice (MAIN-initiated) kill: the renderer never removed the card itself
     // (unlike a UI kill), so tell the floor to archive it. Mirrors hive:agentSpawned.
     try { liveWebContents()?.send('hive:agentArchived', { id }); } catch { /* window torn down */ }
@@ -4484,22 +7098,28 @@ registerRealtimeActionIpc({
   },
   spawnAgent: async (opts) => {
     const o = opts as AgentSpawnOptions;
-    const res = await spawnAgentCore(o, null);
+    // A main initiated spawn (a voice hire, a temp) has nobody at the card, so
+    // a missing CLI installs itself as before (I2 keeps the card for a person's
+    // own terminal, where the button is).
+    const res = await spawnAgentCore({ ...o, installNow: true }, null);
     // The renderer roster is only mutated by renderer-initiated hires (AddAgentModal),
     // so a MAIN-initiated spawn is invisible on the floor until we broadcast it. The
     // renderer (useHive) builds the Agent card from this descriptor; addAgent is
     // idempotent so a renderer-initiated hire is never double-carded.
     if (res.ok) {
       try {
-        liveWebContents()?.send('hive:agentSpawned', {
+        // spawnAgentCore wrote the resolved provider and the final argv (default
+        // model included) back onto `o`, so the card says what actually started.
+        liveWebContents()?.send('hive:agentSpawned', spawnedCard({
           id: o.id,
-          name: o.hive?.name ?? o.id,
-          provider: o.provider ?? o.hive?.provider ?? 'claude',
+          name: o.hive?.name,
+          provider: o.provider ?? o.hive?.provider,
           cwd: res.worktreePath ?? o.cwd,
           command: o.command,
+          args: o.args,
           role: o.hive?.role,
           worktreePath: res.worktreePath
-        });
+        }));
       } catch { /* window torn down */ }
     }
     return res;
@@ -4517,7 +7137,11 @@ registerRealtimeActionIpc({
   setArchived: (id, archived) => {
     if (!hive.enabled()) return { ok: false, error: 'hive disabled' };
     hive.setArchived(id, archived);
-    try { liveWebContents()?.send(archived ? 'hive:agentArchived' : 'hive:agentSpawned', { id }); } catch { /* window gone */ }
+    // Unarchive used to send the id alone, and the renderer builds a whole card
+    // from this descriptor: the row came back named after its raw id with no
+    // engine and no folder. The registry record survives archiving, so ask it.
+    const rec = hive.registry().agents[id];
+    try { liveWebContents()?.send(archived ? 'hive:agentArchived' : 'hive:agentSpawned', archived ? { id } : spawnedCard({ id, name: rec?.name, provider: rec?.provider, cwd: rec?.cwd, role: rec?.role })); } catch { /* window gone */ }
     return { ok: true };
   },
   // clear_context: hand the text to the renderer's queue so delivery rides every
@@ -4561,6 +7185,22 @@ ipcMain.handle('app:info', () => {
   return { version: app.getVersion(), changelog: top };
 });
 ipcMain.handle('realtime:drainCompletions', () => completionWatcher.drainQueuedCompletions());
+// 0.5.2 (card v052-voice-michael-terminal-context): the last lines of one
+// agent's terminal for the voice model. The renderer hands over the rows its
+// terminal drew (the faithful picture for a TUI); when it has none, the pty's
+// own raw tail stands in. Everything is redacted HERE, on the trusted side,
+// before the shared scrub cuts injection lead-ins and caps the size.
+ipcMain.handle('voice:terminal', (_evt, ptyId: unknown, rows: unknown, lines: unknown) => {
+  if (typeof ptyId !== 'string' || !ptyId) return { ok: false, lines: [], source: 'none' as const };
+  const drawn = Array.isArray(rows) ? rows.filter((r): r is string => typeof r === 'string') : [];
+  const fromScreen = drawn.some((r) => /[\p{L}\p{N}]/u.test(r));
+  const source = fromScreen ? drawn : stripTerminalControl(ptyManager.tail(ptyId)).split('\n');
+  const out = terminalForVoice(source, {
+    lines: typeof lines === 'number' ? lines : undefined,
+    redact: (l) => redactSecrets(l)
+  });
+  return { ok: true, lines: out, source: fromScreen ? ('screen' as const) : out.length ? ('stream' as const) : ('none' as const) };
+});
 ipcMain.handle('realtime:waitFor', (_e, taskId: unknown, timeoutMs: unknown) =>
   typeof taskId === 'string'
     ? completionWatcher.waitFor(taskId, typeof timeoutMs === 'number' && timeoutMs > 0 ? timeoutMs : 120_000)
@@ -4582,6 +7222,10 @@ completionWatcher.start();
  *  these directly; `objective` and `cwd` are the only required fields. */
 interface SpawnRequest {
   id?: string;
+  /** Who asked. 'slack' requests (written by main for a Slack message, 0.4.11)
+   *  run even while `orchestratorMaySpawn` is off: turning Slack on is the
+   *  person's consent for that spend. Absent means Michael wrote it. */
+  origin?: 'slack' | 'god';
   objective?: string;
   command?: string;                                   // engine CLI; default = config.defaultCommand
   provider?: AgentProvider;                           // optional explicit provider
@@ -4643,9 +7287,9 @@ function archiveRequest(filePath: string, sub: '.done' | '.failed'): void {
  *  own timestamp), falling back to the file's mtime when `created_at` is missing
  *  or unparseable. When neither yields a usable timestamp we DON'T count it
  *  (fail toward keeping the worker alive — the idle reaper is the backstop). */
-function workerSignaledDone(workerId: string, spawnedAt: number): boolean {
+function workerSignaledDone(workerId: string, spawnedAt: number): string | null {
   const root = hive.root();
-  if (!root) return false;
+  if (!root) return null;
   const base = join(root, 'agents', workerId, 'outbox');
   for (const dir of [base, join(base, '.sent')]) {
     if (!existsSync(dir)) continue;
@@ -4655,17 +7299,39 @@ function workerSignaledDone(workerId: string, spawnedAt: number): boolean {
       if (!f.endsWith('.json')) continue;
       const fp = join(dir, f);
       try {
-        const msg = JSON.parse(readFileSync(fp, 'utf8')) as { act?: string; created_at?: string };
+        const msg = JSON.parse(readFileSync(fp, 'utf8')) as { act?: string; created_at?: string; body?: unknown; subject?: unknown };
         if (msg.act !== 'done') continue;
         let ts = Date.parse(msg.created_at ?? '');
         if (!Number.isFinite(ts)) {
           try { ts = statSync(fp).mtimeMs; } catch { ts = NaN; }
         }
-        if (Number.isFinite(ts) && ts > spawnedAt) return true;
+        // The body is the temp's own summary: a Slack card's `result` (0.4.11),
+        // which the done poller posts in thread when the temp did not reply itself.
+        if (Number.isFinite(ts) && ts > spawnedAt) {
+          return typeof msg.body === 'string' && msg.body.trim() ? msg.body : typeof msg.subject === 'string' ? msg.subject : '';
+        }
       } catch { /* skip unreadable/partial */ }
     }
   }
-  return false;
+  return null;
+}
+
+/** The live temp that owns a Slack thread, if any: a follow up in that thread is
+ *  delivered to its inbox instead of hiring a second temp (0.4.11). */
+function liveSlackThreadOwner(thread_ts: string): string | undefined {
+  for (const [id, rec] of liveWorkers) {
+    if (!rec.releasing && rec.slack?.thread_ts === thread_ts) return id;
+  }
+  return undefined;
+}
+
+/** `origin` of a spawn request file, read without processing it. Only consulted
+ *  while Michael's own spawning is switched off, to let Slack's requests through. */
+function spawnRequestOrigin(filePath: string): SpawnRequest['origin'] {
+  try {
+    const raw = JSON.parse(readFileSync(filePath, 'utf8')) as SpawnRequest;
+    return raw.origin === 'slack' ? 'slack' : undefined;
+  } catch { return undefined; }
 }
 
 /** Spin up one ephemeral worker from a spawn-request. Terminal failures (bad
@@ -4685,17 +7351,20 @@ async function processSpawnRequest(filePath: string): Promise<void> {
   }
   const slack = raw.slack && typeof raw.slack.channel === 'string' && typeof raw.slack.thread_ts === 'string'
     ? { channel: raw.slack.channel, thread_ts: raw.slack.thread_ts } : undefined;
+  const reqId = (typeof raw.id === 'string' && raw.id.trim() ? raw.id.trim() : basename(filePath).replace(/\.json$/i, ''))
+    .replace(/[^A-Za-z0-9._-]/g, '-');
+  const workerId = `worker-${reqId}`;
   const fail = (reason: string): void => {
     informGod(`[worker spawn rejected] ${reason}`, `Spawn-request ${basename(filePath)} rejected: ${reason}.`, slack);
+    // A Slack card that will never get a temp is closed as blocked with the
+    // reason, so the Tasks screen and the done poller do not wait on it.
+    try { onTempFinished(workerId, { ok: false, reason }, { hive }); } catch { /* card only */ }
     archiveRequest(filePath, '.failed');
   };
 
   const objective = typeof raw.objective === 'string' ? raw.objective.trim() : '';
   if (!objective) { fail('missing "objective"'); return; }
 
-  const reqId = (typeof raw.id === 'string' && raw.id.trim() ? raw.id.trim() : basename(filePath).replace(/\.json$/i, ''))
-    .replace(/[^A-Za-z0-9._-]/g, '-');
-  const workerId = `worker-${reqId}`;
   if (liveWorkers.has(workerId)) { fail(`worker "${workerId}" already running`); return; }
 
   // Worker request files are hand/LLM-authored, so `~/…` shows up here too — expand
@@ -4736,9 +7405,12 @@ async function processSpawnRequest(filePath: string): Promise<void> {
 
   const meta: AgentMeta = {
     id: workerId,
-    name: typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim() : `Worker ${reqId.slice(0, 12)}`,
+    name: typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim() : `Temp ${reqId.slice(0, 12)}`,
     provider: raw.provider,
-    role: 'worker',
+    // "temp" is the word on every screen and in every prompt (0.4.11). The id
+    // prefix stays `worker-`: it is a contract with the ledger, the reaper and
+    // the Slack owner lookup, and the prompts name it once as an id.
+    role: 'temp',
     cwd
   };
   // Phase 2: grant this worker a broker capability over the currently-enabled
@@ -4755,7 +7427,8 @@ async function processSpawnRequest(filePath: string): Promise<void> {
   const spawnOpts: AgentSpawnOptions = {
     id: workerId, cwd, command: bin, cols: 120, rows: 32,
     args: launch.args,
-    hive: meta, isolate, provider: raw.provider, env: brokerEnv
+    hive: meta, isolate, provider: raw.provider, env: brokerEnv,
+    installNow: true // a god dispatched worker has nobody at the card (I2)
   };
 
   let res: { ok: boolean; error?: string; worktreePath?: string };
@@ -4775,24 +7448,27 @@ async function processSpawnRequest(filePath: string): Promise<void> {
   // and never re-enters liveWorkers: ephemerality is a property of the hiring,
   // not of the card, so a restored worker is a regular agent (no reaping).
   try {
-    liveWebContents()?.send('hive:agentSpawned', {
+    // spawnAgentCore wrote the resolved provider and the final argv (the
+    // request's separate `model`, or the floor default) back onto spawnOpts.
+    liveWebContents()?.send('hive:agentSpawned', spawnedCard({
       id: workerId,
       name: meta.name,
-      provider: raw.provider ?? 'claude',
+      provider: spawnOpts.provider ?? raw.provider,
       cwd: res.worktreePath ?? cwd,
       command: launch.command,
+      args: spawnOpts.args,
       role: meta.role,
       worktreePath: res.worktreePath,
       character: typeof raw.character === 'string' ? raw.character : undefined,
       accent: typeof raw.accent === 'string' ? raw.accent : undefined
-    });
+    }));
   } catch { /* window torn down */ }
 
   // Register for done-scan / idle-reap / token-cap / safe teardown (pty id == workerId).
   // tokenCap is optional plumbing (default unlimited) — only a positive finite cap is kept.
   const tokenCap = typeof raw.tokenCap === 'number' && Number.isFinite(raw.tokenCap) && raw.tokenCap > 0
     ? raw.tokenCap : undefined;
-  liveWorkers.set(workerId, { workerId, reqId, name: meta.name, slack, baseBranch, spawnedAt: Date.now(), tokenCap });
+  liveWorkers.set(workerId, { workerId, reqId, name: meta.name, slack, baseBranch, spawnedAt: Date.now(), tokenCap, job: objective });
 
   // Dispatch the objective via the standard inbox path (zero new transport),
   // reusing the autonomous-request preamble so the worker gets the exact Slack
@@ -4800,10 +7476,30 @@ async function processSpawnRequest(filePath: string): Promise<void> {
   // dispatch per its protocol.
   try {
     const prefix = slack
-      ? buildAutonomousRequestProtocol(slack.channel, slack.thread_ts, slackReplyScriptPath())
-      : '[AUTONOMOUS WORKER TASK — no interactive human is watching. Work autonomously; do not ask interactive questions.] The task starts now: ';
-    const suffix = `\n\n[CAPABILITIES] Before you start, consult your capability catalog — run the \`/capabilities\` skill (or read \`$AGENT_DIR/.claude/skills/capabilities/SKILL.md\`). It lists your temporal date-range skills (\`/today\`, \`/last30Days\`, \`/lastQuarter\`, …) and the integrations available to you (reached via the loopback broker) and how to call each. For any time-scoped work, resolve the dates with those skills instead of computing them by hand.\n\n[WORKER COMPLETION] When finished, signal done by sending ONE outbox message to god with "act":"done" and a short result summary — that releases this ephemeral worker (terminal closed; your branch is handed to god). Do NOT push to any remote; god is the sole integrator.`;
-    hive.send({ to: workerId, conversation: `worker-${reqId}`, act: 'request', subject: meta.name, body: `${prefix}${objective}${suffix}` }, 'god');
+      ? buildAutonomousRequestProtocol(slack.channel, slack.thread_ts, slackReplyScriptPath(), 'temp')
+      : '[TEMP JOB] You are a temp: one job, and no human is watching in the app. Work autonomously; no interactive questions. The job: ';
+    // 0.4.11, founder: "temporary agents should be able to fetch context from any
+    // agent's memories". The harness writes the memory index now, so the brief
+    // points at a file that exists, and the block sits between the policy and the
+    // objective. A failure to write the index must not cost the spawn.
+    let context = '';
+    try {
+      const root = hive.root();
+      if (root) {
+        const indexPath = writeMemoryIndex(root, hive.memoryIndexRows());
+        const kg = knowledge.active() && knowledge.env().KG_CLI
+          ? `"${hive.nodeCommand()}" "${knowledge.env().KG_CLI}" search "<the request in a few words>"`
+          : undefined;
+        context = memoryContextBlock(root, indexPath, memory.active(), kg) + '\n\n';
+      }
+    } catch (e) {
+      console.error('[worker] memory index skipped:', e instanceof Error ? e.message : e);
+    }
+    // The catalog path is spelled absolute and joined natively: `$AGENT_DIR` is
+    // POSIX only and was dead on a Windows floor.
+    const skillFile = join(hive.root() ?? '', 'agents', workerId, '.claude', 'skills', 'capabilities', 'SKILL.md');
+    const suffix = `\n\n[CAPABILITIES] Read ${skillFile} once (or run /capabilities) before you start: it lists your date skills (/today, /last30Days, /lastQuarter and more) and the integrations you reach through the loopback broker (MD_BROKER_URL is set for you), with how to call each. Resolve any time window with the date skills, never by hand.\n\n[DONE] When finished, send god ONE outbox message with "act":"done" and a short result summary; that releases you (terminal closed, your branch handed to god). Do not push to any remote; god is the only integrator.`;
+    hive.send({ to: workerId, conversation: `worker-${reqId}`, act: 'request', subject: meta.name, body: `${prefix}${context}${objective}${suffix}` }, 'god');
   } catch (e) {
     console.error('[worker] dispatch send failed:', e);
   }
@@ -4895,12 +7591,16 @@ async function ephemeralWorkerTick(): Promise<void> {
     //     worker-qa/worker-bizreview). A double teardown is a harmless no-op.
     for (const [workerId, rec] of [...liveWorkers]) {
       if (rec.releasing) continue;
-      if (workerSignaledDone(workerId, rec.spawnedAt)) {
+      const doneBody = workerSignaledDone(workerId, rec.spawnedAt);
+      if (doneBody !== null) {
         // Success: the worker already replied in-thread; just release it.
         rec.releasing = true;
+        rec.result = 'done';
         console.log(`[worker] ${workerId} signaled done — releasing`);
+        // A Slack temp's card closes with its summary as the result (0.4.11).
+        try { onTempFinished(workerId, { ok: true, body: doneBody }, { hive }); } catch { /* card only */ }
         ptyManager.kill(workerId);
-        teardownPty(workerId);
+        teardownPty(workerId, 'worker');
         continue;
       }
       // Token-cap reap (default-off plumbing). An effective cap > 0 → reap when the
@@ -4910,14 +7610,16 @@ async function ephemeralWorkerTick(): Promise<void> {
         const used = workerTokensUsed(workerId);
         if (used > tokenCap) {
           rec.releasing = true;
+          rec.result = 'token-cap';
           console.warn(`[worker] reaping ${workerId} — token cap (${used.toLocaleString()} > ${tokenCap.toLocaleString()})`);
           informGod(
             `[worker reaped — token cap] ${workerId}`,
             `Worker ${workerId} used ${used.toLocaleString()} tokens (> its cap of ${tokenCap.toLocaleString()}) and was reaped. Any committed work on its branch is preserved for you.`,
             rec.slack
           );
+          try { onTempFinished(workerId, { ok: false, reason: `over its token cap of ${tokenCap.toLocaleString()}` }, { hive }); } catch { /* card only */ }
           ptyManager.kill(workerId);
-          teardownPty(workerId);
+          teardownPty(workerId, 'worker');
           continue;
         }
       }
@@ -4925,21 +7627,23 @@ async function ephemeralWorkerTick(): Promise<void> {
       if (idleMs === undefined) continue; // PTY already gone; teardownPty cleans up
       if (idleMs > idleTimeoutMs) {
         rec.releasing = true;
+        rec.result = 'idle';
         console.warn(`[worker] reaping idle ${workerId} (${Math.round(idleMs / 60000)}min idle)`);
         informGod(
           `[worker reaped — idle] ${workerId}`,
           `Worker ${workerId} produced no output for ${Math.round(idleMs / 60000)} min (> the ${Math.round(idleTimeoutMs / 60000)} min cap) and never signaled done, so it was reaped. Any committed work on its branch is preserved for you.`,
           rec.slack
         );
+        try { onTempFinished(workerId, { ok: false, reason: `idle for ${Math.round(idleMs / 60000)} min` }, { hive }); } catch { /* card only */ }
         ptyManager.kill(workerId);
-        teardownPty(workerId);
+        teardownPty(workerId, 'worker');
       }
     }
 
     // (2) Process new requests, honoring the concurrency cap (backpressure: leave
     //     the rest in the queue for a later tick).
     //
-    //     Gated on config.orchestratorMaySpawn (default OFF): letting the
+    //     Gated on config.orchestratorMaySpawn (default ON since 0.5.3; was OFF): letting the
     //     orchestrator spin up agents unprompted is a SPEND decision, so the
     //     operator opts in. The gate sits HERE, on intake, and not on the watcher
     //     itself, because step (1) above owns the lifecycle of workers that are
@@ -4949,13 +7653,21 @@ async function ephemeralWorkerTick(): Promise<void> {
     //     Declining also means declining to CONSUME. A request dropped in while
     //     this is off stays in the queue and runs when it is turned on, rather
     //     than being eaten and failed for a reason god never asked about.
-    const dir = readConfig().orchestratorMaySpawn ? spawnRequestsDir() : null;
+    //
+    //     0.4.11: a request main wrote for a Slack message (`origin: 'slack'`)
+    //     is consumed even while that toggle is off. Turning Slack on is the
+    //     person's consent for that spend, and the Slack form says so. Michael's
+    //     own requests still wait for the toggle.
+    const maySpawn = readConfig().orchestratorMaySpawn !== false;
+    const dir = spawnRequestsDir();
     if (dir && existsSync(dir)) {
       let files: string[] = [];
       try { files = readdirSync(dir).filter(f => f.endsWith('.json')).sort(); } catch { /* dir vanished */ }
       for (const f of files) {
         if (liveWorkers.size >= maxWorkers) break;
-        await processSpawnRequest(join(dir, f));
+        const fp = join(dir, f);
+        if (!maySpawn && spawnRequestOrigin(fp) !== 'slack') continue;
+        await processSpawnRequest(fp);
       }
     }
 
@@ -5037,6 +7749,10 @@ ipcMain.handle('workers:list', (): { live: WorkerSnapshot[]; preserved: Preserve
   return { live, preserved, maxWorkers: Math.max(1, cfg.maxConcurrentWorkers ?? 4) };
 });
 
+/** The Temps ledger (workerHistory.ts): one row per worker teardown, newest
+ *  first. PRO's Temps screen reads it as the history table. */
+ipcMain.handle('workers:history', () => listWorkerHistory());
+
 /** Manually stop a live ephemeral worker. Mirrors the done-release path: mark
  *  releasing, then kill + teardownPty runs the SAFETY-GATED worktree teardown
  *  (committed work is preserved, never force-discarded). Idempotent. teardownPty
@@ -5051,22 +7767,64 @@ ipcMain.handle('workers:stop', (_evt, workerId: string): { ok: boolean; error?: 
   if (!rec) return { ok: false, error: 'no such live worker' };
   if (rec.releasing) return { ok: true }; // already stopping
   rec.releasing = true;
+  rec.result = 'stopped';
   console.log(`[worker] manual stop requested for ${workerId}`);
   try { ptyManager.kill(workerId); } catch (e) { return { ok: false, error: String(e) }; }
-  teardownPty(workerId);
+  teardownPty(workerId, 'worker');
   return { ok: true };
 });
 
 /** Start every hive-bound background service against the current harnessHome.
  *  Called on boot, and again to recover in place if a folder-change copy fails
  *  (config:changeHome tears these down before copying). No-op without a home. */
+const floorGateDeps = (): FloorGateDeps => ({
+  hiveRoot: () => hive.root(),
+  currentHome: () => readConfig().harnessHome ?? null,
+  hiveRootOf: (home) => join(home, 'hive'),
+  ensureHome: ensureHarnessHome,
+  writeHome: (home) => { writeConfig({ harnessHome: home }); }
+});
+registerFloorIpc(floorGateDeps());
+
+// B23 part 2: the spawn behind the picker. The same binary, its own data
+// folder under the main install's `floors/`, the main install's folder as the
+// shared one (a floor spawning a floor still hands over the main folder, not
+// its own), detached so closing this floor never takes the new one with it.
+// Resolved on the child's `spawn` event, rejected on `error` (a missing
+// executable), so the picker's "could not start" is real, not a guess.
+setFloorSpawner(({ harnessHome }) => {
+  const sharedDir = sharedDataDir();
+  const dataDir = floorDataDirFor(sharedDir, harnessHome);
+  const plan = floorSpawnPlan({ execPath: process.execPath, appPath: app.getAppPath(), packaged: app.isPackaged, dataDir, sharedDir, home: harnessHome });
+  return new Promise((done) => {
+    try {
+      mkdirSync(dataDir, { recursive: true });
+      const child = spawn(plan.command, plan.args, { detached: true, stdio: 'ignore', env: floorSpawnEnv(process.env) });
+      child.once('spawn', () => { child.unref(); console.log(`[floor] spawned pid ${child.pid} on ${harnessHome} (data ${dataDir})`); done({ ok: true }); });
+      child.once('error', (e) => done({ ok: false, error: e.message }));
+    } catch (e) {
+      done({ ok: false, error: e instanceof Error ? e.message : String(e) });
+    }
+  });
+});
+
 function bootstrapHiveServices(): void {
   if (!hive.enabled()) return;
+  // 0.5.3, B23: one floor per hive. A hive another live floor holds is refused
+  // here with a dialog, and the process relaunches on another folder or quits;
+  // nothing below may start against it (the hook server would steal that
+  // floor's agents, see floorLock.ts).
+  if (!acquireFloorAtBoot(floorGateDeps())) return;
   hive.ensureHive();
   // Tell the hive what it is running inside, BEFORE anything spawns: the prompt
   // builder reads this, so an agent spawned earlier would never learn it.
   hive.setRuntimeInfo({ version: app.getVersion(), packaged: app.isPackaged, appPath: app.getAppPath() });
-  hive.setOrchestratorMaySpawn(readConfig().orchestratorMaySpawn === true);
+  // Hook shims named by the user's GLOBAL CLI configs (agy, Grok) live here,
+  // outside any floor's hive, so a second floor, a moved hive or an older app
+  // version cannot pull the file out from under a running agent (B23 point 5).
+  hive.setSharedBinDir(join(app.getPath('appData'), 'munder-difflin', 'shared', 'bin'));
+  hive.setOrchestratorMaySpawn(readConfig().orchestratorMaySpawn !== false);
+  hive.setTicketPrefix(readConfig().ticketPrefix);
   // An app-start marker in the event log. log.jsonl had twelve event kinds and
   // none of them meant "the app restarted", so a relaunch, and more importantly a
   // switch between a packaged build and a local one, was invisible to every agent
@@ -5090,6 +7848,18 @@ function bootstrapHiveServices(): void {
   control.replaceAutoDeliveryPauses(readConfig().autoDeliveryPausedAgents ?? []);
   archiveOrphanedAgents(); // #57/#58: archive stale archived:false entries with no live PTY
   hive.startRouter();
+  startConnectionRequests();
+  // W-A (0.4.9): archive old cards and cap the board, once now and then hourly.
+  // After the router so the board ask has a live door to god's inbox.
+  startTaskHygiene(hive);
+  // 0.4.10: bound the stores that never had a cap — the cost ledger, the event
+  // log, the roster backups, the handled-message archives, the spawn queue's
+  // done/failed folders, the two files hygiene moves its bloat INTO, and the
+  // memory condense backups. Delayed then hourly, and deliberately after
+  // startTaskHygiene so a boot sweep never trims the archive in the same tick
+  // hygiene is appending to it. See src/shared/retention.ts for every bound and
+  // the one sentence that defends it.
+  startRetention(() => ({ hiveRoot: hive.root(), harnessHome: readConfig().harnessHome ?? null }));
   startEphemeralWorkerWatcher(); // poll HIVE_ROOT/spawn-requests → ephemeral workers
   // Phase 2: the loopback secret broker. Bind it BEFORE workers spawn so each spawn can
   // be granted a capability token + the broker URL in its env. Loopback-only, idempotent.
@@ -5225,7 +7995,13 @@ function healthCheckPtys(reason: string, awayMs: number | null): void {
   for (const p of ptys) {
     if (typeof p.pid === 'number' && p.pid > 0) {
       try { process.kill(p.pid, 0); }   // liveness probe only — never kills
-      catch { dead.push(p.id); }        // ESRCH: process gone but PTY still registered
+      catch (e) {
+        // ONLY ESRCH MEANS GONE. EPERM means the process is ALIVE and not ours
+        // to signal, and a bare catch used to call that dead too. "Dead" is the
+        // dangerous direction here: the revive that follows KILLS the agent. So
+        // it needs proof, and anything that is not ESRCH is treated as alive.
+        if ((e as NodeJS.ErrnoException)?.code === 'ESRCH') dead.push(p.id);
+      }
     }
   }
   const away = awayMs != null ? ` (away ~${Math.round(awayMs / 1000)}s)` : '';
@@ -5273,6 +8049,9 @@ function onSystemResume(reason: string): void {
     const drained = hive.routeOnce();
     if (drained > 0) console.log(`[power] ${reason} — flushed ${drained} queued hive message(s)`);
   } catch (e) { console.error('[power] router re-arm on resume', e); }
+  // 0.4.11: the Slack socket died with the sleep, so reconnect now rather than
+  // waiting out the backoff; the poller sweeps at once for what arrived meanwhile.
+  try { slackSocket?.reconnectNow(); void slackPoller?.sweepNow(); } catch (e) { console.error('[power] slack on resume', e); }
   try { syncKeepAwake(); } catch (e) { console.error('[power] syncKeepAwake on resume', e); }
   const awayMs = lastSuspendAt != null ? Date.now() - lastSuspendAt : null;
   // Give PTYs a beat to resume their pipes before judging them wedged; reset any
@@ -5293,6 +8072,14 @@ app.whenReady().then(() => {
   // setMicGate(true)); macOS TCC stays a second gate regardless.
   if (readConfig().realtimeVoiceEnabled) writeConfig({ realtimeVoiceEnabled: false });
 
+  // 0.5.3, bug 12: a harness config whose folder somebody deleted is taken off
+  // the remembered list before any window asks for it, so the launch picker
+  // never offers a row that would quietly make the folder again.
+  try {
+    const gone = pruneRecentHivesOnDisk();
+    if (gone.length) console.log(`[config] dropped ${gone.length} deleted harness config(s) from the recent list: ${gone.join(', ')}`);
+  } catch (e) { console.error('[config] could not prune the recent list:', e); }
+
   // Anonymous product analytics (PostHog) — the full contract lives in
   // TELEMETRY.md. No-op unless a build-time key was injected (official releases
   // only), and gated on DO_NOT_TRACK + the telemetryEnabled config (opt-out).
@@ -5310,7 +8097,7 @@ app.whenReady().then(() => {
 
   // A cold-start deep link (Windows/Linux) rides in on OUR argv.
   const startupHireLink = process.argv.find((a) => a.startsWith('munderdifflin://'));
-  if (startupHireLink) void handleHireLink(startupHireLink);
+  if (startupHireLink) handleDeepLink(startupHireLink);
 
   // Hand every spawned agent the path to the Slack reply discovery file via the
   // inherited env (pty merges process.env). The path is stable whether or not the
@@ -5325,7 +8112,14 @@ app.whenReady().then(() => {
   // `autoUpdate` config flag). Download-in-background + restart-to-apply toast;
   // never restarts on its own. Falls back to a notify-only releases/latest
   // check where native updating isn't possible (win-portable, dev-ish builds).
-  initAutoUpdater(() => liveWebContents());
+  // A floor never checks or installs: an install from one floor would replace
+  // the bundle under every other (B23 part 2, risk 12).
+  if (!isFloorProcess()) initAutoUpdater(() => liveWebContents());
+  // Solo licence renewal question (contract 5.18): one check at start, then a
+  // poll for as long as the app runs, so a key replaced on the console locks
+  // this machine out of Pro within one poll instead of never (5 Sep 2026).
+  // Deactivation flows out through soloLicense.onLicenseChange above.
+  soloLicense.startLicenseRecheckLoop();
   // Bootstrap the hive (if harnessHome is configured) and start the message router.
   bootstrapHiveServices();
   // Survive sleep/lock. macOS freezes libuv timers during true system sleep, so a
@@ -5341,14 +8135,22 @@ app.whenReady().then(() => {
   // off, the app keeps Electron's default menu — zero behavior change.
   if (readConfig().multiWindow) installAppMenu();
   createWindow();
+  // 0.5.3, F16: dictation into any app works before Settings is ever opened.
+  void syncAnyAppToConfig().catch((e) => console.log(`[anyApp] launch: ${e instanceof Error ? e.message : String(e)}`));
+  void syncMeetingHotkeyToConfig().catch((e) => console.log(`[meetingKey] launch: ${e instanceof Error ? e.message : String(e)}`));
+  void syncCaptureHotkeyToConfig().catch((e) => console.log(`[captureKey] launch: ${e instanceof Error ? e.message : String(e)}`));
+  // 0.5.3, F16: load Apple's model now, not on the composer's first dictation.
+  try { getTranscribeRouter().warmUp(); } catch (e) { console.log(`[transcribe] warm up: ${e instanceof Error ? e.message : String(e)}`); }
   // Auto-start the Slack webhook server when configured. Best-effort: a tunnel
   // failure (offline) is logged, not fatal. The tunnel URL is ephemeral and
   // changes per restart, so the user re-pastes it via Settings → Start.
+  // 0.4.11: whichever of the three ways is chosen; the readiness check inside
+  // says what is missing instead of silently doing nothing.
   const slackCfg = readConfig();
-  if (slackCfg.slackEnabled && slackCfg.slackSigningSecret) {
-    void startSlackServer().then((r) => {
+  if (slackCfg.slackEnabled) {
+    void startSlackIngestion().then((r) => {
       if (!r.ok) console.error('[slack] auto-start failed:', r.error);
-      else console.log('[slack] webhook listening', r.url ? `(tunnel: ${r.url})` : '(no tunnel)');
+      else console.log(`[slack] ${resolveSlackMode(readConfig())} started`, r.url ? `(tunnel: ${r.url})` : '');
     });
   }
   // Auto-start the generic webhook only for endpoints the user has explicitly
@@ -5360,8 +8162,16 @@ app.whenReady().then(() => {
       else console.log('[webhook] listening', r.url ? `(tunnel: ${r.url})` : '(no tunnel)');
     });
   }
+  // The Dock click. Count the APP'S windows (primary + floors), not every
+  // BrowserWindow: the Stapler is a BrowserWindow too and it outlives a closed
+  // main window, so `getAllWindows().length === 0` was never true again once
+  // the puck was up. A person who closed the last window with no agents
+  // running was left with a floating puck, no window, and Quit as the only
+  // way out; the Dock icon did nothing. Found in 0.5.2, the release that
+  // introduces the puck, while proving a "vanishing window" report was macOS
+  // Spaces and not the app.
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (allWindows.size === 0) createWindow();
   });
 });
 
@@ -5369,6 +8179,10 @@ app.whenReady().then(() => {
 // the red close button. Both routes hit the same warning UX.
 app.on('before-quit', (e) => {
   if (allowQuit) return;
+  // Unsaved IDE text first: it is lost whichever way the terminal question below
+  // is answered, and with no terminals running that question is never asked.
+  const ideDirty = ideDirtyByWindow.total();
+  if (!confirmLosingIdeEdits(mainWindow, ideDirty)) { e.preventDefault(); return; }
   const count = ptyManager.list().length;
   if (count === 0) return;
   e.preventDefault();

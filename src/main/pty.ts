@@ -6,12 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { ensureKilled, hardKillTree } from './procKill';
 import { expandTilde } from './fs';
 import { buildPtyEnv } from './ptyEnv';
-import {
-  captureFromLoginShell,
-  isSafeCommandName,
-  userShellPath,
-  windowsFallbackCandidates
-} from './shellEnv';
+import { captureFromLoginShell, commonBinDirs, forgetShellLookups, isSafeCommandName, userShellPath, windowsFallbackCandidates } from './shellEnv';
 
 /** APPEND the hive's bundled-node dir (`<HIVE_ROOT>/bin/runtime`, which holds a
  *  shim literally named `node`) to a child's PATH.
@@ -46,6 +41,12 @@ export interface PtyExitInfo {
   tail?: string;
   command?: string;
   cwd?: string;
+  /** Epoch ms the process was spawned, so the exit handler can bucket the
+   *  run's length (`agent_run_ended`, 0.5.1). A number and nothing else, which
+   *  is why it is the one field besides `signal` that telemetry may read:
+   *  `tail` is raw terminal output, `command` a command line and `cwd` a
+   *  path, and none of those may leave the machine (TELEMETRY.md). */
+  startedAt?: number;
 }
 
 interface PtySession {
@@ -65,6 +66,9 @@ interface PtySession {
    *  file) and the idle handshake that gates god's PTY nudge (never type into a
    *  PTY that produced output in the last few seconds = mid-stream). */
   lastOutputAt: number;
+  /** Epoch ms of the spawn. Only ever subtracted from Date.now() at exit, for
+   *  the run's coarse duration bucket. */
+  startedAt: number;
   /** A bounded ring of the most recent output bytes, kept ONLY so an abnormal
    *  exit can say what was on screen when the process died. A provider that
    *  crashes on startup (Bun SIGILL, a missing shared library, an auth failure)
@@ -328,8 +332,34 @@ export function parseNpmCmdShim(shimPath: string, content: string): NpmShimTarge
   return { interpreter, scriptPath };
 }
 
+/** How long the intermediate grid of a redraw stays in place. Long enough for
+ *  an idle child to take the first SIGWINCH and read the size; short enough that
+ *  the one row wobble is one frame on screen. */
+const REDRAW_STEP_MS = 80;
+
+/** A usable cell count: a positive whole number. FitAddon proposes 2 by 1 for
+ *  an unsized host and NaN for a hidden one; neither is a pane. */
+function validCell(n: unknown): number | undefined {
+  return typeof n === 'number' && Number.isInteger(n) && n >= 2 ? n : undefined;
+}
+
 export class PtyManager {
   private sessions = new Map<string, PtySession>();
+  /** THE GRID THE RENDERER LAST ASKED FOR, per pty id, alive or not (0.5.3,
+   *  founder 24 Sep: Claude Code drew at about 70% of the pane). The visible
+   *  xterm is the only thing that knows how many cells fit the pane, and it
+   *  says so through resize(). But the pane is often measured BEFORE its
+   *  process exists: a restored orchestrator row mounts while his spawn is
+   *  still provisioning, a new agent's screen opens before its spawn answers,
+   *  a restart kills and respawns under the same id. resize() used to answer
+   *  "no pty" and forget, the spawn then took the caller's placeholder (100
+   *  by 30), and the renderer never repeated itself because its own grid had
+   *  not changed. The TUI stayed 100 columns wide in a 136 column pane.
+   *
+   *  So the ask is kept here and a spawn under that id starts at it; the
+   *  placeholder is only for a pane nobody has measured yet. The renderer
+   *  stays the truth: every later fit that moves the grid lands here too. */
+  private wanted = new Map<string, { cols: number; rows: number }>();
   private webContents: WebContents | null = null;
   /** Fired when a PTY exits on its OWN (child finished/crashed/killed
    *  externally), so the main process can run the SAME lifecycle teardown
@@ -378,6 +408,12 @@ export class PtyManager {
     this.exitHandler = handler;
   }
 
+  /** A tap on every pty's output, after it was routed to its window (I2: the
+   *  sign in watcher reads a fresh CLI's prompt from it). One hook, cheap,
+   *  never throws into node-pty's callback. */
+  private dataHook?: (id: string, data: string) => void;
+  setDataHook(hook: ((id: string, data: string) => void) | undefined): void { this.dataHook = hook; }
+
   /** Send to the renderer only if it's still alive. During app quit, killing a
    *  PTY fires onExit asynchronously — by then app.quit() may have destroyed the
    *  window, and `.send()` on a destroyed webContents throws "Object has been
@@ -395,6 +431,25 @@ export class PtyManager {
    *  that resolveCommand can't locate would otherwise be spawned and die with
    *  "process exited (code 1)". Reuses the exact same `which`/`where` +
    *  candidate-dir logic as spawn(), so detection and spawning never disagree. */
+  /** The environment a child spawned with this agent env would get (same user
+   *  PATH and the same strip as spawn()), for a short helper that must see
+   *  exactly what the agent sees: the sign in check (batch 2). */
+  childEnv(agentEnv?: Record<string, string>): Record<string, string> {
+    const userPath = withHiveRuntimeFallback(
+      process.platform === 'win32' ? (process.env.PATH || '') : userShellPath(),
+      agentEnv?.HIVE_ROOT
+    );
+    return buildPtyEnv(process.env, userPath, agentEnv);
+  }
+
+  /** Look again from scratch: a fresh login shell PATH and no cached `which`.
+   *  Called when a CLI may have just been installed where the startup lookup
+   *  could not see it (an install ended; manual setup's Start, batch 4). */
+  forgetLookups(): void {
+    forgetShellLookups();
+    this.resolvedCommands.clear();
+  }
+
   isCommandAvailable(command: string): boolean {
     return this.resolveCommand(command).found;
   }
@@ -480,13 +535,7 @@ export class PtyManager {
       if (path && existsSync(path)) return { path, found: true };
     }
     // Common explicit locations
-    const candidates = [
-      `/opt/homebrew/bin/${command}`,
-      `/usr/local/bin/${command}`,
-      `${process.env.HOME ?? ''}/.local/bin/${command}`,
-      `${process.env.HOME ?? ''}/.claude/local/${command}`,
-      `${process.env.HOME ?? ''}/.volta/bin/${command}`
-    ];
+    const candidates = commonBinDirs(process.env.HOME ?? '').map((d) => `${d}/${command}`);
     for (const c of candidates) if (existsSync(c)) return { path: c, found: true };
     // Last resort — let node-pty try; will fail with ENOENT if missing.
     return { path: command, found: false };
@@ -661,10 +710,11 @@ export class PtyManager {
           );
         }
       }
+      const grid = this.gridFor(opts);
       const proc = pty.spawn(file, spawnArgs, {
         name: 'xterm-256color',
-        cols: opts.cols ?? 100,
-        rows: opts.rows ?? 30,
+        cols: grid.cols,
+        rows: grid.rows,
         cwd: opts.cwd,
         // Inherited env minus the parent Claude session's identity markers,
         // then the app's defaults and locale, then per-agent values — see
@@ -686,6 +736,7 @@ export class PtyManager {
         cwd: opts.cwd,
         command: resolved,
         lastOutputAt: Date.now(),
+        startedAt: Date.now(),
         hasOutput: false,
         tail: '',
         owner
@@ -703,6 +754,7 @@ export class PtyManager {
         session.tail = (session.tail + data).slice(-TAIL_MAX);
         // Route to the session's owner window (multi-window owner routing).
         this.safeSend(`pty:data:${opts.id}`, data, session.owner);
+        if (this.dataHook) { try { this.dataHook(opts.id, data); } catch (e) { console.error('[pty] data hook:', e); } }
       });
       proc.onExit(({ exitCode, signal }) => {
         // Stale exit from a process whose id was reclaimed (kill()+respawn) — do
@@ -722,6 +774,7 @@ export class PtyManager {
         try {
           this.exitHandler?.(opts.id, exitCode, {
             signal,
+            startedAt: session.startedAt,
             tail: session.tail,
             command: session.command,
             cwd: session.cwd
@@ -746,25 +799,75 @@ export class PtyManager {
     }
   }
 
-  resize(id: string, cols: number, rows: number): { ok: boolean; error?: string } {
+  /** The grid a spawn starts at: the renderer's last measured one for this
+   *  id when there is one, else the caller's, else the placeholder. */
+  gridFor(opts: { id: string; cols?: number; rows?: number }): { cols: number; rows: number } {
+    const want = this.wanted.get(opts.id);
+    if (want) return want;
+    return { cols: validCell(opts.cols) ?? 100, rows: validCell(opts.rows) ?? 30 };
+  }
+
+  /** The renderer's last word on a pty's grid, or null. Tests read it. */
+  wantedGrid(id: string): { cols: number; rows: number } | null {
+    return this.wanted.get(id) ?? null;
+  }
+
+  /** Move the pty to the grid the visible xterm fitted. A same size call is
+   *  free (no SIGWINCH, see redraw). With no process under the id yet the ask
+   *  is REMEMBERED for the spawn, and answered `pending` rather than refused:
+   *  the pane measured first, and it is right. A grid no pane can have (0, NaN,
+   *  a negative) is a measuring accident, not a request, and is dropped. */
+  resize(id: string, cols: number, rows: number): { ok: boolean; error?: string; pending?: boolean } {
+    const c = validCell(cols);
+    const r = validCell(rows);
+    if (c === undefined || r === undefined) return { ok: false, error: `bad grid: ${cols}x${rows}` };
+    this.wanted.set(id, { cols: c, rows: r });
     const s = this.sessions.get(id);
-    if (!s) return { ok: false, error: `no pty: ${id}` };
+    if (!s) return { ok: true, pending: true };
     try {
-      s.proc.resize(cols, rows);
+      s.proc.resize(c, r);
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) };
     }
   }
 
-  /** Ask the foreground TUI for a fresh frame without changing its geometry.
+  /** Ask the foreground TUI for a fresh frame, ending at the geometry it had.
    *  Startup output may predate the renderer subscription, and a same-sized
-   *  first fit otherwise emits no resize. */
-  redraw(id: string): { ok: boolean; error?: string } {
+   *  first fit otherwise emits no resize.
+   *
+   *  0.5.3 bug 22. This used to resize the pty to the size it already had. A
+   *  same size TIOCSWINSZ delivers no SIGWINCH, so the TUI was never told
+   *  anything and never repainted: a restored agent's pane stayed blank until a
+   *  keystroke, and nothing on it scrolled or clicked because nothing was there.
+   *  Measured on de9e70aa: zero signals per same size resize, one per real
+   *  change (test/pty-redraw-winch.test.cjs).
+   *
+   *  So the grid is moved one row and moved back. The pause between the two is
+   *  not decoration: Node based TUIs (Claude Code among them) handle SIGWINCH by
+   *  re reading the size and comparing it with the last one, and two resizes
+   *  landing before that read would show the same size twice and repaint
+   *  nothing. The child has to see the intermediate grid. */
+  async redraw(id: string): Promise<{ ok: boolean; error?: string }> {
     const s = this.sessions.get(id);
     if (!s) return { ok: false, error: `no pty: ${id}` };
     try {
-      s.proc.resize(s.proc.cols, s.proc.rows);
+      const { cols, rows } = s.proc;
+      const step = rows > 1 ? rows - 1 : rows + 1;
+      s.proc.resize(cols, step);
+      await new Promise((r) => setTimeout(r, REDRAW_STEP_MS));
+      // A restart under the same id in that window owns a different process now.
+      if (this.sessions.get(id) !== s) return { ok: false, error: `pty replaced during redraw: ${id}` };
+      // THE GRID MAY HAVE MOVED DURING THE WAIT (0.5.3, founder 24 Sep: Claude
+      // Code drew at about 70% of the pane). This redraw is asked for at attach,
+      // and the view's first real fit lands a frame or two later, inside these
+      // 80 ms: it moved the pty from the spawn placeholder (100 by 30) to the
+      // pane's true grid, and the restore below then put the placeholder back.
+      // The view never asked again, because its own grid had not changed. So
+      // a grid that is no longer the one this redraw set is left alone: it is
+      // newer, and it is the pane's.
+      if (s.proc.cols !== cols || s.proc.rows !== step) return { ok: true };
+      s.proc.resize(cols, rows);
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) };
@@ -794,6 +897,13 @@ export class PtyManager {
       lastOutputAt: s.lastOutputAt,
       hasOutput: s.hasOutput
     }));
+  }
+
+  /** The bounded ring of recent raw output (TAIL_MAX bytes), or '' if no such
+   *  PTY. The voice read tool's fallback when no terminal has drawn this pty
+   *  in the renderer (0.5.2); escapes are stripped by the caller. */
+  tail(id: string): string {
+    return this.sessions.get(id)?.tail ?? '';
   }
 
   /** Epoch ms of this PTY's most recent output, or undefined if no such PTY. */

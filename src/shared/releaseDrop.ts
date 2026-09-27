@@ -517,6 +517,14 @@ export const DEFAULT_DROP_HTML = `<style>
  * directive denies rather than allows, so script-src, connect-src, frame-src and
  * object-src are all closed without being named. Only the media a launch page
  * needs is opened back up, and only over https or data:.
+ *
+ * THIS POLICY IS NOT THE LAST WORD. A srcdoc frame inherits the policy of the
+ * page holding it, and a child can only narrow that, never widen it. What a
+ * drop may really load is this list INTERSECTED with the one in
+ * `src/renderer/index.html`. 0.5.2 shipped broken pictures, and every drop
+ * before it shipped in fallback fonts, because img-src and font-src here asked
+ * for things the parent refused. test/csp-parent-allows-drop.test.cjs reads
+ * both files; change either one and run it.
  */
 export function buildDropSrcDoc(html: string): string {
   const csp = [

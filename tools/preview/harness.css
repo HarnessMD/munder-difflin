@@ -1,0 +1,16 @@
+/* THE HARNESS IS A DOCUMENT, THE APP IS A WINDOW.
+   design/global.css sets `html, body, #root { height: 100%; overflow: hidden }`.
+   That is right for a fixed Electron window, which never scrolls, and fatal
+   here: this page is over 11,000px tall, so every frame below the first
+   viewport was clipped and unreachable. The frames still rendered and an error
+   boundary still caught throws inside them — nothing looked broken, which is
+   why this survived a review pass.
+
+   Imported AFTER global.css in main.tsx, so it wins on source order at equal
+   specificity rather than by !important or a heavier selector. Nothing outside
+   tools/preview loads this file, so the app keeps its fixed window. */
+html, body, #root {
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
+}

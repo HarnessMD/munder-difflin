@@ -1,58 +1,38 @@
 // The Office cast — roster metadata + sprite frames.
 //
 // Both the static portraits (cards / picker) and the in-scene walking sprites are
-// now fully custom-drawn from the same per-character recipes in portraitArt.ts:
+// fully custom-drawn from the same per-character recipes in portraitArt.ts:
 // the scene sprite reuses the portrait's exact head/face/clothing and adds legs,
 // so an agent on the office floor looks identical to its card. The LimeZu base
 // sheets are no longer used for the cast. See assets/ATTRIBUTION.md.
+//
+// A `custom:<id>` or `preset:<n>` character goes through the same path: the
+// painter resolves the name to a recipe, so the floor never has to know which
+// kind of character it is drawing.
 
 import { Texture } from 'pixi.js';
-import { paintPortrait, sceneFrameBufs, SCENE_W, SCENE_H } from './portraitArt';
+import { recipeKey } from '@shared/avatars';
+import { paintPortrait, resolveRecipe, sceneFrameBufs, SCENE_W, SCENE_H } from './portraitArt';
 
-export type OfficeCharacterName =
-  | 'michael' | 'jim' | 'pam' | 'dwight' | 'kevin' | 'angela'
-  | 'oscar' | 'stanley' | 'phyllis' | 'andy' | 'kelly' | 'ryan'
-  | 'toby' | 'creed' | 'meredith';
+import {
+  OFFICE_CAST,
+  CAST_BY_NAME,
+  DEFAULT_CHARACTER,
+  castMemberFor,
+  hexToNumber,
+  type OfficeCharacterName,
+  type CastMember
+} from './castRoster';
 
-export interface CastMember {
-  name: OfficeCharacterName;
-  displayName: string;
-  /** Signature accent color (hex) — used for the in-scene selection glow. */
-  shirt: string;
-  /** Blurb shown when this character is picked / has no description yet. */
-  blurb: string;
-}
-
-/** Selectable roster, in display order. */
-export const OFFICE_CAST: CastMember[] = [
-  { name: 'michael',  displayName: 'Michael',  shirt: '#5a6b8c', blurb: "World's best boss" },
-  { name: 'jim',      displayName: 'Jim',      shirt: '#6fa8dc', blurb: 'Salesman, prankster' },
-  { name: 'pam',      displayName: 'Pam',      shirt: '#9caf88', blurb: 'Receptionist, artist' },
-  { name: 'dwight',   displayName: 'Dwight',   shirt: '#b89b3e', blurb: 'Assistant (to the) RM' },
-  { name: 'kevin',    displayName: 'Kevin',    shirt: '#4a7ab5', blurb: 'Accounting' },
-  { name: 'angela',   displayName: 'Angela',   shirt: '#8a86a6', blurb: 'Head of accounting' },
-  { name: 'oscar',    displayName: 'Oscar',    shirt: '#7a4b6b', blurb: 'Accountant' },
-  { name: 'stanley',  displayName: 'Stanley',  shirt: '#8c5a4b', blurb: 'Sales, crossword' },
-  { name: 'phyllis',  displayName: 'Phyllis',  shirt: '#b08bbf', blurb: 'Sales' },
-  { name: 'andy',     displayName: 'Andy',     shirt: '#6fae6f', blurb: 'Cornell, a cappella' },
-  { name: 'kelly',    displayName: 'Kelly',    shirt: '#d16ba5', blurb: 'Customer service' },
-  { name: 'ryan',     displayName: 'Ryan',     shirt: '#3a3a44', blurb: 'The temp' },
-  { name: 'toby',     displayName: 'Toby',     shirt: '#9a8c5a', blurb: 'Human resources' },
-  { name: 'creed',    displayName: 'Creed',    shirt: '#6b7a4b', blurb: 'Quality assurance' },
-  { name: 'meredith', displayName: 'Meredith', shirt: '#b5544a', blurb: 'Supplier relations' },
-];
-
-export const CAST_BY_NAME: Record<OfficeCharacterName, CastMember> =
-  Object.fromEntries(OFFICE_CAST.map((c) => [c.name, c])) as Record<OfficeCharacterName, CastMember>;
-
-export const DEFAULT_CHARACTER: OfficeCharacterName = 'jim';
-
-export function hexToNumber(hex: string): number {
-  return parseInt(hex.replace('#', ''), 16);
-}
+// Re-exported so scene code keeps a single import site for roster + frames.
+export { OFFICE_CAST, CAST_BY_NAME, DEFAULT_CHARACTER, castMemberFor, hexToNumber };
+export type { OfficeCharacterName, CastMember };
 
 // ─── scene frames ────────────────────────────────────────────────────────────
-const frameCache = new Map<OfficeCharacterName, Texture[][]>();
+// Keyed by name AND recipe content: editing a custom avatar changes its key,
+// so the next getCastFrames for that name builds fresh textures instead of
+// serving the ones drawn before the edit.
+const frameCache = new Map<string, Texture[][]>();
 
 function bufToTexture(buf: Uint8ClampedArray): Texture {
   const canvas = document.createElement('canvas');
@@ -74,7 +54,8 @@ function bufToTexture(buf: Uint8ClampedArray): Texture {
  * three walk frames are stand / step-left / step-right.
  */
 export async function getCastFrames(name: OfficeCharacterName): Promise<Texture[][]> {
-  const cached = frameCache.get(name);
+  const key = `${name}|${recipeKey(resolveRecipe(name))}`;
+  const cached = frameCache.get(key);
   if (cached) return cached;
   const { front, back } = sceneFrameBufs(name);
   const toRow = (bufs: Uint8ClampedArray[]): Texture[] => {
@@ -83,7 +64,7 @@ export async function getCastFrames(name: OfficeCharacterName): Promise<Texture[
   };
   const frontRow = toRow(front);
   const frames: Texture[][] = [frontRow, toRow(back), frontRow]; // down, up, right
-  frameCache.set(name, frames);
+  frameCache.set(key, frames);
   return frames;
 }
 

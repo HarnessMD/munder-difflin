@@ -34,7 +34,7 @@ const colorByStatus: Record<StatusKind, string> = {
 // i18n key per status. "blocked" is reserved for the god agent waiting on YOU,
 // so it reads as "needs you"; sub-agents waiting on god/another agent are
 // "waiting", which is honest about who they're actually stalled on.
-const labelKeyByStatus: Record<StatusKind, string> = {
+export const labelKeyByStatus: Record<StatusKind, string> = {
   idle:     'badge.idle',
   thinking: 'badge.thinking',
   working:  'badge.working',

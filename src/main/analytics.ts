@@ -90,8 +90,169 @@ const EVENTS: Record<string, ReadonlySet<string>> = {
    *  at most once per feature per app session. */
   feature_used: new Set<string>(['feature']),
   /** Fired on quit. `duration_bucket` is a coarse label, never raw ms. */
-  session_ended: new Set<string>(['duration_bucket'])
+  session_ended: new Set<string>(['duration_bucket']),
+  /** An agent run ended (0.5.1, Ryan's spec). Pairs with agent_spawned.
+   *  `duration_bucket` is a coarse label, never raw ms, and its buckets are
+   *  runDurationBucket's and NOT session_ended's: a run is one task inside a
+   *  session and lives in seconds to minutes, so the session set would put
+   *  nearly every run in one bin. `ended_reason` is a fixed enum (see
+   *  RunEndReason). ALWAYS undercounts: a crash or force quit fires nothing,
+   *  the shutdown flush races a timeout, and the runs most likely to be lost
+   *  are the longest. Never derive a completion rate against agent_spawned
+   *  without saying so. */
+  agent_run_ended: new Set<string>(['provider', 'duration_bucket', 'ended_reason']),
+  /** ── The MONEY funnel (v0.5.0, spec: hive/shared/v050-event-spec.md §2).
+   *  paywall_shown → checkout_opened → checkout_finished → licence_activated,
+   *  with access_blocked as the dead end beside it and invite_redeemed as the
+   *  teams growth loop. Every property below is a closed enum with a named
+   *  constant and a runtime check in `trackFunnel` — see the note there for
+   *  why the allowlist alone is not enough for these six. */
+  /** The moment the money funnel begins: a purchase surface was drawn. Every
+   *  conversion rate below is measured against this, so it has no denominator
+   *  without it. */
+  paywall_shown: new Set<string>(['plan', 'trigger']),
+  /** The person left for the browser to buy. Separates "saw the price" from
+   *  "started buying", which is where price objection shows up.
+   *
+   *  NO `period` HERE (0.5.1). Until 0.5.1 this carried `period`, and its only
+   *  truthful value was a constant: the app opens one checkout and the browser
+   *  owns the choice after the handoff, so every row said `monthly` whether or
+   *  not the person then chose a year. A property whose only truthful value is
+   *  a constant is noise in the allowlist. The period now rides on
+   *  `licence_activated`, at the one door that learns it. */
+  checkout_opened: new Set<string>(['plan', 'seats_bucket']),
+  /** How that attempt ended. `scheduled_call` is an OUTCOME and deliberately
+   *  NOT an abandonment: collapsing it would make the best large-team leads
+   *  read as people who gave up.
+   *
+   *  NO `period` HERE either, on Ryan's ruling (7 Sep 2026): this side cannot
+   *  know what was PURCHASED, because the browser owns the choice after we
+   *  hand off. The licence the checkout door then claims does know, which is
+   *  why the property lives on `licence_activated` and nowhere earlier. */
+  checkout_finished: new Set<string>(['plan', 'outcome', 'reason']),
+  /** The only event that proves money turned into working software. `source`
+   *  separates self-serve from invited seats. `period` (0.5.1) is what the
+   *  licence is billed by, `monthly` or `annual`, and it is sent ONLY at the
+   *  checkout door, where the claim answer states it (a courtesy or a licence
+   *  never billed reads `monthly`, because that is what the record says). A key
+   *  typed by hand and an invited seat carry no period: the app never learns
+   *  it there, and an absent property is a fact, not a gap to fill. */
+  licence_activated: new Set<string>(['plan', 'source', 'period']),
+  /** A dead end, NOT a pitch: a block that offers no purchase surface. Kept
+   *  apart from paywall_shown on purpose — averaging the two hides both. */
+  access_blocked: new Set<string>(['plan', 'block']),
+  /** The teams growth loop, one call site. */
+  invite_redeemed: new Set<string>(['role'])
 };
+
+/* ── The money funnel's closed enums ────────────────────────────────────────
+ *
+ * WHY THESE ARE CONSTANTS AND NOT JUST TYPES. `track()`'s allowlist filters
+ * property KEYS; it does not look at VALUES (see the loop in track()). That is
+ * fine for the events above, whose values all originate in main from a closed
+ * source. Two of the six below are fired from the RENDERER, and a renderer
+ * string is untrusted input at this seam — the same reasoning that gave
+ * `message_sent` its `isRendererMessageSurface` guard. So every value is
+ * checked against one of these lists at runtime in `trackFunnel`, and an event
+ * carrying anything else is dropped whole rather than sent with a free-form
+ * value. TELEMETRY.md promises nothing free-form crosses this seam; this is
+ * what keeps that promise true for the funnel.
+ */
+
+/** `pro` is one person on one machine; `teams` is a seat in an org. */
+export const FUNNEL_PLANS = ['pro', 'teams'] as const;
+export type FunnelPlan = typeof FUNNEL_PLANS[number];
+
+/** What drew the paywall. `manual` is the person going looking for it. */
+export const PAYWALL_TRIGGERS = [
+  'pro_feature', 'seat_limit', 'licence_missing', 'licence_expired', 'manual'
+] as const;
+export type PaywallTrigger = typeof PAYWALL_TRIGGERS[number];
+
+/** Billing period, as the claimed licence reports it. Carried by
+ *  `licence_activated` from the checkout door only (0.5.1). Until 0.5.1 a
+ *  constant `CHECKOUT_PERIOD_TODAY` stamped `monthly` onto every
+ *  `checkout_opened`; that constant went with the property, because a value
+ *  the app could only ever assert, never observe, told nobody anything. */
+export const CHECKOUT_PERIODS = ['monthly', 'annual'] as const;
+export type CheckoutPeriod = typeof CHECKOUT_PERIODS[number];
+
+/** Seat count as a coarse bucket, NEVER a raw number: at the top end a raw
+ *  count would identify the one customer who has it. */
+export const SEATS_BUCKETS = ['1', '2-5', '6-20', '21+'] as const;
+export type SeatsBucket = typeof SEATS_BUCKETS[number];
+
+/** Bucket a seat count. Anything below 1 (or not a finite number) reads as the
+ *  single seat the app itself occupies, because there is no honest "unknown"
+ *  bucket in the spec and a dropped event costs more than a coarse one. */
+export function seatsBucket(seats: number | null | undefined): SeatsBucket {
+  if (typeof seats !== 'number' || !Number.isFinite(seats) || seats <= 1) return '1';
+  if (seats <= 5) return '2-5';
+  if (seats <= 20) return '6-20';
+  return '21+';
+}
+
+/** How a checkout ended. `scheduled_call` is a real success shape. */
+export const CHECKOUT_OUTCOMES = ['succeeded', 'failed', 'abandoned', 'scheduled_call'] as const;
+export type CheckoutOutcome = typeof CHECKOUT_OUTCOMES[number];
+
+/** Why a checkout did not succeed. `other` is the catch-all, so no refusal
+ *  ever needs a free-form sentence to be reportable. */
+export const CHECKOUT_REASONS = [
+  'card_declined', 'auth_failed', 'network', 'timeout', 'user_cancelled', 'other'
+] as const;
+export type CheckoutReason = typeof CHECKOUT_REASONS[number];
+
+/** How a licence came to be active on this machine. */
+export const LICENCE_SOURCES = ['checkout', 'key_entry', 'invite'] as const;
+export type LicenceSource = typeof LICENCE_SOURCES[number];
+
+/** Why the app refused to let someone in, with no purchase surface offered. */
+export const ACCESS_BLOCKS = [
+  'no_seat', 'seat_limit_reached', 'org_required', 'licence_missing',
+  /* Added 7 Sep 2026 on Ryan's own pre-condition: he ruled the coarse set
+     acceptable UNLESS teams ships a trial that can expire inside the launch
+     window. It does — `BillingState` carries `trialing`, `teamsOrg.ts:196`
+     revokes on `entitlement` when it lapses, and the app tells the user the
+     date. A COMPANY THAT STOPPED PAYING AND A PERSON WHOSE SEAT WAS TAKEN ARE
+     OPPOSITE PROBLEMS WITH OPPOSITE RESPONSES, so reporting them as one number
+     would make the most actionable event in the set unactionable. */
+  'org_lapsed'
+] as const;
+export type AccessBlock = typeof ACCESS_BLOCKS[number];
+
+/** What the redeemed invite made the person. */
+export const INVITE_ROLES = ['member', 'admin'] as const;
+export type InviteRole = typeof INVITE_ROLES[number];
+
+/** Every funnel property, mapped to the only values it may carry. The keys
+ *  here and the key sets in EVENTS are checked against each other by the test
+ *  suite, so a property added to one and not the other fails rather than
+ *  silently sending or silently dropping. */
+const FUNNEL_VALUES: Record<string, readonly string[]> = {
+  plan: FUNNEL_PLANS,
+  trigger: PAYWALL_TRIGGERS,
+  period: CHECKOUT_PERIODS,
+  seats_bucket: SEATS_BUCKETS,
+  outcome: CHECKOUT_OUTCOMES,
+  reason: CHECKOUT_REASONS,
+  source: LICENCE_SOURCES,
+  block: ACCESS_BLOCKS,
+  role: INVITE_ROLES
+};
+
+/** The six the money funnel is made of. `trackFunnel` refuses anything else,
+ *  which is what stops the renderer channel being a general way into track(). */
+export const FUNNEL_EVENTS = [
+  'paywall_shown', 'checkout_opened', 'checkout_finished',
+  'licence_activated', 'access_blocked', 'invite_redeemed'
+] as const;
+export type FunnelEvent = typeof FUNNEL_EVENTS[number];
+
+/** Is this a funnel event name? Used at the IPC seam before anything else. */
+export function isFunnelEvent(v: unknown): v is FunnelEvent {
+  return typeof v === 'string' && (FUNNEL_EVENTS as readonly string[]).includes(v);
+}
 
 /** The only values `feature_used.feature` may take. */
 export type AnalyticsFeature =
@@ -111,6 +272,26 @@ export type InstallRung = 'npm' | 'node-then-npm' | 'native';
 
 /** The only values `agent_install_finished.outcome` may take. */
 export type InstallOutcome = 'agent_launched' | 'install_failed';
+
+/** The only values `agent_run_ended.ended_reason` may take (Ryan's spec,
+ *  0.5.1). Four, not six: a stop button, a window closing and an app quit all
+ *  reach the same kill and cannot be told apart at the exit seam, so they are
+ *  one word rather than a confident guess. */
+export const RUN_END_REASONS = ['completed', 'error', 'stopped', 'unknown'] as const;
+export type RunEndReason = typeof RUN_END_REASONS[number];
+
+/** How a run ended, from the two facts the pty exit carries. `completed` is a
+ *  clean exit, `error` a non-zero one, `stopped` a process that was killed
+ *  rather than exiting on its own (a signal), `unknown` neither code nor
+ *  signal. A crash BY signal (SIGSEGV, SIGILL) reads as `stopped` too: at this
+ *  seam a kill and a crash are both a signal, and telling them apart is the
+ *  follow-up the spec names, not a value to invent here. */
+export function runEndReason(exitCode: number | null | undefined, signal: number | null | undefined): RunEndReason {
+  if (typeof signal === 'number' && signal > 0) return 'stopped';
+  if (exitCode === 0) return 'completed';
+  if (typeof exitCode === 'number') return 'error';
+  return 'unknown';
+}
 
 /** The only values `message_sent.surface` may take — the four places a HUMAN can
  *  send a message to an agent:
@@ -269,6 +450,31 @@ export class Analytics {
   trackMessageSent(surface: MessageSurface): void {
     if (!(MESSAGE_SURFACES as readonly string[]).includes(surface)) return;
     this.track('message_sent', { surface });
+  }
+
+  /**
+   * One money-funnel event, with every VALUE checked, not just every key.
+   *
+   * `track()` drops unknown keys but passes any string value through, which is
+   * safe for events whose values all come from a closed source in main.
+   * `paywall_shown` and `access_blocked` are named by the RENDERER, so their
+   * values are untrusted input at that seam — and an unrecognised string would
+   * otherwise ride along as a free-form value, exactly what TELEMETRY.md
+   * promises never happens.
+   *
+   * A bad value drops the WHOLE event rather than the offending property: a
+   * `checkout_finished` with no `outcome` is not a smaller truth, it is a row
+   * that would be counted in the denominator and nowhere in the numerator.
+   */
+  trackFunnel(event: FunnelEvent, props: Record<string, string> = {}): void {
+    if (!isFunnelEvent(event)) return;
+    const allowed = EVENTS[event];
+    if (!allowed) return;
+    for (const [k, v] of Object.entries(props)) {
+      if (!allowed.has(k)) return;                       // not this event's property
+      if (!FUNNEL_VALUES[k]?.includes(v)) return;        // not one of its values
+    }
+    this.track(event, props);
   }
 
   /** feature_used with per-session dedup (adoption signal, not a usage meter). */
@@ -510,6 +716,24 @@ function durationBucket(ms: number): string {
   if (m < 120) return '30m-2h';
   if (m < 480) return '2-8h';
   return '8h+';
+}
+
+/** Coarse run-length label for `agent_run_ended` (Ryan's spec, 0.5.1). A
+ *  SEPARATE set from durationBucket's, on purpose: a session is app-process
+ *  lifetime and a run is one task inside it, so the two answer different
+ *  questions and must be free to diverge. Denser where runs live, seconds to
+ *  minutes, with each boundary marking a change in what the person is doing:
+ *  watched it, attention going, went elsewhere, left it working, stuck. Never
+ *  raw ms, and never a bucket the spec does not have: anything unmeasurable
+ *  reads as the floor. */
+export function runDurationBucket(ms: number): string {
+  const s = Number.isFinite(ms) && ms > 0 ? ms / 1000 : 0;
+  if (s < 30) return '<30s';
+  if (s < 120) return '30s-2m';
+  if (s < 600) return '2-10m';
+  if (s < 1800) return '10-30m';
+  if (s < 7200) return '30m-2h';
+  return '2h+';
 }
 
 /** The process-wide singleton, mirroring how index.ts owns other services. */

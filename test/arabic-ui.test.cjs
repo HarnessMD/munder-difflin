@@ -204,13 +204,26 @@ test('no Arabic string is left as its English source', () => {
   // would make the UI wrong, not more Arabic.
   const SAME_ON_PURPOSE = new Set([
     'settings.connections.slack',            // product name
+    'pro.inbox.slack',                       // the same product name, the Inbox row
+    'pro.god.config.slack',                  // and the orchestrator's Reach card
+    'settings.conn.slack.title',             // Slack, the Connections card (0.5.3)
+    'settings.integ.github.title',           // GitHub, Linear, Telegram: product names on the
+    'settings.integ.linear.title',           // Integrations cards and in the webhook list
+    'settings.integ.telegram.title',
+    'settings.integ.sourceName.github',
+    'settings.integ.sourceName.linear',
+    'settings.integ.sourceName.telegram',
+    'settings.conn.inbound.form.typeChoice.github',   // the add form's type picker (batch 3)
+    'settings.conn.inbound.form.typeChoice.linear',
+    'settings.conn.inbound.form.typeChoice.telegram',
     'onboarding.providerBlurb.claude',       // "Claude Code — Anthropic": two product names
     'onboarding.providerBlurb.codex',
     'onboarding.providerBlurb.antigravity',
     'onboarding.providerBlurb.gemini',
     'addAgent.projectPlaceholder',           // /path/to/your/project — a filesystem path
+    'pro.sheet.folderPlaceholder',           // ~/Projects/… — the PRO agent sheet's folder, same
     'onboarding.home.placeholder',           // /path/to/HarnessAgents — same
-    'mcpDefaults.toggleNote',                // "{{id}}: {{state}}" — pure interpolation
+    'pro.onboarding.join.codePlaceholder',   // XXXX-XXXX — the invite code's shape; the code itself is Latin
     'webhooksSection.summary'                // "{{count}} · {{state}}" — same
   ]);
   const e = pathsOf(en), a = pathsOf(ar);

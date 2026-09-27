@@ -7,7 +7,6 @@ import { SpritePortrait } from './SpritePortrait';
 import { PtyTerminalView } from './PtyTerminalView';
 import { terminalInstanceKey } from './terminalRecovery';
 import { MessageQueueComposer } from './MessageQueueComposer';
-import { CommandCenterPanel } from './CommandCenterPanel';
 import { disposeTerminal } from './terminalPool';
 import { SidebarTabs } from './SidebarTabs';
 import { ThreadsPanel } from './ThreadsPanel';
@@ -92,8 +91,11 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
 
   const onPtyStream = usePtyParser(agent.id);
 
-  // Michael gets the full command-center dashboard instead of the plain panel.
-  if (agent.isGod) return <CommandCenterPanel agent={agent} />;
+  // Michael's dashboard is the Command Center, mounted by the Classic layout
+  // (App.tsx) in this panel's place when the selected agent is the god. It
+  // used to branch here; moving the branch up keeps this file reachable from
+  // PRO without dragging the Command Center's eleven tabs along with it
+  // (test/pro-fence.test.cjs), and Classic renders exactly what it did.
 
   const openTerminal = async () => {
     setOpenTerminalState('opening');
@@ -150,7 +152,7 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden',
           flexShrink: 0
         }}>
-          <SpritePortrait character={agent.character} scale={1} />
+          <SpritePortrait character={agent.character} scale={1} description={agent.description} isGod={agent.isGod} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', minWidth: 0, lineHeight: '14px' }}>
@@ -250,6 +252,7 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
                 <PtyTerminalView
                   key={terminalInstanceKey(agent.ptyId, agent.terminalGeneration)}
                   ptyId={agent.ptyId}
+                  provider={agent.provider}
                   onStreamData={onPtyStream}
                   onUserPrompt={(t) => {
                     updateAgent(agent.id, { lastPrompt: t });

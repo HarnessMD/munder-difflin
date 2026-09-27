@@ -1,5 +1,6 @@
 // Mirrors src/main/config.ts. Kept as a renderer-side type-only module
 // so we don't have to reach into the preload package to type-check.
+import type { TranscribeConfig } from '@shared/transcribeConfig';
 import {
   AGENT_PROVIDER_PRESETS,
   providerPreset,
@@ -8,12 +9,16 @@ import {
   type AgentProvider,
   type AgentProviderPreset
 } from '@shared/agentProvider';
+import type { CustomAvatar } from '@shared/avatars';
 import type {
   ContextTriggerConfig,
-  OrgTriggerConfig,
   WebhookTrigger
 } from '@shared/triggers';
 import { isNewer } from '@shared/updateState';
+import type { TaskHygieneConfig } from '@shared/taskHygiene';
+import type { SlackMode, SlackTriage } from '@shared/slackMode';
+import type { PuckConfig } from '@shared/puck';
+import { modelLabel } from '@shared/engine';
 import modelCatalog from '@shared/modelCatalog.json';
 import type { CatalogModel, ModelCatalog } from '@shared/modelCatalogPayload';
 
@@ -73,9 +78,12 @@ export interface HarnessConfig {
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;
   /** Which provider+model powers the GOD orchestrator ("Michael"). Default
-   *  'claude' / 'claude-opus-4-8'. Mirrors src/main/config.ts. */
+   *  'claude' / 'claude-opus-5-5'. Mirrors src/main/config.ts. */
   godProvider?: AgentProvider;
   godModel?: string;
+  /** A hand edited orchestrator command (0.5.3 bug 20). Wins over the line
+   *  derived from godProvider and godModel; see shared/godCommand.ts. */
+  godCommand?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id (mirrors
    *  src/main/config.ts; seeded from MCP_CATALOG). */
   mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -90,6 +98,20 @@ export interface HarnessConfig {
    *  while away (battery cost; best on AC). Default off = survive + catch up on
    *  resume. Mirrors the main-process field (src/main/config.ts). */
   strongKeepalive?: boolean;
+  /** Keep my agent order (0.5.3, founder 24 Sep): off by default. On, the
+   *  sidebar draws `agentOrder` and rows can be dragged; off, it orders itself
+   *  most recently used first and rows cannot move. Rules: shared/agentOrder.ts. */
+  keepAgentOrder?: boolean;
+  /** The sidebar's agent ids top to bottom, orchestrator excluded. Frozen from
+   *  the screen the first time keepAgentOrder is on; kept when it goes off. */
+  agentOrder?: string[];
+  /** The project headings' order while keepAgentOrder is on (lower case keys). */
+  projectOrder?: string[];
+  /** Sidebar shows only agents and notes (0.5.3 rc.4, founder 25 Sep): off
+   *  by default. On, the PRO sidebar's agent rows drop the Asked you strip, the
+   *  task line and the Finished task strip; the name, status and note stay,
+   *  and the bell still opens every question. */
+  sidebarAgentsNotesOnly?: boolean;
   /** Auto-update from GitHub releases (default ON; Settings → General). */
   autoUpdate?: boolean;
   /** Anonymous product analytics (default ON, opt-out; see TELEMETRY.md).
@@ -103,10 +125,30 @@ export interface HarnessConfig {
   /** Opt-in app/voice-initiated proactive Slack posting (default OFF). Mirrors
    *  src/main/config.ts; the Slack-origin done-reply round-trip is never gated. */
   slackProactivePosting?: boolean;
+  /** How Slack reaches the office (0.4.11), the socket app token, the two
+   *  frequency pickers and the temps folder. Mirrors src/main/config.ts; the
+   *  names and ranges live in src/shared/slackMode.ts. */
+  slackMode?: SlackMode;
+  slackAppToken?: string;
+  slackPollSeconds?: number;
+  slackSocketCatchupSeconds?: number;
+  slackTempCwd?: string;
+  /** @deprecated 0.5.2: read by nothing; see `responder`. */
+  slackTriage?: SlackTriage;
+  /** 0.5.2: who answers an inbound message, an agent id; unset or '' is the
+   *  orchestrator. Mirrors src/main/config.ts. */
+  responder?: string;
+  /** 0.5.3: the agent a webhook call goes to when its endpoint names none. */
+  webhookResponder?: string;
+  /** The view the office opens in (0.4.11), Classic 'office' or PRO
+   *  'professional'; a PRO user's setting under General. Mirrors main. */
+  defaultView?: 'office' | 'professional';
   /** Free Flow voice dictation (mirrors src/main/config.ts). */
   freeflowEnabled?: boolean;
   groqApiKey?: string;
   freeflowModel?: string;
+  /** 0.5.3, F16: dictation and meetings; always complete when read. */
+  transcribe?: TranscribeConfig;
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
    *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;
@@ -116,11 +158,18 @@ export interface HarnessConfig {
   /** Per-agent total-token ceiling, keyed by agent id. Overrides the floor budget
    *  for that agent's meter and trips the breaker for it alone. */
   agentTokenCaps?: Record<string, number>;
+  /** Per-agent MCP overrides, agent id → catalog id → consent (shared/agentMcp.ts). */
+  agentMcp?: Record<string, Record<string, { enabled: boolean }>>;
   autoDeliveryPausedAgents?: string[];
   maxTurns?: number;
+  /** How many ephemeral workers (temps) may run at once. Default 4. Mirrors
+   *  src/main/config.ts; edited on the orchestrator's Budget & breaker tab. */
+  maxConcurrentWorkers?: number;
   circuitBreaker?: CircuitBreakerConfig;
   /** Enterprise Knowledge Graph (multimodal context for agents). Default OFF. */
   knowledgeGraph?: KnowledgeGraphConfig;
+  /** Custom avatars from the sprite editor (mirrors src/main/config.ts). */
+  avatars?: CustomAvatar[];
   /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
   tvShowOffices?: boolean;
   /** Active office map/cast theme (honored only when tvShowOffices is on). */
@@ -147,10 +196,26 @@ export interface HarnessConfig {
   contextTrigger?: ContextTriggerConfig;
   /** Inbound HTTP endpoints, one per caller — replaces the legacy trio above. */
   webhookTriggers?: WebhookTrigger[];
-  /** Peer messaging between teammates' clone nodes (persistence + UI only). */
-  orgTrigger?: OrgTriggerConfig;
   /** One-time guard for the main-process triggers migration; read-only here. */
   triggersMigratedV1?: boolean;
+  /** Thresholds of the hourly hygiene sweep (days before a done card archives,
+   *  an untouched card is flagged then archived, an open question nags, and
+   *  the board's token cap). Missing keys read as the defaults in
+   *  shared/taskHygiene.ts. Mirrors src/main/config.ts. */
+  taskHygiene?: Partial<TaskHygieneConfig>;
+  /** 0.5.3: ticket key prefix (V53); see main config.ts. */
+  ticketPrefix?: string;
+  /** The standing house brief for HOW every agent answers (stick to the subject,
+   *  factual, short and crisp, plain language). User editable in Settings; an
+   *  absent or empty value reads as DEFAULT_RESPONSE_STYLE in
+   *  shared/responseStyle.ts. Mirrors src/main/config.ts. */
+  responseStyle?: string;
+  /** Claude Code's own output style for the agents this app starts (0.5.3
+   *  feature 19). Unset means Concise; 'default' turns it off. */
+  claudeOutputStyle?: string;
+  /** The floating puck (Pro). Read through normalizePuckConfig; a partial is
+   *  accepted on write (main merges). Mirrors src/main/config.ts. */
+  puck?: Partial<PuckConfig>;
 }
 
 /** The Sonnet model with the 1M-token context window — used for Michael's prep
@@ -242,20 +307,38 @@ const BAKED: ModelCatalog = modelCatalog;
  *  function call, so a refresh reaches the next render with no plumbing. */
 let CATALOG: ModelCatalog = BAKED;
 
-/** Merge a validated remote catalog over the baked one.
+/** Merge a validated remote catalog over the baked one, PER MODEL.
  *
- *  Per PROVIDER, not per model: a provider present in the remote copy replaces
- *  that provider's list outright, and a provider the remote copy does not
- *  mention keeps the list this build shipped with. That means docs/model-catalog
- *  .json can carry only the providers being changed, and a provider dropped from
- *  it degrades to the built-in list rather than to an empty picker.
+ *  It used to be per PROVIDER: a provider named in the remote copy replaced
+ *  that provider's whole list. That made the pickers OLDER than the build they
+ *  run in. The remote file lives on main and lags a release, so the day Opus
+ *  5.5 shipped as the default (config.ts godModel and defaultModel) the remote
+ *  claude list still ended at Opus 5, the merge dropped the entry this build
+ *  ships, and the orchestrator's Config tab fell back to printing the raw id
+ *  `claude-opus-5-5` beside friendly names like "Opus 5" (founder, 24 Sep).
+ *
+ *  So: the remote list leads and wins by id, giving it the order and the
+ *  labels, and any baked model it does not mention is kept after it. The
+ *  remote can still RETIRE a model, with the maxAppVersion field it already
+ *  has and that `offeredAtVersion` already honours; silence is not retirement.
+ *  A provider the remote does not mention keeps the built-in list, as before.
  *
  *  Returns whether anything actually changed, so the caller can skip a pointless
  *  event on the overwhelmingly common "nothing new" path. */
+export function mergeCatalogModels(baked: CatalogModel[], remote: CatalogModel[]): CatalogModel[] {
+  const key = (m: CatalogModel) => m.id ?? '';
+  const named = new Set(remote.map(key));
+  return [...remote, ...baked.filter((m) => !named.has(key(m)))];
+}
+
 export function applyRemoteModelCatalog(remote: ModelCatalog | null): boolean {
-  const next: ModelCatalog = remote
-    ? { version: BAKED.version, providers: { ...BAKED.providers, ...remote.providers } }
-    : BAKED;
+  const providers: Record<string, CatalogModel[]> = { ...BAKED.providers };
+  if (remote) {
+    for (const [name, list] of Object.entries(remote.providers)) {
+      providers[name] = mergeCatalogModels(BAKED.providers[name] ?? [], list);
+    }
+  }
+  const next: ModelCatalog = remote ? { version: BAKED.version, providers } : BAKED;
   if (JSON.stringify(next) === JSON.stringify(CATALOG)) return false;
   CATALOG = next;
   return true;
@@ -338,6 +421,21 @@ export function modelsForProviderAtVersion(
 // (they used to carry byte-identical copies). Re-exported here so existing
 // importers keep their path.
 export { tokenizeCommand } from '@shared/commandLine';
+
+/** The live catalog's providers: the baked lists with any remote copy merged
+ *  in. Everything that turns a model id into words reads THIS, so a model the
+ *  remote added is named in the badges too, not only in the pickers. */
+export function catalogProviders(): Record<string, CatalogModel[]> {
+  return CATALOG.providers;
+}
+
+/** A model id in words, from the live catalog: "Opus 5.5", never
+ *  `claude-opus-5-5`. Null only when there is no model at all and the catalog
+ *  has no "CLI default" row to name it. An id the catalog does not know is
+ *  tidied rather than dropped, so a hand typed slug still reads. */
+export function modelWord(provider: AgentProvider | undefined, model: string | undefined): string | null {
+  return modelLabel(provider, model, catalogProviders());
+}
 
 /** The model preset list for a given provider's picker, on this build. */
 export function modelsForProvider(provider: AgentProvider): ModelOption[] {

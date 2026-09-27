@@ -27,19 +27,43 @@ export interface TopicNode {
   /** how many agents share the topic */
   weight: number;
 }
+/**
+ * A ledger card on the stage (0.4.10, founder 4 Sep 2026: "the graph view
+ * should also have the three nodes and items interconnected with each other").
+ *
+ * The id is `task:<ledger id>` so the three real kinds never collide in one
+ * namespace: agents are their own id, memories are `topic:…`, tickets are
+ * `task:…`. `buildGraph` itself does not emit these, because the ledger is not
+ * one of its inputs; the PRO Memory screen adds the layer from
+ * shared/memoryGraphModel.ts, which is where the "which tickets, and joined to
+ * what" rules are unit tested.
+ */
+export interface TaskNode {
+  kind: 'task';
+  id: string;
+  /** The ledger id, without the node prefix, for opening the card. */
+  taskId: string;
+  label: string;
+  status: string;
+  /** Edges touching it (drives node size), never below 1. */
+  weight: number;
+}
 export interface PseudoNode {
   kind: 'pseudo';
   id: 'broadcast' | 'human';
   label: string;
 }
-export type GraphNode = AgentNode | TopicNode | PseudoNode;
+export type GraphNode = AgentNode | TopicNode | TaskNode | PseudoNode;
 
 export interface GraphEdge {
   id: string;
-  kind: 'message' | 'topic';
+  /** `message` and `topic` are the shipped two. `task` runs an agent to a
+   *  ticket it works and `mention` runs a ticket to a memory whose note names
+   *  its id, which is what ties the three kinds into one graph. */
+  kind: 'message' | 'topic' | 'task' | 'mention';
   source: string;
   target: string;
-  /** message: # messages on the pair; topic: 1 */
+  /** message: # messages on the pair; topic, task, mention: 1 */
   weight: number;
   /** message edges only — direction of traffic between the pair */
   dir?: 'fwd' | 'bwd' | 'both';
@@ -54,6 +78,10 @@ export interface GraphData {
   topicShown: number;
   /** total qualifying topics (for the "showing N of M" cap notice) */
   topicTotal: number;
+  /** tickets actually shown, and the total that qualified. Absent on the
+   *  Classic panel's graph, which has no ledger layer. */
+  taskShown?: number;
+  taskTotal?: number;
 }
 
 /** Minimal shapes we depend on (kept loose — hiveLog is loosely typed). */

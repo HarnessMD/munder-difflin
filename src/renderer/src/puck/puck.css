@@ -1,0 +1,360 @@
+/* The puck window. Everything is absolutely placed around the disc centre
+   main hands us (state.offset), because the window is bigger than the disc
+   and the disc is not always at its middle (see shared/puck windowFor). */
+
+/* THE THEME. Until 0.5.3 every colour below was a literal from the light set
+   and this window never loaded the theme at all, so the Stapler stayed cream
+   inside a dark app. The surfaces a person reads (ring buttons, the note card,
+   its buttons) now go through these. Light values are the old literals exactly.
+
+   NOT themed, on purpose: the orbits, the labels, the clock and the flash. They
+   sit over whatever is on the desktop, not over our app, so they carry their
+   own dark wash and cream text in both themes. */
+:root {
+  color-scheme: light;
+  --puck-surface: #FFF8E7;
+  --puck-surface-hi: #ffffff;
+  --puck-surface-off: #ECE7DA;
+  --puck-well: #F0EAD2;
+  --puck-ink: #1A1320;
+  --puck-ink-muted: #6B5878;
+  --puck-ink-off: rgba(26, 19, 32, 0.38);
+  --puck-line: rgba(26, 19, 32, 0.14);
+  --puck-line-strong: rgba(26, 19, 32, 0.2);
+  --puck-bad: #B8433A;
+  --puck-invert: #1A1320;
+  --puck-invert-ink: #FFF8E7;
+  --puck-gloss: rgba(255, 255, 255, 0.7);
+}
+:root[data-cth-theme='dark'] {
+  color-scheme: dark;
+  --puck-surface: #1D1D22;
+  --puck-surface-hi: #26262C;
+  --puck-surface-off: #222229;
+  --puck-well: #17171B;
+  --puck-ink: #DEDBD6;
+  --puck-ink-muted: #96919F;
+  --puck-ink-off: rgba(222, 219, 214, 0.38);
+  --puck-line: rgba(222, 219, 214, 0.18);
+  --puck-line-strong: rgba(222, 219, 214, 0.26);
+  --puck-bad: #DF8078;
+  --puck-invert: #DEDBD6;
+  --puck-invert-ink: #17171B;
+  --puck-gloss: rgba(255, 255, 255, 0.06);
+}
+
+#root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: var(--cth-font-ui);
+  -webkit-user-select: none;
+  user-select: none;
+  /* Nothing here takes a click unless it says so: the transparent part of
+     the window is click through, and main is told when the cursor is over
+     something that is not. */
+  pointer-events: none;
+}
+#root [data-hit] { pointer-events: auto; }
+
+.puck-disc {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  transition: opacity 160ms ease, filter 160ms ease;
+  will-change: transform;
+}
+.puck-disc:active { cursor: grabbing; }
+.puck-disc.lifted { filter: drop-shadow(0 4px 10px rgba(26, 19, 32, 0.18)); }
+
+/* The pulse while recording: a red ring breathing around the disc. */
+.puck-rec {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid #D96A62;
+  box-shadow: 0 0 0 0 rgba(217, 106, 98, 0.45);
+  animation: puck-breathe 1.6s ease-out infinite;
+}
+@keyframes puck-breathe {
+  0%   { box-shadow: 0 0 0 0 rgba(217, 106, 98, 0.45); opacity: 1; }
+  70%  { box-shadow: 0 0 0 14px rgba(217, 106, 98, 0); opacity: 0.9; }
+  100% { box-shadow: 0 0 0 0 rgba(217, 106, 98, 0); opacity: 1; }
+}
+.puck-dictate {
+  position: absolute;
+  transform: translate(-50%, 0);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(26, 19, 32, 0.78);
+  color: #FFF8E7;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* The live level: bars that grow with the voice, newest on the right. */
+.puck-meter { display: flex; align-items: center; gap: 2px; height: 16px; }
+.puck-meter i { display: block; width: 3px; min-height: 3px; border-radius: 2px; background: #FFF8E7; transition: height 60ms linear; }
+.puck-clock {
+  position: absolute;
+  transform: translate(-50%, 0);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(26, 19, 32, 0.78);
+  color: #FFF8E7;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+/* The ring. Two hairline orbits scale out from the disc; the buttons fly out
+   along their own angle, each a beat after the last (--i); the outer orbit
+   turns slowly, dashed, so the open state reads as live rather than parked. */
+.puck-orbit {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(0.3);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 248, 231, 0.55);
+  box-shadow: 0 0 0 1px rgba(26, 19, 32, 0.10);
+  opacity: 0;
+  transition: transform 180ms cubic-bezier(0.2, 0.9, 0.25, 1.15), opacity 140ms ease;
+}
+.puck-orbit.dashed {
+  border-style: dashed;
+  border-color: rgba(255, 248, 231, 0.75);
+  animation: puck-turn 24s linear infinite;
+}
+.puck-ring.in .puck-orbit { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+@keyframes puck-turn { to { transform: translate(-50%, -50%) scale(1) rotate(360deg); } }
+
+.puck-btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--puck-line);
+  background: var(--puck-surface);
+  color: var(--puck-ink);
+  box-shadow: 0 6px 16px rgba(26, 19, 32, 0.22), inset 0 1px 0 var(--puck-gloss);
+  /* Start folded into the disc; `in` sends each to its slot. */
+  transform: translate(-50%, -50%) scale(0.2);
+  opacity: 0;
+  transition:
+    /* Quick (founder, 7 Sep 2026: the buttons took a while to arrive): the
+       whole ring is settled in about a quarter second, the stagger kept as
+       a hint of order rather than a wait. */
+    transform 180ms cubic-bezier(0.2, 0.9, 0.25, 1.2) calc(var(--i) * 18ms),
+    opacity 120ms ease calc(var(--i) * 18ms),
+    background 120ms ease, box-shadow 120ms ease;
+  cursor: pointer;
+}
+.puck-ring.in .puck-btn { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1); opacity: 1; }
+.puck-btn:hover:not(:disabled) { background: var(--puck-surface-hi); box-shadow: 0 8px 20px rgba(26, 19, 32, 0.28), 0 0 0 4px rgba(79, 159, 175, 0.18); }
+.puck-btn:focus-visible { outline: 2px solid #4F9FAF; outline-offset: 2px; }
+.puck-btn:disabled { cursor: not-allowed; color: var(--puck-ink-off); background: var(--puck-surface-off); box-shadow: 0 3px 8px rgba(26, 19, 32, 0.12); }
+.puck-btn.on { background: var(--puck-invert); color: var(--puck-invert-ink); }
+.puck-btn.danger { background: #D96A62; color: #FFF8E7; border-color: rgba(26, 19, 32, 0.2); }
+.puck-btn.close { background: rgba(26, 19, 32, 0.82); color: #FFF8E7; border-color: transparent; }
+
+/* A button's name, shown only while that button is under the pointer or
+   holds keyboard focus (founder, 7 Sep 2026: five names around the open
+   ring were too much; "the text should only appear when user hovers on a
+   particular icon"). The label is the button's next sibling, so the
+   selector needs no script; a disabled button still hovers, so the reason
+   it is off ("Coming soon", "Needs a Groq key") is a hover away too. */
+.puck-label {
+  position: absolute;
+  transform: translate(var(--lx), -50%);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: #FFF8E7;
+  text-shadow: 0 1px 2px rgba(26, 19, 32, 0.9), 0 0 10px rgba(26, 19, 32, 0.6);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 100ms ease;
+  pointer-events: none;
+}
+.puck-label small { display: block; font-weight: 500; font-size: 10px; opacity: 0.85; }
+/* The capture pair says its words without a hover: Capture and Cancel are the
+   whole control while the selector is up (0.5.2). */
+.puck-label.always { opacity: 1; }
+.puck-ring.in .puck-btn:hover + .puck-label,
+.puck-ring.in .puck-btn:focus-visible + .puck-label { opacity: 1; }
+
+/* The note card: the screenshot or the transcript, a text box, send. */
+.puck-card {
+  position: absolute;
+  width: 292px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--puck-surface);
+  color: var(--puck-ink);
+  border: 1px solid var(--puck-line);
+  box-shadow: 0 14px 34px rgba(26, 19, 32, 0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: puck-card-in 200ms cubic-bezier(0.2, 0.9, 0.25, 1.1);
+}
+@keyframes puck-card-in { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: none; } }
+.puck-card h2 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; color: var(--puck-ink-muted); }
+/* The title and, on its right, who the card goes to (0.5.3, I5). */
+.puck-head { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.puck-head h2 { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.puck-to { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--puck-ink-muted); min-width: 0; }
+.puck-to select {
+  font: inherit; font-size: 12px; font-weight: 600; color: var(--puck-ink);
+  max-width: 150px; padding: 3px 6px; border-radius: 8px;
+  border: 1px solid var(--puck-line-strong); background: var(--puck-surface-hi); cursor: pointer;
+}
+.puck-to select:focus-visible { outline: 2px solid #4F9FAF; outline-offset: 1px; }
+/* The picture at its own proportion: its box comes from shared/puck shotBox
+   through the width and height attributes, and `height: auto` keeps the
+   ratio. A `width: 100%` here with the capture's own height attribute
+   stretched it (founder, 7 Sep 2026). A narrow region sits centred. */
+.puck-card img { display: block; max-width: 100%; height: auto; margin: 0 auto; border-radius: 8px; border: 1px solid var(--puck-line); background: var(--puck-well); }
+/* Several pictures (I6): thumbnails in rows, each with its own remove. */
+.puck-card .puck-shots { display: flex; flex-wrap: wrap; gap: 6px; }
+.puck-card .puck-thumb { position: relative; flex: none; }
+.puck-card .puck-thumb img { width: 100%; height: 100%; object-fit: cover; margin: 0; }
+.puck-card .puck-thumb .puck-b { position: absolute; top: 3px; inset-inline-end: 3px; padding: 2px; }
+.puck-card textarea {
+  /* Border box, or 100% plus the padding hangs off the card's right edge
+     (founder's screenshot, 7 Sep 2026). */
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--puck-line-strong);
+  background: var(--puck-surface-hi);
+  color: var(--puck-ink);
+}
+.puck-card textarea:focus { outline: 2px solid #4F9FAF; outline-offset: 1px; }
+.puck-row { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
+.puck-row .grow { flex: 1; font-size: 11px; color: var(--puck-ink-muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.puck-row .grow.bad { color: var(--puck-bad); }
+.puck-card .puck-status { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--puck-ink-muted); font-variant-numeric: tabular-nums; min-height: 14px; }
+.puck-card .puck-status > span { flex: 1; min-width: 0; }
+.puck-card .puck-status.bad { color: var(--puck-bad); }
+.puck-card .puck-status .puck-b { font-size: 11px; padding: 3px 9px; flex-shrink: 0; }
+/* The card's mic: a round icon button beside Cancel and Send. */
+.puck-b.icon { width: 32px; height: 32px; padding: 0; display: inline-grid; place-items: center; border-radius: 999px; flex-shrink: 0; }
+.puck-b.danger { background: #D96A62; border-color: #D96A62; color: #FFF8E7; }
+.puck-b {
+  font: inherit; font-size: 12px; font-weight: 600;
+  padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--puck-line-strong); background: var(--puck-surface-hi); color: var(--puck-ink);
+}
+.puck-b.primary { background: var(--puck-invert); color: var(--puck-invert-ink); border-color: var(--puck-invert); }
+.puck-b:disabled { opacity: 0.5; cursor: not-allowed; }
+.puck-b:focus-visible { outline: 2px solid #4F9FAF; outline-offset: 2px; }
+
+/* A short notice under the disc: sent, failed, denied. Its box is placed
+   and sized by placeFlash (shared/puck.ts): a fixed width, never a
+   shrink-to-fit sliver at the window's edge (0.5.2, card
+   v052-stapler-mic-permission-prompt). */
+.puck-flash {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(26, 19, 32, 0.86);
+  color: #FFF8E7;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  display: flex; flex-direction: column; gap: 8px; align-items: stretch;
+  animation: puck-card-in 180ms ease;
+}
+.puck-flash > span:first-child { overflow-wrap: anywhere; }
+.puck-flash.bad { background: #D96A62; }
+/* The buttons stack, each the full width of the notice, and a label wraps
+   inside its button rather than breaking the row: a longer localised label
+   cannot break this again. */
+.puck-flash .puck-row { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 6px; width: 100%; }
+.puck-flash .puck-b {
+  width: 100%; min-height: 26px; font-size: 11px; padding: 5px 10px; line-height: 1.25;
+  white-space: normal; overflow-wrap: anywhere; text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .puck-orbit, .puck-btn, .puck-label, .puck-card, .puck-flash { transition: none; animation: none; }
+  .puck-rec { animation: none; }
+}
+
+/* THE COMPOSE CARD IN THE PRO KIT (founder, 25 Sep 2026, batch 2: "make sure
+   that input card's design is as per our pro theme"). The same surfaces,
+   borders and buttons as components/pro/ui.tsx (Panel, inputStyle, Btn):
+   tokens only, 1px even borders, radius 12 on the card and 8 on controls,
+   the accent for the one primary action. Light and dark come from the
+   tokens; the window sets data-cth-skin="professional" (PuckApp). */
+.puck-card {
+  background: var(--cth-cream-50);
+  color: var(--cth-ink-900);
+  border: 1px solid var(--cth-ink-300);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  padding: 12px;
+  gap: 10px;
+}
+.puck-card h2 { color: var(--cth-ink-500); font-size: 11px; font-weight: 600; letter-spacing: 0.4px; }
+.puck-card .puck-to { color: var(--cth-ink-500); }
+.puck-card .puck-to select,
+.puck-card textarea {
+  border: 1px solid var(--cth-ink-300);
+  border-radius: 8px;
+  background: var(--cth-cream-100);
+  color: var(--cth-ink-900);
+}
+.puck-card textarea { font-size: 12.5px; line-height: 1.45; min-height: 84px; padding: 8px 10px; }
+.puck-card textarea::placeholder { color: var(--cth-ink-500); }
+.puck-card textarea:focus,
+.puck-card .puck-to select:focus-visible { outline: none; border-color: var(--cth-accent); box-shadow: 0 0 0 2px var(--cth-accent-tint, transparent); }
+.puck-card img { border: 1px solid var(--cth-ink-300); background: var(--cth-cream-100); }
+.puck-card .puck-status { color: var(--cth-ink-500); }
+.puck-card .puck-status.bad { color: var(--cth-status-blocked); }
+/* Buttons: the kit's default, primary and danger, at the kit's sm height. */
+.puck-card .puck-b {
+  height: 30px; padding: 0 12px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 500;
+  border: 1px solid var(--cth-ink-300); background: var(--cth-cream-100); color: var(--cth-ink-900);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.puck-card .puck-b:hover:not(:disabled) { background: var(--cth-cream-200); }
+.puck-card .puck-b:active:not(:disabled) { background: var(--cth-cream-300); }
+.puck-card .puck-b.primary { border-color: var(--cth-accent); background: var(--cth-accent); color: var(--cth-accent-ink); }
+.puck-card .puck-b.primary:hover:not(:disabled) { background: var(--cth-accent-hover); }
+.puck-card .puck-b.danger { border-color: var(--cth-status-blocked); background: transparent; color: var(--cth-status-blocked); }
+.puck-card .puck-b.danger:hover:not(:disabled) { background: var(--cth-status-blocked-tint); }
+.puck-card .puck-b.icon { width: 30px; height: 30px; padding: 0; border-radius: 8px; }
+.puck-card .puck-b:focus-visible { outline: 2px solid var(--cth-accent); outline-offset: 1px; }
+.puck-card .puck-status .puck-b { height: 24px; padding: 0 9px; font-size: 11px; }
+/* A long problem takes the whole line and its buttons go under it, not a
+   narrow column beside them (the empty picture notice, 25 Sep 2026). */
+.puck-card .puck-status { flex-wrap: wrap; }
+.puck-card .puck-status > span { flex: 1 1 100%; }
+.puck-card .puck-thumb .puck-b { height: 20px; width: 20px; padding: 0; }
+/* Pictures added to a message: a chip each under the words, thumbnail, name
+   and a remove x (founder, 25 Sep 2026). 1px even border, the kit's radius. */
+.puck-card .puck-attached { display: flex; flex-wrap: wrap; gap: 6px; }
+.puck-card .puck-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 3px 0 3px; border-radius: 8px;
+  border: 1px solid var(--cth-ink-300); background: var(--cth-cream-100);
+  color: var(--cth-ink-900); font-size: 11.5px; font-weight: 500;
+}
+.puck-card .puck-chip img { width: 36px; height: 24px; object-fit: cover; border-radius: 5px; margin: 0; }
+.puck-card .puck-chip .puck-b.icon { width: 22px; height: 22px; border: 0; background: transparent; color: var(--cth-ink-500); }
+.puck-card .puck-chip .puck-b.icon:hover:not(:disabled) { background: var(--cth-cream-200); color: var(--cth-ink-900); }
+
+/* Batch 2 #9: the one quiet line over a two track meeting on the built in speakers. */
+.puck-hint { font-size: 11.5px; line-height: 1.4; color: var(--cth-ink-500); }

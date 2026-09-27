@@ -279,7 +279,7 @@ export async function removeWorktree(
  *  might be work" → keep, so an uncertain state never triggers an auto-remove. */
 export async function worktreeHasUnintegratedWork(
   wtPath: string, baseBranch: string
-): Promise<{ keep: boolean; detail: string; branch: string; dirty: boolean; ahead: number }> {
+): Promise<{ keep: boolean; detail: string; branch: string; dirty: boolean; dirtyKnown: boolean; ahead: number }> {
   const br = await getBranch(wtPath);
   const branch = 'current' in br && br.current ? br.current : '(detached)';
   // Uncommitted or untracked changes?
@@ -297,7 +297,7 @@ export async function worktreeHasUnintegratedWork(
   }
   const keep = dirty || ahead > 0 || !aheadKnown;
   const detail = `dirty=${dirty}, commitsAheadOf(${baseBranch})=${aheadKnown ? ahead : 'unknown'}`;
-  return { keep, detail, branch, dirty, ahead };
+  return { keep, detail, branch, dirty, dirtyKnown: status.ok, ahead };
 }
 
 /** Is this preserved worker worktree SAFE to garbage-collect — i.e. is its work
@@ -337,6 +337,52 @@ export async function worktreeIsGcSafe(
   if (diff.ok) return { gc: true, detail: `clean + tree identical to ${baseBranch} (integrated/squashed)` };
   // Either there are real un-integrated commits, or a query failed → keep.
   return { gc: false, detail: `clean but content not yet in ${baseBranch}` };
+}
+
+/** What a worktree holds, as COUNTS, for the worktree list (0.5.3, feature 24).
+ *  The gates above answer yes or no for the app's own teardown; a person deciding
+ *  whether to delete a folder needs to know how much and of which kind, because
+ *  the two are not equally lost: uncommitted files go with the folder, commits
+ *  stay on the branch.
+ *
+ *  `ownLinks` are top level names the app put there itself (the linked
+ *  node_modules), which a `node_modules/` ignore rule does not match because the
+ *  link is a file, not a directory. Listing must not unlink a running agent's
+ *  dependencies to ask, so they are filtered instead.
+ *
+ *  `baseBranch` is the branch the worktree was cut from, when the app still
+ *  remembers it. After a restart it does not, and guessing "whatever the project
+ *  has checked out today" was measured wrong on a real floor: every row read 300
+ *  commits unmerged because the project sat on a docs branch. With no base the
+ *  count is COMMITS ON NO OTHER BRANCH, local or remote, which needs no guess and
+ *  is the question a person deleting it is asking. The other refs are listed and
+ *  passed by name because `--branches` dies on one broken ref name (a Finder
+ *  duplicate, "name 2", was enough), where for-each-ref only warns.
+ *
+ *  `known` is false when either query failed, and an unknown is never a "nothing
+ *  here". */
+export async function worktreeWorkSummary(
+  wtPath: string, baseBranch: string | null, ownLinks: readonly string[] = []
+): Promise<{ known: boolean; uncommitted: number; unmerged: number; branch: string | null }> {
+  const br = await getBranch(wtPath);
+  const branch = 'current' in br && br.current ? br.current : null;
+  const status = await runGit(wtPath, ['status', '--porcelain']);
+  const own = new Set(ownLinks.flatMap(n => [`?? ${n}`, `?? ${n}/`]));
+  const uncommitted = status.ok ? status.stdout.split('\n').filter(l => l.trim() && !own.has(l.trimEnd())).length : 0;
+  let rl: Awaited<ReturnType<typeof runGit>>;
+  if (baseBranch) {
+    rl = await runGit(wtPath, ['rev-list', '--count', `${baseBranch}..HEAD`]);
+  } else {
+    const refs = await runGit(wtPath, ['for-each-ref', '--format=%(refname)', 'refs/heads', 'refs/remotes']);
+    if (!refs.ok) rl = refs;
+    else {
+      const others = refs.stdout.split('\n').map(r => r.trim())
+        .filter(r => r && !/\s/.test(r) && r !== `refs/heads/${branch}`).map(r => `^${r}`);
+      rl = await runGit(wtPath, ['rev-list', '--count', 'HEAD', ...others, '--']);
+    }
+  }
+  const n = rl.ok ? parseInt(rl.stdout.trim(), 10) : NaN;
+  return { known: status.ok && Number.isFinite(n), uncommitted, unmerged: Number.isFinite(n) ? n : 0, branch };
 }
 
 // ─── v0.3.4: history / compare / checkout plumbing (git visualization) ───────

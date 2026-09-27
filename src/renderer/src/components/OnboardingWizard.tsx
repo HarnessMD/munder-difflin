@@ -4,6 +4,8 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon, type IconName } from './Icon';
 import { SpritePortrait } from './SpritePortrait';
+import { type NetworkLevel } from './team/types';
+import { OrgSetupBanner, TeamLevelSummary } from './team/OrgOnboardingBits';
 import { ProviderLogo } from './ProviderLogo';
 import { modelsForProvider, onboardingEngineChoices, type AgentProvider, type HarnessConfig } from '@/store/config';
 import { providerPreset } from '@shared/agentProvider';
@@ -15,6 +17,12 @@ import { useResolvedGodName } from '@/hooks/useResolvedGodName';
 
 export interface OnboardingWizardProps {
   onComplete: (config: HarnessConfig) => void;
+  /**
+   * D6. Set only when the person arrived through the team path. Absent is the
+   * solo path and the wizard is then byte for byte what it was: one prop is the
+   * whole difference, which is what stops this becoming a second onboarding.
+   */
+  org?: { name: string; level?: NetworkLevel };
 }
 
 type Audience = 'technical' | 'non-technical';
@@ -87,7 +95,7 @@ const PROVIDER_BLURB_KEYS: Partial<Record<AgentProvider, string>> = {
   cursor: 'onboarding.providerBlurb.cursor'
 };
 
-export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({ onComplete, org }: OnboardingWizardProps) {
   const { t } = useTranslation();
   // Onboarding runs before god exists in the store, so read the persisted name.
   const godName = useResolvedGodName();
@@ -264,6 +272,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           noPadding
         >
           <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16, maxHeight: '86vh', overflowY: 'auto' }}>
+
+            {/* D6 — see team/OrgOnboardingBits.tsx: lifted out so the only
+                pixels D6 adds can be rendered in the preview harness, which
+                cannot mount this wizard at all. */}
+            {org && <OrgSetupBanner orgName={org.name} />}
 
             {step === 'persona' && (
               <>
@@ -729,6 +742,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     )}
                   </div>
                 </div>
+
+                {/* D6 — TEAM. Read only: already chosen on D4. */}
+                {org?.level && <TeamLevelSummary level={org.level} />}
               </>
             )}
 

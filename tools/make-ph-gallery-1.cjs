@@ -4,7 +4,7 @@
  *  Geometry rule that matters: the desk line and the monitor tops must both sit
  *  BELOW the chin, or the screens read as strapped to someone's chest. */
 const fs = require('node:fs'), path = require('node:path');
-const ROOT = '/Users/chaitanya/dev/claudeTerminalHarness';
+const ROOT = path.join(__dirname, '..');
 const art = require(path.join(ROOT, 'test/load-ts.cjs'))('src/renderer/src/scene/office/portraitArt.ts');
 
 const W = 1270, H = 760, SW = art.SCENE_W, SH = art.SCENE_H;

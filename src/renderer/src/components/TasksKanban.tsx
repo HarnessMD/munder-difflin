@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PixelPanel } from './PixelPanel';
-import { PixelButton } from './PixelButton';
-import { PixelBadge } from './PixelBadge';
-import { Icon } from './Icon';
+import { ProIcon } from './pro/icons';
+import { Chip, STATUS_TONE } from './pro/ui';
 import { useStore } from '@/store/store';
 import { MarkdownPreview } from '@/markdown/MarkdownPreview';
 import { useRtl } from '@/i18n/useDirection';
+import { Btn, Panel } from './pro/ui';
 
 /** A card on the task kanban. Mirrors HiveTask in the main/preload process —
  *  re-declared locally so the renderer doesn't reach into the preload package
@@ -20,10 +19,16 @@ export interface HumanQA {
    *  answering — the question stays on the card (history is preserved) but
    *  openQuestion() stops returning it, so the card leaves ASK ME. */
   dismissedAt?: string;
+  /** The agent whose question this is, when the orchestrator records it
+   *  (0.5.3). Scopes the ask to that agent's tab; see askerOf in
+   *  shared/askMeBadge.ts. */
+  from?: string;
 }
 
 export interface HiveTask {
   id: string;
+  /** The id a writer gave the card before the harness keyed it (0.5.3). */
+  alias?: string;
   title: string;
   description?: string;
   assignee?: string;
@@ -34,6 +39,27 @@ export interface HiveTask {
   /** First-class human feedback: the god appends {q} when a card needs the
    *  human; the ASK ME view fills in {a}. Full history stays on the card. */
   humanQA?: HumanQA[];
+  /** What the work came to, written on the card by whoever closed it. Already
+   *  in the ledger and already read by the Slack done-notifier; surfaced in the
+   *  renderer since 0.4.9 phase 3, because the founder's "we do not know what
+   *  an agent gives as a final answer or resolution" is answered by this field
+   *  and by nothing else. Optional: a card can be closed without one. */
+  result?: string;
+  /** Touch stamps the god writes by hand (updatedAt, completedAt) and the one
+   *  the hygiene sweep stamps (doneAt). Read by the stale and archive rules
+   *  (shared/taskHygiene.ts), never written by the renderer. */
+  updatedAt?: string;
+  completedAt?: string;
+  doneAt?: string;
+  /** When work on the card began. Main stamps it on the first move to doing
+   *  (0.5.3, shared/taskTimes.ts); the agent's Tasks tab reads it for
+   *  "Started ...". reopenedAt is main's stamp for a move out of done. */
+  startedAt?: string;
+  reopenedAt?: string;
+  /** Present only on cards read from tasks-archive.json (v0.4.9 W-A). */
+  archivedAt?: string;
+  archiveReason?: 'done' | 'stale';
+  archiveNote?: string;
 }
 
 /** The card's currently open question for the human, if any. An entry the human
@@ -73,6 +99,22 @@ function stableId(seed: string): string {
   return `t-${(h >>> 0).toString(36)}`;
 }
 
+/** The optional stamps a card may carry (hygiene, v0.4.9 W-A), copied only
+ *  when they are there, so a parsed card never holds an `undefined` key. */
+function stamps(t: Record<string, unknown>): Pick<HiveTask, 'updatedAt' | 'completedAt' | 'doneAt' | 'startedAt' | 'reopenedAt' | 'archivedAt' | 'archiveReason' | 'archiveNote'> {
+  const out: Pick<HiveTask, 'updatedAt' | 'completedAt' | 'doneAt' | 'startedAt' | 'reopenedAt' | 'archivedAt' | 'archiveReason' | 'archiveNote'> = {};
+  const updated = typeof t.updatedAt === 'string' ? t.updatedAt : typeof t.updated_at === 'string' ? t.updated_at : undefined;
+  if (updated) out.updatedAt = updated;
+  if (typeof t.completedAt === 'string') out.completedAt = t.completedAt;
+  if (typeof t.doneAt === 'string') out.doneAt = t.doneAt;
+  if (typeof t.startedAt === 'string') out.startedAt = t.startedAt;
+  if (typeof t.reopenedAt === 'string') out.reopenedAt = t.reopenedAt;
+  if (typeof t.archivedAt === 'string') out.archivedAt = t.archivedAt;
+  if (t.archiveReason === 'done' || t.archiveReason === 'stale') out.archiveReason = t.archiveReason;
+  if (typeof t.archiveNote === 'string') out.archiveNote = t.archiveNote;
+  return out;
+}
+
 /** Normalize whatever hive:tasks returns into a typed task array. The god
  *  writes this file by hand — every field except the shape itself is optional
  *  in practice, so EVERY consumer must go through this (exported for the
@@ -87,6 +129,7 @@ export function parseTasks(raw: unknown): HiveTask[] {
       id: typeof t.id === 'string' && t.id
         ? t.id
         : stableId(`${typeof t.title === 'string' ? t.title : ''}|${typeof t.createdAt === 'string' ? t.createdAt : ''}|${i}`),
+      ...(typeof t.alias === 'string' && t.alias ? { alias: t.alias } : {}),
       title: typeof t.title === 'string' ? t.title : '(untitled)',
       description: typeof t.description === 'string' ? t.description : undefined,
       assignee: typeof t.assignee === 'string' ? t.assignee : undefined,
@@ -94,7 +137,16 @@ export function parseTasks(raw: unknown): HiveTask[] {
         ? (t.status as Status) : 'todo',
       dependsOn: Array.isArray(t.dependsOn) ? t.dependsOn.filter((d): d is string => typeof d === 'string') : [],
       priority: typeof t.priority === 'number' ? t.priority : 3,
-      createdAt: typeof t.createdAt === 'string' ? t.createdAt : new Date().toISOString(),
+      // The god spells a few cards snake_case (created_at, updated_at); read
+      // both so the screen and the main-process sweep date a card the same way.
+      createdAt: typeof t.createdAt === 'string' ? t.createdAt : typeof t.created_at === 'string' ? t.created_at : new Date().toISOString(),
+      // The stamps and archive fields are set ONLY when present (stamps()
+      // below): a key holding `undefined` would ride a spread over the on-disk
+      // card in mergeTaskLedger and erase the sweep's doneAt.
+      ...stamps(t),
+      // Set only when the card carries one, for the same reason as the stamps:
+      // an explicit `undefined` riding a spread would erase the god's own text.
+      ...(typeof t.result === 'string' && t.result.trim() ? { result: t.result } : {}),
       humanQA: Array.isArray(t.humanQA)
         ? (t.humanQA as unknown[])
           .filter((e): e is Record<string, unknown> => !!e && typeof e === 'object' && typeof (e as { q?: unknown }).q === 'string')
@@ -105,7 +157,10 @@ export function parseTasks(raw: unknown): HiveTask[] {
             answeredAt: typeof e.answeredAt === 'string' ? e.answeredAt : undefined,
             // Preserve a dismissal across the 5s re-parse, else the card would
             // resurface on the next poll (openQuestion would see it as open).
-            dismissedAt: typeof e.dismissedAt === 'string' ? e.dismissedAt : undefined
+            dismissedAt: typeof e.dismissedAt === 'string' ? e.dismissedAt : undefined,
+            // Kept for the same reason: answering writes this array back, and
+            // a dropped `from` would move the ask to another agent's tab.
+            ...(typeof e.from === 'string' && e.from.trim() ? { from: e.from } : {})
           }))
         : undefined
     }));
@@ -333,7 +388,7 @@ export function TaskDetail({ task, all, assigneeName, onMove, onAssign, onClose 
       }}
     >
       <div onClick={(e) => e.stopPropagation()} style={{ width: 720, maxWidth: '94vw', maxHeight: '90vh', display: 'flex' }}>
-        <PixelPanel variant="dialog" title={t('kanban.taskTitle')} noPadding style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: 0 }}>
+        <Panel title={t('kanban.taskTitle')} noPadding style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: 0 }}>
           <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0, overflowY: 'auto' }}>
             {/* Title under a status-colored bar */}
             <div style={{ borderLeft: `4px solid ${col.accent}`, paddingLeft: 8 }}>
@@ -355,7 +410,7 @@ export function TaskDetail({ task, all, assigneeName, onMove, onAssign, onClose 
                 background: col.accent, color: 'var(--cth-ink-900)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
               }}>{t(col.labelKey)}</span>
               {assigneeName
-                ? <PixelBadge status="working" label={assigneeName} />
+                ? <Chip tone={STATUS_TONE.working}>{assigneeName}</Chip>
                 : <span style={{ fontSize: 11, color: 'var(--cth-ink-300)' }}>{t('kanban.unassigned')}</span>}
               <PriorityDots level={Math.max(1, Math.min(5, task.priority))} />
               <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--cth-ink-500)', fontFamily: 'var(--cth-font-display)' }}>
@@ -451,15 +506,15 @@ export function TaskDetail({ task, all, assigneeName, onMove, onAssign, onClose 
               >
                 {COLUMNS.map((c) => (<option key={c.key} value={c.key}>{t(c.labelKey).toLowerCase()}</option>))}
               </select>
-              <PixelButton variant="secondary" size="sm" onClick={onAssign}>
+              <Btn size="sm" onClick={onAssign}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-                  <Icon name="arrow-right" /> {t('kanban.assign')}
+                  <ProIcon name="arrowRight" /> {t('kanban.assign')}
                 </span>
-              </PixelButton>
-              <PixelButton variant="ghost" size="sm" onClick={onClose}>{t('common.close')}</PixelButton>
+              </Btn>
+              <Btn kind="ghost" size="sm" onClick={onClose}>{t('common.close')}</Btn>
             </div>
           </div>
-        </PixelPanel>
+        </Panel>
       </div>
     </div>
   );

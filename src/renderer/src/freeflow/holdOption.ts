@@ -27,6 +27,7 @@
 import { useEffect } from 'react';
 import { useStore } from '@/store/store';
 import { freeflowRecorder } from './recorder';
+import { dictationFocusOf, freeflowTakesHold, type FocusTarget } from '@shared/dictationFocus';
 
 /** How long Option must be held ALONE before recording arms. Long enough that a
  *  normal Alt+key combo (which disqualifies immediately) never trips it. */
@@ -63,11 +64,19 @@ export function useHoldOptionToTalk(): void {
     };
 
     const onKeyDown = (e: KeyboardEvent): void => {
-      // Only active when Free Flow is on.
-      if (!useStore.getState().freeflowEnabled) return;
+      // Only active when some engine can take it: a local one, or a Groq key.
+      // Holding Option with nothing to transcribe opened the microphone,
+      // showed "recording", uploaded, and only then failed (founder, 6 Sep
+      // 2026). Free Flow itself is always on since 0.5.3 batch 3.
+      const st = useStore.getState();
+      if (!st.hasGroqKey && !st.canDictate) return;
 
       if (isOptionKey(e)) {
         if (e.repeat || optionDown) return; // ignore auto-repeat / already tracking
+        // A text field other than the composer (Memory search, a Settings
+        // field) is dictated into by dictation from anywhere, and a password
+        // field by nobody (shared/dictationFocus, founder 25 Sep 2026).
+        if (!freeflowTakesHold(dictationFocusOf(document.activeElement as FocusTarget | null))) return;
         optionDown = true;
         disqualified = false;
         // Don't start a second capture if one is already running/uploading.
@@ -102,6 +111,15 @@ export function useHoldOptionToTalk(): void {
       disqualified = false;
     };
 
+    // Main learns what has focus, so dictation from anywhere knows when a
+    // held Option is its to take in this window.
+    const tellFocus = (): void => { window.cth?.dictationFocus?.(dictationFocusOf(document.activeElement as FocusTarget | null)); };
+    tellFocus();
+    document.addEventListener('focusin', tellFocus, true);
+    // Focus leaving a field lands on the next element (or none) a turn later.
+    const onFocusOut = (): void => { setTimeout(tellFocus, 0); };
+    document.addEventListener('focusout', onFocusOut, true);
+
     // Capture phase so xterm/textarea focus can't swallow the events first.
     window.addEventListener('keydown', onKeyDown, true);
     window.addEventListener('keyup', onKeyUp, true);
@@ -110,6 +128,8 @@ export function useHoldOptionToTalk(): void {
       window.removeEventListener('keydown', onKeyDown, true);
       window.removeEventListener('keyup', onKeyUp, true);
       window.removeEventListener('blur', reset);
+      document.removeEventListener('focusin', tellFocus, true);
+      document.removeEventListener('focusout', onFocusOut, true);
       reset();
     };
   }, []);

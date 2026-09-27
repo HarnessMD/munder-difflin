@@ -54,9 +54,16 @@ export function buildPtyEnv(
   // so per-agent environment overrides (and future per-agent env features)
   // cannot be silently wiped by the strip.
   const inherited: Record<string, string> = {};
+  // Started by `npm run` (a dev build): npm put its own npm_config_* and
+  // npm_package_* into our env. They are npm's, not the person's, and
+  // npm_config_prefix makes nvm print "nvm is not compatible with the
+  // npm_config_prefix environment variable" in every agent terminal (founder
+  // 25 Sep). A packaged app never has them; an exported NPM_CONFIG_* stays.
+  const fromNpmRun = typeof parentEnv.npm_lifecycle_event === 'string';
   for (const [k, v] of Object.entries(parentEnv)) {
     if (v === undefined) continue;
     if (CLAUDE_MARKER_RE.test(k) && !CLAUDE_CONFIG_KEEP.has(k)) continue;
+    if (fromNpmRun && (/^npm_/.test(k) || k === 'INIT_CWD')) continue;
     inherited[k] = v;
   }
   return {

@@ -1,27 +1,51 @@
+import type { TranscribeConfig } from '../shared/transcribeConfig';
+import type { RouterStatus as TranscribeStatus } from '../main/transcribe/router';
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
+import type { AttachWant } from '../shared/attachDialog';
 import type { AgentProvider } from '../shared/agentProvider';
+import type { CliMissingState } from '../shared/cliMissing';
+import type { CliSetupState } from '../shared/cliSetup';
+import type { LoginEvent } from '../shared/cliLogin';
 import type { HireManifest } from '../shared/hire';
+import type { AvatarRecipe, CustomAvatar } from '../shared/avatars';
 export type { HireManifest } from '../shared/hire';
+import type { PuckDictationEvent } from '../shared/dictationFeedback';
+import type {
+  TeamsMode, MembershipView, EnrolResult, EnrolProgress, ConnectionView, LockInfo,
+  ThreadView, PendingRequest, RequestDecision, Delivery, OrgView,
+} from '../shared/teams';
+export type {
+  TeamsMode, MembershipView, EnrolResult, EnrolProgress, CodeError, ConnectionView, LockInfo,
+  ThreadView, PendingRequest, RequestDecision, Delivery, OrgView,
+} from '../shared/teams';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
 export type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
 import type { UpdateStatus } from '../shared/updateState';
+import type { MeetingMeta, PuckConfig, PuckMeeting, PuckMeetingFilter, PuckRect, PuckScreenshot, PuckState } from '../shared/puck';
 export type { UpdateStatus } from '../shared/updateState';
 import type { ToolStatus } from '../shared/toolCatalog';
+import type { WorktreeDeleteRefusal, WorktreeRow, WorktreeWork } from '../shared/worktreeList';
 export type { ToolStatus } from '../shared/toolCatalog';
 import type { HeroPayload } from '../shared/heroPayload';
 export type { HeroPayload } from '../shared/heroPayload';
 import type { ModelCatalog } from '../shared/modelCatalogPayload';
 export type { ModelCatalog, CatalogModel } from '../shared/modelCatalogPayload';
 import type { HookEvent } from '../shared/hookEvents';
+import type { ActivityEntry, ActivityPush } from '../shared/activity';
 export type { HookEvent } from '../shared/hookEvents';
 import type { LocalSkill, CatalogSkill } from '../main/skills';
 export type { LocalSkill, CatalogSkill } from '../main/skills';
 import type {
-  ContextRule, ContextTriggerConfig, OrgTriggerConfig, TriggerHistoryEntry, WebhookTrigger
+  ContextRule, ContextTriggerConfig, TriggerHistoryEntry, WebhookTrigger
 } from '../shared/triggers';
 export type {
-  ContextRule, ContextTriggerConfig, OrgTriggerConfig, TriggerHistoryEntry, WebhookTrigger
+  ContextRule, ContextTriggerConfig, TriggerHistoryEntry, WebhookTrigger
 } from '../shared/triggers';
+import type { SlackHistoryEntry } from '../shared/slackHistory';
+import type { SlackConfigPatch, SlackMode, SlackStatus, SlackTestDraft, SlackTestResult, SlackTriage } from '../shared/slackMode';
+import type { WorkerHistoryEntry } from '../shared/workerHistory';
+import type { TaskHygieneConfig } from '../shared/taskHygiene';
+import type { BillingSummary } from '../shared/billing';
 
 /** Renderer-visible integration record: the secretRef handle is redacted to a
  *  presence boolean. Matches main `integrations.listRecordsRedacted()` — the
@@ -77,6 +101,13 @@ export interface HiveMessage {
  *  and `body` are REDACTED in the main process before crossing this boundary —
  *  the renderer never receives a raw body or a secret. Mirror of `VoiceMessage`
  *  in src/main/hive.ts. */
+/** Mirror of main's HumanMailSummary (hive.ts): the Pro rail's badge data. */
+export interface HumanMailSummary {
+  count: number;
+  latest: string;
+  texts: { id: string; at: string; subject: string; body: string }[];
+}
+
 export interface VoiceMessage {
   id: string;
   conversation: string;
@@ -148,6 +179,8 @@ export interface HumanQA {
   askedAt?: string;
   answeredAt?: string;
   dismissedAt?: string;
+  /** The agent whose question this is (0.5.3); scopes it to that agent's tab. */
+  from?: string;
 }
 
 /** A card on the task kanban, persisted to hive/tasks.json. */
@@ -267,12 +300,21 @@ export interface HarnessConfig {
   recentHives?: string[];
   registeredRepos: string[];
   autoMode: boolean;
+  /** May the orchestrator start agents on its own? Default false. Mirrors
+   *  src/main/config.ts; written by Settings and the orchestrator's screen. */
+  orchestratorMaySpawn?: boolean;
+  /** How many ephemeral workers may run at once. Default 4. Mirrors
+   *  src/main/config.ts; written by the orchestrator's Budget & breaker tab. */
+  maxConcurrentWorkers?: number;
   defaultCommand: string;
   defaultModel?: string;
   /** Which provider+model powers the GOD orchestrator ("Michael"). Default
-   *  'claude' / 'claude-opus-4-8'. Mirrors src/main/config.ts. */
+   *  'claude' / 'claude-opus-5-5'. Mirrors src/main/config.ts. */
   godProvider?: AgentProvider;
   godModel?: string;
+  /** A hand edited orchestrator command (0.5.3 bug 20). Wins over the line
+   *  derived from godProvider and godModel; see shared/godCommand.ts. */
+  godCommand?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id. Mirrors
    *  src/main/config.ts. */
   mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -285,6 +327,14 @@ export interface HarnessConfig {
   /** Opt-in strong keep-alive (prevent-display-sleep). Mirrors main + renderer
    *  HarnessConfig so updateConfig({ strongKeepalive }) is typed across the bridge. */
   strongKeepalive?: boolean;
+  /** Keep my agent order and the saved sidebar order. Mirrors src/main/config.ts. */
+  keepAgentOrder?: boolean;
+  agentOrder?: string[];
+  projectOrder?: string[];
+  /** Sidebar shows only agents and notes. Mirrors src/main/config.ts. */
+  sidebarAgentsNotesOnly?: boolean;
+  /** Custom avatars from the sprite editor. Mirrors src/main/config.ts. */
+  avatars?: CustomAvatar[];
   /** Auto-update from GitHub releases (default ON; Settings → General). */
   autoUpdate?: boolean;
   /** Anonymous product analytics (default ON, opt-out; see TELEMETRY.md).
@@ -296,6 +346,18 @@ export interface HarnessConfig {
   slackChannelId?: string;
   slackPort?: number;
   slackProactivePosting?: boolean;
+  slackMode?: SlackMode;
+  slackAppToken?: string;
+  slackPollSeconds?: number;
+  slackSocketCatchupSeconds?: number;
+  slackTempCwd?: string;
+  /** @deprecated 0.5.2: read by nothing; see `responder`. */
+  slackTriage?: SlackTriage;
+  /** 0.5.2: who answers an inbound message, an agent id; unset or '' is the
+   *  orchestrator. Mirrors src/main/config.ts. */
+  responder?: string;
+  /** 0.5.3: the agent a webhook call goes to when its endpoint names none. */
+  webhookResponder?: string;
   webhookEnabled?: boolean;
   webhookSecret?: string;
   webhookPort?: number;
@@ -304,6 +366,8 @@ export interface HarnessConfig {
   freeflowEnabled?: boolean;
   groqApiKey?: string;
   freeflowModel?: string;
+  /** 0.5.3, F16: dictation and meetings. Always complete when read. */
+  transcribe?: TranscribeConfig;
   /** Realtime Michael voice loop — true ONLY while a session holds the mic
    *  (renderer session sets it at start()/stop()); the main mic permission gate
    *  reads it. Default off. */
@@ -314,6 +378,8 @@ export interface HarnessConfig {
   costCapUsd?: number;
   costCapTokens?: number;
   agentTokenCaps?: Record<string, number>;
+  /** Per-agent MCP overrides (see shared/agentMcp.ts). */
+  agentMcp?: Record<string, Record<string, { enabled: boolean }>>;
   autoDeliveryPausedAgents?: string[];
   maxTurns?: number;
   circuitBreaker?: CircuitBreakerConfig;
@@ -321,6 +387,8 @@ export interface HarnessConfig {
   knowledgeGraph?: KnowledgeGraphConfig;
   /** Terminal theme, mirrored into each agent's per-session Claude settings. */
   terminalTheme?: 'light' | 'dark';
+  /** The view the office opens in (0.4.11), Classic 'office' or PRO 'professional'. */
+  defaultView?: 'office' | 'professional';
   /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
   tvShowOffices?: boolean;
   /** Active office map/cast theme (honored only when tvShowOffices is on). */
@@ -331,6 +399,21 @@ export interface HarnessConfig {
   providerBaseUrls?: Partial<Record<AgentProvider, string>>;
   /** Per-CLI-provider default model slug, used to pre-fill the model picker. */
   providerDefaultModels?: Partial<Record<AgentProvider, string>>;
+  /** Hygiene sweep thresholds (v0.4.9 W-A). Mirrors main + renderer
+   *  HarnessConfig so updateConfig({ taskHygiene }) is typed across the bridge. */
+  taskHygiene?: Partial<TaskHygieneConfig>;
+  /** 0.5.3: ticket key prefix (V53); see main config.ts. */
+  ticketPrefix?: string;
+  /** The standing house response style brief (v0.4.10). Mirrors main + renderer
+   *  HarnessConfig so updateConfig({ responseStyle }) is typed across the bridge. */
+  responseStyle?: string;
+  /** Claude Code's own output style for the agents this app starts (0.5.3
+   *  feature 19). Unset means Concise; 'default' turns it off. */
+  claudeOutputStyle?: string;
+  /** The floating puck (Pro). A PARTIAL is accepted on the way in: main merges
+   *  it onto the saved object and normalises (shared/puck.ts). Mirrors main +
+   *  renderer HarnessConfig. */
+  puck?: Partial<PuckConfig>;
 }
 
 export interface MemoryStatus {
@@ -387,6 +470,22 @@ export interface DirEntry {
   size: number;
   mtime: number;
 }
+
+/** One match from a repo-wide search (0.4.9 phase 9). `line` and `col` are
+ *  1-based so they can be handed straight to the editor, and `length` comes
+ *  from the matcher so the renderer never re-runs the pattern and disagrees
+ *  with main about what matched. */
+export interface SearchHit {
+  rel: string;
+  line: number;
+  col: number;
+  text: string;
+  length: number;
+}
+
+/** What a file operation answers with. `rel` is where the thing ended up,
+ *  which is not always where it was asked to go (a rename normalises). */
+export type FsOpResult = { ok: true; path: string; rel: string } | { ok: false; error: string };
 
 export interface GitCommit {
   sha: string;
@@ -474,14 +573,6 @@ export interface PowerResumeEvent {
   reason: string;
   awayMs: number | null;
   dead: string[];
-  total: number;
-}
-
-/** Closing-time progress event (mirrors src/main/closingTime.ts). */
-export interface ClosingTimeEvent {
-  phase: 'started' | 'progress' | 'complete' | 'timeout' | 'cancelled';
-  /** Workers that have ACKed so far / total workers being waited on. */
-  acked: number;
   total: number;
 }
 
@@ -576,19 +667,44 @@ const api = {
   trackMessageSent: (surface: 'terminal' | 'composer'): Promise<void> =>
     ipcRenderer.invoke('analytics:messageSent', surface).then(() => undefined, () => undefined),
 
+  /** The two money-funnel events only the renderer can see: a purchase surface
+   *  was drawn (`paywall_shown`) or a dead end was (`access_blocked`). See
+   *  TELEMETRY.md for both. Every value is a closed enum re-checked in main,
+   *  which drops the whole event rather than send an unrecognised one, so this
+   *  bridge cannot widen the contract. Same never-throw rule as above: a
+   *  telemetry hiccup must not break drawing the paywall. */
+  trackFunnel: (
+    /** `checkout_opened` crosses for TEAMS only — the PRO checkout is opened
+     *  and reported in main. Main refuses any other plan on this channel, so
+     *  this cannot double-count it. */
+    event: 'paywall_shown' | 'access_blocked' | 'checkout_opened',
+    props: Record<string, string>
+  ): Promise<void> =>
+    ipcRenderer.invoke('analytics:funnel', event, props).then(() => undefined, () => undefined),
+
   // ─── PTY ─────────────────────────────────────────────────────────────────
   /** `cwd` in the result is the TILDE-EXPANDED absolute path main actually spawned
    *  into — the renderer stores that, not the raw `~/…` the user typed. */
-  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> =>
+  /** `cliMissing` (I2, 0.5.3): the engine binary is not installed, nothing was
+   *  spawned, and the terminal draws the card; the agent still exists. */
+  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string; cliMissing?: CliMissingState }> =>
     ipcRenderer.invoke('pty:spawn', opts),
+  /** The card's button: run the install the card named in this terminal, or
+   *  check again for a CLI installed by hand. The pty restarts alone. */
+  installCli: (id: string): Promise<{ ok: boolean; error?: string; cliMissing?: CliMissingState }> =>
+    ipcRenderer.invoke('pty:installCli', id),
   writePty: (id: string, data: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('pty:write', id, data),
   resizePty: (id: string, cols: number, rows: number): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('pty:resize', id, cols, rows),
   redrawPty: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('pty:redraw', id),
-  killPty: (id: string): Promise<{ ok: boolean; error?: string }> =>
-    ipcRenderer.invoke('pty:kill', id),
+  /** `why` tells main who is ending it (0.5.3). Leave it out for a person
+   *  stopping the agent. 'restart' and 'revive' keep the agent's worktree, since
+   *  it is about to be started in it again; 'sweep' is a bulk teardown. Main
+   *  treats anything else as a person, so this can only make a kill safer. */
+  killPty: (id: string, why?: 'restart' | 'revive' | 'sweep'): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('pty:kill', id, why),
   listPtys: (): Promise<Array<{
     id: string;
     cwd: string;
@@ -598,6 +714,11 @@ const api = {
     hasOutput: boolean;
   }>> =>
     ipcRenderer.invoke('pty:list'),
+  /** The last lines of one terminal for voice Michael (0.5.2). `rows` is what
+   *  the renderer's terminal drew for this pty, or empty to let main read the
+   *  pty's raw tail; main redacts and scrubs before answering. */
+  voiceTerminal: (ptyId: string, rows: string[], lines?: number): Promise<{ ok: boolean; lines: string[]; source: 'screen' | 'stream' | 'none' }> =>
+    ipcRenderer.invoke('voice:terminal', ptyId, rows, lines),
   /** Resolve a Claude session id to the cwd it originally ran in (Add Agent
    *  resume auto-fill), or null if the id is invalid/unknown. */
   resolveSessionCwd: (sessionId: string): Promise<string | null> =>
@@ -623,6 +744,53 @@ const api = {
     ipcRenderer.on(channel, listener);
     return () => ipcRenderer.removeListener(channel, listener);
   },
+  /** I2 part 2: the CLI in this pty printed its sign in prompt (a link, a
+   *  code, a paste back, a key), or the sign in ended. */
+  onPtyLogin: (id: string, cb: (e: LoginEvent) => void): (() => void) => {
+    const channel = `pty:login:${id}`;
+    const listener = (_e: IpcRendererEvent, e: LoginEvent) => cb(e);
+    ipcRenderer.on(channel, listener);
+    return () => ipcRenderer.removeListener(channel, listener);
+  },
+  /** The modal's buttons. open-link opens the link MAIN read from the CLI,
+   *  never one the renderer hands over; paste writes a code into the pty;
+   *  dismiss closes the modal for this ask. */
+  loginAct: (id: string, action: 'open-link' | 'paste' | 'dismiss', text?: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('pty:loginAct', { id, action, text }),
+  /** I2: this pty's engine CLI is not installed (or its install just failed);
+   *  the terminal draws the card instead of a dead prompt. */
+  onPtyCliMissing: (id: string, cb: (state: CliMissingState) => void): (() => void) => {
+    const channel = `pty:cli-missing:${id}`;
+    const listener = (_e: IpcRendererEvent, state: CliMissingState) => cb(state);
+    ipcRenderer.on(channel, listener);
+    return () => ipcRenderer.removeListener(channel, listener);
+  },
+  /** F3: the push above misses a terminal that was not listening yet (an agent
+   *  respawned at app start, a screen opened later). The pool asks once at
+   *  acquire whether this pty is paused at the card. */
+  cliMissingState: (id: string): Promise<CliMissingState | null> =>
+    ipcRenderer.invoke('pty:cliMissingState', id),
+  /** Batch 2: installing, or signing in after the install. Null when setup is
+   *  over (the agent started, the install failed back to the card). */
+  onPtyCliSetup: (id: string, cb: (state: CliSetupState | null) => void): (() => void) => {
+    const channel = `pty:cli-setup:${id}`;
+    const listener = (_e: IpcRendererEvent, state: CliSetupState | null) => cb(state);
+    ipcRenderer.on(channel, listener);
+    return () => ipcRenderer.removeListener(channel, listener);
+  },
+  cliSetupState: (id: string): Promise<CliSetupState | null> =>
+    ipcRenderer.invoke('pty:cliSetupState', id),
+  /** "Setup complete, start agent": discards the login terminal and starts
+   *  the agent fresh into the same pty. */
+  cliSetupStart: (id: string, mode?: 'anyway'): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('pty:cliSetupStart', id, mode),
+  /** "Sign in again" after a login that did not finish. */
+  cliSetupLogin: (id: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('pty:cliSetupLogin', id),
+  /** Batch 4: "Set up manually": a terminal with the agent's own environment
+   *  and the provider's command in it (pty:cliSetupManual). */
+  cliSetupManual: (id: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('pty:cliSetupManual', id),
 
   // ─── Dialog ──────────────────────────────────────────────────────────────
   chooseFolder: (): Promise<{ ok: true; path: string } | { ok: false; error: string }> =>
@@ -655,13 +823,26 @@ const api = {
   },
 
   // ─── Config ──────────────────────────────────────────────────────────────
+  /** Dev builds only: true when launched with `--no-god` / MD_NO_GOD=1, in
+   *  which case useHive does not spawn the orchestrator. Always false packaged. */
+  devNoGod: (): Promise<boolean> => ipcRenderer.invoke('dev:noGod'),
   getConfig: (): Promise<HarnessConfig> =>
     ipcRenderer.invoke('config:get'),
   updateConfig: (patch: Partial<HarnessConfig>): Promise<HarnessConfig> =>
     ipcRenderer.invoke('config:update', patch),
   /** Set or clear one per-agent token ceiling against main's latest config. */
+  /** Create (no id) or update (id) one custom avatar. Main validates the
+   *  recipe and merges against the config on disk; resolves to the full config. */
+  saveAvatar: (input: { id?: string; name: string; recipe: AvatarRecipe }): Promise<HarnessConfig> =>
+    ipcRenderer.invoke('config:saveAvatar', input),
+  deleteAvatar: (id: string): Promise<HarnessConfig> =>
+    ipcRenderer.invoke('config:deleteAvatar', id),
   setAgentTokenCap: (agentId: string, tokenCap?: number): Promise<HarnessConfig> =>
     ipcRenderer.invoke('config:setAgentTokenCap', agentId, tokenCap),
+  /** Grant or revoke one MCP server for one agent, or clear the row (null) so
+   *  the agent follows the floor-wide default again. */
+  setAgentMcp: (agentId: string, mcpId: string, enabled: boolean | null): Promise<HarnessConfig> =>
+    ipcRenderer.invoke('config:setAgentMcp', agentId, mcpId, enabled),
   ensureHarnessHome: (path: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('config:ensureHome', path),
   /** Change the harness home folder. 'move' copies the existing hive + palace
@@ -705,6 +886,30 @@ const api = {
   revealPath: (p: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('fs:revealPath', p),
 
+  /** Repo-wide text search (0.4.9 phase 9). Root-confined and bounded four
+   *  ways in main; `truncated` says the answer is partial rather than letting
+   *  a capped result read as the whole of it. */
+  searchFiles: (root: string, query: string, opts?: {
+    regex?: boolean; caseSensitive?: boolean; wholeWord?: boolean; maxHits?: number;
+  }): Promise<
+    { ok: true; hits: SearchHit[]; truncated: boolean; filesScanned: number }
+    | { ok: false; error: string }
+  > => ipcRenderer.invoke('fs:search', root, query, opts ?? {}),
+  /** New folder. Fails rather than succeeding silently on one that exists. */
+  makeDir: (root: string, rel: string): Promise<FsOpResult> =>
+    ipcRenderer.invoke('fs:mkdir', root, rel),
+  /** New empty file. Never truncates an existing one. */
+  createFile: (root: string, rel: string): Promise<FsOpResult> =>
+    ipcRenderer.invoke('fs:createFile', root, rel),
+  /** Rename or move inside the root. Both ends are confined, and it refuses to
+   *  clobber: POSIX rename would silently replace the destination. */
+  renamePath: (root: string, from: string, to: string): Promise<FsOpResult> =>
+    ipcRenderer.invoke('fs:rename', root, from, to),
+  /** Delete to the OS bin, never permanently. Recoverable by the gesture the
+   *  person already knows, because this is one row away from "open". */
+  trashPath: (root: string, rel: string): Promise<{ ok: true; path: string } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('fs:trash', root, rel),
+
   // ─── Git ─────────────────────────────────────────────────────────────────
   gitIsRepo: (cwd: string): Promise<boolean> => ipcRenderer.invoke('git:isRepo', cwd),
   /** Absolute path of the MAIN working tree `cwd` belongs to — a linked worktree
@@ -742,6 +947,20 @@ const api = {
     ipcRenderer.invoke('git:worktrees', cwd) as Promise<
       Array<{ path: string; head: string; branch: string | null }> | { error: string }
     >,
+  /** 0.5.3, feature 24: every folder under the app's worktrees roots, read from
+   *  the disk with no git, so it is instant. What a row holds and how big it is
+   *  are asked one row at a time, so neither holds up the list. */
+  listOwnedWorktrees: () => ipcRenderer.invoke('worktrees:list') as Promise<WorktreeRow[]>,
+  /** Uncommitted files and unmerged commits, or null for a folder that is not a worktree. */
+  worktreeWork: (path: string) => ipcRenderer.invoke('worktrees:work', path) as Promise<WorktreeWork | null>,
+  /** Bytes on disk, or null for a folder that is not in the list. */
+  worktreeSize: (path: string) => ipcRenderer.invoke('worktrees:size', path) as Promise<number | null>,
+  /** `confirmed` only answers "it holds work, delete anyway". Main asks
+   *  everything else again and refuses a running agent's folder whatever is sent. */
+  removeOwnedWorktree: (path: string, confirmed: boolean) =>
+    ipcRenderer.invoke('worktrees:remove', path, confirmed) as Promise<
+      { ok: true } | { ok: false; code: WorktreeDeleteRefusal; work?: WorktreeWork } | { ok: false; code: 'git-failed'; error: string }
+    >,
   gitCheckout: (cwd: string, ref: string, detach?: boolean) =>
     ipcRenderer.invoke('git:checkout', cwd, ref, detach === true) as Promise<
       { ok: true; detached: boolean } | { ok: false; error: string }
@@ -760,7 +979,32 @@ const api = {
   hiveSetAgentHold: (id: string, hold: boolean): Promise<{ ok: boolean; onHold?: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:setAgentHold', id, hold),
   hiveBoard: (): Promise<string> => ipcRenderer.invoke('hive:board'),
+
+  // ─── Dictate into any app (0.5.3, F16, macOS) ───────────────────────────
+  /** What has focus in this window, for who takes a held Option (shared/dictationFocus). */
+  dictationFocus: (focus: 'composer' | 'field' | 'password' | 'other'): void => { ipcRenderer.send('dictation:focus', focus); },
+  /** F16, every platform from 23 Sep: `reason` says why the switch is off
+   *  (no-helper, wayland, floor); `transcriber` is the engine the loop would use. */
+  anyAppStatus: (): Promise<{ available: boolean; reason: 'no-helper' | 'wayland' | 'floor' | null; platform: string; armed: string | null; transcriber: 'apple' | 'whisper' | 'groq' | null; permissions: { mic: string; accessibility: boolean; postEvent: boolean } | null }> =>
+    ipcRenderer.invoke('anyApp:status'),
+  anyAppStart: (key: string, words: string[]): Promise<{ ok: boolean; key?: string; keyCode?: number; error?: string; detail?: string }> =>
+    ipcRenderer.invoke('anyApp:start', key, words),
+  anyAppStop: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('anyApp:stop'),
+  anyAppRequestMic: (): Promise<{ ok: boolean; mic?: string; error?: string }> => ipcRenderer.invoke('anyApp:requestMic'),
+  anyAppRequestAccessibility: (): Promise<{ ok: boolean; accessibility?: boolean; error?: string }> => ipcRenderer.invoke('anyApp:requestAccessibility'),
+  anyAppOpenSettings: (pane: 'accessibility' | 'microphone'): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('anyApp:openSettings', pane),
+  anyAppTestPaste: (text?: string): Promise<{ ok: boolean; posted?: boolean; error?: string }> => ipcRenderer.invoke('anyApp:testPaste', text),
+  onAnyAppEvent: (cb: (e: { type: string; [k: string]: unknown }) => void): (() => void) => {
+    const listener = (_e: Electron.IpcRendererEvent, ev: { type: string; [k: string]: unknown }) => cb(ev);
+    ipcRenderer.on('anyApp:event', listener);
+    return () => ipcRenderer.removeListener('anyApp:event', listener);
+  },
   hiveTasks: (): Promise<unknown> => ipcRenderer.invoke('hive:tasks'),
+  hiveTicketPrefix: (): Promise<string> => ipcRenderer.invoke('hive:ticketPrefix'),
+  /** The archive ledger (hive/tasks-archive.json): cards the hourly hygiene
+   *  sweep moved off the live ledger, newest first, each with archivedAt and
+   *  archiveReason. Read only; the Archived chip on Tasks reads it. */
+  hiveTasksArchive: (): Promise<unknown> => ipcRenderer.invoke('hive:tasksArchive'),
   hiveLog: (n?: number): Promise<unknown[]> => ipcRenderer.invoke('hive:log', n ?? 200),
   hiveMemory: (id: string): Promise<string> => ipcRenderer.invoke('hive:memory', id),
   hiveInbox: (id: string): Promise<HiveMessage[]> => ipcRenderer.invoke('hive:inbox', id),
@@ -770,6 +1014,29 @@ const api = {
    *  never sees a raw body or a secret — stripping happens main-side. */
   hiveMessages: (opts?: { agentId?: string; id?: string; limit?: number; includeArchived?: boolean }): Promise<VoiceMessage[]> =>
     ipcRenderer.invoke('hive:messages', opts ?? {}),
+  /** 0.5.3, F25, the Pro rail's badge: per agent, the mail it sent the person
+   *  after the stamp given for it (ISO), as a count, the newest stamp and the
+   *  first three texts. No stamp for an agent counts all of its mail. */
+  hiveHumanMailSince: (since: Record<string, string>): Promise<Record<string, HumanMailSummary>> =>
+    ipcRenderer.invoke('hive:humanMailSince', since),
+  /** The other side of the call (0.5.3, F16): whether this machine can record
+   *  it, whether the grant is there, and where it would come from. The
+   *  Settings row draws these; `systemAudioRequest` asks for the grant. */
+  systemAudioStatus: (): Promise<{ platform: NodeJS.Platform; available: boolean; granted: boolean; source: 'helper' | 'renderer' | null; reason?: string; detail?: string }> =>
+    ipcRenderer.invoke('systemAudio:status'),
+  /** Linux (PR 4): the puck tells main which monitor of the output PulseAudio
+   *  or PipeWire lists, or null when none is; main answers status and the
+   *  meeting's source from it. */
+  systemAudioMonitor: (m: { deviceId: string; label: string } | null): void => { ipcRenderer.send('systemAudio:monitor', m); },
+  /** The meeting chord (0.5.3, F16): the chord in force, the platform's
+   *  default, whether it is armed, and if not why (floor, not-available,
+   *  no-tap, bad-key, register-failed, start-failed). */
+  captureHotkeyStatus: (): Promise<{ platform: NodeJS.Platform; key: string; defaultKey: string; armed: string | null; reason: string | null; detail?: string }> =>
+    ipcRenderer.invoke('captureHotkey:status'),
+  meetingHotkeyStatus: (): Promise<{ platform: NodeJS.Platform; key: string; defaultKey: string; armed: string | null; reason: string | null; detail?: string }> =>
+    ipcRenderer.invoke('meetingHotkey:status'),
+  systemAudioRequest: (): Promise<{ ok: boolean; granted?: boolean; error?: string }> => ipcRenderer.invoke('systemAudio:request'),
+  systemAudioOpenSettings: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('systemAudio:openSettings'),
   /** Consolidated per-agent directory (registry + telemetry + context), incl.
    *  archived agents. Backs Realtime Michael's get_agent_detail / list_agents. */
   hiveAgentDirectory: (): Promise<AgentDirectory> => ipcRenderer.invoke('hive:agentDirectory'),
@@ -781,6 +1048,13 @@ const api = {
   /** Manually stop a live ephemeral worker (safety-gated teardown; work preserved). */
   stopWorker: (workerId: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('workers:stop', workerId),
+  /** The Temps ledger, newest first: one row per worker teardown. */
+  workersHistory: (): Promise<WorkerHistoryEntry[]> => ipcRenderer.invoke('workers:history'),
+  onWorkersHistoryUpdated: (cb: () => void): (() => void) => {
+    const listener = (): void => cb();
+    ipcRenderer.on('workers:historyUpdated', listener);
+    return () => ipcRenderer.removeListener('workers:historyUpdated', listener);
+  },
 
   // ─── Semantic memory (MemPalace CLI) ─────────────────────────────────────
   memoryStatus: (): Promise<MemoryStatus> => ipcRenderer.invoke('hive:memoryStatus'),
@@ -805,7 +1079,7 @@ const api = {
   /** Install a catalog skill into ~/.claude/skills. `unsupported` distinguishes
    *  "there is no downloadable source" from "the download failed". */
   skillsInstall: (url: string, name: string): Promise<
-    { ok: true; path: string } | { ok: false; error: string; unsupported?: boolean }
+    { ok: true; path: string } | { ok: false; error: string; unsupported?: boolean; code?: string; detail?: Record<string, string | number> }
   > => ipcRenderer.invoke('skills:install', url, name),
   /** Delete an installed skill. Main refuses any path outside a skills root. */
   skillsUninstall: (path: string): Promise<{ ok: boolean; error?: string }> =>
@@ -839,16 +1113,47 @@ const api = {
     ipcRenderer.invoke('kg:ingestFiles', { paths, tags }),
 
   // ─── Composer attachments (images + files, sent to agents by PATH) ─────────
-  /** Open an OS picker for images/files; returns chosen absolute paths + names. */
-  attachFiles: (): Promise<
+  /** Open an OS picker for files and folders (0.5.3, I8); returns chosen
+   *  absolute paths + names, a folder's name ending in "/". `want` picks the
+   *  kind on Windows and Linux, which cannot mix them in one picker. */
+  attachFiles: (want?: AttachWant): Promise<
     { ok: true; files: { path: string; name: string }[] } | { ok: false; error: string }
-  > => ipcRenderer.invoke('dialog:attachFiles'),
+  > => ipcRenderer.invoke('dialog:attachFiles', want ?? 'any'),
   /** Resolve a dropped File's absolute path (Electron 32 removed File.path). */
   pathForFile: (file: File): string => webUtils.getPathForFile(file),
   /** Write the current clipboard image to a temp PNG and return its path (paste-to-attach). */
   saveClipboardImage: (): Promise<
     { ok: true; file: { path: string; name: string } } | { ok: false; error: string }
   > => ipcRenderer.invoke('clipboard:saveImage'),
+  /** Persist a dropped File that resolved to NO path — macOS file-promise
+   *  sources (the Cmd Shift 5 screenshot thumbnail) can hand Chromium the
+   *  bytes without a stable file on disk — so it can be attached by PATH. */
+  saveDroppedFile: (name: string, bytes: Uint8Array): Promise<
+    { ok: true; file: { path: string; name: string } } | { ok: false; error: string }
+  > => ipcRenderer.invoke('drop:saveFile', name, bytes),
+
+  // ─── File share (one local file, one public link, dead in an hour) ─────────
+  // The cross MACHINE path for a file. `attachFiles` above hands an agent a
+  // LOCAL PATH, which only works when it shares a filesystem with the sender;
+  // this publishes the file on a tunnel link a teammate on another machine can
+  // fetch, and the link expires one hour after it was made.
+  //
+  // The path travels ONE WAY and is a request, not a fact: main re-validates it
+  // (absolute, a regular file, under the size cap) before anything is bound.
+  // Nothing here ever returns a local path or a bare token; the token exists
+  // only inside the URL, because a link without it cannot be a link.
+  /** Publish one file for an hour. Refusals come back as a CODE the UI
+   *  translates, never a sentence that could carry a path. */
+  fileShareCreate: (filePath: string): Promise<
+    | { ok: true; share: import('../shared/fileShare').FileShareView }
+    | { ok: false; error: import('../shared/fileShare').ShareRefusal }
+  > => ipcRenderer.invoke('fileShare:create', filePath),
+  /** Live shares, newest first. Already swept, so an expired one is never in it. */
+  fileShareList: (): Promise<import('../shared/fileShare').FileShareView[]> =>
+    ipcRenderer.invoke('fileShare:list'),
+  /** Kill one link early. Deletes NOTHING on disk: a share is a link, not a copy. */
+  fileShareRevoke: (id: string): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('fileShare:revoke', id),
 
   // ─── Command history (SQLite — every prompt submitted to an agent) ─────────
   /** Record one submitted prompt. Fire-and-forget from the prompt-detection hook. */
@@ -870,6 +1175,15 @@ const api = {
     ipcRenderer.on('hive:hookEvent', listener);
     return () => ipcRenderer.removeListener('hive:hookEvent', listener);
   },
+  /** v0.4.9 phase 2: the per agent activity digest main keeps from hook
+   *  events (shared/activity.ts). Oldest first, at most `limit` entries. */
+  agentActivity: (agentId: string, limit?: number): Promise<ActivityEntry[]> =>
+    ipcRenderer.invoke('hive:agentActivity', agentId, limit ?? 200),
+  onAgentActivity: (cb: (e: ActivityPush) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, payload: ActivityPush) => cb(payload);
+    ipcRenderer.on('hive:agentActivity', listener);
+    return () => ipcRenderer.removeListener('hive:agentActivity', listener);
+  },
   /** Push-based context accounting from the status line: live tokens + the
    *  session's EXACT context-window size. Same pattern as onHiveHookEvent. */
   onHiveContextUpdate: (
@@ -879,10 +1193,34 @@ const api = {
     ipcRenderer.on('hive:contextUpdate', listener);
     return () => ipcRenderer.removeListener('hive:contextUpdate', listener);
   },
+  /** An agent's process ended on its own (0.5.3 feature 18). Floor wide, unlike
+   *  `pty:exit:<id>`, which only a terminal that has been opened listens to. */
+  onHiveAgentExited: (
+    cb: (e: { agentId: string; exitCode?: number; signal?: number; printMode?: boolean }) => void
+  ): (() => void) => {
+    const listener = (_e: IpcRendererEvent, payload: { agentId: string; exitCode?: number; signal?: number; printMode?: boolean }) => cb(payload);
+    ipcRenderer.on('hive:agentExited', listener);
+    return () => ipcRenderer.removeListener('hive:agentExited', listener);
+  },
+  /** The model an agent is actually running, sent when it CHANGES (0.5.3 bug 2):
+   *  read from Claude Code's status line and from Codex's hook payloads. */
+  onHiveModelUpdate: (
+    cb: (e: { agentId: string; model: string }) => void
+  ): (() => void) => {
+    const listener = (_e: IpcRendererEvent, payload: { agentId: string; model: string }) => cb(payload);
+    ipcRenderer.on('hive:modelUpdate', listener);
+    return () => ipcRenderer.removeListener('hive:modelUpdate', listener);
+  },
   onHiveMessage: (cb: (e: HiveRouteEvent) => void): (() => void) => {
     const listener = (_e: IpcRendererEvent, payload: HiveRouteEvent) => cb(payload);
     ipcRenderer.on('hive:message', listener);
     return () => ipcRenderer.removeListener('hive:message', listener);
+  },
+  /** An agent's 1:1 hold changed, from any surface (0.5.3, F25). */
+  onAgentHold: (cb: (e: { agentId: string; onHold: boolean }) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, payload: { agentId: string; onHold: boolean }) => cb(payload);
+    ipcRenderer.on('hive:agentHold', listener);
+    return () => ipcRenderer.removeListener('hive:agentHold', listener);
   },
   /** Register a listener for hive tasks routed to non-Claude agents (e.g.
    *  Codex). Main emits this instead of bouncing; the renderer enqueues the
@@ -897,7 +1235,7 @@ const api = {
   onHiveAgentSpawned: (
     cb: (rec: {
       id: string; name: string; provider?: string; cwd: string;
-      command?: string; role?: string; worktreePath?: string;
+      command?: string; model?: string; role?: string; worktreePath?: string;
       character?: string; accent?: string;
     }) => void
   ): (() => void) => {
@@ -956,8 +1294,18 @@ const api = {
     ipcRenderer.on('config:changed', listener);
     return () => ipcRenderer.removeListener('config:changed', listener);
   },
+  /** Another window (the puck) asked for Settings; App answers with the
+   *  same `cth:open-settings` event the titlebar gear dispatches. */
+  onOpenSettings: (cb: (arg: { section?: string }) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, arg: { section?: string }) => cb(arg ?? {});
+    ipcRenderer.on('settings:open', listener);
+    return () => ipcRenderer.removeListener('settings:open', listener);
+  },
 
   // ─── Quit confirmation ───────────────────────────────────────────────────
+  /** How many IDE files hold unsaved text, so quitting can say so. A count,
+   *  never the text (review finding 15). */
+  ideDirty: (unsaved: number): void => { ipcRenderer.send('ide:dirty', unsaved); },
   onCloseRequested: (cb: (info: { ptyCount: number }) => void): (() => void) => {
     const listener = (_e: IpcRendererEvent, info: { ptyCount: number }) => cb(info);
     ipcRenderer.on('app:closeRequested', listener);
@@ -970,7 +1318,7 @@ const api = {
   /** Subscribe to the main-process power-resume signal; returns an unsubscribe
    *  fn. The main process catches up after a sleep/unlock and reports the PTY
    *  ids that wedged across it in `dead` — the renderer respawns ONLY those
-   *  (empty `dead[]` = no-op). Same main→renderer push pattern as onClosingTime. */
+   *  (empty `dead[]` = no-op). */
   onPowerResume: (cb: (e: PowerResumeEvent) => void): (() => void) => {
     const listener = (_e: IpcRendererEvent, payload: PowerResumeEvent) => cb(payload);
     ipcRenderer.on('power:resume', listener);
@@ -978,25 +1326,25 @@ const api = {
   },
 
   // ─── Multi-window floors ───────────────────────────────────────────────────
-  /** Open a new floor (independent office window). No-op when the multiWindow
-   *  flag is off. Resolves { ok } indicating whether a window opened. */
+  /** New Floor (0.5.3, B21): asks main to open the picker in this window; the
+   *  picker then calls floorOpen. Resolves { ok } once the ask is sent. */
   newFloor: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('window:newFloor'),
-
-  // ─── Closing time (graceful shutdown via the hive) ─────────────────────────
-  /** Start the closing-time protocol: the god broadcasts shutdown, every worker
-   *  saves its memory and ACKs, the god concludes — then the app quits itself.
-   *  Resolves with ok:false (+ error) when no god agent is running. */
-  startClosingTime: (): Promise<{ ok: boolean; error?: string }> =>
-    ipcRenderer.invoke('app:startClosingTime'),
-  /** Abort an in-progress closing time and tell the floor to resume work. */
-  cancelClosingTime: (): Promise<void> => ipcRenderer.invoke('app:cancelClosingTime'),
-  /** Progress events for the quit dialog: started → progress (ACK counts) →
-   *  complete (the app tears down moments later) | timeout | cancelled. */
-  onClosingTime: (cb: (ev: ClosingTimeEvent) => void): (() => void) => {
-    const listener = (_e: IpcRendererEvent, ev: ClosingTimeEvent) => cb(ev);
-    ipcRenderer.on('app:closingTime', listener);
-    return () => ipcRenderer.removeListener('app:closingTime', listener);
+  /** Main asks this window to show the New Floor picker (the File menu item,
+   *  Cmd/Ctrl+Shift+N, or newFloor above). */
+  onFloorPickerOpen: (cb: () => void): (() => void) => {
+    const listener = () => cb();
+    ipcRenderer.on('floor:pickerOpen', listener);
+    return () => ipcRenderer.removeListener('floor:pickerOpen', listener);
   },
+  /** One word per remembered folder: free, current (this floor), held (another
+   *  live floor, with its lock) or missing. */
+  floorProbe: (paths: string[]): Promise<Array<{ path: string; state: 'free' | 'current' | 'held' | 'missing'; lock?: { pid: number; userData: string; since: string; version?: string } }>> =>
+    ipcRenderer.invoke('floor:probe', paths),
+  /** Open a folder as a floor of its own. Refusals: current (this floor's own
+   *  hive), held (another floor), same-data-dir, invalid, mkdir-failed,
+   *  no-spawner (process per floor not in this build), spawn-failed. */
+  floorOpen: (req: { harnessHome: string }): Promise<{ ok: true } | { ok: false; refusal: string; lock?: { pid: number; userData: string; since: string; version?: string }; detail?: string }> =>
+    ipcRenderer.invoke('floor:open', req),
 
   // ─── Reset ─────────────────────────────────────────────────────────────────
   /** Wipe all hive data + the memory palace, reset config, and relaunch the app
@@ -1061,6 +1409,10 @@ const api = {
   /** Request a graceful stop at the next hook boundary (#7C.3). */
   controlHalt: (agentId: string): Promise<AgentControlSnapshot | null> =>
     ipcRenderer.invoke('control:halt', agentId),
+  /** Cancel a pending stop-after-this-step (the #7C.3 halt is a toggle now).
+   *  Clears ONLY the halt: a pause set alongside it stays set. */
+  controlUnhalt: (agentId: string): Promise<AgentControlSnapshot | null> =>
+    ipcRenderer.invoke('control:unhalt', agentId),
   /** Read an agent's current control snapshot. */
   controlSnapshot: (agentId: string): Promise<AgentControlSnapshot | null> =>
     ipcRenderer.invoke('control:snapshot', agentId),
@@ -1080,6 +1432,11 @@ const api = {
     id: string,
     patch: Partial<Omit<HiveTask, 'id'>>
   ): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('hive:patchTask', id, patch),
+  /** Patch many cards in one write and one commit; `applied` names the ones
+   *  that were patched (a card that is gone is skipped). */
+  hivePatchTasks: (
+    patches: Array<{ id: string; patch: Partial<Omit<HiveTask, 'id'>> }>
+  ): Promise<{ ok: boolean; applied: string[]; error?: string }> => ipcRenderer.invoke('hive:patchTasks', patches),
   /** Atomically remove one named card from the latest main-process ledger. */
   hiveDeleteTask: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:deleteTask', id),
@@ -1143,7 +1500,7 @@ const api = {
   // ─── Slack integration (Slack message → Michael's queue) ─────────────────────
   /** Register a listener for inbound Slack messages; returns an unsubscribe fn.
    *  The message carries the thread coordinates needed to reply in-thread. */
-  onSlackMessage: (cb: (msg: { text: string; channel: string; ts: string; thread_ts: string; autonomyPreamble?: string; files?: { path: string; name: string; mimetype: string }[] }) => void): (() => void) => {
+  onSlackMessage: (cb: (msg: { text: string; channel: string; ts: string; thread_ts: string; autonomyPreamble?: string; responder?: string; files?: { path: string; name: string; mimetype: string }[] }) => void): (() => void) => {
     const listener = (_e: IpcRendererEvent, msg: { text: string; channel: string; ts: string; thread_ts: string; autonomyPreamble?: string; files?: { path: string; name: string; mimetype: string }[] }) => cb(msg);
     ipcRenderer.on('slack:incomingMessage', listener);
     return () => ipcRenderer.removeListener('slack:incomingMessage', listener);
@@ -1157,8 +1514,24 @@ const api = {
     ipcRenderer.invoke('slack:stop'),
   /** Current connection state + last Request URL (so Settings can hydrate the
    *  "Connected" badge and re-show the persisted tunnel URL on reopen). */
-  slackStatus: (): Promise<{ running: boolean; url?: string }> =>
+  slackStatus: (): Promise<SlackStatus> =>
     ipcRenderer.invoke('slack:status'),
+  /** Test the saved tokens without starting anything: `auth.test` with the bot
+   *  token, and in socket mode `apps.connections.open` with the app token too.
+   *
+   *  `draft` is what the form has on screen, so a person can test the token they
+   *  just pasted without saving it first. Tokens still only ever travel INTO
+   *  main; nothing about one comes back, only the team, the bot's handle, the
+   *  channels it is in, and what is still missing. */
+  slackTest: (draft?: SlackTestDraft): Promise<SlackTestResult> =>
+    ipcRenderer.invoke('slack:test', draft ?? {}),
+  /** The Slack ledger, newest first: inbound thread messages and our posts. */
+  slackHistory: (): Promise<SlackHistoryEntry[]> => ipcRenderer.invoke('slack:history'),
+  onSlackHistoryUpdated: (cb: () => void): (() => void) => {
+    const listener = (): void => cb();
+    ipcRenderer.on('slack:historyUpdated', listener);
+    return () => ipcRenderer.removeListener('slack:historyUpdated', listener);
+  },
   /** Post a reply into a Slack thread (the bot token stays in main). Used for the
    *  renderer's immediate "queued" ack. */
   slackReply: (m: { channel: string; thread_ts: string; text: string }): Promise<{ ok: boolean; error?: string }> =>
@@ -1167,11 +1540,9 @@ const api = {
    *  end-of-run "post your summary back to Slack" instruction. */
   slackReplyScriptPath: (): Promise<string> =>
     ipcRenderer.invoke('slack:replyScriptPath'),
-  /** Persist Slack settings (and stop the server if disabled / secret cleared). */
-  slackSetConfig: (patch: {
-    signingSecret?: string; botToken?: string; channelId?: string; port?: number; enabled?: boolean;
-    proactivePosting?: boolean;
-  }): Promise<{ ok: boolean }> =>
+  /** Persist Slack settings. Disabling, clearing the way's token, or changing
+   *  the way (0.4.11: one at a time) stops whatever transport is running. */
+  slackSetConfig: (patch: SlackConfigPatch): Promise<{ ok: boolean }> =>
     ipcRenderer.invoke('slack:setConfig', patch),
 
   // ─── Generic webhook + status API (POST → work, GET → status) ────────────────
@@ -1183,7 +1554,7 @@ const api = {
   webhookStop: (): Promise<{ ok: boolean }> =>
     ipcRenderer.invoke('webhook:stop'),
   /** Current state + last endpoint URL (so Settings can hydrate the badge/URL). */
-  webhookStatus: (): Promise<{ running: boolean; url?: string }> =>
+  webhookStatus: (): Promise<{ running: boolean; url?: string; port?: number; movedFrom?: number }> =>
     ipcRenderer.invoke('webhook:status'),
   /** Mint + persist a fresh secret and return it for the user to copy. */
   webhookGenerateSecret: (): Promise<{ ok: boolean; secret?: string }> =>
@@ -1225,17 +1596,22 @@ const api = {
   /** Mint a 256-bit secret for the operator to paste into their caller. Not
    *  persisted until the endpoint carrying it is saved. */
   generateWebhookSecret: (): Promise<string> => ipcRenderer.invoke('webhooks:generateSecret'),
+  /** 0.5.3 batch 3: an agent changed the webhook list (connection request). */
+  onWebhooksChanged: (cb: () => void): (() => void) => {
+    const listener = (): void => cb();
+    ipcRenderer.on('webhooks:changed', listener);
+    return () => ipcRenderer.removeListener('webhooks:changed', listener);
+  },
+  /** 0.5.3: register a Telegram bot's webhook on one Telegram endpoint. The
+   *  token is used once and not stored. */
+  telegramSetWebhook: (id: string, botToken: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('telegram:setWebhook', { id, botToken }),
   /** Server state, the tunnel root, and each endpoint's full public URL (`url` is
    *  '' until a tunnel has come up). */
-  webhooksStatus: (): Promise<{ running: boolean; url?: string; endpoints: { id: string; url: string }[] }> =>
+  webhooksStatus: (): Promise<{ running: boolean; starting?: boolean; error?: string; url?: string; port?: number; movedFrom?: number; endpoints: { id: string; url: string }[] }> =>
     ipcRenderer.invoke('webhooks:status'),
-
-  // ─── Triggers: organisation (clone-node peer messaging) ─────────────────────
-  /** PERSISTENCE ONLY — the peer transport does not exist yet, so setting this
-   *  stores the key and mode and starts nothing. */
-  getOrgTrigger: (): Promise<OrgTriggerConfig> => ipcRenderer.invoke('org:getTrigger'),
-  setOrgTrigger: (cfg: OrgTriggerConfig): Promise<OrgTriggerConfig> =>
-    ipcRenderer.invoke('org:setTrigger', cfg),
+  /** Start the webhook server again after a failed start (0.5.3). */
+  webhooksRetry: (): Promise<{ ok: boolean; url?: string; error?: string }> => ipcRenderer.invoke('webhooks:retry'),
 
   // ─── Triggers: history ledger + approval gate ───────────────────────────────
   /** The whole ledger, newest first (both directions, both sources). */
@@ -1272,12 +1648,34 @@ const api = {
   }): Promise<{ ok: boolean; text?: string; error?: string }> =>
     ipcRenderer.invoke('freeflow:transcribe', arg),
 
+  // ─── Dictation and meetings (0.5.3, F16): the local engines and their settings ──
+  /** What can transcribe on this machine, which engine each mode gets, the
+   *  whisper models on disk, and how many words reach each engine. */
+  transcribeStatus: (): Promise<TranscribeStatus> => ipcRenderer.invoke('transcribe:status'),
+  /** Save part of the dictation block; main re-arms or disarms the any app key at once. */
+  transcribeSetConfig: (patch: Partial<TranscribeConfig>): Promise<{ ok: boolean; config: TranscribeConfig; status: TranscribeStatus }> =>
+    ipcRenderer.invoke('transcribe:setConfig', patch),
+  /** Fetch the optional small model (190 MB) into userData; progress arrives on onTranscribeDownloadProgress. */
+  transcribeDownloadModel: (id: 'small'): Promise<{ ok: true; path: string } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('transcribe:downloadModel', id),
+  onTranscribeDownloadProgress: (cb: (p: { id: string; received: number; total: number | null }) => void): (() => void) => {
+    const listener = (_e: Electron.IpcRendererEvent, p: { id: string; received: number; total: number | null }) => cb(p);
+    ipcRenderer.on('transcribe:downloadProgress', listener);
+    return () => ipcRenderer.removeListener('transcribe:downloadProgress', listener);
+  },
+
   // ─── Integrations registry (Phase 2 — labeled REST endpoints via the secret broker) ──
   // Bridges the §6 IPC surface for the Settings UI. WRITE-ONLY secret contract end to
   // end: `integrationsList` returns records with secretRef redacted to `hasSecret`;
   // `integrationsSetSecret` takes a secret ONE WAY (never echoed); NO method ever
   // returns a secret value to the renderer. Method names match registryClient's
   // feature-detection (camelCase ↔ colon-channel), so its real path activates as-is.
+  // Custom secrets (Keys & Secrets): names out, values in, never a value out.
+  customSecretList: (): Promise<string[]> => ipcRenderer.invoke('customSecret:list'),
+  customSecretSet: (req: { name: string; value: string }): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('customSecret:set', req),
+  customSecretRemove: (name: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('customSecret:remove', name),
   integrationsList: (): Promise<IntegrationRecordView[]> =>
     ipcRenderer.invoke('integrations:list'),
   integrationsTemplates: (): Promise<IntegrationTemplate[]> =>
@@ -1423,7 +1821,416 @@ const api = {
     notes?: string;
     /** Preview the centered release page using the default drop template. */
     drop?: boolean;
-  }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('update:simulate', opts)
+  }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('update:simulate', opts),
+
+  // ─── Teams: device identity ──────────────────────────────────────────────
+  /* Only the PUBLIC half of the identity ever crosses this bridge. The Ed25519
+     secret key stays in main, encrypted at rest, and there is deliberately no
+     channel that returns it. Sealing and opening happen in main for the same
+     reason. */
+
+  /** Whether this machine has enrolled. Safe on the solo path: it reads the
+   *  filesystem and does not generate anything. */
+  teamsHasIdentity: (): Promise<boolean> => ipcRenderer.invoke('teams:identity:has'),
+
+  /** Forget this machine's identity AND its membership (D14, or signing out).
+   *  The next enrolment gets a new key and a new fingerprint, which is what
+   *  D13 explains. */
+  teamsForgetIdentity: (): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('teams:identity:forget'),
+  /** Item 5, team back to individual. Guarded in main: allowed only when the
+   *  relay says the org has exactly one member. `has-teammates` carries how
+   *  many others there are so the screen can say why rather than just no;
+   *  `unreachable` means the check could not be made, never that nobody is
+   *  there. */
+  /** Item 2: the paywall hand-off. Mints a state in main and opens the
+   *  console's solo checkout in the real browser, where the person's session
+   *  from step one already lives. */
+  proCheckoutBegin: (): Promise<{ ok: true; url: string }> =>
+    ipcRenderer.invoke('pro:checkout:begin'),
+  /**
+   * The return link's OUTCOME. Main checks the state, spends the grant and
+   * redeems the key before this fires, so the renderer never handles either
+   * credential; it is told what happened, not what was used.
+   *
+   * `recoverable` is the one field to branch on when `ok` is false. Kevin's
+   * rule: `unauthorized` is what a SECOND deep link looks like once the grant
+   * is spent, so a recoverable refusal must read as "finish with your licence
+   * key", never as a failure shown to somebody who has just paid. It is also
+   * how the not-yet-built endpoint (`unavailable`, a 404 today) degrades to
+   * exactly the paste path the paywall already offers.
+   */
+  onProCheckoutReturn: (
+    fn: (r:
+      | { ok: true }
+      | { ok: false; reason: string; recoverable?: boolean }
+    ) => void
+  ): (() => void) => {
+    const listener = (_e: unknown, r: Parameters<typeof fn>[0]) => fn(r);
+    ipcRenderer.on('pro:checkout:return', listener);
+    return () => ipcRenderer.removeListener('pro:checkout:return', listener);
+  },
+  teamsLeave: (): Promise<
+    | { ok: true; alreadySolo: boolean }
+    | { ok: false; reason: 'has-teammates'; teammates: number }
+    | { ok: false; reason: 'unreachable'; detail: string | null }
+  > => ipcRenderer.invoke('teams:leave'),
+
+  // ─── Teams: the gate and the join ────────────────────────────────────────
+  /* There is no `ensureIdentity` any more. A key exists only because a relay
+     accepted it: `teamsEnrol` below is the one path, and it writes nothing
+     until the relay has said yes and the fingerprint checks out. */
+
+  /** The gate's answer (plan section 5). Read once at mount, then subscribe. */
+  teamsMode: (): Promise<TeamsMode> => ipcRenderer.invoke('teams:mode'),
+  onTeamsMode: (cb: (mode: TeamsMode) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, mode: TeamsMode) => cb(mode);
+    ipcRenderer.on('teams:mode', listener);
+    return () => ipcRenderer.removeListener('teams:mode', listener);
+  },
+
+  /** Org and ids for the screens. Never key material. */
+  teamsMembership: (): Promise<MembershipView | null> => ipcRenderer.invoke('teams:membership'),
+
+  /* ---- the solo licence bridge (SoloProBridge in @shared/soloPro) --------
+     Main owns the record and the redemption round trip; these are the three
+     doors the licence step reads defensively off window.cth. */
+  soloLicense: (): Promise<import('../shared/licenseKey').LicenseView | null> =>
+    ipcRenderer.invoke('solo:license'),
+  soloRedeemLicense: (key: string): Promise<import('../shared/soloPro').LicenseRedeemResult> =>
+    ipcRenderer.invoke('solo:license:redeem', key),
+  onSoloLicense: (cb: (view: import('../shared/licenseKey').LicenseView | null) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, view: import('../shared/licenseKey').LicenseView | null) => cb(view);
+    ipcRenderer.on('solo:license', listener);
+    return () => ipcRenderer.removeListener('solo:license', listener);
+  },
+
+  /* ---- the free door (5 Sep 2026, shared/freeTier.ts) --------------------
+     Same shape as the solo licence bridge: main owns free.json and the
+     sign-in round trip, the renderer reads the record and hears changes. */
+  freeAccount: (): Promise<import('../shared/freeTier').FreeAccountView | null> =>
+    ipcRenderer.invoke('free:account'),
+  onFreeAccount: (cb: (view: import('../shared/freeTier').FreeAccountView | null) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, view: import('../shared/freeTier').FreeAccountView | null) => cb(view);
+    ipcRenderer.on('free:account', listener);
+    return () => ipcRenderer.removeListener('free:account', listener);
+  },
+  freeSignInBegin: (): Promise<{ ok: true; url: string; expiresAt: string }> =>
+    ipcRenderer.invoke('free:signin:begin'),
+  freeSignInPaste: (pasted: string): Promise<{ ok: true } | { ok: false; error: 'signin'; detail: string }> =>
+    ipcRenderer.invoke('free:signin:paste', pasted),
+  freeSignInCancel: (): Promise<{ ok: true }> => ipcRenderer.invoke('free:signin:cancel'),
+  onFreeGrant: (cb: () => void): (() => void) => {
+    const listener = () => cb();
+    ipcRenderer.on('free:signin:grant', listener);
+    return () => ipcRenderer.removeListener('free:signin:grant', listener);
+  },
+  freeRegister: (): Promise<import('../shared/freeTier').FreeRegisterResult> =>
+    ipcRenderer.invoke('free:register'),
+  /** Sign out: forget the account and any licence on this machine. */
+  freeSignOut: (): Promise<{ ok: true }> => ipcRenderer.invoke('free:signout'),
+
+  /**
+   * 0.4.9: name this machine's orchestrator. The word is claimed on the relay
+   * first, because uniqueness belongs to the org, and only an accepted claim
+   * renames the agent here. `conflict` means someone else holds it and nothing
+   * was renamed; `unsupported` and `offline` mean the machine kept the name
+   * but the org has not been told yet.
+   */
+  teamsSetBossName: (name: string): Promise<
+    | { ok: true; name: string; unsupported?: boolean; offline?: boolean }
+    | { ok: false; error: 'conflict' | 'invalid'; detail: string | null }
+  > => ipcRenderer.invoke('teams:bossName:set', name),
+
+  /**
+   * 0.5.2: the PERSON's display name, the one teammates see beside messages
+   * and on their roster. Lives on the relay only, so there is no local half:
+   * `unsupported` is a relay without the field, `offline` a relay that could
+   * not be reached, and neither saved anything. `null` or '' clears it.
+   */
+  teamsSetName: (name: string | null): Promise<
+    | { ok: true; name: string | null }
+    | { ok: false; error: 'invalid' | 'solo' | 'unsupported' | 'offline'; detail?: string | null }
+  > => ipcRenderer.invoke('teams:name:set', name),
+
+  /** The socket's state (plan 4.3). Main is the only writer: read once, then subscribe. */
+  teamsConnection: (): Promise<ConnectionView> => ipcRenderer.invoke('teams:connection'),
+  onTeamsConnection: (cb: (v: ConnectionView) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, v: ConnectionView) => cb(v);
+    ipcRenderer.on('teams:connection', listener);
+    return () => ipcRenderer.removeListener('teams:connection', listener);
+  },
+  /** A presence frame arrived. The roster re-reads itself; the payload is not
+   *  forwarded, so nothing in the renderer can draw a dot the relay did not. */
+  onTeamsPresence: (cb: () => void): (() => void) => {
+    const listener = () => cb();
+    ipcRenderer.on('teams:presence', listener);
+    return () => ipcRenderer.removeListener('teams:presence', listener);
+  },
+  /** Why the gate says `locked` (plan 4.5, 5). Null whenever it does not. */
+  teamsLockInfo: (): Promise<LockInfo | null> => ipcRenderer.invoke('teams:lock'),
+  /** The takeover's Reconnect. Tries now, from a fresh nonce. */
+  teamsReconnect: (): Promise<{ ok: true }> => ipcRenderer.invoke('teams:reconnect'),
+
+  /** D11: the thread with one teammate, from this machine's own store. */
+  teamsThread: (memberId: string): Promise<ThreadView> => ipcRenderer.invoke('teams:thread', memberId),
+  onTeamsThread: (cb: (memberId: string) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, memberId: string) => cb(memberId);
+    ipcRenderer.on('teams:thread', listener);
+    return () => ipcRenderer.removeListener('teams:thread', listener);
+  },
+  /**
+   * D11's send box. Resolves once the relay has answered.
+   *
+   * 0.4.10: the WHOLE DRAFT crosses, not a flattened string. It used to be
+   * `(memberId, body)` with the subject folded into the first line, which is
+   * how one string ended up carrying two things. Main re-checks the draft
+   * against `@shared/teamMessage` (shape, length, turn budget, hourly rate)
+   * before anything leaves the machine, so this door carries no contract of its
+   * own: a check that lives only in the UI is not a contract.
+   */
+  teamsSend: (memberId: string, draft: import('../shared/teamMessage').DraftMessage): Promise<
+    { ok: true; delivery: Delivery; via: 'envelope' | 'request' } | { ok: false; reason: string }
+  > => ipcRenderer.invoke('teams:send', memberId, draft),
+  /**
+   * 0.4.11: start a fresh thread with one teammate. The spent thread's file is
+   * archived (renamed aside, never deleted) and the turn budget is whole
+   * again. Main pushes `teams:thread` after the rotation, so the open thread
+   * view reloads itself. This is the PERSON'S door out of a spent thread;
+   * agents are never handed it and still get `ASK_THE_HUMAN`.
+   */
+  teamsThreadNew: (memberId: string): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('teams:thread:new', memberId),
+
+  /* ---- 0.4.10: your status, and what your clones allow -------------------
+     One read for the whole policy store and one push when it moves. It is
+     SEPARATE from `teamsRoster` on purpose: the roster is a relay round trip
+     and the policy is a local file, so joining them would hide a status change
+     behind the network. `memberIds` asks for the overrides that matter to the
+     screen doing the asking; main never sends the whole map unasked. */
+  teamsPolicy: (memberIds: string[]): Promise<{
+    status: import('../shared/teamPolicy').TeamPolicy;
+    schedule: import('../shared/teamPolicy').StatusSchedule;
+    scheduleDriving: boolean;
+    policyDefault: import('../shared/teamPolicy').TeamPolicy | null;
+    overrides: Record<string, import('../shared/teamPolicy').TeamPolicy>;
+  }> => ipcRenderer.invoke('teams:policy', memberIds),
+  onTeamsPolicy: (cb: () => void): (() => void) => {
+    const listener = () => cb();
+    ipcRenderer.on('teams:policy', listener);
+    return () => ipcRenderer.removeListener('teams:policy', listener);
+  },
+  /** Your status. The one control that writes this lives in the right sidebar
+   *  of Team and nowhere else. */
+  teamsSetStatus: (policy: import('../shared/teamPolicy').TeamPolicy): Promise<{ ok: true }> =>
+    ipcRenderer.invoke('teams:setStatus', policy),
+  /** When to be on what status. Main normalises it and applies it on a timer
+   *  AND on every send, so a machine asleep through a boundary cannot act on a
+   *  stale status. */
+  teamsSetSchedule: (schedule: import('../shared/teamPolicy').StatusSchedule): Promise<{ ok: true }> =>
+    ipcRenderer.invoke('teams:setSchedule', schedule),
+  /** What you allow ONE teammate. `null` puts them back on your default, which
+   *  is a different thing from setting them to off. */
+  teamsSetPolicy: (memberId: string, policy: import('../shared/teamPolicy').TeamPolicy | null): Promise<{ ok: true }> =>
+    ipcRenderer.invoke('teams:setPolicy', memberId, policy),
+  /** What you allow a teammate with no setting of their own. `null` follows the
+   *  org default the relay reports again. */
+  teamsSetPolicyDefault: (policy: import('../shared/teamPolicy').TeamPolicy | null): Promise<{ ok: true }> =>
+    ipcRenderer.invoke('teams:setPolicyDefault', policy),
+  /** D10: what is waiting for this person's decision. */
+  teamsRequests: (): Promise<PendingRequest[]> => ipcRenderer.invoke('teams:requests'),
+  onTeamsRequests: (cb: () => void): (() => void) => {
+    const listener = () => cb();
+    ipcRenderer.on('teams:requests', listener);
+    return () => ipcRenderer.removeListener('teams:requests', listener);
+  },
+  teamsRequestDecide: (id: string, decision: RequestDecision): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('teams:request:decide', id, decision),
+
+  /** S1: what the org has told this machine (plan 4.4). Read once, then subscribe. */
+  teamsOrg: (): Promise<OrgView> => ipcRenderer.invoke('teams:org'),
+  onTeamsOrg: (cb: (v: OrgView) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, v: OrgView) => cb(v);
+    ipcRenderer.on('teams:org', listener);
+    return () => ipcRenderer.removeListener('teams:org', listener);
+  },
+  /** S1's Verify: a person read the six groups to their admin. The only path to true. */
+  teamsOrgVerify: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('teams:org:verify'),
+  /** The admin's billing view (PRO phase 5). Main refuses a non-admin before
+   *  the network; the relay refuses again. Never cached here. */
+  billingSummary: (): Promise<BillingSummary> => ipcRenderer.invoke('billing:summary'),
+  teamsOrgRefresh: (): Promise<'updated' | 'unavailable' | 'refused' | 'offline'> =>
+    ipcRenderer.invoke('teams:org:refresh'),
+
+  /** D2's Continue: opens the system browser at the sign-in page with a fresh
+   *  `state`. `skipped` is true only under the dev switch, when no page exists
+   *  to open and the enrol goes without a grant. */
+  teamsSignInBegin: (): Promise<
+    | { ok: true; url: string | null; skipped: boolean; expiresAt: string }
+    | { ok: false; error: 'refused'; detail: string; reason: 'keyring_unavailable' | 'keyring_not_encrypting' }
+  > => ipcRenderer.invoke('teams:signin:begin'),
+  /** The paste fallback beside the "waiting for your browser" state. */
+  teamsSignInPaste: (pasted: string): Promise<{ ok: true } | { ok: false; error: 'signin'; detail: string }> =>
+    ipcRenderer.invoke('teams:signin:paste', pasted),
+  teamsSignInCancel: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('teams:signin:cancel'),
+  /** Fires when the grant arrived by either route; the screen moves to D3. */
+  onTeamsGrant: (cb: () => void): (() => void) => {
+    const listener = () => cb();
+    ipcRenderer.on('teams:signin:grant', listener);
+    return () => ipcRenderer.removeListener('teams:signin:grant', listener);
+  },
+
+  /** D3. Main generates the key, registers it, verifies the fingerprint, and
+   *  writes the key and membership only then. Every refusal is a VALUE with a
+   *  `CodeError` to branch on and the relay's sentence to show. */
+  teamsEnrol: (input: { code: string }): Promise<EnrolResult> =>
+    ipcRenderer.invoke('teams:enrol', input),
+  /** D3's three rows, as each starts. */
+  onTeamsEnrolProgress: (cb: (step: EnrolProgress) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, step: EnrolProgress) => cb(step);
+    ipcRenderer.on('teams:enrol:progress', listener);
+    return () => ipcRenderer.removeListener('teams:enrol:progress', listener);
+  },
+
+  /** The roster for D7/D8/D9, already joined with this machine's trust pins and
+   *  personal overrides. Failures come back as VALUES so the screen can render
+   *  the reason instead of a blank pane. */
+  teamsRoster: (): Promise<
+    | { ok: true; data: { org: unknown; teammates: unknown[]; self: unknown } }
+    | { ok: false; error: string; detail: string | null }
+  > => ipcRenderer.invoke('teams:roster'),
+
+  /** D13's accept. The ONLY way a key becomes verified, and it is a human
+   *  saying so out of band — never anything the relay told us. */
+  teamsVerifyDevice: (deviceId: string, fingerprint: string): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('teams:verify', deviceId, fingerprint),
+
+  /** D9's per-person override. Stays on this machine, per contract 0.3. */
+  teamsSetYouAllow: (memberId: string, level: string | null): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('teams:setYouAllow', memberId, level),
+
+  /** D8/D9's default for everyone without an override (the self row's select
+   *  and the Network section's top card). Null follows the org default. */
+  teamsSetYouAllowDefault: (level: string | null): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('teams:setYouAllowDefault', level),
+
+  // ─── The puck (Pro, 7 Sep 2026; src/main/puck.ts) ─────────────────────────
+  // Two callers share these: the puck's own window (src/renderer/src/puck) and
+  // the Puck screen in the Pro shell. Main is the only holder of state; both
+  // read it with puckState and follow it with onPuckState.
+  /** The Pro shell says whether it is on screen. No shell, no puck. */
+  puckAdmit: (on: boolean): Promise<PuckState> => ipcRenderer.invoke('puck:admit', on),
+  puckState: (): Promise<PuckState> => ipcRenderer.invoke('puck:state'),
+  puckConfig: (): Promise<PuckConfig> => ipcRenderer.invoke('puck:config'),
+  onPuckState: (cb: (s: PuckState) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, s: PuckState) => cb(s);
+    ipcRenderer.on('puck:state', listener);
+    return () => ipcRenderer.removeListener('puck:state', listener);
+  },
+  /** The meeting chord was pressed (0.5.3, F16): the puck starts a meeting
+   *  as a click would, or stops the one running. */
+  onPuckMeetingToggle: (cb: (p: { at: number }) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, p: { at: number }) => cb(p);
+    ipcRenderer.on('puck:meetingToggle', listener);
+    return () => ipcRenderer.removeListener('puck:meetingToggle', listener);
+  },
+  /** Dictation from anywhere (0.5.3): main's any app events for the
+   *  Stapler's eyes, live level and sounds. `sounds` is the Settings switch. */
+  onPuckDictation: (cb: (e: PuckDictationEvent) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, e: PuckDictationEvent) => cb(e);
+    ipcRenderer.on('puck:dictation', listener);
+    return () => ipcRenderer.removeListener('puck:dictation', listener);
+  },
+  onPuckConfig: (cb: (c: PuckConfig) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, c: PuckConfig) => cb(c);
+    ipcRenderer.on('puck:config', listener);
+    return () => ipcRenderer.removeListener('puck:config', listener);
+  },
+  /** A drag begins: where on the disc it was grabbed, px from its centre.
+   *  Main moves the window under the system pointer from here to dragEnd. */
+  puckDragStart: (at: { x: number; y: number }): Promise<PuckState> => ipcRenderer.invoke('puck:dragStart', at),
+  /** The pointer moved during a drag: its own motion (movementX/Y) since the
+   *  last call. A sign of life, and the drive where the pointer is unreadable. */
+  puckDrag: (delta: { dx: number; dy: number }): Promise<PuckState> => ipcRenderer.invoke('puck:drag', delta),
+  /** The hand let go: snap if configured, save the position. */
+  puckDragEnd: (): Promise<PuckState> => ipcRenderer.invoke('puck:dragEnd'),
+  puckResetPosition: (): Promise<PuckState> => ipcRenderer.invoke('puck:resetPosition'),
+  puckMenu: (open: boolean): Promise<PuckState> => ipcRenderer.invoke('puck:menu', open),
+  /** Click through the transparent part of the window, or not. */
+  puckIgnoreMouse: (ignore: boolean): Promise<boolean> => ipcRenderer.invoke('puck:ignoreMouse', ignore),
+  /** Content protection by hand: hidden from every screen share and capture. */
+  puckInvisible: (on: boolean): Promise<PuckState> => ipcRenderer.invoke('puck:invisible', on),
+  puckCaptureStart: (): Promise<{ ok: true } | { ok: false; error: string }> => ipcRenderer.invoke('puck:captureStart'),
+  puckCaptureConfirm: (rect: PuckRect): Promise<{ ok: true; path: string; preview: string; width: number; height: number } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('puck:captureConfirm', rect),
+  puckCaptureCancel: (): Promise<PuckState> => ipcRenderer.invoke('puck:captureCancel'),
+  /** The Stapler's Capture button (0.5.2): main relays it to the overlay,
+   *  which confirms with the box it holds. */
+  puckCaptureRequest: (): Promise<{ ok: true } | { ok: false; error: string }> => ipcRenderer.invoke('puck:captureRequest'),
+  onPuckCaptureRequest: (cb: () => void): (() => void) => {
+    const listener = (): void => cb();
+    ipcRenderer.on('puck:captureRequest', listener);
+    return () => ipcRenderer.removeListener('puck:captureRequest', listener);
+  },
+  onPuckCaptureInit: (cb: (init: { region: PuckRect; width: number; height: number }) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, init: { region: PuckRect; width: number; height: number }) => cb(init);
+    ipcRenderer.on('puck:captureInit', listener);
+    return () => ipcRenderer.removeListener('puck:captureInit', listener);
+  },
+  /** The puck window hears about a capture the overlay confirmed. */
+  onPuckCaptured: (cb: (shot: { path: string; preview: string; width: number; height: number }) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, shot: { path: string; preview: string; width: number; height: number }) => cb(shot);
+    ipcRenderer.on('puck:captured', listener);
+    return () => ipcRenderer.removeListener('puck:captured', listener);
+  },
+  /** ...and about one that failed: the overlay that asked is gone by then. */
+  onPuckCaptureFailed: (cb: (e: { error: string }) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, e: { error: string }) => cb(e);
+    ipcRenderer.on('puck:captureFailed', listener);
+    return () => ipcRenderer.removeListener('puck:captureFailed', listener);
+  },
+  puckOpenScreenAccess: (): Promise<boolean> => ipcRenderer.invoke('puck:openScreenAccess'),
+  /** To the orchestrator, through the hive's own door (a human request). A
+   *  screenshot or transcript travels as its PATH, never as bytes. */
+  puckSend: (arg: { note: string; screenshot?: string; screenshots?: string[]; transcript?: string }): Promise<{ ok: true; id: string; to: string } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('puck:send', arg),
+  /** The send card's picker (0.5.3, I5): who captures go to from now on. */
+  puckSendTo: (id: string): Promise<PuckState> => ipcRenderer.invoke('puck:sendTo', id),
+  /** `systemAudio` says where the other side of the call comes from on this
+   *  machine for this meeting: a helper feeding main, a stream the renderer
+   *  opens, or null for the microphone alone (0.5.3, F16). */
+  puckMeetingStart: (): Promise<{ ok: true; meetingId: string; segmentMinutes: number; systemAudio: 'helper' | 'renderer' | null } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('puck:meetingStart'),
+  puckMeetingSegment: (arg: { meetingId: string; seq: number; audio: ArrayBuffer; mimeType: string; startMs: number; durationMs: number; track?: 'you' | 'them' }): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('puck:meetingSegment', arg),
+  puckMeetingStop: (arg: { meetingId: string }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('puck:meetingStop', arg),
+  puckMeetings: (filter?: PuckMeetingFilter): Promise<PuckMeeting[]> => ipcRenderer.invoke('puck:meetings', filter ?? {}),
+  puckMeetingRename: (arg: { id: string; title: string }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('puck:meetingRename', arg),
+  puckMeetingTranscript: (arg: { id: string }): Promise<{ ok: true; text: string; meta: MeetingMeta } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('puck:meetingTranscript', arg),
+  puckMeetingSave: (arg: { id: string; title?: string; description?: string; text?: string }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('puck:meetingSave', arg),
+  puckMeetingSendTo: (arg: { id: string; to: string[] }): Promise<{ ok: boolean; sent: string[]; failed: Array<{ id: string; error: string }>; inline?: boolean; error?: string }> =>
+    ipcRenderer.invoke('puck:meetingSendTo', arg),
+  puckMeetingTranscribe: (arg: { id: string }): Promise<{ ok: boolean; queued: number; error?: string }> => ipcRenderer.invoke('puck:meetingTranscribe', arg),
+  puckMeetingDelete: (arg: { id: string }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('puck:meetingDelete', arg),
+  onPuckMeetingsChanged: (cb: (e: { id: string }) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, e: { id: string }) => cb(e);
+    ipcRenderer.on('puck:meetingsChanged', listener);
+    return () => ipcRenderer.removeListener('puck:meetingsChanged', listener);
+  },
+  puckMessageStart: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('puck:messageStart'),
+  /** The app's window forward, on a Settings section when named ('Voice' for the Groq key). */
+  puckOpenSettings: (section?: string): Promise<boolean> => ipcRenderer.invoke('puck:openSettings', section),
+  /** macOS: the Microphone pane of System Settings. */
+  puckOpenMicAccess: (): Promise<boolean> => ipcRenderer.invoke('puck:openMicAccess'),
+  /** A part of a message still being spoken: its words, and the recording goes on. */
+  puckMessageSegment: (arg: { audio: ArrayBuffer; mimeType: string }): Promise<{ ok: true; text: string } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('puck:messageSegment', arg),
+  puckMessageStop: (arg: { audio: ArrayBuffer; mimeType: string }): Promise<{ ok: true; text: string } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('puck:messageStop', arg),
+  puckScreenshots: (): Promise<PuckScreenshot[]> => ipcRenderer.invoke('puck:screenshots'),
+  puckScreenshotDelete: (path: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('puck:screenshotDelete', path),
+  puckReveal: (path: string): Promise<{ ok: boolean; error?: string; name?: string }> => ipcRenderer.invoke('puck:reveal', path)
 };
 
 contextBridge.exposeInMainWorld('cth', api);

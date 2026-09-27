@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { hiveFolderName } from '@shared/hivePaths';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
@@ -15,9 +16,9 @@ export interface HivePickerProps {
 // hive they just chose. App.tsx reads + clears it on mount.
 const SKIP_KEY = 'cth.skipHivePickerOnce';
 
-function folderName(path: string): string {
-  return path.split('/').filter(Boolean).pop() ?? path;
-}
+// 0.5.3, bug 12: both separators, or a Windows row shows its whole path as
+// its name. The rule is shared with the other picker (@shared/hivePaths).
+const folderName = hiveFolderName;
 
 /**
  * HivePicker — the launch-time workspace selector. A "hive" is a harness home

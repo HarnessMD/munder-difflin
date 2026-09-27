@@ -58,7 +58,7 @@ test('patching a stale UI card preserves a concurrently appended webhook card', 
   staleQuestion.humanQA[0].answeredAt = '2026-08-15T08:00:01.000Z';
   assert.equal(hive.patchTask(staleQuestion.id, { humanQA: staleQuestion.humanQA }), true);
 
-  assert.deepEqual(tasks(hive).map((task) => task.id), ['needs-human', 'webhook-1']);
+  assert.deepEqual(tasks(hive).map((task) => task.alias ?? task.id), ['needs-human', 'webhook-1']);
   assert.equal(tasks(hive)[0].humanQA[0].a, 'Option B');
   assert.equal(tasks(hive)[1].webhook.tokenHash, 'a'.repeat(64));
 });
@@ -72,16 +72,19 @@ test('atomic add is idempotent and delete removes only the named card', (t) => {
   assert.equal(hive.deleteTask('existing'), true);
   assert.equal(hive.deleteTask('missing'), false);
 
-  assert.deepEqual(tasks(hive).map((task) => task.id), ['new']);
+  assert.deepEqual(tasks(hive).map((task) => task.alias ?? task.id), ['new']);
   assert.equal(tasks(hive)[0].title, 'new');
 });
 
 test('patch refuses an unknown card without rewriting the ledger', (t) => {
   const hive = floor(t);
   hive.writeTasks([card('existing')]);
+  // 0.5.3: the write keyed the card (id MTM-1, alias 'existing'); a refused patch changes nothing.
+  const before = tasks(hive);
+  assert.deepEqual(before, [{ ...card('existing'), id: before[0].id, alias: 'existing', updatedAt: before[0].updatedAt }], 'keyed, and stamped updatedAt (0.5.3 task times)');
 
   assert.equal(hive.patchTask('missing', { status: 'done' }), false);
-  assert.deepEqual(tasks(hive), [card('existing')]);
+  assert.deepEqual(tasks(hive), before);
 });
 
 test('renderer task actions never send a whole stale ledger back to main', () => {

@@ -1,6 +1,6 @@
 {
   "_comment": "Source of truth for model suggestions on the site. Update by hand or run: python3 scripts/build-data.py --sync-models (scrapes upstream's config.ts and merges). Manifests may use ANY model string - these are suggestions, not validation.",
-  "updated": "2026-09-04",
+  "updated": "2026-09-07",
   "claude": [
     "claude-opus-4-8",
     "claude-opus-4-8[1m]",
@@ -13,6 +13,9 @@
   "antigravity": [
     "Gemini 3.1 Pro (High)",
     "Gemini 3.1 Pro (Low)",
+    "Gemini 3.8 Flash (High)",
+    "Gemini 3.8 Flash (Medium)",
+    "Gemini 3.8 Flash (Low)",
     "Gemini 3.7 Flash (High)",
     "Gemini 3.7 Flash (Medium)",
     "Gemini 3.7 Flash (Low)",

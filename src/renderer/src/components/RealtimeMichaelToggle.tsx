@@ -23,6 +23,8 @@ import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import { useStore } from '@/store/store';
 import { useRealtimeMichael, type RealtimeStatus } from '@/realtime/session';
+import { isComposingKey } from '@shared/imeGuard';
+import { OPENAI_KEYS_URL, saveOpenAiKey } from '@/voice/keyEntry';
 
 /** Per-status presentation: button variant, SHORT label, dot color, and (optional)
  *  animation for the live-state indicator dot. Maps hook.status → visuals.
@@ -99,6 +101,23 @@ export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggle
   const panelRef = useRef<HTMLDivElement | null>(null);
   const hintOpen = hint !== null;
 
+  // 0.4.11 (founder, 6 Sep 2026): "the button is disabled but when clicked on
+  // it should open a dropdown modal asking user to add their openai api keys".
+  // The card takes the key itself. The draft is local and short lived; the
+  // save hands it to the broker and the card closes once presence flips.
+  const [keyDraft, setKeyDraft] = useState('');
+  const [keyNote, setKeyNote] = useState('');
+  const [saving, setSaving] = useState(false);
+  const saveKey = async (): Promise<void> => {
+    if (!keyDraft.trim() || saving) return;
+    setSaving(true);
+    setKeyNote('');
+    const r = await saveOpenAiKey(keyDraft);
+    setSaving(false);
+    if (r.ok) { setKeyDraft(''); setHint(null); return; }
+    setKeyNote(t('settings.voice.couldNotSave'));
+  };
+
   const view = STATE_VIEW[status];
   const noKey = !hasOpenAiKey;
 
@@ -113,12 +132,6 @@ export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggle
       ? `${t(view.helpKey)} — ${error}`
       : t(view.helpKey);
 
-  const onClick = () => {
-    if (noKey) return;
-    if (status === 'off') void connect();
-    else disconnect();
-  };
-
   // Jump straight to the tab that holds the key. App owns the Settings modal's
   // open state, so this goes through the `cth:` window-event convention rather
   // than threading a callback down through AgentCard/FullscreenTerminal.
@@ -132,25 +145,36 @@ export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggle
     );
   };
 
-  const HINT_W = 210;
+  const HINT_W = 250;
   const HINT_GAP = 8;
 
   /** Place the popover against the icon in VIEWPORT space, preferring above and
    *  flipping below only when there is genuinely no room — the agent dock sits on
    *  the bottom edge, so "above" is almost always right. Both axes are clamped to
    *  the viewport so it can never hang off an edge. */
-  const toggleHint = (e: MouseEvent): void => {
-    e.stopPropagation();
+  const toggleHintNow = (): void => {
     if (hint) { setHint(null); return; }
     const r = iconRef.current?.getBoundingClientRect();
     if (!r) return;
-    // Height is content-dependent; this is the two-line + link case, and the
-    // clamp below absorbs the error if it wraps to three.
-    const estH = 78;
+    // Height is content-dependent; this is the body + link + key box case, and
+    // the clamp below absorbs the error if a line wraps.
+    const estH = 168;
     const above = r.top - HINT_GAP - estH;
     const top = above >= 8 ? above : Math.min(r.bottom + HINT_GAP, window.innerHeight - estH - 8);
     const left = Math.max(8, Math.min(r.left, window.innerWidth - HINT_W - 8));
     setHint({ left, top: Math.max(8, top) });
+  };
+  const toggleHint = (e: MouseEvent): void => {
+    e.stopPropagation();
+    toggleHintNow();
+  };
+
+  // Without a key the button is not dead: it opens the card that takes the key.
+  // connect() and getUserMedia stay unreachable until presence flips.
+  const onClick = (): void => {
+    if (noKey) { toggleHintNow(); return; }
+    if (status === 'off') void connect();
+    else disconnect();
   };
 
   // Click-to-open explanation. A hover title would do for a mouse, but this sits
@@ -198,11 +222,13 @@ export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggle
         variant={view.variant}
         size="sm"
         onClick={onClick}
-        disabled={noKey}
+        // Not `disabled` without a key (0.4.11): a disabled button swallows the
+        // click that should open the key card. It reads muted instead, and the
+        // handler above never reaches connect() while the key is missing.
         // Live mic → a clear accent fill (mint listening / sky speaking) so the
-        // active button never reads as a flat black primary. Skipped when disabled
-        // (no key) and when off/connecting, so those states are untouched.
-        style={!noKey && view.activeBg ? { background: view.activeBg, color: 'var(--cth-ink-900)' } : undefined}
+        // active button never reads as a flat black primary. Skipped when off
+        // and connecting, so those states are untouched.
+        style={noKey ? { opacity: 0.7 } : view.activeBg ? { background: view.activeBg, color: 'var(--cth-ink-900)' } : undefined}
       >
         <span style={{ display: 'inline-flex', gap: 5, alignItems: 'center' }}>
           {/* Live-state indicator dot — color + animation reflect the loop status. */}
@@ -281,6 +307,37 @@ export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggle
               }}
             >
               <span>{t('realtimeToggle.popoverBody')}</span>
+              <span>
+                {t('realtimeToggle.createKeyAt')}{' '}
+                <a
+                  href={OPENAI_KEYS_URL}
+                  onClick={(e) => { e.preventDefault(); void window.cth.openExternal(OPENAI_KEYS_URL); }}
+                  style={{ color: 'var(--cth-ink-900)' }}
+                >platform.openai.com/api-keys</a>
+              </span>
+              {/* The key box. Saving closes the card: presence flips in the
+                  store and Talk lights up. */}
+              <div data-openai-key-entry style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <input
+                  type="password"
+                  value={keyDraft}
+                  onChange={(e) => setKeyDraft(e.target.value)}
+                  onKeyDown={(e) => { if (isComposingKey(e)) return; if (e.key === 'Enter') void saveKey(); }}
+                  placeholder="sk-…"
+                  aria-label={t('settings.voice.openaiKey')}
+                  autoFocus
+                  style={{
+                    flex: 1, minWidth: 0, height: 24, padding: '0 6px', boxSizing: 'border-box',
+                    border: 'none', boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500)',
+                    background: 'var(--cth-cream-50)', fontFamily: 'var(--cth-font-mono)', fontSize: 11,
+                    color: 'var(--cth-ink-900)', outline: 'none'
+                  }}
+                />
+                <PixelButton variant="primary" size="sm" onClick={() => { void saveKey(); }} disabled={!keyDraft.trim() || saving}>
+                  {t('settings.voice.save')}
+                </PixelButton>
+              </div>
+              {keyNote && <span style={{ color: 'var(--cth-coral)' }}>{keyNote}</span>}
               <button
                 type="button"
                 onClick={openKeySettings}

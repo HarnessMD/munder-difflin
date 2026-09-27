@@ -39,6 +39,12 @@ import {
   type TerminalAutomationBlock
 } from './terminalAutomation';
 import { sanitizeTerminalSelection } from './terminalSelection';
+import type { CliMissingState } from '@shared/cliMissing';
+import type { CliSetupState } from '@shared/cliSetup';
+import type { LoginPrompt } from '@shared/cliLogin';
+import i18n from '@/i18n';
+import { proToast } from './pro/ui';
+import { coveredAboveIde, ideChordOpens } from '../ide/ideShortcutRules';
 import '@xterm/xterm/css/xterm.css';
 
 export interface TerminalEntry {
@@ -51,6 +57,16 @@ export interface TerminalEntry {
   /** xterm is only `open()`ed once its host is first attached to the document. */
   opened: boolean;
   exited: boolean;
+  /** I2 (0.5.3): the engine CLI is not installed, so nothing is running in this
+   *  pty and the view draws the card over the grid. Null once it runs. */
+  cliMissing: CliMissingState | null;
+  cliMissingListeners: Set<(s: CliMissingState | null) => void>;
+  /** Batch 2: installing, or signing in after the install. */
+  cliSetup: CliSetupState | null;
+  cliSetupListeners: Set<(s: CliSetupState | null) => void>;
+  /** I2 part 2: the CLI's sign in prompt, drawn as a modal over the grid. */
+  login: LoginPrompt | null;
+  loginListeners: Set<(p: LoginPrompt | null) => void>;
   /** Stream subscriptions to tear down on dispose. */
   unsub: Array<() => void>;
   /** Current consumer callbacks — set by whichever view is mounted. */
@@ -168,6 +184,12 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     host,
     opened: false,
     exited: false,
+    cliMissing: null,
+    cliMissingListeners: new Set(),
+    cliSetup: null,
+    cliSetupListeners: new Set(),
+    login: null,
+    loginListeners: new Set(),
     unsub: [],
     recovery: createTerminalRecoveryState(),
     needsRendererRepaint: false,
@@ -212,7 +234,44 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
   // onto a clean, typeable grid. Mirrors resetTerminal but works on this closure.
   entry.unsub.push(window.cth.onPtyRelaunch(ptyId, () => {
     entry.exited = false;
+    setCliMissing(entry, null);
+    setCliSetup(entry, null);
     try { term.reset(); } catch { /* not yet open */ }
+  }));
+  // I2: the engine CLI is not installed. Nothing was spawned, so there is no
+  // exit to latch; the card is drawn by the view and the grid stays clean for
+  // the installer's output when the person presses Install. A failed install
+  // sends the state again with its last lines, and the card comes back.
+  entry.unsub.push(window.cth.onPtyCliMissing(ptyId, (state) => {
+    entry.exited = false;
+    setCliMissing(entry, state);
+  }));
+  // F3 (founder, 24 Sep 2026): that push reaches only a terminal that already
+  // exists. An agent respawned at app start (or a screen opened later) stopped
+  // at the card before anyone listened, and its terminal stayed a silent blank
+  // grid. Ask main once whether this pty is paused at the card. The push stays
+  // authoritative: a state that arrived while this answer was in flight wins.
+  void window.cth.cliMissingState?.(ptyId).then((state) => {
+    if (state && !entry.cliMissing) { entry.exited = false; setCliMissing(entry, state); }
+  }).catch(() => { /* a main without the handler */ });
+  // Batch 2: the setup phase, pushed and pulled the same way.
+  entry.unsub.push(window.cth.onPtyCliSetup(ptyId, (state) => {
+    // A login running in this pty is a live process: the previous one's exit
+    // (the installer's, or the agent run that ended signed out) latched
+    // `exited`, which swallowed every key typed into the sign in (batch 2).
+    if (state?.login === 'running') entry.exited = false;
+    setCliSetup(entry, state);
+  }));
+  void window.cth.cliSetupState?.(ptyId).then((state) => {
+    if (state && !entry.cliSetup) setCliSetup(entry, state);
+  }).catch(() => { /* a main without the handler */ });
+  // I2 part 2: the CLI printed its sign in prompt, or the sign in ended. The
+  // modal is drawn by the view; a success says so in a toast and the terminal
+  // is the CLI's again.
+  entry.unsub.push(window.cth.onPtyLogin(ptyId, (e) => {
+    if ('prompt' in e) { setLogin(entry, e.prompt); return; }
+    setLogin(entry, null);
+    if (e.done.outcome === 'success') proToast(i18n.t('terminal.cliLogin.signedIn'));
   }));
 
   // ── Copy / paste ──────────────────────────────────────────────────────────
@@ -256,6 +315,16 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
   term.attachCustomKeyEventHandler((ev) => {
     if (ev.type !== 'keydown') return true;
     if (!(ev.ctrlKey || ev.metaKey)) return true;
+    // The IDE chord (0.5.3). On Windows and Linux it is Ctrl+I, which is Tab to a
+    // shell, so the agent would be sent a Tab as the IDE opened over it. Kept
+    // from the CLI ONLY when this same keydown really opens the IDE: on macOS
+    // Control I stays the terminal's (readline Tab, vim jump forward), and so
+    // does the chord while the IDE is open or a modal is up.
+    if (ideChordOpens(ev, {
+      isOpen: () => storeApi?.getState().ideOpen ?? false,
+      open: () => {},
+      covered: () => coveredAboveIde(document, window)
+    })) return false;
     const key = ev.key.toLowerCase();
     if (key === 'c' && (ev.shiftKey || term.hasSelection())) {
       // Copy-on-Ctrl+C only while a selection exists; clear it after, so a
@@ -404,7 +473,27 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
 export function isTerminalAutomationSafe(ptyId: string, now = Date.now()): boolean {
   const entry = pool.get(ptyId);
   if (!entry) return true;
+  // Batch 2: the terminal belongs to the card, the installer or the login.
+  // A queued message typed there would be read by the wrong program.
+  if (entry.cliMissing || entry.cliSetup) return false;
   return canAutomateTerminal(automationStateOf(entry, now), now);
+}
+
+/** The rows the terminal is showing right now, as text, bottom row last. Null
+ *  when there is no opened terminal for this pty to read. */
+export function terminalScreenLines(ptyId: string): string[] | null {
+  const entry = pool.get(ptyId);
+  if (!entry || !entry.opened || entry.exited) return null;
+  try {
+    const buf = entry.term.buffer.active;
+    const rows: string[] = [];
+    for (let y = buf.baseY; y < buf.baseY + entry.term.rows; y++) {
+      rows.push(buf.getLine(y)?.translateToString(true) ?? '');
+    }
+    return rows;
+  } catch {
+    return null; // never let a buffer read break delivery
+  }
 }
 
 /** Characters a TUI paints around its input line that are not the user's text:
@@ -465,6 +554,111 @@ export function hasTerminalDraft(ptyId: string | undefined, now = Date.now()): b
   const entry = pool.get(ptyId);
   if (!entry) return false;
   return entry.inputDirty && promptLineHasText(entry, now) !== false;
+}
+
+function setLogin(entry: TerminalEntry, p: LoginPrompt | null): void {
+  entry.login = p;
+  for (const l of entry.loginListeners) l(p);
+}
+
+/** The sign in prompt for this pty as React state (I2 part 2), pushed. */
+export function useCliLogin(ptyId: string | undefined): LoginPrompt | null {
+  const [state, setState] = useState<LoginPrompt | null>(() => (ptyId ? pool.get(ptyId)?.login ?? null : null));
+  useEffect(() => {
+    if (!ptyId) { setState(null); return; }
+    const entry = acquireTerminal(ptyId);
+    setState(entry.login);
+    entry.loginListeners.add(setState);
+    return () => { entry.loginListeners.delete(setState); };
+  }, [ptyId]);
+  return state;
+}
+
+/** The modal's buttons go through main: it holds the link the CLI printed
+ *  and the pty the code goes into. dismiss clears the modal here at once. */
+export async function actOnLogin(ptyId: string, action: 'open-link' | 'paste' | 'dismiss', text?: string): Promise<{ ok: boolean; error?: string }> {
+  if (action === 'dismiss') { const entry = pool.get(ptyId); if (entry) setLogin(entry, null); }
+  return window.cth.loginAct(ptyId, action, text);
+}
+
+function setCliSetup(entry: TerminalEntry, state: CliSetupState | null): void {
+  entry.cliSetup = state;
+  for (const l of entry.cliSetupListeners) l(state);
+}
+
+/** Batch 2: the setup phase for this pty as React state, pushed. */
+export function useCliSetup(ptyId: string | undefined): CliSetupState | null {
+  const [state, setState] = useState<CliSetupState | null>(() => (ptyId ? pool.get(ptyId)?.cliSetup ?? null : null));
+  useEffect(() => {
+    if (!ptyId) { setState(null); return; }
+    const entry = acquireTerminal(ptyId);
+    setState(entry.cliSetup);
+    entry.cliSetupListeners.add(setState);
+    return () => { entry.cliSetupListeners.delete(setState); };
+  }, [ptyId]);
+  return state;
+}
+
+/** "Setup complete, start agent". Main discards the login terminal and starts
+ *  the agent; the panel goes the moment it answers, or stays with the reason. */
+export async function startAgentAfterSetup(ptyId: string, mode?: 'anyway'): Promise<{ ok: boolean; error?: string }> {
+  const res = await window.cth.cliSetupStart(ptyId, mode);
+  const entry = pool.get(ptyId);
+  if (res.ok && entry) setCliSetup(entry, null);
+  return res;
+}
+
+/** "Set up manually" (batch 4): main opens the manual terminal and pushes the
+ *  manual panel. The card goes at once so the terminal is what shows; a
+ *  refusal brings it back. */
+export async function openManualSetup(ptyId: string): Promise<{ ok: boolean; error?: string }> {
+  const entry = pool.get(ptyId);
+  const before = entry?.cliMissing ?? null;
+  if (entry) setCliMissing(entry, null);
+  const res = await window.cth.cliSetupManual(ptyId);
+  if (!res.ok && entry && !entry.cliMissing && !entry.cliSetup) setCliMissing(entry, before);
+  return res;
+}
+
+/** "Sign in again": main runs the login step again in the same terminal. */
+export function retrySetupLogin(ptyId: string): Promise<{ ok: boolean; error?: string }> {
+  return window.cth.cliSetupLogin(ptyId);
+}
+
+function setCliMissing(entry: TerminalEntry, state: CliMissingState | null): void {
+  entry.cliMissing = state;
+  for (const l of entry.cliMissingListeners) l(state);
+}
+
+/** The card's state for this pty as React state (I2). Pushed, not polled: the
+ *  card must appear the moment main says the CLI is missing, and go the moment
+ *  the person presses the button. */
+export function useCliMissing(ptyId: string | undefined): CliMissingState | null {
+  const [state, setState] = useState<CliMissingState | null>(() => (ptyId ? pool.get(ptyId)?.cliMissing ?? null : null));
+  useEffect(() => {
+    if (!ptyId) { setState(null); return; }
+    const entry = acquireTerminal(ptyId);
+    setState(entry.cliMissing);
+    entry.cliMissingListeners.add(setState);
+    return () => { entry.cliMissingListeners.delete(setState); };
+  }, [ptyId]);
+  return state;
+}
+
+/** The person pressed the card's button: hide the card so the installer's own
+ *  output (or the CLI) is what they see, then ask main. A failure brings the
+ *  card back through onPtyCliMissing; a refusal from main is returned. */
+export async function installMissingCli(ptyId: string): Promise<{ ok: boolean; error?: string }> {
+  const entry = pool.get(ptyId);
+  const before = entry?.cliMissing ?? null;
+  if (entry) setCliMissing(entry, null);
+  const res = await window.cth.installCli(ptyId);
+  if (!res.ok && entry && !entry.cliMissing) {
+    // Nothing happened (the pause was gone, or main refused): the card comes
+    // back rather than leaving a blank grid nobody can type into.
+    setCliMissing(entry, before);
+  }
+  return res;
 }
 
 /** `hasTerminalDraft` as React state. The flag lives on a mutable pool entry
@@ -874,6 +1068,11 @@ export function resetTerminal(
   entry.lineBuf = '';
   entry.automationBlocked = false;
   entry.automationBlockedAt = 0;
+  // The missing CLI card belonged to the line that is being replaced. A new
+  // line whose CLI is also missing gets its own card pushed by the spawn that
+  // follows this reset, so nothing is lost by dropping the old one here.
+  setCliMissing(entry, null);
+  setCliSetup(entry, null);
   try {
     if (opts.preserveScrollback) {
       entry.term.writeln('\r\n\x1b[2m─ resuming existing session ─\x1b[0m');
@@ -932,6 +1131,7 @@ function resolvePathCandidate(ptyId: string, raw: string): string | null {
 interface MdStoreShape {
   getState: () => {
     agents: Array<{ ptyId?: string; cwd: string }>;
+    ideOpen: boolean;
     openFileInIde: (absPath: string) => void;
   };
 }

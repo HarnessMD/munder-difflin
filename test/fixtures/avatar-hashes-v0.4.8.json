@@ -1,0 +1,201 @@
+{
+  "version": "0.4.8",
+  "source": "src/renderer/src/scene/office/portraitArt.ts at pro/main de55c913",
+  "hashes": {
+    "michael": {
+      "portrait": "de27499f620c82c80dbaaa52e871f1683197f1da2278cb6f77cc450e4452f7f8",
+      "front": [
+        "bb0d824021a2098ffc0919a08ab4dd397f9d390240c75642467f756d813e211e",
+        "17bcb28395fee83a371f3b56599935c3ad7f0fab7a69a201c557e09bdfd03752",
+        "7736d8f8e56e709d1e5d953cba6c62b362a4af0501e83c8a6034ee123eb4dec2"
+      ],
+      "back": [
+        "27c9e945ee5f2ee7ca64f7f810913368d48b48905799a13c0e3ce4988d2a82a0",
+        "66a0ee08eeec8f51b8971d79cbd56ae780d0bcd6c1d61fa793c2920dfc6306dc",
+        "a1667d00c1ece19c6099b10f67cc208dbfb91dd1ababa6dabdd6eccb5129b3e6"
+      ]
+    },
+    "jim": {
+      "portrait": "36b43961a12724bd4dfefb09a0019146d13911f566b2dfe35b3413eb42b76017",
+      "front": [
+        "8dfcc4b5d6e14372fb31cee7805963e16e2c4094d5ce92ed4bc78805d3247053",
+        "a1925ba92e943989e2cc00cffdbb71acdac55f49121998b7e0bcf11e7bd51e23",
+        "ec9a593a908a7284b4219036d0750819b0251916b9859abbeba1c826dee5d468"
+      ],
+      "back": [
+        "37e3ea229e950bcb230efe1ec0c0c349e64494319b068147b4cf391c4d8ab2f6",
+        "6cc45e96d6b49228522a2b9ffff03cd06a23a209e8b5db8b2fa44c74950af218",
+        "49e6eecdb5db6d1107f6c4a303ccd6c568866c369a8ccef86b06477db8a5f1cd"
+      ]
+    },
+    "pam": {
+      "portrait": "341bd712df170282f0a32c4f3a4a7fc2427026ceae0f87662b1b07d4acaf84b7",
+      "front": [
+        "cb0497fd8fd9161d0f88f5ce80a95ce4b032712e3379207d076ef6a1d4f36906",
+        "8b9fefb838343382a5368d833382a7a49983b500d0f82f4ceaf81847fd5b84ad",
+        "0ab2b1489205cba4d7103fe181a4e41416e20e49aaecb7be18b991dfc06b459b"
+      ],
+      "back": [
+        "86aedb42a3f3aa444a51cbf25e60b867083b0d63918e26d5aa2ce8768c053c17",
+        "c59f80e54f4e47c9fcad1a7db3a809885aa0caa40d1ba03f1e45247dd969ff20",
+        "a5b024d48085277e3bc4ce0f556970b1b6e0faf6e9d4ca5c8c7f8d82fc905d9c"
+      ]
+    },
+    "dwight": {
+      "portrait": "17ba64aa2185eca733b94a866fc11ef72690129dad290742016b19b6a4143ebd",
+      "front": [
+        "e7efad8e66193ee277c466fedb296127e958877afcfea8c20a746b6ed1a2ad43",
+        "92a6acb85e7b7ea04e594b723667f77ad5a51684d6cfd89fcec4face9009a68c",
+        "8c0eed02b3bdbbbe4db607f8389b2ba4332214293523aa6f1e7f01e46b33b6fe"
+      ],
+      "back": [
+        "f5e6e5ad746e23b21c7bb2fd2242c0b63ea6adbe9f5c260f6dc76b38b898cc24",
+        "f2235707032a2b80655cb3a3fac9a4b0987e9c7a1d89f9040b222c489ac928cc",
+        "15ed9c94a0bc08612959f11b322095e6b252b79d8dd9d61e0de5d011db9b1337"
+      ]
+    },
+    "kevin": {
+      "portrait": "2758e942adb912d83bad7ae43def367174e6da25c0c0604eac770d965ed666f5",
+      "front": [
+        "1e36affac7819e69328061e6d7a94e29354113d9fa65d9422c6c2f72d12f89c0",
+        "09d1c8e4debd4bedf75a90001b6010503d7eb740fda130459a597950e2863340",
+        "5c264df5b7eb625ad020b694e18d404cdbbbba0bc8a9794cff185b4d38d1560e"
+      ],
+      "back": [
+        "4eb1ad50e7dabd6303b56e9fba4f2b25915339aa549e152029060d2b97094057",
+        "eb583e6a3540be7ff85d31e748717109d981c7a73bc50290e30503a0c27f955d",
+        "41e74d8d4addd0317562fac57cba08f25d8d6180343d24d36234aa45089095ce"
+      ]
+    },
+    "angela": {
+      "portrait": "e19ad39ecf07dc90a69c23795835ed6a36712bfe92dc15fda046d4a1209e8b2b",
+      "front": [
+        "fdca0c69a2cc5cdd34f1beba592ac6d1f2cfa345e027329342f9ead4be9bb943",
+        "b4c722ac1e4e3dc1a3d15b1938aa7b71eaf8a95af2f214ba208483908f1c9615",
+        "acb74c9244a975230482bcc39a52ba053b32cf2967ec80ed2f41fe1c2a767fe9"
+      ],
+      "back": [
+        "2752d81c0bb84686b790bf6de50320c071a4f93aa40030ee87ba080f1e6a74e6",
+        "1baab8ab20ceb25c1701bf7e0420a1e2716664ae2288e534ab48ea40962b086f",
+        "2be7e88fa59257d75e15430b8c6e62b7260b4ba8538b43a33068beec58a284ae"
+      ]
+    },
+    "oscar": {
+      "portrait": "a3b4c09b9952621407593d8d2ac7f43909ad579223668999e0a0b611ca459fee",
+      "front": [
+        "10c30c0306fd6de038d6a32576cdfb8743a00f74cf51fe40ee44ac7a020ad8a1",
+        "cba61906d0ab389407004cbd065c1e9edb25a3efb1d8db02d06e537f471a00f9",
+        "ec66a0bfc079c88aee77e7abde27655e0f373caed429e0cd53ff4d090551f67b"
+      ],
+      "back": [
+        "7de8e6c754a1a53b50389de9985eac7ad018bcaa9f2d1894a19ad2c9979cceb2",
+        "38f17e5f5cc1b2bfe883de01c4aded03aa68a7c7547443cc978233ba29be9779",
+        "205eb937bf3339cd055763ff3dbe98a0807d6dd0a7f6cfd1f07e2b661b279c48"
+      ]
+    },
+    "stanley": {
+      "portrait": "4a8f4c0123170e73219ed7c0e4d83de8e1e150212642aa416f3ddec58025db9a",
+      "front": [
+        "30eeaa5618ebf784c26f883fc674e9f5973cce63f2547c3675f1433469ca2cd1",
+        "221457e8291a19d1a2c2a62d1c90f50556abe78ecb027fd704d9f30ccd2e7a8a",
+        "2f56d0aec78ad9632efeba197d9176b047208dc0c6eb31c58119a91c35cb121a"
+      ],
+      "back": [
+        "8db96fa2d7718af2ed092f5f3a98267dcfeb757b7ce9ef0350dd205ea1ebcf63",
+        "a28358e95b0a2092f55ab86e4bf033bfd65542ea1dd704c15805cf103b67a350",
+        "0bbed43540a2e56df787b1b584af7f77eee4e8dd61297f4ac8eb0077d2bfa7a3"
+      ]
+    },
+    "phyllis": {
+      "portrait": "e9e2d151e1e54e53532889556d1ee04dbe805d0ae531aaa054167b110d11d0d5",
+      "front": [
+        "322184bcdbc972d6cb31e282b72dedb6afac75276fdfda8847f69abd66813138",
+        "4ed25d0f1e828a0f905a23559441621e1ce8ad934d0cb7ecff5382b11b811406",
+        "eba77cf304ce426be58ebd5c0162012749dd7682de13c50fe84cc502e54cbf82"
+      ],
+      "back": [
+        "4799789ada7399eb95fb47b8b8ada06def1df98b65324e9a7d9769e390f21ec0",
+        "85b1a5ecd2d308c47e3efd4910f01ab9a4364f543960071b350a7df58aad3f67",
+        "3ec41fb0008fc7f453cbab4d0df8af606dfa2a5cef4718d6ca1e2c94e0200542"
+      ]
+    },
+    "andy": {
+      "portrait": "d652906bf746ec301f444a4f2ffb1acaf168e7e463dde48b582bcb4a0813a6dd",
+      "front": [
+        "fb0be2f93ecd27ee3863ee9d8c20c6d0098a77124d481e06d50cc7f7b6ea1af8",
+        "fe56940383523ad35fef57c84a40e67a81bf948f11ad5e96f55ac988441cba15",
+        "f469ef4bce5203330feda096fd08f112de94a05e42f1bef96990bcd3982df9eb"
+      ],
+      "back": [
+        "f3bd8a7a0987939bb28f9d3d2a27138f40fe34dde4aeba561c05802c4e278d2d",
+        "7f980c9dc3534cfb69bd909b8269bdcdd402f6a06813c0354a0cf9cc1d702166",
+        "cbec15f8e995e58160f3ba0d3b0a897f7d073e9bc540a3ae3d169b42540ae6a4"
+      ]
+    },
+    "kelly": {
+      "portrait": "0bd5fec9826f6a06a96406e3935f2b74d59ba51e1ca7fcd3a66980c57a0dcf40",
+      "front": [
+        "59af9921c507d8a1b318b807f4daa420c3c0ba3a073b87e878abae2165827f99",
+        "85b8b1b7cbf824550175080339643e9231e365b484d8cc758b7038747730ef12",
+        "476765ab0bf82f7b5f2ea1971a32f6a910ad1e7ec2793cfc25b963d7c59b9951"
+      ],
+      "back": [
+        "2ed0068d7bf273537478c9e2c368b5b3d83a14ac5c8dd714f6de3f83b1f89de1",
+        "428a690cd65a853f619fdf964218202d2044f83710b5db5162e8f53bf8244017",
+        "252ebe39a7a69b11ba6fc5a3e64167481be7663871b4be46cf7f24022e1f88c6"
+      ]
+    },
+    "ryan": {
+      "portrait": "16aec29f54f08dfd99a2bce34fb9e9bc594b48d401100e07c5c6d224c2c0ee2a",
+      "front": [
+        "549834e84b3c7bcaf1a2d8180097047c2efc7aec7c69439616d622d52be1c4d0",
+        "c57b5df45c9d585896d877be5b51d23174c4e5d56ae40cb49bd5abc592944148",
+        "dee51ae2e1ee80855c1c0652e60db0f3ee55b8b9675e0f8b0a8c42c7c24b6280"
+      ],
+      "back": [
+        "41ed97c5ee7cf77706f8f18259751c5fdd5d9f360fcf35eb16e76c11407054dc",
+        "77101029728b112ca15f82c91e3026d84e1d542ec3faf4ebbc87459001e32eae",
+        "57f65612343b2a6a47b7cfa070304fa7cad26c1663eb6d5bdbdec7743db2dbac"
+      ]
+    },
+    "toby": {
+      "portrait": "fdd33d0e02ca225141a99e8a397ce8872c81a461f8317295560b4f704a7ea61e",
+      "front": [
+        "5de41d49f7bd9849728d69752c8cec7721f132669cc86eb05d9f3d0bf810f3fe",
+        "66870e29c4d110f5ed310185b6f3e2c8e139f6c2441246ab2e10218bcde01836",
+        "3b670d9a833b62857f6194b046c5e3bed8f21106ac6c3df67b9e2284de9a0b8d"
+      ],
+      "back": [
+        "89b21c887cc64b65b791ac6f196743bb8332a3438c1e6eb3237da9de10783ea6",
+        "866466f59b258b18a607919197bb1e24938d2fd73e4c75ddd26fc2df01a314f4",
+        "04a7203578d3ed2d88418a82799104d8f4ec1dbeb0f2fb4f70a92988d43fb327"
+      ]
+    },
+    "creed": {
+      "portrait": "d92f4ab730a5554aac3e0f1f28532063ae6a09cc4ca3f23ffbfa1fd7d5156f46",
+      "front": [
+        "54f1821a494a683528118da6c9ff966a801a7a5893e4770a86adec0480dd5241",
+        "40e7eb75877dcd75b19616af69dec57136c8bc7d97513851c25b2a4ad3924ab3",
+        "6d065c1e35022c89036e69c60fcaf432a0092ef8ef5029a71e06f66ad0218a8d"
+      ],
+      "back": [
+        "a58a86a182d0c794a1a7257d037756777ce4c47b7dea9cba8e12ad615f852574",
+        "9f533636bfedabfc4d4be6d5a634ec65e6a957892c6c85a3396840c09d58366b",
+        "3dd9c9f724f25b547a893e231b773a90202ac84c406d564426f16e2c562932e4"
+      ]
+    },
+    "meredith": {
+      "portrait": "7fcf5f1bcbfa62e886379578ebf4ab0fd3b63b4551ac489276b512389157b054",
+      "front": [
+        "e169555f08c85b3d831ffb44ad21e2982f3e32f8dbcbe2bd33b1aa6455e36a72",
+        "aa5062ff53f0111910916312ae95c283b2af21332a1d551ac3de18319d9ff837",
+        "5d140c2ff3346c2b05c711a997f29553fc1e25e8b629c19024ccd966c9e597ad"
+      ],
+      "back": [
+        "f3d7df27e401370470b855b62c2ead716438c921606dbc7946f91555b5f2816c",
+        "7909d2fb6c287b8bfe74e24dcf115e5398aeef97abe46285d4f67edc89a00501",
+        "08bb82fe68364deecdef7f65c1877311ad2593c9c42ef6c01894413620d8138b"
+      ]
+    }
+  }
+}

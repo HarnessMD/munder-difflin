@@ -71,7 +71,7 @@ function selectMessages(tagged, opts = {}) {
   out.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
   if (wantId) return out.slice(0, 1);
   const lim = typeof opts.limit === 'number' && isFinite(opts.limit)
-    ? Math.max(1, Math.min(40, Math.round(opts.limit)))
+    ? Math.max(1, Math.min(200, Math.round(opts.limit)))
     : 12;
   return out.slice(0, lim);
 }
@@ -225,7 +225,7 @@ test('redact: bearer keeps the label, drops the credential', () => {
 const BENIGN = [
   'integrated feat/voice-key-ux at commit db61b12 off main 4585902',
   'kevin-mqpbq43v parked, awaiting assignment',
-  '/Users/chaitanya/Documents/Personal/cth-voice-msg-access is the worktree',
+  '/Users/alex/Documents/cth-voice-msg-access is the worktree',
   'The token cap is 1.2 million tokens this session.',
   'Tasks: 3 todo, 1 doing, 0 blocked, 12 done.',
   'Pam approved 8 of 8 dimensions, no must-fix.'

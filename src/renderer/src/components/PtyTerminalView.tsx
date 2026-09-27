@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import '@xterm/xterm/css/xterm.css';
-import { Icon } from './Icon';
-import { acquireTerminal, attachTerminal, detachTerminal, reflowTerminal } from './terminalPool';
+import { ProIcon } from './pro/icons';
+import { acquireTerminal, attachTerminal, detachTerminal, reflowTerminal, useCliLogin, useCliMissing } from './terminalPool';
+import { CliMissingCard } from './CliMissingCard';
+import { CliLoginModal } from './CliLoginModal';
 import {
   DEFAULT_TERMINAL_FONT_SIZE,
   MAX_TERMINAL_FONT_SIZE,
@@ -12,6 +14,8 @@ import {
   useTerminalFontSize
 } from './terminalFontSize';
 import { useAppTheme } from '@/design/theme';
+import { useAppSkin } from '@/design/skin';
+import { xtermTheme } from '@/design/surfaceTheme';
 
 // Zoom lives in ./terminalFontSize so anything outside the terminal (the message
 // composer) can scale with it too; these aliases keep the call sites below short.
@@ -40,75 +44,12 @@ const zoomBtnStyle: CSSProperties = {
   padding: 0
 };
 
-// Light theme — cream paper. The ANSI "white" / "yellow" / bright slots are
-// remapped to readable dark inks: programs that print white or pale-yellow text
-// (expecting a dark terminal) were previously invisible on the cream background.
-// A single ANSI slot has to serve both roles — coloured *foreground* on cream and
-// a coloured *background* under the dark default ink — which no fixed luminance
-// can satisfy at once. The terminal's `minimumContrastRatio` (see terminalPool.ts)
-// dynamically adjusts the per-cell foreground to keep both roles legible; these
-// values are tuned so the colours stay recognisable and read well natively. The
-// green/yellow are kept deep enough to read as text on cream (the brighter
-// variants are the lighter shades, per terminal convention).
-const lightTheme = {
-  background: '#FCFAF0',
-  foreground: '#1A1320',
-  cursor: '#D96A62',
-  cursorAccent: '#FCFAF0',
-  selectionBackground: '#FFEC99',
-  selectionForeground: '#1A1320',
-  black:        '#1A1320',
-  red:          '#D1453B',
-  green:        '#20904B',    // deep green → readable as text on cream
-  yellow:       '#9C6B00',    // deep amber → readable as text on cream
-  blue:         '#2B6CB0',
-  magenta:      '#8A5CF0',
-  cyan:         '#1F9C94',
-  white:        '#3A2F44',   // default "white" text → dark, so it's visible
-  brightBlack:  '#6B5878',
-  brightRed:    '#E0584E',
-  brightGreen:  '#2E9E54',
-  brightYellow: '#B8860B',
-  brightBlue:   '#3B7DC4',
-  brightMagenta:'#9B72F2',
-  brightCyan:   '#2BA89F',
-  brightWhite:  '#1A1320'
-};
-
-// Dark theme — mirrors the app's dark surface ramp (tokens.css
-// data-cth-theme='dark'). xterm takes literal colours and cannot read CSS
-// custom properties, so these values are RE-STATED rather than referenced, and
-// drift the moment the tokens move: this set was still on the pre-readability
-// ramp (background #1D1C21, the old paper-100) after tokens.css dropped to
-// a softer ground, which would have left every terminal sitting a visible step
-// apart from the panel holding it. Muted-professional ANSI: recognizable hues, no
-// fluorescing on the dark ground; brights are one legible step up, not pastels.
-const darkTheme = {
-  background: '#1A1A1F',        // = --cth-paper-100
-  foreground: '#DEDBD6',        // = --cth-ink-900
-  cursor: '#E08C82',
-  cursorAccent: '#1A1A1F',
-  selectionBackground: '#37363F',
-  selectionForeground: '#DEDBD6',
-  black:        '#222229',
-  red:          '#E08C82',
-  green:        '#74C096',
-  yellow:       '#CFAA57',
-  blue:         '#6FB3C4',
-  magenta:      '#A896E3',
-  cyan:         '#6FB3C4',
-  white:        '#DEDBD6',
-  brightBlack:  '#96919F',
-  brightRed:    '#EBA39C',
-  brightGreen:  '#96CDA9',
-  brightYellow: '#E5C87E',
-  brightBlue:   '#8FC5D1',
-  brightMagenta:'#C0B3EB',
-  brightCyan:   '#8FC5D1',
-  brightWhite:  '#EFEDE9'
-};
-
-const THEMES: Record<PtyTheme, typeof lightTheme> = { light: lightTheme, dark: darkTheme };
+// The palette now comes from design/surfaceTheme.ts. The two hand-maintained
+// literal maps that used to live here are gone: the surface half is READ back off
+// the resolved --cth-* tokens, so it is correct for all four skin/theme
+// combinations and cannot drift from tokens.css again (this file's own dark map
+// had already drifted once, sitting on the pre-readability ramp after the tokens
+// moved). The sixteen ANSI slots stay a table, now keyed by skin as well as theme.
 
 export interface PtyTerminalViewProps {
   ptyId: string;
@@ -122,9 +63,16 @@ export interface PtyTerminalViewProps {
   fullscreen?: boolean;
   /** Edge-to-edge mode for the sidebar tab: no outer chrome/border. */
   embedded?: boolean;
+  /** Whose toolbar sits above the terminal. 'classic' (the default) draws the
+   *  pixel one here. 'pro' draws none: the PRO screen that mounts the view
+   *  draws its own with the kit (v0.4.9 phase 3), and the xterm, the pool
+   *  and the zoom keys below are shared by both without a fork. */
+  chrome?: 'classic' | 'pro';
+  /** The agent's engine. Only Grok changes anything: see ansiForProvider. */
+  provider?: string;
 }
 
-export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFullscreen, fullscreen, embedded }: PtyTerminalViewProps) {
+export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFullscreen, fullscreen, embedded, chrome = 'classic', provider }: PtyTerminalViewProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const onStreamDataRef = useRef(onStreamData);
   onStreamDataRef.current = onStreamData;
@@ -132,9 +80,23 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
   onUserPromptRef.current = onUserPrompt;
   const fontSize = useTerminalFontSize();
   const fontSizeRef = useRef(fontSize);
+  // I2: the engine CLI is not installed; the card sits over the grid until the
+  // person presses its button and the installer (or the CLI) paints below.
+  const cliMissing = useCliMissing(ptyId);
+  const login = useCliLogin(ptyId);
   const ptyTheme: PtyTheme = useAppTheme();
+  const skin = useAppSkin();
+  // Rebuilt whenever EITHER axis moves. xterm cannot read CSS, so this is read
+  // from the resolved tokens at the moment it is needed — after skin.ts/theme.ts
+  // have stamped <html>, which they do synchronously before notifying.
+  const termTheme = xtermTheme(skin, ptyTheme, provider);
   const ptyThemeRef = useRef(ptyTheme);
   ptyThemeRef.current = ptyTheme;
+  // The attach effect runs on [ptyId] only, so it needs the CURRENT theme
+  // without taking it as a dependency — otherwise every skin or theme flip
+  // would tear the terminal down and re-attach it, losing scrollback position.
+  const termThemeRef = useRef(termTheme);
+  termThemeRef.current = termTheme;
 
   // Attach this view to the pty's persistent terminal. The terminal and its
   // buffer live in the pool across mounts, so re-parenting its host element
@@ -143,8 +105,8 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
   useEffect(() => {
     const container = hostRef.current;
     if (!container) return;
-    const entry = acquireTerminal(ptyId, THEMES[ptyThemeRef.current], fontSizeRef.current);
-    entry.term.options.theme = THEMES[ptyThemeRef.current];
+    const entry = acquireTerminal(ptyId, termThemeRef.current, fontSizeRef.current);
+    entry.term.options.theme = termThemeRef.current;
     entry.term.options.fontSize = fontSizeRef.current;
     attachTerminal(entry, container);
     entry.onData = (chunk) => onStreamDataRef.current?.(chunk);
@@ -176,8 +138,13 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
         // the Claude TUI repaint its whole screen, and each repaint pushes the
         // previous frame into scrollback — the attach-time refit cascade (rAF,
         // 60ms, 240ms, font-load) used to stack the boot banner three times
-        // before the user ever typed anything.
-        if (entry.term.cols !== before.cols || entry.term.rows !== before.rows) {
+        // before the user ever typed anything. The FIRST real fit is always
+        // sent, changed or not: the pty may have been spawned (or respawned
+        // under the same id) at a placeholder grid since this xterm was last
+        // measured, and main keeps the ask for a pty that is not there yet
+        // (PtyManager.resize), so the process starts at the pane's true width
+        // (0.5.3, founder 24 Sep: Claude Code drawn at 70% of the pane).
+        if (!initialFitDone || entry.term.cols !== before.cols || entry.term.rows !== before.rows) {
           window.cth.resizePty(ptyId, entry.term.cols, entry.term.rows);
         }
         entry.term.refresh(0, Math.max(0, entry.term.rows - 1));
@@ -271,17 +238,23 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
     };
   }, [ptyId]);
 
-  // Apply app-theme changes to the pooled terminal (persistence lives in
-  // design/theme.ts — the title-bar toggle owns it).
+  // Apply theme AND skin changes to the pooled terminal (persistence lives in
+  // design/theme.ts and design/skin.ts — the title-bar toggle and the Settings
+  // skin cards own them). Both axes are dependencies: before this, a skin flip
+  // left every open terminal painting the other skin's ground.
   useEffect(() => {
-    acquireTerminal(ptyId, THEMES[ptyTheme], fontSizeRef.current).term.options.theme = THEMES[ptyTheme];
-  }, [ptyTheme, ptyId]);
+    acquireTerminal(ptyId, termTheme, fontSizeRef.current).term.options.theme = termTheme;
+  }, [ptyTheme, skin, ptyId, provider]);
 
   // Apply font-size (zoom) changes to the pooled terminal and re-fit cols/rows.
   useEffect(() => {
     fontSizeRef.current = fontSize;
-    const entry = acquireTerminal(ptyId, THEMES[ptyThemeRef.current], fontSize);
+    const entry = acquireTerminal(ptyId, termThemeRef.current, fontSize);
     entry.term.options.fontSize = fontSize;
+    // An unsized host fits to 2 by 1; the ResizeObserver above fits it for
+    // real once it has a size, so never send that grid to the pty.
+    const host = hostRef.current;
+    if (!host || !host.clientWidth || !host.clientHeight) return;
     try {
       entry.fit.fit();
       window.cth.resizePty(ptyId, entry.term.cols, entry.term.rows);
@@ -360,6 +333,7 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
       display: 'flex',
       flexDirection: 'column'
     }}>
+      {chrome === 'classic' && (
       <div style={{
         display: 'flex', alignItems: 'center', gap: 6,
         fontFamily: 'var(--cth-font-ui)',
@@ -405,15 +379,20 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
               title="Exit focus mode (Esc)"
               style={{ ...zoomBtnStyle, width: 22, height: 22, marginLeft: 4 }}
             >
-              <Icon name="minimize" />
+              <ProIcon name="minimize" />
             </button>
           )}
         </div>
       </div>
-      <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
-        flex: 1, minHeight: 0,
-        padding: embedded ? '0 8px 8px' : 0
-      }} />
+      )}
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
+          flex: 1, minHeight: 0,
+          padding: embedded ? '0 8px 8px' : 0
+        }} />
+        {cliMissing && <CliMissingCard ptyId={ptyId} state={cliMissing} />}
+        {!cliMissing && login && <CliLoginModal ptyId={ptyId} prompt={login} />}
+      </div>
     </div>
   );
 }

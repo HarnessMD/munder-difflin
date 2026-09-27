@@ -67,7 +67,11 @@ test('the app HTML no longer reaches for Google, and its CSP forbids it', () => 
   assert.doesNotMatch(withoutComments, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
   const csp = withoutComments.match(/Content-Security-Policy"\s+content="([^"]+)"/);
   assert.ok(csp, 'no CSP meta tag');
-  assert.match(csp[1], /font-src 'self';/);
+  // `data:` is there for the release drop, whose srcdoc frame inherits this
+  // policy and inlines the house fonts. It is a scheme, not a host: no font is
+  // ever fetched from anywhere.  (test/csp-parent-allows-drop.test.cjs)
+  assert.match(csp[1], /font-src 'self' data:;/);
+  assert.doesNotMatch(csp[1], /font-src[^;]*https?:/);
   assert.doesNotMatch(csp[1], /googleapis|gstatic/);
 });
 

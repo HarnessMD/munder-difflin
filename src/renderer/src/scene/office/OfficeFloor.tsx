@@ -9,7 +9,9 @@ import { Camera } from './Camera';
 import { Character, paintCup } from './Character';
 import { DeskScreen } from './DeskScreen';
 import { MessageEnvelope, type MessageAct } from './MessageEnvelope';
-import { hexToNumber, DEFAULT_CHARACTER } from './cast';
+import { hexToNumber, DEFAULT_CHARACTER, castMemberFor } from './cast';
+import { subscribeAvatars } from './avatarRegistry';
+import { isCustomAvatarId } from '@shared/avatars';
 import { pickSoloLine, pickExchange, type BreakSpot } from './cafeteriaLines';
 import { colors } from '@/design/tokens';
 import { loadTheme, resolveThemeMap, themeTilesetUrls } from './themeLoader';
@@ -1117,8 +1119,8 @@ export function OfficeFloor() {
       // ─── The office clock: clicking it is CLOCKING OUT ─────────────────────
       // The wall clock beside Michael's window doubles as the quit entry:
       // a click runs the real close flow (window.close() → the main process
-      // intercepts while agents run → the "Quitting now?" dialog with its
-      // closing-time option). The office clock literally opens quitting time.
+      // intercepts while agents run → the two-door "Quitting now?" dialog:
+      // keep them running, or kill all and quit).
       const clockG = new Graphics();
       clockG.eventMode = 'static';
       clockG.cursor = 'pointer';
@@ -1377,9 +1379,24 @@ export function OfficeFloor() {
       const taskBoardPoll = setInterval(() => { void pollTaskBoard(); }, 5000);
       (app as any).__taskBoardPoll = taskBoardPoll;
 
+      // An edited custom avatar repaints on the floor without a rebuild: every
+      // figure wearing it swaps frames. (A deleted one keeps its last frames
+      // until the next rebuild, the same grace the picker gives it.)
+      (app as any).__unsubAvatars = subscribeAvatars(() => {
+        for (const [id, rt] of runtimes) {
+          if (!isCustomAvatarId(rt.charName)) continue;
+          void theme.cast.getFrames(rt.charName).then((frames) => {
+            if (mountIdRef.current === mountId && runtimes.get(id) === rt) rt.character.setFrames(frames);
+          });
+        }
+      });
+
       const addCharacter = async (agent: Agent) => {
-        const charName = theme.cast.byName[agent.character] ? agent.character : theme.cast.defaultCharacter;
-        const member = theme.cast.byName[charName];
+        // A custom avatar or a preset is not in the theme's roster; castMemberFor
+        // gives it the same shape, and the painter draws it from its recipe.
+        const custom = theme.cast.byName[agent.character] ? undefined : castMemberFor(agent.character);
+        const charName = theme.cast.byName[agent.character] || custom ? agent.character : theme.cast.defaultCharacter;
+        const member = theme.cast.byName[charName] ?? custom ?? theme.cast.byName[theme.cast.defaultCharacter];
         const seatIndex = claimSeat(agent);
         const seatTile: Tile = (seatIndex != null ? seatTiles[seatIndex] : undefined)
           ?? mapRenderer.getSpawnPoint('entrance')
@@ -1762,6 +1779,7 @@ export function OfficeFloor() {
         try { (a as any).__unsub?.(); } catch { /* noop */ }
         try { (a as any).__offMessage?.(); } catch { /* noop */ }
         try { clearInterval((a as any).__taskBoardPoll); } catch { /* noop */ }
+      try { (a as any).__unsubAvatars?.(); } catch { /* noop */ }
         safeDestroy(a);
       }
       appRef.current = null;

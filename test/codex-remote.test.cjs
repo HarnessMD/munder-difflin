@@ -60,3 +60,38 @@ test('remote endpoint precedes both fresh and resumed Codex invocations', () => 
     ['--remote', endpoint, 'resume']
   );
 });
+
+// 0.5.3: a user's Codex worker died at launch with "Error: --add-dir is not
+// supported with --remote. Configure additional workspace roots on the server."
+// The hive adds --add-dir for auto mode; remote control then prepended --remote.
+const { splitCodexAddDirs, codexWritableRootsToml } = loadTs('src/shared/codexRemote.ts');
+
+test('--add-dir never sits next to --remote', () => {
+  const args = ['--dangerously-bypass-hook-trust', '--add-dir', '/hive/agents/a', '--add-dir=/hive', 'resume', 'x'];
+  const out = withCodexRemoteArgs(args, 'unix:///tmp/mdc/1/s.sock');
+  assert.deepEqual(out, ['--remote', 'unix:///tmp/mdc/1/s.sock', '--dangerously-bypass-hook-trust', 'resume', 'x']);
+  assert.deepEqual(splitCodexAddDirs(args).dirs, ['/hive/agents/a', '/hive']);
+  // Already remote: the flag is still stripped.
+  assert.deepEqual(withCodexRemoteArgs(['--remote', 'e', '--add-dir', '/d'], 'x'), ['--remote', 'e']);
+});
+
+test('the roots move into the worker config as writable_roots', () => {
+  const top = codexWritableRootsToml('model = "o"\n[hooks]\n', ['/a', '/b "c"']);
+  assert.equal(top, 'sandbox_workspace_write.writable_roots = ["/a", "/b \\"c\\""]\nmodel = "o"\n[hooks]\n');
+  // An existing table gets the key under its header, never a duplicate table.
+  const under = codexWritableRootsToml('[sandbox_workspace_write]\nnetwork_access = true\n', ['/a']);
+  assert.equal(under, '[sandbox_workspace_write]\nwritable_roots = ["/a"]\nnetwork_access = true\n');
+  assert.equal((under.match(/\[sandbox_workspace_write\]/g) || []).length, 1);
+  // The user's own list is theirs: the caller keeps the local TUI.
+  assert.equal(codexWritableRootsToml('[sandbox_workspace_write]\nwritable_roots = ["/x"]\n', ['/a']), null);
+  assert.equal(codexWritableRootsToml('sandbox_workspace_write.writable_roots = []\n', ['/a']), null);
+  assert.equal(codexWritableRootsToml('x = 1\n', []), 'x = 1\n');
+});
+
+test('main writes the roots before starting the daemon', () => {
+  const src = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'src/main/index.ts'), 'utf8');
+  const body = src.slice(src.indexOf('async function enableCodexRemoteForSpawn'));
+  const write = body.indexOf('codexWritableRootsToml(');
+  const start = body.indexOf("['app-server', 'daemon', 'start']");
+  assert.ok(write > 0 && start > write, 'writable_roots must be written before the daemon reads config.toml');
+});

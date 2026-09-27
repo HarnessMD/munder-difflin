@@ -1,7 +1,10 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authTypeNeedsSecret as needsSecret } from '@shared/integrations';
-import { PixelButton } from './PixelButton';
+import { Btn } from './pro/ui';
+import { useSettingsDraft } from './settings/SettingsFrame';
+import { pendingFor, setPendingFor } from './settings/pendingPatch';
+import { overlayRows, restTaskId, type RestChange } from './settings/restPending';
 import {
   integrationsClient,
   slugify,
@@ -46,6 +49,12 @@ const AUTH_LABEL: Record<IntegrationAuthType, string> = {
   none: 'None (public API)',
   bearer: 'Bearer token',
   header: 'Custom header',
+  // The three shapes v0.4.9 phase 6b added. Classic still offers only the
+  // three above in its own picker (CUSTOM_AUTH below); these labels exist so a
+  // connection made in the kit's Connections sheet still reads correctly here.
+  prefix: 'Custom header with a prefix',
+  query: 'Query parameter',
+  basic: 'HTTP basic',
   github: 'GitHub'
 };
 // Auth types a user may pick for a custom-REST integration.
@@ -113,6 +122,22 @@ export function IntegrationsRegistry() {
   const [note, setNote] = useState('');
 
   const flash = (msg: string) => { setNote(msg); setTimeout(() => setNote(''), 2400); };
+
+  // 0.5.3, one Save: inside Settings an add, an edit or a removal is a draft
+  // task `rest:<id>` and waits for the footer Save; the list shows the stored
+  // records with those changes laid over them (settings/restPending.ts).
+  // Drawn outside Settings (no draft), each still applies at once.
+  const page = useSettingsDraft();
+  type Changes = Record<string, RestChange<IntegrationRecordView>>;
+  const changes = (page ? pendingFor<Changes>(page, 'rest') : {}) as Changes;
+  const putChange = (id: string, c: RestChange<IntegrationRecordView> | null) => {
+    if (!page) return;
+    const next = { ...(pendingFor<Changes>(page, 'rest') as Changes) };
+    if (c) next[id] = c; else delete next[id];
+    setPendingFor(page, 'rest', next);
+  };
+  const rows = overlayRows(records, changes, (id) => page?.hasTask(restTaskId(id)) ?? false);
+  const undo = (id: string) => { putChange(id, null); page?.setTask(restTaskId(id), null); };
   const refresh = async () => setRecords(await integrationsClient.list());
 
   useEffect(() => {
@@ -168,9 +193,26 @@ export function IntegrationsRegistry() {
     if (!draft) return;
     const v = validate(draft);
     if (v) { setErr(v); return; }
+    const typed = draft.secret.trim().length > 0 ? draft.secret : undefined;
+    if (page) {
+      const rec = recordFromDraft(draft, Date.now());
+      const before = changes[rec.id];
+      const secret = typed ?? (before?.kind === 'save' ? before.secret : undefined);
+      const { secretRef: _ref, ...shown } = rec;
+      putChange(rec.id, { kind: 'save', view: { ...shown, hasSecret: draft.hasSecret || !!secret }, secret });
+      page.setTask(restTaskId(rec.id), async () => {
+        const res = await integrationsClient.save(rec, secret);
+        if (!res.ok) throw new Error(res.error || tr('integrations.couldNotSave'));
+        putChange(rec.id, null);
+        await refresh();
+      });
+      flash(tr('settings.frame.onSave'));
+      goList();
+      return;
+    }
     setBusy(true); setErr('');
     try {
-      const secret = draft.secret.trim().length > 0 ? draft.secret : undefined;
+      const secret = typed;
       const res = await integrationsClient.save(recordFromDraft(draft, Date.now()), secret);
       if (!res.ok) { setErr(res.error || tr('integrations.couldNotSave')); return; }
       await refresh();
@@ -181,6 +223,18 @@ export function IntegrationsRegistry() {
   };
 
   const onRemove = async (r: IntegrationRecordView) => {
+    if (page) {
+      // A waiting add that was never stored just goes; a stored one waits for Save.
+      if (!records.some((x) => x.id === r.id)) { undo(r.id); return; }
+      putChange(r.id, { kind: 'remove' });
+      page.setTask(restTaskId(r.id), async () => {
+        await integrationsClient.remove(r.id);
+        putChange(r.id, null);
+        setRowTest((m) => { const n = { ...m }; delete n[r.id]; return n; });
+        await refresh();
+      });
+      return;
+    }
     setBusy(true);
     try { await integrationsClient.remove(r.id); setRowTest((m) => { const n = { ...m }; delete n[r.id]; return n; }); await refresh(); flash(tr('integrations.removed', { label: r.label })); }
     catch { flash(tr('integrations.couldNotRemove')); }
@@ -234,8 +288,8 @@ export function IntegrationsRegistry() {
           })}
         </div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <PixelButton variant="secondary" size="sm" onClick={goList}>{tr('common.cancel')}</PixelButton>
-          <PixelButton variant="primary" size="sm" onClick={continueFromGallery} disabled={!picked}>{tr('integrations.continue')} →</PixelButton>
+          <Btn size="sm" onClick={goList}>{tr('common.cancel')}</Btn>
+          <Btn kind="primary" size="sm" onClick={continueFromGallery} disabled={!picked}>{tr('integrations.continue')} →</Btn>
         </div>
       </div>
     );
@@ -305,13 +359,13 @@ export function IntegrationsRegistry() {
             {showSavedPill ? (
               <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 12, color: 'var(--cth-ink-500)', background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', padding: '6px 10px', letterSpacing: 2 }}>•••••••• {tr('integrations.saved')}</span>
-                <PixelButton variant="secondary" size="sm" onClick={() => { setReplacing(true); setShowSecret(false); patch({ secret: '' }); }}>{tr('integrations.replaceKey')}</PixelButton>
+                <Btn size="sm" onClick={() => { setReplacing(true); setShowSecret(false); patch({ secret: '' }); }}>{tr('integrations.replaceKey')}</Btn>
               </div>
             ) : (
               <>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <input type={showSecret ? 'text' : 'password'} value={draft.secret} onChange={(e) => patch({ secret: e.target.value })} placeholder={`${tr('integrations.pasteYour')} ${secretLabel.toLowerCase()}`} autoComplete="off" style={{ ...inputStyle, fontFamily: 'var(--cth-font-mono)' }} />
-                  <PixelButton variant="secondary" size="sm" onClick={() => setShowSecret((s) => !s)} disabled={!draft.secret}>{showSecret ? tr('common.hide') : tr('common.show')}</PixelButton>
+                  <Btn size="sm" onClick={() => setShowSecret((s) => !s)} disabled={!draft.secret}>{showSecret ? tr('common.hide') : tr('common.show')}</Btn>
                 </div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start', padding: '7px 9px', background: 'var(--cth-cream-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100, var(--cth-ink-300))', ...hint }}>
                   🔒&nbsp;<span><b style={{ color: 'var(--cth-ink-700)' }}>{tr('integrations.writeOnly')}.</b> {tr('integrations.secretDesc')}{!draft.isNew && draft.hasSecret ? ` ${tr('integrations.blankKeepsKey')}` : ''}</span>
@@ -326,7 +380,7 @@ export function IntegrationsRegistry() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <span style={fieldLabel}>{tr('integrations.availability')}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <PixelButton variant={draft.enabled ? 'primary' : 'secondary'} size="sm" onClick={() => patch({ enabled: !draft.enabled })}>{draft.enabled ? tr('integrations.enabled') : tr('integrations.disabled')}</PixelButton>
+            <Btn kind={draft.enabled ? 'primary' : 'default'} size="sm" onClick={() => patch({ enabled: !draft.enabled })}>{draft.enabled ? tr('integrations.enabled') : tr('integrations.disabled')}</Btn>
             <span style={hint}>{isUsable ? tr('integrations.availableToAll') : needsSecret(draft.authType) && !(draft.hasSecret || draft.secret.trim()) ? tr('integrations.addSecretToEnable') : draft.enabled ? tr('integrations.readyOnceSaved') : tr('integrations.disabledNoUse')}</span>
           </div>
           <span style={hint}>{tr('integrations.v1Note')}</span>
@@ -336,7 +390,7 @@ export function IntegrationsRegistry() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
           <span style={fieldLabel}>{tr('integrations.testConnection')}</span>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <PixelButton variant="secondary" size="sm" onClick={() => { void onTestCfg(); }} disabled={draft.isNew || testing}>{testing ? tr('integrations.testing') : tr('integrations.testConnection')}</PixelButton>
+            <Btn size="sm" onClick={() => { void onTestCfg(); }} disabled={draft.isNew || testing}>{testing ? tr('integrations.testing') : tr('integrations.testConnection')}</Btn>
             {cfgTest && <span style={{ fontSize: 12, color: cfgTest.ok ? 'var(--cth-mint-700, #1f7a4d)' : 'var(--cth-danger, #6E1423)' }}>{fmtTest(cfgTest)}</span>}
           </div>
           <span style={hint}>{draft.isNew ? tr('integrations.testAfterSave') : tr('integrations.testLiveDesc')}</span>
@@ -344,15 +398,16 @@ export function IntegrationsRegistry() {
 
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', alignItems: 'center' }}>
           {(err || note) && <span style={{ marginRight: 'auto', fontSize: 12, color: err ? 'var(--cth-danger, #6E1423)' : 'var(--cth-ink-500)' }}>{err || note}</span>}
-          <PixelButton variant="secondary" size="sm" onClick={goList} disabled={busy}>{tr('common.cancel')}</PixelButton>
-          <PixelButton variant="primary" size="sm" onClick={() => { void onSave(); }} disabled={busy}>{busy ? '…' : draft.isNew ? tr('integrations.saveIntegration') : tr('integrations.saveChanges')}</PixelButton>
+          <Btn size="sm" onClick={goList} disabled={busy}>{tr('common.cancel')}</Btn>
+          <Btn kind="primary" size="sm" onClick={() => { void onSave(); }} disabled={busy}>{busy ? '…' : page ? tr('settings.frame.done') : draft.isNew ? tr('integrations.saveIntegration') : tr('integrations.saveChanges')}</Btn>
         </div>
       </div>
     );
   }
 
   // ───────────────────────── LIST (default) ─────────────────────────
-  const usableCount = records.filter(usable).length;
+  const shownRows = rows.filter((x) => x.state !== 'remove');
+  const usableCount = shownRows.filter((x) => usable(x.row)).length;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
@@ -360,19 +415,19 @@ export function IntegrationsRegistry() {
           <div style={dispLabel}>{tr('integrations.title')}</div>
           <span style={{ ...subText, maxWidth: 440 }}>{tr('integrations.titleDesc')}</span>
         </div>
-        {records.length > 0 && <PixelButton variant="primary" size="sm" onClick={startAdd} disabled={busy || templates.length === 0}>+ {tr('integrations.addIntegration')}</PixelButton>}
+        {rows.length > 0 && <Btn kind="primary" size="sm" onClick={startAdd} disabled={busy || templates.length === 0}>+ {tr('integrations.addIntegration')}</Btn>}
       </div>
 
-      {records.length === 0 ? (
+      {rows.length === 0 ? (
         <div style={{ padding: 24, textAlign: 'center', background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)' }}>
           <p style={{ margin: '0 0 12px', fontSize: 12, lineHeight: '18px', color: 'var(--cth-ink-500)' }}>{tr('integrations.empty')}</p>
-          <PixelButton variant="primary" size="sm" onClick={startAdd} disabled={templates.length === 0}>+ {tr('integrations.addFirst')}</PixelButton>
+          <Btn kind="primary" size="sm" onClick={startAdd} disabled={templates.length === 0}>+ {tr('integrations.addFirst')}</Btn>
         </div>
       ) : (
         <>
-          <span style={hint}>{tr('integrations.count', { count: records.length, usable: usableCount })}</span>
+          <span style={hint}>{tr('integrations.count', { count: shownRows.length, usable: usableCount })}</span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {records.map((r) => {
+            {rows.map(({ row: r, state }) => {
               const g = glyphFor(r.kind, r.label);
               const tpl = templates.find((t) => t.kind === r.kind);
               const st = !r.enabled
@@ -382,7 +437,7 @@ export function IntegrationsRegistry() {
                   : { dot: '●', color: 'var(--cth-mint-700, #1f7a4d)', text: tr('integrations.enabled') };
               const rt = rowTest[r.id];
               return (
-                <div key={r.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 10, background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)' }}>
+                <div key={r.id} data-rest-row={state} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 10, background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', opacity: state === 'remove' ? 0.6 : 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <Glyph mono={g.mono} bg={g.bg} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
@@ -391,15 +446,23 @@ export function IntegrationsRegistry() {
                     </div>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: st.color, whiteSpace: 'nowrap' }}><span style={{ fontSize: 10 }}>{st.dot}</span> {st.text}</span>
                     <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                      <PixelButton variant="secondary" size="sm" onClick={() => { void onTestRow(r); }} disabled={busy || testingId === r.id}>{testingId === r.id ? '…' : tr('integrations.test')}</PixelButton>
-                      <PixelButton variant="ghost" size="sm" onClick={() => startEdit(r)} disabled={busy}>{tr('integrations.edit')}</PixelButton>
-                      <PixelButton variant="ghost" size="sm" onClick={() => { void onRemove(r); }} disabled={busy}>✕</PixelButton>
+                      {state === 'remove' ? (
+                        <Btn size="sm" onClick={() => undo(r.id)}>{tr('settings.keys.undo')}</Btn>
+                      ) : (
+                        <>
+                          {/* A waiting change is not stored yet, so there is nothing to test. */}
+                          <Btn size="sm" onClick={() => { void onTestRow(r); }} disabled={busy || testingId === r.id || state === 'save'}>{testingId === r.id ? '…' : tr('integrations.test')}</Btn>
+                          <Btn kind="ghost" size="sm" onClick={() => startEdit(r)} disabled={busy}>{tr('integrations.edit')}</Btn>
+                          <Btn kind="ghost" size="sm" onClick={() => { void onRemove(r); }} disabled={busy}>✕</Btn>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ ...hint, color: usable(r) ? 'var(--cth-mint-700, #1f7a4d)' : 'var(--cth-ink-500)' }}>
                       {usable(r) ? tr('integrations.availableToAll') : tr('integrations.notAvailableYet')}
                     </span>
+                    {state !== 'stored' && <span style={hint} data-rest-note>· {state === 'remove' ? tr('settings.keys.willRemove') : tr('settings.frame.onSave')}</span>}
                     {rt && <span style={{ fontSize: 12, color: rt.ok ? 'var(--cth-mint-700, #1f7a4d)' : 'var(--cth-danger, #6E1423)' }}>· {fmtTest(rt)}</span>}
                   </div>
                 </div>

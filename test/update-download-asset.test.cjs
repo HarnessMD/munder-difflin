@@ -20,6 +20,14 @@ test('picks the dmg for the running mac arch, not the zip', () => {
   assert.match(pickDownloadAsset(assets, 'darwin', 'arm64'), /mac-arm64\.dmg$/);
   assert.match(pickDownloadAsset(assets, 'darwin', 'x64'), /mac-x64\.dmg$/);
 });
+test('picks the universal dmg, which is what the release actually ships', () => {
+  const universal = [
+    { name: 'Munder-Difflin-0.5.3-mac-universal.zip', browser_download_url: 'https://github.com/x/y/releases/download/v0.5.3/Munder-Difflin-0.5.3-mac-universal.zip' },
+    { name: 'Munder-Difflin-0.5.3-mac-universal.dmg', browser_download_url: 'https://github.com/x/y/releases/download/v0.5.3/Munder-Difflin-0.5.3-mac-universal.dmg' }
+  ];
+  assert.match(pickDownloadAsset(universal, 'darwin', 'arm64'), /mac-universal\.dmg$/);
+  assert.match(pickDownloadAsset(universal, 'darwin', 'x64'), /mac-universal\.dmg$/);
+});
 test('picks the installer on windows, never the portable', () => {
   assert.match(pickDownloadAsset(assets, 'win32', 'x64'), /win-x64-setup\.exe$/);
 });

@@ -20,12 +20,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # helper: the transcription helper target this runner builds
+          # (tools/build-transcribe-helpers.mjs), see the step below.
           - os: macos-latest
             args: --mac
+            helper: darwin-universal
           - os: windows-2022
             args: --win
+            helper: win32-x64
           - os: ubuntu-latest
             args: --linux
+            helper: linux-x64
     steps:
       - uses: actions/checkout@v4
 
@@ -46,6 +51,61 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Build the whisper helper and fetch the bundled model
+        # 0.5.3, F16. md-whisper is a static whisper.cpp build that electron-builder
+        # ships under Resources/transcribe/<target>/ (extraResources per platform
+        # in electron-builder.yml), with ggml-base.en-q5_1.bin beside it under
+        # transcribe/models/. Both are gitignored: nothing ships that this runner
+        # did not build or fetch and checksum. The script clones whisper.cpp at
+        # its pinned commit and needs a C++ toolchain and cmake, which the three
+        # images already carry (nothing is installed here): macos-latest has
+        # Xcode's clang and cmake, windows-2022 has Visual Studio 2022 Build
+        # Tools and cmake (the script's default generator, Release config),
+        # ubuntu-latest has gcc and cmake. The versions are printed into the log
+        # so a toolchain move on an image is visible in the run that first saw it.
+        # F16, Windows and Linux (23 Sep): the same run builds md-hotkey for the
+        # target from tools/md-hotkey-native. Linux needs the X11, XTest and
+        # PulseAudio headers; the image has the compiler, not those.
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.helper }}" = "linux-x64" ]; then
+            sudo apt-get update -q
+            sudo apt-get install -y -q libx11-dev libxtst-dev libpulse-dev pkg-config
+          fi
+          cmake --version | head -1
+          node tools/build-transcribe-helpers.mjs --target ${{ matrix.helper }}
+          ls -la resources/transcribe/${{ matrix.helper }} resources/transcribe/models
+
+      - name: Rebuild the Swift helpers and refuse a binary this runner did not produce
+        # 0.5.3, F16, macOS only. md-speech (Apple SpeechAnalyzer) and md-hotkey
+        # (push to talk key, microphone, pasteboard paste) are Swift helpers
+        # checked in as binaries under resources/transcribe/darwin-universal/.
+        # The runner rebuilds each from tools/md-<name>/main.swift with its own
+        # Xcode and the job fails if either result differs from the checked in
+        # file: nobody ships a helper the runner did not rebuild. When this
+        # fails after an Xcode move on the image, rebuild on that toolchain
+        # (sh tools/build-md-speech.sh, sh tools/build-md-hotkey.sh) and commit
+        # the result.
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc --version | head -1
+          sh tools/build-md-speech.sh
+          sh tools/build-md-hotkey.sh
+          sh tools/build-md-tap.sh
+          differs=0
+          for helper in md-speech md-hotkey md-tap; do
+            if git diff --exit-code --stat -- "resources/transcribe/darwin-universal/$helper"; then
+              echo "$helper matches the checked in binary"
+            else
+              echo "::error::resources/transcribe/darwin-universal/$helper rebuilt on this runner differs from the checked in file. Rebuild it on this toolchain (sh tools/build-$helper.sh) and commit it; nobody ships a helper the runner did not rebuild."
+              differs=1
+            fi
+          done
+          exit $differs
 
       - name: Compile (electron-vite → out/)
         run: npm run build

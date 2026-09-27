@@ -41,21 +41,32 @@ test('a missing engine with an installer installs on first run and does not bloc
   }
 });
 
-test('the repro: grok, antigravity and qwen are offered by the wizard but cannot install', () => {
+test('the repro, closed by I2 part 3: grok, antigravity, qwen and kimi are offered by the wizard and now install on first run', () => {
+  // Until 23 Sep 2026 these four had no installer at all, so the wizard had to
+  // refuse them. Each now carries the vendor's own script (grok, antigravity,
+  // kimi: a standalone binary, no Node) or its npm package (qwen), every one
+  // run into a throwaway HOME on this Mac that day.
   const s = statusesFor([]);
   const offered = AGENT_PROVIDER_PRESETS.filter((p) => canReceiveInbox(p.id)).map((p) => p.id);
   for (const id of ['grok', 'antigravity', 'qwen']) {
     assert.ok(offered.includes(id), `${id} is on the picker`);
     const a = classifyEngineAvailability(s, id);
-    assert.equal(a.state, 'not-installable', id);
-    assert.equal(engineBlocksOnboarding(a), true, id);
-    assert.equal(engineAvailabilityBadge(a), 'NOT INSTALLED');
-    const msg = engineAvailabilityMessage(a, 'Grok');
-    assert.match(msg, /not installed/);
-    assert.match(msg, /check again/);
-    assert.match(msg, /Claude Code/);
-    assert.doesNotMatch(msg, /[–—-]/, 'no dashes in user facing prose');
+    assert.equal(a.state, 'installs-on-first-run', id);
+    assert.equal(engineBlocksOnboarding(a), false, id);
+    assert.equal(engineAvailabilityBadge(a), 'INSTALLS ON FIRST RUN');
+    assert.equal(engineAvailabilityMessage(a, 'Grok'), null, 'nothing to explain');
   }
+  assert.equal(classifyEngineAvailability(s, 'kimi').state, 'installs-on-first-run');
+  // The dead end still has its sentence, for a provider with nothing to run.
+  const none = classifyEngineAvailability([{ id: 'engine:nothing', found: false, path: null }], 'nothing');
+  assert.equal(none.state, 'not-installable');
+  assert.equal(engineBlocksOnboarding(none), true);
+  assert.equal(engineAvailabilityBadge(none), 'NOT INSTALLED');
+  const msg = engineAvailabilityMessage(none, 'Nothing');
+  assert.match(msg, /not installed/);
+  assert.match(msg, /check again/);
+  assert.match(msg, /Claude Code/);
+  assert.doesNotMatch(msg, /[–—-]/, 'no dashes in user facing prose');
 });
 
 test('no probe result means unknown, and unknown never blocks', () => {

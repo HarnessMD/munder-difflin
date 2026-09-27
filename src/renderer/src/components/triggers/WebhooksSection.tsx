@@ -8,6 +8,7 @@ import {
   webhooksStatus, type WebhooksStatus
 } from './api';
 import { JsonEditor } from './JsonEditor';
+import { AgentPicker } from '../settings/primitives';
 import {
   Callout, Field, Hint, MiniButton, ModePicker, Muted, SecretField, SubCard, SubHeader,
   Toggle, inputStyle
@@ -124,6 +125,7 @@ function WebhookRow({ hook, url, serverRunning, onPatch, onDelete }: {
   onDelete: () => void;
 }) {
   const { t } = useTranslation();
+  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
   const [open, setOpen] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState<'url' | 'secret' | null>(null);
@@ -231,6 +233,14 @@ function WebhookRow({ hook, url, serverRunning, onPatch, onDelete }: {
               copied={copied === 'secret'}
             />
             <Hint>{t('webhooksSection.secretHint')}</Hint>
+          </Field>
+
+          {/* 0.5.3: the same per endpoint agent as PRO Automations and
+              Settings > Integrations. '' is the webhook default and is sent as
+              '' (an absent `to` keeps the stored one). */}
+          <Field label={t('settings.conn.answeredBy')}>
+            <AgentPicker value={hook.to ?? ''} onChange={(to) => onPatch({ to })} label={t('settings.conn.answeredBy')} godName={godName} style={inputStyle} />
+            <Hint>{t('pro.autos.hookAnsweredByHint', { godName })}</Hint>
           </Field>
 
           <Field label={t('webhooksSection.trust')}>

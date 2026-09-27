@@ -1,9 +1,12 @@
 import { create } from 'zustand';
 import type { AccentColorName } from '@/design/tokens';
-import type { OfficeCharacterName } from '@/scene/office/cast';
+import type { OfficeCharacterName } from '@/scene/office/castRoster';
+import type { CustomAvatar } from '@shared/avatars';
+import { setCustomAvatars } from '@/scene/office/avatarRegistry';
 import type { ThemeId } from '@/scene/office/themeRegistry';
 import type { StatusKind } from '@/components/PixelBadge';
 import type { AgentProvider } from '@shared/agentProvider';
+import type { AgentExit } from '@shared/agentExit';
 import type { HireManifest } from '@shared/hire';
 import {
   EMPTY_HIRE_QUEUE,
@@ -12,10 +15,11 @@ import {
   finishCurrentHire,
   type HireReviewQueue
 } from '@shared/hireQueue';
-import { DEFAULT_ORG_TRIGGER, type OrgTriggerConfig, type WebhookTrigger } from '@shared/triggers';
+import type { WebhookTrigger } from '@shared/triggers';
 import { isCompactionCommand } from '@shared/providerAutomation';
 import { preferredAgentRole } from '@shared/agentRole';
 import { isInboxNudge } from '@shared/hiveNudge';
+import type { SendStatus, SentEntry } from '@shared/inboxThread';
 import { refocusAfterRemoval, focusOnLoad, restoreFocus } from './focusMode';
 import { chooseRosterSource } from './rosterSource';
 
@@ -82,6 +86,10 @@ export interface Agent {
   /** the last prompt the user submitted to this agent in Claude Code —
    *  shown on the floor as a card above the seated avatar */
   lastPrompt?: string;
+  /** Set when this agent's process ended on its own (0.5.3 feature 18): the
+   *  sidebar row says so and offers Restart. Run state, never persisted; cleared
+   *  by a restart or by any hook event, which is proof of life. */
+  exit?: AgentExit;
   /** the orchestrator ("god") agent — seated in Michael's room, runs the floor */
   isGod?: boolean;
   /** Michael's prep assistant — send-only; enriches prompts and forwards them to
@@ -135,6 +143,10 @@ export interface QueuedMessage {
    *  ONLY the pause gate in the drain loop — idle/draft/picker safety still hold,
    *  so it delivers the moment the terminal is actually free. */
   manual?: boolean;
+  /** "Send now" on a queued row (founder, 25 Sep 2026): type it into the
+   *  agent's CLI at once, mid-turn included, when the CLI takes input mid-turn
+   *  (queueDelivery.canSendNowMidTurn); otherwise it is `manual` at the front. */
+  now?: boolean;
   /** Delivery-time precondition, re-checked by the drain immediately before the
    *  message is typed; a message whose precondition no longer holds is DROPPED
    *  rather than deferred (deferring would park it at the queue head forever and
@@ -147,6 +159,12 @@ export interface QueuedMessage {
    *  from, and delivering it afterwards costs a full turn to discover nothing is
    *  there. Declarative (a string, not a closure) so it survives persistQueues. */
   precondition?: 'inbox-nonempty';
+  /** Transient: a person has this message open in the queue's inline editor
+   *  (PRO composer). The drain defers an editing HEAD instead of typing a
+   *  half-rewritten message under the person's cursor. Never persisted —
+   *  persistQueues strips it — so a renderer that dies mid-edit can never
+   *  leave a permanent hold starving the queue on the next launch. (5 Sep 2026) */
+  editing?: boolean;
     /** Token count captured when a /compact was enqueued for this agent, carried
    *  through to the point of successful delivery so the "already compacted at
    *  N tokens" latch (see useHive) can be written there instead of at enqueue
@@ -213,6 +231,17 @@ interface State {
    *  Lets the user keep "talking" to a busy agent: messages park here and are
    *  drained to the terminal one-by-one once the agent is free. */
   messageQueues: Record<string, QueuedMessage[]>;
+  /** Per-agent record of what the PERSON sent, and where it got to (v0.4.9
+   *  phase 3, founder 3 Sep 2026: "a message typed in the queue is not visible
+   *  in the inbox immediately and vanishes").
+   *
+   *  The queue cannot answer this on its own, because a delivered message
+   *  LEAVES the queue: the only surface that showed it then had nothing left
+   *  to draw. So the send is recorded here when it is made and settled here
+   *  when it lands, and the thread reads this rather than inferring a history
+   *  from an absence. Kept in localStorage, not the roster file: it is what one
+   *  person saw on one machine, and no agent reads it. */
+  sentLog: Record<string, SentEntry[]>;
   /** Per-agent tool-call count this session — a lightweight activity/usage proxy
    *  shown in the command center (interactive sessions don't expose billed $). */
   toolCounts: Record<string, number>;
@@ -229,7 +258,11 @@ interface State {
   setAgentNote: (id: string, note: string) => void;
   pushFeed: (id: string, line: string) => void;
   addAgent: (agent: Agent) => void;
-  removeAgent: (id: string) => void;
+  /** Drop an agent's row and feed. The queue goes with it, EXCEPT when the caller
+   *  says `keepQueue`: the orchestrator boot clears a stale restored row and then
+   *  re-adds the same id, and what the person parked for him must survive that
+   *  (0.5.2, card v052-god-parked-queue-lost-on-boot). */
+  removeAgent: (id: string, opts?: { keepQueue?: boolean }) => void;
   /** Archive an agent (its terminal was closed): move it from the active roster
    *  into `archivedAgents` with its PTY cleared. Retained + flagged, NOT deleted. */
   archiveAgent: (id: string) => void;
@@ -260,16 +293,17 @@ interface State {
    *  composer) doesn't eat what the user was typing. */
   drafts: Record<string, string>;
   setDraft: (agentId: string, text: string) => void;
-  /** Mirror of config.freeflowEnabled so the composer can show/hide the Free Flow
-   *  mic button reactively (set by App on config load and by Settings on save). */
-  freeflowEnabled: boolean;
-  setFreeflowEnabled: (on: boolean) => void;
   /** Mirror of `!!config.groqApiKey` — boolean presence ONLY; the key value never
    *  enters the store. Lets the composer show the voice button disabled (with a
    *  "add a Groq key" tooltip) instead of hiding it. Set by App on config load and
    *  by Settings on save. */
   hasGroqKey: boolean;
   setHasGroqKey: (has: boolean) => void;
+  /** 0.5.3, F16: a local engine (Apple on device or whisper) can take dictation
+   *  on this machine, so the mic needs no Groq key. Set by App from
+   *  window.cth.transcribeStatus() on load and on every config change. */
+  canDictate: boolean;
+  setCanDictate: (can: boolean) => void;
   /** Mirror of BYOK OpenAI key presence (boolean only — the key lives in the main
    *  secret broker, never the store). Gates the Realtime Michael voice toggle the
    *  way hasGroqKey gates the Free Flow mic. Set by App on load via
@@ -280,6 +314,12 @@ interface State {
    *  on switch). OfficeFloor depends on this and rebuilds the scene on change. */
   officeTheme: ThemeId;
   setOfficeTheme: (theme: ThemeId) => void;
+  /** Mirror of config.avatars: the custom avatars the sprite editor made.
+   *  Seeded by App from getConfig() and refreshed on every config change. The
+   *  setter also feeds avatarRegistry, so the painter and the floor resolve a
+   *  `custom:<id>` character without importing the store. */
+  avatars: CustomAvatar[];
+  setAvatars: (list: CustomAvatar[]) => void;
   /** Mirror of config.webhookTriggers — the inbound HTTP endpoints. Webhooks are
    *  editable from BOTH Settings → Connections and the Triggers tab, so neither
    *  surface keeps its own copy: both render off this list and both call the
@@ -291,21 +331,32 @@ interface State {
    *  localStorage or the roster file, never logged, masked in every surface. */
   webhookTriggers: WebhookTrigger[];
   setWebhookTriggers: (list: WebhookTrigger[]) => void;
-  /** Mirror of config.orgTrigger (peer messaging between teammates' clone nodes).
-   *  Same two-way contract as `webhookTriggers`, and the same handling for
-   *  `apiKey` — in memory for the two surfaces that display it masked, nowhere
-   *  else. Configuration only for now: no transport reads the key yet. */
-  orgTrigger: OrgTriggerConfig;
-  setOrgTrigger: (cfg: OrgTriggerConfig) => void;
   /** Park a message for an agent. Returns nothing; the flush loop delivers it.
    *  `meta.instruction`, when set, is what gets typed into the PTY instead of
    *  `text` (UI/card surfaces still show `text`). */
-    enqueueMessage: (agentId: string, text: string, meta?: { slack?: { channel: string; thread_ts: string }; instruction?: string; precondition?: QueuedMessage['precondition']; compactUsed?: number }) => void;
+    enqueueMessage: (agentId: string, text: string, meta?: { slack?: { channel: string; thread_ts: string }; instruction?: string; precondition?: QueuedMessage['precondition']; compactUsed?: number; fromHuman?: boolean }) => void;
+  /** Record something the person sent outside the queue (a steer, which reaches
+   *  the agent on its next turn and is never parked), so the thread shows it
+   *  beside everything else they sent. */
+  noteHumanSend: (agentId: string, entry: SentEntry) => void;
+  /** Move one recorded send to its outcome. Called by the drain when the
+   *  session takes the message, by the drain again when it gives up, and by the
+   *  queue strip when the person takes their own message back. */
+  settleHumanSend: (agentId: string, id: string, status: SendStatus) => void;
   /** Drop a single queued message (user removed it, or it was just delivered). */
   removeQueuedMessage: (agentId: string, messageId: string) => void;
+  /** Rewrite a queued message in place (founder, 5 Sep 2026: a parked message
+   *  must be editable). The edited text becomes THE message: a stale
+   *  `instruction`/`precondition`/`compactUsed` from the original are dropped —
+   *  the person rewrote it, so what they see is exactly what is typed — and the
+   *  editing hold is released. Position, id, ts, slack thread and manual all keep. */
+  updateQueuedMessage: (agentId: string, messageId: string, text: string) => void;
+  /** Mark/unmark a queued message as open in the inline editor. Transient
+   *  delivery hold — see QueuedMessage.editing. */
+  setQueuedMessageEditing: (agentId: string, messageId: string, editing: boolean) => void;
   /** "Send now" while floor auto-delivery is paused: marks the message manual
    *  (drain bypasses the pause gate for it) and moves it to the queue front. */
-  releaseQueuedMessage: (agentId: string, messageId: string) => void;
+  releaseQueuedMessage: (agentId: string, messageId: string, now?: boolean) => void;
   /** Clear an agent's entire pending queue. */
   clearQueue: (agentId: string) => void;
   setAddAgentOpen: (open: boolean) => void;
@@ -349,6 +400,7 @@ const LS_ARCHIVED = 'cth.archivedAgents';
 const LS_RESTORABLE = 'cth.restorableAgents';
 const LS_SELECTED = 'cth.selectedId';
 const LS_QUEUES = 'cth.messageQueues';
+const LS_SENT = 'cth.sentLog';
 /** Which hive this origin's roster keys were last written for. See rosterSource.ts. */
 const LS_ROSTER_HOME = 'cth.rosterHome';
 const LS_FOCUS_MODE = 'cth.prefersFocusMode';
@@ -356,7 +408,7 @@ const LS_FOCUS_MODE = 'cth.prefersFocusMode';
 // Fields that are large or transient — not worth persisting across reloads.
 // contextTokens/contextLimit describe a LIVE session; persisting them showed a
 // dead session's context gauge after a restart until the poll caught up.
-type PersistedAgent = Omit<Agent, 'recentAssistantText' | 'recentTextTs' | 'blockReason' | 'contextTokens' | 'contextLimit' | 'seedPrompt'>;
+type PersistedAgent = Omit<Agent, 'recentAssistantText' | 'recentTextTs' | 'blockReason' | 'contextTokens' | 'contextLimit' | 'seedPrompt' | 'exit'>;
 
 // ─── The roster mirror ──────────────────────────────────────────────────────
 //
@@ -443,8 +495,8 @@ try {
 } catch { /* not a browser context (unit tests) */ }
 
 function slimAgents(agents: Agent[]): PersistedAgent[] {
-  return agents.map(({ recentAssistantText, recentTextTs, blockReason, contextTokens, contextLimit, seedPrompt, ...rest }) => {
-    void recentAssistantText; void recentTextTs; void blockReason; void contextTokens; void contextLimit; void seedPrompt;
+  return agents.map(({ recentAssistantText, recentTextTs, blockReason, contextTokens, contextLimit, seedPrompt, exit, ...rest }) => {
+    void recentAssistantText; void recentTextTs; void blockReason; void contextTokens; void contextLimit; void seedPrompt; void exit;
     return rest;
   });
 }
@@ -467,7 +519,7 @@ function persistAgents(agents: Agent[], selectedId: string | null): void {
 const VOLATILE_AGENT_FIELDS = new Set<keyof Agent>([
   'status', 'action', 'progress', 'currentStation', 'carrying',
   'recentAssistantText', 'recentTextTs', 'blockReason',
-  'contextTokens', 'contextLimit', 'lastPrompt'
+  'contextTokens', 'contextLimit', 'lastPrompt', 'exit'
 ]);
 
 function touchesDurableAgentField(patch: Partial<Agent>): boolean {
@@ -543,8 +595,8 @@ function persistRestorable(restorable: Agent[]): void {
   // Keeps contextTokens/contextLimit, unlike the other two: a restorable entry
   // is a spawn recipe for a session that has not been re-entered yet, so its
   // last known context size is still meaningful.
-  const slim: PersistedAgent[] = restorable.map(({ recentAssistantText, recentTextTs, blockReason, seedPrompt, ...rest }) => {
-    void recentAssistantText; void recentTextTs; void blockReason; void seedPrompt;
+  const slim: PersistedAgent[] = restorable.map(({ recentAssistantText, recentTextTs, blockReason, seedPrompt, exit, ...rest }) => {
+    void recentAssistantText; void recentTextTs; void blockReason; void seedPrompt; void exit;
     return rest;
   });
   try {
@@ -572,9 +624,13 @@ function loadPersistedRestorable(): Agent[] {
 
 function persistQueues(queues: Record<string, QueuedMessage[]>): void {
   try {
-    // Only keep non-empty queues so the key stays small.
+    // Only keep non-empty queues so the key stays small. `editing` is stripped:
+    // it is a live-session delivery hold, and persisted it would outlive the
+    // renderer that held it and starve the queue on the next launch.
     const slim: Record<string, QueuedMessage[]> = {};
-    for (const [id, q] of Object.entries(queues)) if (q.length) slim[id] = q;
+    for (const [id, q] of Object.entries(queues)) {
+      if (q.length) slim[id] = q.map(({ editing: _editing, ...m }) => m);
+    }
     window.localStorage.setItem(LS_QUEUES, JSON.stringify(slim));
     rosterMirror.queues = slim;
     scheduleRosterFlush();
@@ -595,6 +651,44 @@ function loadPersistedQueues(): Record<string, QueuedMessage[]> {
       if (Array.isArray(q)) {
         out[id] = q.filter((m) => m && typeof m.text === 'string' && typeof m.id === 'string');
       }
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+/** How many of a person's sends are kept per agent. A bound on the key, not a
+ *  promise about the thread: older sends stay in the hive's own ledgers. */
+const SENT_LOG_CAP = 200;
+
+function persistSentLog(log: Record<string, SentEntry[]>): void {
+  try {
+    const slim: Record<string, SentEntry[]> = {};
+    for (const [id, rows] of Object.entries(log)) if (rows.length) slim[id] = rows.slice(-SENT_LOG_CAP);
+    window.localStorage.setItem(LS_SENT, JSON.stringify(slim));
+  } catch { /* the thread still holds this session's sends in memory */ }
+}
+
+/**
+ * The log as it was left, reconciled against the queues that actually came
+ * back. A send read back as 'queued' whose message is no longer in the restored
+ * queue has nobody left to deliver it, and a row that waits forever on a
+ * delivery nobody owns is the same lie as a row that vanishes. Those are
+ * settled 'failed', which is what happened.
+ */
+function loadPersistedSentLog(queues: Record<string, QueuedMessage[]>): Record<string, SentEntry[]> {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(LS_SENT) ?? 'null') as Record<string, SentEntry[]> | null;
+    if (!parsed || typeof parsed !== 'object') return {};
+    const out: Record<string, SentEntry[]> = {};
+    for (const [id, rows] of Object.entries(parsed)) {
+      if (!Array.isArray(rows)) continue;
+      const live = new Set((queues[id] ?? []).map((m) => m.id));
+      const kept = rows
+        .filter((e) => e && typeof e.id === 'string' && typeof e.text === 'string' && typeof e.ts === 'number')
+        .map((e) => (e.status === 'queued' && !live.has(e.id) ? { ...e, status: 'failed' as SendStatus } : e));
+      if (kept.length) out[id] = kept.slice(-SENT_LOG_CAP);
     }
     return out;
   } catch {
@@ -691,6 +785,7 @@ export const useStore = create<State>((set, get) => ({
   sidebarTab: initialSidebarTab,
   godStatus: 'booting',
   messageQueues: initialQueues,
+  sentLog: loadPersistedSentLog(initialQueues),
   toolCounts: {},
   bumpToolCount: (id) =>
     set((s) => ({ toolCounts: { ...s.toolCounts, [id]: (s.toolCounts[id] ?? 0) + 1 } })),
@@ -798,15 +893,20 @@ export const useStore = create<State>((set, get) => ({
         feeds: { ...s.feeds, [agent.id]: s.feeds[agent.id] ?? [] }
       };
     }),
-  removeAgent: (id) =>
+  removeAgent: (id, opts) =>
     set((s) => {
       const agents = s.agents.filter(a => a.id !== id);
       const { [id]: _gone, ...feeds } = s.feeds;
-      const { [id]: _queueGone, ...messageQueues } = s.messageQueues;
+      // A parked queue is the person's, not the row's. Reproduced 9 Sep 2026:
+      // two messages parked for Michael before quitting were gone at the next
+      // launch, because the god boot cleared his stale row through here and the
+      // queue went with it, persisted, before he was re-added under the same id.
+      const { [id]: _queueGone, ...without } = s.messageQueues;
+      const messageQueues = opts?.keepQueue ? s.messageQueues : without;
       const selectedId = s.selectedId === id ? (agents[0]?.id ?? null) : s.selectedId;
       const fullscreenAgentId = refocusAfterRemoval(s.fullscreenAgentId, agents, selectedId);
       persistAgents(agents, selectedId);
-      if (_queueGone) persistQueues(messageQueues);
+      if (_queueGone && !opts?.keepQueue) persistQueues(messageQueues);
       return { agents, feeds, selectedId, messageQueues, fullscreenAgentId };
     }),
   archiveAgent: (id) =>
@@ -874,21 +974,18 @@ export const useStore = create<State>((set, get) => ({
   drafts: {},
   setDraft: (agentId, text) =>
     set((s) => ({ drafts: { ...s.drafts, [agentId]: text } })),
-  freeflowEnabled: false,
-  setFreeflowEnabled: (on) => set({ freeflowEnabled: on }),
   hasGroqKey: false,
   setHasGroqKey: (has) => set({ hasGroqKey: has }),
+  canDictate: false,
+  setCanDictate: (can) => set({ canDictate: can }),
   hasOpenAiKey: false,
   setHasOpenAiKey: (has) => set({ hasOpenAiKey: has }),
   officeTheme: 'office',
   setOfficeTheme: (theme) => set({ officeTheme: theme }),
+  avatars: [],
+  setAvatars: (list) => set({ avatars: [...setCustomAvatars(list)] }),
   webhookTriggers: [],
   setWebhookTriggers: (list) => set({ webhookTriggers: list }),
-  // A copy, not the shared DEFAULT_ORG_TRIGGER instance — main takes the same
-  // care (withTriggerDefaults), and handing the module-level default out is how
-  // one careless mutation rewrites the default for everyone.
-  orgTrigger: { ...DEFAULT_ORG_TRIGGER },
-  setOrgTrigger: (cfg) => set({ orgTrigger: cfg }),
   enqueueMessage: (agentId, text, meta) =>
     set((s) => {
       const trimmed = text.trim();
@@ -929,7 +1026,31 @@ export const useStore = create<State>((set, get) => ({
       };
       const messageQueues = { ...s.messageQueues, [agentId]: [...(s.messageQueues[agentId] ?? []), msg] };
       persistQueues(messageQueues);
-      return { messageQueues };
+      // Only a PERSON's send is recorded. Everything else that reaches this
+      // door — the context trigger's /compact, the inbox nudge, a work order
+      // the orchestrator dispatched — is the app talking to itself, and it
+      // already has its own line in the activity digest or the hive ledger.
+      // Drawing it as a bubble from the person would be a lie about who said it.
+      if (!meta?.fromHuman) return { messageQueues };
+      const entry: SentEntry = { id: msg.id, text: msg.text, ts: msg.ts, status: 'queued' };
+      const sentLog = { ...s.sentLog, [agentId]: [...(s.sentLog[agentId] ?? []), entry].slice(-SENT_LOG_CAP) };
+      persistSentLog(sentLog);
+      return { messageQueues, sentLog };
+    }),
+  noteHumanSend: (agentId, entry) =>
+    set((s) => {
+      const sentLog = { ...s.sentLog, [agentId]: [...(s.sentLog[agentId] ?? []), entry].slice(-SENT_LOG_CAP) };
+      persistSentLog(sentLog);
+      return { sentLog };
+    }),
+  settleHumanSend: (agentId, id, status) =>
+    set((s) => {
+      const rows = s.sentLog[agentId];
+      if (!rows?.some((e) => e.id === id && e.status !== status)) return s;
+      const next = rows.map((e) => (e.id === id ? { ...e, status, settledAt: Date.now() } : e));
+      const sentLog = { ...s.sentLog, [agentId]: next };
+      persistSentLog(sentLog);
+      return { sentLog };
     }),
   removeQueuedMessage: (agentId, messageId) =>
     set((s) => {
@@ -940,13 +1061,47 @@ export const useStore = create<State>((set, get) => ({
       persistQueues(messageQueues);
       return { messageQueues };
     }),
-  releaseQueuedMessage: (agentId, messageId) =>
+  updateQueuedMessage: (agentId, messageId, text) =>
+    set((s) => {
+      const current = s.messageQueues[agentId];
+      const target = current?.find((m) => m.id === messageId);
+      if (!current || !target) return s;
+      // Rebuilt, not spread: the edit drops instruction/precondition/compactUsed
+      // and the editing hold, so the person's text is the whole message.
+      const edited: QueuedMessage = {
+        id: target.id,
+        text,
+        ts: target.ts,
+        ...(target.slack ? { slack: target.slack } : {}),
+        ...(target.manual ? { manual: true } : {})
+      };
+      const messageQueues = {
+        ...s.messageQueues,
+        [agentId]: current.map((m) => (m.id === messageId ? edited : m))
+      };
+      persistQueues(messageQueues);
+      return { messageQueues };
+    }),
+  setQueuedMessageEditing: (agentId, messageId, editing) =>
+    set((s) => {
+      const current = s.messageQueues[agentId];
+      if (!current?.some((m) => m.id === messageId)) return s;
+      const messageQueues = {
+        ...s.messageQueues,
+        [agentId]: current.map((m) =>
+          m.id === messageId ? { ...m, editing: editing || undefined } : m)
+      };
+      // No persistQueues on purpose: the flag is a live-session hold that must
+      // never reach disk, and the stored copy is identical without it.
+      return { messageQueues };
+    }),
+  releaseQueuedMessage: (agentId, messageId, now) =>
     set((s) => {
       const current = s.messageQueues[agentId];
       const target = current?.find((m) => m.id === messageId);
       if (!current || !target) return s;
       const next = [
-        { ...target, manual: true },
+        { ...target, manual: true, ...(now ? { now: true } : {}) },
         ...current.filter((m) => m.id !== messageId)
       ];
       const messageQueues = { ...s.messageQueues, [agentId]: next };
@@ -1040,9 +1195,8 @@ export function selectedAgent(s: State): Agent | undefined {
 }
 
 /** Whether the Command Center's Trigger History tab has anything to be about
- *  yet: an organisation key is set, or at least one webhook exists. Derived from
- *  the two mirrors rather than stored beside them, so it cannot fall out of step
+ *  yet: at least one webhook exists. Derived from the mirror rather than stored beside them, so it cannot fall out of step
  *  with the thing it describes. Use as `useStore(triggerHistoryVisible)`. */
 export function triggerHistoryVisible(s: State): boolean {
-  return s.webhookTriggers.length > 0 || s.orgTrigger.apiKey.trim() !== '';
+  return s.webhookTriggers.length > 0;
 }

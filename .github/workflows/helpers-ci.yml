@@ -1,0 +1,185 @@
+# The native helpers, built and driven on every platform they ship for
+# (0.5.3, F16, 23 Sep 2026). Not the release: this builds nothing that ships
+# and deploys nothing. It exists because the Windows and Linux md-hotkey
+# helpers (tools/md-hotkey-native) are written on a Mac that cannot compile
+# or run them; the runner is the compiler and the first tester. It runs on a
+# pull request that touches the helpers, their build script or their tests.
+name: helpers
+
+on:
+  pull_request:
+    paths:
+      - 'tools/md-hotkey-native/**'
+      - 'tools/transcribe-helper/**'
+      - 'tools/build-transcribe-helpers.mjs'
+      - 'src/main/transcribe/**'
+      - 'test/v053-md-hotkey-native.test.cjs'
+      - 'test/transcribe-helper-protocol.test.cjs'
+      - '.github/workflows/helpers-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  helpers:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            helper: win32-x64
+          - os: ubuntu-latest
+            helper: linux-x64
+          - os: macos-latest
+            helper: darwin-universal
+    runs-on: ${{ matrix.os }}
+    # Hard limits (25 Sep: a hung Windows test held a runner 35 minutes).
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        timeout-minutes: 5
+        run: npm ci --ignore-scripts
+
+      - name: Build the helpers for this platform
+        timeout-minutes: 8
+        # The same script and the same apt line as release.yml, so a green
+        # run here means the release step compiles too. --skip-model keeps
+        # the 60 MB model fetch out of a test run.
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.helper }}" = "linux-x64" ]; then
+            sudo apt-get update -q
+            sudo apt-get install -y -q libx11-dev libxtst-dev libpulse-dev pkg-config xvfb pulseaudio
+          fi
+          cmake --version | head -1
+          node tools/build-transcribe-helpers.mjs --target ${{ matrix.helper }} --skip-model
+          ls -la resources/transcribe/${{ matrix.helper }}
+
+      - name: Rebuild the Swift helpers the way release.yml does, twice, and keep them
+        # 25 Sep: v0.5.3-rc.1 stopped at release.yml's "refuse a binary this
+        # runner did not produce" guard after the macos-latest image moved to
+        # Swift 6.3.3 (the checked in helpers came from a Mac on 6.2.4). This
+        # builds them on the same image, checks two builds are byte identical
+        # (the guard only works if they are), and uploads them so they can be
+        # committed. Reports a mismatch with the checked in files, never fails on it.
+        if: matrix.os == 'macos-latest'
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc --version | head -1
+          d=resources/transcribe/darwin-universal
+          build() { sh tools/build-md-speech.sh; sh tools/build-md-hotkey.sh; sh tools/build-md-tap.sh; }
+          build; mkdir -p "$RUNNER_TEMP/first"; cp $d/md-speech $d/md-hotkey $d/md-tap "$RUNNER_TEMP/first/"
+          build
+          for h in md-speech md-hotkey md-tap; do
+            cmp "$RUNNER_TEMP/first/$h" "$d/$h" || { echo "::error::$h is not reproducible on this runner"; exit 1; }
+            git diff --quiet -- "$d/$h" && echo "$h matches the checked in file" || echo "::warning::$h differs from the checked in file"
+          done
+
+      - if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: swift-helpers-darwin-universal
+          path: |
+            resources/transcribe/darwin-universal/md-speech
+            resources/transcribe/darwin-universal/md-hotkey
+            resources/transcribe/darwin-universal/md-tap
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Drive the md-hotkey helper over its protocol
+        timeout-minutes: 5
+        # Linux gets a virtual X display (xvfb) so the grab, the clipboard and
+        # the XTest paste are exercised for real; a runner has no microphone,
+        # so a recording answers capture-failed and the test expects that.
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.helper }}" = "linux-x64" ]; then
+            xvfb-run -a -s "-screen 0 1280x800x24" node --test test/v053-md-hotkey-native.test.cjs
+          else
+            node --test test/v053-md-hotkey-native.test.cjs
+          fi
+
+      - name: Drive the md-whisper helper over its protocol
+        timeout-minutes: 5
+        # Needs the model, which --skip-model left out: fetch it here so the
+        # live protocol test runs on the binary this runner built.
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/build-transcribe-helpers.mjs --target ${{ matrix.helper }} --skip-build
+          node --test test/transcribe-helper-protocol.test.cjs
+
+  # A build a person can install, for the hand tests on Windows and Linux
+  # (T127 to T129): the founder runs them himself, so he needs the installer
+  # from a branch, not a release. Manual only (workflow_dispatch), the same
+  # compile and package steps as release.yml with --publish never, unsigned,
+  # kept seven days as workflow artifacts. Not the release: no tag, no upload
+  # to the release server, no signing.
+  installers:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            args: --win
+            helper: win32-x64
+          - os: ubuntu-latest
+            args: --linux
+            helper: linux-x64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Provide distutils for node-gyp
+        run: python -m pip install --upgrade setuptools
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: npm ci
+      - name: Build the helpers and fetch the bundled model
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.helper }}" = "linux-x64" ]; then
+            sudo apt-get update -q
+            sudo apt-get install -y -q libx11-dev libxtst-dev libpulse-dev pkg-config
+          fi
+          node tools/build-transcribe-helpers.mjs --target ${{ matrix.helper }}
+      - name: Compile (electron-vite)
+        timeout-minutes: 5
+        run: npm run build
+      - name: Package the installer, unsigned, never published
+        timeout-minutes: 10
+        shell: bash
+        run: npx electron-builder ${{ matrix.args }} --publish never
+      - name: List what was made
+        shell: bash
+        run: ls -la dist | grep -E -i 'setup|portable|AppImage' || ls -la dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-installer-${{ matrix.helper }}
+          path: |
+            dist/*.exe
+            dist/*.AppImage
+          if-no-files-found: error
+          retention-days: 7

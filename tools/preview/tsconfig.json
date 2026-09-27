@@ -1,0 +1,10 @@
+{
+  "//": "The preview harness typechecks with the renderer's own settings. It is review infrastructure, not a toy: it broke silently when a component it imported was deleted, because nothing was checking it. A harness that has rotted is worse than no harness, since the first thing a reviewer learns from it is wrong.",
+  "extends": "../../tsconfig.web.json",
+  "compilerOptions": {
+    "baseUrl": "../..",
+    "noEmit": true
+  },
+  "//include": "The preload's global declaration is what types `window.cth`. Without it every component that reaches for the bridge failed here with `Property 'cth' does not exist`, and it did: this check was red at HEAD before Phase 0 and nobody was reading it.",
+  "include": ["**/*.ts", "**/*.tsx", "../../src/preload/index.d.ts"]
+}

@@ -6,6 +6,7 @@ import { useStore } from '@/store/store';
 import { MarkdownPreview } from '@/markdown/MarkdownPreview';
 import { type HiveTask, type HumanQA, openQuestion, waitsOnHuman } from './TasksKanban';
 import { compareByNewestAsk } from './askMeOrder';
+import { answerNotice, withAnswer, withDismissal } from './askMeActions';
 import { isComposingKey } from '@shared/imeGuard';
 import { useRtl } from '@/i18n/useDirection';
 
@@ -101,15 +102,7 @@ export function AskMeTab() {
     setSending(task.id);
     try {
       // 1) Document the answer ON the card.
-      const next = tasks.map((t) => {
-        if (t.id !== task.id) return t;
-        const qa = (t.humanQA ?? []).map((e) =>
-          e === open || (e.q === open.q && !e.a)
-            ? { ...e, a: text, answeredAt: new Date().toISOString() }
-            : e
-        );
-        return { ...t, humanQA: qa };
-      });
+      const next = tasks.map((t) => (t.id === task.id ? { ...t, humanQA: withAnswer(t.humanQA, open, text) } : t));
       const updated = next.find((candidate) => candidate.id === task.id);
       const result = updated
         ? await window.cth.hivePatchTask(task.id, { humanQA: updated.humanQA })
@@ -117,17 +110,7 @@ export function AskMeTab() {
       if (!result.ok) throw new Error('task changed before answer could be saved');
       setTasks(next);
       // 2) Tell the god, so the card gets unblocked and work continues.
-      await window.cth.hiveSend({
-        to: 'god',
-        act: 'inform',
-        subject: `HUMAN ANSWER on task "${task.title}"`,
-        body: [
-          `The human answered the open question on task ${task.id} ("${task.title}"):`,
-          `Q: ${open.q}`,
-          `A: ${text}`,
-          'The answer is also recorded in the card\'s humanQA. Act on it, unblock the card, and continue the work.'
-        ].join('\n')
-      }, 'human');
+      await window.cth.hiveSend(answerNotice(task, open, text), 'human');
       setAnswerDraft(task.id, '');
     } catch { /* leave the draft so the user can retry */ }
     setSending(null);
@@ -141,15 +124,7 @@ export function AskMeTab() {
   const dismiss = async (task: HiveTask) => {
     const open = openQuestion(task);
     if (!open || sending === task.id) return;
-    const next = tasks.map((t) => {
-      if (t.id !== task.id) return t;
-      const qa = (t.humanQA ?? []).map((e) =>
-        e === open || (e.q === open.q && !e.a && !e.dismissedAt)
-          ? { ...e, dismissedAt: new Date().toISOString() }
-          : e
-      );
-      return { ...t, humanQA: qa };
-    });
+    const next = tasks.map((t) => (t.id === task.id ? { ...t, humanQA: withDismissal(t.humanQA, open) } : t));
     setTasks(next); // optimistic — the card disappears immediately
     try {
       const updated = next.find((candidate) => candidate.id === task.id);

@@ -39,7 +39,9 @@ import { Icon } from '@/components/Icon';
 import { summarizeReleaseNotes } from '@shared/releaseNotes';
 import { extractDropHtml } from '@shared/releaseDrop';
 import { ReleaseDrop } from '@/components/ReleaseDrop';
-import type { UpdateStatus } from '@shared/updateState';
+import { dropSeen, offerUnlessSeen } from '@/components/releaseDropSeen';
+import { useBootSettled } from '@/store/bootGate';
+import { releaseDropKey, type UpdateStatus } from '@shared/updateState';
 
 /** The toast is the LOUD half — it only interrupts for the two states a user has
  *  to act on. Everything else (checking, available, download progress, errors)
@@ -53,7 +55,7 @@ function toastable(s: UpdateStatus): ToastStatus | null {
 const GITHUB_REPO_URL = 'https://github.com/chaitanyagiri/munder-difflin';
 /** Only ever the `href` — the click is handled by `updateOpenRelease`, which
  *  resolves `undefined` to this same page in main. */
-const GITHUB_RELEASES_URL = `${GITHUB_REPO_URL}/releases/latest`;
+const RELEASES_PAGE_URL = `${GITHUB_REPO_URL}/releases/latest`;
 
 /** One-time flag for the star ask. `cth.`-prefixed localStorage is this app's
  *  convention for renderer-only UI memory (see App.tsx's skipHivePickerOnce and
@@ -89,9 +91,12 @@ export function UpdateToast() {
    *  under the cursor of the person looking at it — this keeps it on the toast
    *  that is showing it, and withholds it from any later one. */
   const [starSpentOn, setStarSpentOn] = useState<string | null>(null);
+  const bootSettled = useBootSettled();
 
   useEffect(() => window.cth.onUpdateStatus?.((next) => {
-    const t = toastable(next);
+    // A drop the user already closed is not offered again on a re-push
+    // (releaseDropSeen.ts); the corner toast keeps its own rule.
+    const t = offerUnlessSeen(toastable(next));
     // A non-toastable state (a re-check, say) must not erase a toast the user
     // hasn't answered yet — only a new actionable state replaces it.
     if (t) setStatus(t);
@@ -100,11 +105,13 @@ export function UpdateToast() {
   // Main may have emitted before this window existed (a downloaded update
   // from a previous session, or the dev-only MD_DROP_PREVIEW boot hook), and a
   // push nobody was listening to is gone. Pull the last status once on mount so
-  // that state is not lost.
+  // that state is not lost. Main holds that status for the life of the process
+  // and this surface remounts with the shell, so the pull skips a drop the
+  // user already closed, or closing it would last until the next remount.
   useEffect(() => {
     let alive = true;
     void window.cth.updateCurrent?.().then((cur) => {
-      const t = toastable(cur);
+      const t = offerUnlessSeen(toastable(cur));
       if (alive && t) setStatus((prev) => prev ?? t);
     }).catch(() => { /* nothing to show */ });
     return () => { alive = false; };
@@ -155,6 +162,10 @@ export function UpdateToast() {
     }
   }, [showStar, version, starSpentOn]);
 
+  // 0.5.2, card v052-startup-restore-loading: nothing here, the drop above
+  // all, is offered while the restore is still running. The status is kept;
+  // it renders the moment the boot gate settles (store/bootGate.ts).
+  if (!bootSettled) return null;
   if (!status) return null;
 
   /** Close the notice FIRST, then ask main to quit and install. The quit path
@@ -197,7 +208,9 @@ export function UpdateToast() {
       <ReleaseDrop
         version={version}
         html={dropHtml}
-        onDismiss={() => setStatus(null)}
+        // Closing is remembered by state and version, so this page stays closed
+        // across remounts and re-pushes; Settings' "what's new" still opens it.
+        onDismiss={() => { dropSeen.markSeen(releaseDropKey(status)); setStatus(null); }}
       />
     );
   }
@@ -219,7 +232,8 @@ export function UpdateToast() {
 
   return (
     <div style={{
-      position: 'fixed', right: 16, bottom: 16, zIndex: 400,
+      // Position is NOT set here — AppOverlaySlot owns the transient corner,
+      // so this and the approval toast stack instead of covering each other.
       maxWidth: 340,
       background: 'var(--cth-cream-50)',
       boxShadow: '0 0 0 2px var(--cth-ink-900), 4px 5px 0 0 rgba(26,19,32,0.25)',
@@ -268,7 +282,7 @@ export function UpdateToast() {
           </ul>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a
-              href={status.state === 'available-manual' ? status.url : GITHUB_RELEASES_URL}
+              href={status.state === 'available-manual' ? status.url : RELEASES_PAGE_URL}
               onClick={(e) => { e.preventDefault(); openRelease(); }}
               style={linkStyle}
             >Read more</a>

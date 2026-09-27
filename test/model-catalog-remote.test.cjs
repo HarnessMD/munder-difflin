@@ -148,12 +148,20 @@ test('version bounds survive the parse', () => {
 
 // ─── the overlay ────────────────────────────────────────────────────────────
 
-test('a remote provider replaces that list; the others keep the baked one', () => {
+// 0.5.3, founder F1 (24 Sep): this used to assert that a remote provider list
+// REPLACED the baked one outright. That is what dropped Opus 5.5 from the
+// pickers the day it shipped as the default, because the remote file lags a
+// release. The merge is per MODEL now: the remote leads and wins by id, and a
+// baked model it does not name is kept after it. See v053-model-names.
+test('a remote provider leads that list and keeps the baked models it does not name', () => {
   const before = modelsForProvider('codex');
   assert.ok(applyRemoteModelCatalog(parseModelCatalog(ok({
     claude: [{ id: 'claude-next-9', label: 'Next 9' }]
   }))));
-  assert.deepEqual(modelsForProvider('claude'), [{ id: 'claude-next-9', label: 'Next 9' }]);
+  const claude = modelsForProvider('claude');
+  assert.deepEqual(claude[0], { id: 'claude-next-9', label: 'Next 9' }, 'the remote leads');
+  assert.deepEqual(claude.slice(1), baked.providers.claude.map((m) => (m.id === undefined ? { label: m.label } : { id: m.id, label: m.label })),
+    'and every baked model the remote did not name is kept, in its own order');
   assert.deepEqual(modelsForProvider('codex'), before, 'codex was not in the remote copy');
 });
 
@@ -163,7 +171,8 @@ test('the Claude-only surfaces read the overlay, not a snapshot', () => {
   applyRemoteModelCatalog(parseModelCatalog(ok({
     claude: [{ id: 'claude-next-9', label: 'Next 9' }]
   })));
-  assert.deepEqual(agentModels(), [{ id: 'claude-next-9', label: 'Next 9' }]);
+  assert.deepEqual(agentModels()[0], { id: 'claude-next-9', label: 'Next 9' });
+  assert.deepEqual(agentModels(), modelsForProvider('claude'), 'the same overlay, not a second reading');
 });
 
 test('clearing the overlay restores the models the build shipped with', () => {
@@ -188,12 +197,15 @@ test('the version filter still runs over remote entries', () => {
       { id: 'later', label: 'Later', minAppVersion: '99.0.0' }
     ]
   })));
+  // Only the two remote entries are read here; the baked models the merge
+  // keeps after them are not what this test is about.
+  const remoteIds = (ids) => ids.filter((id) => id === 'always' || id === 'later');
   // No __APP_VERSION__ define outside a build, so the filter fails open and
   // offers both — the deliberate "never hide every model" behaviour.
-  assert.deepEqual(modelsForProvider('claude').map((m) => m.id), ['always', 'later']);
+  assert.deepEqual(remoteIds(modelsForProvider('claude').map((m) => m.id)), ['always', 'later']);
   globalThis.__APP_VERSION__ = '0.4.6';
   try {
-    assert.deepEqual(modelsForProvider('claude').map((m) => m.id), ['always']);
+    assert.deepEqual(remoteIds(modelsForProvider('claude').map((m) => m.id)), ['always']);
   } finally {
     delete globalThis.__APP_VERSION__;
   }

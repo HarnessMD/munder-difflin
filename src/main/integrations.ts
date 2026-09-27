@@ -135,6 +135,12 @@ export function getSecret(secretRef: string | undefined): string | undefined {
   }
 }
 
+/** Every ref the store holds (no decryption). Custom secrets are listed from
+ *  their `env:` refs, so the store is the one record of which exist. */
+export function listSecretRefs(): string[] {
+  return Object.keys(readSecretBlob());
+}
+
 /** Whether a secret is stored for this ref (no decryption). */
 export function hasSecret(secretRef: string | undefined): boolean {
   if (!secretRef) return false;

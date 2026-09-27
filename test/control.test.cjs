@@ -31,6 +31,23 @@ test('persisted delivery pauses replace stale in-memory state', () => {
   assert.equal(control.isAutoDeliveryPaused('dev3'), true);
 });
 
+test('unhalt cancels a pending halt and nothing else', () => {
+  const control = new ControlRegistry();
+  control.pause('dev1', true);
+  control.halt('dev1');
+  control.steer('dev1', 'note');
+  assert.equal(control.shouldHalt('dev1'), true);
+
+  control.unhalt('dev1');
+  assert.equal(control.shouldHalt('dev1'), false);
+  assert.equal(control.snapshot('dev1').paused, true, 'a pause set alongside the halt survives the cancel');
+  assert.equal(control.snapshot('dev1').pendingSteers, 1, 'queued steers survive the cancel');
+
+  // An agent the registry has never seen is a no-op, not a crash or a row.
+  control.unhalt('never-seen');
+  assert.equal(control.shouldHalt('never-seen'), false);
+});
+
 test('steer queue is capped so a stalled agent cannot accumulate unbounded notes', () => {
   const control = new ControlRegistry();
   for (let i = 1; i <= 25; i++) control.steer('dev9', `note ${i}`);

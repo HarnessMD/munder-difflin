@@ -21,6 +21,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import type { BoundPort } from '../shared/boundPort';
 // NOTE: `tunnelmole` is an ESM-only package. The Electron main process is bundled
 // as CommonJS, so a static `import` gets externalized into `require('tunnelmole')`
 // and throws ERR_REQUIRE_ESM at load. It is imported dynamically inside
@@ -79,6 +80,9 @@ export interface SlackWebhookServerOptions {
    *  coordinates needed to reply back in the originating thread. May be async
    *  (e.g. to download file attachments before forwarding via IPC). */
   onMessage: (m: SlackInboundMessage) => void | Promise<void>;
+  /** How the public tunnel is opened. The app leaves this out and gets
+   *  tunnelmole; a test passes its own so no network is touched. */
+  openTunnel?: (port: number) => Promise<string>;
 }
 
 /** A verified, de-mentioned inbound Slack message plus the coordinates needed to
@@ -112,7 +116,14 @@ const TUNNEL_START_TIMEOUT_MS = 10_000;
 export class SlackWebhookServer {
   private server: Server | null = null;
   private tunnelUrl: string | null = null;
-  private readonly port: number;
+  /** The port this server is bound to, or will try first. It moves when the
+   *  asked for port is taken (0.5.3, bug 11), and the tunnel follows it. */
+  private port: number;
+  /** The port config asked for. Only ever reported, never bound again. */
+  private readonly requestedPort: number;
+  /** Set when the asked for port was taken and the server moved off it. */
+  private movedFromPort: number | undefined;
+  private readonly tunnelOpener?: (port: number) => Promise<string>;
   private readonly signingSecret: string;
   private readonly channelId?: string;
   private readonly onMessage: (m: SlackInboundMessage) => void | Promise<void>;
@@ -130,6 +141,8 @@ export class SlackWebhookServer {
 
   constructor(opts: SlackWebhookServerOptions) {
     this.port = opts.port;
+    this.requestedPort = opts.port;
+    this.tunnelOpener = opts.openTunnel;
     this.signingSecret = opts.signingSecret;
     this.channelId = opts.channelId?.trim() || undefined;
     this.onMessage = opts.onMessage;
@@ -142,49 +155,80 @@ export class SlackWebhookServer {
    * (offline, loca.lt down, timed out) the server keeps running and we report
    * the tunnel error without a URL.
    */
-  async start(): Promise<{ ok: boolean; url?: string; error?: string }> {
+  async start(): Promise<{ ok: boolean; url?: string; error?: string; port?: number; movedFrom?: number }> {
     if (this.server) return { ok: false, error: 'already running' };
     if (!this.signingSecret) return { ok: false, error: 'missing signing secret' };
+    let movedFrom: number | undefined;
     try {
-      await this.listen();
+      await this.listen(this.requestedPort);
     } catch (e) {
-      this.stop();
-      return { ok: false, error: `failed to bind port ${this.port}: ${errMsg(e)}` };
+      // 0.5.3, bug 11 (GaryP, 10 Sep 2026): "failed to bind port 3847:
+      // EADDRINUSE" after an upgrade, because an older Munder process still
+      // held the port, and Slack stayed off until he found and killed it.
+      // Nothing outside this process knows the local port: Slack talks to the
+      // tunnel's public address, and the tunnel is opened below to whatever
+      // port was bound. So a taken port is not a reason to stay off. Take a
+      // free one, the way fileShare's ensureServer does.
+      if ((e as NodeJS.ErrnoException)?.code !== 'EADDRINUSE') {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort}: ${errMsg(e)}` };
+      }
+      try {
+        await this.listen(0);
+        movedFrom = this.requestedPort;
+        this.movedFromPort = movedFrom;
+      } catch (e2) {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort} (in use) or any free port: ${errMsg(e2)}` };
+      }
     }
+    const bound = { port: this.port, ...(movedFrom !== undefined ? { movedFrom } : {}) };
     try {
       const url = await this.openTunnel();
       if (!url) throw new Error('tunnelmole returned empty URL');
       this.tunnelUrl = url;
       // tunnelmole runs in the background; there is no close handle to wire here.
-      return { ok: true, url };
+      return { ok: true, url, ...bound };
     } catch (e) {
       // Surface the tunnel failure rather than silently returning ok:true with no url.
-      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}` };
+      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}`, ...bound };
     }
+  }
+
+  /** Where the server really is, for Settings (shared/boundPort.ts). Empty when
+   *  it is not bound. */
+  boundPort(): BoundPort {
+    if (!this.server) return {};
+    return { port: this.port, ...(this.movedFromPort !== undefined ? { movedFrom: this.movedFromPort } : {}) };
   }
 
   /** Close the HTTP server. Idempotent and best-effort.
    *  Note: tunnelmole has no documented close handle; teardown is best-effort. */
   stop(): void {
+    this.movedFromPort = undefined;
     this.tunnelUrl = null;
     try { this.server?.close(); } catch { /* noop */ }
     this.server = null;
   }
 
-  private listen(): Promise<void> {
+  private listen(port: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const server = createServer((req, res) => this.handleRequest(req, res));
       const onError = (e: Error): void => reject(e);
       server.once('error', onError);
-      server.listen(this.port, () => {
+      server.listen(port, () => {
         server.off('error', onError);
         this.server = server;
+        // Port 0 means "any": read back the one the system gave.
+        const addr = server.address();
+        this.port = addr && typeof addr === 'object' ? addr.port : port;
         resolve();
       });
     });
   }
 
   private async openTunnel(): Promise<string> {
+    if (this.tunnelOpener) return this.tunnelOpener(this.port);
     // TODO: optional persistent domain — pass `domain` here when config carries one.
     // Dynamic import keeps the ESM-only `tunnelmole` out of the CJS require graph.
     const { tunnelmole } = await import('tunnelmole');
@@ -335,8 +379,9 @@ interface SlackPayload {
   };
 }
 
-/** Strip a single leading `<@BOTID>` app-mention so "@bot do X" enqueues "do X". */
-function stripLeadingMention(text: string): string {
+/** Strip a single leading `<@BOTID>` app-mention so "@bot do X" enqueues "do X".
+ *  Exported (0.4.11) so the polling and Socket Mode transports strip the same way. */
+export function stripLeadingMention(text: string): string {
   return text.replace(/^\s*<@[A-Z0-9]+>\s*/i, '').trim();
 }
 
@@ -350,13 +395,20 @@ function errMsg(e: unknown): string {
  * is passed in by the caller: it lives in main's config and never leaves the
  * main process, and is NEVER logged. Resolves Slack's `{ ok, error? }`.
  */
+/** What every post reports, token excluded. */
+export interface SlackPostRecord { channel: string; thread_ts: string; text: string; ok: boolean; error?: string }
+let postSink: ((r: SlackPostRecord) => void) | null = null;
+/** Main installs the ledger here (slackHistory.ts). One sink for the three
+ *  callers of postSlackReply, so no post can happen off the record. */
+export function setSlackPostSink(sink: ((r: SlackPostRecord) => void) | null): void { postSink = sink; }
+
 export function postSlackReply(opts: {
   botToken: string;
   channel: string;
   thread_ts: string;
   text: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  return new Promise((resolve) => {
+  return new Promise<{ ok: boolean; error?: string }>((resolve) => {
     if (!opts.botToken) { resolve({ ok: false, error: 'missing bot token' }); return; }
     // CLAUSE-1 guard (fix-slack-integration): refuse any send that lacks an
     // EXPLICIT channel + thread target. A blank/whitespace thread_ts would post
@@ -390,6 +442,11 @@ export function postSlackReply(opts: {
     req.on('error', (e) => resolve({ ok: false, error: errMsg(e) }));
     req.write(body);
     req.end();
+  }).then((r) => {
+    // Recorded after the fact so a ledger fault can never block the post; the
+    // sink is wrapped because it is main's code running on Slack's callback.
+    try { postSink?.({ channel: opts.channel, thread_ts: opts.thread_ts, text: opts.text, ok: r.ok, error: r.error }); } catch { /* ledger only */ }
+    return r;
   });
 }
 

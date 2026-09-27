@@ -1,4 +1,5 @@
 import { CSSProperties, ReactNode, useState } from 'react';
+import { useAppSkin } from '@/design/skin';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 type Size = 'sm' | 'md' | 'lg';
@@ -27,6 +28,7 @@ export function PixelButton({
   style,
   title
 }: PixelButtonProps) {
+  const skin = useAppSkin();
   const [pressed, setPressed] = useState(false);
   const [hover, setHover] = useState(false);
 
@@ -45,7 +47,73 @@ export function PixelButton({
   // disabled control should look like anyway.
   const disabledText = 'var(--cth-ink-500)';
 
-  const palette = (() => {
+  /**
+   * PROFESSIONAL: FILLS CARRY INTERACTIVITY, BORDERS CARRY STRUCTURE.
+   *
+   * Office's primary is an ink-900 fill with cream-50 text. In Professional dark
+   * `--cth-ink-900` is #FFFFFF, so that same rule painted a WHITE primary button
+   * on every screen — the one thing section 6.2 and Pam's kit explicitly rule out
+   * ("a primary button is never white"; a loud primary is the landing-page device
+   * this skin exists to avoid). Creed caught it in a rendered screenshot rather
+   * than in source, because in source it is a token that looks right.
+   *
+   * This CANNOT be a `var(--cth-control-base, var(--cth-ink-900))` fallback like
+   * the radius work, because the two skins invert the TEXT as well as the fill:
+   * Office puts light text on a dark fill, Professional puts primary text on a
+   * subtle one. A CSS fallback can pick a missing value; it cannot pick a
+   * different pairing. So the branch is explicit.
+   *
+   * The ladder is Pam's, and the four names describe PROMINENCE, not interaction
+   * state — the same value is one control's rest and another's hover:
+   *   Primary    rest control-base   hover control-raised  press control-strong
+   *   Secondary  rest control-quiet  hover control-base    press control-raised
+   *   Ghost      rest no chrome      hover control-quiet   press control-base
+   */
+  const step = (rest: string, hovered: string, press: string) =>
+    disabled ? 'var(--cth-control-quiet)' : (pressed ? press : hover ? hovered : rest);
+
+  const professional = (() => {
+    const quiet = 'var(--cth-control-quiet)';
+    const base = 'var(--cth-control-base)';
+    const raised = 'var(--cth-control-raised)';
+    const strong = 'var(--cth-control-strong)';
+    switch (variant) {
+      case 'primary':
+        return {
+          fill: step(base, raised, strong),
+          text: disabled ? disabledText : 'var(--cth-ink-900)',
+          border: 'var(--cth-ink-300)',   // a hairline, one rung above secondary
+          shadow: 'transparent'           // section 6.3: no drop shadow on controls
+        };
+      case 'secondary':
+        return {
+          fill: step(quiet, base, raised),
+          text: disabled ? disabledText : 'var(--cth-ink-900)',
+          border: 'var(--cth-ink-300)',
+          shadow: 'transparent'
+        };
+      case 'ghost':
+        // The toolbar action keeps NO chrome at rest on purpose — it has no
+        // border either, so it never had the invisible-edge problem this fixes.
+        return {
+          fill: disabled ? 'transparent' : (pressed ? base : hover ? quiet : 'transparent'),
+          text: disabled ? disabledText : 'var(--cth-ink-700)',
+          border: 'transparent',
+          shadow: 'transparent'
+        };
+      case 'destructive':
+        // Status colour, which section 3 permits: blocked/destructive is one of
+        // the three things colour is allowed to carry.
+        return {
+          fill: disabled ? quiet : (hover ? 'var(--cth-status-blocked-tint)' : 'var(--cth-status-blocked)'),
+          text: disabled ? disabledText : 'var(--cth-cream-50)',
+          border: 'var(--cth-ink-300)',
+          shadow: 'transparent'
+        };
+    }
+  });
+
+  const office = (() => {
     switch (variant) {
       case 'primary':
         return {
@@ -76,7 +144,9 @@ export function PixelButton({
           shadow:  'var(--cth-ink-300)'
         };
     }
-  })();
+  });
+
+  const palette = (skin === 'professional' ? professional() : office())!;
 
   return (
     <button

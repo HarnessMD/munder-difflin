@@ -52,7 +52,9 @@ test('slack:stop persists slackEnabled:false, so boot does not re-arm', () => {
 });
 
 test('slack:stop still actually stops the running server', () => {
-  assert.ok(/stopSlackServer\(\)/.test(slackStopHandler()), 'slack:stop no longer stops the server');
+  // PRO runs three ways (webhook, poll, socket) behind one stop, so the call is
+  // stopSlackIngestion() rather than public main's webhook-only stopSlackServer().
+  assert.ok(/stopSlackIngestion\(\)/.test(slackStopHandler()), 'slack:stop no longer stops the way');
 });
 
 test('the lifecycle teardowns do not clear the flag', () => {

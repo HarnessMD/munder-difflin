@@ -251,8 +251,8 @@ test('only human hive messages are counted, never agent-to-agent traffic', () =>
 
 test('steer is counted at the IPC seam, not inside control.steer', () => {
   assert.match(main, /control\.steer\(agentId, text\);\n(?:\s*\/\/.*\n)*\s*analytics\.trackMessageSent\('steer'\);/);
-  // closingTime and the voice action layer call control.steer directly and are
-  // not a person typing; counting inside control.ts would sweep them in.
+  // The voice action layer calls control.steer directly and is not a person
+  // typing; counting inside control.ts would sweep it in.
   const control = read('src/main/control.ts');
   assert.ok(!control.includes('trackMessageSent'), 'control.ts must not count');
 });
@@ -283,4 +283,48 @@ test('every event in the allowlist is described in TELEMETRY.md, and vice versa'
 
   assert.deepEqual(inCode.slice().sort(), inDoc.slice().sort(),
     'analytics.ts EVENTS and the TELEMETRY.md table must list exactly the same events');
+});
+
+test("Ryan's rule: every property the allowlist sends is in its table row, and no row claims one the code refuses", () => {
+  // The check above stops at the event NAME. This goes one level down, to the
+  // properties, because the 0.5.1 move of `period` from checkout_opened to
+  // licence_activated is exactly the change a name-only check cannot see: both
+  // events still exist, and the table could describe either one wrongly while
+  // the suite stayed green. Ryan owns TELEMETRY.md; the rule is his, and the
+  // gate on a release tag is that this passes.
+  const analyticsSrc = read('src/main/analytics.ts');
+  const block = analyticsSrc.slice(
+    analyticsSrc.indexOf('const EVENTS'),
+    analyticsSrc.indexOf('/** The only values `feature_used')
+  );
+  const sets = {};
+  // `first_run: new Set<string>()` has no array at all; an event with no
+  // properties is still an event, with an empty set.
+  for (const m of block.matchAll(/^\s{2}([a-z_]+): new Set<string>\((?:\[([^\]]*)\])?\)/gm)) {
+    sets[m[1]] = [...(m[2] ?? '').matchAll(/'([a-z_]+)'/g)].map((x) => x[1]);
+  }
+  assert.ok(Object.keys(sets).length >= 10, `parsed ${Object.keys(sets).length} allowlist entries`);
+  // A backticked token in a row is a PROPERTY only if some event sends a
+  // property by that name; every other backticked token is an enum value.
+  const known = new Set(Object.values(sets).flat());
+  assert.ok(known.has('period') && known.has('seats_bucket'), 'the property universe parsed');
+
+  const rows = telemetryDoc.slice(telemetryDoc.indexOf('The events:'), telemetryDoc.indexOf('### About'));
+  let checked = 0;
+  for (const m of rows.matchAll(/^\| `([a-z_]+)` \| ([^|]*) \|/gm)) {
+    const [, event, cell] = m;
+    assert.ok(sets[event], `${event} is in the table and not in the allowlist`);
+    const inRow = [...cell.matchAll(/`([a-z_]+)`/g)].map((x) => x[1]).filter((t) => known.has(t));
+    for (const p of sets[event]) {
+      assert.ok(inRow.includes(p), `${event}: the code sends \`${p}\` and the table row does not say so`);
+    }
+    for (const p of inRow) {
+      assert.ok(sets[event].includes(p), `${event}: the table row lists \`${p}\` and the code refuses it`);
+    }
+    checked += 1;
+  }
+  assert.equal(checked, Object.keys(sets).length, 'every allowlisted event has a row');
+  // The 0.5.1 move, pinned by name so the intent survives a refactor of the parser.
+  assert.deepEqual(sets.checkout_opened, ['plan', 'seats_bucket']);
+  assert.deepEqual(sets.licence_activated, ['plan', 'source', 'period']);
 });

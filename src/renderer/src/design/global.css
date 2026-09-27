@@ -180,6 +180,17 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   0%, 49% { transform: scale(1); }
   50%, 100% { transform: scale(0.7); }
 }
+/* Teams: the network is thinking. Steps, never a spinning ring and never a
+   shimmer — loading in this product is stepped like everything else. */
+@keyframes cth-step {
+  0%, 33%   { opacity: 1; }
+  34%, 100% { opacity: 0.25; }
+}
+.cth-stepped-dot {
+  display: inline-block;
+  opacity: 0.25;
+  animation: cth-step 900ms steps(1, end) infinite;
+}
 
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
@@ -286,12 +297,12 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .cth-md-preview a { color: var(--cth-sky); }
 .cth-md-preview code {
   font-family: var(--cth-font-mono); font-size: 12.5px;
-  background: var(--cth-cream-200); padding: 1px 5px; border-radius: 2px;
+  background: var(--cth-cream-200); padding: 1px 5px; border-radius: var(--cth-radius-sm, 2px);
 }
 .cth-md-preview pre {
   background: var(--cth-cream-200);
   box-shadow: inset 0 0 0 1px var(--cth-ink-100);
-  padding: 10px 12px; overflow-x: auto; border-radius: 2px;
+  padding: 10px 12px; overflow-x: auto; border-radius: var(--cth-radius-lg, 2px);
 }
 .cth-md-preview pre code { background: transparent; padding: 0; }
 /* Code is LTR no matter what language the prose around it is in: an inline
@@ -325,12 +336,12 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .cth-md-preview .cth-md-image {
   display: block; max-width: 100%; height: auto; margin: 0.6em 0;
   box-shadow: inset 0 0 0 1px var(--cth-ink-100);
-  border-radius: 2px;
+  border-radius: var(--cth-radius-lg, 2px);
 }
 .cth-md-preview .cth-md-img {
   display: inline-block; padding: 2px 8px; font-size: 12px;
   background: var(--cth-cream-200); box-shadow: inset 0 0 0 1px var(--cth-ink-100);
-  color: var(--cth-ink-500); border-radius: 2px;
+  color: var(--cth-ink-500); border-radius: var(--cth-radius-sm, 2px);
 }
 
 /* ─── Markdown inside a card (v0.4.6) ────────────────────────────────────────
@@ -369,3 +380,65 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .cth-md-card hr { margin: 0.8em 0; }
 .cth-md-card table { margin: 0.5em 0; }
 .cth-md-card th, .cth-md-card td { padding: 3px 7px; font-size: 0.9em; }
+
+/* The app-level overlay slot — see components/AppSlots.tsx.
+   The layer spans the window so its contents can anchor to the viewport, and it
+   passes clicks straight through; only what is actually rendered in it takes
+   input. A modal covers the window on its own and gets the whole surface; a
+   toast gets only its own box, which is the difference between a toast and a
+   freeze. */
+.cth-app-overlay { position: fixed; inset: 0; z-index: 900; pointer-events: none; }
+.cth-app-overlay > * { pointer-events: auto; }
+
+/* THE TRANSIENT CORNER, owned in exactly one place. Three toasts used to anchor
+   themselves here independently and covered each other by z-index. They are a
+   column now, so they cannot overlap however many are up at once.
+   `column-reverse` puts the FIRST child nearest the corner, which is the most
+   reachable spot, so the array is ordered by urgency.
+   `right` rather than `inset-inline-end` on purpose: every one of these toasts
+   sat on the right in RTL before this change, and moving them is a separate
+   decision from stopping them covering each other. */
+.cth-app-overlay-transients {
+  position: absolute; right: 16px; bottom: 16px;
+  display: flex; flex-direction: column-reverse; align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+.cth-app-overlay-transients > * { pointer-events: auto; }
+
+/* The roster row's add-note control (F25, Pam's review of #36): a control with
+   nothing to edit stays out of sight until the row is hovered or focused, or
+   its editor is open. */
+[data-note-add] { opacity: 0; transition: opacity 120ms; }
+[data-roster-row]:hover [data-note-add],
+[data-roster-row]:focus-within [data-note-add],
+[data-note-add][data-open] { opacity: 1; }
+
+/* THE PRO RAIL'S ROW (0.5.3, F25, Pam's V2). The note clip is quiet until the
+   row is hovered or selected, because most rows never carry a note and a
+   column of icons would be noise on the one surface that is always on screen;
+   a row with a note shows its clip in front of the note. Hover fill matches
+   the selected fill, as the prototype does. */
+.cth-rail-row:hover { background: var(--cth-surface-active); }
+.cth-rail-row .cth-rail-clip { opacity: 0; transition: opacity 120ms; }
+.cth-rail-row:hover .cth-rail-clip, .cth-rail-row[aria-current="page"] .cth-rail-clip, .cth-rail-row .cth-rail-clip:focus-visible { opacity: 0.7; }
+.cth-rail-row .cth-rail-clip:hover { opacity: 1; background: var(--cth-cream-200); }
+/* KEEP MY AGENT ORDER (0.5.3): the drag grip shows on a hovered or held row. */
+/* Keep my agent order: the handle under each avatar is always there while the
+   setting is on (batch 3: a hover only handle was never found). */
+.cth-order-grip { opacity: 0.45; transition: opacity 120ms, background 120ms; left: var(--cth-grip-ltr); }
+[dir="rtl"] .cth-order-grip { left: auto; right: var(--cth-grip-rtl); }
+.cth-order-row:hover > .cth-order-grip { opacity: 0.75; }
+.cth-order-grip:hover, .cth-order-row[data-dragging] > .cth-order-grip { opacity: 1; background: var(--cth-cream-200); }
+.cth-order-group > [data-agent-group] { cursor: grab; user-select: none; }
+.cth-order-group[data-dragging] > [data-agent-group] { cursor: grabbing; }
+
+/* THE ASK ME ROW (0.5.3, founder 24 Sep 2026): a question row in the section
+   docked over the composer. Hover is the kit's inset tint, not a colour. */
+.cth-ask-row { background: transparent; transition: background-color 120ms ease; }
+.cth-ask-row:hover { background: var(--cth-cream-200); }
+
+/* The PRO sidebar's resize edge (0.5.3 rc.4): a hairline shows on hover and
+   while focused, so the edge can be found without a permanent line. */
+.cth-rail-edge { background: transparent; transition: background 120ms; outline: none; }
+.cth-rail-edge:hover, .cth-rail-edge:focus-visible { background: var(--cth-ink-300); }

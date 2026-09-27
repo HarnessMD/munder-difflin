@@ -67,3 +67,13 @@ function loadFile(filename) {
 module.exports = function loadTs(relativePath) {
   return loadFile(path.resolve(__dirname, '..', relativePath));
 };
+
+/** Load that one file again, ignoring the copy already loaded (its imports
+ *  stay cached). For a module that captures a stubbed `electron` at load: two
+ *  tests that stub it differently each need their own copy, or the second
+ *  registers onto the first's stub. */
+module.exports.fresh = function loadTsFresh(relativePath) {
+  const filename = path.resolve(__dirname, '..', relativePath);
+  cache.delete(filename);
+  return loadFile(filename);
+};

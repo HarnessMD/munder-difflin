@@ -1,3 +1,4 @@
+import { DEFAULT_TRANSCRIBE, withTranscribeDefaults, type TranscribeConfig } from '../shared/transcribeConfig';
 import { app } from 'electron';
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -9,17 +10,30 @@ import {
   providerPreset,
   type AgentProvider
 } from '../shared/agentProvider';
-import { defaultMcpDefaults } from '../shared/mcpCatalog';
+import { MCP_CATALOG, defaultMcpDefaults } from '../shared/mcpCatalog';
+import { sanitizeAgentMcp, withAgentMcp } from '../shared/agentMcp';
 import { MAX_AGENT_TOKEN_CAP } from '../shared/tokenCaps';
 import { expandTilde, normalizeHiveHome } from './fs';
+import { pruneDeletedHives, type HiveProbe } from '../shared/hivePaths';
+import type { TaskHygieneConfig } from '../shared/taskHygiene';
 import type { IntegrationRecord } from '../shared/integrations';
+import type { SlackMode, SlackTriage } from '../shared/slackMode';
+import {
+  type CustomAvatar,
+  MAX_CUSTOM_AVATARS,
+  newCustomAvatarId,
+  normalizeCustomAvatar,
+  normalizeRecipe,
+  sanitizeAvatarName
+} from '../shared/avatars';
+import { DEFAULT_RESPONSE_STYLE, normalizeResponseStyle } from '../shared/responseStyle';
+import { normalizePuckConfig, type PuckConfig } from '../shared/puck';
+import { normalizeAgentOrder } from '../shared/agentOrder';
 import {
   DEFAULT_CONTEXT_TRIGGER,
-  DEFAULT_ORG_TRIGGER,
   DEFAULT_TRIGGER_MODE,
   DEFAULT_WEBHOOK_SCHEMA,
   type ContextTriggerConfig,
-  type OrgTriggerConfig,
   type WebhookTrigger
 } from '../shared/triggers';
 
@@ -39,7 +53,7 @@ export interface ScheduledMission {
   enabled: boolean;
   /** When true, the scheduler asks the renderer to compact live terminals when
    *  this mission fires — but only agents whose context has filled past the bar
-   *  in `contextTrigger.compact` (60% by default, 40% on ~1M-token windows), so
+   *  in `contextTrigger.compact` (30% by default, on ~1M-token windows too), so
    *  small/idle sessions are left alone instead of compacting on every tick.
    *
    *  This gate used to be described here but was never actually implemented: every
@@ -123,11 +137,11 @@ export const HEARTBEAT_MISSION: ScheduledMission = {
 export const COMPACT_MAINTENANCE_MISSION: ScheduledMission = {
   id: 'compact-maintenance',
   label: 'Auto-compact (maintenance)',
-  // 2h, matching DEFAULT_CONTEXT_TRIGGER.compact.everyMs. The two cadences must
-  // agree: this mission is the schedule half of the same behaviour the context
-  // trigger now owns, and a 1h seed here would keep interrupting agents on the
-  // old rhythm no matter what the trigger says.
-  intervalMs: 7_200_000,
+  // 40 minutes, matching DEFAULT_CONTEXT_TRIGGER.compact.everyMs (founder,
+  // 23 Sep 2026). The two cadences must agree: this mission is the schedule
+  // half of the same behaviour the context trigger owns, and a seed on the old
+  // rhythm here would keep interrupting agents no matter what the trigger says.
+  intervalMs: DEFAULT_CONTEXT_TRIGGER.compact.everyMs,
   to: '',
   body: '',
   enabled: false,
@@ -139,6 +153,18 @@ export const COMPACT_MAINTENANCE_MISSION: ScheduledMission = {
  *  it. `migrateTriggersV1` bumps only missions still sitting on this EXACT value,
  *  so an interval the user tuned by hand is left exactly where they put it. */
 const LEGACY_COMPACT_MAINTENANCE_INTERVAL_MS = 3_600_000;
+/** Every cadence this mission has ever been SEEDED with: 1h (pre Triggers), 2h
+ *  (0.4.x to 0.5.2). A disabled mission still on one of these was never touched
+ *  by the person, so it follows the current default; an enabled one, or any
+ *  other interval, is a choice and is kept. */
+const SEEDED_COMPACT_MAINTENANCE_INTERVALS_MS = new Set([LEGACY_COMPACT_MAINTENANCE_INTERVAL_MS, 7_200_000]);
+/** The compact trigger exactly as 0.4.x to 0.5.2 seeded it. A persisted rule
+ *  that still reads like this was never edited, so it takes the new default. */
+const SEEDED_COMPACT_TRIGGERS = [
+  { everyMs: 7_200_000, minContextPct: 60, minContextPctLargeWindow: 40 },
+  // the first 0.5.3 draft (pro/v053 a7c16132, never shipped past the founder's test build)
+  { everyMs: 2_400_000, minContextPct: 30, minContextPctLargeWindow: 20 }
+] as const;
 
 /** Circuit-breaker thresholds (Lane A #6.6b). The breaker runs inside the
  *  heartbeat beat, so it only ticks when the heartbeat is enabled. Trip
@@ -192,7 +218,12 @@ export interface HarnessConfig {
   autoMode: boolean;
   /** May the orchestrator ("Michael") spin up agents on its own?
    *
-   *  Default FALSE. Spawning an agent is a SPEND decision, so it should not
+   *  0.5.3 (founder, 23 Sep 2026): "Michael cannot spawn temps by default,
+   *  which should not be the case." Default TRUE again, and an install that
+   *  still has the old saved false is flipped once by `migrateTempsOnV053`;
+   *  the person can still turn it off. The history below is why it was off.
+   *
+   *  Was default FALSE. Spawning an agent is a SPEND decision, so it should not
    *  happen unprompted. The ability itself shipped in v0.4.4 with no gate at all,
    *  so this closes an existing default-on behaviour rather than gating a new
    *  feature: an operator who wants it must now say so.
@@ -209,8 +240,11 @@ export interface HarnessConfig {
    *  are those that can receive inbox (claude/codex/antigravity/qwen). */
   godProvider?: AgentProvider;
   /** The model GOD runs on. Unset falls back to the provider preset's
-   *  `recommendedOrchestratorModel`, then MODEL_GOD. Default 'claude-opus-4-8'. */
+   *  `recommendedOrchestratorModel`, then MODEL_GOD. Default 'claude-opus-5-5'. */
   godModel?: string;
+  /** A hand edited orchestrator command (0.5.3 bug 20). Wins over the line
+   *  derived from godProvider and godModel; see shared/godCommand.ts. */
+  godCommand?: string;
   /** Per-server consent state for the default MCP bundle, keyed by catalog id.
    *  Seeded from MCP_CATALOG (safe-readonly ON, write/secret OFF); the user flips
    *  these in Settings. A server is wired into an agent only when enabled here. */
@@ -248,6 +282,10 @@ export interface HarnessConfig {
    *  budget, which sums all kinds). Set from each agent's card in the Command
    *  Center. */
   agentTokenCaps?: Record<string, number>;
+  /** Per-agent MCP overrides, agent id → catalog id → consent. An agent with no
+   *  row follows `mcpDefaults`. Resolved by shared/agentMcp.ts on the launch
+   *  path; written only through `setAgentMcp` (read-modify-write in main). */
+  agentMcp?: Record<string, Record<string, { enabled: boolean }>>;
   /** Agent ids whose automatic inbox/queue delivery is paused. Pending messages
    *  stay durable until the operator explicitly resumes delivery. */
   autoDeliveryPausedAgents?: string[];
@@ -287,6 +325,25 @@ export interface HarnessConfig {
    *  AC). Default OFF: the honest default is "survive sleep + catch up once on
    *  resume" (see the powerMonitor 'resume' handler), not "stay awake". */
   strongKeepalive?: boolean;
+  /** Keep my agent order (0.5.3, founder 24 Sep): off by default. On, the
+   *  sidebar draws `agentOrder` and rows can be dragged; off, it orders itself
+   *  most recently used first and rows cannot move. Rules: shared/agentOrder.ts. */
+  keepAgentOrder?: boolean;
+  /** The sidebar's agent ids top to bottom, orchestrator excluded. Frozen from
+   *  the screen the first time keepAgentOrder is on; kept when it goes off. */
+  agentOrder?: string[];
+  /** The project headings' order while keepAgentOrder is on (lower case keys). */
+  projectOrder?: string[];
+  /** Sidebar shows only agents and notes (0.5.3 rc.4, founder 25 Sep): off
+   *  by default. On, the PRO sidebar's agent rows drop the Asked you strip, the
+   *  task line and the Finished task strip; the name, status and note stay,
+   *  and the bell still opens every question. */
+  sidebarAgentsNotesOnly?: boolean;
+  /** Custom avatars made in the sprite editor. An agent points at one with
+   *  `character: 'custom:<id>'`. Written only through saveAvatar / deleteAvatar
+   *  (read-modify-write in main), for the same reason as agentTokenCaps: the
+   *  renderer holds a snapshot, and two windows may each save one. */
+  avatars?: CustomAvatar[];
   /** Auto-update from GitHub releases (v0.3.4). Default ON. Packaged builds
    *  check on boot + every ~6h, download in the background, and show a
    *  "restart to update" toast — installation is always user-initiated. OFF
@@ -305,6 +362,11 @@ export interface HarnessConfig {
    *  ("theme" key) at spawn so the TUI's truecolor palette matches. Scoped to
    *  harness agents only; the user's global Claude theme is never touched. */
   terminalTheme?: 'light' | 'dark';
+  /** The view the office opens in (0.4.11, founder 6 Sep 2026), a PRO user's
+   *  setting under General: 'office' is Classic, 'professional' is PRO (the
+   *  stored strings match renderer design/skin.ts). Unset = the view last
+   *  used, then PRO. The titlebar switch changes the view for the session. */
+  defaultView?: 'office' | 'professional';
   /** Anonymous product analytics (PostHog) — the exact events/properties are
    *  documented in TELEMETRY.md. Default ON (opt-out, like autoUpdate); builds
    *  without an injected key and environments with DO_NOT_TRACK set never send
@@ -341,11 +403,43 @@ export interface HarnessConfig {
    *  done-reply round-trip (a user @-mention → task → result posted back to that
    *  thread) or an agent's own direct in-thread reply — those always stay on. */
   slackProactivePosting?: boolean;
+  /** How Slack reaches the office (0.4.11): 'polling' asks Slack on a timer with
+   *  the bot token alone, 'socket' holds a Socket Mode WebSocket open with an
+   *  app token, 'webhook' is the original Events API server behind a tunnel.
+   *  One at a time. Unset reads through shared/slackMode resolveSlackMode:
+   *  an install that already ran the webhook keeps it, everyone else polls. */
+  slackMode?: SlackMode;
+  /** App level token (xapp) for Socket Mode. Treated like `slackBotToken`:
+   *  never logged, never crosses IPC. */
+  slackAppToken?: string;
+  /** Seconds between history checks in polling mode (30 to 300). Default 60. */
+  slackPollSeconds?: number;
+  /** Seconds between socket mode's catch up sweeps (60 to 3600), 0 = off.
+   *  Default 300. The sweep picks up what arrived while the socket was down. */
+  slackSocketCatchupSeconds?: number;
+  /** Folder a Slack temp opens. Unset = the newest non orchestrator agent's
+   *  folder, then harnessHome. */
+  slackTempCwd?: string;
+  /** @deprecated 0.5.2 (founder ruling, Option A): who answers moved to
+   *  `responder`, one setting for every inbound channel. Read by nothing any
+   *  more; kept so an older config.json still parses. A saved 'temps' reads
+   *  as the default, the orchestrator. */
+  slackTriage?: SlackTriage;
+  /** 0.5.2 (founder ruling, Option A): who answers an inbound message, a
+   *  Slack request or a teammate's, as an agent id. Unset or empty is the
+   *  orchestrator, and so is any id that is not active when the message
+   *  lands (shared/responder resolveResponder): the fallback is not optional.
+   *  Read per message, so a change needs no restart. */
+  responder?: string;
+  /** 0.5.3 (settings redesign): who answers a webhook call that names no
+   *  agent of its own, as an agent id. Unset is the orchestrator, and so is an
+   *  id that is not active when the call lands (resolveResponder). */
+  webhookResponder?: string;
 
   // ─── Free Flow (voice dictation → message queue) ───────────────────────────
-  /** Master toggle for Free Flow push-to-talk dictation. Default OFF: with it off
-   *  the composer shows no mic button, no getUserMedia runs, and no Groq call is
-   *  ever made (zero behavior change). */
+  /** RETIRED in 0.5.3 batch 3: Free Flow has no off switch any more (the
+   *  composer mic works with whatever engine is picked). Nothing reads it; an
+   *  old config may still hold `false`, which is ignored. */
   freeflowEnabled?: boolean;
   /** User-pasted Groq API key (the user supplies their own free key). Used ONLY in
    *  the main process for the Groq STT call; NEVER logged, and never crosses IPC
@@ -353,6 +447,10 @@ export interface HarnessConfig {
   groqApiKey?: string;
   /** Groq Whisper model id. Default 'whisper-large-v3-turbo' (fast, multilingual). */
   freeflowModel?: string;
+  /** Dictation and meetings (0.5.3, F16): engine, whisper model, the user's
+   *  words, the push to talk key and the any app switch. Always complete after
+   *  readConfig (withTranscribeDefaults); see shared/transcribeConfig. */
+  transcribe?: TranscribeConfig;
 
   // ─── Realtime Michael (premium speech-to-speech voice orchestrator) ─────────
   /** True ONLY while a Realtime Michael voice session is live: the renderer
@@ -395,12 +493,13 @@ export interface HarnessConfig {
   /** Inbound HTTP endpoints, one entry per caller. Replaces the legacy single
    *  webhook above; several coexist on one port, told apart by `id` in the path. */
   webhookTriggers?: WebhookTrigger[];
-  /** Peer messaging between teammates' clone nodes. Persistence + UI only today —
-   *  no transport service reads `apiKey` yet. */
-  orgTrigger?: OrgTriggerConfig;
   /** One-time guard for `migrateTriggersV1` (legacy webhook → webhookTriggers,
    *  1h → 2h compact cadence). Set once the migration has run to completion. */
   triggersMigratedV1?: boolean;
+  /** One-time guard for `migrateTempsOnV053`. */
+  tempsOnMigratedV053?: boolean;
+  /** One-time guard for `migrateOpus55Default`. */
+  opus55DefaultMigrated?: boolean;
 
   // ─── Memory reflection (the janitor's condense half) ───────────────────────
   /** Master toggle for the in-process MemoryReflector. Default on. */
@@ -417,6 +516,40 @@ export interface HarnessConfig {
   /** Never condense a file smaller than this; also the section-trigger byte floor.
    *  DECIDED: 16 KB. */
   reflectMinBytes?: number;
+
+  // ─── Task, Ask me and board hygiene (v0.4.9 W-A) ────────────────────────────
+  /** The thresholds of the hourly hygiene sweep (main/taskHygiene.ts): days
+   *  before a done card archives, days before an untouched card is flagged and
+   *  then archived, days before an unanswered question nags, and the board's
+   *  token cap. Any missing key reads as its default (shared/taskHygiene.ts
+   *  TASK_HYGIENE_DEFAULTS: 2, 14, 21, 7, 50000); the five Settings rows sit
+   *  under Autonomy & Budgets. Mirrored in preload + renderer config. */
+  taskHygiene?: Partial<TaskHygieneConfig>;
+  /** Settings > Autonomy & Budgets (0.5.3): the ticket key prefix, three
+   *  capital letters or digits, a letter first (V53, MTK). Unset = the one in
+   *  tasks.json, else derived from the workspace folder name. */
+  ticketPrefix?: string;
+
+  // ─── Response style (v0.4.10) ───────────────────────────────────────────────
+  /** The standing house brief for HOW every agent answers: stick to the subject,
+   *  be factual, short and crisp, plain language. User editable in Settings.
+   *  Absent, empty or malformed reads as DEFAULT_RESPONSE_STYLE, so there is no
+   *  state in which agents run with no brief at all. Normalized on the way in
+   *  (writeConfig) AND on the way out (readConfig), so a hand edited config.json
+   *  cannot inject an oversized or wrapper breaking value. Delivered live on the
+   *  hook channel (main/hooks.ts) and, for the engines with no hook bridge, by
+   *  the PTY prepend in useHive.ts. Mirrored in preload + renderer config. */
+  responseStyle?: string;
+  /** Claude Code's own output style for the agents this app starts (0.5.3
+   *  feature 19). Unset means Concise; 'default' turns it off. */
+  claudeOutputStyle?: string;
+  /** The floating puck (Pro, 7 Sep 2026): face, size, colour, where it sits,
+   *  which actions its ring offers and the screen region it remembers. Absent
+   *  reads as DEFAULT_PUCK_CONFIG (off). Written through writeConfig, which
+   *  merges one patch onto the saved object and normalises the result, so a
+   *  screen can save one field without carrying the rest. Mirrored in preload
+   *  + renderer config; the rules live in shared/puck.ts. */
+  puck?: PuckConfig;
 }
 
 const DEFAULTS: HarnessConfig = {
@@ -425,14 +558,15 @@ const DEFAULTS: HarnessConfig = {
   recentHives: [],
   registeredRepos: [],
   autoMode: true,
-  orchestratorMaySpawn: false,
+  orchestratorMaySpawn: true,
   defaultCommand: 'claude',
   godProvider: 'claude',
-  godModel: 'claude-opus-4-8',
+  godModel: 'claude-opus-5-5',
   // Global default model for every agent that hasn't picked one explicitly — wins
   // over the role-based tiers (modelForRole) in the spawn handler, so all agents
-  // (incl. god) default to Fable 5. A per-agent model choice still overrides it.
-  defaultModel: 'claude-fable-5',
+  // (incl. god) default to Opus 5.5 (founder, 24 Sep). A per-agent model choice
+  // still overrides it.
+  defaultModel: 'claude-opus-5-5',
   // Seeded from the MCP catalog so the consent defaults never drift from it
   // (safe-readonly ON, write/secret OFF).
   mcpDefaults: defaultMcpDefaults(),
@@ -456,9 +590,19 @@ const DEFAULTS: HarnessConfig = {
   slackChannelId: undefined,
   slackPort: undefined,
   slackProactivePosting: false,
+  slackMode: undefined,
+  slackAppToken: undefined,
+  slackPollSeconds: undefined,
+  slackSocketCatchupSeconds: undefined,
+  slackTempCwd: undefined,
+  slackTriage: undefined,
+  responder: undefined,
+  webhookResponder: undefined,
+  defaultView: undefined,
   freeflowEnabled: true,
   groqApiKey: undefined,
   freeflowModel: 'whisper-large-v3-turbo',
+  transcribe: { ...DEFAULT_TRANSCRIBE },
   realtimeVoiceEnabled: false,
   realtimeIdleDisconnectMs: 180_000,
   webhookEnabled: false,
@@ -469,7 +613,6 @@ const DEFAULTS: HarnessConfig = {
   // `withTriggerDefaults` re-copies them on every read — see the note there.
   contextTrigger: DEFAULT_CONTEXT_TRIGGER,
   webhookTriggers: [],
-  orgTrigger: DEFAULT_ORG_TRIGGER,
   triggersMigratedV1: false,
   // Memory reflection — preventive; nobody is over threshold today, so it sits
   // dark until an agent's memory crosses one of these (the verify gate is the
@@ -484,7 +627,11 @@ const DEFAULTS: HarnessConfig = {
   // v0.3.4 fix: default OFF, matching the field's own documentation ("Default
   // OFF / dark until enabled") — the true default contradicted it. Existing
   // installs keep their persisted value.
-  knowledgeGraph: { enabled: false }
+  knowledgeGraph: { enabled: false },
+  // Every agent works under a response style brief from the first launch. The
+  // user edits it in Settings; there is no "off", because an agent with no brief
+  // is the behaviour this shipped to fix.
+  responseStyle: DEFAULT_RESPONSE_STYLE
 };
 
 function configPath(): string {
@@ -499,7 +646,7 @@ function configPath(): string {
  * patched only `compact`) arrives missing sub-keys that DEFAULTS would have
  * supplied — the consumer then reads `undefined` where it expects a number and
  * the rule never fires. Second, that same shallow merge hands the literal
- * DEFAULT_CONTEXT_TRIGGER / DEFAULT_ORG_TRIGGER instances to every config that
+ * DEFAULT_CONTEXT_TRIGGER instance to every config that
  * didn't persist them, so one caller mutating what it read would rewrite the
  * defaults for the whole process — and for every config read afterwards.
  *
@@ -507,17 +654,50 @@ function configPath(): string {
  * "nothing persisted" branch.
  */
 function withTriggerDefaults(cfg: HarnessConfig): HarnessConfig {
+  // Founder, 23 Sep 2026: the default became 40 minutes at 30%. A rule that
+  // still carries the previous seed, untouched, moves with the default; a rule
+  // anyone edited keeps its numbers. Same for the maintenance mission below.
+  const storedCompact = cfg.contextTrigger?.compact;
+  const untouchedCompact = !!storedCompact && SEEDED_COMPACT_TRIGGERS.some((seed) =>
+    storedCompact.everyMs === seed.everyMs
+    && storedCompact.minContextPct === seed.minContextPct
+    && storedCompact.minContextPctLargeWindow === seed.minContextPctLargeWindow);
+  const compact = untouchedCompact
+    ? { ...DEFAULT_CONTEXT_TRIGGER.compact, ...storedCompact, everyMs: DEFAULT_CONTEXT_TRIGGER.compact.everyMs,
+        minContextPct: DEFAULT_CONTEXT_TRIGGER.compact.minContextPct,
+        minContextPctLargeWindow: DEFAULT_CONTEXT_TRIGGER.compact.minContextPctLargeWindow }
+    : { ...DEFAULT_CONTEXT_TRIGGER.compact, ...storedCompact };
+  const seededMission = (m: ScheduledMission): boolean =>
+    m?.id === COMPACT_MAINTENANCE_MISSION.id && m.enabled === false
+    && SEEDED_COMPACT_MAINTENANCE_INTERVALS_MS.has(m.intervalMs);
+  const missions = Array.isArray(cfg.missions)
+    ? cfg.missions.map((m) => (seededMission(m) ? { ...m, intervalMs: COMPACT_MAINTENANCE_MISSION.intervalMs } : m))
+    : cfg.missions;
   return {
     ...cfg,
+    ...(missions !== cfg.missions ? { missions } : {}),
     contextTrigger: {
-      compact: { ...DEFAULT_CONTEXT_TRIGGER.compact, ...cfg.contextTrigger?.compact },
+      compact,
       clear: { ...DEFAULT_CONTEXT_TRIGGER.clear, ...cfg.contextTrigger?.clear }
     },
-    orgTrigger: { ...DEFAULT_ORG_TRIGGER, ...cfg.orgTrigger },
     webhookTriggers: Array.isArray(cfg.webhookTriggers)
       ? cfg.webhookTriggers.map((t) => ({ ...t }))
       : []
   };
+}
+
+/**
+ * Hand back a config whose `responseStyle` is always usable.
+ *
+ * config.json is a plain file a person can open, and this one field is free text
+ * that ends up verbatim in every agent's context on every turn. So it is
+ * validated on the way OUT as well as on the way in: a number, a null, 40 KB of
+ * pasted log, or a stray `</response_style>` that would close the wrapper early
+ * all resolve here to something bounded, rather than reaching six engines.
+ * `normalizeResponseStyle` falls back to the shipped brief for anything empty.
+ */
+function withResponseStyleDefault(cfg: HarnessConfig): HarnessConfig {
+  return { ...cfg, responseStyle: normalizeResponseStyle(cfg.responseStyle) };
 }
 
 /** Set once `migrateTriggersV1` has run in THIS process. `writeConfig` reads
@@ -525,6 +705,50 @@ function withTriggerDefaults(cfg: HarnessConfig): HarnessConfig {
  *  would re-enter `readConfig` and run the migration a second time before
  *  `triggersMigratedV1: true` ever reached disk. */
 let triggersMigrationRan = false;
+let tempsMigrationRan = false;
+let opus55MigrationRan = false;
+
+/** The defaults this app shipped before 0.5.3 made Opus 5.5 the Claude default. */
+export const PRE_OPUS55_DEFAULT_MODEL = 'claude-fable-5';
+export const PRE_OPUS55_GOD_MODEL = 'claude-opus-4-8';
+
+/** 0.5.3 (founder, 24 Sep): Opus 5.5 is the default Claude model. Like the temps
+ *  switch, the old defaults were saved into every config.json ever written, so a
+ *  new default alone reaches nobody who has used the app. Once per install, a
+ *  field still holding the OLD DEFAULT moves to Opus 5.5; any other value is a
+ *  choice the person made and is left alone, and a later change sticks. */
+export function withOpus55Default(cfg: HarnessConfig): HarnessConfig {
+  const next: HarnessConfig = { ...cfg, opus55DefaultMigrated: true };
+  if (cfg.defaultModel === PRE_OPUS55_DEFAULT_MODEL) next.defaultModel = 'claude-opus-5-5';
+  if (cfg.godModel === PRE_OPUS55_GOD_MODEL) next.godModel = 'claude-opus-5-5';
+  return next;
+}
+function migrateOpus55Default(cfg: HarnessConfig): HarnessConfig {
+  if (cfg.opus55DefaultMigrated || opus55MigrationRan) return cfg;
+  opus55MigrationRan = true;
+  try {
+    const next = withOpus55Default(cfg);
+    persistConfig(next);
+    return next;
+  } catch {
+    return cfg;
+  }
+}
+
+/** 0.5.3: temps on by default. The old default FALSE was saved into every
+ *  config.json that was ever written, so a new default alone reaches nobody
+ *  who has used the app. Flip it once per install; a later Off sticks. */
+function migrateTempsOnV053(cfg: HarnessConfig): HarnessConfig {
+  if (cfg.tempsOnMigratedV053 || tempsMigrationRan) return cfg;
+  tempsMigrationRan = true;
+  try {
+    const next: HarnessConfig = { ...cfg, orchestratorMaySpawn: true, tempsOnMigratedV053: true };
+    persistConfig(next);
+    return next;
+  } catch {
+    return cfg;
+  }
+}
 
 /**
  * Fold the pre-Triggers config shape forward, exactly once per install.
@@ -590,14 +814,21 @@ export function readConfig(): HarnessConfig {
   // No file yet = a first run with nothing to migrate; the defaults ARE the
   // post-migration shape. Deliberately does not persist — a bare read must not
   // conjure a config.json before onboarding has written one.
-  if (!existsSync(p)) return withTriggerDefaults({ ...DEFAULTS });
+  if (!existsSync(p)) return withTranscribe(withResponseStyleDefault(withTriggerDefaults({ ...DEFAULTS })));
   try {
     const raw = readFileSync(p, 'utf8');
     const parsed = JSON.parse(raw);
-    return normalizeStoredHomes(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...parsed })));
+    return withTranscribe(withResponseStyleDefault(
+      normalizeStoredHomes(migrateOpus55Default(migrateTempsOnV053(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...parsed })))))
+    ));
   } catch {
-    return withTriggerDefaults({ ...DEFAULTS });
+    return withTranscribe(withResponseStyleDefault(withTriggerDefaults({ ...DEFAULTS })));
   }
+}
+
+/** 0.5.3, F16: the dictation block is always complete, whatever the file had. */
+function withTranscribe(cfg: HarnessConfig): HarnessConfig {
+  return { ...cfg, transcribe: withTranscribeDefaults(cfg.transcribe) };
 }
 
 /** (#140, the upgrade path) A config.json persisted BEFORE `writeConfig`
@@ -623,6 +854,30 @@ function normalizeStoredHomes(cfg: HarnessConfig): HarnessConfig {
   return cfg;
 }
 
+/** What the disk says about one remembered config folder (see
+ *  @shared/hivePaths). Deleted means the folder is gone and its parent is not. */
+export function probeHive(path: string): HiveProbe {
+  try {
+    if (existsSync(path)) return 'present';
+    return existsSync(dirname(path)) ? 'deleted' : 'unreachable';
+  } catch { return 'unreachable'; }
+}
+
+/**
+ * Drop deleted folders from the remembered list, once, at launch (0.5.3, bug
+ * 12). At launch and not inside readConfig: readConfig is called constantly,
+ * and eight disk probes per call is the wrong price for a list that changes
+ * when somebody deletes a folder. Returns what it dropped, for the log.
+ */
+export function pruneRecentHivesOnDisk(probe: (path: string) => HiveProbe = probeHive): string[] {
+  const cfg = readConfig();
+  const before = cfg.recentHives ?? [];
+  const after = pruneDeletedHives(before, cfg.harnessHome ?? undefined, probe);
+  if (after.length === before.length) return [];
+  writeConfig({ recentHives: after });
+  return before.filter((h) => !after.includes(h));
+}
+
 /** Announces every saved setting, so a screen showing one can update.
  *
  *  Settings, Slack, voice and notifications each save by their own route, and
@@ -639,25 +894,23 @@ export function onConfigWritten(listener: ConfigWriteListener): () => void {
 function persistConfig(next: HarnessConfig): HarnessConfig {
   const p = configPath();
   mkdirSync(dirname(p), { recursive: true });
-  // Temp + rename: `rename` is atomic within a filesystem, so a crash mid-write
-  // leaves either the old config.json or the new one, never half of either. A
-  // bare writeFileSync truncates the live file first, and readConfig maps any
-  // unparseable config.json to factory defaults — one torn write would wipe
-  // harnessHome, the Slack/webhook secrets and every saved setting. Same
-  // discipline as roster.ts and hive.ts atomicWriteJson.
+  // Temp file then rename (public #529 UsryAce, #578 TTAWDTT): a crash mid
+  // write leaves the old config.json or the new one, never a torn file that
+  // readConfig would read back as factory defaults. A failed rename (Windows
+  // EPERM while another process holds the file) removes the temp file.
   const tmp = `${p}.tmp-${Math.random().toString(36).slice(2, 10)}`;
   try {
     writeFileSync(tmp, JSON.stringify(next, null, 2), 'utf8');
     renameSync(tmp, p);
   } catch (e) {
-    try { rmSync(tmp, { force: true }); } catch { /* the tmp file is disposable */ }
+    try { rmSync(tmp, { force: true }); } catch { /* the temp file is disposable */ }
     throw e;
   }
   // Saving one setting stores only that setting, so fill the rest back in first:
   // subscribers must see the same complete config a read gives them, never a
   // half-filled one. Skip the migration — it saves in its own right, and has
   // already run against what this change was built on.
-  const view = normalizeStoredHomes(withTriggerDefaults({ ...DEFAULTS, ...next }));
+  const view = withResponseStyleDefault(normalizeStoredHomes(withTriggerDefaults({ ...DEFAULTS, ...next })));
   // The change is already saved, so one failed subscriber must not fail the save
   // for its caller, nor stop the subscribers after it.
   for (const listener of configWriteListeners) {
@@ -694,6 +947,24 @@ export function writeConfig(patch: Partial<HarnessConfig>): HarnessConfig {
     next.harnessHome = home;
     next.recentHives = recentHives;
   }
+  // The response style is free text a person types into Settings, so bound it
+  // HERE too rather than only on read: the file on disk should never hold a
+  // value we would refuse to use, and Settings reads back what it saved.
+  if (patch.responseStyle !== undefined) {
+    next.responseStyle = normalizeResponseStyle(patch.responseStyle);
+  }
+  // The sidebar order is a list of ids the renderer wrote: unique, trimmed, bounded.
+  if (patch.agentOrder !== undefined) next.agentOrder = normalizeAgentOrder(patch.agentOrder);
+  if (patch.projectOrder !== undefined) next.projectOrder = normalizeAgentOrder(patch.projectOrder);
+  // The puck is one object with a dozen fields and every screen saves one at
+  // a time, so a patch is MERGED onto what is saved, then normalised: the file
+  // never holds a size outside the slider's range or a face this build cannot
+  // draw, and a screen that saved `{ size: 96 }` did not just erase the face.
+  if (patch.puck !== undefined) {
+    const prev = current.puck && typeof current.puck === 'object' ? current.puck : {};
+    const add = patch.puck && typeof patch.puck === 'object' ? patch.puck : {};
+    next.puck = normalizePuckConfig({ ...prev, ...add });
+  }
   return persistConfig(next);
 }
 
@@ -728,6 +999,69 @@ export function setAgentTokenCap(agentId: unknown, tokenCap: unknown): HarnessCo
   });
 }
 
+/** Set or clear one agent's grant for one MCP server against the latest config
+ *  on disk. Same shape and the same reason as setAgentTokenCap: the renderer
+ *  holds a snapshot, and the Capabilities screen flips several switches in a
+ *  row, so each write merges in main rather than replacing the whole map from
+ *  a stale copy. `enabled === null` removes the row (follow the floor). */
+export function setAgentMcp(agentId: unknown, mcpId: unknown, enabled: unknown): HarnessConfig {
+  if (typeof agentId !== 'string' || agentId.trim().length === 0) throw new Error('invalid agent mcp grant');
+  if (typeof mcpId !== 'string' || !MCP_CATALOG.some((e) => e.id === mcpId)) throw new Error('invalid agent mcp grant');
+  if (enabled !== null && typeof enabled !== 'boolean') throw new Error('invalid agent mcp grant');
+  const current = readConfig();
+  return persistConfig({
+    ...current,
+    agentMcp: withAgentMcp(sanitizeAgentMcp(current.agentMcp), agentId, mcpId, enabled)
+  });
+}
+
+/** Create (no id) or update (id) one custom avatar against the latest config
+ *  on disk. `input` is whatever the renderer sent; anything unusable throws
+ *  rather than persisting a recipe the painter cannot draw. */
+export function saveAvatar(input: unknown): HarnessConfig {
+  if (!input || typeof input !== 'object') throw new Error('invalid avatar');
+  const a = input as Record<string, unknown>;
+  const recipe = normalizeRecipe(a.recipe);
+  if (!recipe) throw new Error('invalid avatar');
+  const name = sanitizeAvatarName(a.name) || 'Avatar';
+  const current = readConfig();
+  const list = sanitizeAvatars(current.avatars);
+  const now = new Date().toISOString();
+  if (a.id !== undefined) {
+    const i = list.findIndex((x) => x.id === a.id);
+    if (i < 0) throw new Error('unknown avatar');
+    list[i] = { ...list[i], name, recipe, updatedAt: now };
+  } else {
+    if (list.length >= MAX_CUSTOM_AVATARS) throw new Error('avatar limit');
+    let id = newCustomAvatarId();
+    while (list.some((x) => x.id === id)) id = newCustomAvatarId();
+    list.push({ id, name, recipe, createdAt: now, updatedAt: now });
+  }
+  return persistConfig({ ...current, avatars: list });
+}
+
+/** Remove one custom avatar. Deleting an id that is already gone is not an
+ *  error: the state the caller asked for is the state. Agents that pointed at
+ *  it fall back to the default character in the renderer. */
+export function deleteAvatar(id: unknown): HarnessConfig {
+  if (typeof id !== 'string' || !id) throw new Error('invalid avatar id');
+  const current = readConfig();
+  return persistConfig({ ...current, avatars: sanitizeAvatars(current.avatars).filter((x) => x.id !== id) });
+}
+
+/** The stored list, minus anything a newer or a broken build left that this
+ *  one cannot draw. Duplicated ids keep the first. */
+function sanitizeAvatars(raw: unknown): CustomAvatar[] {
+  const out: CustomAvatar[] = [];
+  if (Array.isArray(raw)) {
+    for (const r of raw) {
+      const a = normalizeCustomAvatar(r);
+      if (a && !out.some((x) => x.id === a.id)) out.push(a);
+    }
+  }
+  return out;
+}
+
 /** Wipe the persisted config back to first-run defaults so the app boots into
  *  onboarding again. Used by the "reset & start over" flow. */
 export function resetConfig(): HarnessConfig {
@@ -737,13 +1071,13 @@ export function resetConfig(): HarnessConfig {
   // false`, and a latch left set would keep the flag from ever being written again
   // in this process. The migration itself is a no-op on defaults either way.
   triggersMigrationRan = false;
-  return withTriggerDefaults({ ...DEFAULTS });
+  return withResponseStyleDefault(withTriggerDefaults({ ...DEFAULTS }));
 }
 
 /** Model ids by tier (Lane A #6.4). Kept in sync with the claude list in
  *  src/shared/modelCatalog.json, which `agentModels()` in
  *  src/renderer/src/store/config.ts reads. */
-const MODEL_GOD = 'claude-opus-4-8';                  // orchestration — highest capability
+const MODEL_GOD = 'claude-opus-5-5';                  // orchestration — highest capability
 const MODEL_WORKER = 'claude-sonnet-4-6';             // general execution
 const MODEL_HELPER = 'claude-haiku-4-5-20251001';     // narrow, cheap helpers
 
@@ -831,23 +1165,15 @@ function ensureClaudeProjectTrust(home: string, cwd: string): void {
       if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return;
       c = parsed as ClaudeConfig;
     }
-    // Claude Code looks this entry up under a path normalised to FORWARD
-    // slashes — its own lookup walks parents with `o.startsWith(r + "/")`, and
-    // the entries it writes on Windows are keyed "C:/Users/…". Writing only the
-    // raw Windows path ("C:\Users\…") puts the flag somewhere Claude never
-    // reads, so the agent still hits the interactive "Accessing workspace /
-    // Quick safety check" dialog, which it cannot answer: god exits 1 and every
-    // message to it sits at "waiting".
-    //
-    // Both spellings are written — the normalised one is what current Claude
-    // reads, the raw one keeps older builds working. On macOS and Linux the two
-    // are identical, the Set collapses to one key, and this is a no-op.
+    // Claude Code looks the entry up under the path with forward slashes
+    // ("C:/Users/…" on Windows); a key under "C:\Users\…" alone is never read,
+    // so the agent hits the trust dialog it cannot answer and exits (public
+    // #607, himeshram). Both spellings are written; on macOS and Linux they are
+    // the same string and this is one key.
     const keys = Array.from(new Set([cwd.replace(/\\/g, '/'), cwd]));
     if (keys.some((k) => c.projects?.[k]?.hasTrustDialogAccepted !== true)) {
       c.projects = c.projects ?? {};
-      for (const k of keys) {
-        c.projects[k] = { ...(c.projects[k] ?? {}), hasTrustDialogAccepted: true };
-      }
+      for (const k of keys) c.projects[k] = { ...(c.projects[k] ?? {}), hasTrustDialogAccepted: true };
       writeFileSync(p, JSON.stringify(c, null, 2), 'utf8');
     }
   } catch (error) {

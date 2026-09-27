@@ -27,6 +27,9 @@ const defineMain = {
 function copyMainSidecars() {
   const ASSETS: Array<[string, string]> = [
     ['src/main/slack-trigger.cjs', 'out/main/slack-trigger.cjs'],
+    // 0.4.11: the polling core (cursor, hot threads, budget, backoff), pure like
+    // the trigger core above so test/slack-poll.test.cjs can require() it.
+    ['src/main/slack-poll.cjs', 'out/main/slack-poll.cjs'],
     // Knowledge Graph core: required by knowledge.ts at runtime (pure-JS, no
     // native deps), so it must be emitted next to the main bundle like the
     // Slack sidecar above.
@@ -73,7 +76,15 @@ export default defineConfig({
     root: resolve(__dirname, 'src/renderer'),
     build: {
       rollupOptions: {
-        input: { index: resolve(__dirname, 'src/renderer/index.html') }
+        input: {
+          index: resolve(__dirname, 'src/renderer/index.html'),
+          // The puck (src/main/puck.ts): a second, tiny renderer for the
+          // floating window, and a third for the screenshot region overlay.
+          // Separate pages rather than routes inside the app: each is its own
+          // BrowserWindow and must boot without the app's store or floor.
+          puck: resolve(__dirname, 'src/renderer/puck.html'),
+          capture: resolve(__dirname, 'src/renderer/capture.html')
+        }
       }
     },
     plugins: [react()],

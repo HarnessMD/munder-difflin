@@ -22,14 +22,25 @@
  *
  * Durability rules, in order of how much they matter:
  *   1. Never lose a roster. Every write first copies the previous file into
- *      `roster-backups/`, which is append-only — nothing in it is ever pruned,
- *      overwritten or deleted.
+ *      `roster-backups/`. Nothing in that folder is ever overwritten, and the
+ *      backup on every write stays: it is the cheapest insurance in the app.
+ *      The FOLDER is capped, though. It used to be unbounded, which on a busy
+ *      floor is thousands of copies a day of a file that changes on every note,
+ *      rename, archive and queue move, and it sits under harnessHome so even a
+ *      full `app:resetAll` never cleared it. See shared/retention.ts for the
+ *      rule: the newest 50 always, plus one per day for the last 30 days.
  *   2. Never write a truncated file. Writes go to a temp file and are renamed
  *      into place, so a crash mid-write leaves the previous file untouched.
  *   3. Never let an empty renderer erase a full roster. See `write`.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { reapRosterBackups } from './retention';
+
+/** Backups written between two prunes. Small enough that the folder is never
+ *  far over its cap inside one run, large enough that a directory listing is
+ *  not paid on every note the user types. */
+const PRUNE_EVERY = 25;
 
 /** What the renderer mirrors to disk. The inner agent shape is deliberately
  *  opaque here — the renderer's store owns it, and repeating it would mean
@@ -88,6 +99,8 @@ export class RosterStore {
    *  tick used to produce the same filename, and the second silently replaced
    *  the first — a backup folder that quietly loses backups is worse than none. */
   private backupSeq = 0;
+  /** Backups written since the last prune. See `backup`. */
+  private sinceReap = 0;
 
   constructor(private readonly getHome: () => string | null) {}
 
@@ -188,9 +201,22 @@ export class RosterStore {
     } catch { /* a reset must never fail on this */ }
   }
 
-  /** Copy the current roster into the append-only backup folder. Never prunes:
-   *  these files are the last line of defence, and a few KB per write is a price
-   *  worth paying for that. */
+  /**
+   * Copy the current roster into the backup folder, then keep the folder inside
+   * its cap.
+   *
+   * The backup on every write is right and it stays. What was wrong was the
+   * folder: the last line of defence does not need three thousand copies of the
+   * same roster, and nothing else ever removed them. `reapRosterBackups` keeps
+   * the newest 50 plus one per day for a month, which covers both recoveries
+   * that actually happen: the bad write noticed in the next minute, and the
+   * agent noticed missing some day last week.
+   *
+   * Pruned on a counter rather than on every write because the reap reads the
+   * whole directory, and this runs on every note and every queue move. The
+   * hourly sweep in main/retention.ts catches an app that writes fewer than
+   * PRUNE_EVERY backups in a run.
+   */
   private backup(home: string, p: string, reason: string): void {
     try {
       if (!existsSync(p)) return;
@@ -200,5 +226,10 @@ export class RosterStore {
       this.backupSeq += 1;
       copyFileSync(p, join(dir, `roster-${stamp}-${this.backupSeq}-${reason}.json`));
     } catch { /* a failed backup must never block the write */ }
+    this.sinceReap += 1;
+    if (this.sinceReap >= PRUNE_EVERY) {
+      this.sinceReap = 0;
+      try { reapRosterBackups(home); } catch { /* a failed prune must never block the write */ }
+    }
   }
 }

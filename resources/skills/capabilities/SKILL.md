@@ -1,22 +1,23 @@
 ---
 name: capabilities
 description: |
-  Your capability catalog — read this at boot. Lists the temporal date-range
-  skills and the external integrations (reached via the loopback broker)
-  available to you as a spawned worker, and exactly how to call each. Read-only.
-  Consult it whenever you're unsure what tools/integrations you have or how to
-  invoke them.
+  Your capability catalog. Read it once at boot. Lists the date skills and the
+  external integrations (reached via the loopback broker) available to you as
+  an agent or a temp, and exactly how to call each. Read only. Consult it
+  whenever you are unsure what tools or integrations you have or how to invoke
+  them.
 allowed-tools:
   - Bash
 ---
 
-# Worker Capability Catalog
+# Capability catalog
 
-You are an autonomous worker spawned by the hive to do one objective and report
-back. This catalog tells you **what you can do and how to call it** — your
-temporal skills and your external integrations — so you don't have to guess.
-Everything here is read-only to invoke (the integrations themselves may act, but
-they are mediated and credential-free from your side).
+You are an agent or a temp in this office. An agent has a lasting session; a temp
+is a short lived agent the orchestrator starts for one job, and it reports done
+when the job is finished. This catalog tells you **what you can do and how to
+call it**, your date skills and your external integrations, so you never have to
+guess. Everything here is read only to invoke (the integrations themselves may
+act, but they are mediated and credential free from your side).
 
 ## 1. Your environment
 
@@ -73,21 +74,22 @@ holds the credentials and performs the outbound call on your behalf. You never
 see or store a secret, and only loopback callers are accepted — so integration
 access is brokered, auditable, and credential-free from your side.
 
-How integrations are surfaced to you is **environment-dependent** — the exact
-set enabled depends on how you were spawned and the hive's configuration — so
-discover what's live at run time rather than assuming. The broker pattern is
-stable even as specific integrations are added; treat the list below as the
-current surface, not a fixed contract.
+**Only a temp receives the broker.** When you were started for one job,
+`MD_BROKER_URL` and `MD_BROKER_TOKEN` are set in your environment; an agent with
+a lasting session does not have them, and asks god when a job needs an
+integration. What is enabled depends on the office's configuration, so discover
+what is live at run time rather than assuming. The broker pattern is stable even
+as specific integrations are added; treat the list below as the current surface,
+not a fixed contract.
 
 Concrete capabilities you may have right now (check availability before relying
 on one):
 
-- **Reply to the originating Slack thread.** If your objective arrived from
-  Slack, your dispatch includes the exact loopback reply command —
-  `node "<helper>" --channel <C> --thread <T> --text "<mrkdwn>"`. Use *that*
-  command verbatim to post your result back to the thread. Send a substantive
-  reply (a short `*bold*` headline + the actual outcome/links), never a bare
-  "done".
+- **Reply to the originating Slack thread.** If your job arrived from Slack,
+  your dispatch includes the exact reply command (the bundled Node path, the
+  helper, the channel and the thread). Use *that* command verbatim to post your
+  result back to the thread. Send a substantive reply (a short `*bold*`
+  headline plus the actual outcome and links), never a bare "done".
 - **Hive messaging.** Coordinate or hand off by writing an outbox message JSON
   to god or another agent (`$AGENT_DIR/outbox/`). This is your always-available
   channel.

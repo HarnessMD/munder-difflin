@@ -45,12 +45,12 @@ test('inferAgentProvider maps the copilot binary (with path/flags) to copilot', 
   assert.strictEqual(ap.inferAgentProvider('/usr/local/bin/copilot --model gpt-5.4'), 'copilot');
 });
 
-test('copilot preset builds the documented non-interactive print-mode shape', () => {
+test('copilot preset runs interactive: the brief rides in via -i, no print-mode -s (0.5.3 founder retest)', () => {
   const p = ap.providerPreset('copilot');
   assert.strictEqual(p.defaultCommand, 'copilot', 'default command binary');
-  assert.strictEqual(p.initialPromptFlag, '-p', 'prompt rides in via -p');
-  assert.strictEqual(ap.autoModeFlagForProvider('copilot'), '-s --allow-all-tools --no-ask-user');
-  assert.strictEqual(p.autoFlag, '-s --allow-all-tools --no-ask-user', 'autoFlag mirrors autoModeFlag');
+  assert.strictEqual(p.initialPromptFlag, '-i', 'prompt rides in via -i (interactive, runs the brief first)');
+  assert.strictEqual(ap.autoModeFlagForProvider('copilot'), '--allow-all-tools --no-ask-user');
+  assert.strictEqual(p.autoFlag, '--allow-all-tools --no-ask-user', 'autoFlag mirrors autoModeFlag');
 });
 
 test('copilot passes model + resume through, non-hiveAware, never auto-receives inbox', () => {
@@ -58,7 +58,7 @@ test('copilot passes model + resume through, non-hiveAware, never auto-receives 
   assert.ok(p.supportsModel && p.modelFlag === '--model', 'model picker + --model');
   assert.strictEqual(p.resumeFlag, '--resume', 'session resume flag');
   assert.strictEqual(p.hiveAware, false, 'no Claude-only identity injection');
-  assert.strictEqual(ap.canReceiveInbox('copilot'), false, 'print mode exits, no drain → bounces');
+  assert.strictEqual(ap.canReceiveInbox('copilot'), false, 'no drain bridge yet → bounces');
   assert.strictEqual(ap.bridgeOf('copilot'), undefined, 'no hook/proxy bridge');
 });
 

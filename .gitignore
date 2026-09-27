@@ -35,3 +35,13 @@ docs/blog-preview-*/
 # Finder duplicate files, e.g. "spec 2.js", "sitemap 2.xml"
 *\ 2.*
 *\ [0-9].*
+
+# F16 local transcription: built helper binaries and the fetched model (tools/build-transcribe-helpers.mjs)
+resources/transcribe/*/md-whisper
+resources/transcribe/*/md-whisper.exe
+# md-hotkey off the Mac is built by the same script (tools/md-hotkey-native);
+# the macOS Swift one under darwin-universal/ is checked in on purpose.
+resources/transcribe/win32-x64/md-hotkey.exe
+resources/transcribe/linux-x64/md-hotkey
+resources/transcribe/models/
+.cache/

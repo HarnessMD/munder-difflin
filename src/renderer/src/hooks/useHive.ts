@@ -12,17 +12,25 @@ import {
   clearCommandForProvider,
   compactionCommandForProvider,
   remoteControlCommandForProvider,
-  terminalReadyToReceive
+  terminalReadyToReceive,
+  typeAndSubmit
 } from '../../../shared/providerAutomation';
 import { DEFAULT_CONTEXT_TRIGGER, type ContextRule } from '../../../shared/triggers';
 import type { AgentProvider } from '../../../shared/agentProvider';
 import { bridgeOf, providerPreset } from '../../../shared/agentProvider';
 import { isDurableRole, preferredAgentRole, roleForHiveSpawn } from '../../../shared/agentRole';
 import { inboxNudgeText } from '../../../shared/hiveNudge';
+import { commandWithModel } from '../../../shared/liveModel';
+import { effectiveGodCommand } from '../../../shared/godCommand';
+import { agentExitOf } from '../../../shared/agentExit';
+import { godRunning, refusedBecauseAlive } from '../../../shared/godBoot';
 import { resolveGodName } from '../../../shared/godIdentity';
-import { acquireTerminal, resetTerminal, isTerminalAutomationSafe } from '@/components/terminalPool';
-import { canDeliverToAgent, deliverWithAcknowledgement, checkPrecondition } from './queueDelivery';
-import { OFFICE_CAST, DEFAULT_CHARACTER } from '@/scene/office/cast';
+import { resolveResponder } from '../../../shared/responder';
+import { RESPONSE_STYLE_TAG, renderResponseStyle } from '../../../shared/responseStyle';
+import { acquireTerminal, resetTerminal, isTerminalAutomationSafe, terminalScreenLines } from '@/components/terminalPool';
+import { canDeliverToAgent, canSendNowMidTurn, deliverWithAcknowledgement, checkPrecondition, statusAfterDelivery } from './queueDelivery';
+import { OpenQuestionTracker, forgetExitedTerminals } from '../../../shared/openQuestion';
+import { OFFICE_CAST, DEFAULT_CHARACTER } from '@/scene/office/castRoster';
 
 const GOD_ID = 'god';
 /** Accent palette for MAIN-spawned (voice-hired) agents — picked deterministically
@@ -68,6 +76,26 @@ function withStandingGoal(agent: Agent, text: string): string {
   if (!goal || usesHookStandingGoal(agent)) return text;
   if (text.includes('<goal>')) return text;
   return `<goal>\n${goal}\n</goal>\n\n${text}`;
+}
+
+/** Prepend the house RESPONSE STYLE brief for the same engines, and for the same
+ *  reason: cursor and copilot have no hook bridge, so `additionalContext` (which
+ *  carries this to claude/codex/gemini/grok on every prompt) never reaches them.
+ *  Rendered by the SHARED renderer, never by a copy of the string here, so the
+ *  two delivery paths cannot drift apart. Unlike the goal there is always a
+ *  brief: an unset value normalizes to the shipped default. */
+function withResponseStyle(agent: Agent, text: string, style: string | undefined): string {
+  if (usesHookStandingGoal(agent)) return text;
+  if (text.includes(`<${RESPONSE_STYLE_TAG}>`)) return text;
+  return `${renderResponseStyle(style)}\n\n${text}`;
+}
+
+/** Everything a no-hook engine must carry in front of the text we type, in the
+ *  same order the hook channel uses (main/hooks.ts): HOW to answer, then WHAT to
+ *  do, then the message itself. One helper so neither submit site can pick up
+ *  one of the two and forget the other. */
+function withStandingContext(agent: Agent, text: string, style: string | undefined): string {
+  return withResponseStyle(agent, withStandingGoal(agent, text), style);
 }
 
 // The first thing Michael (god) is told on a fresh spawn — orient him and put
@@ -140,16 +168,23 @@ function submitToPty(
     // commands) is sent raw — some TUIs (Antigravity's agy) treat the paste
     // markers as literal input and never submit, so skipping them is more robust.
     const payload = text.includes('\n') ? `\x1b[200~${text}\x1b[201~` : text;
-    // writePty NEVER rejects for a dead pty — it resolves { ok:false, error:
-    // 'no pty: …' } — so an unchecked await here made every failed delivery look
-    // successful (the queue-drain then destroyed the message it had already
-    // popped, #36). Surface the failure as a rejection; the chain itself is
-    // immune (the prev.catch above absorbs it for the next writer).
-    const wrote = await window.cth.writePty(ptyId, payload);
-    if (!wrote?.ok) throw new Error(wrote?.error ?? `pty write failed: ${ptyId}`);
-    await new Promise((r) => setTimeout(r, 140));
-    const submitted = await window.cth.writePty(ptyId, '\r');
-    if (!submitted?.ok) throw new Error(submitted?.error ?? `pty write failed: ${ptyId}`);
+    // writePty NEVER rejects for a dead pty, it resolves { ok:false }, so an
+    // unchecked write made every failed delivery look successful (#36). Every
+    // write below throws on a failure; the chain itself is immune (prev.catch).
+    const write = async (data: string) => {
+      const res = await window.cth.writePty(ptyId, data);
+      if (!res?.ok) throw new Error(res?.error ?? `pty write failed: ${ptyId}`);
+    };
+    // F2: the Return waits until the input box shows the text, and a further
+    // Return only follows once the TUI has visibly read the last one
+    // (shared/providerAutomation.ts, typeAndSubmit).
+    const result = await typeAndSubmit({
+      write,
+      screen: () => terminalScreenLines(ptyId),
+      sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+      log: (line) => console.log(`[queue] ${ptyId}: ${line}`)
+    }, payload, text);
+    if (result.submitted === false) console.warn(`[queue] ${ptyId}: message still in the input box after ${result.returns} Returns`);
     await new Promise((r) => setTimeout(r, settleMs));
   });
   writeChains.set(ptyId, next);
@@ -276,6 +311,11 @@ function passesContextPressure(a: Agent, rule: ContextRule): boolean {
  *   3. wakes idle agents that have unread inbox messages so collaboration
  *      doesn't stall while an agent sits at its prompt.
  */
+/** Which agents have a multiple choice question open (0.5.3 bug 19). Module
+ *  level because the hook stream that feeds it and the drains that read it live
+ *  in different effects, and useHive is mounted once. */
+const openQuestions = new OpenQuestionTracker();
+
 export function useHive(config: HarnessConfig | null): void {
   // Per-agent dedup for the inbox-wake nudge: every inbox message id we have
   // already nudged this agent about. A SET, not a high-water mark.
@@ -351,6 +391,14 @@ export function useHive(config: HarnessConfig | null): void {
   // 'stopped' the avatar is pinned to 'looping' and hook events must NOT flip it
   // back to 'working' (the flicker the spec calls out); only a genuine Stop clears it.
   const breakerLevel = useRef<Record<string, string>>({});
+  // The LIVE house response style. Both typing paths below run inside intervals
+  // whose effect deps are `[config?.onboardingComplete]`, so reading `config`
+  // out of those closures would pin whatever was saved when the interval
+  // started, and a Settings edit would not reach cursor/copilot until a restart.
+  // App re-renders on every config write (onConfigChanged), so rewriting the ref
+  // on each render is what makes "edit it and the next message carries it" true.
+  const responseStyle = useRef<string | undefined>(undefined);
+  responseStyle.current = config?.responseStyle;
 
   // 0) Heal roster `description` from hive `role` when the floor caption was
   //    overwritten by a status string ("on standby") after hire.
@@ -379,16 +427,30 @@ export function useHive(config: HarnessConfig | null): void {
     useStore.getState().setGodStatus('booting');
     const t = setTimeout(async () => {
       if (cancelled) return;
-      const live = await window.cth.listPtys().catch(() => []);
-      if (live.some((p) => p.id === GOD_PTY)) { // already running — keep restored entry
+      // A listing that FAILED is not an empty floor (shared/godBoot.ts). It used to
+      // be read as "he is not running": his row was removed, a second spawn was
+      // refused by main as a duplicate, and the floor said "failed" with no
+      // orchestrator row while he was alive. 'unknown' falls through to the spawn
+      // attempt below, where main's own refusal settles it, and his row is not
+      // touched until a spawn has actually worked.
+      const listing = await window.cth.listPtys().then(
+        (l) => ({ answered: true, ids: l.map((p) => p.id) }),
+        () => ({ answered: false, ids: [] as string[] })
+      );
+      if (godRunning(listing, GOD_PTY) === 'yes') { // already running — keep restored entry
+        if (!cancelled) useStore.getState().setGodStatus('ready');
+        return;
+      }
+      // Dev switch (main: `--no-god`): a UI check must not spend money on an
+      // orchestrator it will never talk to. `ready` with no god on the floor
+      // is the honest state: nothing is booting, nothing failed.
+      if (await window.cth.devNoGod?.().catch(() => false)) {
         if (!cancelled) useStore.getState().setGodStatus('ready');
         return;
       }
       // Synchronous guard (no await between check and set) → exactly one spawn.
       if (cancelled || godSpawning.current) return;
       godSpawning.current = true;
-      useStore.getState().removeAgent(GOD_ID); // clear any stale restored entry
-
       // A prior rename (Edit Agent panel → renameAgent() → hive.ts's renameAgent())
       // persists straight into registry.json, so read it back here rather than
       // hardcoding DEFAULT_GOD_NAME below — otherwise a custom name reverts on
@@ -398,7 +460,8 @@ export function useHive(config: HarnessConfig | null): void {
 
       const godProvider = config.godProvider ?? 'claude';
       const godModel = config.godModel;
-      const command = buildSpawnCommand(config, godModel, godProvider);
+      // A hand edited line wins over the derived one (0.5.3 bug 20).
+      const command = effectiveGodCommand(config.godCommand, buildSpawnCommand(config, godModel, godProvider), godProvider);
       const [exe, ...args] = tokenizeCommand(command.trim());
       const res = await window.cth.spawnPty({
         id: GOD_PTY,
@@ -417,7 +480,6 @@ export function useHive(config: HarnessConfig | null): void {
         hive: { id: GOD_ID, name: godName, provider: godProvider, cwd: config.harnessHome!, isGod: true, role: 'orchestrator (god)' }
       });
       if (cancelled) { godSpawning.current = false; return; }
-      if (!res.ok) { godSpawning.current = false; useStore.getState().setGodStatus('failed'); return; }
       const god: Agent = {
         id: GOD_ID,
         name: godName,
@@ -438,6 +500,25 @@ export function useHive(config: HarnessConfig | null): void {
         isGod: true,
         recentTextTs: Date.now()
       };
+      if (!res.ok) {
+        godSpawning.current = false;
+        // Main refusing a duplicate is proof he is ALIVE, whatever the listing
+        // said. His restored row stays; if there is none, he gets one. No boot
+        // sequence is typed into a session that is already running.
+        if (refusedBecauseAlive(res.error)) {
+          if (!useStore.getState().agents.some((a) => a.id === GOD_ID)) useStore.getState().addAgent(god);
+          useStore.getState().setGodStatus('ready');
+          return;
+        }
+        useStore.getState().setGodStatus('failed');
+        return;
+      }
+      // Clear any stale restored ROW, and only the row: a message the person
+      // parked for Michael before quitting stays in his queue and drains once he
+      // is back and idle, like every other agent's (0.5.2; without keepQueue the
+      // store dropped it here, persisted, before the row below was re-added).
+      // AFTER the spawn worked, never before: see the listing above.
+      useStore.getState().removeAgent(GOD_ID, { keepQueue: true });
       useStore.getState().addAgent(god);
       useStore.getState().setGodStatus('ready');
 
@@ -481,13 +562,25 @@ export function useHive(config: HarnessConfig | null): void {
       const { updateAgent, agents } = useStore.getState();
       const self = agents.find((a) => a.id === e.agentId);
       if (!self) return;
+      // A hook event is proof of life: whatever died has been replaced.
+      if (self.exit) updateAgent(e.agentId, { exit: undefined });
       // Breaker precedence (#5C): a constrained/stopped agent stays 'looping'
       // regardless of in-flight tool/prompt/compact events.
       const blevel = breakerLevel.current[e.agentId];
       const breakerArmed = blevel === 'constrained' || blevel === 'stopped';
+      // 0.5.3 bug 19. Fed BEFORE the status chain and outside the breaker guard:
+      // the drains ask this tracker directly, so a breaker pinned agent, whose
+      // status never leaves 'looping', is held too.
+      const question = openQuestions.note(e.agentId, e.event, e.tool);
       // Hook events are the authoritative status source for real agents (the
       // pty-stream parser only refines the on-floor action/station).
-      if (e.event === 'PreCompact') {
+      if (question === 'open') {
+        // A menu is on screen and waiting for a person. Not `working`: the
+        // quiescence fallback would turn the menu's silence into `idle`, and
+        // `idle` is what lets the drain type. Same split as a permission prompt:
+        // only the orchestrator escalates to the human.
+        if (!breakerArmed) updateAgent(e.agentId, { status: self.isGod ? 'blocked' : 'waiting', action: 'asking a question', carrying: undefined });
+      } else if (e.event === 'PreCompact') {
         // #5C — agent entered /compact; show it's boxing up context, not frozen.
         if (!breakerArmed) updateAgent(e.agentId, { status: 'compacting', action: 'compacting context', carrying: undefined });
       } else if (e.event === 'PostCompact') {
@@ -540,8 +633,10 @@ export function useHive(config: HarnessConfig | null): void {
           // Only the god agent escalates to the human; sub-agents are autonomous
           // and read as "waiting" (parked on god, not on you).
           updateAgent(e.agentId, { status: self.isGod ? 'blocked' : 'waiting' });
-        } else {
+        } else if (!openQuestions.isOpen(e.agentId)) {
           // Idle notification — responded, nothing to do. Linger, don't flag.
+          // Not while a question is open: the same Notification fires for a menu
+          // nobody has answered, and that agent is waiting, not idle.
           updateAgent(e.agentId, { status: 'idle', action: 'idle', carrying: undefined });
         }
       }
@@ -595,6 +690,33 @@ export function useHive(config: HarnessConfig | null): void {
   // 2d) Push-based context gauge: the status-line shim forwards the session's
   //     EXACT context accounting (tokens + real window size) after every
   //     response — no probing, no transcript guesswork.
+  // 0.5.3 feature 18: an agent's process ended on its own. The row says so and
+  // offers Restart in its details panel (pro/AgentScreen.tsx). Status goes to idle so the dot and the
+  // active count stop claiming work that is no longer happening.
+  useEffect(() => {
+    return window.cth.onHiveAgentExited?.(({ agentId, exitCode, signal, printMode }) => {
+      if (!agentId) return;
+      // A print mode run (Copilot -p) that exited 0 finished its task (batch 2).
+      const exit = agentExitOf(exitCode, signal, Date.now(), printMode === true);
+      useStore.getState().updateAgent(agentId, { exit, status: 'idle', action: exit.verdict, carrying: undefined });
+      openQuestions.forget(agentId);
+    });
+  }, []);
+
+  useEffect(() => {
+    // 0.5.3 bug 2(a): the model the agent is actually running, told to us when it
+    // changes. The sidebar is a pure function of the store's `model`, so this is
+    // what makes a `/model` inside the CLI show up. The saved command is rewritten
+    // with it so the next restore comes back on the same model.
+    return window.cth.onHiveModelUpdate(({ agentId, model }) => {
+      if (!agentId || typeof model !== 'string' || !model.trim()) return;
+      const a = useStore.getState().agents.find((x) => x.id === agentId);
+      if (!a || a.model === model) return;
+      const provider = inferAgentProvider(a.command, a.provider);
+      useStore.getState().updateAgent(agentId, { model, command: commandWithModel(a.command, model, provider) || a.command });
+    });
+  }, []);
+
   useEffect(() => {
     return window.cth.onHiveContextUpdate(({ agentId, tokens, limit }) => {
       // Defense-in-depth: the main process already filters limit > 0, but the
@@ -649,13 +771,26 @@ export function useHive(config: HarnessConfig | null): void {
   useEffect(() => {
     if (!config?.onboardingComplete) return;
     const iv = setInterval(async () => {
-      const ptys = await window.cth.listPtys().catch(() => []);
+      // A listing that FAILED and a floor with no terminals both used to arrive
+      // here as an empty list. They are opposite facts, and the open question
+      // holds below must only be dropped on the second one.
+      let listed = true;
+      const ptys = await window.cth.listPtys().catch(() => { listed = false; return []; });
       const lastOut: Record<string, number> = {};
       for (const p of ptys) lastOut[p.id] = p.lastOutputAt;
       // Publish BEFORE the early return and before the 'working' filter below,
       // so the drain (#4) also gets a reading for breaker-pinned agents — and so
       // a vanished PTY clears its entry instead of leaving a stale one.
       ptyLastOutput.current = lastOut;
+      // A terminal that has exited takes its open question with it (B19 follow
+      // up). SessionStart clears the flag on a respawn, but an agent that died
+      // with a menu up and is never respawned would otherwise keep it. Before the
+      // early return: no live terminals at all is exactly when every flag is stale.
+      // ONLY ON A LISTING THAT ANSWERED. Dropping a hold is the dangerous
+      // direction: it is what lets a delivery press Return into a menu. One
+      // failed poll must not be able to do that, so a failure forgets nothing
+      // and the next poll, four seconds on, decides.
+      forgetExitedTerminals(openQuestions, useStore.getState().agents, { listed, liveIds: new Set(Object.keys(lastOut)) });
       if (!ptys.length) return;
       const now = Date.now();
       const { agents, updateAgent } = useStore.getState();
@@ -765,7 +900,7 @@ export function useHive(config: HarnessConfig | null): void {
           }
           submitToPty(
             ptyId,
-            withStandingGoal(live, seed),
+            withStandingContext(live, seed, responseStyle.current),
             inferAgentProvider(live.command, live.provider)
           )
             .catch(() => { /* pty may have died */ });
@@ -803,11 +938,20 @@ export function useHive(config: HarnessConfig | null): void {
       const { messageQueues, removeQueuedMessage } = useStore.getState();
       const next = messageQueues[srcId]?.[0];
       if (!next || !target?.ptyId) return { sent: false };
+      // A person has the head open in the queue's inline editor (PRO composer,
+      // 5 Sep 2026). Typing it now would send the half-rewritten original, so
+      // the drain waits. The flag cannot starve the queue: it is released on
+      // save, cancel and composer unmount, and persistQueues strips it so no
+      // stored copy survives a dead renderer.
+      if (next.editing) return { sent: false };
       const now = Date.now();
+      // "Send now" into a CLI that takes input mid-turn (founder, 25 Sep 2026)
+      // skips the idle gate and the cooldown: the CLI's own queue holds it.
+      const jump = next.now === true && canSendNowMidTurn(target.status, inferAgentProvider(target.command, target.provider), openQuestions.isOpen(target.id));
       // Idle, or breaker-pinned with a terminal that has genuinely gone quiet.
       // This gate is a don't-type-mid-stream safety check, so `manual` does NOT
       // bypass it — "send now" releases the auto-delivery PAUSE below, not this.
-      if (!canDeliverToAgent(target.status, ptyQuietMs(target.ptyId, now), QUIESCE_IDLE_MS)) {
+      if (!jump && !canDeliverToAgent(target.status, ptyQuietMs(target.ptyId, now), QUIESCE_IDLE_MS, openQuestions.isOpen(target.id))) {
         return { sent: false };
       }
       const control = await window.cth.controlSnapshot(target.id);
@@ -823,7 +967,7 @@ export function useHive(config: HarnessConfig | null): void {
       // one does we simply type after whatever is there — automation never
       // erases the user's text and never closes the user's menu.
       if (!isTerminalAutomationSafe(target.ptyId, now)) return { sent: false };
-      if (now - (lastFlush.current[target.id] ?? 0) < FLUSH_COOLDOWN_MS) return { sent: false };
+      if (!jump && now - (lastFlush.current[target.id] ?? 0) < FLUSH_COOLDOWN_MS) return { sent: false };
       // Last gate before we type: re-check the message's delivery-time
       // precondition. A queue item is decided at enqueue time and delivered an
       // arbitrary interval later, and the inbox nudge is only worth sending if
@@ -844,13 +988,19 @@ export function useHive(config: HarnessConfig | null): void {
           // the PTY; UI/card surfaces continue to show the readable `text`.
           () => submitToPty(
             target.ptyId!,
-            withStandingGoal(
+            withStandingContext(
               target,
-              wrap ? wrap(next) : (next.instruction ?? next.text)
+              wrap ? wrap(next) : (next.instruction ?? next.text),
+              responseStyle.current
             ),
             inferAgentProvider(target.command, target.provider)
           ),
           () => {
+            // Settle BEFORE the queue drops the message. The thread reads the
+            // sent log, and a message that left the queue with nothing recorded
+            // in its place is exactly the disappearance being fixed (founder,
+            // 3 Sep 2026); it is only ever a person's send that has a row here.
+            useStore.getState().settleHumanSend(srcId, next.id, 'sent');
             removeQueuedMessage(srcId, next.id);
             // Zero the gauge on a DELIVERED /clear — the new session's context
             // isn't known until statusLine fires after the first post-clear
@@ -866,6 +1016,12 @@ export function useHive(config: HarnessConfig | null): void {
         );
         if (sent) {
           delete sendFailures[next.id];
+          // 0.5.3 bug 7: we just started a turn in this agent and we are the one
+          // party that knows it. Say so now rather than wait for a hook that a
+          // hookless engine never sends (queueDelivery.ts statusAfterDelivery).
+          const bl = breakerLevel.current[target.id];
+          const mark = statusAfterDelivery(next.instruction ?? next.text, bl === 'constrained' || bl === 'stopped');
+          if (mark) useStore.getState().updateAgent(target.id, mark);
           return { sent: true, message: next };
         }
         // Failed write (dead/crashed pty the store still thinks is idle): retry
@@ -875,6 +1031,7 @@ export function useHive(config: HarnessConfig | null): void {
         sendFailures[next.id] = attempts;
         if (attempts >= MAX_SEND_ATTEMPTS) {
           delete sendFailures[next.id];
+          useStore.getState().settleHumanSend(srcId, next.id, 'failed');
           removeQueuedMessage(srcId, next.id);
           console.warn(
             `[queue-drain] dropping message ${next.id} for ${target.id} after ${attempts} failed pty writes ` +
@@ -928,8 +1085,10 @@ export function useHive(config: HarnessConfig | null): void {
       for (const a of agents) {
         // Same gate as dispatch() — this pre-filter runs first, so relaxing only
         // the one inside dispatch would have changed nothing.
-        if (!a.ptyId || !canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, now), QUIESCE_IDLE_MS)) continue;
         if (!messageQueues[a.id]?.length) continue;
+        // A "send now" head goes to a CLI that takes input mid-turn at once.
+        const jump = messageQueues[a.id][0].now === true && canSendNowMidTurn(a.status, inferAgentProvider(a.command, a.provider), openQuestions.isOpen(a.id));
+        if (!a.ptyId || (!jump && !canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, now), QUIESCE_IDLE_MS, openQuestions.isOpen(a.id)))) continue;
                 void dispatch(a.id, a).then(({ sent, message }) => {
           if (sent && message?.slack) void ensureSlackCard(message);
           // Write the compact latch only once delivery genuinely happened — see
@@ -954,38 +1113,33 @@ export function useHive(config: HarnessConfig | null): void {
     return () => { unsub(); if (debounce) clearTimeout(debounce); clearInterval(iv); };
   }, [config?.onboardingComplete]);
 
-  // 5) Pipe inbound Slack messages into Michael's queue. The main-process Slack
-  //    webhook server pushes each verified message here via IPC; enqueueing to
-  //    GOD_ID lands it in Michael's queue exactly as if the user had typed it
-  //    into the composer — effect #4 above then drains it to his PTY.
-  //    We immediately ack in the triggering thread and stash the thread coords
-  //    so the office can post its summary back later.
+  // 5) Pipe inbound Slack messages into the responder's queue (0.5.2, founder
+  //    ruling, Option A: one responder for every inbound channel). Main emits
+  //    this event for EVERY Slack message and sends the configured id along;
+  //    it is resolved here against the agents that are actually running, and
+  //    anything else (unset, archived, the assistant, an unknown id) falls
+  //    back to Michael, never to nowhere. The same rule main applies to a
+  //    teammate's message, from the same shared module. Enqueueing lands the
+  //    text in that agent's queue exactly as if the user had typed it, effect
+  //    #4 drains it to the PTY, and the card gets the thread. The gated
+  //    "received" post is main's, so there is no slackReply here.
   useEffect(() => {
     if (!config?.onboardingComplete) return;
     return window.cth.onSlackMessage((msg) => {
       const hasFiles = Array.isArray(msg.files) && msg.files.length > 0;
       if (!msg?.text?.trim() && !hasFiles) return;
       let text = msg.text.trim();
-      // Append local file paths so the agent (Claude Code) can Read them directly.
+      // Local paths so the agent can Read the attachments directly.
       if (hasFiles) {
-        const fileLines = msg.files!.map((f) => `- ${f.path} (${f.name})`).join('\n');
+        const fileLines = msg.files!.map((f) => `${f.path} (${f.name})`).join('\n');
         text = text ? `${text}\n\nAttached files:\n${fileLines}` : `Attached files:\n${fileLines}`;
       }
       const slack = { channel: msg.channel, thread_ts: msg.thread_ts };
-      // `text` (raw user request + any attachment lines) drives the human-facing
-      // kanban card title/description. The autonomy preamble — supplied verbatim
-      // by main, the authoritative source — is prepended ONLY to god's working
-      // instruction (what gets typed into his PTY), so the board stays readable
-      // while every Slack-origin god-session runs under the autonomy policy. When
-      // main sends no preamble (older build), god just gets the raw text.
+      // The raw text drives the human facing card; the autonomy preamble, built
+      // by main per message, goes only into Michael's working instruction.
       const instruction = msg.autonomyPreamble ? `${msg.autonomyPreamble}${text}` : undefined;
-      useStore.getState().enqueueMessage(GOD_ID, text, { slack, instruction });
-      // Immediate "queued" acknowledgement in the originating Slack thread.
-      void window.cth.slackReply({
-        channel: msg.channel,
-        thread_ts: msg.thread_ts,
-        text: ':hourglass_flowing_sand: *Received.* Your request has been queued — the team is on it and will reply here when done.'
-      });
+      const active = useStore.getState().agents.filter((a) => !a.archived && !a.isAssistant).map((a) => a.id);
+      useStore.getState().enqueueMessage(resolveResponder(msg.responder, active, GOD_ID), text, { slack, instruction });
     });
   }, [config?.onboardingComplete]);
 
@@ -1045,6 +1199,9 @@ export function useHive(config: HarnessConfig | null): void {
         currentStation: 'desk',
         ptyId: rec.id,
         command: rec.command,
+        // The model main actually started the worker on (0.5.3 bug 7). Without it
+        // the row reads "CLI default" for a worker running a named model.
+        model: rec.model,
         provider: rec.provider as Agent['provider'],
         isGod: false,
         recentTextTs: Date.now()
@@ -1102,7 +1259,7 @@ export function useHive(config: HarnessConfig | null): void {
         // collapsed every subsequent hourly attempt against, forever — the exact
         // same check the drain itself uses immediately before typing, so a
         // command is never queued in a state the drain would refuse to deliver.
-        if (!canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, now), QUIESCE_IDLE_MS)) continue;
+        if (!canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, now), QUIESCE_IDLE_MS, openQuestions.isOpen(a.id))) continue;
         const provider = inferAgentProvider(a.command, a.provider);
         const command = action === 'clear'
           ? clearCommandForProvider(provider, rule.message)
@@ -1193,14 +1350,18 @@ export function useHive(config: HarnessConfig | null): void {
         // it if it still exists, else fall back to the base cwd — same as restoreTeam.
         let cwd = a.cwd;
         if (a.worktreePath && (await window.cth.gitIsRepo(a.worktreePath))) cwd = a.worktreePath;
-        await window.cth.killPty(deadId);
+        // 'revive': the process died on its own while the machine slept and we are
+        // about to start it again in the same folder. Without this main removed
+        // that folder, uncommitted work and all, a line before the respawn.
+        await window.cth.killPty(deadId, 'revive');
         // Soft-reset the pooled xterm in place (no-op if none): re-arm input and
         // clear the stale frame so the revived TUI paints clean — like the button.
         resetTerminal(deadId);
         const provider = inferAgentProvider(a.command, a.provider);
         // Prefer the agent's exact recorded command (same model/flags); fall back to
         // a rebuilt one only if it predates the persisted `command` field.
-        const command = (a.command ?? '').trim() || buildSpawnCommand(cfg, a.model, provider);
+        // On the model last seen running (0.5.3 bug 2), same rule as the restore.
+        const command = commandWithModel(a.command, a.model, provider) || buildSpawnCommand(cfg, a.model, provider);
         const [exe, ...args] = tokenizeCommand(command);
         const hive = a.isGod
           ? { id: a.id, name: a.name, cwd, provider, isGod: true, role: roleForHiveSpawn(a) }

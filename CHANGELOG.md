@@ -6,18 +6,308 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [0.5.4] - date set at release
+
+### Fixed
+- **The Stapler stays under the cursor.** Zooming while the Stapler had focus (Cmd and =, or a pinch) saved a zoom level for its window, and from then on the disc drew away from the pointer during a drag. The Stapler windows now stay at 100%, ignore the zoom keys, and undo a zoom saved by 0.5.3.
+
+## [0.5.3] - date set at release
+
+**Stapler becomes your dictation and meeting notes, on your machine, and every agent gets easier to start, restart and steer.**
+
+### Stapler and dictation
+- **Dictate into any app.** Hold Option on the Mac, or Control+Alt+Space on Windows and Linux (X11), talk, and let go: the words land in whatever field is in front, in any app. The audio streams while you hold the key, so the words arrive a moment after you let go.
+- **The composer mic** works with whichever engine is picked, in both skins and in the orchestrator's prompt bar. Free Flow no longer has a switch of its own.
+- **Transcription on your machine.** A Whisper model ships inside the app for every platform and is the default for dictation and meetings. A larger, more accurate model can be downloaded. Apple's on device recogniser (macOS 26) and then Groq are the fallbacks; an empty answer from Apple is retried, and a missing model falls back to the bundled one.
+- **Apple's recogniser is warmed at launch** when it is the dictation engine, so the first dictation does not wait.
+- **Each transcription starts clean**: the end of one meeting no longer shapes the start of the next.
+- **Meetings hear both sides.** Your microphone is written as You and the call's audio as Them: on the Mac through the system's screen audio, on Windows through the system loopback, on Linux through the PulseAudio or PipeWire monitor. Settings has the switch and a line saying whether it works on this machine.
+- **Loud speakers no longer put the other side into You.** The meeting mic cancels echo, and the Stapler suggests headphones when a call plays through the built in speakers.
+- **A meeting key.** Shift+Command+Space starts and stops a meeting on the Mac, Control+Shift+Space on Windows and Linux.
+- **Meeting notes you can edit.** Correct the transcript, add a description under the title and ID, and send the meeting to one or more agents. The audio is never changed.
+- **Your words.** A default list of 126 technical terms plus your own custom words, used by dictation and meetings, and editable from the Stapler.
+- **Shortcuts from a list.** Pick a key from the choices shown instead of typing its name.
+- **The Stapler panel** is compact, with collapsible sections, tooltips and one Save, and stays in step with Settings.
+- **The Stapler** has eyes, a level meter and sounds while it listens, and says Make invisible or Make visible.
+- **Several screenshots in one Stapler message**, a key to take one, and a screenshot taken from the card shows as attached.
+- **The To menu** keeps who you picked, and the Stapler names the agent it sent to by its real name.
+- **Stapler cards** open whole, away from the screen's edges, with Done and Cancel above the card.
+- **Stapler fixes:** the mic stops at the click; no words are lost at a pause; Record message never gets stuck; Done and Cancel always take the click; with nothing to transcribe, it opens Dictation & Meetings instead of an error; it goes dark with the app; it survives a monitor arriving, leaving or waking, and a drag into an edge.
+
+### Agents
+- **A missing CLI is a card, not an error.** Install it from the agent's terminal and only that terminal restarts. The card works after a restart, follows the theme, and its buttons take the click.
+- **Sign in from inside the app** for every engine, and **Set up manually** when an install or a sign in fails. An installed CLI that ended signed out gets the same panel.
+- **Command and Restart in the right panel.** An agent's start command can be edited, Restart is always there, and a stopped agent restarts from the panel.
+- **The orchestrator's command is editable** too.
+- **A dead agent says so** in the sidebar, with Restart.
+- **Restart keeps the session** for every engine that can resume one, and says so when it cannot. Restart & Continue frees a Claude session something else was holding.
+- **Send now goes straight in.** On a queued message it types into Claude Code at once, even mid turn, ahead of the rest of the queue. Other engines take it first when they are idle.
+- **A message typed into an agent is submitted** even on a slow machine: Return waits until the agent has read the text.
+- **Opus 5.5** is the default Claude model, and model names come from the live catalog.
+- **The model an agent is running** shows in the sidebar, and a restart keeps it.
+- **Every engine is listed** wherever an agent's engine is chosen, the orchestrator's included.
+- **Concise by default.** Claude Code agents start on the Concise output style, and you can change it.
+- **Ask me** on every agent's Inbox, one box over the composer to answer, Dismiss all, questions grouped by who asked, the newest on the sidebar, and a badge on the agent's screen while one waits.
+- **An open question is never answered by the app**: a queued message waits while a multiple choice question is on screen.
+- **Attach PDFs, videos and folders** from the composer.
+- **Paste an image** into a Pro composer.
+- **Two floors on one machine.** New Floor asks where to start and runs a second office on its own hive, with one licence for the machine. A hive is only ever open in one floor.
+- **Temps are on by default again.** Michael starts one when you ask.
+- **An agent the app just gave a task** shows as working, for every engine.
+- **Grok agents show their cost**, Codex remote control starts, and Copilot runs interactive after sign in, with its sign in link shown once and an Open link button.
+
+### Settings
+- **One Save.** Every section waits for it and names anything that did not save; leaving with unsaved changes asks first. Notifications save on Save too.
+- **Collapsible sections and tooltips** in place of long paragraphs.
+- **Connections**: Slack in plain fields, each connection with the agent that answers it.
+- **Inbound integrations**: Telegram, Linear, GitHub and your own webhook. A webhook shows Creating address until it is live, turns red with Retry when it fails, and says which agent answers. The Automations and Classic webhook editors set who answers too.
+- **Agents can edit connections**, and Settings never saves over a change an agent made.
+- **Keys & Secrets** holds the provider keys and your own custom secrets.
+- **Dictation & Meetings** holds the engine, the Groq key right under the engine list, the shortcuts, the other side of calls and your words.
+- **Orchestrator's voice** replaces the Voice section. The organisation trigger and the MCP section are gone.
+- **Worktrees.** Settings, General lists the worktree folders on disk and deletes one on request. An agent that crashes keeps its uncommitted work.
+- **Auto compaction** every 40 minutes at 30% of the context window, one bar for every model.
+- **The webhook and Slack servers** move to a free port when theirs is taken, and Settings shows the port they are on.
+
+### Sidebar
+- **Keep my agent order.** Turn it on and Save, then drag an agent by the handle under its picture, or a project by its name. Off, the sidebar orders itself as before.
+- **The new agent row**: name, unread badge, engine, model, status, context, task, live action, and the Asked you, Finished and Crashed lines, with notes and search.
+- **The new agent cards in Classic** as well: the strip card and the roster row with status, engine, model, context, ticket, live action and a right click menu.
+- **Status words say what they mean**: Needs you when an agent waits on you, Waiting when it waits on another agent. The status dots are readable in both themes.
+- **Tooltips open beside the sidebar**, never over the rows below.
+- **One update redraws one row**, so a busy floor no longer repaints the whole list.
+- **The note button** is a notepad, and the Asked you line reads in plain words.
+
+### IDE
+- **Command+I opens the IDE** from any screen.
+- **Find and replace.** Command+F on the Mac, Control+F on Windows and Linux, in the open file.
+- **Unsaved text is never lost**: it always keeps a tab, the IDE asks before closing, comes back the way you left it, and quitting warns only for windows that are open.
+
+### Fixes
+- The terminal takes the width of its pane, and a restarted agent's terminal draws and takes the mouse again.
+- Grok stays light in a light app.
+- A config whose folder was deleted is no longer offered at launch.
+- The hive folder no longer swallows agents' git folders into its database.
+- A skill install that fails leaves nothing half done, and two installs at once no longer undo each other.
+- Rewriting the saved command keeps its quotes and flags.
+- A file share that expires also closes its public link.
+- The release page's pictures and fonts load.
+- Memory cards no longer clip in Chinese.
+- Michael's picture is the logo in the app, the Dock and the installer.
+- Every new screen has its Arabic and Chinese words, the sidebar's reorder handle sits on the right in Arabic, and code in the IDE reads left to right in every language.
+- **Windows: an agent no longer stops at Claude Code's folder trust dialog.** The trust entry is written under the path spelling Claude Code reads (public #607, [@himeshram](https://github.com/himeshram)).
+- **Windows: config.json and the hive's registry and task files are written whole**, temp file then rename, so a crash or a locked file mid write can no longer empty your settings, the roster or the board (public #529 [@UsryAce](https://github.com/UsryAce), #578 [@TTAWDTT](https://github.com/TTAWDTT)).
+- **Windows: Antigravity is found** at its own install location, `%LOCALAPPDATA%\agy\bin\agy.exe` (public #592, [@HsienW](https://github.com/HsienW)); the Windows tests run the same on every machine (public #403, [@oleg-ai-dev](https://github.com/oleg-ai-dev)).
+- The Mac helpers for dictation, hotkeys and meeting audio ship exactly as the release runner builds them, in the one universal build for Apple Silicon and Intel.
+
+## [0.5.2] - 2026-09-09
+
+**What the founder met on his first day with 0.5.1, and a team that can see who is talking.**
+
+### Added
+- **Captures can be aimed at one agent.** A screenshot, a spoken message or a meeting transcript
+  went to the orchestrator and nothing said so. The Stapler's own section now carries the choice,
+  the list is the agents actually running, and a chosen agent that is no longer running does not
+  swallow the capture: it lands on the orchestrator, by the same rule the Slack responder uses.
+- **Meetings are searchable and filterable.** A search box over the meeting's name AND the words
+  in its transcript, a date range on either side, and a meeting can be renamed, which is what
+  makes filtering by name mean anything.
+- **Screenshots are deleted 24 hours after they are taken**, at start-up and hourly, whether or
+  not the screen is open, and the rule is stated where the captures are. A capture that was SENT
+  loses its image on the same clock but keeps its record, because the message that named the file
+  outlives the file: our own protocol tells agents to re-read their inbox, so a week-old message
+  pointing at nothing would be a hole we manufactured. The message itself now carries the expiry
+  from the moment it is written.
+- **A meeting's audio is deleted 24 hours after it is transcribed**, on the same sweep and the
+  same day as a screenshot, and the transcript and its details are kept for ever. The founder
+  asked not to keep the audio at all; the day buys back the one thing deleting it on transcription
+  destroys, which is a second chance when the transcription is wrong. THE CLOCK STARTS AT THE
+  TRANSCRIPTION, not at the recording: a meeting recorded before a key was on file still
+  transcribes the moment a key arrives, and audio that expired while it waited would break that
+  promise. So audio that never transcribed is never swept. Audio transcribed by an earlier build
+  carries no stamp and is dated by the file itself rather than given a fresh day.
+- **Your name on the team.** Enrolment keeps the name that sign in already handed the relay, and a
+  new Settings field sets or changes it (`PATCH /me { name }`, contract 3.11). Agents' names ride
+  inside the sealed message and are pinned on the receiving machine; the relay never sees them.
+- **The receive door on the relay.** The machine publishes its inbound door (the status ANDed with
+  every per-person exception) as one flag per seat plus exceptions, and the relay refuses a
+  sender whose recipient is closed with `not_receiving` before anything is stored. Contract 0.3 is
+  amended for this one field and section 4 lists what the relay now knows.
+- **The responder setting.** One control for every inbound channel: which agent takes a Slack
+  request or a teammate's message. The orchestrator by default, any active agent otherwise, and
+  the orchestrator again when the chosen agent is not running.
+- **A loading state at startup**, blurred over the whole window with a count, a skip after three
+  seconds and a cap at thirty, both counted from the moment the app is in, in both skins; the
+  release drop waits for it.
+- **`MD_RESTORE_SLOW_MS`**, a dev-only lever that staggers every spawn so the restore can be
+  watched slowly on purpose. Dead in a packaged app, like `MD_NO_GOD`.
+- **`MD_DEV_PRO=1`**, a dev-only lever that answers the PRO gate with a synthetic live licence and
+  skips the renewal question, so a second instance can be run beside a live office without
+  enrolling a test profile on a real org or binding a real key to a throwaway device. Dead in a
+  packaged app, like the two above; the gate itself is unchanged.
+- **Voice Michael reads an agent's terminal.** `get_agent_terminal`, one agent by id or name, the
+  last 25 lines (at most 40) from the terminal the app drew or the pty's own tail. Every line is
+  redacted in main and scrubbed of injection lead-ins (`shared/voiceText`, the same rule floor
+  deltas go through) before the model sees it.
+
+### Fixed
+- **A meeting with no transcription key recorded anyway.** It started, wrote every segment of
+  audio to the person's disk, queued a transcriber that found no key and returned, and sat
+  "pending" for ever. Nobody asked for that recording and nobody could read it: it was silent
+  collection with nothing to show for it. The Stapler now refuses to start a meeting without a
+  key, with the same refusal the spoken message has always had, and the ring's button says so
+  before it is pressed. `test/puck-main-wiring.test.cjs` runs the refusal and checks the disk.
+- **The startup blur, as first wired, never drew.** App's first frame has no config yet, and fed
+  as "not onboarded" the gate read "fresh install, nothing to restore" and latched settled for the
+  life of the window, so no install saw the blur and the release drop was not held. Its clock also
+  ran from page load, so a sign-in or the paywall before the app spent the budget. Found before the
+  tag by rendering the real gate through React; the answer is held until the config is known, the
+  clock starts when the app is in, and `test/boot-gate-wiring.test.cjs` renders the module rather
+  than matching its text. A second fault sat under the first: `useRestoreTeam` set `autoStarted`
+  and emitted one call before `restoreTeam()` set `restoring`, `autoRestorePhase()` answered
+  `done` on that tick, and the gate's latch kept it, so the blur came down the moment the restore
+  fired; and the gate's snapshot was the settled flag alone, so the count re-rendered only when
+  something else redrew the shell. The phase now reads running from the claim, the snapshot is
+  the whole view, and `test/boot-blur-replay.test.cjs` boots the real store, hooks and overlay on
+  the founder's roster shape and watches the blur hold through the batch and count 5 to 1.
+- **"Send now" on a queued row answers the click.** The release moves the row to the front and
+  lifts the delivery pause, and the drain types it the moment the agent is idle, never mid-turn;
+  with the orchestrator mid-turn for half an hour nothing visible happened and the row said nothing.
+  The click now toasts when the row goes, the row shows it is next, the button's title says a
+  running turn is Steer's job, and `test/pro-052-send-now.test.cjs` renders the real composer and
+  clicks the real button. One component serves the agent room and the orchestrator's Terminal tab.
+- **The Dock click recreates a closed main window while the puck lives.** `app.on('activate')`
+  asked `BrowserWindow.getAllWindows()`, and the puck is one, so the count was never zero again
+  once it was up: a person who closed the last window with no agents running had a floating puck,
+  no window and Quit as the only exit. It counts `allWindows`, the app's own registry, now.
+  Introduced with the puck; found while proving a "vanishing window" report was macOS Spaces.
+- **A re-listed request is not new mail.** The bridge keeps `teams/handled.json`, drops re-listed
+  ids before opening them, acks each request to the relay on its own frame, and does not announce
+  a request that expired before it arrived. A dismissed approval toast stays dismissed.
+- **A status chosen by hand holds against the schedule** until the next window instance starts.
+- **The PRO sidebar**: 288px wide, a shorter account block, a hidden scrollbar with scrolling kept.
+- **An agent's note that the row cut shows in full on hover**, gated on actual truncation.
+- **Check again stays on offer beside Restart** once an update is downloaded.
+- **The Stapler's microphone notice** stays inside the window and its buttons stack.
+- **Voice Michael's memory tool answers.** It handed the model the MemPalace printout cut at 1600
+  characters (a banner and one hit, often source code). It now parses the hits, ranks notes ahead
+  of code, drops weak ones, and speaks up to six under 2400 characters (`shared/voiceMemory`); the
+  CLI is asked for eight results; the text fallback matches the words of a spoken question.
+- **A message parked for the orchestrator survives a restart.** The god boot cleared his stale
+  roster row with `removeAgent`, which dropped and persisted away his parked queue before the row
+  was re-added under the same id, so anything queued for him before quitting was silently gone at
+  the next launch. Reproduced against the store; the boot now clears the row and keeps the queue.
+- **The orchestrator's PRO composer is the agents' composer.** The god screen's Terminal tab mounted
+  its own fork from phase 3 of 0.4.9 (two lines, chips for the queue, no Send now, no edit, no
+  Steer, sends absent from the sent log). It mounts `pro/Composer` now; `pro.god.queued`,
+  `pro.god.prompt` and `pro.god.sendHint` are gone from the locales. Classic never diverged.
+
+### Changed
+- **The Stapler screen's Actions tab leads every row and section with the ring's own button**
+  (`puck/glyph`, one path table shared by the puck and the screen; `pro/puck/RingButton` draws the
+  `.puck-btn` face inline) and its Transcription section carries the Groq key field. Saving goes
+  through `voice/keyEntry.saveGroqKey`, the same `config.groqApiKey` Settings, Voice and the
+  microphone cards write and the Stapler's transcriber reads; the already-saved display is
+  AiEnginesSettings' check and masked placeholder. No new strings.
+- **The Slack "a temp takes it straight away" route folds into the responder setting.** An install
+  saved on it reads as the orchestrator. The temps machinery stays in the codebase for a later
+  ruling.
+- **Capture and Cancel moved from the edge of the screenshot selection to the Stapler**, below the
+  disc (above it near the bottom of the screen). The puck sits above the overlay only while a
+  capture is up. Enter and Escape still work in the overlay.
+- **Voice Michael's persona and confirmation gate.** The persona is the founder's: short, casual,
+  one question at most, "I don't know" and stop, the snapshot first, then the terminal tool, then
+  memory. A yes is asked only before something destructive (kill, halt, archive, clear context,
+  delete a task or a schedule), before words go to an agent (ping, dispatch, steer, a new
+  schedule), or before something that spends (hire, `autoMode`, `costCapTokens`,
+  `maxConcurrentWorkers`, `maxTurns`). Pause, schedule enable and disable, and the other settings
+  apply at once. Ping, dispatch and steer ask now where they did not before.
+
+## [0.5.1] - 2026-09-08
+
+**A small release that makes 0.5.0 count, and makes a delivered message land.**
+
+### Added
+- **Agent runs report how long they took and how they ended.** One anonymous event when an agent's
+  terminal exits: the engine, a coarse duration bucket (six, from under thirty seconds to over two
+  hours) and one of four endings. Never raw milliseconds, never anything the agent printed. Its row
+  is in `TELEMETRY.md`, and the count always runs low, because a crash reports nothing.
+
+### Fixed
+- **The app reports again.** 0.5.0 was built without its analytics key, so it sent nothing at all.
+  0.5.1 is built with the key in place and the anonymous events listed in `TELEMETRY.md` flow again.
+  Do Not Track still turns them off.
+- **A message sent while the machine is busy submits more reliably.** The Return that submits a
+  delivered message now follows the text after 240ms rather than 140ms, from one constant shared by
+  the visible terminals and the hidden sessions, so the two cannot drift apart again.
+
+### Changed
+- **`period` moved from `checkout_opened` to `licence_activated`.** The app could only ever assert a
+  constant at the checkout door, because the browser chooses the period after the handoff. The
+  claimed licence knows what it is billed by, so the property now rides there, at the checkout door
+  only. `TELEMETRY.md` says the same.
+
+## [0.5.0] - 2026-09-08
+
+**Five releases landed at once.** Everything since 0.4.6 arrives in one update, and the largest
+new thing in it is a small creature that floats over your screen.
+
 ### Added
 
-- **Tasks show their id.** The one thing people actually refer to a card by — `bmt-12` — was not
+- **The Stapler.** A small window that floats above every other app, PRO, and **off until you turn
+  it on** under Settings. Click it and a ring of actions opens around it: capture a region of the
+  screen, speak a message, record a meeting, or hide it from screen sharing in one click. Computer
+  use sits on the ring too, drawn but disabled and marked coming soon, so you can see it arriving.
+  Anything it captures goes to your orchestrator with one line from you about what to do with it,
+  and you read the transcript or see the shot before it goes.
+  Meetings record into a folder of their own and roll to a new file every ten minutes, so a long
+  call transcribes as it runs instead of at the end. Transcription uses the Groq key from Voice; with
+  no key the audio still records and the transcript waits for one rather than being lost. While
+  anything is recording the Stapler turns on content protection and disappears from screen shares and
+  recordings by itself.
+  Its face is drawn from a word you choose, and the same word always draws the same face: eleven
+  shapes, fourteen expressions, any colour including a hex you type, plus size, opacity, always on
+  top, snap to edges and a default corner. It blinks and breathes on its own. Faces by
+  [Blobatar](https://github.com/blobatar), open source under the MIT licence.
+  On macOS the first screenshot asks for Screen Recording permission in System Settings, and the app
+  has to be restarted once after you grant it.
+- **The paywall hands off to the browser, and the licence comes back on its own.** Buying PRO used
+  to end with copying a key out of an email. The paywall now opens the console's checkout in your
+  browser, where you are already signed in from the free step so nobody signs in twice, and the app
+  sends no identity of its own with it. When the payment finishes the browser returns through a
+  `munderdifflin://pro/checkout` link and the machine activates itself.
+  The app mints a random state before it opens the browser and checks the returning link against it
+  **before the grant is used for anything**. The state is spent on any answer, refusal included, and
+  nothing about it is written to disk, so a link from an earlier attempt, a second window, or an app
+  that was closed in between is refused rather than half-honoured. Exchanging the grant for the key
+  sends the grant and nothing else: no person id, no email, not even the state.
+- **Seven new events, and a public table saying exactly what they carry.** 0.5.0 counts how many
+  people meet a price and how many finish, which nothing in the app measured before. Every event and
+  every value it can take is written out in [`TELEMETRY.md`](TELEMETRY.md).
+  It is buckets and fixed words only. No email, no account id, no payment id, no amount, no card
+  detail, no licence key or any part of one, and nothing you typed. A seat count is a bucket
+  (`1`, `2-5`, `6-20`, `21+`), never a number. Each event has its own allowlist of properties and
+  each property a closed list of values, and an event carrying anything outside those lists is
+  dropped whole rather than sent with the odd part quietly removed, so a wrong reading cannot reach
+  a dashboard looking like a right one. Do Not Track still turns all of it off.
+- **28 pull requests from people outside the company**, merged from public `main`: fixes across
+  Slack, worktrees, hooks, the terminal and the sandbox.
+- **Tasks show their id.** The one thing people actually refer to a card by, `bmt-12`, was not
   displayed anywhere: not on the kanban card, which printed only the title and the assignee, and not
   in the detail view behind it. It now leads the card above the title, and leads the detail view's
   fact row, in mono in the same muted ink as the assignee. Every id shows, including the synthetic
   `t-xxxx` fallbacks a card gets when it arrives without one.
+- **Gemini 3.8 Flash in the model pickers.** Antigravity gets it at all three reasoning levels and
+  Cursor gets the one build it carries. Both ids were read out of the CLI that will be invoked with
+  them (`agy models`, `cursor-agent models`) rather than guessed from a name, which is why they look
+  different: Antigravity is spawned with its display label (`Gemini 3.8 Flash (High)`) and Cursor
+  with a slug (`gemini-3.8-flash-high`). Google's own `gemini` CLI takes unversioned aliases
+  (`auto`, `pro`, `flash`, `flash-lite`) and so needs nothing added.
 - **Fable 5.1, GPT-6 Astra, and Gemini 3.7 Flash in the model pickers.** Claude Code gets
   `claude-fable-5-1`, Codex gets `gpt-6-astra`, and Antigravity gets Gemini 3.7 Flash at all three
   reasoning levels; Cursor gets its own build of the two it carries. Every id was read out of the
-  CLI that will be invoked with it — `codex-rs/models-manager/models.json`, `agy models`,
-  `cursor-agent models`, and the installed `claude` binary — rather than guessed from a name.
+  CLI that will be invoked with it (`codex-rs/models-manager/models.json`, `agy models`,
+  `cursor-agent models`, and the installed `claude` binary) rather than guessed from a name.
   **GPT-6 Astra needs Codex 0.153.1 or newer.** The slug landed in that release, so an older
   `codex` on your machine will reject it when the agent spawns; update Codex first. The catalog's
   version bounds cover the app, not the CLI it launches, so this is a prerequisite rather than
@@ -33,6 +323,132 @@ All notable changes to this project are documented here. The format is based on
   not mention keeps the built-in one, so a bad edit costs a list rather than a picker. The payload is
   data and never markup, and a model id is length-capped and stripped of control characters before it
   can reach a `--model` flag on a spawn command line. Same mechanism as the Settings hero card.
+
+## [0.4.11] - 2026-09-06
+
+Free opens the door, Slack walks in three ways, and the office learns to say temp.
+
+### Added
+- **A free tier.** One onboarding for every install with the console sign in inside it; the paid key is asked for only at the paywall, which is drawn in PRO chrome with what PRO gives one person and the next three months. Free opens Classic. A dead PRO key steps down to free instead of a wall.
+- **The licence bridge.** A paid key activates on the machine that redeemed it, and a replaced key locks the old machine out.
+- **Slack, three ways in.** Polling (the default, every 30 seconds to 5 minutes), Socket Mode with a catch up sweep, or webhooks, one at a time, each saying the laptop must stay on. The orchestrator triages every request by default, or a temp takes each one at once and the orchestrator is told. Temps are briefed with an index of every agent's memory.
+- **Default view.** A PRO setting under General picks Classic or PRO as the view the office opens in.
+- **Voice keys where you click.** The microphone and Talk open a card with the key box; the hold to talk gesture and the recorder refuse without a key.
+- **Restart the orchestrator** from his Configuration tab, with the command shown above the button.
+- **The IDE redesigned.** A home tab, one search, three sidebar tabs.
+- **Sign out** from the sidebar drop up, which also says who you are and on what plan.
+
+### Changed
+- **Temps, not workers,** on every screen and in every prompt. The orchestrator's brief is nine numbered rules; it always learns how to start a temp and what the switch does; every agent learns where its capability catalog is; the Slack protocol has one text per reader.
+- **Teams says less.** Four plain words (Off, Listen, Converse, Open) replace the guardrail maze, a spent thread starts fresh, and quit has two doors.
+- **The room gets clearer.** Every agent says its engine, a free install's switch reads TRY PRO, the spawn command sits under the provider, and the last onboarding step shows only the orchestrator.
+- **A face and a gallery.** The pixel orchestrator is the mark everywhere, avatars draw at whole pixels a step larger, and one avatar list runs four rows deep, with Darrell.
+- **The board condenses at 50000 tokens,** not 6000.
+
+### Fixed
+- A drop released anywhere lands in the lit composer, one bad file cannot kill the rest, a dropped file with no path is kept by bytes, the memory graph holds still, stop after this step can be taken back, restore team works under PRO, and long ids stay inside their cards.
+
+## [0.4.10] - 2026-09-04
+
+The first round of changes from a team actually using it.
+
+### Added
+- **You decide who may reach you, and when.** Three axes instead of one word, and a status you set in one place.
+- **Messages between people have a shape.** A subject, a body in Markdown, and a rendering to match.
+- **Send someone a file.** It crosses machines as a link that dies in an hour.
+- **Every agent has a house style.** One response style brief, editable in Settings, reaching all six engines.
+- **Memory search answers in three shapes.** Tickets, agents and notes, as cards, as a list, and on the graph.
+- **Working on your own.** PRO opens for a person on their own, and a licence is how they get in.
+
+### Changed
+- **Settings is drawn by PRO.** The last screen where PRO opened a Classic page.
+- **Long answers stop burying the screen.** A long answer shows its opening and says how much it is hiding.
+- **Nothing grows for ever.** Eight stores that grew with no bound are bounded.
+
+## [0.4.9] - 2026-09-03
+
+PRO stops being a shell over Classic. Every screen a person opens under PRO is
+drawn by PRO, and the pieces that used to be a Classic dialog behind a PRO
+button are gone.
+
+### Added
+- **Your orchestrator has a name of its own.** Every machine chooses what its orchestrator is called, and the word has to be one nobody else in the organisation has taken. It is asked for while you join, it can be changed in Settings, and it is the name your teammates see beside yours on every roster and every message. Their agents can write to it by that name, or by yours, instead of an id; a name that matches two people bounces back naming both. Until this version every install called its orchestrator Michael, so a message from Michael on a team of three named nobody.
+- **Onboarding is PRO.** Join a team, choose the workspace folder and the engine that will run it, then meet your team, all in the kit. An engine the machine cannot start is refused where you pick it, with the reason, rather than discovered when nothing boots.
+- **The Agents screen is a grid you can read.** Every agent is a card with its sprite, what it is doing right now in words, its context and spend, and the ticket it is on. The orchestrator's card is always drawn, from the moment it starts, so a floor that is still booting is never an empty screen.
+- **Every agent has a room.** One screen per agent: the conversation on one side, the live terminal on the other, and a details panel with identity, engine, workspace, capabilities and budget. Pause tools, stop after this step, one to one, and archive are buttons there rather than folklore.
+- **One door adds or edits an agent.** The agent sheet replaces two Classic modals and is opened by the header, the grid's Add card and the agent's own room.
+- **Michael's screen.** Terminal, Messages, Routing, Budget and breaker, Board, and Configuration. The routing log, the spend against the cap with the breaker's thresholds, and the shared board with a composer to propose a change were all unreachable under PRO before.
+- **Memory you can browse.** Pinned facts, summaries, recent notes and research deliverables, filtered by kind, each topic showing which agents know it and opening the note it came from.
+- **Role bundles.** Eleven of them, Designer through Legal. Pick one for an agent and it gets that role's connectors in one write, with the sheet saying plainly what it does not touch.
+- **Sprite editor.** Make your own agent avatars. Pick a skin, face shape, eyes, brows, nose, mouth, one of thirteen hair styles, facial hair, glasses, a wardrobe of twenty garments and their colours, and watch the card and the walking figure update as you go. Save it with a name and it sits beside the fifteen cast members in the character picker, in Add Agent and Edit Agent, in Classic and in PRO, and on the floor. Twenty four generated presets can be used as they are or as a starting point. Avatars live in `config.json`; the cast renders exactly as before, pinned pixel for pixel by a test.
+- **Team in Classic.** One Team button in the title bar (⌘⇧T, Ctrl+Shift+T elsewhere) opens the Team window: your teammates on the left with their sprite, presence and the Verified chip, the selected person's thread on the right with what they sent and what came back, and the composer under it. The button carries the count of what arrived since you last read a thread. Esc closes it.
+- **PRO titlebar.** Under PRO the title bar is the kit's: the version at the far left (it is the update control, one state machine with Classic), a Simple | Technical switch that is a second door to the onboarding answer Settings already owns, a Connected chip that opens the Team screen, the theme and Settings buttons, and Classic | PRO. The "auto mode" text left the bar. Toasts and dialogs under PRO (an update, a finished voice dispatch, a teammate's request, a key change, the quit warning) are the kit's too and subscribe to the same events Classic's do; the fullscreen terminal is Classic only.
+- **Messages you can see move.** When the orchestrator routes a message under PRO, both cards wear the accent ring, a dot travels from the sender's card to the recipient's, and the two sidebar rows glow for the same beat. More than six beats in a second keep the glow and drop the dots; reduced motion gets the glow only.
+- **Search the whole workspace from the editor.** A Search pane beside the file tree finds a string across every file in the workspace and lists the hits by file; clicking one opens that file with the match selected. Match case, whole word and regular expressions are toggles, a plain search treats your text literally, and a result that hit its limit says so instead of looking complete.
+- **Work on another agent's workspace without leaving the editor.** A switcher in the editor's title bar lists every workspace this window can reach and moves the whole editor to it. It refuses while you have unsaved changes and says why.
+- **Make, rename and delete files in the tree.** Right click any row for New file, New folder, Rename, Copy path and Move to Bin, with the name typed on the row itself. Nothing overwrites: a name already in use is refused rather than silently replacing what is there. Delete goes to the operating system's bin, so it can be undone the usual way.
+
+### Changed
+- **Settings, Updates, Team and the rest are one screen each now, not two.** The surfaces PRO used to show by embedding a Classic dialog are drawn in the PRO kit for both skins, so what you see under PRO and what you see under Classic can no longer drift apart. Buttons everywhere in them respond to the pointer again, and Version & updates gained a status chip, a real progress bar while a download runs, and the release notes in their own panel.
+- **Simple or technical, everywhere.** The reading level you chose during onboarding now decides what every PRO screen shows, not just the wording on a few of them. Ids, paths, raw status names and token counts appear for technical and stay out of the way for everyone else. Settings still owns the answer and the titlebar is a second door to it.
+- **Tasks, Ask me and the board stop growing.** Done cards leave the live ledger after two days and untouched ones after three weeks (they show a Stale chip at two), moving to `tasks-archive.json` beside it and staying searchable behind an Archived chip on the Tasks screen. A question that has waited a week says so on its card instead of vanishing. Past about 6k tokens the board's full text is copied to `board-archive.md` and the orchestrator is asked once to condense it, keeping Decisions verbatim. All five thresholds are rows in Settings under Autonomy & Budgets.
+- **PRO says what it means.** The words the app used for its own internals, the floor, the hive, spawning, the palace, no longer appear on a PRO screen. Agents are hired, they work in a workspace, and memory is searched.
+- **Checking this machine moved to Settings.** Whether the tools an agent needs are installed is machine wide, so it is a Settings section now instead of a tab inside one agent's screen, and the Capabilities screen no longer probes anything to draw itself.
+- Every other teams and organisation trace left Classic: the connection chip moved inside the Team window, and Classic Settings keeps one Connections row, the team relay. PRO keeps its own Team screen and chrome.
+
+## [0.4.8] - 2026-09-03
+
+### Changed
+- The app requires a seat (founder ruling 3 Sep 2026). A machine with no membership opens on Join a team and nothing else, before and after onboarding; the solo path and the licence sign-in are gone from the first launch. Billing that is not active locks every machine in the organisation behind one screen that names the fix: the admin adds a card in the console.
+- The join's browser sign-in is live: `/desktop/signin` on the console mints the grant the app has asked for since 0.4.7, and the relay binds the seat to the person who signed in.
+
+## [0.4.7] - 2026-09-02
+
+### Changed
+- The mac download is the one universal DMG, and the manual download link now names it (it used to name a per arch DMG that no release ships).
+
+**PRO is the default way to run the floor.** A sidebar and one screen at a time, built for the
+person running thirty agents, with Classic one click away in the title bar.
+
+### Added
+
+- **PRO mode, on by default.** The professional skin was removed and redrawn from scratch as the
+  default: a sidebar of Tasks, Inbox, Automations, Memory, Capabilities, Agents, Temps and Team,
+  one screen on the right, and a profile drop-up for Profile, Settings and Version & updates. The
+  focus button in the title bar became a Classic | PRO switch; a skin you had already chosen still
+  wins, and Classic keeps the fullscreen terminal exactly as it was.
+- **Agents are their sprites.** Every place PRO shows an agent, from the Agents grid to a task's
+  author to a message row, draws the character sprite. No initials anywhere.
+- **Inbox reads like a messenger.** Ask me (the human queue), Floor (agent to agent), Outside (Slack
+  and webhooks, with a new ledger of every Slack message the app posted or received) and Team direct
+  messages, one thread list, newest first. Clicking a teammate on the Team screen opens their thread.
+- **Automations is one list.** Schedules, context rules, webhooks and the organisation trigger sit
+  in a single table with a drawer that edits each in place, and the approval ledger beside it.
+- **Capabilities grants MCP servers per agent.** A server can be on for one agent and off for
+  another; the launch path honours the grant, and write and secret tiers still need an explicit yes.
+- **Memory is a graph you can search.** Agents, topics and the memories that join them, drawn on a
+  canvas that turns slowly (and holds still when your system asks for reduced motion), with search
+  across any agent's memory.
+- **Temps keeps a history.** Every temporary worker that ends is recorded: what it was asked, how
+  long it ran, tokens used, how it ended and whether its worktree was kept, with the path to copy.
+- **Team, Profile and Subscription & billing.** The Team screen shows the roster with what each
+  clone allows; invites, removals and seat changes open the console page that owns them. Profile
+  shows your seat, your machine and its fingerprint, and signs out. Subscription & billing appears
+  only for an organisation admin, is refused by the app itself for anyone else, and reads plan,
+  seats, card and invoices from the relay with no payment identifier ever on the wire.
+- **Keyboard.** ⌘\ folds the sidebar, ⌘. folds the agent config panel, ⌘, opens Settings, and Esc
+  closes any sheet or drawer (an Esc inside a text field leaves the field first, so nothing typed
+  is lost). The same chords are Ctrl on Windows and Linux.
+- **Settings has one door in PRO.** The gear, the ⌘, chord and every "set it now" link land on the
+  Settings page, on the tab that holds the field; the Classic modal is never drawn over PRO.
+
+### Changed
+
+- **The design tokens moved to kit v2.** One accent (the amber from the website) on every action
+  and important figure, the six pastels for agents and states, and even 1px borders on every card:
+  status lives in a chip, never in a thicker edge.
+- **Chinese and Arabic cover every PRO string.** Each of the new screens ships translated in
+  zh-CN and Arabic, checked key for key against English.
 
 ## [0.4.6] — 2026-08-27
 

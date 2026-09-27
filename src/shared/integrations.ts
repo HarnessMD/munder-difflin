@@ -21,15 +21,31 @@
  * Full contract: hive/docs/integrations-spec.md.
  */
 
+import {
+  apiAuthParts,
+  AUTH_PREFIX_RE,
+  BASIC_USER_RE,
+  HEADER_NAME_RE,
+  QUERY_PARAM_RE,
+  type ApiAuth,
+  type ApiAuthParts
+} from './apiAuth';
+
+export { HEADER_NAME_RE } from './apiAuth';
+
 export type IntegrationKind = 'github' | 'custom-rest';
 
 /** How the broker injects credentials when forwarding to the integration's baseUrl.
  *  This is the ONLY auth-injection vocabulary; the secret is supplied by the broker
- *  at forward-time, never stored here. */
+ *  at forward-time, never stored here. The shapes themselves, and the one function
+ *  that turns a shape plus a secret into request pieces, live in ./apiAuth. */
 export type IntegrationAuthType =
   | 'none'    // public API — inject nothing
   | 'bearer'  // Authorization: Bearer <secret>
   | 'header'  // <authHeader>: <secret>   (authHeader required)
+  | 'prefix'  // <authHeader>: <authPrefix> <secret>   (both required)
+  | 'query'   // ?<authQuery>=<secret>   (authQuery required)
+  | 'basic'   // Authorization: Basic base64(<authUser>:<secret>)   (authUser required)
   | 'github'; // Authorization: Bearer <secret> + GitHub API headers
 
 /** A registered integration. METADATA ONLY — carries NO secret value, only a
@@ -46,11 +62,26 @@ export interface IntegrationRecord {
   baseUrl: string;
   /** How the broker injects auth when forwarding upstream. */
   authType: IntegrationAuthType;
-  /** REQUIRED iff authType === 'header' — the header NAME to inject the secret under. */
+  /** REQUIRED iff authType is 'header' or 'prefix' — the header NAME to inject
+   *  the secret under. */
   authHeader?: string;
+  /** REQUIRED iff authType === 'prefix' — the word in front of the secret
+   *  ('Token', 'ApiKey', 'SSWS'). The separating space is added at forward-time. */
+  authPrefix?: string;
+  /** REQUIRED iff authType === 'query' — the query parameter NAME. */
+  authQuery?: string;
+  /** REQUIRED iff authType === 'basic' — the user half of the pair. NOT a
+   *  secret: the secret is the password half and lives in the secret store. */
+  authUser?: string;
   /** HANDLE into the encrypted secret store; NEVER the secret. Present iff
    *  authType !== 'none'. Convention: `int:<id>`. */
   secretRef?: string;
+  /** Which template seeded this record (`IntegrationTemplate.idSuggestion`).
+   *  Seven shipped templates share the custom-rest KIND, so a record that
+   *  remembers only its kind cannot be told from any other custom REST API,
+   *  and the editor shows the wrong provider's help. Optional: records written
+   *  before v0.4.9 phase 6b do not carry it (see resolveTemplate). */
+  templateId?: string;
   /** Consent gate. A worker can reach an integration ONLY when enabled. */
   enabled: boolean;
   /** epoch ms. */
@@ -68,8 +99,14 @@ export interface IntegrationTemplate {
   /** Default origin. Empty for custom-rest (the user supplies it). */
   baseUrl: string;
   authType: IntegrationAuthType;
-  /** For authType 'header'. */
+  /** For authType 'header' and 'prefix'. */
   authHeader?: string;
+  /** For authType 'prefix'. */
+  authPrefix?: string;
+  /** For authType 'query'. */
+  authQuery?: string;
+  /** For authType 'basic'. The user half, never the secret. */
+  authUser?: string;
   /** UI prompt for the secret field, e.g. "GitHub personal access token". */
   secretLabel?: string;
   /** One line: where to get the secret / what scopes it needs. */
@@ -82,9 +119,7 @@ export interface IntegrationTemplate {
 
 /** Integration id: lowercase slug, 2–40 chars, no leading/trailing hyphen. */
 export const INTEGRATION_SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
-/** A header name the broker may inject under (authType 'header'). */
-export const HEADER_NAME_RE = /^[A-Za-z0-9-]{1,64}$/;
-export const ALL_AUTH_TYPES: readonly IntegrationAuthType[] = ['none', 'bearer', 'header', 'github'];
+export const ALL_AUTH_TYPES: readonly IntegrationAuthType[] = ['none', 'bearer', 'header', 'prefix', 'query', 'basic', 'github'];
 export const ALL_KINDS: readonly IntegrationKind[] = ['github', 'custom-rest'];
 
 /** The secretRef handle for an integration id (1:1). */
@@ -128,21 +163,45 @@ export function validateIntegrationRecord(
   const urlCheck = validateBaseUrl(baseUrl);
   if (!urlCheck.ok) return { ok: false, error: urlCheck.error };
 
-  let authHeader: string | undefined;
-  if (authType === 'header') {
-    authHeader = typeof r.authHeader === 'string' ? r.authHeader.trim() : '';
-    if (!authHeader || !HEADER_NAME_RE.test(authHeader)) {
-      return { ok: false, error: "authType 'header' requires authHeader matching [A-Za-z0-9-]{1,64}" };
+  // One rule per auth field: it is REQUIRED by the shapes that send it and
+  // REFUSED by the ones that do not, so a record cannot carry a header name
+  // left over from a shape the user moved away from.
+  const field = (key: 'authHeader' | 'authPrefix' | 'authQuery' | 'authUser', wanted: boolean, re: RegExp, what: string):
+    { ok: true; value: string | undefined } | { ok: false; error: string } => {
+    const raw = typeof r[key] === 'string' ? (r[key] as string).trim() : '';
+    if (!wanted) {
+      return raw === ''
+        ? { ok: true, value: undefined }
+        : { ok: false, error: `${key} is not valid for authType '${authType}'` };
     }
-  } else if (r.authHeader != null && String(r.authHeader).trim() !== '') {
-    return { ok: false, error: "authHeader is only valid when authType === 'header'" };
-  }
+    return re.test(raw) ? { ok: true, value: raw } : { ok: false, error: `authType '${authType}' requires ${key} matching ${what}` };
+  };
+
+  const h = field('authHeader', authType === 'header' || authType === 'prefix', HEADER_NAME_RE, '[A-Za-z0-9-]{1,64}');
+  if (!h.ok) return h;
+  const p = field('authPrefix', authType === 'prefix', AUTH_PREFIX_RE, '[A-Za-z0-9-]{1,32}');
+  if (!p.ok) return p;
+  const q = field('authQuery', authType === 'query', QUERY_PARAM_RE, '[A-Za-z0-9_.-]{1,64}');
+  if (!q.ok) return q;
+  const u = field('authUser', authType === 'basic', BASIC_USER_RE, 'a printable name without a colon');
+  if (!u.ok) return u;
+
+  const templateId = typeof r.templateId === 'string' && INTEGRATION_SLUG_RE.test(r.templateId.trim())
+    ? r.templateId.trim()
+    : undefined;
 
   const needsSecret = authTypeNeedsSecret(authType);
   const secretRef = needsSecret ? secretRefFor(id) : undefined;
   const enabled = r.enabled === true;
 
-  return { ok: true, value: { id, label, kind, baseUrl, authType, authHeader, secretRef, enabled } };
+  return {
+    ok: true,
+    value: {
+      id, label, kind, baseUrl, authType,
+      authHeader: h.value, authPrefix: p.value, authQuery: q.value, authUser: u.value,
+      secretRef, templateId, enabled
+    }
+  };
 }
 
 /** Validate a baseUrl: https origin (+ optional path), no userinfo, no traversal.
@@ -166,33 +225,61 @@ export function validateBaseUrl(baseUrl: string): { ok: true; url: URL } | { ok:
   return { ok: false, error: 'baseUrl must be https (http allowed only for 127.0.0.1/localhost)' };
 }
 
-/**
- * Build the upstream auth headers the broker injects when forwarding. Pure — the
- * caller (the broker, in main) passes the already-decrypted secret; this function
- * never reads any store and never logs. Returns the header map to merge into the
- * outbound request (lowercased keys).
- */
-export function buildAuthHeaders(
-  authType: IntegrationAuthType,
-  authHeader: string | undefined,
-  secret: string | undefined
-): Record<string, string> {
-  switch (authType) {
-    case 'none':
-      return {};
-    case 'bearer':
-      return secret ? { authorization: `Bearer ${secret}` } : {};
-    case 'header':
-      return secret && authHeader ? { [authHeader.toLowerCase()]: secret } : {};
-    case 'github':
-      return {
-        ...(secret ? { authorization: `Bearer ${secret}` } : {}),
-        accept: 'application/vnd.github+json',
-        'x-github-api-version': '2022-11-28'
-      };
-    default:
-      return {};
+/** The record's auth shape, as ./apiAuth describes it. A record stores the
+ *  shape flattened over optional columns; this puts it back together so there
+ *  is exactly one description of each shape in the app. */
+export function apiAuthOf(rec: Pick<IntegrationRecord, 'authType' | 'authHeader' | 'authPrefix' | 'authQuery' | 'authUser'>): ApiAuth {
+  switch (rec.authType) {
+    case 'bearer': return { mode: 'bearer' };
+    case 'github': return { mode: 'github' };
+    case 'header': return { mode: 'header', header: rec.authHeader ?? '' };
+    case 'prefix': return { mode: 'prefix', header: rec.authHeader ?? '', prefix: rec.authPrefix ?? '' };
+    case 'query': return { mode: 'query', param: rec.authQuery ?? '' };
+    case 'basic': return { mode: 'basic', user: rec.authUser ?? '' };
+    default: return { mode: 'none' };
   }
+}
+
+/**
+ * Build the upstream request pieces the broker injects when forwarding. Pure — the
+ * caller (the broker, in main) passes the already-decrypted secret; this function
+ * never reads any store and never logs.
+ *
+ * Returns BOTH halves: headers to merge (lowercased keys) and query parameters to
+ * set on the upstream URL. A caller that merges only the headers silently drops
+ * the credential of every query-parameter API, which is a 401 nobody can see.
+ */
+export function buildAuthRequest(
+  rec: Pick<IntegrationRecord, 'authType' | 'authHeader' | 'authPrefix' | 'authQuery' | 'authUser'>,
+  secret: string | undefined
+): ApiAuthParts {
+  return apiAuthParts(apiAuthOf(rec), secret);
+}
+
+/**
+ * The template a record came from, for the label and the provider's own secret
+ * help. NOT a lookup by kind: seven shipped templates share the custom-rest
+ * kind, so `templates.find((x) => x.kind === rec.kind)` answers "Custom REST
+ * API" for Stripe, Linear, Notion, Jira, Sentry, Confluence and HubSpot alike.
+ *
+ * Three steps, most specific first, so a record written before templateId
+ * existed still finds its provider:
+ *   1. the stored templateId
+ *   2. an exact baseUrl match inside the same kind
+ *   3. the kind, but ONLY when one template claims it, never a guess
+ */
+export function resolveTemplate(
+  templates: readonly IntegrationTemplate[],
+  rec: Pick<IntegrationRecord, 'kind' | 'baseUrl'> & { templateId?: string }
+): IntegrationTemplate | undefined {
+  if (rec.templateId) {
+    const byId = templates.find((x) => x.idSuggestion === rec.templateId);
+    if (byId) return byId;
+  }
+  const sameKind = templates.filter((x) => x.kind === rec.kind);
+  const byUrl = sameKind.find((x) => x.baseUrl !== '' && x.baseUrl === rec.baseUrl.trim());
+  if (byUrl) return byUrl;
+  return sameKind.length === 1 ? sameKind[0] : undefined;
 }
 
 /**
@@ -253,7 +340,7 @@ export const INTEGRATION_TEMPLATES: IntegrationTemplate[] = [
     baseUrl: '',
     authType: 'bearer',
     secretLabel: 'API key / token',
-    secretHelp: 'Point baseUrl at any REST API. Choose how its credential is sent: Bearer token, a custom header, or none.',
+    secretHelp: 'Point baseUrl at any REST API, then pick how it wants the key: a bearer token, a header you name, a header with a prefix word, a query parameter, HTTP basic, or none.',
     idSuggestion: 'my-api'
   },
 

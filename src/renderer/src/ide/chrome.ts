@@ -14,24 +14,25 @@
  */
 import type { CSSProperties } from 'react';
 
-/** The horizontal bar above an editor / preview body. */
+/** The horizontal bar above an editor / preview body. 0.4.11 redesign: the
+ *  30px crumb bar of the prototype, on the paper, with the kit's hairline. */
 export const ideBarStyle: CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 6, padding: '3px 8px',
-  background: 'var(--cth-cream-200)', borderBottom: '1px solid var(--cth-ink-700)',
-  fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-700)'
+  display: 'flex', alignItems: 'center', gap: 6, height: 30, padding: '0 8px 0 12px', flexShrink: 0,
+  background: 'var(--cth-paper-100)', borderBottom: '1px solid var(--cth-ink-300)',
+  fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-500)'
 };
 
 /** Square, borderless button that holds only an icon. */
 export const ideIconBtn: CSSProperties = {
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-  padding: 0, width: 18, height: 18, background: 'transparent', border: 'none',
-  cursor: 'pointer', color: 'var(--cth-ink-500)'
+  padding: 0, width: 26, height: 26, borderRadius: 6, background: 'transparent', border: 'none',
+  cursor: 'pointer', color: 'var(--cth-ink-500)', flexShrink: 0
 };
 
 /** Small labelled button used for bar actions (save, copy path, view toggles). */
 export const ideTextBtn: CSSProperties = {
-  padding: '0 6px', height: 20, fontFamily: 'var(--cth-font-ui)', fontSize: 12,
-  color: 'var(--cth-ink-900)', background: 'var(--cth-cream-100)', border: 'none',
-  boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)', cursor: 'pointer',
-  display: 'inline-flex', alignItems: 'center', gap: 4
+  padding: '0 9px', height: 26, fontFamily: 'var(--cth-font-ui)', fontSize: 12, fontWeight: 500,
+  color: 'var(--cth-ink-900)', background: 'var(--cth-cream-50)', border: '1px solid var(--cth-ink-300)',
+  borderRadius: 'var(--cth-radius-md, 7px)', cursor: 'pointer',
+  display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap'
 };

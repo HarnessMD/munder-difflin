@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { PixelBadge } from './PixelBadge';
+import { PixelBadge, labelKeyByStatus } from './PixelBadge';
 import { PixelButton } from './PixelButton';
 import { PtyTerminalView } from './PtyTerminalView';
 import { terminalInstanceKey } from './terminalRecovery';
-import { MessageQueueComposer } from './MessageQueueComposer';
+import { MessageQueueComposer, requestComposerFocus } from './MessageQueueComposer';
 import { AgentControlStrip } from './AgentControlStrip';
 import { CommandCenterPanel } from './CommandCenterPanel';
 import { EditAgentModal } from './EditAgentModal';
@@ -15,6 +15,17 @@ import { PORTRAIT_W } from '@/scene/office/portraitArt';
 import { RealtimeMichaelToggle } from './RealtimeMichaelToggle';
 import { CostHud } from '@/realtime/CostHud';
 import { useStore, type Agent } from '@/store/store';
+import { useAgent } from '@/store/useAgent';
+import { NotepadGlyph } from './agentRow/NotepadGlyph';
+import { agentSliceHook } from '@/store/agentSlices';
+import { ticketOf, useTaskLedger } from '@/store/taskLedger';
+import { useLastActivityOf } from './pro/activityData';
+import { EngineBadge } from './pro/Engine';
+import { ENGINE_NAME } from '@shared/engine';
+import { modelWord } from '@/store/config';
+import { Ago } from './agentRow/Ago';
+import { ContextGauge, contextPercent, percentColor, segmentsOf } from './agentRow/ContextGauge';
+import { useAgentMenu } from './agentRow/AgentContextMenu';
 import { usePtyParser } from '@/hooks/usePtyParser';
 import { useRestoreTeam } from '@/hooks/useRestoreTeam';
 import { useTerminalFontSize } from './terminalFontSize';
@@ -78,12 +89,16 @@ const repoLookupsInFlight = new Set<string>();
  *
  *  Falls back to the cwd itself until the async resolution lands, and for
  *  directories that aren't git repos at all. */
-function repoKeyOf(agent: Agent): string {
+/** What the roster itself needs of an agent to group and order it (0.5.3,
+ *  F25 groundwork, Pam's audit): the rows read their own records. */
+type RosterAgent = Pick<Agent, 'id' | 'isGod' | 'cwd' | 'project' | 'name' | 'ptyId'>;
+const useRosterAgents = agentSliceHook(['isGod', 'cwd', 'project', 'name', 'ptyId'] as const);
+function repoKeyOf(agent: RosterAgent): string {
   return repoRootByCwd.get(agent.cwd) || agent.cwd || 'unknown';
 }
 
 /** What that group is CALLED — the basename, or the project the user picked. */
-function repoLabelOf(agent: Agent): string {
+function repoLabelOf(agent: RosterAgent): string {
   const root = repoRootByCwd.get(agent.cwd);
   if (root) return basename(root);
   const project = agent.project?.trim();
@@ -93,7 +108,7 @@ function repoLabelOf(agent: Agent): string {
 
 /** Resolve every distinct cwd's repository root, then re-render. Exactly one git
  *  call per distinct path, ever. */
-function useResolvedRepoNames(agents: Agent[]): number {
+function useResolvedRepoNames(agents: readonly RosterAgent[]): number {
   const [version, setVersion] = useState(0);
   useEffect(() => {
     let cancelled = false;
@@ -126,14 +141,12 @@ function useResolvedRepoNames(agents: Agent[]): number {
 
 /** The roster section an agent lives in — god agents share one ungrouped
  *  section, everyone else groups by repository. */
-function groupKey(agent: Agent): string {
+function groupKey(agent: RosterAgent): string {
   return agent.isGod ? '__god__' : repoKeyOf(agent);
 }
 
 /** Drag-reorder wiring handed down to each row. */
 interface RowDrag {
-  dragId: string | null;
-  overId: string | null;
   start: (id: string) => void;
   over: (id: string) => void;
   leave: (id: string) => void;
@@ -149,7 +162,9 @@ export interface FullscreenTerminalProps {
 
 export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
   const { t } = useTranslation();
-  const agents = useStore(s => s.agents);
+  // The roster lists by five fields; a pty chunk never renders it. The
+  // focused agent is read whole, by id, for the terminal and the header.
+  const agents = useRosterAgents();
   const restorableAgents = useStore(s => s.restorableAgents);
   const fullscreenAgentId = useStore(s => s.fullscreenAgentId);
   const setFullscreen = useStore(s => s.setFullscreen);
@@ -159,14 +174,13 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
   // Owned HERE, not in Header, purely so the Esc handler below can see it:
   // Esc closing the dialog must not also throw you out of focus mode.
   const [editAgentOpen, setEditAgentOpen] = useState(false);
-  const setAgentNote = useStore(s => s.setAgentNote);
   const updateAgent = useStore(s => s.updateAgent);
   // The floor strip (and with it the restore button) is hidden behind the
   // overlay, so the roster carries restore too.
   const { restoring, autoRestoring, restoreTeam } = useRestoreTeam(config);
   const appThemeNow = useAppTheme();
 
-  const agent = agents.find(a => a.id === fullscreenAgentId);
+  const agent = useAgent(fullscreenAgentId ?? '');
   const parser = usePtyParser(agent?.id ?? '__none__');
 
   const repoVersion = useResolvedRepoNames(agents);
@@ -193,33 +207,64 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
       return next;
     });
   };
-  const drag: RowDrag = {
-    dragId,
-    overId,
+  // One function each for the life of the screen (the rows are memoised):
+  // the drop reads the dragged id off a ref rather than closing over state.
+  const dragIdRef = useRef<string | null>(null);
+  dragIdRef.current = dragId;
+  const agentsRef = useRef(agents);
+  agentsRef.current = agents;
+  const drag = useMemo<RowDrag>(() => ({
     start: (id) => setDragId(id),
     over: (id) => setOverId((prev) => (prev === id ? prev : id)),
     leave: (id) => setOverId((prev) => (prev === id ? null : prev)),
     drop: (id) => {
-      if (dragId && dragId !== id) {
-        const from = agents.find(a => a.id === dragId);
-        const to = agents.find(a => a.id === id);
-        if (from && to && groupKey(from) === groupKey(to)) reorderAgents(dragId, id);
+      const dragging = dragIdRef.current;
+      if (dragging && dragging !== id) {
+        const from = agentsRef.current.find(a => a.id === dragging);
+        const to = agentsRef.current.find(a => a.id === id);
+        if (from && to && groupKey(from) === groupKey(to)) reorderAgents(dragging, id);
       }
       setDragId(null);
       setOverId(null);
     },
     end: () => { setDragId(null); setOverId(null); }
-  };
-
+  }), [reorderAgents]);
+  // Open, Message, Rename, Add or Edit note from the right click menu (0.5.3,
+  // F25). Rename and note are requests the row answers: a counter per id.
+  const openAgent = useCallback((id: string) => { select(id); setFullscreen(id); }, [select, setFullscreen]);
+  const [renameReq, setRenameReq] = useState<{ id: string; n: number }>({ id: '', n: 0 });
+  const [noteReq, setNoteReq] = useState<{ id: string; n: number }>({ id: '', n: 0 });
+  const menu = useAgentMenu({
+    onOpen: openAgent,
+    onMessage: (id) => { openAgent(id); requestComposerFocus(id); },
+    onRename: (id) => setRenameReq((r) => ({ id, n: r.n + 1 })),
+    onEditNote: (id) => setNoteReq((r) => ({ id, n: r.n + 1 }))
+  });
+  const rowFor = (a: RosterAgent) => (
+    <SidebarRow
+      key={a.id}
+      id={a.id}
+      active={a.id === agent?.id}
+      dragging={dragId === a.id}
+      over={overId === a.id && !!dragId && dragId !== a.id}
+      dragActive={!!dragId}
+      onOpen={openAgent}
+      onContextMenu={menu.open}
+      renameRequest={renameReq.id === a.id ? renameReq.n : 0}
+      noteRequest={noteReq.id === a.id ? noteReq.n : 0}
+      drag={drag}
+      scale={scale}
+    />
+  );
   // Roster: god agents first and ungrouped, everyone else bucketed by repo.
   // Insertion order is preserved inside each bucket (it's the user's own
   // drag-reorder from the floor strip) and buckets appear in first-seen order,
   // so the list doesn't reshuffle as statuses change.
   const { gods, groups } = useMemo(() => {
-    const godList: Agent[] = [];
+    const godList: RosterAgent[] = [];
     // Keyed by absolute repo root (identity); the label is carried alongside so
     // two same-named repos stay two groups but still read by name.
-    const byRepo = new Map<string, { label: string; members: Agent[] }>();
+    const byRepo = new Map<string, { label: string; members: RosterAgent[] }>();
     for (const a of agents) {
       if (a.isGod) { godList.push(a); continue; }
       const key = repoKeyOf(a);
@@ -324,7 +369,7 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
               // this button is holding rather than something that broke.
               background: rosterCollapsed ? 'var(--cth-lemon)' : 'var(--cth-paper-100)',
               boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
-              border: 'none', borderRadius: 2, cursor: 'pointer',
+              border: 'none', borderRadius: 'var(--cth-radius-md, 2px)', cursor: 'pointer',
               color: rosterCollapsed ? 'var(--cth-ink-900)' : 'var(--cth-ink-900)'
             }}
           >
@@ -346,7 +391,7 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
               width: 28, height: 28, padding: 0,
               background: 'var(--cth-paper-100)',
               boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
-              border: 'none', borderRadius: 2, cursor: 'pointer',
+              border: 'none', borderRadius: 'var(--cth-radius-md, 2px)', cursor: 'pointer',
               color: 'var(--cth-ink-900)', fontSize: 13, lineHeight: 1
             }}
           >
@@ -366,7 +411,7 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
               width: 28, height: 28, padding: 0,
               background: 'var(--cth-paper-100)',
               boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
-              border: 'none', borderRadius: 2, cursor: 'pointer',
+              border: 'none', borderRadius: 'var(--cth-radius-md, 2px)', cursor: 'pointer',
               color: 'var(--cth-ink-900)'
             }}
           >
@@ -388,7 +433,7 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
               width: 28, height: 28, padding: 0,
               background: 'var(--cth-paper-100)',
               boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
-              border: 'none', borderRadius: 2, cursor: 'pointer',
+              border: 'none', borderRadius: 'var(--cth-radius-md, 2px)', cursor: 'pointer',
               color: 'var(--cth-ink-900)'
             }}
           >
@@ -435,20 +480,11 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
             </button>
           </div>
 
+          {menu.element}
           <div className="cth-scroll-hidden" style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '6px 0' }}>
             {/* The god agent runs the floor rather than a checkout, so it gets no
                 repository header — it sits alone at the top of the roster. */}
-            {gods.map(a => (
-              <SidebarRow
-                key={a.id}
-                agent={a}
-                active={a.id === agent.id}
-                onClick={() => { select(a.id); setFullscreen(a.id); }}
-                onNoteChange={(note) => setAgentNote(a.id, note)}
-                drag={drag}
-                scale={scale}
-              />
-            ))}
+            {gods.map(rowFor)}
             {groups.map(([repoKey, { label, members }]) => (
               // Repos are the roster's real structure, so they get real
               // separation — a hairline plus air above, not just a label.
@@ -474,17 +510,7 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}>{label.toUpperCase()}</span>
                 </div>
-                {members.map(a => (
-                  <SidebarRow
-                    key={a.id}
-                    agent={a}
-                    active={a.id === agent.id}
-                    onClick={() => { select(a.id); setFullscreen(a.id); }}
-                    onNoteChange={(note) => setAgentNote(a.id, note)}
-                    drag={drag}
-                    scale={scale}
-                  />
-                ))}
+                {members.map(rowFor)}
               </div>
             ))}
           </div>
@@ -590,6 +616,7 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
                   <PtyTerminalView
                     key={terminalInstanceKey(agent.ptyId, agent.terminalGeneration)}
                     ptyId={agent.ptyId}
+                    provider={agent.provider}
                     onStreamData={parser}
                     onUserPrompt={(t) => {
                       updateAgent(agent.id, { lastPrompt: t });
@@ -612,64 +639,59 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
   );
 }
 
-/** Model ids are long and mostly boilerplate ("claude-opus-4-8[1m]",
- *  "anthropic/claude-sonnet-4-5"). The roster has ~120px, so show the part that
- *  distinguishes one agent from another and keep the full id in the tooltip. */
-function shortModel(model?: string): string | null {
-  if (!model || !model.trim()) return null;
-  const tail = model.split('/').pop() ?? model;
-  return tail
-    .replace(/^claude-/i, '')
-    .replace(/-\d{8}$/, '')          // trailing date stamps
-    .replace(/\[(\d+)m\]/i, ' $1m') // [1m] → 1m
-    .replace(/-/g, ' ')
-    .trim();
-}
-
-/** Context fullness as a 3px rail. Colour tracks pressure rather than identity —
- *  an agent at 85% is about to compact, and that matters more than its accent. */
-function ContextBar({ tokens, limit, accent }: { tokens?: number; limit?: number; accent: string }) {
-  const { t } = useTranslation();
-  if (tokens === undefined || !limit) return null;
-  const pct = Math.max(0, Math.min(100, Math.round((tokens / limit) * 100)));
-  const color = pct >= 85 ? 'var(--cth-coral)' : pct >= 65 ? 'var(--cth-lemon)' : `var(--cth-${accent})`;
-  const k = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}k` : String(n));
-  return (
-    <div
-      title={t('fullscreenTerminal.contextTitle', { used: k(tokens), limit: k(limit), pct })}
-      style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}
-    >
-      <span style={{
-        flex: 1, minWidth: 0, height: 3,
-        background: 'var(--cth-ink-100)', overflow: 'hidden'
-      }}>
-        <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: color }} />
-      </span>
-      <span style={{ flexShrink: 0, fontSize: 9, color: 'var(--cth-ink-500)' }}>{pct}%</span>
-    </div>
-  );
-}
-
-function SidebarRow({
-  agent,
+/** THE ROSTER ROW, 0.5.3 (Pam's Classic cards, hive/shared/design/sidebar-free/
+ *  final, card 1). Line 1: the name in the display face, BOSS, 1:1, the status
+ *  chip. Line 2: the engine tile, the model, the context percent. Line 3: the
+ *  eight segment gauge. Line 4: the ticket id and title. Line 5: the live
+ *  action with its age. A CRASHED strip when the process died. Then the note,
+ *  a paper block with the notepad glyph and one bullet per line, which opens
+ *  the editor beside the row; a row with no note shows the add control on
+ *  hover only.
+ *
+ *  Memoised and its own subscriber: it takes an id and reads the agent
+ *  through `useAgent`, so a hook event on another agent never reaches this
+ *  function; the ticket comes from the shared ledger and the age from the
+ *  activity digest, each by id. */
+export const SidebarRow = memo(function SidebarRow({
+  id,
   active,
-  onClick,
-  onNoteChange,
+  dragging,
+  over,
+  dragActive,
+  onOpen,
+  onContextMenu,
+  renameRequest,
+  noteRequest,
   drag,
   scale
 }: {
-  agent: Agent;
+  id: string;
   active: boolean;
-  onClick: () => void;
-  onNoteChange: (note: string) => void;
+  dragging: boolean;
+  over: boolean;
+  dragActive: boolean;
+  onOpen: (id: string) => void;
+  onContextMenu: (e: React.MouseEvent, id: string) => void;
+  /** A counter; a new value opens the name editor (the menu's Rename). */
+  renameRequest: number;
+  /** A counter; a new value opens the note editor (the menu's note item). */
+  noteRequest: number;
   drag: RowDrag;
   scale: ReturnType<typeof rosterScale>;
 }) {
   const { t } = useTranslation();
   const rtl = useRtl();
+  const agent = useAgent(id);
+  const setAgentNote = useStore(s => s.setAgentNote);
+  const renameAgent = useStore(s => s.renameAgent);
+  const openTaskDetail = useStore(s => s.openTaskDetail);
+  const { tasks } = useTaskLedger(10_000);
+  const last = useLastActivityOf(id);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const noteRef = useRef<HTMLDivElement>(null);
   const [notePosition, setNotePosition] = useState<{ left: number; top: number } | null>(null);
+  const [renaming, setRenaming] = useState(false);
+  const [draft, setDraft] = useState('');
 
   // The editor rides the terminal's zoom, capped — it's a short note, not a
   // reading pane, and following the terminal all the way up turned it into a
@@ -678,30 +700,72 @@ function SidebarRow({
   const noteLabelSize = Math.max(8, Math.round(noteFontSize * 0.6));
   const noteWidth = Math.min(300, Math.round(noteFontSize * 20));
   const noteHeight = Math.round(noteFontSize * 9);
-  // Total popover height, used only to keep it on screen near the bottom edge:
-  // the note textarea plus its label, the hint and the padding.
   const popoverHeight = noteHeight + noteLabelSize * 2 + 40;
 
-  // One line of the note = one bullet on the row.
-  const bullets = (agent.note ?? '').split('\n').map(s => s.trim()).filter(Boolean);
-
-  const typing = useHasTerminalDraft(agent.ptyId);
+  const typing = useHasTerminalDraft(agent?.ptyId);
 
   /** The ✎ button opens the editor beside the row — the bullets on the row are
-   *  the summary, this is where you write them. EXPLICIT open only (v0.3.4):
-   *  hovering the roster no longer pops editors under the pointer. */
-  const toggleEditor = () => {
+   *  the summary, this is where you write them. EXPLICIT open only (v0.3.4). */
+  const toggleEditor = useCallback(() => {
     if (notePosition) { setNotePosition(null); return; }
-    // An editor popping up mid-drag just gets in the way.
-    if (drag.dragId) return;
+    if (dragActive) return;
     const rect = buttonRef.current?.getBoundingClientRect();
     if (!rect) return;
-    // The roster is a left rail, so the editor opens to the RIGHT of its row.
-    // Clamp so rows near an edge stay fully on screen.
     setNotePosition({
       left: Math.min(rect.right + 6, window.innerWidth - noteWidth - 8),
       top: Math.max(8, Math.min(rect.top, window.innerHeight - popoverHeight - 8))
     });
+  }, [notePosition, dragActive, noteWidth, popoverHeight]);
+  // The menu's requests: each new count is one open.
+  const seenNote = useRef(noteRequest);
+  useEffect(() => {
+    if (noteRequest === seenNote.current) return;
+    seenNote.current = noteRequest;
+    if (!notePosition) toggleEditor();
+  }, [noteRequest, notePosition, toggleEditor]);
+  const seenRename = useRef(renameRequest);
+  const name = agent?.name ?? '';
+  useEffect(() => {
+    if (renameRequest === seenRename.current) return;
+    seenRename.current = renameRequest;
+    setDraft(name);
+    setRenaming(true);
+  }, [renameRequest, name]);
+
+  if (!agent) return null;
+  const bullets = (agent.note ?? '').split('\n').map(x => x.trim()).filter(Boolean);
+  const pct = contextPercent(agent.contextTokens, agent.contextLimit);
+  const segments = pct !== null ? segmentsOf(pct) : Math.min(8, Math.max(0, agent.progress ?? 0));
+  const word = modelWord(agent.provider, agent.model) ?? t('fullscreenTerminal.cliDefault');
+  const ticket = ticketOf(tasks, agent.id);
+  const crashed = agent.exit?.verdict === 'crashed';
+  const metaSize = Math.max(9, scale.name - 3);
+  // What the agent says it is doing, else its status word: a waiting agent
+  // with nothing to say is waiting, not idle (Pam's review of #36).
+  const liveText = agent.action || t(labelKeyByStatus[agent.status]);
+  /** The add control for a row with no note: only while the row is hovered
+   *  (global.css), so a control with nothing to edit never floats as a stray
+   *  mark. The orchestrator has no note control, as before. */
+  const noteAdd = !agent.isGod && bullets.length === 0 ? (
+    <span
+      data-note-add={agent.id}
+      data-open={notePosition ? '' : undefined}
+      role="button"
+      tabIndex={0}
+      onClick={(e) => { e.stopPropagation(); toggleEditor(); }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); toggleEditor(); }
+      }}
+      title={t('agentCard.addNote')}
+      aria-label={t('agentCard.editNoteAria', { name: agent.name })}
+      style={{ flexShrink: 0, display: 'inline-flex', color: 'var(--cth-ink-500)', cursor: 'pointer' }}
+    ><NotepadGlyph size={Math.max(10, metaSize)} /></span>
+  ) : null;
+  const commitRename = async () => {
+    const next = draft.trim();
+    setRenaming(false);
+    if (!next || next === agent.name) return;
+    await renameAgent(agent.id, next).catch(() => ({ ok: false }));
   };
 
   return (
@@ -709,9 +773,10 @@ function SidebarRow({
       <button
         ref={buttonRef}
         draggable
+        data-roster-row={agent.id}
         onDragStart={(e) => { drag.start(agent.id); e.dataTransfer.effectAllowed = 'move'; }}
         onDragOver={(e) => {
-          if (!drag.dragId || drag.dragId === agent.id) return;
+          if (!dragActive || dragging) return;
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
           drag.over(agent.id);
@@ -719,7 +784,8 @@ function SidebarRow({
         onDragLeave={() => drag.leave(agent.id)}
         onDrop={(e) => { e.preventDefault(); drag.drop(agent.id); }}
         onDragEnd={drag.end}
-        onClick={onClick}
+        onClick={() => onOpen(agent.id)}
+        onContextMenu={(e) => onContextMenu(e, agent.id)}
         aria-label={`${agent.name} · ${agent.project}`}
         aria-current={active ? 'true' : undefined}
         style={{
@@ -730,12 +796,10 @@ function SidebarRow({
           boxShadow: active
             ? 'inset 3px 0 0 var(--cth-ink-900), inset 0 0 0 1px var(--cth-ink-100)'
             // Insertion cue on the hovered drop target.
-            : drag.overId === agent.id && drag.dragId && drag.dragId !== agent.id
-            ? 'inset 0 2px 0 var(--cth-ink-900)'
-            : 'none',
-          opacity: drag.dragId === agent.id ? 0.4 : 1,
+            : over ? 'inset 0 2px 0 var(--cth-ink-900)' : 'none',
+          opacity: dragging ? 0.4 : 1,
           display: 'flex', alignItems: 'flex-start', gap: 8,
-          cursor: drag.dragId ? 'grabbing' : 'grab',
+          cursor: dragActive ? 'grabbing' : 'grab',
           position: 'relative',
           textAlign: 'left',
           fontFamily: 'var(--cth-font-ui)', fontSize: 13,
@@ -752,97 +816,145 @@ function SidebarRow({
           display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
           overflow: 'hidden'
         }}>
-          {/* The sprite is drawn at exactly the tile's width, so the figure
-              grows with the tile instead of floating in it. */}
-          <SpritePortrait character={agent.character} scale={scale.portraitScale} />
+          <SpritePortrait character={agent.character} scale={scale.portraitScale} description={agent.description} isGod={agent.isGod} />
         </div>
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {/* Line 1: name, BOSS, 1:1, the status chip */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-            <span style={{
-              flex: 1, minWidth: 0,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-              fontFamily: 'var(--cth-font-display)',
-              fontSize: scale.name, lineHeight: 1.5
-            }}>{agent.name.toUpperCase()}</span>
+            {renaming ? (
+              <input
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onBlur={() => { void commitRename(); }}
+                onKeyDown={(e) => {
+                  e.stopPropagation();
+                  if (e.key === 'Enter') void commitRename();
+                  if (e.key === 'Escape') setRenaming(false);
+                }}
+                aria-label={t('agentMenu.rename')}
+                style={{
+                  flex: 1, minWidth: 0, height: 20, padding: '1px 4px', boxSizing: 'border-box',
+                  border: 'none', outline: 'none', background: 'var(--cth-paper-100)',
+                  boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
+                  fontFamily: 'var(--cth-font-display)', fontSize: scale.name, color: 'var(--cth-ink-900)', textTransform: 'uppercase'
+                }}
+              />
+            ) : (
+              <span style={{
+                flex: 1, minWidth: 0,
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                fontFamily: 'var(--cth-font-display)',
+                fontSize: scale.name, lineHeight: 1.5
+              }}>{agent.name.toUpperCase()}</span>
+            )}
+            {agent.isGod && (
+              <span data-boss style={{
+                fontFamily: 'var(--cth-font-display)', fontSize: 7, lineHeight: '11px',
+                background: 'var(--cth-lemon)', color: 'var(--cth-ink-900)', padding: '1px 4px 0', flexShrink: 0
+              }}>{t('agentCard.boss')}</span>
+            )}
+            {agent.onHold && (
+              <span data-hold title={t('agentRow.oneOnOne')} style={{
+                fontSize: 9, lineHeight: '12px', padding: '0 4px', flexShrink: 0,
+                background: 'var(--cth-cream-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)', color: 'var(--cth-ink-500)'
+              }}>1:1</span>
+            )}
             {/* Your unsent text outranks the agent's own state here: an idle
                 agent with a draft on its prompt is not idle-and-free, it is
                 idle-and-held, and nothing else on screen said so. */}
             <PixelBadge status={typing ? 'typing' : agent.status} />
-            {/* Explicit note edit — a real control instead of a hover surprise.
-                A span, not a <button>: we're inside the row's button element. */}
+          </div>
+          {/* Line 2: engine, model, percent */}
+          <div data-engine-line style={{
+            display: 'flex', alignItems: 'center', gap: 6, minWidth: 0,
+            fontSize: metaSize, lineHeight: 1.4, color: 'var(--cth-ink-500)'
+          }}>
+            <EngineBadge provider={agent.provider} size={13} title={`${ENGINE_NAME[agent.provider ?? 'claude']} · ${word}`} />
             <span
-              role="button"
-              tabIndex={0}
-              onClick={(e) => { e.stopPropagation(); toggleEditor(); }}
-              onKeyDown={(e) => {
+              style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              title={agent.model ? t('fullscreenTerminal.modelTitle', { model: agent.model }) : t('fullscreenTerminal.cliDefault')}
+            >{word}</span>
+            {pct !== null
+              ? <span data-context-pct title={t('agentRow.contextTitle', { pct })} style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: percentColor(pct) }}>{pct}%</span>
+              : <span style={{ flexShrink: 0, opacity: 0.7 }}>{t('agentRow.noSession')}</span>}
+          </div>
+          {/* Line 3: the gauge, only with a session */}
+          {pct !== null && (
+            <div style={{ display: 'flex', alignItems: 'center', height: 10 }} title={t('agentRow.contextTitle', { pct })}>
+              <ContextGauge segments={segments} accent={agent.accent} height={5} />
+            </div>
+          )}
+          {/* Line 4: the ticket */}
+          {ticket && (
+            <div data-ticket={ticket.id} style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, fontSize: Math.max(10, metaSize + 1), lineHeight: 1.35, color: 'var(--cth-ink-900)' }}>
+              <span
+                role="link" tabIndex={-1}
+                onClick={(e) => { e.stopPropagation(); openTaskDetail(ticket.id); }}
+                style={{ flexShrink: 0, fontFamily: 'var(--cth-font-mono)', fontSize: Math.max(9, metaSize - 1), color: 'var(--cth-ink-500)', cursor: 'pointer' }}
+              >{ticket.id}</span>
+              <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={ticket.title}>{ticket.title}</span>
+            </div>
+          )}
+          {/* Line 5: the live action and its age; a dead agent gets the strip instead */}
+          {!agent.exit && (
+            <div data-live-line={agent.id} title={agent.action || undefined} style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, fontSize: metaSize + 1, lineHeight: 1.35, color: 'var(--cth-ink-500)' }}>
+              <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{liveText}</span>
+              <Ago ts={last?.ts ?? agent.recentTextTs} />
+              {noteAdd}
+            </div>
+          )}
+          {agent.exit && (
+            <div data-crashed-strip role="status" style={{
+              marginTop: 2, display: 'flex', alignItems: 'center', gap: 6, minWidth: 0,
+              padding: '3px 6px', fontSize: metaSize + 1, lineHeight: 1.35,
+              background: 'var(--cth-coral-light)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', color: 'var(--cth-ink-900)'
+            }}>
+              <b style={{ flexShrink: 0, fontFamily: 'var(--cth-font-display)', fontSize: 7, fontWeight: 400 }}>{crashed ? t('agentRow.crashed') : agent.exit.verdict === 'finished' ? t('agentRow.finished') : t('agentRow.stopped')}</b>
+              <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {agent.exit.exitCode !== undefined ? `exit ${agent.exit.exitCode}` : agent.exit.signal !== undefined ? `signal ${agent.exit.signal}` : ''}
+              </span>
+              <Ago ts={agent.exit.at} />
+              {noteAdd}
+            </div>
+          )}
+          {/* The note, when there is one: a paper block with the notepad glyph
+              in front and one bullet per line (founder, 23 Sep: the note must
+              look different from the live line). Clicking it opens the editor
+              beside the row; the orchestrator's note is read only, as before. */}
+          {bullets.length > 0 && (
+            <div
+              data-agent-note={agent.id}
+              role={agent.isGod ? undefined : 'button'}
+              tabIndex={agent.isGod ? undefined : 0}
+              onClick={agent.isGod ? undefined : (e) => { e.stopPropagation(); toggleEditor(); }}
+              onKeyDown={agent.isGod ? undefined : (e) => {
                 if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); toggleEditor(); }
               }}
-              title={agent.note ? t('agentCard.editNote') : t('agentCard.addNote')}
-              aria-label={t('agentCard.editNoteAria', { name: agent.name })}
+              title={agent.isGod ? agent.note : t('agentCard.editNote')}
+              aria-label={agent.isGod ? undefined : t('agentCard.editNoteAria', { name: agent.name })}
               style={{
-                flexShrink: 0, width: 20, height: 20,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, lineHeight: 1, color: 'var(--cth-ink-500)',
-                background: notePosition ? 'var(--cth-cream-200)' : 'var(--cth-paper-100)',
-                boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
-                cursor: 'pointer'
+                display: 'flex', gap: 6, alignItems: 'flex-start', minWidth: 0, marginTop: 2,
+                padding: '3px 6px',
+                background: notePosition ? 'var(--cth-cream-200)' : 'var(--cth-cream-100)',
+                boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)',
+                color: 'var(--cth-ink-700)', cursor: agent.isGod ? 'default' : 'pointer'
               }}
-            >✎</span>
-          </div>
-          {/* WHAT this agent is, at a glance. The roster used to carry only a
-              name, a portrait and a status dot — enough to tell rows apart, not
-              enough to answer "which model is this on, where is it working, and
-              how full is its context", which is exactly what you need when the
-              terminal is the whole screen and the sidebar is your only index. */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6, minWidth: 0,
-            fontSize: Math.max(9, scale.name - 3), lineHeight: 1.4,
-            color: 'var(--cth-ink-500)'
-          }}>
-            <span style={{
-              flexShrink: 0, maxWidth: '52%',
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-            }} title={agent.model ? t('fullscreenTerminal.modelTitle', { model: agent.model }) : t('fullscreenTerminal.cliDefault')}>
-              {shortModel(agent.model) ?? t('fullscreenTerminal.cliDefault')}
-            </span>
-            <span style={{ flexShrink: 0, opacity: 0.5 }}>·</span>
-            <span style={{
-              flex: 1, minWidth: 0,
-              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-            }} title={agent.worktreePath || agent.cwd}>
-              {basename(agent.worktreePath || agent.cwd) || agent.project}
-            </span>
-          </div>
-          <ContextBar tokens={agent.contextTokens} limit={agent.contextLimit} accent={agent.accent} />
-          {/* Every line of every agent, always on screen — the roster's job is
-              to answer "who is on what" without a single interaction. */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {bullets.map((line, i) => (
-              <span
-                key={i}
-                title={line}
-                style={{
-                  display: 'flex', gap: 5, alignItems: 'baseline',
-                  fontSize: scale.note, lineHeight: 1.35,
-                  color: 'var(--cth-ink-500)'
-                }}
-              >
-                <span style={{ flexShrink: 0, color: 'var(--cth-ink-300)' }}>•</span>
-                {/* Exactly one line per bullet — a wrapping row would make the
-                    roster's height jump around as notes are typed. The full
-                    text is on hover (title, and the editor beside it). */}
-                <span style={{
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                }}>{line}</span>
-              </span>
-            ))}
-            {bullets.length === 0 && (
-              <span style={{
-                fontSize: scale.note, lineHeight: 1.35,
-                color: 'var(--cth-ink-300)', fontStyle: 'italic'
-              }}>no note</span>
-            )}
-          </div>
+            >
+              <NotepadGlyph size={Math.max(10, scale.note)} style={{ marginTop: 2, opacity: 0.75 }} />
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {bullets.map((line, i) => (
+                  <span key={i} title={line} style={{ display: 'flex', gap: 5, alignItems: 'baseline', fontSize: scale.note, lineHeight: 1.35 }}>
+                    <span style={{ flexShrink: 0, color: 'var(--cth-ink-500)' }}>▪</span>
+                    {/* Exactly one line per bullet: a wrapping row would make the
+                        roster's height jump around as notes are typed. */}
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{line}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </button>
       {notePosition && createPortal(
@@ -875,13 +987,12 @@ function SidebarRow({
             color: 'var(--cth-ink-700)'
           }}>PRIVATE NOTE</div>
           {/* A textarea, not an input: the note is a bullet list, so Enter has
-              to make a new line rather than doing nothing. autoFocus is safe
-              now that opening is an explicit click, not a pointer fly-by. */}
+              to make a new line rather than doing nothing. */}
           <textarea
             dir={rtl ? 'auto' : undefined}
             autoFocus
             value={agent.note ?? ''}
-            onChange={(e) => onNoteChange(e.target.value)}
+            onChange={(e) => setAgentNote(agent.id, e.target.value)}
             onKeyDown={(e) => {
               e.stopPropagation(); // don't let Esc/typing reach the fullscreen handler
               if (e.key === 'Escape') {
@@ -909,14 +1020,14 @@ function SidebarRow({
           />
           <div style={{
             marginTop: 5, fontSize: 10, color: 'var(--cth-ink-500)'
-          }}>one line = one bullet · esc to close</div>
+          }}>{t('agentStrip.oneLineOneBullet')}</div>
         </div>
         </>,
         document.body
       )}
     </>
   );
-}
+});
 
 function Header({ agent, onEdit }: { agent: Agent; onEdit: () => void }) {
   const { t } = useTranslation();

@@ -103,7 +103,15 @@ test('each agent line carries its live context-window occupancy (ctx NN%)', asyn
   assert.match(line, /jim-1[^;]*ctx 99%/, 'a near-full agent is flagged to god');
   // pam-1 never fired a Status tick — its line must NOT get ctx.
   assert.match(line, /pam-1[^;]*\(agent, no activity yet\)/, 'no ctx for an agent with no Status data');
-  assert.ok(!line.includes('\n'), 'still a single compact line');
+  // The injection is no longer the roster alone: since v0.4.10 the house response
+  // style block rides the same additionalContext (main/hooks.ts), and that block
+  // is deliberately multi line. So the "one compact line" guarantee is asserted
+  // where it actually belongs, on the ROSTER segment. Blocks are joined with a
+  // blank line, which also pins that the roster is a segment of its own and has
+  // not been folded into whatever precedes it.
+  const roster = line.split('\n\n').filter((seg) => seg.includes('LIVE ROSTER'));
+  assert.equal(roster.length, 1, 'the roster is exactly one block of the injection');
+  assert.ok(!roster[0].includes('\n'), 'still a single compact line');
 });
 
 test('renaming changes only the display name and reaches god immediately', async (t) => {

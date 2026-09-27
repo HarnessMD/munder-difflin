@@ -32,6 +32,8 @@
  * No electron import — unit-testable (mirrors ControlRegistry).
  */
 
+import { OpenQuestionTracker } from '../shared/openQuestion';
+
 /** The exact nudge the renderer's inbox-wake loop would have typed. */
 export const WORKER_WAKE_NUDGE =
   'You have new hive inbox message(s) — read your inbox, act on them now, and move handled ones to inbox/.done/. Act autonomously; only message god if you genuinely need a decision.';
@@ -95,6 +97,10 @@ export class WorkerWakeWatchdog {
   private announcedInboxIds = new Map<string, Set<string>>();
   /** agentId → timestamp of the last needsHuman hook notification. */
   private lastHumanNeedsAt = new Map<string, number>();
+  /** Agents with a multiple choice question open (0.5.3 bug 19). Unlike the
+   *  HITL hold this one does not expire: a menu nobody has answered is still a
+   *  menu an hour later, and the silence it sits in is not an idle prompt. */
+  private questions = new OpenQuestionTracker();
 
   /** Record a PTY spawn so its boot sequence is left alone. */
   noteSpawn(ptyId: string, at = Date.now()): void {
@@ -102,8 +108,9 @@ export class WorkerWakeWatchdog {
   }
 
   /** Feed hook events (from HookServer) so a HITL prompt blocks nudges. */
-  noteHook(agentId: string | undefined, event: string | undefined, message: string | undefined, at = Date.now()): void {
+  noteHook(agentId: string | undefined, event: string | undefined, message: string | undefined, at = Date.now(), tool?: string): void {
     if (!agentId) return;
+    this.questions.note(agentId, event, tool);
     if (classifyHook(event, message) === 'needsHuman') this.lastHumanNeedsAt.set(agentId, at);
   }
 
@@ -112,6 +119,7 @@ export class WorkerWakeWatchdog {
     this.lastNudgeAt.delete(agentId);
     this.announcedInboxIds.delete(agentId);
     this.lastHumanNeedsAt.delete(agentId);
+    this.questions.forget(agentId);
     if (ptyId) this.spawnedAt.delete(ptyId);
   }
 
@@ -135,6 +143,7 @@ export class WorkerWakeWatchdog {
       if (spawned > 0 && now - spawned < WORKER_WAKE_BOOT_GRACE_MS) continue;
       const lastHuman = this.lastHumanNeedsAt.get(f.agentId) ?? 0;
       if (lastHuman > 0 && now - lastHuman < WORKER_WAKE_HITL_REARM_MS) continue;
+      if (this.questions.isOpen(f.agentId)) continue; // Return would pick an option
       const announced = this.announcedInboxIds.get(f.agentId);
       if (announced && !Array.from(inboxIds).some((id) => !announced.has(id))) continue;
       const lastNudge = this.lastNudgeAt.get(f.agentId) ?? 0;
