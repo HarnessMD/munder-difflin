@@ -90,7 +90,7 @@
 - [How to Run Multiple Claude Code Agents (Without Losing Track)](https://munderdiffl.in/blog/how-to-run-multiple-claude-code-agents/): Run several Claude Code agents in parallel without the chaos: give each a role, let them coordinate, and stop alt-tabbing between terminal windows.
 - [How to Manage Multiple Claude Code Sessions Like a Pro](https://munderdiffl.in/blog/manage-multiple-claude-code-sessions/): Tactics to manage multiple Claude Code sessions without losing track: naming, roles, context isolation, and when a harness beats juggling terminal tabs.
 - [Set Up a Claude Code Multi-Agent Workflow in 10 Minutes](https://munderdiffl.in/blog/claude-code-multi-agent-setup-tutorial/): A from-zero Claude Code multi-agent setup: install Munder Difflin, onboard, spawn a few agents, and watch the GOD orchestrator route your first task.
-- [Claude Code Subagents vs a Multi-Agent Harness](https://munderdiffl.in/blog/claude-code-subagents-vs-multi-agent-harness/): Claude Code subagents vs a multi-agent harness: where subagents stop and a harness with shared memory, messaging, and an orchestrator takes over.
+- [Claude Code Subagents: How to Create and Use Them (vs Agent Teams)](https://munderdiffl.in/blog/claude-code-subagents-vs-multi-agent-harness/): Claude Code subagents in 2026: the .claude/agents file, built-in Explore and Plan, models, nesting, and when agent teams or a harness fit better.
 
 ### comparisons
 
