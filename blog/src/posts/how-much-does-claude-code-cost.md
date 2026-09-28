@@ -34,7 +34,7 @@ There are nine: four individual plans (one of them free and without Claude Code)
 
 | Way to pay | Price (checked 29 Sep 2026) | Includes Claude Code | Usage you get |
 |---|---|---|---|
-| Free | $0 | No | Chat, web search, memory, artifacts only |
+| Free | $0 | No | Chat in the Claude apps (web search, memory, files, code, app connectors), no Claude Code |
 | Pro | $20 a month, or $17 a month billed annually | Yes | Base allowance: five hour window plus a weekly cap, shared with Claude chat |
 | Max 5x | $100 a month (Anthropic Max help article) | Yes | Five times Pro per session, plus a weekly cap across all models |
 | Max 20x | $200 a month (Anthropic Max help article) | Yes | Twenty times Pro per session, plus a weekly cap |
@@ -42,9 +42,9 @@ There are nine: four individual plans (one of them free and without Claude Code)
 | Team Premium seat | $125 a seat monthly, $100 a seat billed annually | Yes | Five times a Standard seat |
 | Enterprise | $20 a seat a month billed annually, plus usage at API rates | Yes | Usage billed on top of the seat |
 | API key (Claude Console) | Per token, see the next table | Yes | No plan cap; API rate limits by tier |
-| Usage credits on Pro or Max | Standard API rates, past your plan limit | Yes | Up to a monthly spend limit you set |
+| Usage credits on Pro or Max | Standard API rates, past your plan limit | Yes | Up to an optional monthly spend limit |
 
-Usage credits bridge the two. When a Pro or Max plan hits its limit, you keep going at API rates, capped by a monthly spend limit you set. Inside Claude Code, `/usage-credits` opens that setting ([Claude Code cost docs](https://code.claude.com/docs/en/costs), checked 29 Sep 2026).
+Usage credits bridge the two. When a Pro or Max plan hits its limit, you keep going at API rates, capped by a monthly spend limit if you set one (without one, `/usage` shows Unlimited). Inside Claude Code, `/usage-credits` opens that setting ([Claude Code cost docs](https://code.claude.com/docs/en/costs), checked 29 Sep 2026).
 
 {% img "note-1" %}
 
@@ -66,8 +66,8 @@ Limits and models moved; the subscription prices did not. Here is what changed b
 
 * **6 May 2026:** Anthropic [doubled Claude Code's five hour limits](https://www.anthropic.com/news/higher-limits-spacex) on Pro, Max, Team and seat based Enterprise, and dropped the peak hours reduction on Pro and Max.
 * **13 Jul 2026:** rupee pricing arrived in India (details below).
-* **31 Aug 2026:** Claude Sonnet 5's introductory $2 and $10 per million token price became its standard price. The planned rise to $3 and $15 on 1 Sep 2026 was cancelled, per a footnote on Anthropic's pricing docs.
-* **14 Sep 2026:** a temporary 50% boost to weekly limits ended and a permanent 25% increase over the old standard began. Anthropic itself said that works out to a 17% cut against the boosted level in Sep 2026; our [Max plan guide](/blog/claude-code-max-plan-tips/) has the announcement.
+* **31 Aug 2026:** the introductory period for Claude Sonnet 5's $2 and $10 per million token price ended, and that price stayed as the standard price. The planned rise to $3 and $15 on 1 Sep 2026 was cancelled, per a footnote on Anthropic's pricing docs.
+* **14 Sep 2026:** a temporary 50% boost to weekly limits ended and a permanent 25% increase over the old standard began. Anthropic said on 29 Aug 2026, as BleepingComputer reported that day, that this works out to a 17% cut against the boosted level; our [Max plan guide](/blog/claude-code-max-plan-tips/) has the details.
 * **Claude Code 2.1.280 and later:** the default model on Pro, Max, Team, Enterprise and API keys is now Opus 5.5. Before that, Pro and Team Standard started on Sonnet 5 ([model configuration docs](https://code.claude.com/docs/en/model-config), checked 29 Sep 2026).
 
 That last one matters: a Pro user who updated in September now spends the same allowance on Opus by default.
