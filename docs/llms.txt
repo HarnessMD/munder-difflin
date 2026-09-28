@@ -127,7 +127,7 @@
 ### concepts
 
 - [Is Ollama Good for Coding? What Local Models Can and Can't Do](https://munderdiffl.in/blog/is-ollama-good-for-coding/): Ollama only runs the model, so the answer depends on which one you pull and your memory. What local models do well, where Claude wins, and a verdict.
-- [Is It Worth Paying for Claude Code Max?](https://munderdiffl.in/blog/is-claude-code-max-worth-it/): Who should pay for Claude Max 5x or 20x, who should stay on Pro or an API key, and the break even math to run on your own Claude Code usage.
+- [Claude Max Plan: Is It Worth It? Max 5x vs 20x vs Pro](https://munderdiffl.in/blog/is-claude-code-max-worth-it/): Is the Claude Max plan worth it? Max 5x and 20x against Pro, checked 29 Sep 2026: price, five hour and weekly limits, Fable, and the API break even.
 - [Is Claude Code Open Source?](https://munderdiffl.in/blog/is-claude-code-open-source/): No. Claude Code is proprietary under Anthropic's terms. What its GitHub repo holds, what the 2026 leak changed, and which open tools sit around it.
 - [What Is Vibe Coding? Meaning, Risks and Safer Habits](https://munderdiffl.in/blog/what-is-vibe-coding/): Vibe coding means building software from AI prompts without reading the code. Where the term came from, when it is fine, where it bites, and what to check.
 - [What Is an MCP Server?](https://munderdiffl.in/blog/what-is-an-mcp-server/): An MCP server gives an AI agent tools, data and prompts over one open protocol. What it is, the host, client and server roles, and where Claude Code plugs in.
