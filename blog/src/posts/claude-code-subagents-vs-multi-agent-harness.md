@@ -16,7 +16,7 @@ faq:
   - q: "What are Claude Code subagents?"
     a: "A subagent is a separate Claude worker that takes one task in its own context window and returns only a summary to your main conversation. You define custom ones as Markdown files in .claude/agents/ or ~/.claude/agents/, and Claude Code also ships built-ins such as Explore, Plan and general-purpose."
   - q: "Can Claude Code subagents spawn subagents?"
-    a: "Yes. Since Claude Code 2.1.219 (24 July 2026) a subagent can spawn its own, up to three layers below the main conversation. Set CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH to change the limit, or to 1 to turn nesting off."
+    a: "Yes. By default a subagent can spawn its own, up to three layers below the main conversation (default since Claude Code 2.1.219, 24 July 2026). Set CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH to change the limit, or to 1 to turn nesting off."
   - q: "How do I choose the model a subagent uses?"
     a: "Set model in its front matter to sonnet, opus, haiku, fable, a full model ID or inherit. Claude can also pass a model when it spawns the subagent, and that wins over the front matter. Run /tasks while it runs to see the model on its row."
   - q: "What is the difference between subagents and agent teams?"
@@ -85,21 +85,21 @@ Use `model` and `tools` in the front matter. The model is resolved in this order
 
 ## Do Claude Code subagents run in the background?
 
-Yes, by default in an interactive session. Since 2.1.232 (13 Aug 2026) fork mode is on, so the subagents Claude spawns run in the background while you keep typing. A background subagent gets a smaller built-in tool set, and its permission prompts appear in your main session with its name on them. `/subtask` starts a fork, which is a subagent that inherits your whole conversation. Up to 20 subagents can run at once; `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` changes that.
+Yes, by default in an interactive session. Background became the default in 2.1.198, so the subagents Claude spawns run while you keep typing. Since 2.1.232 (13 Aug 2026) fork mode is on, so Claude can no longer ask for the foreground. A background subagent gets a smaller built-in tool set, and its permission prompts appear in your main session with its name on them. `/subtask` starts a fork, which is a subagent that inherits your whole conversation. Up to 20 subagents can run at once; `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` changes that.
 
 ## Can Claude Code subagents spawn subagents?
 
-Yes, up to three layers below your main conversation. That default arrived in 2.1.219 (24 July 2026), after two releases where nesting was off. Set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to change the depth, or leave `Agent` out of a subagent's `tools` to stop that one from delegating. Older guides that say subagents cannot nest were right for a while.
+Yes, up to three layers below your main conversation. That default arrived in 2.1.219 (24 July 2026), after two releases where nesting was off. Set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to change the depth, or leave `Agent` out of a subagent's `tools` to stop that one from delegating. From 2.1.172 to 2.1.216 the limit was a fixed five layers; 2.1.217 and 2.1.218 turned nesting off.
 
 ## Can Claude Code subagents talk to each other?
 
-Named ones can. When Claude gives a subagent a name, other agents in the session can reach it with the `SendMessage` tool, which also resumes a finished subagent with its full history. Subagents can keep notes between sessions too: `memory: project` gives one a folder at `.claude/agent-memory/<name>/`. For how this compares with separate sessions, see [can Claude Code agents talk to each other](/blog/can-claude-code-agents-talk-to-each-other/).
+Named ones can (since 2.1.206). When Claude gives a subagent a name, other agents in the session can reach it with the `SendMessage` tool, which also resumes a finished subagent with its full history. Subagents can keep notes between sessions too: `memory: project` gives one a folder at `.claude/agent-memory/<name>/`. For how this compares with separate sessions, see [can Claude Code agents talk to each other](/blog/can-claude-code-agents-talk-to-each-other/).
 
 ### What changed for subagents in the last six months
 
 | Version (date) | Change |
 |---|---|
-| 2.1.198 (1 Jul 2026) | `/agents` wizard removed; Explore inherits the session model |
+| 2.1.198 (1 Jul 2026) | `/agents` wizard removed; Explore inherits the session model; subagents run in the background by default |
 | 2.1.217 (21 Jul 2026) | Cap of 20 running subagents |
 | 2.1.219 (24 Jul 2026) | Nesting up to depth 3 by default |
 | 2.1.232 (13 Aug 2026) | Fork mode on by default; spawns run in the background |
