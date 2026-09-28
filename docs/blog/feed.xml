@@ -200,12 +200,12 @@
     <summary>Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass.</summary>
   </entry>
   <entry>
-    <title>How to Use Claude Code Plan Mode</title>
+    <title>Claude Code Planning Mode: How to Use Claude Plan Mode</title>
     <link href="https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/" />
     <id>https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/</id>
     <published>2026-09-11T00:00:00.000Z</published>
-    <updated>2026-09-11T00:00:00.000Z</updated><category term="Guides" />
-    <summary>How Claude Code&#39;s plan mode works: turning it on, what it blocks, what a real headless plan mode run prints, and how to leave it.</summary>
+    <updated>2026-09-29T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Claude Code plan mode, checked 29 Sep 2026: the Shift+Tab shortcut, --permission-mode plan, defaultMode, what it blocks, the approval options and opusplan.</summary>
   </entry>
   <entry>
     <title>What Is an MCP Server?</title>

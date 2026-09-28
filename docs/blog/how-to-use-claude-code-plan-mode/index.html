@@ -18,8 +18,8 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>How to Use Claude Code Plan Mode — Munder Difflin Blog</title>
-<meta name="description" content="How Claude Code&#39;s plan mode works: turning it on, what it blocks, what a real headless plan mode run prints, and how to leave it." />
+<title>Claude Code Planning Mode: How to Use Claude Plan Mode — Munder Difflin Blog</title>
+<meta name="description" content="Claude Code plan mode, checked 29 Sep 2026: the Shift+Tab shortcut, --permission-mode plan, defaultMode, what it blocks, the approval options and opusplan." />
 <link rel="canonical" href="https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/" />
 
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
@@ -29,8 +29,8 @@
 <!-- Open Graph -->
 <meta property="og:site_name" content="Munder Difflin Blog" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="How to Use Claude Code Plan Mode — Munder Difflin Blog" />
-<meta property="og:description" content="How Claude Code&#39;s plan mode works: turning it on, what it blocks, what a real headless plan mode run prints, and how to leave it." />
+<meta property="og:title" content="Claude Code Planning Mode: How to Use Claude Plan Mode — Munder Difflin Blog" />
+<meta property="og:description" content="Claude Code plan mode, checked 29 Sep 2026: the Shift+Tab shortcut, --permission-mode plan, defaultMode, what it blocks, the approval options and opusplan." />
 <meta property="og:url" content="https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/" />
 <meta property="og:image" content="https://munderdiffl.in/blog/assets/media/how-to-use-claude-code-plan-mode/hero.png" />
 <meta property="og:image:width" content="1600" />
@@ -47,8 +47,8 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="How to Use Claude Code Plan Mode — Munder Difflin Blog" />
-<meta name="twitter:description" content="How Claude Code&#39;s plan mode works: turning it on, what it blocks, what a real headless plan mode run prints, and how to leave it." />
+<meta name="twitter:title" content="Claude Code Planning Mode: How to Use Claude Plan Mode — Munder Difflin Blog" />
+<meta name="twitter:description" content="Claude Code plan mode, checked 29 Sep 2026: the Shift+Tab shortcut, --permission-mode plan, defaultMode, what it blocks, the approval options and opusplan." />
 <meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/how-to-use-claude-code-plan-mode/hero.png" />
 <meta name="twitter:image:alt" content="Illustration: How to Use Claude Code Plan Mode" />
 
@@ -62,11 +62,11 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "How to Use Claude Code Plan Mode",
-  "description": "How Claude Code's plan mode works: turning it on, what it blocks, what a real headless plan mode run prints, and how to leave it.",
+  "headline": "Claude Code Planning Mode: How to Use Claude Plan Mode",
+  "description": "Claude Code plan mode, checked 29 Sep 2026: the Shift+Tab shortcut, --permission-mode plan, defaultMode, what it blocks, the approval options and opusplan.",
   "image": ["https://munderdiffl.in/blog/assets/media/how-to-use-claude-code-plan-mode/hero.png"],
   "datePublished": "2026-09-11T00:00:00.000Z",
-  "dateModified": "2026-09-11T00:00:00.000Z",
+  "dateModified": "2026-09-29T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
   "publisher": {
     "@type": "Organization",
@@ -74,7 +74,7 @@
     "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
   },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/" },
-  "keywords": "how to use claude code plan mode, how to use claude code plan mode effectively, how to enable claude code plan mode, how to exit claude code plan mode, claude code plan mode shortcut, claude code plan mode vs accept edits, should i use claude code plan mode",
+  "keywords": "claude code planning mode, claude plan mode, claude code plan mode shortcut, how to exit plan mode in claude code, claude code plan mode vs auto mode, claude code plan mode vs accept edits, opusplan",
   "articleSection": "Guides",
   "inLanguage": "en-US",
   "url": "https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/"
@@ -87,7 +87,7 @@
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
     { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
-    { "@type": "ListItem", "position": 3, "name": "How to Use Claude Code Plan Mode", "item": "https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/" }
+    { "@type": "ListItem", "position": 3, "name": "Claude Code Planning Mode: How to Use Claude Plan Mode", "item": "https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/" }
   ]
 }
 </script>
@@ -97,12 +97,12 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "What is Claude Code plan mode?", "acceptedAnswer": { "@type": "Answer", "text": "It is one of Claude Code's permission modes. Claude reads files and runs shell commands to explore, then writes a plan, but does not edit your source. The official docs put it plainly: plan mode tells Claude to research and propose changes without making them, and edits stay blocked until you approve the plan." } },
-    { "@type": "Question", "name": "How do you enable plan mode in Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Press Shift+Tab during a session to cycle to it, prefix a single prompt with /plan, or start the session already in it with claude --permission-mode plan. The same flag works with -p for headless runs, so scripts and CI steps can start in plan mode too." } },
-    { "@type": "Question", "name": "How do you exit plan mode?", "acceptedAnswer": { "@type": "Answer", "text": "Press Shift+Tab again to leave without approving anything, or approve the plan, which exits plan mode for you. The prompt offers Yes, and use auto mode (Yes, auto-accept edits when auto mode is unavailable), Yes, manually approve edits, or No, keep planning, which keeps you in plan mode so you can redirect Claude." } },
-    { "@type": "Question", "name": "Can plan mode edit files?", "acceptedAnswer": { "@type": "Answer", "text": "No. Plan mode blocks edits to your source until you approve the plan, even when you ask for the edit directly, and in our headless run Claude declined exactly that request. It does write the plan itself, by default under ~/.claude/plans/ (the plansDirectory setting can move it). The exception is a session started with bypass permissions available, for example with --dangerously-skip-permissions or --allow-dangerously-skip-permissions: Claude is still told to plan, but an edit it attempts then runs without prompting." } },
-    { "@type": "Question", "name": "What is the difference between plan mode and accept edits mode?", "acceptedAnswer": { "@type": "Answer", "text": "Accept edits mode auto-approves file writes and common filesystem commands like mkdir and mv, so you review changes afterward. Plan mode is the phase before that: read and explore only, meant to run first so you can approve or redirect the plan before anything gets written." } },
-    { "@type": "Question", "name": "Should you use plan mode for every task?", "acceptedAnswer": { "@type": "Answer", "text": "No. Claude Code's own best practices docs, checked 11 Sep 2026, say planning matters most when you're uncertain about the approach, the change touches multiple files, or you don't know the code well, and that you can skip it when you could describe the diff in one sentence. For a small, obvious fix, just ask Claude to make it directly." } }
+    { "@type": "Question", "name": "What is Claude Code plan mode?", "acceptedAnswer": { "@type": "Answer", "text": "It is one of Claude Code's permission modes. Claude reads files and runs shell commands to explore, then writes a plan, but does not edit your source until you approve that plan." } },
+    { "@type": "Question", "name": "What is the shortcut for plan mode in Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Shift+Tab cycles permission modes, and plan mode is three presses away from auto mode, the mode new interactive sessions start in on every plan and provider from Claude Code 2.1.284, when no mode is configured. On Windows terminals where Shift+Tab does not register, Alt+M does the same job. You can also type /plan, or start with claude --permission-mode plan." } },
+    { "@type": "Question", "name": "How do you exit plan mode in Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Approve the plan, or press Shift+Tab to leave without approving anything. The approval prompt offers Yes, and use auto mode, Yes, manually approve edits, and No, keep planning. Approving switches the session to the mode you picked and Claude starts editing." } },
+    { "@type": "Question", "name": "Can Claude run shell commands in plan mode?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Plan mode blocks edits to your source, not exploration. Read-only commands run, and other shell commands either go to the auto mode classifier (when auto mode is available and useAutoModeDuringPlan is on, the default) or ask you first." } },
+    { "@type": "Question", "name": "Which model does Claude Code use in plan mode?", "acceptedAnswer": { "@type": "Answer", "text": "The session's model, unless you pick the opusplan alias, which runs Opus while you plan and Sonnet once you approve. A Haiku session also moves up to Sonnet for planning. The built-in Plan subagent inherits the main conversation's model." } },
+    { "@type": "Question", "name": "Does plan mode use more tokens?", "acceptedAnswer": { "@type": "Answer", "text": "It adds a research phase before any edit, and the Plan subagent's requests count toward the same usage limits as your main conversation, per the subagents docs checked 29 Sep 2026. For a change you could describe in one sentence, Anthropic's own best practices page says to skip the plan." } }
     
   ]
 }
@@ -171,15 +171,15 @@
       <span>/</span>
       <a href="/blog/topics/guides/">Guides</a>
     </nav>
-    <h1>How to Use Claude Code Plan Mode</h1>
-    <p class="dek">How Claude Code&#39;s plan mode works: turning it on, what it blocks, what a real headless plan mode run prints, and how to leave it.</p>
+    <h1>Claude Code Planning Mode: How to Use Claude Plan Mode</h1>
+    <p class="dek">Claude Code plan mode, checked 29 Sep 2026: the Shift+Tab shortcut, --permission-mode plan, defaultMode, what it blocks, the approval options and opusplan.</p>
     <div class="byline">
       <span class="av" aria-hidden="true">MD</span>
       <strong>Chaitanya Giri</strong>
       <span class="dot" aria-hidden="true">·</span>
       <time datetime="2026-09-11">Sep 11, 2026</time>
       <span class="dot" aria-hidden="true">·</span>
-      <span>5 min read</span>
+      <span>8 min read</span>
       <span class="tag kind">Guides</span>
     </div>
   </header>
@@ -188,36 +188,165 @@
 
   <div class="post-wrap wrap">
     <div class="prose">
-      <div class="callout tldr"><span class="ic">TL;DR</span><p>Turn on <strong>plan mode</strong> with <code>claude --permission-mode plan</code>, the <code>/plan</code> prefix, or <code>Shift+Tab</code> until the status bar shows plan mode on. Claude reads your codebase and shell output but cannot edit your source, and writes a plan you read before approving it. Approving switches the session to auto mode (accept edits when auto mode is unavailable) or to approving each edit yourself; <code>Shift+Tab</code> again leaves without approving anything. The same flag works with <code>-p</code>, though a headless run has no approval prompt: it just writes the plan and exits.</p></div>
-<p>Plan mode is a Claude Code permission mode that makes Claude read your codebase and write a plan before it touches a single file. Turn it on with <code>claude --permission-mode plan</code>, the <code>/plan</code> prefix, or by pressing Shift+Tab until the status bar shows plan mode on. Nothing gets edited until you approve what it wrote.</p>
-<p>The rest of this covers how the mode actually behaves, which commands run without asking while it plans, and what a headless run with <code>--permission-mode plan</code> really prints, since most writeups describe the behavior without pasting any output. Running several Claude Code sessions at once makes this matter more: a plan per session is one document to read before anything changes, not several diffs to untangle after (<a href="/blog/manage-multiple-claude-code-sessions/">manage multiple Claude Code sessions</a>).</p>
-<h2 id="how-do-you-turn-on-plan-mode-in-claude-code" tabindex="-1">How do you turn on plan mode in Claude Code? <a class="anchor" href="#how-do-you-turn-on-plan-mode-in-claude-code" aria-hidden="true">#</a></h2>
-<p>Three ways, and they all land in the same mode. Press Shift+Tab during a session to cycle to it (the cycle runs <code>default</code>, <code>acceptEdits</code>, <code>plan</code>, then <code>bypassPermissions</code> and <code>auto</code> if they’re available, then back to <code>default</code>; Pro, Max and Team sessions start in <code>auto</code>, so plan mode is three presses away), prefix a single prompt with <code>/plan</code>, or start the session already in it with <code>claude --permission-mode plan</code> (checked 11 Sep 2026, <a href="https://code.claude.com/docs/en/permission-modes">Choose a permission mode</a>). The same flag works with <code>-p</code> for non-interactive runs.</p>
-<h2 id="what-does-plan-mode-actually-let-claude-do" tabindex="-1">What does plan mode actually let Claude do? <a class="anchor" href="#what-does-plan-mode-actually-let-claude-do" aria-hidden="true">#</a></h2>
-<p>Reads, mostly, and not much else. The docs describe it as telling “Claude to research and propose changes without making them. Claude reads files, runs shell commands to explore, and writes a plan, but does not edit your source” (checked 11 Sep 2026, <a href="https://code.claude.com/docs/en/permission-modes">Choose a permission mode</a>). When auto mode is available and the <code>useAutoModeDuringPlan</code> setting is on, which it is by default, a classifier reviews the shell commands Claude wants to run while it plans, instead of prompting you for each one; when auto mode isn’t available, anything past the built-in read-only command set still prompts as usual.</p>
+      <p>Claude Code planning mode (plan mode in the docs) is the permission mode where Claude reads your code, runs exploratory commands and writes a plan, but cannot edit your source until you approve it. Enter it with Shift+Tab, the <code>/plan</code> prefix, or <code>claude --permission-mode plan</code>, and make it the default with <code>&quot;defaultMode&quot;: &quot;plan&quot;</code>.</p>
+<p>You can do all of this by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, free and open source, to run several Claude Code agents side by side and choose which ones plan first. The last section shows how.</p>
+<p>Everything below was checked against Claude Code’s official docs and changelog on 29 Sep 2026, with Claude Code 2.1.284 installed:</p>
+<pre><code>$ claude --version
+2.1.284 (Claude Code)
+
+$ claude --help | grep -A3 -- '--permission-mode &lt;mode&gt;'
+  --permission-mode &lt;mode&gt;              Permission mode to use for the session
+                                        (choices: &quot;acceptEdits&quot;, &quot;auto&quot;,
+                                        &quot;bypassPermissions&quot;, &quot;manual&quot;,
+                                        &quot;dontAsk&quot;, &quot;plan&quot;)
+</code></pre>
+<h2 id="what-is-the-claude-code-plan-mode-shortcut" tabindex="-1">What is the Claude Code plan mode shortcut? <a class="anchor" href="#what-is-the-claude-code-plan-mode-shortcut" aria-hidden="true">#</a></h2>
+<p>Shift+Tab is the shortcut, and plan mode sits three presses away from where a new session starts. Since 2.1.284 (28 Sep 2026), a terminal or VS Code session with no permission mode set starts in auto mode on every plan and provider, or in Manual if auto mode isn’t available. From auto the first press goes to Manual, the second to accept edits, the third to plan, and the status bar shows <code>⏸ plan mode on</code>; a session that starts in Manual reaches plan in two presses. On Windows terminals that don’t send Shift+Tab, use Alt+M (interactive mode docs, checked 29 Sep 2026).</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Way in or out (Claude Code 2.1.284, checked 29 Sep 2026)</th>
+<th style="text-align:left">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Shift+Tab</code> (Alt+M on some Windows terminals)</td>
+<td style="text-align:left">Cycles auto → Manual → accept edits → plan, then any optional modes</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>/plan</code> or <code>/plan fix the auth bug</code></td>
+<td style="text-align:left">Enters plan mode; with a description it starts on that task</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>claude --permission-mode plan</code></td>
+<td style="text-align:left">Starts the session in plan mode; works with <code>-p</code> too</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>&quot;defaultMode&quot;: &quot;plan&quot;</code> under <code>permissions</code> in <code>.claude/settings.json</code></td>
+<td style="text-align:left">Every terminal session in that project starts in plan mode</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>claudeCode.initialPermissionMode: &quot;plan&quot;</code></td>
+<td style="text-align:left">Same for the VS Code extension, which ignores project settings here</td>
+</tr>
+<tr>
+<td style="text-align:left">Approve the plan</td>
+<td style="text-align:left">Leaves plan mode and switches to the mode you picked</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Shift+Tab</code> again</td>
+<td style="text-align:left">Leaves plan mode without approving anything</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The mode Anthropic used to call <code>default</code> is now labelled Manual. The rename landed in 2.1.200 on 3 Jul 2026, and <code>manual</code> works as an alias wherever you type the value, while hooks and the SDK still see <code>default</code> (<a href="https://code.claude.com/docs/en/permission-modes">Choose a permission mode</a>, checked 29 Sep 2026). Guides that say “Normal mode” describe the old label.</p>
+<h2 id="how-do-you-make-plan-mode-the-default" tabindex="-1">How do you make plan mode the default? <a class="anchor" href="#how-do-you-make-plan-mode-the-default" aria-hidden="true">#</a></h2>
+<p>Put it in the project’s settings file. Terminal sessions started in that folder then open in plan mode:</p>
+<pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"permissions"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"defaultMode"</span><span class="token operator">:</span> <span class="token string">"plan"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Save that as <code>.claude/settings.json</code> in the repo. It also works from <code>~/.claude/settings.json</code> for every project on the machine.</p>
+<h2 id="what-can-claude-do-in-plan-mode" tabindex="-1">What can Claude do in plan mode? <a class="anchor" href="#what-can-claude-do-in-plan-mode" aria-hidden="true">#</a></h2>
+<p>Claude can read, search and run shell commands to explore, but it cannot edit your source. That is where several popular guides go wrong: plan mode does not ban Bash. The official docs say Claude “reads files, runs shell commands to explore, and writes a plan, but does not edit your source”. What happens to a given command depends on the session:</p>
+<ul>
+<li><strong>Auto mode available and <code>useAutoModeDuringPlan</code> on</strong> (the default): a classifier reviews each shell command except critical path removals instead of prompting you. Approved ones run, rejected ones are blocked. Since 2.1.218 (22 Jul 2026) this also covers commands the static analyzer cannot prove read-only.</li>
+<li><strong>Auto mode unavailable, or that setting off</strong>: anything outside the built-in read-only command set asks you first.</li>
+<li><strong>Interactive terminal session with bypass permissions available</strong>: plan mode’s blocks are not enforced at all. More on that below.</li>
+</ul>
+<p>For big codebases Claude hands the reading to the built-in Plan subagent, which has read-only tools (Write and Edit denied) and its own context window. The one file plan mode does write is the plan itself, by default under <code>~/.claude/plans/</code>. Set <code>plansDirectory</code> to a path inside the project, such as <code>./plans</code>, if you want the plan in the repo for a teammate to read before anyone approves it, the approach in <a href="/blog/human-in-the-loop-approving-ai-agents/">approving AI agents without a queue</a>.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/how-to-use-claude-code-plan-mode/note-1.png" alt="Hand-drawn sketch from “How to Use Claude Code Plan Mode”" loading="lazy" decoding="async" /></figure>
 <h2 id="what-does-a-plan-mode-run-actually-print" tabindex="-1">What does a plan mode run actually print? <a class="anchor" href="#what-does-a-plan-mode-run-actually-print" aria-hidden="true">#</a></h2>
-<p>We made a two-function <code>hello.py</code> in a scratch folder on 11 Sep 2026 and ran Claude Code with <code>-p --permission-mode plan</code>, first asking for a suggestion, then asking directly for an edit to see whether plan mode holds:</p>
-<pre><code>$ claude --version
-2.1.268 (Claude Code)
-
-$ claude -p --permission-mode plan &quot;Add a multiply function to hello.py right now, actually edit the file.&quot;
+<p>It prints a plan and a refusal to edit, even when you ask for the edit outright. On 11 Sep 2026, with Claude Code 2.1.268, we made a two-function <code>hello.py</code> in a scratch folder and ran:</p>
+<pre><code>$ claude -p --permission-mode plan &quot;Add a multiply function to hello.py right now, actually edit the file.&quot;
 I haven't edited `hello.py` yet. Plan mode is on, and it blocks every file change except the plan file, even when you ask me to edit right away. I also can't switch plan mode off from here: the tool for that isn't available in this session.
 ...
-The plan is saved at `~/.claude/plans/add-a-multiply-function-buzzing-dolphin.md`. It includes a one-line `python3` check that `multiply(3, 4) == 12`, and that `add` and `subtract` still work.
-
-Turn plan mode off (Shift+Tab in the CLI, or restart without plan mode) and tell me to go ahead, and I'll make the edit and run the check.
+The plan is saved at `~/.claude/plans/add-a-multiply-function-buzzing-dolphin.md` (home path shortened to `~`). It includes a one-line `python3` check that `multiply(3, 4) == 12`, and that `add` and `subtract` still work.
 </code></pre>
-<p>Told to actually edit the file, it wrote a memo about the edit instead. Fitting, for a paper company’s blog.</p>
-<p>The first prompt, “Read <code>hello.py</code> and suggest one small refactor. Do not edit any files.”, told Claude not to edit, so it proves less: it printed type-hinted versions of both functions, wrote its plan to <code>~/.claude/plans/</code>, and left <code>hello.py</code> untouched. The second run above is the real test: asked directly to edit, it still didn’t: it read <code>hello.py</code>, wrote the plan and never attempted an edit, with no approval prompt to accept.</p>
-<h2 id="how-do-you-get-out-of-plan-mode" tabindex="-1">How do you get out of plan mode? <a class="anchor" href="#how-do-you-get-out-of-plan-mode" aria-hidden="true">#</a></h2>
-<p>Two ways: reject everything with another Shift+Tab, or approve the plan, which exits plan mode for you. When the plan is ready, the CLI asks how to proceed: Yes, and use auto mode (it reads Yes, auto-accept edits when auto mode is unavailable), Yes, manually approve edits, or No, keep planning, which keeps you in plan mode so you can redirect Claude (checked 11 Sep 2026, <a href="https://code.claude.com/docs/en/permission-modes">Choose a permission mode</a>). Press Ctrl+G first if you’d rather open the plan in your own text editor and change it before Claude proceeds.</p>
+<p>Told to edit the file, it wrote a memo about editing the file. Fitting, for a paper company’s blog. The plan file is still on disk, and on 29 Sep 2026 its first lines read:</p>
+<pre><code>$ head -4 ~/.claude/plans/add-a-multiply-function-buzzing-dolphin.md
+# Add `multiply` to hello.py
+
+## Context
+The user wants a `multiply` function in `hello.py`, next to the existing `add` and `subtract` functions. Plan mode was on when they asked, so this plan records the change to make once edits are allowed.
+</code></pre>
+<p>A headless run has no approval step. Claude writes the plan, prints a summary and exits. The headless docs add that for <code>-p</code> “the built-in starting permission mode is Manual on every plan, so pass the permission mode you want” (<a href="https://code.claude.com/docs/en/headless">Run Claude Code programmatically</a>, checked 29 Sep 2026).</p>
+<h2 id="how-do-you-exit-plan-mode-in-claude-code" tabindex="-1">How do you exit plan mode in Claude Code? <a class="anchor" href="#how-do-you-exit-plan-mode-in-claude-code" aria-hidden="true">#</a></h2>
+<p>Approve the plan, or press Shift+Tab to leave without approving it. When the plan is ready, Claude Code asks how to proceed:</p>
+<ul>
+<li><strong>Yes, and use auto mode</strong>: approve and continue in auto mode. It reads <strong>Yes, auto-accept edits</strong> when auto mode isn’t available, and offers bypass permissions instead if you launched with them.</li>
+<li><strong>Yes, manually approve edits</strong>: approve, then review each edit.</li>
+<li><strong>No, keep planning</strong>: stay in plan mode and say what to change.</li>
+</ul>
+<p>Press Ctrl+G at that prompt to open the plan in your own editor and change it before Claude starts. If you want a fresh context for the build, set <code>showClearContextOnPlanAccept</code> to <code>true</code> and the list gains a first option that approves and clears the planning context. The old <strong>No, refine with Ultraplan on Claude Code on the web</strong> option is gone: Anthropic removed the Ultraplan research preview in 2.1.222 (4 Aug 2026), so any guide that lists four options is out of date.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/how-to-use-claude-code-plan-mode/note-2.png" alt="Hand-drawn sketch from “How to Use Claude Code Plan Mode”" loading="lazy" decoding="async" /></figure>
-<h2 id="does-plan-mode-work-the-same-in-scripts-not-just-the-terminal" tabindex="-1">Does plan mode work the same in scripts, not just the terminal? <a class="anchor" href="#does-plan-mode-work-the-same-in-scripts-not-just-the-terminal" aria-hidden="true">#</a></h2>
-<p>Partly. Plan mode applies in a <code>-p</code> run, but there’s no approval step: Claude writes the plan, prints its summary, and exits, as the run above shows. Claude Code’s own headless docs are direct about the default: “the built-in starting permission mode is Manual on every plan, so pass the permission mode you want” (checked 11 Sep 2026, <a href="https://code.claude.com/docs/en/headless">Run Claude Code programmatically</a>), unless a project’s <code>permissions.defaultMode</code> setting already sets <code>plan</code>. Passing <code>--permission-mode plan</code> in a CI step gets you a proposed change with no edits. Set <code>plansDirectory</code> to a path inside the project (the default is <code>~/.claude/plans</code>) so a later step can upload the plan for review, the same gate as <a href="/blog/human-in-the-loop-approving-ai-agents/">approving AI agents without a queue</a>.</p>
-<h2 id="plan-mode-vs-accept-edits-mode-which-do-you-actually-want" tabindex="-1">Plan mode vs accept edits mode: which do you actually want? <a class="anchor" href="#plan-mode-vs-accept-edits-mode-which-do-you-actually-want" aria-hidden="true">#</a></h2>
-<p>Different phases of the same job, not competitors. <code>acceptEdits</code> mode auto-approves file writes and common filesystem commands like <code>mkdir</code> and <code>mv</code>, so you review changes afterward in <code>git diff</code>; plan mode blocks the edits and hands you a document to read first. Claude Code’s best practices page says planning is most useful “when you’re uncertain about the approach, when the change modifies multiple files, or when you’re unfamiliar with the code being modified” (checked 11 Sep 2026, <a href="https://code.claude.com/docs/en/best-practices">Best practices</a>). If you only want to gate one risky command rather than a whole session, <a href="/blog/claude-code-hooks-explained/">Claude Code’s hooks</a> can block a single tool call.</p>
-<p>None of this needs Munder Difflin. Each Claude Code agent on the floor is a real <code>claude</code> process, but as of Munder Difflin 0.5.2, Auto Mode is on by default and starts it with <code>--permission-mode bypassPermissions</code>, and in a session like that Claude Code does not enforce plan mode’s blocks (checked 11 Sep 2026, <a href="https://code.claude.com/docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode">Choose a permission mode</a>). Turn Auto Mode off and restart the agent if you want plan mode to hold for your Claude Code agents. <a href="https://munderdiffl.in/download">Download Munder Difflin</a> to try it, the classic office is free, and <a href="https://munderdiffl.in/#pricing">pricing</a> covers the paid plans.</p>
+<h2 id="which-model-does-claude-code-use-for-planning" tabindex="-1">Which model does Claude Code use for planning? <a class="anchor" href="#which-model-does-claude-code-use-for-planning" aria-hidden="true">#</a></h2>
+<p>Your session’s model, unless you choose <code>opusplan</code>. That alias runs Opus while you plan and switches to Sonnet once you approve, set with <code>/model opusplan</code> or <code>--model opusplan</code> (<a href="https://code.claude.com/docs/en/model-config">Model configuration</a>, checked 29 Sep 2026). A Haiku session is upgraded to Sonnet for planning by default. If you’re watching a usage limit, the <a href="/blog/claude-code-max-plan-tips/">Max plan tips</a> cover when Opus planning pays for itself.</p>
+<h2 id="plan-mode-vs-auto-mode-vs-accept-edits-which-should-you-use" tabindex="-1">Plan mode vs auto mode vs accept edits: which should you use? <a class="anchor" href="#plan-mode-vs-auto-mode-vs-accept-edits-which-should-you-use" aria-hidden="true">#</a></h2>
+<p>Use them in order. Plan mode decides what to change, accept edits auto-approves file writes and simple filesystem commands, and auto mode has a classifier review actions instead of you. Anthropic’s <a href="https://code.claude.com/docs/en/best-practices">best practices page</a> says planning helps most “when you’re uncertain about the approach, when the change modifies multiple files, or when you’re unfamiliar with the code being modified”, and to skip it when you could describe the diff in one sentence.</p>
+<ul>
+<li><strong>Pick plan mode if</strong> the change touches several files, the code is new to you, or you want to redirect Claude before anything is written.</li>
+<li><strong>Pick accept edits if</strong> you already know the change and will read <code>git diff</code> afterwards.</li>
+<li><strong>Pick auto mode if</strong> it’s a long task you’ve already planned and you’d rather not click through prompts.</li>
+</ul>
+<p>If one risky command is the real worry, a <a href="/blog/claude-code-hooks-explained/">PreToolUse hook</a> blocks just that call, and <a href="/blog/why-does-claude-code-keep-asking-for-permission/">why Claude Code keeps asking for permission</a> explains the prompts you’ll see in Manual mode.</p>
+<h2 id="what-changed-in-plan-mode-in-the-last-six-months" tabindex="-1">What changed in plan mode in the last six months? <a class="anchor" href="#what-changed-in-plan-mode-in-the-last-six-months" aria-hidden="true">#</a></h2>
+<p>The mechanics held steady; the names and defaults around them moved. From the <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code changelog</a>, with release dates from npm, checked 29 Sep 2026:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Version</th>
+<th style="text-align:left">Released</th>
+<th style="text-align:left">Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">2.1.200</td>
+<td style="text-align:left">3 Jul 2026</td>
+<td style="text-align:left"><code>default</code> mode renamed Manual; <code>manual</code> accepted as an alias</td>
+</tr>
+<tr>
+<td style="text-align:left">2.1.212</td>
+<td style="text-align:left">16 Jul 2026</td>
+<td style="text-align:left">Fixed plan mode running <code>touch</code>, <code>rm</code> and similar without a prompt</td>
+</tr>
+<tr>
+<td style="text-align:left">2.1.218</td>
+<td style="text-align:left">22 Jul 2026</td>
+<td style="text-align:left">Classifier, not a prompt, judges commands it can’t prove read-only</td>
+</tr>
+<tr>
+<td style="text-align:left">2.1.222</td>
+<td style="text-align:left">4 Aug 2026</td>
+<td style="text-align:left">Ultraplan removed, along with its approval option</td>
+</tr>
+<tr>
+<td style="text-align:left">2.1.280</td>
+<td style="text-align:left">22 Sep 2026</td>
+<td style="text-align:left">VS Code gains a typed <code>/plan</code></td>
+</tr>
+<tr>
+<td style="text-align:left">2.1.283</td>
+<td style="text-align:left">25 Sep 2026</td>
+<td style="text-align:left">Auto start extended to third party providers and telemetry off sessions</td>
+</tr>
+<tr>
+<td style="text-align:left">2.1.284</td>
+<td style="text-align:left">28 Sep 2026</td>
+<td style="text-align:left">Auto start on every plan and provider</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="does-plan-mode-work-with-munder-difflin" tabindex="-1">Does plan mode work with Munder Difflin? <a class="anchor" href="#does-plan-mode-work-with-munder-difflin" aria-hidden="true">#</a></h2>
+<p>Yes, once you stop Munder Difflin from skipping permissions for that agent. We read this in the source at tag v0.5.3 of the app repo. Auto Mode is on by default (<code>autoMode: true</code> in <code>src/main/config.ts</code>), and with it on, Claude Code agents launch with <code>--permission-mode bypassPermissions</code> (<code>src/shared/agentProvider.ts</code>). Each agent is an interactive <code>claude</code> in its own terminal, which is exactly the case where Claude Code doesn’t enforce plan mode’s blocks: Claude is told to plan, but an edit it attempts runs without asking.</p>
+<p>Two ways around it. In the Add Agent dialog the command field is editable (<code>src/renderer/src/components/AddAgentModal.tsx</code>), so replace the prefilled flag with <code>--permission-mode plan</code> for the agents you want planning first. Or switch Auto Mode off in Settings, start the agent again, and cycle into plan mode with Shift+Tab in its terminal. Worker requests that already name a <code>--permission-mode</code> keep it (<code>src/main/workerLaunch.ts</code>). What Munder Difflin doesn’t have yet is its own plan review screen: approval happens in Claude Code’s prompt, inside the agent’s terminal. Running several sessions at once is where a plan per agent pays off, as covered in <a href="/blog/manage-multiple-claude-code-sessions/">managing multiple Claude Code sessions</a>.</p>
 
 
       
@@ -226,32 +355,32 @@ Turn plan mode off (Shift+Tab in the CLI, or restart without plan mode) and tell
         
         <div class="qa">
           <p class="q">What is Claude Code plan mode?</p>
-          <p class="a">It is one of Claude Code&#39;s permission modes. Claude reads files and runs shell commands to explore, then writes a plan, but does not edit your source. The official docs put it plainly: plan mode tells Claude to research and propose changes without making them, and edits stay blocked until you approve the plan.</p>
+          <p class="a">It is one of Claude Code&#39;s permission modes. Claude reads files and runs shell commands to explore, then writes a plan, but does not edit your source until you approve that plan.</p>
         </div>
         
         <div class="qa">
-          <p class="q">How do you enable plan mode in Claude Code?</p>
-          <p class="a">Press Shift+Tab during a session to cycle to it, prefix a single prompt with /plan, or start the session already in it with claude --permission-mode plan. The same flag works with -p for headless runs, so scripts and CI steps can start in plan mode too.</p>
+          <p class="q">What is the shortcut for plan mode in Claude Code?</p>
+          <p class="a">Shift+Tab cycles permission modes, and plan mode is three presses away from auto mode, the mode new interactive sessions start in on every plan and provider from Claude Code 2.1.284, when no mode is configured. On Windows terminals where Shift+Tab does not register, Alt+M does the same job. You can also type /plan, or start with claude --permission-mode plan.</p>
         </div>
         
         <div class="qa">
-          <p class="q">How do you exit plan mode?</p>
-          <p class="a">Press Shift+Tab again to leave without approving anything, or approve the plan, which exits plan mode for you. The prompt offers Yes, and use auto mode (Yes, auto-accept edits when auto mode is unavailable), Yes, manually approve edits, or No, keep planning, which keeps you in plan mode so you can redirect Claude.</p>
+          <p class="q">How do you exit plan mode in Claude Code?</p>
+          <p class="a">Approve the plan, or press Shift+Tab to leave without approving anything. The approval prompt offers Yes, and use auto mode, Yes, manually approve edits, and No, keep planning. Approving switches the session to the mode you picked and Claude starts editing.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Can plan mode edit files?</p>
-          <p class="a">No. Plan mode blocks edits to your source until you approve the plan, even when you ask for the edit directly, and in our headless run Claude declined exactly that request. It does write the plan itself, by default under ~/.claude/plans/ (the plansDirectory setting can move it). The exception is a session started with bypass permissions available, for example with --dangerously-skip-permissions or --allow-dangerously-skip-permissions: Claude is still told to plan, but an edit it attempts then runs without prompting.</p>
+          <p class="q">Can Claude run shell commands in plan mode?</p>
+          <p class="a">Yes. Plan mode blocks edits to your source, not exploration. Read-only commands run, and other shell commands either go to the auto mode classifier (when auto mode is available and useAutoModeDuringPlan is on, the default) or ask you first.</p>
         </div>
         
         <div class="qa">
-          <p class="q">What is the difference between plan mode and accept edits mode?</p>
-          <p class="a">Accept edits mode auto-approves file writes and common filesystem commands like mkdir and mv, so you review changes afterward. Plan mode is the phase before that: read and explore only, meant to run first so you can approve or redirect the plan before anything gets written.</p>
+          <p class="q">Which model does Claude Code use in plan mode?</p>
+          <p class="a">The session&#39;s model, unless you pick the opusplan alias, which runs Opus while you plan and Sonnet once you approve. A Haiku session also moves up to Sonnet for planning. The built-in Plan subagent inherits the main conversation&#39;s model.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Should you use plan mode for every task?</p>
-          <p class="a">No. Claude Code&#39;s own best practices docs, checked 11 Sep 2026, say planning matters most when you&#39;re uncertain about the approach, the change touches multiple files, or you don&#39;t know the code well, and that you can skip it when you could describe the diff in one sentence. For a small, obvious fix, just ask Claude to make it directly.</p>
+          <p class="q">Does plan mode use more tokens?</p>
+          <p class="a">It adds a research phase before any edit, and the Plan subagent&#39;s requests count toward the same usage limits as your main conversation, per the subagents docs checked 29 Sep 2026. For a change you could describe in one sentence, Anthropic&#39;s own best practices page says to skip the plan.</p>
         </div>
         
       </section>
@@ -270,7 +399,7 @@ Turn plan mode off (Shift+Tab in the CLI, or restart without plan mode) and tell
     <aside class="toc-rail" aria-label="Table of contents">
       <div class="tt">On this page</div>
       <ol>
-        <li class="lvl-2"><a href="#how-do-you-turn-on-plan-mode-in-claude-code">How do you turn on plan mode in Claude Code?</a></li><li class="lvl-2"><a href="#what-does-plan-mode-actually-let-claude-do">What does plan mode actually let Claude do?</a></li><li class="lvl-2"><a href="#what-does-a-plan-mode-run-actually-print">What does a plan mode run actually print?</a></li><li class="lvl-2"><a href="#how-do-you-get-out-of-plan-mode">How do you get out of plan mode?</a></li><li class="lvl-2"><a href="#does-plan-mode-work-the-same-in-scripts-not-just-the-terminal">Does plan mode work the same in scripts, not just the terminal?</a></li><li class="lvl-2"><a href="#plan-mode-vs-accept-edits-mode-which-do-you-actually-want">Plan mode vs accept edits mode: which do you actually want?</a></li>
+        <li class="lvl-2"><a href="#what-is-the-claude-code-plan-mode-shortcut">What is the Claude Code plan mode shortcut?</a></li><li class="lvl-2"><a href="#how-do-you-make-plan-mode-the-default">How do you make plan mode the default?</a></li><li class="lvl-2"><a href="#what-can-claude-do-in-plan-mode">What can Claude do in plan mode?</a></li><li class="lvl-2"><a href="#what-does-a-plan-mode-run-actually-print">What does a plan mode run actually print?</a></li><li class="lvl-2"><a href="#how-do-you-exit-plan-mode-in-claude-code">How do you exit plan mode in Claude Code?</a></li><li class="lvl-2"><a href="#which-model-does-claude-code-use-for-planning">Which model does Claude Code use for planning?</a></li><li class="lvl-2"><a href="#plan-mode-vs-auto-mode-vs-accept-edits-which-should-you-use">Plan mode vs auto mode vs accept edits: which should you use?</a></li><li class="lvl-2"><a href="#what-changed-in-plan-mode-in-the-last-six-months">What changed in plan mode in the last six months?</a></li><li class="lvl-2"><a href="#does-plan-mode-work-with-munder-difflin">Does plan mode work with Munder Difflin?</a></li>
       </ol>
     </aside>
     
