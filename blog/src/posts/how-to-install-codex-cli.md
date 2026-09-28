@@ -19,12 +19,12 @@ faq:
   - q: "Why does npm install -g codex install the wrong thing?"
     a: "The unscoped codex package on npm is an unrelated documentation generator, not OpenAI's agent. OpenAI publishes the CLI under its own scope, so the command is npm install -g @openai/codex. If you already installed the wrong one, remove it with npm uninstall -g codex first."
   - q: "How do I log in to Codex CLI on a server with no browser?"
-    a: "Run codex login with the device auth flag, open the link it prints on any device with a browser, and enter the one time code. OpenAI marks device code login as beta, and you have to enable it in your ChatGPT security settings first. The fallbacks are copying the cached auth.json across over SSH, or forwarding port 1455 so the normal browser login works."
+    a: "Run codex login with the device auth flag, open the link it prints on any device with a browser, and enter the one time code. OpenAI marks device code login as beta, and it has to be enabled first: in your ChatGPT security settings on a personal account, or by a workspace admin on a work account. The fallbacks are copying the cached auth.json across over SSH, or forwarding port 1455 so the normal browser login works."
 ---
 
 Codex CLI is OpenAI's open source coding agent for the terminal, and you install it with one command: `curl -fsSL https://chatgpt.com/codex/install.sh | sh` on macOS or Linux, or OpenAI's PowerShell installer on Windows. npm and Homebrew work too. Then run `codex` in a project, sign in with ChatGPT or an API key, and check `codex --version`.
 
-You can do all of this by hand, or use [Munder Difflin](https://harnessmd.com/download), free and open source, a desktop app that runs Codex agents next to Claude Code and other CLIs on one screen. As of Munder Difflin 0.5.3, onboarding marks Codex as INSTALLED or INSTALLS ON FIRST RUN. If `codex` is missing when a Codex agent starts, the app runs `npm install -g @openai/codex` in that agent's terminal, installing Node first if npm is absent, then relaunches the agent. Each Codex agent gets its own `CODEX_HOME` that links your `~/.codex/auth.json` and seeds its settings from your `config.toml`, so your terminal login carries over and your own `~/.codex` stays as it was. The [Munder Difflin install guide](/blog/how-to-install-and-use-munder-difflin/) covers that setup.
+You can do all of this by hand, or use [Munder Difflin](https://harnessmd.com/download), free and open source, a desktop app that runs Codex agents next to Claude Code and other CLIs on one screen. As of Munder Difflin 0.5.3, onboarding marks Codex as INSTALLED or INSTALLS ON FIRST RUN. If `codex` is missing when a Codex agent starts, the app runs `npm install -g @openai/codex` in that agent's terminal, installing Node first when npm is absent and a Node installer is available (otherwise it falls back to a manual step), then relaunches the agent. Each Codex agent gets its own `CODEX_HOME` that links your `~/.codex/auth.json` and seeds its settings from your `config.toml`, so your terminal login carries over and your own `~/.codex` stays as it was. The [Munder Difflin install guide](/blog/how-to-install-and-use-munder-difflin/) covers that setup.
 
 ## What is Codex CLI?
 
@@ -51,7 +51,7 @@ Use the standalone installer unless you already manage your tools with Homebrew 
 | Homebrew cask | macOS, Linux | No | Homebrew's prefix | `brew upgrade --cask codex` |
 | npm | macOS, Linux, Windows | Node 16+ | npm's global folder | `npm install -g @openai/codex` |
 
-Pick the script if you want the fewest moving parts. Pick Homebrew if every other tool on the machine already comes from `brew`. Pick npm if you pin tool versions per project or your company mirrors the npm registry.
+Pick the script if you want the fewest moving parts. Pick Homebrew if every other tool on the machine already comes from `brew`. Pick npm if Node is already how you install developer tools, or your company mirrors the npm registry.
 
 ## How do I install Codex CLI on Mac or Linux?
 
@@ -100,7 +100,7 @@ For CI, or to pay per use at API rates, pipe an API key in:
 printenv OPENAI_API_KEY | codex login --with-api-key
 ```
 
-On a server with no browser, `codex login --device-auth` prints a link and a one time code to enter on any other device. It's in beta and has to be enabled in your ChatGPT security settings first. The docs also describe two fallbacks: copy `auth.json` across over SSH, or forward `localhost:1455` so the normal browser flow works.
+On a server with no browser, `codex login --device-auth` prints a link and a one time code to enter on any other device. It's in beta and has to be enabled first: in your ChatGPT security settings on a personal account, or by a workspace admin in workspace permissions. The docs also describe two fallbacks: copy `auth.json` across over SSH, or forward `localhost:1455` so the normal browser flow works.
 
 {% img "note-2" %}
 
@@ -133,7 +133,8 @@ Run `codex --version`, which prints `codex-cli` followed by the version number. 
 Uninstall with the tool you installed with: `npm uninstall -g @openai/codex` or `brew uninstall --cask codex`. The standalone script has no uninstall option, so remove what it created (paths from the script, read on 29 Sep 2026):
 
 ```bash
-rm ~/.local/bin/codex ~/.local/bin/codex-code-mode-host
+rm ~/.local/bin/codex
+rm ~/.local/bin/codex-code-mode-host   # macOS only
 rm -rf ~/.codex/packages/standalone
 ```
 
