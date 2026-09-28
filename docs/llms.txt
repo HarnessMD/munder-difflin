@@ -152,7 +152,7 @@
 - [The AI Coding Agent Glossary: Harness, Orchestrator, Hive, Subagent](https://munderdiffl.in/blog/ai-agent-glossary/): Plain-English definitions of the AI coding agent terms everyone trips over — harness, orchestrator, hive, subagent, agent memory — each in one line.
 - [Munder Difflin FAQ: Everything People Ask](https://munderdiffl.in/blog/munder-difflin-faq/): Answers to the top Munder Difflin questions — what it is, is it free, does it run locally, which platforms, and how it differs from many terminals.
 - [What Are Claude Code Agents? And How to Use Many at Once](https://munderdiffl.in/blog/what-are-claude-code-agents/): Claude Code agents explained in plain English — what an agent actually is, how subagents differ, and the leap from one agent to a coordinated team.
-- [What Is a Multi-Agent Harness? A Plain English Guide](https://munderdiffl.in/blog/what-is-a-multi-agent-harness/): A multi-agent harness runs several AI coding agents as one team, with roles, messages, shared memory and an orchestrator. What it is, how it differs from a framework, subagents or agent teams, and when you need one.
+- [What Is an AI Agent Harness? Single vs Multi-Agent Harness Explained](https://munderdiffl.in/blog/what-is-a-multi-agent-harness/): An agent harness is the code around an AI model that runs its tool loop, memory and permissions. Single vs multi-agent harnesses, compared and dated.
 
 ### internals
 
