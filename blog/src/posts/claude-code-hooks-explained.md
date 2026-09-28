@@ -57,7 +57,7 @@ Claude Code 2.1.284 documents 33 hook events. These are the ones most people rea
 
 The rest cover setup, instruction loading, slash command expansion, tool batches, permission denials, subagent starts, tasks, teammates, message display, API failures, config, directory and file changes, worktrees, compaction, MCP elicitations and model switches.
 
-The [Claude Code changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) records five new events in the last six months (dates are npm publish dates): `PermissionDenied` in 2.1.89 (31 Mar 2026), `MessageDisplay` in 2.1.152 (26 May), `DirectoryAdded` in 2.1.219 (24 Jul), and `PreModelSwitch` plus `PostModelSwitch` in 2.1.251 (28 Aug). In the same window, 2.1.139 added the `args` exec form and 2.1.143 capped runaway Stop hooks at eight blocks in a row. It records no renamed events.
+The [Claude Code changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) records five new events in the last six months (dates are npm publish dates): `PermissionDenied` in 2.1.89 (31 Mar 2026), `MessageDisplay` in 2.1.152 (26 May), `DirectoryAdded` in 2.1.219 (24 Jul), and `PreModelSwitch` plus `PostModelSwitch` in 2.1.251 (28 Aug). The hooks reference also gained `UserPromptExpansion` and `PostToolBatch` in late April 2026, which the changelog never mentions. In the same window, 2.1.139 added the `args` exec form and 2.1.143 capped runaway Stop hooks at eight blocks in a row. It records no renamed events.
 
 {% img "note-1" %}
 
