@@ -1,150 +1,138 @@
 ---
-title: "Claude Code Subagents vs a Multi-Agent Harness"
-description: "Claude Code subagents vs a multi-agent harness: where subagents stop and a harness with shared memory, messaging, and an orchestrator takes over."
+title: "Claude Code Subagents: How to Create and Use Them (vs Agent Teams)"
+description: "Claude Code subagents in 2026: the .claude/agents file, built-in Explore and Plan, models, nesting, and when agent teams or a harness fit better."
 date: 2026-05-23
+updated: 2026-09-29
 category: guides
 categoryLabel: Guides
 type: Technical
 primaryKeyword: "claude code subagents"
-secondaryKeywords: ["multi-agent harness", "subagent limits", "claude code agents"]
+secondaryKeywords: ["how to create claude code subagents", "claude code subagents vs agent teams", "claude code subagents model", "can claude code subagents spawn subagents", "multi-agent harness"]
 tags: ["Guides", "Subagents", "Multi-Agent", "Claude Code"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
   - q: "What are Claude Code subagents?"
-    a: "Subagents are helpers a Claude Code session spawns inside its own run to handle a scoped piece of work — often parallel, read-heavy tasks. Each runs in its own context window and returns a result to the parent, then goes away. They're a fan-out tool, not a persistent team."
-  - q: "When do subagents stop being enough?"
-    a: "When you need work to persist across sessions, agents to remember what they learned, agents to message each other directly rather than only through a parent, or a coordinator that routes a whole goal. Those are harness features, not subagent features."
-  - q: "Can I use subagents and a harness together?"
-    a: "Yes, and you often should. Use subagents for fan-out inside a single agent's task; use a harness to coordinate multiple long-lived agents with shared memory and messaging across the whole workflow."
+    a: "A subagent is a separate Claude worker that takes one task in its own context window and returns only a summary to your main conversation. You define custom ones as Markdown files in .claude/agents/ or ~/.claude/agents/, and Claude Code also ships built-ins such as Explore, Plan and general-purpose."
+  - q: "Can Claude Code subagents spawn subagents?"
+    a: "Yes. Since Claude Code 2.1.219 (24 July 2026) a subagent can spawn its own, up to three layers below the main conversation. Set CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH to change the limit, or to 1 to turn nesting off."
+  - q: "How do I choose the model a subagent uses?"
+    a: "Set model in its front matter to sonnet, opus, haiku, fable, a full model ID or inherit. Claude can also pass a model when it spawns the subagent, and that wins over the front matter. Run /tasks while it runs to see the model on its row."
+  - q: "What is the difference between subagents and agent teams?"
+    a: "Subagents work inside one session and report back to whoever spawned them. Agent teams, still experimental and switched on with CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1, run several full Claude Code sessions with a shared task list and a mailbox so teammates message each other directly."
+  - q: "Where did the /agents wizard go?"
+    a: "Claude Code 2.1.198 removed it. Typing /agents now only points you to the alternatives: ask Claude to write the subagent file, or create it yourself in .claude/agents/. The file format and folders did not change."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p><strong>Claude Code subagents</strong> are
-short-lived helpers one session spawns to fan out scoped work — great for parallel reads, scoped to a
-single parent, gone when done. A <strong>multi-agent harness</strong> wraps several long-lived agents
-and adds what subagents don't have: <strong>persistent identities, shared memory, direct messaging
-between agents, an orchestrator, and visibility</strong>. They're complementary — subagents work
-<em>inside</em> an agent; a harness coordinates <em>across</em> agents.</p></div>
+A Claude Code subagent is a separate Claude worker that takes one task in its own context window and returns only a summary. You define one as a Markdown file in `.claude/agents/`, and Claude delegates to it when a task matches its `description`. Everything below was checked against Claude Code 2.1.284 on 29 Sep 2026.
 
-"Claude Code already has subagents — why would I need a harness?" It's a fair question, and the answer
-isn't "subagents are bad." Subagents are excellent at what they do. They just do a different job than a
-harness. This post draws the line precisely so you know which one a given problem calls for.
+You can do all of this by hand with the files below, or use [Munder Difflin](https://harnessmd.com/download), free and open source, when what you need is several long running agents rather than helpers inside one session. The second half of this post shows where that line falls; the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
-## What subagents are
+## How do you create a Claude Code subagent?
 
-A subagent is a helper a Claude Code session spawns *inside its own run*. The main agent delegates a
-scoped task — "search these directories," "draft this section" — to a subagent that runs in its **own
-context window**, does the work, and **returns a result** to the parent. Then it's gone.
+You save a Markdown file with YAML front matter in `.claude/agents/` for one project, or in `~/.claude/agents/` for every project on your machine. Only `name` and `description` are required, and the body under the front matter becomes the subagent's system prompt. This one runs tests on Haiku and has no Edit or Write tool:
 
-Their sweet spot is **fan-out**, especially read-heavy work:
+```markdown
+---
+name: test-runner
+description: Runs the test suite and reports only failing tests with their error messages. Use proactively after code changes.
+tools: Read, Grep, Glob, Bash
+model: haiku
+maxTurns: 20
+---
 
-- searching a large codebase several ways at once,
-- gathering context from many files in parallel,
-- exploring independent options and reporting back.
+Run the project's test command. For each failing test, report the file,
+the assertion that failed and the first lines of the error. Do not try to fix anything.
+```
 
-Because each subagent has a fresh context window, the parent stays uncluttered — it gets conclusions,
-not the raw dump. For a single agent tackling one big task, that's a real superpower.
+Every field in that file is on the [official front matter list](https://code.claude.com/docs/en/sub-agents). The rest of the list: `disallowedTools`, `permissionMode`, `skills` (preloaded into context), `mcpServers`, `hooks`, `memory`, `background`, `effort`, `isolation: worktree`, `color`, `initialPrompt`, `omitClaudeMd` (new in 2.1.271) and an `experimental` map for `cacheTtl`. Names are camelCase; an unknown field is silently ignored.
 
-## What subagents are not
+Claude Code watches both folders and picks up a new or edited file within a few seconds. If the `agents` folder did not exist when the session started, restart once. A file with no `name` is treated as documentation, and one with a `name` but no `description` is skipped; neither shows a message in the session, though `claude --debug` logs the second.
 
-The limits all stem from one fact: a subagent is **scoped to its parent's run**.
+Definitions can also come from managed settings, the `--agents` JSON flag or a plugin; managed wins, then `--agents`, then project, user and plugin.
 
-- **They're ephemeral.** A subagent exists for one task and disappears. Nothing it learned persists to
-  the next session — there's no durable memory of its own.
-- **Coordination is hub-and-spoke.** Subagents talk to the *parent*, not to each other. Two subagents
-  can't message directly, share state, or negotiate. The parent is the only hub, and it's a bottleneck
-  by design.
-- **No shared long-term memory.** A subagent's findings live in the parent's context until that
-  context is gone. There's no store the *whole workflow* reads from across sessions.
-- **No standing roster.** You don't have a `reviewer` and a `migration` agent that persist as
-  teammates across tasks; you have helpers conjured for one job.
+## What happened to the /agents command?
 
-None of this is a flaw — it's the scope. Subagents are an *intra-agent* concurrency primitive. They
-were never meant to be a standing team.
+It no longer opens a wizard. Claude Code 2.1.198 (1 July 2026) removed the interactive creator, so typing `/agents` only tells you to ask Claude or edit `.claude/agents/` yourself. The fastest route now is a sentence:
+
+```text
+Create a test-runner subagent in .claude/agents/ that runs our tests and
+reports only failures. No Edit or Write tools, and use Haiku.
+```
+
+Then check the front matter. Do not confuse this with the `claude agents` CLI command. On 2.1.284, `claude agents --help` describes it as "Manage background agents": it lists background sessions, not subagent definitions.
 
 {% img "note-1" %}
 
-## What a harness adds
+## Which built-in subagents does Claude Code have?
 
-A [multi-agent harness](https://munderdiffl.in/#what) wraps agents you already run — full Claude Code
-sessions — and adds the layer subagents structurally can't provide:
+Three do most of the work: Explore, Plan and general-purpose. Explore is a read-only searcher that Claude calls with a thoroughness level of quick, medium or very thorough. Plan is the read-only researcher Claude uses in plan mode. General-purpose gets every tool available to subagents and handles tasks that need both reading and editing.
 
-- **Persistent identities.** Each agent has a role, a name, and its own workspace that lives across
-  tasks. Your `test-writer` is the same teammate next session.
-- **Durable, shared memory.** Agents write notes that persist and become recall-able by the *whole*
-  team — so agent B uses what agent A learned, even sessions later. That's
-  [semantic memory for agents](/blog/semantic-memory-for-ai-agents/), not a context window that
-  vanishes.
-- **Direct messaging.** Agents send messages to *each other*, not only up to a parent. A router
-  delivers them safely, so coordination is a mesh, not a single hub.
-- **An orchestrator.** A coordinator reads your goal, decomposes it, and routes work across the team —
-  and escalates only the critical calls to you. The parent-as-bottleneck problem goes away.
-- **Visibility.** You can watch the whole team work, rather than peering into one agent's run.
+Two details changed this year. Since 2.1.198, Explore inherits your session's model (capped at Opus on the Claude API) instead of always running on Haiku; define your own subagent named `Explore` with `model: haiku` if you want the cheap version back. Explore and Plan also skip your `CLAUDE.md` files and the git status snapshot to stay fast.
 
-Put simply: subagents give one agent *helpers*; a harness gives you a *team*.
+## How does Claude decide when to use a subagent?
 
-## A side-by-side
+It reads the `description` field. When your request matches a description, Claude hands off the task with a delegation prompt it writes itself. Put "use proactively" in the description if you want it to delegate without being asked.
 
-| | Claude Code subagents | Multi-agent harness |
-|---|---|---|
-| **Lifespan** | One task, then gone | Persistent across sessions |
-| **Memory** | Parent's context only | Durable + shared across the team |
-| **Communication** | To the parent (hub-and-spoke) | Agent-to-agent (mesh) via a router |
-| **Coordination** | The parent decides | An orchestrator routes + escalates |
-| **Identity / roles** | Ephemeral helpers | Standing roster with roles |
-| **Best for** | Fan-out within one task | Coordinating long-lived work |
+You can also force it: name the subagent in plain words, @-mention it with `@agent-test-runner`, or run a whole session as that agent with `claude --agent test-runner`. The subagent starts fresh: it sees its own prompt, your `CLAUDE.md` files and the delegation message, not your conversation history.
 
-The table isn't a scoreboard — it's a map. Each column wins its own territory.
+## How do you set a subagent's model and tools?
+
+Use `model` and `tools` in the front matter. The model is resolved in this order: a model Claude passes when it spawns the subagent, then the `model` field, then the `CLAUDE_CODE_SUBAGENT_MODEL` variable, then your session's model. Since 2.1.251 that variable is only a default. To force one model on every subagent, also set `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (2.1.257 and later). Run `/tasks` to see which model each subagent is on.
+
+`tools` is an allowlist and `disallowedTools` a denylist. A `disallowedTools` entry such as `Bash(git push *)` removes the whole Bash tool, so block single commands with a deny rule in settings instead. The Task tool was renamed Agent in 2.1.63, and old `Task(...)` rules still work.
+
+## Do Claude Code subagents run in the background?
+
+Yes, by default in an interactive session. Since 2.1.232 (13 Aug 2026) fork mode is on, so the subagents Claude spawns run in the background while you keep typing. A background subagent gets a smaller built-in tool set, and its permission prompts appear in your main session with its name on them. `/subtask` starts a fork, which is a subagent that inherits your whole conversation. Up to 20 subagents can run at once; `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` changes that.
+
+## Can Claude Code subagents spawn subagents?
+
+Yes, up to three layers below your main conversation. That default arrived in 2.1.219 (24 July 2026), after two releases where nesting was off. Set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to change the depth, or leave `Agent` out of a subagent's `tools` to stop that one from delegating. Older guides that say subagents cannot nest were right for a while.
+
+## Can Claude Code subagents talk to each other?
+
+Named ones can. When Claude gives a subagent a name, other agents in the session can reach it with the `SendMessage` tool, which also resumes a finished subagent with its full history. Subagents can keep notes between sessions too: `memory: project` gives one a folder at `.claude/agent-memory/<name>/`. For how this compares with separate sessions, see [can Claude Code agents talk to each other](/blog/can-claude-code-agents-talk-to-each-other/).
+
+### What changed for subagents in the last six months
+
+| Version (date) | Change |
+|---|---|
+| 2.1.198 (1 Jul 2026) | `/agents` wizard removed; Explore inherits the session model |
+| 2.1.217 (21 Jul 2026) | Cap of 20 running subagents |
+| 2.1.219 (24 Jul 2026) | Nesting up to depth 3 by default |
+| 2.1.232 (13 Aug 2026) | Fork mode on by default; spawns run in the background |
+| 2.1.251 (28 Aug 2026) | `CLAUDE_CODE_SUBAGENT_MODEL` becomes a default, not an override |
+| 2.1.271 (14 Sep 2026) | `omitClaudeMd` front matter field |
+
+Source: the [Claude Code changelog](https://code.claude.com/docs/en/changelog), read on 29 Sep 2026.
+
+## Claude Code subagents vs agent teams: what is the difference?
+
+Subagents work inside one session and report to whoever spawned them, while agent teams run several full Claude Code sessions that coordinate with each other. [Agent teams](https://code.claude.com/docs/en/agent-teams) are experimental and off until you set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. The main session becomes the lead, teammates share a task list and message each other through mailbox files under `~/.claude/teams/`, and you can talk to any teammate directly.
+
+The documented limits: one team per session, no nested teams, a fixed lead, and `/resume` does not bring back in-process teammates. Every teammate is a separate Claude instance, so teams cost more tokens. With teams on, a subagent Claude names launches as a teammate, so a team can form unasked.
 
 {% img "note-2" %}
 
-## They're better together
+## When do you need a multi agent harness instead?
 
-The framing that trips people up is "subagents *or* a harness." In practice it's both:
+When the agents should outlive a session. Subagents and agent teams both hang off one lead session: close it and the team goes with it, and a subagent comes back only if you resume that same session. A [multi agent harness](/blog/what-is-a-multi-agent-harness/) runs each agent as its own long lived session and coordinates them from outside.
 
-- **Inside** a single agent's task, subagents fan out the read-heavy parts and keep that agent's
-  context clean.
-- **Across** agents, the harness coordinates the standing team — shared memory, messaging, orchestration.
+Munder Difflin is one, and as of v0.5.3 (the ref we read for this) it works like this:
 
-A harness-managed agent can absolutely use subagents for its own work. The harness operates one level
-up, at the team scale; subagents operate one level down, at the task scale. Nothing about running a
-coordinated team stops an individual agent from spawning helpers — and nothing about spawning helpers
-gives you a coordinated team.
+- Each agent is a full CLI session, and it does not have to be Claude Code: `AGENT_PROVIDER_PRESETS` in `src/shared/agentProvider.ts` lists Claude Code, Codex, Gemini CLI, Antigravity, Grok, Kimi Code, Qwen, OpenCode, Crush, Pi, Copilot and Cursor.
+- Each agent gets a workspace folder with `identity.md`, `memory.md`, `inbox/` and `outbox/` that survives restarts, and a router in the main process moves outbox messages into the right inboxes (`src/main/hive.ts`).
+- Michael, the orchestrator, keeps the shared plan in `board.md` and the kanban in `tasks.json`. That only Michael edits `board.md` is a rule in the agents' instructions, not something the code enforces.
+- If you turn on orchestrator spawning (off by default, `orchestratorMaySpawn` in `src/main/config.ts`), Michael can start workers, each on its own git worktree unless the request says otherwise (`src/main/index.ts`).
 
-## Which do you need?
+What it does not do: it is a desktop app, not a flag you add to a script, and a floor of full sessions spends more tokens than one session with a few subagents. Each agent still uses Claude Code's own subagents as usual. The two sit at different levels, like the person who files the paperwork and the office that decides what gets filed.
 
-Use **subagents** (and nothing more) when:
+## Which should you pick?
 
-- you're working with **one** primary agent on a task,
-- the parallelism you want is *within* that task (search, gather, explore), and
-- you don't need anything to persist past the run.
+**Pick subagents if** one task has side work (searching, running tests, reading logs) that would flood your main context, and you only need the answer back.
 
-Reach for a **harness** when:
+**Pick agent teams if** a few Claude Code sessions need to argue about one problem for an afternoon, and you are fine with an experimental feature that lives and dies with the lead session.
 
-- you're running **several** agents and losing track of who's doing what,
-- you keep **re-explaining** context because each session forgets,
-- agents need to **hand work to each other** without you relaying it, or
-- you want to state a goal once and have a **team** divide and conquer.
-
-That threshold — one agent's task vs. a coordinated team — is the whole decision. If you're hitting it,
-the next read is [how to run multiple Claude Code agents](/blog/how-to-run-multiple-claude-code-agents/),
-and for a concrete head-to-head of two ways to get a team, see
-[Claude Squad vs Munder Difflin](/blog/claude-squad-vs-munder-difflin/).
-
-## FAQ
-
-**Is a harness just "subagents that don't expire"?** Not quite. Persistence is part of it, but the
-bigger additions are *shared memory* and *direct inter-agent messaging* — a subagent that merely lived
-longer still couldn't message a sibling or recall another agent's notes.
-
-**Do I lose subagents if I adopt a harness?** No. Your agents are still full Claude Code sessions, so
-they keep every native capability, subagents included. The harness adds coordination around them; it
-doesn't take anything away.
-
----
-
-Munder Difflin is the harness layer: persistent agents, shared memory, direct messaging, and a GOD
-orchestrator — wrapped around the Claude Code sessions (and subagents) you already use.
-[Download Munder Difflin](https://munderdiffl.in/#install) to turn helpers into a team; it's free and
-open source.
+**Pick a harness if** you run agents across days or several CLIs and want their notes, messages and status in one place. The next read is [how to run multiple Claude Code agents](/blog/how-to-run-multiple-claude-code-agents/).
