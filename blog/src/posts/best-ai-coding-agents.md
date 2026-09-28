@@ -16,7 +16,7 @@ faq:
   - q: "What is the best AI coding agent right now?"
     a: "As of 29 Sep 2026, Claude Code is the strongest pick for terminal work and Cursor for work inside an editor. Codex is the best value if you already pay for ChatGPT, and GitHub Copilot fits teams that live on GitHub. OpenCode and Cline are the best open source picks."
   - q: "Is there a free AI coding agent?"
-    a: "Yes. Codex works on the ChatGPT Free plan, GitHub Copilot has a Free plan, Cursor has a free Hobby plan, and Antigravity CLI has a free Individual tier with weekly limits, all checked on 29 Sep 2026. OpenCode, Cline and Aider are free open source software, though you still pay for the model you connect."
+    a: "Yes. Codex works on the ChatGPT Free plan, GitHub Copilot has a Free plan, Cursor has a free Hobby plan, Devin has a Free plan, and Antigravity CLI has a free Individual tier with weekly limits, all checked on 29 Sep 2026. OpenCode, Cline and Aider are free open source software, though you still pay for the model you connect."
   - q: "Can I still use Gemini CLI for free?"
     a: "No. Google stopped serving free, Google AI Pro and Google AI Ultra users in Gemini CLI on 18 Jun 2026 and moved individuals to Antigravity CLI, invoked as agy. Gemini CLI stays open source under Apache 2.0 and still works with a paid Gemini API key, Gemini Enterprise Agent Platform (formerly Vertex AI) or a Code Assist Standard or Enterprise licence."
   - q: "What is the difference between an AI coding agent and an AI coding assistant?"
@@ -100,11 +100,11 @@ We used each tool's non interactive mode (`claude -p`, `codex exec`, `gemini -p`
 | GitHub Copilot CLI | `GitHub Copilot CLI 1.0.88.` | Yes | 26.9 s | Yes, same fix |
 | OpenCode | `1.18.30` | Yes, but the saved OpenAI key was rejected; rerun on the free `opencode/big-pickle` model | 9.8 s on the free model | Yes, same fix |
 | Gemini CLI | `0.46.0` | Yes (Gemini API key), after `--skip-trust` for the new folder | 168.9 s, including two 503 "high demand" retries | Yes, same fix |
-| Cursor Agent | `2026.09.23-86fc751` | Yes, after `--trust` for the new folder | 14.1 s | No answer: "You've hit your usage limit" on this account |
-| Codex | `codex-cli 0.153.4` | Yes (API key login) | 40.5 s | No answer: the API key had no credits left |
+| Cursor Agent | `2026.09.23-86fc751` | Yes, after `--trust` for the new folder | n/a | Not tested: our own Cursor account was at its usage limit |
+| Codex | `codex-cli 0.153.4` | Yes (API key login) | n/a | Not tested: our own OpenAI API key had no credits |
 | Aider, Cline, Devin | Not installed on this Mac | Not run | Not run | Not run |
 
-No agent edited the file; we diffed each copy afterwards. The bug was easy on purpose, so this is a smoke test of setup and access, not a ranking. Two of seven failed on account state, not skill, and two needed a trust flag before they would run in a new folder.
+No agent edited the file; we diffed each copy afterwards. The bug was easy on purpose, so this is a smoke test of setup and access, not a ranking. Cursor and Codex were not tested because our own accounts were out of usage, which says nothing about either tool, and two needed a trust flag before they would run in a new folder.
 
 ## Which AI coding agents are free?
 
