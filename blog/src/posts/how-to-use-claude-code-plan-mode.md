@@ -13,7 +13,7 @@ faq:
   - q: "What is Claude Code plan mode?"
     a: "It is one of Claude Code's permission modes. Claude reads files and runs shell commands to explore, then writes a plan, but does not edit your source until you approve that plan."
   - q: "What is the shortcut for plan mode in Claude Code?"
-    a: "Shift+Tab cycles permission modes, and plan mode is three presses away from auto mode, the mode new interactive sessions start in from Claude Code 2.1.284, when no mode is configured. On Windows terminals where Shift+Tab does not register, Alt+M does the same job. You can also type /plan, or start with claude --permission-mode plan."
+    a: "Shift+Tab cycles permission modes, and plan mode is three presses away from auto mode, the mode new interactive sessions start in on every plan and provider from Claude Code 2.1.284, when no mode is configured. On Windows terminals where Shift+Tab does not register, Alt+M does the same job. You can also type /plan, or start with claude --permission-mode plan."
   - q: "How do you exit plan mode in Claude Code?"
     a: "Approve the plan, or press Shift+Tab to leave without approving anything. The approval prompt offers Yes, and use auto mode, Yes, manually approve edits, and No, keep planning. Approving switches the session to the mode you picked and Claude starts editing."
   - q: "Can Claude run shell commands in plan mode?"
@@ -43,7 +43,7 @@ $ claude --help | grep -A3 -- '--permission-mode <mode>'
 
 ## What is the Claude Code plan mode shortcut?
 
-Shift+Tab is the shortcut, and plan mode sits three presses away from where a new session starts. Since 2.1.284 (28 Sep 2026), a terminal or VS Code session with no permission mode set starts in auto mode on every plan and provider, or in Manual if auto mode isn't available, so the first press goes to Manual, the second to accept edits, the third to plan, and the status bar shows `⏸ plan mode on`. On Windows terminals that don't send Shift+Tab, use Alt+M (interactive mode docs, checked 29 Sep 2026).
+Shift+Tab is the shortcut, and plan mode sits three presses away from where a new session starts. Since 2.1.284 (28 Sep 2026), a terminal or VS Code session with no permission mode set starts in auto mode on every plan and provider, or in Manual if auto mode isn't available. From auto the first press goes to Manual, the second to accept edits, the third to plan, and the status bar shows `⏸ plan mode on`; a session that starts in Manual reaches plan in two presses. On Windows terminals that don't send Shift+Tab, use Alt+M (interactive mode docs, checked 29 Sep 2026).
 
 | Way in or out (Claude Code 2.1.284, checked 29 Sep 2026) | What it does |
 | :-- | :-- |
@@ -79,7 +79,7 @@ Claude can read, search and run shell commands to explore, but it cannot edit yo
 * **Auto mode unavailable, or that setting off**: anything outside the built-in read-only command set asks you first.
 * **Interactive terminal session with bypass permissions available**: plan mode's blocks are not enforced at all. More on that below.
 
-For big codebases Claude hands the reading to the built-in Plan subagent, which has read-only tools (Write and Edit denied) and its own context window. The one file plan mode does write is the plan itself, by default under `~/.claude/plans/`. Set `plansDirectory` to a path inside the project if you want the plan checked in or picked up by a later CI step, the same review gate as [approving AI agents without a queue](/blog/human-in-the-loop-approving-ai-agents/).
+For big codebases Claude hands the reading to the built-in Plan subagent, which has read-only tools (Write and Edit denied) and its own context window. The one file plan mode does write is the plan itself, by default under `~/.claude/plans/`. Set `plansDirectory` to a path inside the project, such as `./plans`, if you want the plan in the repo for a teammate to read before anyone approves it, the approach in [approving AI agents without a queue](/blog/human-in-the-loop-approving-ai-agents/).
 
 {% img "note-1" %}
 
