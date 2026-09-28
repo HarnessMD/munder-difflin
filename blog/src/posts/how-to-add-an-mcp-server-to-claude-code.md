@@ -71,7 +71,7 @@ everything:
 To remove this server, run: claude mcp remove everything -s project
 ```
 
-Forget the `--` and Claude Code reads `-y` as one of its own flags, which is how a ten second setup turns into an afternoon. The `Pending approval` status is correct for a project scoped server: Claude Code will not start a process a repository defines until you say yes in an interactive session.
+Forget the `--` and the add fails at once with `error: unknown option '-y'`. The `Pending approval` status is correct for a project scoped server: Claude Code will not start a process a repository defines until you say yes in an interactive session.
 
 For a hosted server the shape is the same without the separator: `claude mcp add --transport http sentry https://mcp.sentry.dev/mcp`, the example `claude mcp --help` prints.
 
@@ -107,13 +107,14 @@ Invalid environment variable format: demo-env, environment variables should be a
 
 $ claude mcp add --scope project --env DEMO_KEY=abc123 --transport stdio demo-env -- npx -y @modelcontextprotocol/server-everything
 Added stdio MCP server demo-env with command: npx -y @modelcontextprotocol/server-everything to project config
+File modified: <your folder>/mcp-demo/.mcp.json
 ```
 
 Any other option between `--env` and the name fixes it, as the docs recommend. One more rule: in a remote server's `url` and `headers`, Claude Code reads its own credential variables such as `ANTHROPIC_API_KEY` as empty, so a shared `.mcp.json` cannot ship your key to a stranger's server.
 
 ## How do you edit .mcp.json by hand?
 
-Write an `mcpServers` object where each key is a server name. This is what the two adds above produced, and it is the format for all three scopes:
+Write an `mcpServers` object where each key is a server name. This is the `demo-env` entry the second add wrote, and it is the format for all three scopes:
 
 ```json
 {
@@ -143,7 +144,7 @@ Servers without dynamic client registration take `--client-id`, `--client-secret
 Claude Code warns when one tool result passes 10,000 tokens and cuts it at 25,000 by default. Raise the cap with `MAX_MCP_OUTPUT_TOKENS=50000 claude`; the warning threshold stays fixed. A server author can instead set `_meta["anthropic/maxResultSizeChars"]` on a tool, up to 500,000 characters, for text results. Other variables worth knowing, all from the docs on 29 Sep 2026:
 
 * `MCP_TIMEOUT`: server startup timeout in milliseconds, default 30 seconds. Useful when `npx` is still downloading.
-* `ENABLE_TOOL_SEARCH`: tool search is on by default, so only tool names load at start. `false` loads everything upfront.
+* `ENABLE_TOOL_SEARCH`: tool search is on by default, so only tool names and server instructions load at start. `false` loads everything upfront.
 * `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`: tool descriptions and server instructions are cut at 2,048 characters unless you change this.
 * `"alwaysLoad": true` on a server entry skips tool search for that server's tools.
 
@@ -165,6 +166,6 @@ Mostly connection status and sign in. From the [Claude Code changelog](https://c
 
 ## Can Munder Difflin set up MCP servers for every agent?
 
-Yes, for a default set. In the v0.5.3 release, Settings, Connections has a Default MCP servers list (`src/renderer/src/components/McpDefaultsSettings.tsx`). Six read-only servers are on by default: Sequential Thinking, Time, Fetch, Context7, and Filesystem and Git limited to the agent's own folder. GitHub, Database, Email & Calendar and Web Search need a key and stay off until you turn them on (`src/shared/mcpCatalog.ts`).
+Yes, for a default set. In the v0.5.3 release, Settings, Connections has a Default MCP servers list (`src/renderer/src/components/McpDefaultsSettings.tsx`). Six servers from the safe tier are on by default: Sequential Thinking, Time, Fetch, Context7, and Filesystem and Git limited to the agent's own folder. GitHub, Database, Email & Calendar and Web Search need a key and stay off until you turn them on (`src/shared/mcpCatalog.ts`).
 
 When an agent starts, `buildDefaultMcpServers` in `src/main/hive.ts` writes the enabled ones into that agent's own session settings file as `munder-<id>` and passes it with `--settings`. It never edits your `~/.claude.json` or `.mcp.json`, and changes apply at the next spawn, not to running agents. The honest limit: in v0.5.3 that list is one switchboard for all agents, not a per-agent grant. Each agent is still a normal `claude` session, so your user and project servers load as usual. [Running several sessions at once](/blog/manage-multiple-claude-code-sessions/) covers why the per session file matters.
