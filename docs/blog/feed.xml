@@ -152,12 +152,12 @@
     <summary>Point Claude Code at Ollama with ollama launch claude or three environment variables, give the model 64K of context, and know what stops working.</summary>
   </entry>
   <entry>
-    <title>How to Install Codex CLI on Mac, Windows and Linux</title>
+    <title>Codex CLI: What It Is and How to Install It on Mac, Windows and Linux</title>
     <link href="https://munderdiffl.in/blog/how-to-install-codex-cli/" />
     <id>https://munderdiffl.in/blog/how-to-install-codex-cli/</id>
     <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Install OpenAI&#39;s Codex CLI with the official script, npm or Homebrew, sign in with ChatGPT or an API key, then update it and check your version.</summary>
+    <updated>2026-09-29T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Codex CLI is OpenAI&#39;s open source coding agent for the terminal. Install it on Mac, Windows or Linux, sign in, update it, check the version or remove it.</summary>
   </entry>
   <entry>
     <title>Is It Worth Paying for Claude Code Max?</title>
