@@ -54,7 +54,7 @@ Keep the conversation short, because Claude Code resends it with every request. 
 * Keep `CLAUDE.md` under 200 lines and move workflow instructions into skills, which load only when used.
 * Run `/context` to see what is loaded, and disable MCP servers you are not using.
 
-Plan before editing. Shift+Tab into plan mode for anything that touches several files, press Escape the moment Claude heads the wrong way, and use `/rewind` instead of stacking "try again" on a bad attempt. Each retry rereads everything before it.
+Plan before editing. Shift+Tab into [plan mode](/blog/how-to-use-claude-code-plan-mode/) for anything that touches several files, press Escape the moment Claude heads the wrong way, and use `/rewind` instead of stacking "try again" on a bad attempt. Each retry rereads everything before it.
 
 ## Does prompt caching help on a subscription?
 

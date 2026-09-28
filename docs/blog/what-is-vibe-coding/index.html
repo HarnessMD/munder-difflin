@@ -206,7 +206,7 @@
 </ul>
 <h2 id="how-do-you-vibe-code-without-the-damage" tabindex="-1">How do you vibe code without the damage? <a class="anchor" href="#how-do-you-vibe-code-without-the-damage" aria-hidden="true">#</a></h2>
 <p>Keep the speed of prompting and add a check wherever a mistake gets expensive. Three habits cover most of it.</p>
-<p><strong>Plan before editing.</strong> Ask the agent for a plan and approve it before any file changes. In Claude Code that is plan mode, where it reads files and proposes a plan but makes no edits until you approve (<a href="https://code.claude.com/docs/en/common-workflows">Claude Code common workflows</a>). We tried it on 14 Sep 2026 with Claude Code 2.1.270 in an empty folder (output trimmed):</p>
+<p><strong>Plan before editing.</strong> Ask the agent for a plan and approve it before any file changes. In Claude Code that is <a href="/blog/how-to-use-claude-code-plan-mode/">plan mode</a>, where it reads files and proposes a plan but makes no edits until you approve (<a href="https://code.claude.com/docs/en/common-workflows">Claude Code common workflows</a>). We tried it on 14 Sep 2026 with Claude Code 2.1.270 in an empty folder (output trimmed):</p>
 <pre><code>$ claude -p --permission-mode plan --model sonnet &quot;Create a file called hello.txt containing the word hi.&quot;
 **Plan:** Create `hello.txt` in the working directory containing the text `hi`, then read it back to confirm.
 $ ls

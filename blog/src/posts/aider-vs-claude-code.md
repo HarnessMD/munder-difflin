@@ -33,7 +33,7 @@ In Aider you add the files you want changed to the chat, and it sends the model 
 
 {% img "note-1" %}
 
-Claude Code also has subagents with their own context window, tools and permissions, hooks around every tool call, MCP servers, and a plan mode that researches without editing. Aider's extras are more manual: an architect mode where one model plans and another writes the edits, `/run` and `/test` to feed command output back, and `--watch-files` for AI coding comments left in your files.
+Claude Code also has subagents with their own context window, tools and permissions, hooks around every tool call, MCP servers, and a [plan mode](/blog/how-to-use-claude-code-plan-mode/) that researches without editing. Aider's extras are more manual: an architect mode where one model plans and another writes the edits, `/run` and `/test` to feed command output back, and `--watch-files` for AI coding comments left in your files.
 
 ## What does a fresh Aider install show?
 
