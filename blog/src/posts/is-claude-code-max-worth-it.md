@@ -44,7 +44,7 @@ Mostly more usage, plus Fable inside the plan. All three plans include Claude Co
 | Usage credits past the limit | Yes, at standard API rates | Yes | Yes |
 | Also | None | Higher output limits, priority access at busy times | Same as Max 5x |
 
-Sources, all checked 29 Sep 2026: prices, billing, models and credits from [claude.com/pricing](https://claude.com/pricing); the $100 and $200 tiers, monthly only, and the weekly reset from Anthropic's [Max plan article](https://support.claude.com/en/articles/11049741-what-is-the-max-plan); the Opus 5.5 default from Claude Code's model configuration docs, which say `default` resolves to Opus 5.5 on Pro and Max from v2.1.280. Prices exclude tax, and the Max article says mobile app prices may differ.
+Sources, all checked 29 Sep 2026: prices, billing, models and credits from [claude.com/pricing](https://claude.com/pricing); the $100 and $200 tiers, monthly only, and the weekly reset from Anthropic's [Max plan article](https://support.claude.com/en/articles/11049741-what-is-the-max-plan); the 14 Sep row from BleepingComputer's 29 Aug 2026 report; the Opus 5.5 default from Claude Code's model configuration docs, which say `default` resolves to Opus 5.5 on Pro and Max from v2.1.280. Prices exclude tax, and the Max article says mobile app prices may differ.
 
 Anthropic publishes the weekly limit as a meter, not a number. Neither page gives a token or message count for any tier.
 
@@ -78,7 +78,7 @@ Max pays for itself once a month of your Claude Code work would cost more than t
 | Output | 180,000 | $20.00 | $3.60 |
 | **Day total** | | | **$13.00** |
 
-The rates are Opus 5.5's row on Anthropic's [API pricing page](https://platform.claude.com/docs/en/about-claude/pricing), checked 29 Sep 2026. Five minute writes apply because Claude Code's prompt caching docs say an API key gets the five minute cache by default. The $13 matches [Claude Code's cost docs](https://code.claude.com/docs/en/costs), which put the enterprise average at about $13 per developer per active day, checked 29 Sep 2026.
+The rates are Opus 5.5's row on Anthropic's [API pricing page](https://platform.claude.com/docs/en/about-claude/pricing), checked 29 Sep 2026. Five minute writes apply because Claude Code's prompt caching docs say an API key gets the five minute cache by default. The target is the [Claude Code cost docs](https://code.claude.com/docs/en/costs) figure of about $13 per enterprise developer per active day, checked 29 Sep 2026.
 
 Now the break even, at 29 Sep 2026 prices:
 
