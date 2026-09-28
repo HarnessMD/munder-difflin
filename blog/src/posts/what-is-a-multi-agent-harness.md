@@ -1,5 +1,5 @@
 ---
-title: "What Is an AI Agent Harness? Single vs Multi-Agent, Explained"
+title: "What Is an AI Agent Harness? Single vs Multi-Agent Harness Explained"
 description: "An agent harness is the code around an AI model that runs its tool loop, memory and permissions. Single vs multi-agent harnesses, compared and dated."
 date: 2026-05-22
 updated: 2026-09-29
@@ -47,11 +47,11 @@ Microsoft's [Agent Framework docs](https://learn.microsoft.com/en-us/agent-frame
 
 ## Is Claude Code an agent harness?
 
-Yes, in the single agent sense. When Anthropic renamed the Claude Code SDK to the Claude Agent SDK on 29 Sep 2025, it called it "the agent harness that powers Claude Code". The [Agent SDK overview](https://code.claude.com/docs/en/agent-sdk/overview) says it gives you "the same tools, agent loop, and context management that power Claude Code", in Python and TypeScript. Claude Code is that harness with a terminal on top.
+Yes, in the single agent sense. When Anthropic renamed the Claude Code SDK to the Claude Agent SDK on 29 Sep 2025, it called it "[the agent harness that powers Claude Code](https://claude.com/blog/building-agents-with-the-claude-agent-sdk)". The [Agent SDK overview](https://code.claude.com/docs/en/agent-sdk/overview) says it gives you "the same tools, agent loop, and context management that power Claude Code", in Python and TypeScript. Claude Code is that harness with a terminal on top.
 
 ## Is an agent harness the same as an agent framework?
 
-No, though the line is blurry. A framework is a library you write an agent with; a harness is the runtime that drives it. The blur is real: Microsoft ships a Harness inside Agent Framework, and LangChain's [Deep Agents](https://github.com/langchain-ai/deepagents) is a library that calls itself "the batteries-included agent harness". A useful test: are you writing the agent, or running one that already exists? Our [CrewAI and AutoGen comparison](/blog/crewai-autogen-vs-a-local-agent-harness/) covers that choice in more detail.
+No, though the line is blurry. A framework is a library you write an agent with; a harness is the runtime that drives it. Microsoft ships a Harness inside Agent Framework, and LangChain's [Deep Agents](https://github.com/langchain-ai/deepagents) is a library that calls itself "the batteries-included agent harness". A useful test: are you writing the agent, or running one that already exists? Our [CrewAI and AutoGen comparison](/blog/crewai-autogen-vs-a-local-agent-harness/) covers that choice in more detail.
 
 ## What is a multi-agent harness?
 
@@ -69,7 +69,7 @@ A multi-agent harness runs several single agent harnesses at the same time and m
 
 ## What does a multi-agent harness look like in code?
 
-Mostly files and a router. We read the Munder Difflin source at tag v0.5.3 on 29 Sep 2026, and the coordination layer lives in `src/main/hive.ts`. Every agent gets a folder with an identity, a memory file, an inbox, an outbox and a read cursor. A router in the main process moves each outbox message into the recipient's inbox, and that process is the only one that commits to the hive's git repo, so agents never race on git. The shared plan is `board.md`, and only the orchestrator (Michael, your clone) writes to it.
+Mostly files and a router. We read the Munder Difflin source at tag v0.5.3 on 29 Sep 2026, and the coordination layer lives in `src/main/hive.ts`. Every agent gets a folder with an identity, a memory file, an inbox, an outbox and a read cursor. A router in the main process moves each outbox message into the recipient's inbox, and that process is the only one that commits to the hive's git repo, so agents never race on git. The shared plan is `board.md`, and by protocol only the orchestrator (Michael, your clone) edits it; other agents propose changes.
 
 This page was refreshed by a Munder Difflin worker. Running this inside its own hive folder on 29 Sep 2026 (the grep hides unrelated files) printed:
 
@@ -98,7 +98,7 @@ Here is how the main options line up, checked on 29 Sep 2026. Munder Difflin row
 |---|---|---|---|---|
 | Claude Code | Single agent harness, terminal CLI | Claude models | Subagents; agent teams are experimental and off by default | [Anthropic docs](https://code.claude.com/docs/en/agent-teams) |
 | Munder Difflin | Multi-agent harness, desktop app, MIT | Twelve coding CLIs, each in its own terminal | Orchestrator, mailboxes, shared board, per agent memory, circuit breaker | v0.5.3 source, paths above |
-| Claude Agent SDK | Single agent harness as a library, Python and TypeScript | Claude Code's loop in your own process | Subagents; no teammates in SDK sessions | [Anthropic docs](https://code.claude.com/docs/en/agent-sdk/overview) |
+| Claude Agent SDK | Single agent harness as a library, Python and TypeScript | Claude Code's loop in your own process | Subagents; no teammates in SDK sessions | [SDK overview](https://code.claude.com/docs/en/agent-sdk/overview), [agent teams](https://code.claude.com/docs/en/agent-teams) |
 | Claude Code agent teams | Team inside one Claude Code session | Claude Code instances only | Lead plus teammates, shared task list, mailbox; one team per session, no nested teams | [Anthropic docs](https://code.claude.com/docs/en/agent-teams) |
 | Microsoft Agent Framework Harness | Harness as a library, .NET and Python | Your chosen chat client | Optional background agents, experimental in Python | [Microsoft Learn](https://learn.microsoft.com/en-us/agent-framework/concepts/harness) |
 | LangChain Deep Agents | Harness as a library, Python and JS, MIT | Many model providers | A `task` tool that spawns short lived subagents | [GitHub](https://github.com/langchain-ai/deepagents) |
@@ -116,7 +116,7 @@ Only when coordinating your agents costs more time than they save you. The usual
 - two agents **collide** on the same files,
 - you want work to **keep moving** while you are in a meeting, with the machine left on.
 
-If none of that sounds familiar, one session is fine, and you can stop reading here with a clear conscience.
+If none of that sounds familiar, one session is fine.
 
 ## Where to go next
 
