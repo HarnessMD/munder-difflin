@@ -14,7 +14,7 @@ eleventyExcludeFromCollections: true
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>{{ site.origin }}/</loc>
-    <lastmod>{{ build.date }}</lastmod>
+    <lastmod>{{ collections.posts | newestPostDate | htmlDate }}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
