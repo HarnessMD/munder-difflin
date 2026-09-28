@@ -13,7 +13,7 @@ faq:
   - q: "What is Claude Code plan mode?"
     a: "It is one of Claude Code's permission modes. Claude reads files and runs shell commands to explore, then writes a plan, but does not edit your source until you approve that plan."
   - q: "What is the shortcut for plan mode in Claude Code?"
-    a: "Shift+Tab cycles permission modes, and plan mode is three presses away from auto mode, the mode new interactive sessions start in from Claude Code 2.1.283. On Windows terminals where Shift+Tab does not register, Alt+M does the same job. You can also type /plan, or start with claude --permission-mode plan."
+    a: "Shift+Tab cycles permission modes, and plan mode is three presses away from auto mode, the mode new interactive sessions start in from Claude Code 2.1.284, when no mode is configured. On Windows terminals where Shift+Tab does not register, Alt+M does the same job. You can also type /plan, or start with claude --permission-mode plan."
   - q: "How do you exit plan mode in Claude Code?"
     a: "Approve the plan, or press Shift+Tab to leave without approving anything. The approval prompt offers Yes, and use auto mode, Yes, manually approve edits, and No, keep planning. Approving switches the session to the mode you picked and Claude starts editing."
   - q: "Can Claude run shell commands in plan mode?"
@@ -43,7 +43,7 @@ $ claude --help | grep -A3 -- '--permission-mode <mode>'
 
 ## What is the Claude Code plan mode shortcut?
 
-Shift+Tab is the shortcut, and plan mode sits three presses away from where a new session starts. Since 2.1.283 (25 Sep 2026) auto mode is the built-in starting mode for interactive terminal and VS Code sessions on every plan, so the first press goes to Manual, the second to accept edits, the third to plan, and the status bar shows `⏸ plan mode on`. On Windows terminals that don't send Shift+Tab, use Alt+M (interactive mode docs, checked 29 Sep 2026).
+Shift+Tab is the shortcut, and plan mode sits three presses away from where a new session starts. Since 2.1.284 (28 Sep 2026), a terminal or VS Code session with no permission mode set starts in auto mode on every plan and provider, or in Manual if auto mode isn't available, so the first press goes to Manual, the second to accept edits, the third to plan, and the status bar shows `⏸ plan mode on`. On Windows terminals that don't send Shift+Tab, use Alt+M (interactive mode docs, checked 29 Sep 2026).
 
 | Way in or out (Claude Code 2.1.284, checked 29 Sep 2026) | What it does |
 | :-- | :-- |
@@ -75,11 +75,11 @@ Save that as `.claude/settings.json` in the repo. It also works from `~/.claude/
 
 Claude can read, search and run shell commands to explore, but it cannot edit your source. That is where several popular guides go wrong: plan mode does not ban Bash. The official docs say Claude "reads files, runs shell commands to explore, and writes a plan, but does not edit your source". What happens to a given command depends on the session:
 
-* **Auto mode available and `useAutoModeDuringPlan` on** (the default): a classifier reviews each shell command instead of prompting you. Approved ones run, rejected ones are blocked. Since 2.1.218 (22 Jul 2026) this also covers commands the static analyzer cannot prove read-only.
+* **Auto mode available and `useAutoModeDuringPlan` on** (the default): a classifier reviews each shell command except critical path removals instead of prompting you. Approved ones run, rejected ones are blocked. Since 2.1.218 (22 Jul 2026) this also covers commands the static analyzer cannot prove read-only.
 * **Auto mode unavailable, or that setting off**: anything outside the built-in read-only command set asks you first.
 * **Interactive terminal session with bypass permissions available**: plan mode's blocks are not enforced at all. More on that below.
 
-For big codebases Claude hands the reading to the built-in Plan subagent, which has read-only tools (Write and Edit denied) and its own context window. The one file plan mode does write is the plan itself, by default under `~/.claude/plans/`. Set `plansDirectory` to a path inside the project if you want the plan checked in or picked up by a later CI step.
+For big codebases Claude hands the reading to the built-in Plan subagent, which has read-only tools (Write and Edit denied) and its own context window. The one file plan mode does write is the plan itself, by default under `~/.claude/plans/`. Set `plansDirectory` to a path inside the project if you want the plan checked in or picked up by a later CI step, the same review gate as [approving AI agents without a queue](/blog/human-in-the-loop-approving-ai-agents/).
 
 {% img "note-1" %}
 
@@ -91,7 +91,7 @@ It prints a plan and a refusal to edit, even when you ask for the edit outright.
 $ claude -p --permission-mode plan "Add a multiply function to hello.py right now, actually edit the file."
 I haven't edited `hello.py` yet. Plan mode is on, and it blocks every file change except the plan file, even when you ask me to edit right away. I also can't switch plan mode off from here: the tool for that isn't available in this session.
 ...
-The plan is saved at `~/.claude/plans/add-a-multiply-function-buzzing-dolphin.md`. It includes a one-line `python3` check that `multiply(3, 4) == 12`, and that `add` and `subtract` still work.
+The plan is saved at `~/.claude/plans/add-a-multiply-function-buzzing-dolphin.md` (home path shortened to `~`). It includes a one-line `python3` check that `multiply(3, 4) == 12`, and that `add` and `subtract` still work.
 ```
 
 Told to edit the file, it wrote a memo about editing the file. Fitting, for a paper company's blog. The plan file is still on disk, and on 29 Sep 2026 its first lines read:
@@ -124,7 +124,7 @@ Your session's model, unless you choose `opusplan`. That alias runs Opus while y
 
 ## Plan mode vs auto mode vs accept edits: which should you use?
 
-They are phases of one job, not rivals. Plan mode decides what to change, accept edits auto-approves file writes and simple filesystem commands, and auto mode has a classifier review actions instead of you. Anthropic's [best practices page](https://code.claude.com/docs/en/best-practices) says planning helps most "when you're uncertain about the approach, when the change modifies multiple files, or when you're unfamiliar with the code being modified", and to skip it when you could describe the diff in one sentence.
+Use them in order. Plan mode decides what to change, accept edits auto-approves file writes and simple filesystem commands, and auto mode has a classifier review actions instead of you. Anthropic's [best practices page](https://code.claude.com/docs/en/best-practices) says planning helps most "when you're uncertain about the approach, when the change modifies multiple files, or when you're unfamiliar with the code being modified", and to skip it when you could describe the diff in one sentence.
 
 * **Pick plan mode if** the change touches several files, the code is new to you, or you want to redirect Claude before anything is written.
 * **Pick accept edits if** you already know the change and will read `git diff` afterwards.
@@ -143,7 +143,8 @@ The mechanics held steady; the names and defaults around them moved. From the [C
 | 2.1.218 | 22 Jul 2026 | Classifier, not a prompt, judges commands it can't prove read-only |
 | 2.1.222 | 4 Aug 2026 | Ultraplan removed, along with its approval option |
 | 2.1.280 | 22 Sep 2026 | VS Code gains a typed `/plan` |
-| 2.1.283 | 25 Sep 2026 | Auto mode becomes the starting mode on every plan |
+| 2.1.283 | 25 Sep 2026 | Auto start extended to third party providers and telemetry off sessions |
+| 2.1.284 | 28 Sep 2026 | Auto start on every plan and provider |
 
 ## Does plan mode work with Munder Difflin?
 
