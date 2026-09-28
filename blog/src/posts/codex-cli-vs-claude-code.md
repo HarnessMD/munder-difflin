@@ -108,7 +108,7 @@ No: the free tier covers the desktop app, not the CLI. OpenAI's pricing page, ch
 **Pick Codex if:**
 * You want to try Codex free in the desktop app before you pay.
 * You like knowing roughly how many messages each model buys you per five hours.
-* You want computer use that runs in the background on a Mac or works on Windows.
+* You want computer use that runs in the background on a Mac.
 * You want to read the CLI's source (Apache-2.0).
 
 **Pick Claude Code if:**
