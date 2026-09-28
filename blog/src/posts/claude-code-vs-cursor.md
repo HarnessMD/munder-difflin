@@ -24,7 +24,7 @@ faq:
 
 Pick Cursor if you want an AI editor where you steer agents across models from several labs, and pick Claude Code if you want Anthropic's terminal agent to take whole tasks on the Claude plan you already pay for.
 
-There is a third answer: run both. [Munder Difflin](https://harnessmd.com/download), free and open source, runs a Claude Code agent and a Cursor Agent side by side in one desktop app, each in its own terminal on your machine. More on that below. If you are sizing up a Claude plan first, our [Claude Code Max plan tips](/blog/claude-code-max-plan-tips/) cover how the limits behave.
+There is a third answer: run both. [Munder Difflin](https://harnessmd.com/download), free and open source, runs a Claude Code agent and a Cursor Agent side by side in one desktop app, each in its own terminal on your machine. More on that below. If you already pay for Max, our [Claude Code Max plan tips](/blog/claude-code-max-plan-tips/) cover how the limits behave.
 
 ## Claude Code vs Cursor at a glance
 
@@ -64,7 +64,7 @@ In Cursor you tend to stay on the code: the agent sits next to the file you have
 
 Both start at $20 a month (claude.com and cursor.com, checked 29 Sep 2026), so the real difference is what happens when usage runs out.
 
-A Claude plan caps Claude Code with a five hour session limit and a weekly limit. On 14 Sep 2026 the weekly limit settled at 125% of its pre May baseline for Pro, Max, Team and seat based Enterprise, down from a temporary 150%, which [Anthropic's ClaudeDevs account](https://x.com/ClaudeDevs/status/2093742321473065266) called a 17% reduction. Hit it and you wait, or turn on usage credits.
+A Claude plan caps Claude Code with a five hour session limit and a weekly limit. On 14 Sep 2026 the weekly limit settled at 125% of its pre-May baseline for Pro, Max, Team and seat based Enterprise, down from a temporary 150%. [Anthropic's ClaudeDevs account](https://x.com/ClaudeDevs/status/2093742321473065266) announced the permanent 25% raise, and Anthropic later called the change a 17% cut from the boosted level, as BleepingComputer reported on 29 Aug 2026. Hit it and you wait, or turn on usage credits.
 
 Cursor's models and pricing docs, checked 29 Sep 2026, split each paid plan into two pools that reset monthly. The Cursor Models pool covers Grok 4.7, 4.6, 4.5 and Composer 2.5 with much more included usage. The Other Models pool covers everything else at that model's API price. The same page puts daily agent users at $60 to $100 a month in total usage (checked 29 Sep 2026), which is why Cursor's own FAQ recommends Pro+ for them. India gets a Start plan at ₹649 a month with the Cursor Models pool only (checked 29 Sep 2026).
 
