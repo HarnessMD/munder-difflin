@@ -216,12 +216,12 @@
     <summary>An MCP server gives an AI agent tools, data and prompts over one open protocol. What it is, the host, client and server roles, and where Claude Code plugs in.</summary>
   </entry>
   <entry>
-    <title>Codex CLI vs Claude Code</title>
+    <title>Codex vs Claude Code: Plans, Limits and Computer Use (Sep 2026)</title>
     <link href="https://munderdiffl.in/blog/codex-cli-vs-claude-code/" />
     <id>https://munderdiffl.in/blog/codex-cli-vs-claude-code/</id>
     <published>2026-09-10T00:00:00.000Z</published>
-    <updated>2026-09-10T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Codex CLI and Claude Code compared firsthand: sandbox and approval flags, AGENTS.md vs CLAUDE.md, real pricing, and where each terminal agent wins.</summary>
+    <updated>2026-09-29T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Codex vs Claude Code, checked 29 Sep 2026: models, plans, usage limits, sandboxing, computer use, MCP and subagents in one dated table, then which to pick.</summary>
   </entry>
   <entry>
     <title>How Much Does Claude Code Cost?</title>
