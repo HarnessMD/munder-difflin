@@ -1,0 +1,16 @@
+---
+permalink: /llms-blog-section.txt
+eleventyExcludeFromCollections: true
+---
+{#- Blog section for the root llms.txt. scripts/postbuild.mjs splices this
+    between the BLOG markers in docs/llms.txt and deletes this file. -#}
+## Blog
+
+{{ collections.posts.length }} posts, grouped by topic, newest first in each topic. Topic hubs: {{ site.origin }}{{ '/topics/' | u }}
+{% for c in collections.categories %}
+### {{ c.name }}
+
+{% for p in c.posts -%}
+- [{{ p.data.title | striptags | trim | safe }}]({{ site.origin }}{{ p.url | u }}): {{ p.data.description | striptags | replace("\n", " ") | trim | safe }}
+{% endfor -%}
+{% endfor %}

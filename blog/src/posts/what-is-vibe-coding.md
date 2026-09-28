@@ -53,7 +53,7 @@ It bites in three places.
 
 Keep the speed of prompting and add a check wherever a mistake gets expensive. Three habits cover most of it.
 
-**Plan before editing.** Ask the agent for a plan and approve it before any file changes. In Claude Code that is plan mode, where it reads files and proposes a plan but makes no edits until you approve ([Claude Code common workflows](https://code.claude.com/docs/en/common-workflows)). We tried it on 14 Sep 2026 with Claude Code 2.1.270 in an empty folder (output trimmed):
+**Plan before editing.** Ask the agent for a plan and approve it before any file changes. In Claude Code that is [plan mode](/blog/how-to-use-claude-code-plan-mode/), where it reads files and proposes a plan but makes no edits until you approve ([Claude Code common workflows](https://code.claude.com/docs/en/common-workflows)). We tried it on 14 Sep 2026 with Claude Code 2.1.270 in an empty folder (output trimmed):
 
 ```
 $ claude -p --permission-mode plan --model sonnet "Create a file called hello.txt containing the word hi."
