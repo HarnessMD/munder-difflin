@@ -18,7 +18,7 @@ faq:
   - q: "Is there a free AI coding agent?"
     a: "Yes. Codex works on the ChatGPT Free plan, GitHub Copilot has a Free plan, Cursor has a free Hobby plan, and Antigravity CLI has a free Individual tier with weekly limits, all checked on 29 Sep 2026. OpenCode, Cline and Aider are free open source software, though you still pay for the model you connect."
   - q: "Can I still use Gemini CLI for free?"
-    a: "No. Google stopped serving free, Google AI Pro and Google AI Ultra users in Gemini CLI on 18 Jun 2026 and moved individuals to Antigravity CLI, invoked as agy. Gemini CLI stays open source under Apache 2.0 and still works with a paid Gemini API key, Vertex AI or a Code Assist Standard or Enterprise licence."
+    a: "No. Google stopped serving free, Google AI Pro and Google AI Ultra users in Gemini CLI on 18 Jun 2026 and moved individuals to Antigravity CLI, invoked as agy. Gemini CLI stays open source under Apache 2.0 and still works with a paid Gemini API key, Gemini Enterprise Agent Platform (formerly Vertex AI) or a Code Assist Standard or Enterprise licence."
   - q: "What is the difference between an AI coding agent and an AI coding assistant?"
     a: "An assistant suggests code and waits for you. An agent takes a task, then reads files, edits them, runs commands and tests, and repeats until the task is done or it needs a decision. Most tools now do both: Copilot and Cursor still autocomplete, and both also run agent sessions."
   - q: "Can I run Claude Code and Codex at the same time?"
@@ -27,13 +27,13 @@ faq:
 
 As of 29 Sep 2026, the best AI coding agents are Claude Code for terminal work, Cursor for work inside an editor, Codex if you already pay for ChatGPT, GitHub Copilot for teams that live on GitHub, and OpenCode or Cline if you want open source with your own model keys.
 
-Two things changed since this list first ran in June. Google shut free and Google AI Pro access to Gemini CLI on 18 Jun 2026, and GitHub moved Copilot to token based billing on 1 Jun 2026. Both are in the table below.
+Two things changed since this list first ran in June. Google shut free, Google AI Pro and Google AI Ultra access to Gemini CLI on 18 Jun 2026, and GitHub moved Copilot to token based billing on 1 Jun 2026. Both are in the table below.
 
 ## What is an AI coding agent?
 
 An AI coding agent is a program that takes a task in plain language and works on your code until the task is done. It reads files, edits them, runs shell commands and tests, reads the output, and loops. That loop is the difference from autocomplete, which suggests the next line and waits for you.
 
-Most agents also open branches and pull requests, call tools through MCP, and read a project instruction file such as `AGENTS.md` or `CLAUDE.md`. The model does the thinking; the agent is the harness that gives it hands. That is also why the same model can feel very different in two agents.
+The model does the thinking; the agent is the harness that gives it hands, which is why the same model can feel very different in two agents.
 
 ## The best AI coding agents compared (checked 29 Sep 2026)
 
@@ -43,12 +43,12 @@ Every row was checked against the vendor's own page on 29 Sep 2026. Model names 
 |---|---|---|---|---|---|
 | **Claude Code** | Anthropic | No (public repo, no open licence) | Any paid Claude plan (Pro, Max, Team, Enterprise) or an API key | Terminal, VS Code, JetBrains, desktop app, web | Long autonomous sessions with subagents, hooks and skills |
 | **Codex** | OpenAI | CLI yes (Apache 2.0) | Every ChatGPT plan including Free, or an API key | Terminal, IDE extension, desktop app, cloud | Included in ChatGPT, local and cloud in one tool |
-| **Cursor** (editor and Cursor CLI) | Cursor | No | Hobby (free), Individual, Teams; included usage, then on demand | Cursor editor, terminal, cloud agents | The most polished agent inside an editor, models from several labs |
+| **Cursor** (editor and Cursor CLI) | Anysphere, owned by SpaceX since 14 Aug 2026 | No | Hobby (free), Individual, Teams; included usage, then on demand | Cursor editor, terminal, cloud agents | The most polished agent inside an editor, models from several labs |
 | **GitHub Copilot** (agent mode, cloud agent, Copilot CLI) | GitHub | No | Free plan; paid plans include GitHub AI Credits | VS Code and other IDEs, github.com, terminal | Assign an issue, get a pull request built in GitHub Actions |
 | **OpenCode** | Anomaly | Yes (MIT) | Free; bring keys or subscriptions from 75+ providers, or OpenCode Zen | Terminal, desktop app, IDE | Widest model choice, local models included |
 | **Cline** | Cline | Yes (Apache 2.0) | Free for individuals; pay for inference with your own keys or through Cline | VS Code, CLI, JetBrains (enterprise only) | Open source agent inside stock VS Code |
 | **Aider** | Paul Gauthier and contributors | Yes (Apache 2.0) | Free; your own API keys | Terminal | Git native, commits every change it makes |
-| **Gemini CLI** | Google | Yes (Apache 2.0) | Paid Gemini API key, Vertex AI, or Code Assist Standard or Enterprise | Terminal | Open source, now aimed at Google Cloud customers |
+| **Gemini CLI** | Google | Yes (Apache 2.0) | Paid Gemini API key, Gemini Enterprise Agent Platform (formerly Vertex AI), or Code Assist Standard or Enterprise | Terminal | Open source, now aimed at Google Cloud customers |
 | **Antigravity CLI** (`agy`) | Google | No (binary, public issue tracker) | Free Individual tier with weekly limits, Google AI Pro, Google AI Ultra | Terminal, plus the Antigravity IDE | Google's replacement for Gemini CLI for individuals |
 | **Devin** | Cognition | No | Free, Pro, Max, Team, Enterprise; daily and weekly usage allowance | Cloud, desktop app, CLI | Hand off a whole task and review the pull request |
 
@@ -61,13 +61,50 @@ Aider deserves a flag. Its last release is 0.86.2, published to PyPI on 12 Feb 2
 Pick by where you work and what you already pay for, not by a leaderboard.
 
 1. **Pick Claude Code if** you work in the terminal and hand the agent long, multi file tasks. [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) covers the head to head.
-2. **Pick [Munder Difflin](https://harnessmd.com/download) if** you want to run several of these at once, free and open source. It is not a coding agent itself. It is a desktop app that runs the agents in this table side by side, with an orchestrator you brief, and it is MIT licensed.
+2. **Pick [Munder Difflin](https://harnessmd.com/download) if** you want to run several of these at once, free and open source. It is not a coding agent itself. It is a desktop app that runs seven of the ten tools in this table side by side (all but Cline, Aider and Devin), with an orchestrator you brief, and it is MIT licensed.
 3. **Pick Cursor if** you want the agent inside your editor with the least setup. See [Claude Code vs Cursor](/blog/claude-code-vs-cursor/).
 4. **Pick Codex if** you already have ChatGPT. Every plan includes it, even Free.
 5. **Pick GitHub Copilot if** your team's issues and reviews already live on GitHub.
 6. **Pick OpenCode if** you want open source and the freedom to swap models, local ones included.
 7. **Pick Cline if** you want an open source agent that stays in VS Code.
 8. **Pick Devin if** you want to delegate a bounded task and come back to a pull request.
+
+## We gave seven coding agents the same bug
+
+Run on 29 Sep 2026 on a Mac: every agent CLI installed got the same file and prompt, once each, in a fresh temp folder. The file, `average.py`:
+
+```python
+def average(nums):
+    """Return the mean of a non-empty list."""
+    total = 0
+    for i in range(len(nums) - 1):
+        total += nums[i]
+    return total / len(nums)
+
+
+print(average([2, 4, 6]))  # expected 4.0
+```
+
+The prompt, word for word:
+
+```text
+Read average.py in this folder. It has one bug. Name the bug and the one line fix. Do not edit any file. Answer in two sentences.
+```
+
+We used each tool's non interactive mode (`claude -p`, `codex exec`, `gemini -p`, `opencode run`, `cursor-agent -p`, `copilot -p`, `agy -p`), with plan or read only mode where the CLI has one.
+
+| Agent | `--version` output | Ran without a login prompt | Wall clock | Found the bug |
+|---|---|---|---|---|
+| Claude Code | `2.1.284 (Claude Code)` | Yes | 17.5 s | Yes, `range(len(nums))` |
+| Antigravity CLI | `1.2.12` | Yes | 26.5 s | Yes, same fix |
+| GitHub Copilot CLI | `GitHub Copilot CLI 1.0.88.` | Yes | 26.9 s | Yes, same fix |
+| OpenCode | `1.18.30` | Yes, but the saved OpenAI key was rejected; rerun on the free `opencode/big-pickle` model | 9.8 s on the free model | Yes, same fix |
+| Gemini CLI | `0.46.0` | Yes (Gemini API key), after `--skip-trust` for the new folder | 168.9 s, including two 503 "high demand" retries | Yes, same fix |
+| Cursor Agent | `2026.09.23-86fc751` | Yes, after `--trust` for the new folder | 14.1 s | No answer: "You've hit your usage limit" on this account |
+| Codex | `codex-cli 0.153.4` | Yes (API key login) | 40.5 s | No answer: the API key had no credits left |
+| Aider, Cline, Devin | Not installed on this Mac | Not run | Not run | Not run |
+
+No agent edited the file; we diffed each copy afterwards. The bug was easy on purpose, so this is a smoke test of setup and access, not a ranking. Two of seven failed on account state, not skill, and two needed a trust flag before they would run in a new folder.
 
 ## Which AI coding agents are free?
 
@@ -89,7 +126,7 @@ For VS Code, Copilot is the default, Cline is the best open source pick, and Cla
 
 ## What happened to Gemini CLI?
 
-Google replaced Gemini CLI with Antigravity CLI for individual users on 18 Jun 2026, per the [transition notice in the Gemini CLI repo](https://github.com/google-gemini/gemini-cli/discussions/27274) dated 19 May 2026. Free, Google AI Pro and Google AI Ultra users lost access. Gemini CLI itself stays open source and still works with a paid API key, Vertex AI or a Code Assist Standard or Enterprise licence. If you are an individual, install `agy` instead.
+Google replaced Gemini CLI with Antigravity CLI for individual users on 18 Jun 2026, per the [transition notice in the Gemini CLI repo](https://github.com/google-gemini/gemini-cli/discussions/27274) dated 19 May 2026. Free, Google AI Pro and Google AI Ultra users lost access. Gemini CLI itself stays open source and still works with a paid API key, Gemini Enterprise Agent Platform (the new name for Vertex AI since April 2026) or a Code Assist Standard or Enterprise licence. If you are an individual, install `agy` instead.
 
 ## Can you run several coding agents at once?
 
@@ -101,4 +138,4 @@ You can do this by hand with `git worktree add` and a terminal tab per agent. Mu
 
 It does not replace any agent above. You still install each CLI and sign in with your own plan or key, and it will not make a weak model write better code. If you only ever run one agent, you do not need it. For setup, start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/); for other ways to run agents in parallel, see [the best multi-agent tools for Claude Code](/blog/best-claude-code-multi-agent-tools/).
 
-<p style="font-size:0.85em;opacity:0.7;margin-top:2rem">Sources, all checked 29 Sep 2026: <a href="https://claude.com/pricing">Claude pricing</a> (Anthropic); <a href="https://learn.chatgpt.com/docs/pricing">ChatGPT and Codex pricing</a> (OpenAI); <a href="https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/">Copilot usage based billing</a> (GitHub, 27 Apr 2026); <a href="https://github.com/google-gemini/gemini-cli/discussions/27274">Transitioning Gemini CLI to Antigravity CLI</a> (Google, 19 May 2026). Also the Claude Code docs and the pricing pages for Cursor, Devin, OpenCode, Cline and Antigravity, and each open source project's GitHub repo and releases.</p>
+<p style="font-size:0.85em;opacity:0.7;margin-top:2rem">Sources, all checked 29 Sep 2026: <a href="https://claude.com/pricing">Claude pricing</a> (Anthropic); <a href="https://learn.chatgpt.com/docs/pricing">ChatGPT and Codex pricing</a> (OpenAI); <a href="https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/">Copilot usage based billing</a> (GitHub, 27 Apr 2026); <a href="https://github.com/google-gemini/gemini-cli/discussions/27274">Transitioning Gemini CLI to Antigravity CLI</a> (Google, 19 May 2026); Cursor's sale to SpaceX, closed 14 Aug 2026 per SpaceX's Form 8-K as reported by Investing.com. Also the Claude Code docs and the pricing pages for Cursor, Devin, OpenCode, Cline and Antigravity, and each open source project's GitHub repo and releases.</p>
