@@ -232,12 +232,12 @@
     <summary>Claude Code pricing checked 29 Sep 2026: Pro, Max, Team, Enterprise and API rates, usage limits, what changed this year, and whether Claude Code is free.</summary>
   </entry>
   <entry>
-    <title>How to Add an MCP Server to Claude Code</title>
+    <title>Claude Code MCP Servers: How to Add One, Scopes and .mcp.json</title>
     <link href="https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/" />
     <id>https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/</id>
     <published>2026-09-10T00:00:00.000Z</published>
-    <updated>2026-09-10T00:00:00.000Z</updated><category term="Guides" />
-    <summary>The claude mcp add command, its scope flag, editing .mcp.json by hand, and how Munder Difflin&#39;s Capabilities screen grants an MCP server to one agent at a time.</summary>
+    <updated>2026-09-29T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Add Claude Code MCP servers with claude mcp add: transports, scopes, --env and --header, .mcp.json, OAuth sign in and output limits. Checked 29 Sep 2026.</summary>
   </entry>
   <entry>
     <title>Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6</title>
