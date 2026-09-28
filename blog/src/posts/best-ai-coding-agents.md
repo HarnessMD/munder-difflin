@@ -1,132 +1,104 @@
 ---
-title: "The Best AI Coding Agents in 2026: A Field Guide"
-description: "A fair 2026 field guide to the best AI coding agents — Cursor, Aider, Cline, Devin, Copilot — by category, plus where a local multi-agent hive fits."
+title: "Best AI Coding Agents (Sep 2026): 10 Coding Agents Compared"
+description: "The best AI coding agents on 29 Sep 2026: Claude Code, Codex, Cursor, Copilot, OpenCode, Cline and more, compared by licence, price and where they run."
 date: 2026-06-05
+updated: 2026-09-29
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
 primaryKeyword: "best ai coding agents"
-secondaryKeywords: ["ai coding agents 2026", "ai coding agent comparison", "cursor aider cline devin copilot"]
+secondaryKeywords: ["ai coding agent", "coding agent", "coding agents", "best coding agent", "ai coding agents comparison", "best coding agent open source"]
 tags: ["Comparisons", "AI Coding Agents", "Tools", "Multi-Agent"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
-  - q: "What's the best AI coding agent in 2026?"
-    a: "There's no single best — it depends on the category you need. Cursor leads in-editor ergonomics, Cline is the strongest local/BYOK editor agent, Aider owns the git-aware CLI, Devin is the most autonomous cloud agent, and Copilot agent mode is the GitHub-native multi-model option. For coordinating multiple agents as a team, a local multi-agent hive is a different category again."
-  - q: "Which AI coding agents run locally / bring-your-own-model?"
-    a: "Cline (free VS Code extension, BYOK incl. local models via Ollama), Aider (open-source CLI on your keys), and Cursor (partial BYOM) all support BYO-model to varying degrees; Devin and Copilot are more cloud/managed. A local-first hive keeps orchestration and memory on your machine too."
-  - q: "What's the difference between a single coding agent and a multi-agent hive?"
-    a: "A single agent (Cursor, Aider, Cline, Devin) helps you in one editor or runs one task autonomously. A multi-agent hive coordinates several agents as a team — with roles, shared memory, and orchestration — which is a separate layer on top of the individual agents."
-  - q: "Are these pricing figures current?"
-    a: "Pricing in this space changes monthly — the figures here are 2026 reference points from public roundups. Always verify current pricing on each tool's site before deciding."
+  - q: "What is the best AI coding agent right now?"
+    a: "As of 29 Sep 2026, Claude Code is the strongest pick for terminal work and Cursor for work inside an editor. Codex is the best value if you already pay for ChatGPT, and GitHub Copilot fits teams that live on GitHub. OpenCode and Cline are the best open source picks."
+  - q: "Is there a free AI coding agent?"
+    a: "Yes. Codex works on the ChatGPT Free plan, GitHub Copilot has a Free plan, Cursor has a free Hobby plan, and Antigravity CLI has a free Individual tier with weekly limits, all checked on 29 Sep 2026. OpenCode, Cline and Aider are free open source software, though you still pay for the model you connect."
+  - q: "Can I still use Gemini CLI for free?"
+    a: "No. Google stopped serving free, Google AI Pro and Google AI Ultra users in Gemini CLI on 18 Jun 2026 and moved individuals to Antigravity CLI, invoked as agy. Gemini CLI stays open source under Apache 2.0 and still works with a paid Gemini API key, Vertex AI or a Code Assist Standard or Enterprise licence."
+  - q: "What is the difference between an AI coding agent and an AI coding assistant?"
+    a: "An assistant suggests code and waits for you. An agent takes a task, then reads files, edits them, runs commands and tests, and repeats until the task is done or it needs a decision. Most tools now do both: Copilot and Cursor still autocomplete, and both also run agent sessions."
+  - q: "Can I run Claude Code and Codex at the same time?"
+    a: "Yes. Run each in its own git worktree so they never edit the same checkout. You can do that by hand with git worktree add and a few terminal tabs, or use Munder Difflin, which gives every agent its own worktree and supports twelve coding CLIs."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>The 2026 AI coding agent field splits into
-clear categories: <strong>in-editor agents</strong> (Cursor, Cline), <strong>CLI agents</strong>
-(Aider), <strong>autonomous cloud agents</strong> (Devin), <strong>platform-native agents</strong>
-(GitHub Copilot agent mode), and <strong>multi-agent orchestration</strong> (a local hive). There's no
-single "best" — there's a best <em>per category</em>. This is a fair field guide: what each leads at,
-where it fits, and where coordinating a <em>team</em> of agents is a different game entirely.</p></div>
+As of 29 Sep 2026, the best AI coding agents are Claude Code for terminal work, Cursor for work inside an editor, Codex if you already pay for ChatGPT, GitHub Copilot for teams that live on GitHub, and OpenCode or Cline if you want open source with your own model keys.
 
-"What's the best AI coding agent?" is the wrong question — like asking for the best vehicle without
-saying city commute or cross-country haul. By 2026 the field has sorted into categories that answer
-different needs. This guide maps them honestly, credits what each tool leads at, and shows where a
-local multi-agent hive fits. (If you specifically want to run *multiple Claude Code agents*, that
-narrower niche has its own roundup: [the best tools to run multiple Claude Code agents](/blog/best-claude-code-multi-agent-tools/).)
+Two things changed since this list first ran in June. Google shut free and Google AI Pro access to Gemini CLI on 18 Jun 2026, and GitHub moved Copilot to token based billing on 1 Jun 2026. Both are in the table below.
 
-## The five categories (read this first)
+## What is an AI coding agent?
 
-- **In-editor agents** — live in your IDE, edit the file you're looking at. (Cursor, Cline.)
-- **CLI agents** — run in the terminal, git-native. (Aider.)
-- **Autonomous cloud agents** — take a task and return a PR with minimal supervision. (Devin.)
-- **Platform-native agents** — built into your existing dev platform. (GitHub Copilot agent mode.)
-- **Multi-agent orchestration** — coordinate *several* agents as a team, with shared memory and a
-  controller. (A local hive like Munder Difflin.)
+An AI coding agent is a program that takes a task in plain language and works on your code until the task is done. It reads files, edits them, runs shell commands and tests, reads the output, and loops. That loop is the difference from autocomplete, which suggests the next line and waits for you.
 
-Most developers end up using two: an in-editor agent for day-to-day edits and something heavier for
-shipping bigger work. The "one tool wins everything" framing is over.
+Most agents also open branches and pull requests, call tools through MCP, and read a project instruction file such as `AGENTS.md` or `CLAUDE.md`. The model does the thinking; the agent is the harness that gives it hands. That is also why the same model can feel very different in two agents.
 
-## At a glance
+## The best AI coding agents compared (checked 29 Sep 2026)
 
-> Pricing/features change monthly — treat as 2026 reference points; verify on each tool's site.
+Every row was checked against the vendor's own page on 29 Sep 2026. Model names in this space go stale faster than milk in the break room fridge, so the table names plans and surfaces, not models.
 
-| Tool | Category | Local / BYOM | Autonomy | Best for |
-|---|---|---|---|---|
-| **Cursor** | In-editor (IDE) | Partial BYOM | Assist→agent | IDE-integrated ergonomics |
-| **Cline** | In-editor (VS Code ext) | **Full BYOK + local (Ollama)** | Assist→parallel agents | Local/BYOK editor agent |
-| **Aider** | CLI | Full BYOM (your keys) | Assist | Git-aware command-line work |
-| **Devin** | Autonomous cloud | Cloud/managed | High (task→PR) | Bounded, delegatable tasks |
-| **Copilot agent mode** | Platform-native | Partial BYOM (Claude/Codex) | Assist→autopilot | GitHub-native teams |
-| **Local multi-agent hive** | Orchestration | Local-first | Coordinated team | Running many agents as a team |
+| Agent | Made by | Open source | How you pay | Where it runs | Standout strength |
+|---|---|---|---|---|---|
+| **Claude Code** | Anthropic | No (public repo, no open licence) | Any paid Claude plan (Pro, Max, Team, Enterprise) or an API key | Terminal, VS Code, JetBrains, desktop app, web | Long autonomous sessions with subagents, hooks and skills |
+| **Codex** | OpenAI | CLI yes (Apache 2.0) | Every ChatGPT plan including Free, or an API key | Terminal, IDE extension, desktop app, cloud | Included in ChatGPT, local and cloud in one tool |
+| **Cursor** (editor and Cursor CLI) | Cursor | No | Hobby (free), Individual, Teams; included usage, then on demand | Cursor editor, terminal, cloud agents | The most polished agent inside an editor, models from several labs |
+| **GitHub Copilot** (agent mode, cloud agent, Copilot CLI) | GitHub | No | Free plan; paid plans include GitHub AI Credits | VS Code and other IDEs, github.com, terminal | Assign an issue, get a pull request built in GitHub Actions |
+| **OpenCode** | Anomaly | Yes (MIT) | Free; bring keys or subscriptions from 75+ providers, or OpenCode Zen | Terminal, desktop app, IDE | Widest model choice, local models included |
+| **Cline** | Cline | Yes (Apache 2.0) | Free for individuals; pay for inference with your own keys or through Cline | VS Code, CLI, JetBrains (enterprise only) | Open source agent inside stock VS Code |
+| **Aider** | Paul Gauthier and contributors | Yes (Apache 2.0) | Free; your own API keys | Terminal | Git native, commits every change it makes |
+| **Gemini CLI** | Google | Yes (Apache 2.0) | Paid Gemini API key, Vertex AI, or Code Assist Standard or Enterprise | Terminal | Open source, now aimed at Google Cloud customers |
+| **Antigravity CLI** (`agy`) | Google | No (binary, public issue tracker) | Free Individual tier with weekly limits, Google AI Pro, Google AI Ultra | Terminal, plus the Antigravity IDE | Google's replacement for Gemini CLI for individuals |
+| **Devin** | Cognition | No | Free, Pro, Max, Team, Enterprise; daily and weekly usage allowance | Cloud, desktop app, CLI | Hand off a whole task and review the pull request |
 
 {% img "note-1" %}
 
-## The tools, fairly
+Aider deserves a flag. Its last release is 0.86.2, published to PyPI on 12 Feb 2026, and the repo's last push was in May 2026. It still works, but check its pulse before you standardise a team on it. [Aider vs Claude Code](/blog/aider-vs-claude-code/) has the longer comparison.
 
-**Cursor** — a dedicated AI-first IDE that leads on in-editor agent ergonomics; reference pricing runs
-[~$20 (Pro) to $200 (Ultra)/mo](https://www.developersdigest.tech/blog/ai-coding-tools-pricing-2026)
-with partial bring-your-own-model. If you want the smoothest in-editor experience and don't mind a
-dedicated app, it's the benchmark. Our [Claude Code vs Cursor](/blog/claude-code-vs-cursor/) comparison goes deeper on that choice.
+## Which coding agent should you pick?
 
-**Cline** — a free, open VS Code extension; the standout for **local / bring-your-own-key** (run on
-your API keys or free local models via Ollama), and per 2026 roundups
-[its CLI 2.0 added parallel terminal agents](https://www.morphllm.com/best-ai-coding-agents-2026). Best
-if you want a Cursor-like agent inside VS Code without a subscription. (We compare it directly in
-[Cline vs Munder Difflin](/blog/cline-vs-munder-difflin/).)
+Pick by where you work and what you already pay for, not by a leaderboard.
 
-**Aider** — the open-source, git-native **CLI** agent: free, you pay only model API costs, auto-commits
-as it works. Best for terminal-centric, version-control-disciplined workflows. Check its pulse first, though: its last release shipped in February 2026, and [Aider vs Claude Code](/blog/aider-vs-claude-code/) has the details.
+1. **Pick Claude Code if** you work in the terminal and hand the agent long, multi file tasks. [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) covers the head to head.
+2. **Pick [Munder Difflin](https://harnessmd.com/download) if** you want to run several of these at once, free and open source. It is not a coding agent itself. It is a desktop app that runs the agents in this table side by side, with an orchestrator you brief, and it is MIT licensed.
+3. **Pick Cursor if** you want the agent inside your editor with the least setup. See [Claude Code vs Cursor](/blog/claude-code-vs-cursor/).
+4. **Pick Codex if** you already have ChatGPT. Every plan includes it, even Free.
+5. **Pick GitHub Copilot if** your team's issues and reviews already live on GitHub.
+6. **Pick OpenCode if** you want open source and the freedom to swap models, local ones included.
+7. **Pick Cline if** you want an open source agent that stays in VS Code.
+8. **Pick Devin if** you want to delegate a bounded task and come back to a pull request.
 
-**Devin** (Cognition) — the most **autonomous** option: give it a task and it plans, codes, tests, and
-opens a PR in its own cloud workspace. [Its price dropped from $500 to ~$20/mo](https://www.mgsoftware.nl/en/vergelijking/devin-vs-github-copilot-workspace)
-to broaden adoption. Best for bounded, fully delegatable tasks (migrations, test-gen) — and it still
-needs human review.
+## Which AI coding agents are free?
 
-**GitHub Copilot agent mode** — went **multi-model** in Feb 2026 (Claude + Codex backends) and shipped
-a Copilot CLI with specialized sub-agents (Explore/Task/Code Review/Plan); Copilot Workspace keeps a
-human-approves-each-step philosophy. Best if your team already lives in GitHub.
+Five have a free tier, and four open source agents cost nothing but the model. On 29 Sep 2026, Codex came with ChatGPT Free, Copilot, Cursor, Devin and Antigravity CLI each had a free tier, and Claude Code needed a paid Claude plan or API credit.
 
-Licences differ across this list, and Claude Code's surprises people: a public GitHub repo, but not open source. Details in [is Claude Code open source](/blog/is-claude-code-open-source/).
+The entry paid tiers on 29 Sep 2026, from each vendor's pricing page: Claude Pro $20 a month, ChatGPT Go $8 and Plus $20 a month, Copilot Pro $10 a month, Cursor Individual $20 a month and Devin Pro $20 a month. OpenCode, Cline, Aider and Gemini CLI are free software; the bill is whatever your model provider charges.
 
-## Where a local multi-agent hive fits
+Copilot's billing has a catch worth knowing. Since [GitHub's switch to usage based billing](https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/) on 1 Jun 2026, agent mode, the cloud agent and Copilot CLI draw from monthly AI Credits, while completions stay unlimited on paid plans. Long agent sessions burn credits faster than chat.
 
-All five tools above are essentially *one agent* helping you (or one autonomous agent on a task). A
-**multi-agent hive** is a different category: it coordinates *several* agents as a team — roles, a
-[GOD orchestrator](/blog/how-the-god-orchestrator-works/) that routes and escalates, shared
-[long-term memory](/blog/semantic-memory-for-ai-agents/), and a way to *watch* the work. That's the lane
-[Munder Difflin](/#what) is built for: a local-first hive over the Claude Code sessions you already run.
+## Which coding agents are open source?
 
-It's not competing to be "a better Cursor" — it's the orchestration layer you add when one agent isn't
-enough. If that's your need specifically with Claude Code, the
-[multi-agent tools roundup](/blog/best-claude-code-multi-agent-tools/) goes deeper, and
-[local-first vs cloud agent SDKs](/blog/local-first-vs-cloud-agent-sdks/) covers the build-vs-buy angle.
+Codex CLI, Gemini CLI, OpenCode, Cline and Aider are open source; Claude Code, Cursor, Copilot, Antigravity CLI and Devin are not. OpenCode is MIT licensed and the other four are Apache 2.0, per their GitHub repos on 29 Sep 2026.
+
+Claude Code confuses people here because its GitHub repo is public. The repo carries no open source licence and the product is used under Anthropic's terms. [Is Claude Code open source](/blog/is-claude-code-open-source/) walks through the detail.
+
+## What is the best coding agent for VS Code?
+
+For VS Code, Copilot is the default, Cline is the best open source pick, and Claude Code and Codex both ship VS Code extensions. Cursor is a fork of VS Code, so it counts too if you are happy to switch editors.
+
+## What happened to Gemini CLI?
+
+Google replaced Gemini CLI with Antigravity CLI for individual users on 18 Jun 2026, per the [transition notice in the Gemini CLI repo](https://github.com/google-gemini/gemini-cli/discussions/27274) dated 19 May 2026. Free, Google AI Pro and Google AI Ultra users lost access. Gemini CLI itself stays open source and still works with a paid API key, Vertex AI or a Code Assist Standard or Enterprise licence. If you are an individual, install `agy` instead.
+
+## Can you run several coding agents at once?
+
+Yes, and plenty of people do: Claude Code on one feature, Codex reviewing another, Copilot's cloud agent on a bug. The rule is one git worktree per agent, or two agents will edit the same file and one of them loses.
+
+You can do this by hand with `git worktree add` and a terminal tab per agent. Munder Difflin does the same thing for you. As of 0.5.3 (checked in `src/shared/agentProvider.ts` at the `v0.5.3` tag), it runs twelve CLIs: Claude Code, Codex, Gemini CLI, Antigravity, Grok, Kimi Code, Qwen, OpenCode, Crush, Pi, Copilot and Cursor. Each worker gets its own worktree (`src/main/git.ts`), and Michael, the orchestrator you brief, hands out the tasks.
 
 {% img "note-2" %}
 
-## How to choose
+It does not replace any agent above. You still install each CLI and sign in with your own plan or key, and it will not make a weak model write better code. If you only ever run one agent, you do not need it. For setup, start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/); for other ways to run agents in parallel, see [the best multi-agent tools for Claude Code](/blog/best-claude-code-multi-agent-tools/).
 
-- **You live in an editor** → Cursor (polished IDE) or Cline (local/BYOK in VS Code).
-- **You live in the terminal** → Aider.
-- **You want to delegate a whole bounded task** → Devin.
-- **Your team is GitHub-centric** → Copilot agent mode.
-- **You want a coordinated *team* of agents, local and private** → a multi-agent hive.
-
-For a structured rubric across all of these, see [how to choose a multi-agent tool](/blog/how-to-choose-a-multi-agent-tool/);
-for two head-to-heads, [Cline vs](/blog/cline-vs-munder-difflin/) and
-[Claude Squad vs Munder Difflin](/blog/claude-squad-vs-munder-difflin/). Choosing between two terminal agents? [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) compares them head to head.
-
-## The bottom line
-
-**The best AI coding agent in 2026 is the one that matches your category** — editor, CLI, autonomous,
-platform, or orchestration. Pick the category first, then the tool. And remember the categories
-compose: an in-editor agent for daily edits plus a coordinated hive for the bigger, parallel work is a
-perfectly sensible 2026 setup.
-
----
-
-Munder Difflin is the local **multi-agent orchestration** option in this field — a hive of Claude Code
-agents on your own machine. [Download Munder Difflin](/#install) to coordinate a team; free and open
-source.
-
-<p style="font-size:0.85em;opacity:0.7;margin-top:2rem">Sources: <a href="https://www.morphllm.com/best-ai-coding-agents-2026">Morph — Best AI Coding Agents 2026</a>; <a href="https://www.developersdigest.tech/blog/ai-coding-tools-pricing-2026">Developers Digest — AI Coding Tools Pricing 2026</a>; <a href="https://www.mgsoftware.nl/en/vergelijking/devin-vs-github-copilot-workspace">MG Software — Devin vs Copilot Workspace</a>. Pricing/features change frequently — verify current details on each tool's site.</p>
+<p style="font-size:0.85em;opacity:0.7;margin-top:2rem">Sources, all checked 29 Sep 2026: <a href="https://claude.com/pricing">Claude pricing</a> (Anthropic); <a href="https://learn.chatgpt.com/docs/pricing">ChatGPT and Codex pricing</a> (OpenAI); <a href="https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/">Copilot usage based billing</a> (GitHub, 27 Apr 2026); <a href="https://github.com/google-gemini/gemini-cli/discussions/27274">Transitioning Gemini CLI to Antigravity CLI</a> (Google, 19 May 2026). Also the Claude Code docs and the pricing pages for Cursor, Devin, OpenCode, Cline and Antigravity, and each open source project's GitHub repo and releases.</p>
