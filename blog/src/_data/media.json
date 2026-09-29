@@ -4223,5 +4223,30 @@
       }
     },
     "youtube": []
+  },
+  "what-is-opencode": {
+    "title": "What Is OpenCode? Install, Pricing and How It Compares",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-opencode/hero.png",
+      "alt": "Hand drawn sketch: a lightning bolt wired through a bell to a yellow character at a terminal, labelled 75+ providers, local too, and one agent, any model",
+      "prompt": "Hero image for a blog post titled \"What Is OpenCode? Install, Pricing and How It Compares\". The post is about: OpenCode is Anomaly's MIT licensed coding agent for the terminal. What it is, how to install it, what it costs, and how it compares with Claude Code and Codex.",
+      "status": "ready"
+    },
+    "inline": {
+      "note-1": {
+        "file": "assets/media/what-is-opencode/note-1.png",
+        "alt": "Hand drawn sketch: a bell ringing next to a yellow character with both arms up",
+        "prompt": "",
+        "status": "ready"
+      },
+      "note-2": {
+        "file": "assets/media/what-is-opencode/note-2.png",
+        "alt": "Hand drawn sketch: a yellow character at a desk typing into a terminal",
+        "prompt": "",
+        "status": "ready"
+      }
+    },
+    "youtube": []
   }
 }
