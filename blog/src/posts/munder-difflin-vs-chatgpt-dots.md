@@ -24,7 +24,7 @@ faq:
 
 Pick dots for a hosted personal agent inside ChatGPT that works while your laptop is shut; pick Munder Difflin for a team of agents on your own machine using the engines you already pay for. OpenAI announced dots on 29 September 2026, and we checked everything below against its own pages on 30 September.
 
-<!-- LOOP lead -->
+<figure class="lead-loop"><video autoplay muted loop playsinline preload="metadata" width="1360" height="764" poster="/blog/assets/media/munder-difflin-vs-chatgpt-dots/lead-still.png" aria-label="A looping sketch in two halves. On the left one dot works alone in its cloud through day and night, labelled ChatGPT dots. On the right three yellow agents tagged Claude Code, Codex and Gemini CLI pass an envelope between inboxes on a laptop, labelled Munder Difflin."><source src="/blog/assets/media/munder-difflin-vs-chatgpt-dots/lead.mp4" type="video/mp4"><img src="/blog/assets/media/munder-difflin-vs-chatgpt-dots/lead.gif" width="1360" height="764" alt="A looping sketch in two halves. On the left one dot works alone in its cloud through day and night, labelled ChatGPT dots. On the right three yellow agents tagged Claude Code, Codex and Gemini CLI pass an envelope between inboxes on a laptop, labelled Munder Difflin."></video><figcaption>One hosted dot, or a team on your computer.</figcaption></figure>
 
 [Munder Difflin](https://harnessmd.com/download) is a free and open source desktop app. It is a [multi-agent harness](/blog/what-is-a-multi-agent-harness/): you hire agents, give each a name and a role, and they share a board on your computer. [Your first hour with Munder Difflin](/blog/your-first-hour-with-munder-difflin/) shows the setup. For the dots basics, read [what ChatGPT dots is](/blog/what-is-chatgpt-dots/).
 
@@ -52,7 +52,7 @@ Dots facts come from [OpenAI's launch post](https://openai.com/index/introducing
 
 No, a dot lives on OpenAI's cloud computer with its own browser. You can open it at any time to watch or step in. If you turn on local access in the ChatGPT desktop app, the dot can also create local Work or Codex tasks, use local skills and drive your local browser. That access is off by default and you can revoke it.
 
-<!-- LOOP note-1 -->
+<figure class="fig fig-inline"><video autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="/blog/assets/media/munder-difflin-vs-chatgpt-dots/note-1-still.png" aria-label="A looping sketch. On the left a dot works at a screen inside a floating cloud computer. On the right three agents work on a laptop on a desk, and a folder beside it locks shut."><source src="/blog/assets/media/munder-difflin-vs-chatgpt-dots/note-1.mp4" type="video/mp4"><img src="/blog/assets/media/munder-difflin-vs-chatgpt-dots/note-1.gif" width="960" height="540" alt="A looping sketch. On the left a dot works at a screen inside a floating cloud computer. On the right three agents work on a laptop on a desk, and a folder beside it locks shut."></video></figure>
 
 Munder Difflin flips this. Each agent is a terminal session on your machine, in a folder you pick. Its identity, `memory.md`, inbox and outbox are files in its workspace. [Why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) goes further.
 
@@ -62,7 +62,7 @@ A dot keeps going while your laptop sleeps. A Munder Difflin office stops when t
 
 Not today. At launch each person gets one primary dot. OpenAI writes that "over time, we envision teams of dots working together" and that you will be able to add more dots in the future.
 
-<!-- LOOP note-2 -->
+<figure class="fig fig-inline"><video autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="/blog/assets/media/munder-difflin-vs-chatgpt-dots/note-2-still.png" aria-label="A looping sketch. One dot juggles three cards while three yellow agents each catch one card."><source src="/blog/assets/media/munder-difflin-vs-chatgpt-dots/note-2.mp4" type="video/mp4"><img src="/blog/assets/media/munder-difflin-vs-chatgpt-dots/note-2.gif" width="960" height="540" alt="A looping sketch. One dot juggles three cards while three yellow agents each catch one card."></video></figure>
 
 One dot can still work on several projects at once. In Munder Difflin you hire a team now: a reviewer, a tester, a writer, each with its own name, memory and engine. Michael, the orchestrator, reads the board, hands out tasks and keeps the team unblocked. Agents message each other through their outboxes, and the app routes each message to the right inbox. More in [running an office of AI agents](/blog/run-an-office-of-ai-agents/).
 

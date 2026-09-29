@@ -36,7 +36,7 @@ Plenty of people still can't use it, or don't want to. There are three common re
 
 Here are seven alternatives, and which reason each one solves.
 
-<figure class="lead-loop"><video autoplay muted loop playsinline preload="metadata" width="1360" height="765" poster="/blog/assets/media/meta-muse-alternatives/lead-still.png" aria-label="A looping animation. A Meta Muse card reads available in US only, 18 and over. Seven alternative cards deal in, tagged by where they run, and the Munder Difflin card flips into real footage of the app."><source src="/blog/assets/media/meta-muse-alternatives/lead.mp4" type="video/mp4"><img src="/blog/assets/media/meta-muse-alternatives/lead.gif" width="1360" height="765" alt="A looping animation. A Meta Muse card reads available in US only, 18 and over. Seven alternative cards deal in, tagged by where they run, and the Munder Difflin card flips into real footage of the app."></video><figcaption>Muse is US only for now. Three of the seven alternatives run on your own computer.</figcaption></figure>
+<figure class="lead-loop"><video autoplay muted loop playsinline preload="metadata" width="1360" height="764" poster="/blog/assets/media/meta-muse-alternatives/lead-still.png" aria-label="A looping animation. A Meta Muse card reads available in US only, 18 and over. Seven alternative cards deal in, tagged by where they run, and the Munder Difflin card flips into real footage of the app."><source src="/blog/assets/media/meta-muse-alternatives/lead.mp4" type="video/mp4"><img src="/blog/assets/media/meta-muse-alternatives/lead.gif" width="1360" height="764" alt="A looping animation. A Meta Muse card reads available in US only, 18 and over. Seven alternative cards deal in, tagged by where they run, and the Munder Difflin card flips into real footage of the app."></video><figcaption>Muse is US only for now. Three of the seven alternatives run on your own computer.</figcaption></figure>
 <style>.lead-loop{margin:1.4rem 0 .6rem;border:1px solid #D9CFE0;border-radius:16px;overflow:hidden;background:#FFF8E7}.lead-loop video,.lead-loop img{display:block;width:100%;height:auto;margin:0}.lead-loop figcaption{font:500 13px/1.5 "Space Grotesk",system-ui,sans-serif;color:#6B5878;padding:10px 16px 14px;margin:0;border-top:1px solid #D9CFE0;background:#FCFAF0}</style>
 <script>if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('.lead-loop video').forEach(function(v){v.removeAttribute('autoplay');v.pause();v.currentTime=0;v.load()})}</script>
 
@@ -70,12 +70,16 @@ Each agent gets a desk, an inbox, memory in plain markdown files and a shared ta
 **Solves:** all three reasons, if your need is work rather than errands.
 **The catch:** agents run while your computer runs. For overnight work, keep a machine awake, like a [Mac mini on your desk](/blog/run-munder-difflin-on-a-mac-mini/).
 
+For how it compares with OpenAI's new always on agents, read [ChatGPT dots vs Munder Difflin](/blog/munder-difflin-vs-chatgpt-dots/).
+
 ## 3. ChatGPT Work: the hosted pick for work
 
 ChatGPT Work is OpenAI's agent inside ChatGPT. Plugins connect it to Slack, Microsoft Teams, Google Drive, email and calendars. Scheduled Tasks run on a timer or when something happens, and you decide what needs your approval. In the Mac and Windows desktop app it can also work with your local files. It is available in the countries OpenAI supports.
 
 **Solves:** the US only limit.
 **The catch:** your work runs through OpenAI's cloud, and you need a ChatGPT plan that includes it.
+
+OpenAI added always on agents called dots on 29 Sep 2026, on Pro and Business Premium only. If those are out of reach too, see [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/).
 
 ## 4. Gemini Spark: for people who live in Google
 

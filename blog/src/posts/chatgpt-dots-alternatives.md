@@ -27,9 +27,9 @@ The best ChatGPT dots alternatives are OpenClaw, Munder Difflin and Hermes Agent
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>A free personal assistant you own: OpenClaw. A team of work agents on your computer: Munder Difflin. Memory that learns and a cron you control: Hermes Agent. Work that keeps going with your laptop shut: Claude Cowork or Grok Bot. Life in Google apps: Gemini Spark. A free hosted agent in the US or Canada: Meta Muse.</p></div>
 
-<!-- LOOP lead -->
+<figure class="lead-loop"><video autoplay muted loop playsinline preload="metadata" width="1360" height="764" poster="/blog/assets/media/chatgpt-dots-alternatives/lead-still.png" aria-label="A looping sketch. A ChatGPT dots card reads Pro or Business Premium only, Pro not in the EEA, UK or Switzerland, Pro starts at $100 a month. Seven cards deal in beside it: OpenClaw, Munder Difflin and Hermes Agent tagged your computer, and Claude Cowork, Gemini Spark, Grok Bot and Meta Muse tagged cloud."><source src="/blog/assets/media/chatgpt-dots-alternatives/lead.mp4" type="video/mp4"><img src="/blog/assets/media/chatgpt-dots-alternatives/lead.gif" width="1360" height="764" alt="A looping sketch. A ChatGPT dots card reads Pro or Business Premium only, Pro not in the EEA, UK or Switzerland, Pro starts at $100 a month. Seven cards deal in beside it: OpenClaw, Munder Difflin and Hermes Agent tagged your computer, and Claude Cowork, Gemini Spark, Grok Bot and Meta Muse tagged cloud."></video><figcaption>Three run on your computer, four in a cloud.</figcaption></figure>
 
-For what a dot is and does, read [What is ChatGPT dots?](/blog/what-is-chatgpt-dots/).
+New to dots? Read [What is ChatGPT dots?](/blog/what-is-chatgpt-dots/).
 
 ## Why look for a ChatGPT dots alternative?
 
@@ -46,13 +46,13 @@ Dots still have real strengths: zero setup, a mobile app, voice calls and over 4
 
 This settles who holds your files and whether work stops when you close the lid. Three picks run on hardware you control, four on a vendor's cloud, like dots. We drew the same line in our [Grok Bot alternatives](/blog/grok-bot-alternatives/) guide, and [why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) explains which side we lean to.
 
-<!-- LOOP note-1 -->
+<figure class="fig fig-inline"><video autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="/blog/assets/media/chatgpt-dots-alternatives/note-1-still.png" aria-label="A looping sketch. Seven name cards slide into two bins. OpenClaw, Munder Difflin and Hermes Agent go into your computer; Claude Cowork, Gemini Spark, Grok Bot and Meta Muse go into cloud."><source src="/blog/assets/media/chatgpt-dots-alternatives/note-1.mp4" type="video/mp4"><img src="/blog/assets/media/chatgpt-dots-alternatives/note-1.gif" width="960" height="540" alt="A looping sketch. Seven name cards slide into two bins. OpenClaw, Munder Difflin and Hermes Agent go into your computer; Claude Cowork, Gemini Spark, Grok Bot and Meta Muse go into cloud."></video></figure>
 
 ### Runs on your computer
 
 **1. OpenClaw.** [OpenClaw](https://github.com/openclaw/openclaw) is an open source (MIT) personal assistant that runs on your own computer and answers in WhatsApp, Telegram, Discord, Slack, Teams, iMessage and 20+ more channels. It runs as a background daemon, keeps memory and credentials on your hardware, and has no paid tier. Best for: a personal errand runner you own.
 
-**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own `memory.md`, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: agents run while your computer runs, and you install the CLIs yourself. Best for: engineering and project work across several engines. (As of Munder Difflin 0.5.3, checked on 30 Sep 2026.)
+**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own `memory.md`, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: agents run while your computer runs, and you install the CLIs yourself. Best for: engineering and project work across several engines. (Munder Difflin 0.5.3, checked 30 Sep 2026.)
 
 **3. Hermes Agent.** [Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is open source (MIT) and built around a learning loop: it curates its own memory and writes new skills from experience. Its cron scheduler runs jobs unattended, and you reach it over Telegram, Discord, Slack, WhatsApp or Signal. Best for: memory that grows, on a box you control.
 
@@ -83,7 +83,7 @@ This settles who holds your files and whether work stops when you close the lid.
 
 Yes: OpenClaw, Munder Difflin and Hermes Agent are all free and open source. The software costs nothing, but the model still does. OpenClaw and Hermes Agent take API keys, local models or a provider login. Munder Difflin drives the CLIs you already have, so the Claude or ChatGPT subscription you pay for today does the work.
 
-<!-- LOOP note-2 -->
+<figure class="fig fig-inline"><video autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="/blog/assets/media/chatgpt-dots-alternatives/note-2-still.png" aria-label="A looping sketch. A yellow character tries a locked door marked for ChatGPT Pro at $100 a month or more, then walks through an open door marked free and open source."><source src="/blog/assets/media/chatgpt-dots-alternatives/note-2.mp4" type="video/mp4"><img src="/blog/assets/media/chatgpt-dots-alternatives/note-2.gif" width="960" height="540" alt="A looping sketch. A yellow character tries a locked door marked for ChatGPT Pro at $100 a month or more, then walks through an open door marked free and open source."></video></figure>
 
 Meta Muse is the only hosted pick with a free tier, and only in the US and Canada. Dots start at $100 a month on Pro (30 Sep 2026), and OpenAI has not said how dots usage will count against your plan after the first month.
 
