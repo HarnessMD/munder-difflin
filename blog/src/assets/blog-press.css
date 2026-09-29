@@ -182,6 +182,9 @@ a.tag:hover { background: var(--ink); color: var(--paper); }
 .ph-art { text-align: center; display: grid; gap: 8px; }
 .ph-art .ph-glyph { font-size: 46px; color: var(--c, var(--accent)); }
 .ph-art .ph-note { font-family: var(--grot); font-weight: 700; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-soft); }
+.lead-loop { margin: 1.4rem 0 .6rem; border: 1px solid #D9CFE0; border-radius: 16px; overflow: hidden; background: #FFF8E7; }
+.lead-loop video, .lead-loop img { display: block; width: 100%; height: auto; margin: 0; border: 0; }
+.lead-loop figcaption { font: 500 13px/1.5 "Space Grotesk", system-ui, sans-serif; color: #6B5878; padding: 10px 16px 14px; margin: 0; border-top: 1px solid #D9CFE0; background: #FCFAF0; }
 .fig-inline { margin: 42px auto; max-width: 620px; }
 .fig-inline img, .fig-inline video { display: block; width: 100%; border: 3px solid var(--rule); border-radius: 6px; background: #fff; }
 .fig-inline figcaption { text-align: center; }
