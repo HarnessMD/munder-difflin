@@ -44,27 +44,27 @@ Dots still have real strengths: zero setup, a mobile app, voice calls and over 4
 
 ## Does it run on your computer or in the cloud?
 
-Decide this first: it settles who holds your files and whether work stops when you close the lid. Three picks run on hardware you control, four on a vendor's cloud, like dots. We drew the same line in our [Grok Bot alternatives](/blog/grok-bot-alternatives/) guide, and [why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) explains which side we lean to.
+This settles who holds your files and whether work stops when you close the lid. Three picks run on hardware you control, four on a vendor's cloud, like dots. We drew the same line in our [Grok Bot alternatives](/blog/grok-bot-alternatives/) guide, and [why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) explains which side we lean to.
 
 <!-- LOOP note-1 -->
 
 ### Runs on your computer
 
-**1. OpenClaw.** [OpenClaw](https://github.com/openclaw/openclaw) is an open source (MIT) personal assistant that runs on your own computer and answers in WhatsApp, Telegram, Slack, Teams, iMessage and 20 more channels. It runs as a background daemon, keeps memory and credentials on your hardware, and has no paid tier. Best for: a personal errand runner you own.
+**1. OpenClaw.** [OpenClaw](https://github.com/openclaw/openclaw) is an open source (MIT) personal assistant that runs on your own computer and answers in WhatsApp, Telegram, Discord, Slack, Teams, iMessage and 20+ more channels. It runs as a background daemon, keeps memory and credentials on your hardware, and has no paid tier. Best for: a personal errand runner you own.
 
-**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own `memory.md`, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to your lead agent. The catch: agents run while your computer runs, and you install the CLIs yourself. Best for: engineering and project work across several engines. (As of Munder Difflin 0.5.3, checked on 30 Sep 2026.)
+**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own `memory.md`, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: agents run while your computer runs, and you install the CLIs yourself. Best for: engineering and project work across several engines. (As of Munder Difflin 0.5.3, checked on 30 Sep 2026.)
 
-**3. Hermes Agent.** [Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is open source (MIT) and built around a learning loop: it curates its own memory and writes new skills from experience. Its cron scheduler runs jobs unattended, and you reach it over Telegram, Discord, Slack, WhatsApp or Signal. It runs on a laptop or a small server. Best for: memory that grows, on a box you control.
+**3. Hermes Agent.** [Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is open source (MIT) and built around a learning loop: it curates its own memory and writes new skills from experience. Its cron scheduler runs jobs unattended, and you reach it over Telegram, Discord, Slack, WhatsApp or Signal. Best for: memory that grows, on a box you control.
 
 ### Runs in the cloud
 
-**4. Claude Cowork.** Cowork is Anthropic's agent for longer pieces of work, and it now runs in the cloud. Anthropic's [Cowork help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says "Claude's work runs on Anthropic's servers, in an isolated environment" and that scheduled tasks don't need your computer to be awake. The help page lists Pro, Max, Team and Enterprise. Claude Pro was $20 a month, billed monthly, on 30 Sep 2026. Best for: reports, files and research, task by task.
+**4. Claude Cowork.** Cowork is Anthropic's agent for longer pieces of work, and it now runs in the cloud. Anthropic's [Cowork help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says "Claude's work runs on Anthropic's servers, in an isolated environment" and that scheduled tasks don't need your computer to be awake. Since 16 Sep 2026 Anthropic has been [folding Cowork into the main Claude app](https://claude.com/blog/cowork-is-now-claude), Pro and Max first. Claude Pro was $20 a month, billed monthly, on 30 Sep 2026. Best for: reports, files and research, task by task.
 
 **5. Gemini Spark.** Spark is Google's personal agent in the Gemini app. It works from your Connected Apps and chats, and can drive your local Chrome. If your device goes off before a task is done, Google's [Spark help page](https://support.google.com/gemini/answer/17094507) says it "might use a remote browser" in the cloud instead. You need Google AI Pro or Ultra and to be 18 or over. Like dots, it is not available in the EEA, Switzerland or the UK, nor in Nigeria. Best for: people who live in Google apps, outside Europe.
 
-**6. Grok Bot.** SpaceXAI's docs say your Bots run on "a persistent cloud computer with a browser, filesystem, and terminal", and closing your laptop or phone does not stop a routine. It comes with paid Cursor plans or a SuperGrok account. Cursor Pro was $20 a month on 30 Sep 2026. [Grok Bot pricing](/blog/grok-bot-pricing/) has the other plans. Best for: hosted work agents whose computer never sleeps.
+**6. Grok Bot.** SpaceXAI's docs say your Bots run on "a persistent cloud computer with a browser, filesystem, and terminal", and closing your laptop or phone does not stop a routine. It comes with paid Cursor plans or a SuperGrok account. Cursor's Individual plan was $20 a month on 30 Sep 2026. [Grok Bot pricing](/blog/grok-bot-pricing/) has the other plans. Best for: hosted work agents whose computer never sleeps.
 
-**7. Meta Muse.** Meta's help centre says Muse runs on "a cloud-based environment called a virtual machine". On 29 Sep 2026 Meta said Muse is "available in the US and Canada" and free for most use, with Power at $20 a month and Max at $100 a month on its subscriptions page. Best for: a free hosted agent, if you live in North America. Elsewhere, see [Meta Muse alternatives](/blog/meta-muse-alternatives/).
+**7. Meta Muse.** Meta's help centre says Muse runs on "a cloud-based environment called a virtual machine". On 29 Sep 2026 Meta said Muse is "available in the US and Canada" and free for most use, with Power at $20 a month and Max at $100 a month. Best for: a free hosted agent, if you live in North America. Elsewhere, see [Meta Muse alternatives](/blog/meta-muse-alternatives/).
 
 ## ChatGPT dots alternatives, checked 30 Sep 2026
 
@@ -76,12 +76,12 @@ Decide this first: it settles who holds your files and whether work stops when y
 | Hermes Agent | Your computer or your server | Always on, cron jobs | Anyone | Free, open source. |
 | Claude Cowork | Anthropic's cloud | Tasks, plus scheduled tasks | Paid Claude plans | Claude Pro, $20/month. |
 | Gemini Spark | Google's cloud and your Chrome | Ongoing tasks and schedules | Google AI Pro or Ultra; not EEA, Switzerland, UK, Nigeria | Google AI Pro, price by country. |
-| Grok Bot | SpaceXAI's cloud computer | Always on, routines | Paid Cursor plans or SuperGrok | Cursor Pro, $20/month. |
+| Grok Bot | SpaceXAI's cloud computer | Always on, routines | Paid Cursor plans or SuperGrok | Cursor Individual, $20/month. |
 | Meta Muse | Meta's cloud VM | Tasks | US and Canada | Free tier. |
 
 ## Is there a free alternative to ChatGPT dots?
 
-Yes: OpenClaw, Munder Difflin and Hermes Agent are all free and open source. The software costs nothing, but the model still does. OpenClaw and Hermes Agent take API keys or local models. Munder Difflin drives the CLIs you already have, so the Claude or ChatGPT subscription you pay for today does the work.
+Yes: OpenClaw, Munder Difflin and Hermes Agent are all free and open source. The software costs nothing, but the model still does. OpenClaw and Hermes Agent take API keys, local models or a provider login. Munder Difflin drives the CLIs you already have, so the Claude or ChatGPT subscription you pay for today does the work.
 
 <!-- LOOP note-2 -->
 
@@ -91,4 +91,4 @@ Meta Muse is the only hosted pick with a free tier, and only in the US and Canad
 
 OpenClaw, if you want what a dot does for your personal life: one assistant, in your chat apps, on your hardware. Munder Difflin, if you want agents for work: several named agents with roles, each on the engine that suits the job. Hermes Agent is strongest on memory.
 
-None of the three is a hosted computer that works with your laptop shut: you need a server or a machine that stays on. We put Munder Difflin and dots side by side in [Munder Difflin vs ChatGPT dots](/blog/munder-difflin-vs-chatgpt-dots/).
+None of the three is a hosted computer that works with your laptop shut: you need a server, or a machine that stays on. We put Munder Difflin and dots side by side in [Munder Difflin vs ChatGPT dots](/blog/munder-difflin-vs-chatgpt-dots/).
