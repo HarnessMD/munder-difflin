@@ -50,13 +50,13 @@ Dots facts come from [OpenAI's launch post](https://openai.com/index/introducing
 
 ## Can ChatGPT dots run on my own computer?
 
-No, a dot lives on OpenAI's cloud computer with its own browser. You can open it at any time to watch or step in. If you turn on local access in the ChatGPT desktop app, the dot can also create Codex tasks, use local skills and drive your local browser. That access is off by default and you can revoke it.
+No, a dot lives on OpenAI's cloud computer with its own browser. You can open it at any time to watch or step in. If you turn on local access in the ChatGPT desktop app, the dot can also create local Work or Codex tasks, use local skills and drive your local browser. That access is off by default and you can revoke it.
 
 <!-- LOOP note-1 -->
 
 Munder Difflin flips this. Each agent is a terminal session on your machine, in a folder you pick. Its identity, `memory.md`, inbox and outbox are files in its workspace. [Why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) goes further.
 
-The trade is real. A dot keeps going while your laptop sleeps. A Munder Difflin office stops when the computer does.
+A dot keeps going while your laptop sleeps. A Munder Difflin office stops when the computer does.
 
 ## Can I have more than one dot?
 
@@ -72,7 +72,7 @@ Dots run on GPT-6 Astra. Munder Difflin 0.5.3 ships presets for Claude Code, Cod
 
 ## How do the controls and approvals compare?
 
-Dots gate each action with Custom Rules; Munder Difflin gates inbound webhooks and throttles stuck agents. On the dots side, Custom Rules let you set each kind of action to act freely, act if pre-approved, ask first, or hand off to you. Auto review checks actions that touch accounts or share information, and saved passwords are used without showing them to the model.
+Dots gate each action with Custom Rules; Munder Difflin gates inbound webhooks and throttles stuck agents. Custom Rules let you set each kind of action to act freely, act if approved in advance, ask first, or hand off to you. Auto review checks actions that touch accounts or share information, and saved passwords are used without showing them to the model.
 
 Munder Difflin's controls are aimed at a team of coding agents. A request from a webhook waits for your approval unless you loosen the mode. As of 0.5.3 the default is set in `src/shared/triggers.ts`:
 
@@ -90,7 +90,7 @@ You can reach your dot from your phone, in Slack or Teams, or call it by voice, 
 
 ## Where Munder Difflin is better
 
-It is free and open source, with no region list, and runs on macOS, Windows and Linux. You keep the engines and subscriptions you already have. You get a team of named agents today, not a roadmap item. Memory is a markdown file you can read, edit or put in git. Files live on your disk; only what an engine reads goes to its provider. With a local model no code or prompt leaves, though the app sends anonymous usage stats unless you switch them off in Settings.
+It is free and open source, with no region list. You keep the engines and subscriptions you already have. You get a team of named agents today, not a roadmap item. Memory is a markdown file you can read, edit or put in git. Files live on your disk; only what an engine reads goes to its provider. A local model keeps prompts on your machine, but agents can still fetch URLs, and anonymous usage stats stay on until you switch them off in Settings.
 
 ## Is there an open source alternative to ChatGPT dots?
 
