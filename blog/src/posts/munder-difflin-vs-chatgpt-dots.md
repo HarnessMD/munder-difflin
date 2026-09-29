@@ -35,7 +35,7 @@ Pick dots for a hosted personal agent inside ChatGPT that works while your lapto
 | Made by | OpenAI | Open source project, MIT licence |
 | Where the agent works | OpenAI's cloud computer and browser; optional access to your computer, off by default | Terminal sessions on your own computer |
 | Agents today | One primary dot; more dots are a stated future plan | As many named agents as you hire, each with a role |
-| Models | GPT-6 Astra | 12 CLI engines, such as Claude Code, Codex and Gemini CLI, or a local model through Ollama or LM Studio |
+| Models | GPT-6 Astra | 12 CLI engines, such as Claude Code, Codex and Gemini CLI, or local models via Ollama or LM Studio through OpenCode, Crush or Pi |
 | Memory | Memories from ChatGPT plus its own, including from connected apps | A plain `memory.md` file per agent on your disk |
 | Works without you asking | Proactive research (read only), scheduled tasks and reminders | Scheduled missions (interval or weekly), webhook and Slack triggers |
 | Approvals | Custom Rules per action, auto review, some tasks always stay with you | Webhook triggers held for approval by default, ASK ME board, circuit breaker |
@@ -43,7 +43,8 @@ Pick dots for a hosted personal agent inside ChatGPT that works while your lapto
 | App connections | Over 4,000 apps through plugins | MCP servers wired into each agent; write access off by default |
 | Keeps working with your laptop closed | Yes | Only if the computer running it stays on |
 | Who can get it | Pro (not EEA, Switzerland or UK) and Business Premium, age 18 and over | Anyone; macOS, Windows and Linux |
-| Cost to start | First dot included with Pro or Business Premium | Free; you bring your own subscriptions or API keys |
+| Cost to start | Included in Pro or Business Premium (Pro prices below the table) | App free; you pay for your engine subscriptions or API keys |
+| Setup | None if you already have Pro | Install the app plus the engine CLIs you want |
 
 Dots facts come from [OpenAI's launch post](https://openai.com/index/introducing-dots/), the [getting started help article](https://help.openai.com/en/articles/20001530-getting-started-with-your-dot) and the [Pro tiers page](https://help.openai.com/en/articles/9793128-about-chatgpt-pro-tiers). OpenAI's Pro tiers page listed Pro at $100, $200 or $500 a month on 30 Sep 2026. Munder Difflin facts come from the 0.5.3 release source.
 
@@ -63,39 +64,40 @@ Not today. At launch each person gets one primary dot. OpenAI writes that "over 
 
 <!-- LOOP note-2 -->
 
-One dot can still work on several projects at once. The difference is roles. In Munder Difflin you hire a team now: a reviewer, a tester, a writer, each with its own name, memory and engine. Michael, the orchestrator, reads the board, hands out tasks and chases anyone who stalls. Agents message each other through their outboxes, and the app routes each message to the right inbox. More in [running an office of AI agents](/blog/run-an-office-of-ai-agents/).
+One dot can still work on several projects at once. In Munder Difflin you hire a team now: a reviewer, a tester, a writer, each with its own name, memory and engine. Michael, the orchestrator, reads the board, hands out tasks and keeps the team unblocked. Agents message each other through their outboxes, and the app routes each message to the right inbox. More in [running an office of AI agents](/blog/run-an-office-of-ai-agents/).
 
 ## Which models can each one use?
 
-Dots run on GPT-6 Astra, and only that. Munder Difflin 0.5.3 ships presets for Claude Code, Codex, Grok, Kimi Code, Gemini CLI, Antigravity, Qwen, OpenCode, Crush, Pi, Copilot and Cursor, plus a custom slot. Mix them on one floor: a Claude Code agent writes, a Codex agent reviews. Local models run through Ollama or LM Studio with no API key.
+Dots run on GPT-6 Astra (Astra Ultrafast on Pro 500). Munder Difflin 0.5.3 ships presets for Claude Code, Codex, Grok, Kimi Code, Gemini CLI, Antigravity, Qwen, OpenCode, Crush, Pi, Copilot and Cursor, plus a custom slot. Local models run through OpenCode, Crush or Pi, using Ollama or LM Studio, with no API key.
 
 ## How do the controls and approvals compare?
 
-Custom Rules let you set each kind of action to act freely, act if pre-approved, ask first, or hand off to you. Auto review checks actions that touch accounts or share information, and saved passwords are used without showing them to the model.
+Dots gate each action with Custom Rules; Munder Difflin gates inbound webhooks and throttles stuck agents. On the dots side, Custom Rules let you set each kind of action to act freely, act if pre-approved, ask first, or hand off to you. Auto review checks actions that touch accounts or share information, and saved passwords are used without showing them to the model.
 
 Munder Difflin's controls are aimed at a team of coding agents. A request from a webhook waits for your approval unless you loosen the mode. As of 0.5.3 the default is set in `src/shared/triggers.ts`:
 
 ```ts
 export type TriggerMode = 'strict' | 'allow-all' | 'communication-only';
+// ...
 export const DEFAULT_TRIGGER_MODE: TriggerMode = 'strict';
 ```
  When an agent needs a human decision, the card goes to the ASK ME board. A circuit breaker watches each agent for loops, repeated identical tool calls, error storms and runaway spend, and escalates from a steering message to tighter limits. It only stops an agent if you turn on hard stop.
 
 ## Where dots is better
 
-Setup is zero if you already pay for Pro. You can reach your dot from your phone, in Slack or Teams, or call it by voice, and over 4,000 apps plug in. Proactive research brings you things you did not ask for, using read only access. Closing your laptop changes nothing. Nobody in a Munder Difflin office will answer the phone, and we have made our peace with that.
+You can reach your dot from your phone, in Slack or Teams, or call it by voice, and over 4,000 apps plug in. Proactive research brings you things you did not ask for, using read only access. Closing your laptop changes nothing.
 
 ## Where Munder Difflin is better
 
-It is free and open source, with no region list, and runs on macOS, Windows and Linux. You keep the engines and subscriptions you already have. You get a team of named agents today, not a roadmap item. Memory is a markdown file you can read, edit or put in git. And the files your agents touch stay on your machine.
+It is free and open source, with no region list, and runs on macOS, Windows and Linux. You keep the engines and subscriptions you already have. You get a team of named agents today, not a roadmap item. Memory is a markdown file you can read, edit or put in git. Files live on your disk; only what an engine reads goes to its provider, and with a local model nothing leaves.
 
 ## Is there an open source alternative to ChatGPT dots?
 
 Yes, for work on code and files: Munder Difflin is MIT licensed. It does not try to match dots on personal errands across thousands of apps. Our [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/) list covers the others.
 
-## Pick dots if..., pick Munder Difflin if...
+## Should you pick ChatGPT dots or Munder Difflin?
+
+It comes down to where the work lives and how many agents you need today.
 
 - **Pick ChatGPT dots** if you have Pro outside the EEA, Switzerland and the UK, or Business Premium anywhere, and want one agent for errands, inbox and research on your phone.
-- **Pick Munder Difflin** if your agents work on code or files, you want several roles now, you want to choose the model, and the work should stay on your computer. [Download it free](https://harnessmd.com/download).
-
-OpenAI's own advice holds for both: "Dots can still make mistakes, so always review consequential work."
+- **Pick Munder Difflin** if your agents work on code or files, you want several roles now, you want to choose the model, and you want the files on your own disk. [Download it free](https://harnessmd.com/download).
