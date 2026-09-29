@@ -4,9 +4,17 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-09-26T00:00:00.000Z</updated>
+  <updated>2026-09-29T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>What Is OpenCode? Install, Pricing and How It Compares</title>
+    <link href="https://munderdiffl.in/blog/what-is-opencode/" />
+    <id>https://munderdiffl.in/blog/what-is-opencode/</id>
+    <published>2026-09-29T00:00:00.000Z</published>
+    <updated>2026-09-29T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>OpenCode is Anomaly&#39;s MIT licensed coding agent for the terminal. What it is, how to install it, what it costs, and how it compares with Claude Code and Codex.</summary>
+  </entry>
   <entry>
     <title>Grok Bot Pricing: What $20, $30, $100 and $300 a Month Actually Buy</title>
     <link href="https://munderdiffl.in/blog/grok-bot-pricing/" />
@@ -478,13 +486,5 @@
     <published>2026-07-03T00:00:00.000Z</published>
     <updated>2026-07-03T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>tmux panes, git worktrees, shell scripts, and cron will absolutely run several Claude Code sessions at once. Here&#39;s what that DIY setup does well, where it breaks at scale, and what a purpose-built agent harness automates.</summary>
-  </entry>
-  <entry>
-    <title>Voice Is a Control Plane, Not a Gimmick</title>
-    <link href="https://munderdiffl.in/blog/voice-as-a-control-plane-for-agent-fleets/" />
-    <id>https://munderdiffl.in/blog/voice-as-a-control-plane-for-agent-fleets/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-07-03T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Voice is a terrible way to write code and a great way to run a fleet. Why low-bandwidth commands over high-bandwidth work is the right split — with Munder Difflin&#39;s Talk mode (echo-back confirmation, spend caps, michael-voice attribution) as the case study.</summary>
   </entry>
 </feed>
