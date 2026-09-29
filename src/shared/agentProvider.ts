@@ -658,8 +658,11 @@ function commandBinary(command: string | undefined): string {
 /** Infer the provider from a command (or honor an explicit override). */
 export function inferAgentProvider(command: string | undefined, explicit?: unknown): AgentProvider {
   const normalized = normalizeAgentProvider(explicit);
-  if (normalized) return normalized;
   const bin = commandBinary(command);
+  // Older installs stored Devin commands as explicit `custom` agents because
+  // Devin had no preset. Recognise those on restore so existing agents inherit
+  // the model, prompt-file and permission handling without being recreated.
+  if (normalized && !(normalized === 'custom' && bin === 'devin')) return normalized;
   if (bin === 'codex') return 'codex';
   if (bin === 'grok') return 'grok';
   if (bin === 'kimi') return 'kimi';

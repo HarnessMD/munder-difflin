@@ -93,6 +93,8 @@ test('every non-hive-aware inbox provider declares exactly one bootstrap deliver
 test('Devin is selectable with an interactive prompt, model, and permission flags', () => {
   assert.equal(isAgentProvider('devin'), true);
   assert.equal(inferAgentProvider('/opt/homebrew/bin/devin --model swe-2'), 'devin');
+  assert.equal(inferAgentProvider('devin --permission-mode dangerous --prompt-file /tmp/DEVIN.md', 'custom'), 'devin');
+  assert.equal(inferAgentProvider('my-wrapper --model swe-2', 'custom'), 'custom');
   const preset = providerPreset('devin');
   assert.equal(preset.defaultCommand, 'devin');
   assert.equal(preset.initialPromptFlag, '--');
