@@ -53,7 +53,7 @@ What a dot has to work with:
 
 You message or call it in ChatGPT on desktop, web and mobile, or message it in Slack and Microsoft Teams. Texting is a limited beta for Pro users in the US, run through a third party provider. You can call your dot, but it cannot call you at launch.
 
-You name your dot during setup. The default handle is `@yourname-dot`, or `@yourname-agentname` once you give it a name. The avatar is a character or a pet.
+You name your dot during setup. The handle is `@yourname-dot` by default, or `@yourname-agentname` if you name it. The avatar is a character or a pet.
 
 ## How do you control what a dot does?
 
@@ -89,7 +89,7 @@ Not on a personal Pro plan. Pro users in the EEA, Switzerland and the UK are exc
 
 Your first dot is included at no extra cost with Pro or Business Premium. On 30 Sep 2026 OpenAI listed Pro 100 at $100 a month, Pro 200 at $200 a month and Pro 500 at $500 a month, billed monthly only, with Astra Ultrafast only on Pro 500.
 
-Chatting with your dot does not count toward ChatGPT usage limits. Tasks it starts in Codex or ChatGPT Work do. For the first month, dots usage does not count toward eligible Pro, Business and Enterprise allowances, and OpenAI says it will share usage terms after that. Adding more dots, or buying more speed or monthly work for one, is planned without a price.
+Chatting with your dot does not count toward ChatGPT usage limits. Tasks it starts in Codex or ChatGPT Work do. For the first month, dots usage does not count toward eligible Pro, Business and Enterprise allowances, and OpenAI says it will share usage terms after that. OpenAI plans paid options for more dots and for more speed or work per dot, with no price yet.
 
 ## What can't ChatGPT dots do yet?
 
