@@ -4,9 +4,33 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-09-29T00:00:00.000Z</updated>
+  <updated>2026-09-30T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>ChatGPT Dots Alternatives: 7 Always On Agents, Local and Cloud</title>
+    <link href="https://munderdiffl.in/blog/chatgpt-dots-alternatives/" />
+    <id>https://munderdiffl.in/blog/chatgpt-dots-alternatives/</id>
+    <published>2026-09-30T00:00:00.000Z</published>
+    <updated>2026-09-30T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Personal ChatGPT dots need Pro from $100 a month and skip the UK and EU. Seven alternatives, sorted by where they run: your computer or a vendor&#39;s cloud.</summary>
+  </entry>
+  <entry>
+    <title>ChatGPT Dots vs Munder Difflin: One Cloud Agent or a Team on Your Computer</title>
+    <link href="https://munderdiffl.in/blog/munder-difflin-vs-chatgpt-dots/" />
+    <id>https://munderdiffl.in/blog/munder-difflin-vs-chatgpt-dots/</id>
+    <published>2026-09-30T00:00:00.000Z</published>
+    <updated>2026-09-30T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>ChatGPT dots vs Munder Difflin: one hosted agent on OpenAI&#39;s cloud, or a free, open source team of agents on your own computer. Checked 30 Sep 2026.</summary>
+  </entry>
+  <entry>
+    <title>What Is ChatGPT Dots? OpenAI&#39;s Always On Agents Explained</title>
+    <link href="https://munderdiffl.in/blog/what-is-chatgpt-dots/" />
+    <id>https://munderdiffl.in/blog/what-is-chatgpt-dots/</id>
+    <published>2026-09-30T00:00:00.000Z</published>
+    <updated>2026-09-30T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>ChatGPT dots are OpenAI&#39;s always on agents, launched 29 Sep 2026. What a dot does, who can get one, what it costs and what it cannot do yet.</summary>
+  </entry>
   <entry>
     <title>What Is OpenCode? Install, Pricing and How It Compares</title>
     <link href="https://munderdiffl.in/blog/what-is-opencode/" />
@@ -462,29 +486,5 @@
     <published>2026-07-03T00:00:00.000Z</published>
     <updated>2026-07-03T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Orca is a YC-backed Agent IDE for driving coding agents side by side in isolated worktrees. Munder Difflin is an agent office that runs itself. An honest comparison of the two — and when each one is the right pick.</summary>
-  </entry>
-  <entry>
-    <title>Review Agent Work Where It Happens</title>
-    <link href="https://munderdiffl.in/blog/review-agent-work-where-it-happens/" />
-    <id>https://munderdiffl.in/blog/review-agent-work-where-it-happens/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-07-03T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>AI agents produce diffs faster than humans can review them, and alt-tabbing to an external editor breaks supervision flow. The case for review-in-place: Munder Difflin&#39;s built-in Monaco IDE puts a CHANGES rail and side-by-side diffs vs HEAD right on the office floor.</summary>
-  </entry>
-  <entry>
-    <title>Run a Mixed-Engine Office: the Right CLI for Every Desk</title>
-    <link href="https://munderdiffl.in/blog/run-a-mixed-engine-office/" />
-    <id>https://munderdiffl.in/blog/run-a-mixed-engine-office/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-07-03T00:00:00.000Z</updated><category term="Guides" />
-    <summary>A practical guide to mixing agent engines on one Munder Difflin floor: Claude Code as orchestrator, Codex for coding bursts, Copilot for dispatched tasks, and OpenCode/Crush/pi.dev for BYOK keys and local models.</summary>
-  </entry>
-  <entry>
-    <title>Running Agents in tmux vs an Agent Harness</title>
-    <link href="https://munderdiffl.in/blog/tmux-and-scripts-vs-an-agent-harness/" />
-    <id>https://munderdiffl.in/blog/tmux-and-scripts-vs-an-agent-harness/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-07-03T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>tmux panes, git worktrees, shell scripts, and cron will absolutely run several Claude Code sessions at once. Here&#39;s what that DIY setup does well, where it breaks at scale, and what a purpose-built agent harness automates.</summary>
   </entry>
 </feed>
