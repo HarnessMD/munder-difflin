@@ -14,3 +14,9 @@ Before/after screenshots for pull request evidence, served to the PR body via
 - `before-task-id-detail.png` / `after-task-id-detail.png` — the task DETAIL view
   without and with the id in its fact row (#352). Same approach: the real
   `TaskDetail`, real tokens and fonts, real English strings, one fixed task.
+- `before-fleet-tokens.png` / `after-fleet-tokens.png` — what `writeFleetSnapshot`
+  publishes as `tokens` for an agent with no live telemetry sample, before and
+  after the lifetime-ledger fold. The same script run in both trees against the
+  same real 21,868-row `cost-ledger.jsonl`, so the pair differs only by the
+  change; the `usd` column beside it is identical in both, which is the proof the
+  fix cannot move a cost figure.
