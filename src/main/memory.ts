@@ -30,7 +30,7 @@ import { quarantineDirsToReap, quarantineStampMs, nextMineDelayMs } from './pala
  *  that are not currently running. See hive.ts for why `.codex/` matters beyond
  *  mempalace: it is also what stopped the hive's git repo from versioning every
  *  Codex transcript and sqlite log into a 7.5GB history. */
-const MINE_IGNORE_LINES = ['settings.json', 'cursor.json', 'inbox/', 'outbox/', '.codex/'];
+const MINE_IGNORE_LINES = ['settings.json', 'cursor.json', 'inbox/', 'outbox/', '.codex/', '.devin/'];
 
 /** Idempotently ensure `<agentDir>/.gitignore` excludes the non-memory files.
  *  Writes only the missing lines (append-only) so it's safe to call every cycle. */

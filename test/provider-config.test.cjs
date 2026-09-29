@@ -58,6 +58,25 @@ test('Grok is a first-class inferred provider with hooks, resume, and always-app
   assert.equal(preset.resumeFlag, '--resume');
 });
 
+test('Devin is selectable with an interactive prompt, model, and permission flags', () => {
+  assert.equal(isAgentProvider('devin'), true);
+  assert.equal(inferAgentProvider('/opt/homebrew/bin/devin --model swe-2'), 'devin');
+  const preset = providerPreset('devin');
+  assert.equal(preset.defaultCommand, 'devin');
+  assert.equal(preset.initialPromptFlag, '--');
+  assert.equal(preset.autoFlag, '--permission-mode dangerous');
+  assert.deepEqual(preset.autoStanceTokens, ['--permission-mode', '--sandbox']);
+  assert.equal(preset.modelFlag, '--model');
+  assert.equal(preset.canReceiveInbox, true);
+  assert.equal(preset.resumeFlag, '--resume');
+  assert.equal(
+    buildSpawnCommand(autoConfig, 'swe-2', 'devin'),
+    'devin --model swe-2 --permission-mode dangerous'
+  );
+  assert.deepEqual(modelsForProvider('devin').map((model) => model.id),
+    [undefined, 'swe-2', 'swe-2-high', 'swe-2-medium', 'swe-2-max']);
+});
+
 test('provider commands use matching models and equivalent bypass modes', () => {
   assert.equal(
     buildSpawnCommand(autoConfig, 'claude-sonnet-5', 'claude'),
@@ -145,10 +164,10 @@ test('God only sees providers that can drain hive inbox messages', () => {
   // Cursor is interactive (no -p) so it IS god-eligible.
   assert.deepEqual(
     modelProvidersForAgent(true).map((preset) => preset.id),
-    ['claude', 'codex', 'grok', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'cursor']
+    ['claude', 'codex', 'grok', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'cursor', 'devin']
   );
   assert.deepEqual(
     modelProvidersForAgent(false).map((preset) => preset.id),
-    ['claude', 'codex', 'grok', 'kimi', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'copilot', 'cursor']
+    ['claude', 'codex', 'grok', 'kimi', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'copilot', 'cursor', 'devin']
   );
 });
