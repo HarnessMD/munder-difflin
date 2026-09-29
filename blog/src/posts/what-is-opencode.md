@@ -35,7 +35,7 @@ The same binary does more than the chat screen. `opencode --help` on our machine
 
 ## Is OpenCode the same as Crush?
 
-No, and the name has belonged to two projects. The Go agent at `opencode-ai/opencode` is archived, and its README says it "has continued under the name Crush, developed by the original author and the Charm team." This page is about the TypeScript agent at opencode.ai, the one `npm install -g opencode-ai` installs. Two coding agents sharing one name for a while is the kind of thing only open source manages.
+No, and the name has belonged to two projects. The Go agent at `opencode-ai/opencode` is archived, and its README says it "has continued under the name Crush, developed by the original author and the Charm team." This page is about the TypeScript agent at opencode.ai, the one `npm install -g opencode-ai` installs. If a guide installs it with `go install github.com/opencode-ai/opencode@latest`, it is describing the older project.
 
 ## How do I install OpenCode?
 
@@ -95,11 +95,11 @@ The tool is free, and the model is what you pay for. How each option bills, chec
 
 ## Can OpenCode use my Claude subscription?
 
-No. The [providers page](https://opencode.ai/docs/providers/) says plugins for Claude Pro and Max exist and "Anthropic explicitly prohibits this", and OpenCode stopped bundling them as of 1.3.0. Claude models still work through an Anthropic API key.
+No. The [providers page](https://opencode.ai/docs/providers/) says plugins for Claude Pro and Max exist and "Anthropic explicitly prohibits this", and OpenCode stopped bundling them as of 1.3.0. Anthropic's [legal and compliance page](https://code.claude.com/docs/en/legal-and-compliance) says third party developers may not route requests through Free, Pro or Max plan credentials. Claude models still work through an Anthropic API key.
 
 ## OpenCode vs Claude Code vs Codex CLI: which should you use?
 
-OpenCode if you want to choose the model, Claude Code if you want Anthropic's own agent, Codex CLI if you already pay for ChatGPT. Each row checked on 29 Sep 2026 against the [Claude Code setup docs](https://code.claude.com/docs/en/setup), the [Codex README](https://github.com/openai/codex) and the OpenCode docs:
+OpenCode if you want to choose the model, Claude Code if you want Anthropic's own agent, Codex CLI if you already pay for ChatGPT. Each row checked on 29 Sep 2026 against the [Claude Code setup docs](https://code.claude.com/docs/en/setup), the [Codex README](https://github.com/openai/codex) and `codex --help` (0.153.4), and the OpenCode docs:
 
 | | OpenCode | Claude Code | Codex CLI |
 | --- | --- | --- | --- |
