@@ -36,22 +36,70 @@
  * the bytes appended since the last one and keeps the running segment state.
  * Steady-state cost per pass is a few hundred bytes regardless of ledger size.
  *
+ * TOKENS TOO
+ * ──────────
+ * `usd` and the four token fields (`input`, `output`, `cache_read`,
+ * `cache_creation`) are written by the SAME cumulative-since-process-start
+ * accumulator, so they reset together and the recovery above applies to both
+ * unchanged. Only `usd` was folded at first, which left `fleet.json`'s `tokens`
+ * reading the live telemetry sample instead: 0 for any agent whose usage reaches
+ * the ledger by another path, and the same ~10x understatement for one that has
+ * been through app restarts. Each quantity keeps its OWN segment state, so one
+ * odd row can only ever spoil the total it belongs to.
+ *
  * Read-only: this module never writes to the ledger.
  */
 
 import { createReadStream, statSync } from 'fs';
 
-/** Per (agent, session) fold state: closed segments plus the open one. */
-interface Segment {
+/** Fold state for ONE monotone counter: closed segments plus the open one. */
+interface Counter {
   /** Sum of the peaks of every segment already closed by a reset. */
   committed: number;
   /** High-water mark of the segment currently open. */
   peak: number;
 }
 
+/** Per (agent, session) fold state. `usd` and `tokens` are folded independently:
+ *  they are expected to reset together, but sharing one reset decision would let a
+ *  single odd row corrupt both totals instead of neither. */
+interface Segment {
+  usd: Counter;
+  tokens: Counter;
+}
+
+/** Fold one cumulative reading into a counter. A DECREASE is the app-restart
+ *  signature and nothing else, so it closes the open segment at its peak. */
+function advance(c: Counter, value: number, eps: number): void {
+  if (value < c.peak - eps) {
+    c.committed += c.peak;
+    c.peak = value;
+  } else if (value > c.peak) {
+    c.peak = value;
+  }
+}
+
 /** Float noise guard. Real resets drop by cents at minimum, so anything below
  *  this is arithmetic dust rather than a restart. */
 const EPS = 1e-9;
+
+/** The fields this fold reads. Everything else on the row (`ts`, `model`, …) is
+ *  deliberately ignored — in particular `model`, so a grok row folds like any other. */
+interface LedgerRow {
+  agent_id?: string;
+  session_id?: string;
+  usd?: unknown;
+  input?: unknown;
+  output?: unknown;
+  cache_read?: unknown;
+  cache_creation?: unknown;
+}
+
+/** A finite number, or 0. A string or null in any of these fields must not
+ *  NaN-poison a total that the whole floor's spend figure is read from. */
+function num(v: unknown): number {
+  return typeof v === 'number' && Number.isFinite(v) ? v : 0;
+}
 
 /** Cap per pass so a cold start cannot stall behind one enormous read. The
  *  fold simply resumes on the next call. */
@@ -67,6 +115,8 @@ export class CostLedgerTotals {
   private readonly seg = new Map<string, Segment>();
   /** agentId → lifetime usd. Recomputed after each pass. */
   private totals = new Map<string, number>();
+  /** agentId → lifetime tokens (input + output + both caches). Same passes. */
+  private tokenTotals = new Map<string, number>();
   /** One pass at a time; a timer must never stack folds on itself. */
   private folding = false;
   /** True once a full pass has completed, so callers can tell "no spend" from
@@ -80,9 +130,25 @@ export class CostLedgerTotals {
     return this.totals.get(agentId) ?? 0;
   }
 
+  /**
+   * Lifetime tokens for one agent, or null when the ledger has not been folded yet.
+   *
+   * Null for the same reason `usdFor` is null: `fleet.json` publishes this number, and a
+   * cold 0 is indistinguishable from an agent that has genuinely spent nothing.
+   */
+  tokensFor(agentId: string): number | null {
+    if (!this.warm) return null;
+    return this.tokenTotals.get(agentId) ?? 0;
+  }
+
   /** Every agent's lifetime usd. Empty until the first pass completes. */
   all(): Map<string, number> {
     return new Map(this.totals);
+  }
+
+  /** Every agent's lifetime tokens. Empty until the first pass completes. */
+  allTokens(): Map<string, number> {
+    return new Map(this.tokenTotals);
   }
 
   /** Has at least one full pass completed? */
@@ -160,31 +226,34 @@ export class CostLedgerTotals {
   }
 
   private foldLine(line: string): void {
-    let row: { agent_id?: string; session_id?: string; usd?: number };
+    let row: LedgerRow;
     try { row = JSON.parse(line); } catch { return; } // half-written tail line
     if (!row || typeof row.agent_id !== 'string') return;
-    const usd = typeof row.usd === 'number' && Number.isFinite(row.usd) ? row.usd : 0;
+    const usd = num(row.usd);
+    // A row that names no readable token field contributes 0, which neither adds to the
+    // total nor reads as a reset — the same treatment a non-numeric usd already gets.
+    const tokens = num(row.input) + num(row.output) + num(row.cache_read) + num(row.cache_creation);
 
     const key = `${row.agent_id}\t${row.session_id ?? ''}`;
     let s = this.seg.get(key);
-    if (!s) { s = { committed: 0, peak: 0 }; this.seg.set(key, s); }
+    if (!s) { s = { usd: { committed: 0, peak: 0 }, tokens: { committed: 0, peak: 0 } }; this.seg.set(key, s); }
 
-    if (usd < s.peak - EPS) {
-      // Counter went backwards: the previous segment ended at its peak.
-      s.committed += s.peak;
-      s.peak = usd;
-    } else if (usd > s.peak) {
-      s.peak = usd;
-    }
+    advance(s.usd, usd, EPS);
+    // Token counts are integers, so there is no float dust to forgive: any decrease at
+    // all is a restart.
+    advance(s.tokens, tokens, 0);
   }
 
   private recompute(): void {
     const next = new Map<string, number>();
+    const nextTokens = new Map<string, number>();
     for (const [key, s] of this.seg) {
       const agentId = key.slice(0, key.indexOf('\t'));
-      next.set(agentId, (next.get(agentId) ?? 0) + s.committed + s.peak);
+      next.set(agentId, (next.get(agentId) ?? 0) + s.usd.committed + s.usd.peak);
+      nextTokens.set(agentId, (nextTokens.get(agentId) ?? 0) + s.tokens.committed + s.tokens.peak);
     }
     this.totals = next;
+    this.tokenTotals = nextTokens;
   }
 
   private reset(): void {
@@ -192,6 +261,7 @@ export class CostLedgerTotals {
     this.tail = Buffer.alloc(0);
     this.seg.clear();
     this.totals = new Map();
+    this.tokenTotals = new Map();
     this.warm = false;
   }
 }
@@ -201,9 +271,18 @@ export class CostLedgerTotals {
  * that wants the number without holding an incremental reader.
  */
 export function lifetimeUsdFromLedger(text: string): Map<string, number> {
+  return foldOnce(text).all();
+}
+
+/** One-shot fold for lifetime TOKENS. Sibling of `lifetimeUsdFromLedger`. */
+export function lifetimeTokensFromLedger(text: string): Map<string, number> {
+  return foldOnce(text).allTokens();
+}
+
+function foldOnce(text: string): CostLedgerTotals {
   const t = new CostLedgerTotals();
   // Reuse the exact same fold path so the two can never disagree.
   (t as unknown as { consume(b: Buffer): void }).consume(Buffer.from(text.endsWith('\n') ? text : `${text}\n`));
   (t as unknown as { recompute(): void }).recompute();
-  return t.all();
+  return t;
 }
