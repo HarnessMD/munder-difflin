@@ -11,7 +11,7 @@ tags: ["Comparisons", "AI Agents", "Local-First", "Multi-Agent", "Open Source"]
 ogImage: "https://munderdiffl.in/blog/assets/media/munder-difflin-vs-chatgpt-dots/lead-still.png"
 faq:
   - q: "What is the difference between ChatGPT dots and Munder Difflin?"
-    a: "A dot is one always-on agent that OpenAI hosts on its own cloud computer, powered by GPT-6 Astra and reached through ChatGPT, Slack, Teams or a phone call. Munder Difflin is a free and open source desktop app that runs a team of named agents on your own computer, each one a CLI engine you choose, such as Claude Code, Codex or Gemini CLI."
+    a: "A dot is one always on agent that OpenAI hosts on its own cloud computer, powered by GPT-6 Astra and reached through ChatGPT, Slack, Teams or a voice call. Munder Difflin is a free and open source desktop app that runs a team of named agents on your own computer, each one a CLI engine you choose, such as Claude Code, Codex or Gemini CLI."
   - q: "Is there an open source alternative to ChatGPT dots?"
     a: "Yes. Munder Difflin is MIT licensed and runs on macOS, Windows and Linux. It is built for work on files and code rather than personal errands, and it uses the AI subscriptions or API keys you already have."
   - q: "Can I have more than one dot?"
@@ -42,9 +42,9 @@ Pick dots for a hosted personal agent inside ChatGPT that works while your lapto
 | Where you talk to it | ChatGPT desktop, web and mobile, Slack, Teams, voice calls, texting beta in the US | The desktop app; Slack and webhooks as inbound triggers |
 | App connections | Over 4,000 apps through plugins | MCP servers wired into each agent; write access off by default |
 | Keeps working with your laptop closed | Yes | Only if the computer running it stays on |
-| Who can get it | Pro (not EEA, Switzerland or UK) and Business Premium, age 18 and over | Anyone; macOS, Windows and Linux |
+| Who can get it | Pro (not EEA, Switzerland or UK) and Business Premium, age 18 and over; Enterprise, Edu and Healthcare as an admin enabled beta | Anyone; macOS, Windows and Linux |
 | Cost to start | Included in Pro or Business Premium (Pro prices below the table) | App free; you pay for your engine subscriptions or API keys |
-| Setup | None if you already have Pro | Install the app plus the engine CLIs you want |
+| Setup | Create and name it in the ChatGPT desktop app or desktop web; rollout is gradual | Install the app plus the engine CLIs you want |
 
 Dots facts come from [OpenAI's launch post](https://openai.com/index/introducing-dots/), the [getting started help article](https://help.openai.com/en/articles/20001530-getting-started-with-your-dot) and the [Pro tiers page](https://help.openai.com/en/articles/9793128-about-chatgpt-pro-tiers). OpenAI's Pro tiers page listed Pro at $100, $200 or $500 a month on 30 Sep 2026. Munder Difflin facts come from the 0.5.3 release source.
 
@@ -54,13 +54,13 @@ No, a dot lives on OpenAI's cloud computer with its own browser. You can open it
 
 <!-- LOOP note-1 -->
 
-Munder Difflin flips this. Each agent is a terminal session on your machine, in a folder you pick. Its identity, `memory.md`, inbox and outbox are files in its workspace. Your code never has to leave your disk unless the engine you chose sends it to its own model provider. If that matters to you, [why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) goes further.
+Munder Difflin flips this. Each agent is a terminal session on your machine, in a folder you pick. Its identity, `memory.md`, inbox and outbox are files in its workspace. [Why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) goes further.
 
 The trade is real. A dot keeps going while your laptop sleeps. A Munder Difflin office stops when the computer does.
 
 ## Can I have more than one dot?
 
-Not today. At launch each person gets one primary dot. OpenAI writes that "over time, we envision teams of dots working together" and that you will be able to add more dots in the future. Specialist dots with their own identity and credentials exist only in enterprise pilots.
+Not today. At launch each person gets one primary dot. OpenAI writes that "over time, we envision teams of dots working together" and that you will be able to add more dots in the future.
 
 <!-- LOOP note-2 -->
 
@@ -68,7 +68,7 @@ One dot can still work on several projects at once. In Munder Difflin you hire a
 
 ## Which models can each one use?
 
-Dots run on GPT-6 Astra (Astra Ultrafast on Pro 500). Munder Difflin 0.5.3 ships presets for Claude Code, Codex, Grok, Kimi Code, Gemini CLI, Antigravity, Qwen, OpenCode, Crush, Pi, Copilot and Cursor, plus a custom slot. Local models run through OpenCode, Crush or Pi, using Ollama or LM Studio, with no API key.
+Dots run on GPT-6 Astra. Munder Difflin 0.5.3 ships presets for Claude Code, Codex, Grok, Kimi Code, Gemini CLI, Antigravity, Qwen, OpenCode, Crush, Pi, Copilot and Cursor, plus a custom slot. Local models run through OpenCode, Crush or Pi, using Ollama or LM Studio, with no API key.
 
 ## How do the controls and approvals compare?
 
@@ -81,15 +81,16 @@ export type TriggerMode = 'strict' | 'allow-all' | 'communication-only';
 // ...
 export const DEFAULT_TRIGGER_MODE: TriggerMode = 'strict';
 ```
- When an agent needs a human decision, the card goes to the ASK ME board. A circuit breaker watches each agent for loops, repeated identical tool calls, error storms and runaway spend, and escalates from a steering message to tighter limits. It only stops an agent if you turn on hard stop.
+
+When an agent needs a human decision, the card goes to the ASK ME board. A circuit breaker watches each agent for loops, repeated identical tool calls, error storms and spend over a cap you set, and escalates from a steering message to tighter limits. It only stops an agent if you turn on hard stop.
 
 ## Where dots is better
 
-You can reach your dot from your phone, in Slack or Teams, or call it by voice, and over 4,000 apps plug in. Proactive research brings you things you did not ask for, using read only access. Closing your laptop changes nothing.
+You can reach your dot from your phone, in Slack or Teams, or call it by voice, and over 4,000 apps plug in. Proactive research brings you things you did not ask for, using read only access.
 
 ## Where Munder Difflin is better
 
-It is free and open source, with no region list, and runs on macOS, Windows and Linux. You keep the engines and subscriptions you already have. You get a team of named agents today, not a roadmap item. Memory is a markdown file you can read, edit or put in git. Files live on your disk; only what an engine reads goes to its provider, and with a local model nothing leaves.
+It is free and open source, with no region list, and runs on macOS, Windows and Linux. You keep the engines and subscriptions you already have. You get a team of named agents today, not a roadmap item. Memory is a markdown file you can read, edit or put in git. Files live on your disk; only what an engine reads goes to its provider. With a local model no code or prompt leaves, though the app sends anonymous usage stats unless you switch them off in Settings.
 
 ## Is there an open source alternative to ChatGPT dots?
 
@@ -99,5 +100,5 @@ Yes, for work on code and files: Munder Difflin is MIT licensed. It does not try
 
 It comes down to where the work lives and how many agents you need today.
 
-- **Pick ChatGPT dots** if you have Pro outside the EEA, Switzerland and the UK, or Business Premium anywhere, and want one agent for errands, inbox and research on your phone.
+- **Pick ChatGPT dots** if you have Pro outside the EEA, Switzerland and the UK, or Business Premium in any supported ChatGPT region, and want one agent for errands, inbox and research on your phone.
 - **Pick Munder Difflin** if your agents work on code or files, you want several roles now, you want to choose the model, and you want the files on your own disk. [Download it free](https://harnessmd.com/download).
