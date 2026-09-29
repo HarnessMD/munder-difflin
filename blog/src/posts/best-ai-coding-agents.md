@@ -45,7 +45,7 @@ Every row was checked against the vendor's own page on 29 Sep 2026. Model names 
 | **Codex** | OpenAI | CLI yes (Apache 2.0) | Every ChatGPT plan including Free, or an API key | Terminal, IDE extension, desktop app, cloud | Included in ChatGPT, local and cloud in one tool |
 | **Cursor** (editor and Cursor CLI) | Anysphere, owned by SpaceX since 14 Aug 2026 | No | Hobby (free), Individual, Teams; included usage, then on demand | Cursor editor, terminal, cloud agents | The most polished agent inside an editor, models from several labs |
 | **GitHub Copilot** (agent mode, cloud agent, Copilot CLI) | GitHub | No | Free plan; paid plans include GitHub AI Credits | VS Code and other IDEs, github.com, terminal | Assign an issue, get a pull request built in GitHub Actions |
-| **OpenCode** | Anomaly | Yes (MIT) | Free; bring keys or subscriptions from 75+ providers, or OpenCode Zen | Terminal, desktop app, IDE | Widest model choice, local models included |
+| **[OpenCode](/blog/what-is-opencode/)** | Anomaly | Yes (MIT) | Free; bring keys or subscriptions from 75+ providers, or OpenCode Zen | Terminal, desktop app, IDE | Widest model choice, local models included |
 | **Cline** | Cline | Yes (Apache 2.0) | Free for individuals; pay for inference with your own keys or through Cline | VS Code, CLI, JetBrains (enterprise only) | Open source agent inside stock VS Code |
 | **Aider** | Paul Gauthier and contributors | Yes (Apache 2.0) | Free; your own API keys | Terminal | Git native, commits every change it makes |
 | **Gemini CLI** | Google | Yes (Apache 2.0) | Paid Gemini API key, Gemini Enterprise Agent Platform (formerly Vertex AI), or Code Assist Standard or Enterprise | Terminal | Open source, now aimed at Google Cloud customers |
