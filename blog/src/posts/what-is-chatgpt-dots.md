@@ -14,7 +14,7 @@ faq:
   - q: "Are ChatGPT dots available in the UK or EU?"
     a: "Not on a personal Pro plan. At launch, Pro users in the EEA, Switzerland and the UK are excluded. Business Premium is available in all supported ChatGPT regions, so a company workspace on that plan can use dots there."
   - q: "How much do ChatGPT dots cost?"
-    a: "Your first dot is included in ChatGPT Pro or Business Premium at no extra cost. Pro started at $100 a month when we checked on 30 Sep 2026. For the first month, dots usage does not count toward plan allowances, and OpenAI says it will share usage terms after that."
+    a: "Your first dot is included in ChatGPT Pro or Business Premium at no extra cost. Pro starts at $100 a month (checked 30 Sep 2026). For the first month, dots usage does not count toward plan allowances, and OpenAI says it will share usage terms after that."
   - q: "Can I have more than one ChatGPT dot?"
     a: "Not at launch. Each person gets one primary dot. OpenAI says you will be able to add more dots in the future and that it envisions teams of dots, but neither is available today."
   - q: "Do ChatGPT Plus or Free users get dots?"
@@ -27,11 +27,11 @@ ChatGPT dots are always on agents that OpenAI launched on 29 September 2026 at D
 
 <!-- LOOP lead -->
 
-OpenAI writes the name in lower case: "dots", "your dot". The facts below come from [OpenAI's announcement](https://openai.com/index/introducing-dots/), its [getting started help page](https://help.openai.com/en/articles/20001530-getting-started-with-your-dot) and its [Pro tiers page](https://help.openai.com/en/articles/9793128-about-chatgpt-pro-tiers), all checked on 30 Sep 2026.
+The facts below come from [OpenAI's announcement](https://openai.com/index/introducing-dots/), its [getting started help page](https://help.openai.com/en/articles/20001530-getting-started-with-your-dot) and its [Pro tiers page](https://help.openai.com/en/articles/9793128-about-chatgpt-pro-tiers), all checked on 30 Sep 2026. When we read them, the help page opened with a note that DevDay features are rolling out gradually and may not have reached every account yet, and on the [ChatGPT pricing page](https://chatgpt.com/pricing) the dot was listed on the Pro card only, not on Free, Go or Plus.
 
 If what you want is a team of agents on your own computer, running the AI engines you already use, you can have that today with [Munder Difflin](https://harnessmd.com/download), free and open source. We put the two side by side in [Munder Difflin vs ChatGPT dots](/blog/munder-difflin-vs-chatgpt-dots/).
 
-Dots land three weeks after Meta Muse, and [Fortune](https://fortune.com/2026/09/29/openai-takes-on-metas-muse-with-new-dot-agents-and-unveils-a-potential-google-workspace-competitor/) framed the launch as a rival to it. If you know hosted agents like [Grok Bot](/blog/grok-bot-alternatives/) or [Meta Muse](/blog/meta-muse-alternatives/), the shape is familiar. It is the ChatGPT version of the [move to long running agents](/blog/long-running-agents-the-2026-shift/).
+Dots land three weeks after Meta Muse, and [Fortune](https://fortune.com/2026/09/29/openai-takes-on-metas-muse-with-new-dot-agents-and-unveils-a-potential-google-workspace-competitor/) framed the launch as a rival to it. We covered those hosted agents in [Meta Muse alternatives](/blog/meta-muse-alternatives/) and [Grok Bot alternatives](/blog/grok-bot-alternatives/). What sets a dot apart is that it keeps a standing job instead of a single request, the [long running agent](/blog/long-running-agents-the-2026-shift/) pattern.
 
 ## What is a dot in ChatGPT?
 
@@ -43,7 +43,7 @@ Task based agents such as ChatGPT agent or a Codex cloud task take one job, run 
 
 What a dot has to work with:
 
-* **Its own computer.** A cloud computer and browser that you can open at any time to inspect or take over. Access to your local computer is optional and off by default.
+* **Its own computer.** A cloud computer and browser you can open at any time to inspect its work. Access to your local computer is optional and off by default.
 * **Memory.** It receives memories from ChatGPT, creates its own (including from connected apps) and learns from your feedback.
 * **Proactive research.** When you are not working with it, it looks for ways to help using read only tools in your connected apps. In that mode it cannot send messages, change app content or control your browser or computer.
 * **Apps and Codex.** Over 4,000 apps through plugins. It can create cloud tasks in Codex, and with local access it can start Work or Codex tasks, use local skills and use your local browser.
@@ -53,7 +53,7 @@ What a dot has to work with:
 
 You message or call it in ChatGPT on desktop, web and mobile, or message it in Slack and Microsoft Teams. Texting is a limited beta for Pro users in the US, run through a third party provider. You can call your dot, but it cannot call you at launch.
 
-You name your dot during setup. The default handle is `@yourname-dot`, or `@yourname-agentname` once you give it a name. The avatar is a character or a pet, which will be the most debated setting in many offices.
+You name your dot during setup. The default handle is `@yourname-dot`, or `@yourname-agentname` once you give it a name. The avatar is a character or a pet.
 
 ## How do you control what a dot does?
 
@@ -63,7 +63,7 @@ You set a Custom Rule per action, choosing one of four behaviours: "Take action 
 
 On top of that, auto review checks actions that affect your accounts or share information, and some tasks, such as changing a password, always stay with you. Saved passwords are used without exposing them to the model. You can follow progress in the Activity View and pause the dot from its profile menu.
 
-Reset is the big switch. It deletes the dot, its conversations, memories and scheduled tasks. Disconnecting an app does not delete what the dot already learned from it; only Reset does. OpenAI's own warning stands: "Dots can still make mistakes, so always review consequential work." Our piece on [human in the loop AI agents](/blog/human-in-the-loop-ai-agents/) covers where such approvals belong.
+Reset deletes the dot, its conversations, memories and scheduled tasks. Disconnecting an app does not delete what the dot already learned from it; only Reset does. OpenAI's warning: "Dots can still make mistakes, so always review consequential work." Our piece on [human in the loop AI agents](/blog/human-in-the-loop-ai-agents/) covers where such approvals belong.
 
 On training: Business, Enterprise and Edu content is not used by default. On personal plans you choose. OpenAI says it does not train directly on proactive research or on the dot's notes to itself.
 
@@ -85,7 +85,7 @@ Not on a personal Pro plan. Pro users in the EEA, Switzerland and the UK are exc
 | Dots per person | One primary dot |
 | Own email address | No; you can connect your personal email |
 
-## How much does ChatGPT dots cost?
+## How much do ChatGPT dots cost?
 
 Your first dot is included at no extra cost with Pro or Business Premium. On 30 Sep 2026 OpenAI listed Pro 100 at $100 a month, Pro 200 at $200 a month and Pro 500 at $500 a month, billed monthly only, with Astra Ultrafast only on Pro 500.
 
