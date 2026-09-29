@@ -108,7 +108,22 @@ test('Devin is selectable with an interactive prompt, model, and permission flag
     'devin --model swe-2 --permission-mode dangerous'
   );
   assert.deepEqual(modelsForProvider('devin').map((model) => model.id),
-    [undefined, 'swe-2', 'swe-2-high', 'swe-2-medium', 'swe-2-max']);
+    [
+      undefined,
+      'adaptive',
+      'swe-2',
+      'swe-2-high',
+      'swe-2-medium',
+      'swe-2-max',
+      'claude-opus-5-5-medium',
+      'claude-fable-5-1-medium',
+      'gpt-6-sol-medium',
+      'gpt-6-astra-medium',
+      'fusion-claude-opus-5-5-high-sidekick-swe-2-medium',
+      'fusion-claude-fable-5-1-high-sidekick-swe-2-medium',
+      'fusion-gpt-6-sol-high-sidekick-swe-2-medium',
+      'fusion-gpt-6-astra-high-sidekick-swe-2-medium'
+    ]);
 });
 
 test('provider commands use matching models and equivalent bypass modes', () => {
