@@ -34,6 +34,7 @@ export type AgentProvider =
   | 'pi'
   | 'copilot'
   | 'cursor'
+  | 'devin'
   | 'custom';
 
 /** Structured descriptor for how a NON-hiveAware provider gets hive lifecycle
@@ -568,6 +569,29 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     docsUrl: 'https://cursor.com/docs/cli/install'
   },
   {
+    id: 'devin',
+    label: 'Devin CLI',
+    defaultCommand: 'devin',
+    commandGroups: [],
+    // Devin's interactive CLI accepts the hive briefing after `--` as its
+    // initial prompt. It remains open for subsequent turns and inbox nudges.
+    autoModeFlag: '--permission-mode dangerous',
+    autoFlag: '--permission-mode dangerous',
+    autoStanceTokens: ['--permission-mode', '--sandbox'],
+    supportsModel: true,
+    modelFlag: '--model',
+    hiveAware: false,
+    canReceiveInbox: true,
+    initialPromptFlag: '--',
+    recommendedOrchestratorModel: 'swe-2',
+    resumeFlag: '--resume',
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://cli.devin.ai/install.sh | bash',
+      win32: 'powershell -c irm https://static.devin.ai/cli/setup.ps1 ^| iex'
+    },
+    docsUrl: 'https://docs.devin.ai/cli'
+  },
+  {
     id: 'custom',
     label: 'Custom',
     defaultCommand: '',
@@ -594,6 +618,7 @@ export function isAgentProvider(value: unknown): value is AgentProvider {
     value === 'pi' ||
     value === 'copilot' ||
     value === 'cursor' ||
+    value === 'devin' ||
     value === 'custom'
   );
 }
@@ -645,6 +670,7 @@ export function inferAgentProvider(command: string | undefined, explicit?: unkno
   if (bin === 'crush') return 'crush';
   if (bin === 'pi') return 'pi';
   if (bin === 'copilot') return 'copilot';
+  if (bin === 'devin') return 'devin';
   // Cursor ships as `cursor-agent`; `agent` is a shorter alias (generic name — check last).
   if (bin === 'cursor-agent') return 'cursor';
   if (bin === 'agent') return 'cursor';
@@ -699,7 +725,7 @@ export function hasAutoModeStance(args: string[], provider: AgentProvider): bool
   const flag = preset.autoModeFlag ?? '';
   const lead = flag.trim().split(/\s+/)[0];
   const stance = new Set([...(lead ? [lead] : []), ...(preset.autoStanceTokens ?? [])]);
-  return args.some((a) => stance.has(a));
+  return args.some((a) => stance.has(a.split('=', 1)[0]));
 }
 
 /** Returns any env vars the provider needs for non-interactive / first-run suppression. */

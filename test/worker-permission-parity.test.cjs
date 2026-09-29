@@ -66,3 +66,13 @@ test('codex\'s multi-token auto flag is applied the same way as Claude\'s two-to
     ['--model', 'gpt-5.6-sol', '-a', 'never', '-s', 'workspace-write']
   );
 });
+
+test('Devin auto mode honours an explicit permission choice', () => {
+  assert.deepEqual(argsWithAutoModeFlag(['--model', 'swe-2'], true, 'devin'),
+    ['--model', 'swe-2', '--permission-mode', 'dangerous']);
+  assert.deepEqual(argsWithAutoModeFlag(['--permission-mode', 'smart'], true, 'devin'),
+    ['--permission-mode', 'smart']);
+  assert.deepEqual(argsWithAutoModeFlag(['--permission-mode=smart'], true, 'devin'),
+    ['--permission-mode=smart']);
+  assert.deepEqual(argsWithAutoModeFlag(['--sandbox'], true, 'devin'), ['--sandbox']);
+});

@@ -108,6 +108,13 @@
       { "id": "claude-opus-4-8-high", "label": "Opus 4.8 1M", "minAppVersion": null, "maxAppVersion": null },
       { "id": "claude-sonnet-5-thinking-high", "label": "Sonnet 5 1M Thinking", "minAppVersion": null, "maxAppVersion": null }
     ],
+    "devin": [
+      { "label": "CLI default", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2", "label": "SWE-2", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2-high", "label": "SWE-2 High", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2-medium", "label": "SWE-2 Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2-max", "label": "SWE-2 Max", "minAppVersion": null, "maxAppVersion": null }
+    ],
     "custom": []
   }
 }

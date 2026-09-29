@@ -1020,6 +1020,8 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                             ? 'agy'
                             : provider === 'codex'
                               ? 'codex'
+                              : provider === 'devin'
+                                ? 'devin'
                               : provider === 'custom'
                                 ? 'your-agent-cli'
                                 : 'claude'
