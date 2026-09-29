@@ -1,7 +1,7 @@
 ---
 title: "ChatGPT Dots Alternatives: 7 Always On Agents, Local and Cloud"
 seoTitle: "7 ChatGPT Dots Alternatives in 2026: Free, Local and Cloud"
-description: "ChatGPT dots need Pro from $100 a month and skip the UK and EU. Seven alternatives, sorted by where they run: your computer or a vendor's cloud."
+description: "Personal ChatGPT dots need Pro from $100 a month and skip the UK and EU. Seven alternatives, sorted by where they run: your computer or a vendor's cloud."
 date: 2026-09-30
 category: comparisons
 categoryLabel: Comparisons
@@ -18,7 +18,7 @@ faq:
   - q: "What is the best open source alternative to ChatGPT dots?"
     a: "OpenClaw for a personal assistant in your chat apps, Munder Difflin for a team of work agents on your computer, and Hermes Agent for memory that learns over time. All three are open source and run on your own machine or server."
   - q: "Which ChatGPT dots alternatives keep working when my laptop is off?"
-    a: "The cloud ones. Claude Cowork runs scheduled tasks on Anthropic's servers, Grok Bot works on a persistent cloud computer, and Gemini Spark can finish a task in a remote browser. The local picks need a machine that stays on."
+    a: "The cloud ones. Claude Cowork runs scheduled tasks on Anthropic's servers, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. The local picks need a machine that stays on."
   - q: "Can I run more than one agent instead of a single dot?"
     a: "Not with dots yet: at launch each person gets one primary dot. Munder Difflin runs several named agents with separate roles on your computer today, each on the CLI engine you pick."
 ---
@@ -60,20 +60,20 @@ This settles who holds your files and whether work stops when you close the lid.
 
 **4. Claude Cowork.** Cowork is Anthropic's agent for longer pieces of work, and it now runs in the cloud. Anthropic's [Cowork help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says "Claude's work runs on Anthropic's servers, in an isolated environment" and that scheduled tasks don't need your computer to be awake. Since 16 Sep 2026 Anthropic has been [folding Cowork into the main Claude app](https://claude.com/blog/cowork-is-now-claude), Pro and Max first. Claude Pro was $20 a month, billed monthly, on 30 Sep 2026. Best for: reports, files and research, task by task.
 
-**5. Gemini Spark.** Spark is Google's personal agent in the Gemini app. It works from your Connected Apps and chats, and can drive your local Chrome. If your device goes off before a task is done, Google's [Spark help page](https://support.google.com/gemini/answer/17094507) says it "might use a remote browser" in the cloud instead. You need Google AI Pro or Ultra and to be 18 or over. Like dots, it is not available in the EEA, Switzerland or the UK, nor in Nigeria. Best for: people who live in Google apps, outside Europe.
+**5. Gemini Spark.** Spark is Google's personal agent in the Gemini app. It works from your Connected Apps and chats, and can drive your local Chrome. If your device goes off before a task is done, Google's [Spark help page](https://support.google.com/gemini/answer/17094507) says it "might use a remote browser" in the cloud instead. You need Google AI Pro or Ultra and to be 18 or over. Like dots on Pro, it is not available in the EEA, Switzerland or the UK, nor in Nigeria. Best for: Google app users outside Europe.
 
 **6. Grok Bot.** SpaceXAI's docs say your Bots run on "a persistent cloud computer with a browser, filesystem, and terminal", and closing your laptop or phone does not stop a routine. It comes with paid Cursor plans or a SuperGrok account. Cursor's Individual plan was $20 a month on 30 Sep 2026. [Grok Bot pricing](/blog/grok-bot-pricing/) has the other plans. Best for: hosted work agents whose computer never sleeps.
 
-**7. Meta Muse.** Meta's help centre says Muse runs on "a cloud-based environment called a virtual machine". On 29 Sep 2026 Meta said Muse is "available in the US and Canada" and free for most use, with Power at $20 a month and Max at $100 a month. Best for: a free hosted agent, if you live in North America. Elsewhere, see [Meta Muse alternatives](/blog/meta-muse-alternatives/).
+**7. Meta Muse.** [Meta's help centre](https://www.meta.com/help/artificial-intelligence/1047255454427887/) says Muse runs on "a cloud-based environment called a virtual machine". On 29 Sep 2026 Meta said Muse is "available in the US and Canada" and free for most use; its [subscriptions page](https://www.meta.com/help/subscriptions/1021145227643680/) lists Power at $20 a month and Max at $100. Best for: a free hosted agent in North America. Elsewhere, see [Meta Muse alternatives](/blog/meta-muse-alternatives/).
 
 ## ChatGPT dots alternatives, checked 30 Sep 2026
 
 | Agent | Runs on | Always on or task based | Who can get it | Price to start |
 | --- | --- | --- | --- | --- |
 | ChatGPT dots | OpenAI's cloud computer | Always on | Pro outside EEA, Switzerland, UK; Business Premium | Pro, $100/month. |
-| OpenClaw | Your computer | Always on daemon | Anyone | Free, open source. |
-| Munder Difflin | Your computer | Always on while it runs, plus schedules | Anyone on Mac, Windows, Linux | Free and open source. |
-| Hermes Agent | Your computer or your server | Always on, cron jobs | Anyone | Free, open source. |
+| OpenClaw | Your computer | Always on daemon | Anyone | Free and open source. |
+| Munder Difflin | Your computer | Runs while your computer does, plus schedules | Anyone on Mac, Windows, Linux | Free and open source. |
+| Hermes Agent | Your computer or your server | Always on, cron jobs | Anyone | Free and open source. |
 | Claude Cowork | Anthropic's cloud | Tasks, plus scheduled tasks | Paid Claude plans | Claude Pro, $20/month. |
 | Gemini Spark | Google's cloud and your Chrome | Ongoing tasks and schedules | Google AI Pro or Ultra; not EEA, Switzerland, UK, Nigeria | Google AI Pro, price by country. |
 | Grok Bot | SpaceXAI's cloud computer | Always on, routines | Paid Cursor plans or SuperGrok | Cursor Individual, $20/month. |
