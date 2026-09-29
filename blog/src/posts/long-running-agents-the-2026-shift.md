@@ -37,6 +37,8 @@ biggest shift of 2026 is that this is no longer the ceiling. Agents now **run fo
 goal and working toward it across hundreds of steps before they need you again. That changes what an
 agent can *do*, and it changes what you have to *build* to make it work.
 
+OpenAI's [ChatGPT dots](/blog/what-is-chatgpt-dots/), launched on 29 Sep 2026, push the idea one step further: an agent that keeps a standing responsibility instead of one goal.
+
 ## The trend, in numbers
 
 This isn't a vibe; it's measurable. [METR](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/)
