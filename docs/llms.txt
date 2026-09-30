@@ -94,7 +94,7 @@
 
 ### comparisons
 
-- [Grok Bot Alternatives: Six Picks, Grouped by What You Want](https://munderdiffl.in/blog/grok-bot-alternatives/): Grok Bot runs every Bot on one shared cloud computer. Six alternatives checked on 14 Sep 2026, grouped by hosting, privacy and model choice.
+- [Grok Bot Alternatives: 9 Picks, Hosted or on Your Computer](https://munderdiffl.in/blog/grok-bot-alternatives/): Grok Bot runs every Bot on one shared cloud computer in the US. Nine alternatives checked on 30 Sep 2026, from ChatGPT dots to open source agents you run.
 - [Herdr Alternatives: What to Pick and Who Each One Fits](https://munderdiffl.in/blog/herdr-alternatives/): Herdr alternatives checked on 14 Sep 2026: tmux, Munder Difflin, Claude Squad, cmux, Orca, Conductor, Superset and Emdash, and who each fits.
 - [OmniAgent Alternatives: What to Use Instead of Databricks Omnigent](https://munderdiffl.in/blog/omniagent-alternatives/): OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits.
 - [ChatGPT Dots Alternatives: 7 Always On Agents, Local and Cloud](https://munderdiffl.in/blog/chatgpt-dots-alternatives/): Personal ChatGPT dots need Pro from $100 a month and skip the UK and EU. Seven alternatives, sorted by where they run: your computer or a vendor's cloud.
