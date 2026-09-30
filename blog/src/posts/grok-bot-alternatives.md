@@ -32,7 +32,7 @@ By Grok Bot we mean SpaceXAI's agent app, hosted by Cursor, not the Grok chatbot
 
 Grok Bot is a team of AI agents, called Bots, that work on a cloud computer of their own. SpaceXAI [announced it in beta](https://x.ai/news/introducing-grok-bot) on 11 Aug 2026. A Bot signs into your tools, works across apps and websites, and comes back when it needs your approval. SpaceXAI's FAQ says closing the app, laptop or phone does not stop a background turn or routine.
 
-The pitch is a chief of staff Bot on top with a specialist for each lane: inbox, expenses, recruiting, bug fixes. That is a [multi-agent harness](/blog/what-is-a-multi-agent-harness/), hosted for you.
+The pitch is a chief of staff Bot on top with a specialist for each lane: inbox, expenses, recruiting, bug fixes. That is a [multi agent harness](/blog/what-is-a-multi-agent-harness/), hosted for you.
 
 [Cursor's Grok Bot plans page](https://cursor.com/help/grok-bot/plans) says access comes with every paid individual Cursor plan and Cursor Teams. Cursor's Individual plan started at $20 a month on 30 Sep 2026. Desktop builds cover macOS, Windows and Linux, with apps for iPhone and Android. [Grok Bot pricing](/blog/grok-bot-pricing/) walks through every tier.
 
@@ -44,7 +44,7 @@ People leave over where it runs, what each Bot can reach and who picks the model
 
 {% img "note-1" %}
 
-**Every Bot shares one computer.** The FAQ tells you to treat a login or file on that computer as available to every Bot you run, and says plainly not to use separate Bots as a security boundary. Your errands Bot's shop login is your recruiting Bot's too. Auto Review checks shell commands and plugin calls, but not every side effect, memory writes included.
+**Every Bot shares one computer.** The security FAQ tells you to treat a login or file on that computer as available to every Bot you run, and the general [Grok Bot FAQ](https://docs.x.ai/grok-bot/faq) says plainly not to use separate Bots as a security boundary. Your errands Bot's shop login is your recruiting Bot's too. Auto Review checks shell commands and plugin calls, but not every side effect, memory writes included.
 
 **Cursor picks the model.** There is no model picker. Enterprise teams can set an allowlist, and onboarding warns that Grok Bot may not follow it. A helper that reads the open web, holds your logins and can send email is the risky mix called [the lethal trifecta](/blog/the-lethal-trifecta-for-coding-agents/).
 
