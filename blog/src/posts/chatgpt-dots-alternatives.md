@@ -21,6 +21,7 @@ faq:
     a: "The cloud ones. Claude Cowork runs scheduled tasks on Anthropic's servers, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. The local picks need a machine that stays on."
   - q: "Can I run more than one agent instead of a single dot?"
     a: "Not with dots yet: at launch each person gets one primary dot. Munder Difflin runs several named agents with separate roles on your computer today, each on the CLI engine you pick."
+thumb: "/blog/assets/media/chatgpt-dots-alternatives/lead-still.png"
 ---
 
 The best ChatGPT dots alternatives are OpenClaw, Munder Difflin and Hermes Agent if you want agents on your own computer, and Claude Cowork, Gemini Spark, Grok Bot or Meta Muse if you want another hosted agent.

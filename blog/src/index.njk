@@ -80,12 +80,15 @@ permalink: /index.html
 {% endif %}
 
 {% if posts.length %}
-{%- set rest = collections.unpinned | excludeSelf(lead.url if lead else "") -%}
-{% if collections.pinned.length %}
+{%- set pool = collections.notStartHere | excludeSelf(lead.url if lead else "") -%}
+{%- set latest = pool.slice(0, 3) -%}
+{%- set rest = pool.slice(3) -%}
+{% if collections.startHere.length or latest.length %}
 <section class="wrap pinned" aria-labelledby="pinned-title">
   <h2 class="pinned-title" id="pinned-title">Start here</h2>
   <div class="post-grid">
-    {% for p in collections.pinned %}{% include "card.njk" %}{% endfor %}
+    {% for p in collections.startHere %}{% include "card.njk" %}{% endfor %}
+    {% for p in latest %}{% include "card.njk" %}{% endfor %}
   </div>
 </section>
 {% endif %}

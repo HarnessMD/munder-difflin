@@ -24,6 +24,7 @@ faq:
     a: "No. SpaceXAI says Grok Bot comes with its own usage, separate from your Grok and Cursor plans, so work you hand to a Bot does not count against your existing allowance. Bot usage resets weekly."
   - q: "Is there a free alternative to Grok Bot?"
     a: "For work agents, Munder Difflin is free and open source. It runs a team of agents on your own computer with engines you already pay for, or with a free local model. OpenClaw and Hermes Agent are free, open source personal assistants."
+thumb: "/blog/assets/media/grok-bot-pricing/lead-still.png"
 ---
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>The cheapest way into Grok Bot is Cursor Pro at $20 a month. The cheapest SpaceXAI plan with it is SuperGrok at $30. The biggest agent allowance sits in SuperGrok Heavy at $300. There is a seven day trial, not a free plan. If you only need work agents, you can run them free on your own computer.</p></div>

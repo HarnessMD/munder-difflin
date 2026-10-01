@@ -27,6 +27,8 @@ faq:
     a: "No. Agents, automations, Slack and webhooks all run on your machine, so they stop when the app closes or the laptop sleeps. A schedule missed while the laptop slept runs once when the app wakes; a weekly one only if that is within six hours of its slot."
   - q: "Is the Stapler free?"
     a: "No. The Stapler is Pro only, and it is off until you turn on **Show the stapler** on the Stapler screen."
+startHere: true
+startOrder: 2
 ---
 
 Your first hour with [Munder Difflin](https://harnessmd.com/download) 0.5.2 goes like this. Download the app, install one coding CLI, sign in and name your orchestrator. Then activate Pro and set the office up to work without you: a mixed team of agents, a pull request reviewer, a Slack responder, a morning email brief and a content agent on a schedule.

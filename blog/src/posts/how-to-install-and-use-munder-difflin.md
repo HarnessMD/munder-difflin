@@ -25,6 +25,8 @@ faq:
     a: "macOS, Windows and Linux. macOS ships as one universal .dmg for Apple Silicon and Intel, Windows 10 and 11 as a setup installer or a portable build, and Linux as an AppImage."
   - q: "Is my code or data sent anywhere?"
     a: "The app runs on your machine and stores its files there. Your prompts and the files an agent reads do go to whichever AI engine you picked, the same as if you used that tool directly. Anonymous usage telemetry is opt-out and every event is listed publicly in TELEMETRY.md."
+startHere: true
+startOrder: 1
 ---
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>Pick an AI engine based on what you

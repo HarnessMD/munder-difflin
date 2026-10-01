@@ -22,6 +22,7 @@ faq:
     a: "Yes. All the Bots on one account share a single cloud computer, including files, browser sessions and logins. SpaceXAI's security FAQ says not to treat separate Bots as a security boundary, and not to put a credential or file on that computer if another Bot should not be able to use it."
   - q: "Is there an AI agent that keeps my data on my own computer?"
     a: "Yes. Open source agents such as OpenClaw, Hermes Agent and Munder Difflin run on your own hardware. Munder Difflin keeps each agent's memory in plain markdown files on your disk, stores API keys in a write only broker, and its official builds send only anonymous usage events, never prompts, code, file paths or agent output."
+thumb: "/blog/assets/media/meta-muse-grok-bot-privacy/lead-still.png"
 ---
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>Muse locks every step: its own computer per person, a guard on the network and a password vault the AI cannot read. But it trains on your chats by default. Grok Bot puts all your Bots on one shared computer, so every Bot can use every login on it. If you'd rather no company holds your agents' logins and memory, run the agents on your own machine.</p></div>
