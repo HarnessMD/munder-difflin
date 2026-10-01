@@ -3201,9 +3201,9 @@
     "category": "internals",
     "hero": {
       "file": "assets/media/the-spend-counter-that-went-back-to-zero/hero.png",
-      "alt": "Illustration: The Spend Counter That Went Back to Zero",
-      "prompt": "Hero image for a blog post titled \"The Spend Counter That Went Back to Zero\". The post is about: Our own floor was under reporting what it cost by 59 percent. The counter was cumulative since process start, the app restarts, and the session id stayed the same. Here is how a monotonic invariant let us recover the real number from an append-only log.",
-      "status": "placeholder"
+      "alt": "A yellow bean stands beside a desk where a spend meter's needle has swung back to zero, holding up a long paper log, while a whiteboard shows a sawtooth counter under a steadily climbing total.",
+      "prompt": "Drawn in code with blog/media-src/scene-lib.js by bob-mub2nu0z, 1 Oct 2026, house style: ink line art, yellow bean, no red, no text.",
+      "status": "ready"
     },
     "inline": {
       "note-1": {
