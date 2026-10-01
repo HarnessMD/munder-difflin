@@ -14,6 +14,7 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+  <url><loc>https://munderdiffl.in/pro/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://munderdiffl.in/wall.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://munderdiffl.in/terms.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>https://munderdiffl.in/privacy.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
