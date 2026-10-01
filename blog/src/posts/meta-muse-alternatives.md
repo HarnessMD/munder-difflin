@@ -22,6 +22,7 @@ faq:
     a: "By default, yes. Meta's help page says Muse conversations can be used to train its models unless you turn that off in Settings, and that Meta removes details like names, emails and phone numbers first. Meta says Muse does not share your chats or VM data with its ad systems."
   - q: "What is the best free alternative to Meta Muse?"
     a: "For personal errands, OpenClaw and Hermes Agent are free and open source; you pay only for the AI model, or nothing with a local one. For work agents, Munder Difflin is free and uses the AI engines you already have."
+thumb: "/blog/assets/media/meta-muse-alternatives/lead-still.png"
 ---
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>For a personal assistant you own, try OpenClaw. For a team of work agents on your own computer, try Munder Difflin. For a hosted assistant from a big lab, try ChatGPT Work, Gemini Spark, Grok Bot or Claude Cowork. For memory that grows with you, try Hermes Agent.</p></div>

@@ -20,6 +20,7 @@ faq:
     a: "Your first dot is included with ChatGPT Pro or Business Premium at no extra cost. Pro starts at $100 a month on OpenAI's Pro tiers page, checked 30 Sep 2026. Dots are not on Free, Go or Plus."
   - q: "Can ChatGPT dots run on my own computer?"
     a: "The dot itself runs on OpenAI's cloud computer. You can give it optional access to your local computer through the ChatGPT desktop app, which is off by default, but the agent and its memory still live with OpenAI."
+thumb: "/blog/assets/media/munder-difflin-vs-chatgpt-dots/lead-still.png"
 ---
 
 Pick dots for a hosted personal agent inside ChatGPT that works while your laptop is shut; pick Munder Difflin for a team of agents on your own machine using the engines you already pay for. OpenAI announced dots on 29 September 2026, and we checked everything below against its own pages on 30 September.

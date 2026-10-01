@@ -22,6 +22,7 @@ faq:
     a: "Not yet. At launch on 8 September 2026 Muse was open to US users aged 18 and over, and Meta says more countries will follow."
   - q: "Is there a free, open source alternative to Muse and Grok Bot?"
     a: "For work agents, yes. Munder Difflin is a free and open source desktop app (MIT licence) that runs a team of agents on your own computer with the AI engines you already use, such as Claude Code, Codex or Grok's own CLI. It does not run errands like booking travel."
+thumb: "/blog/assets/media/meta-muse-vs-grok-bot/lead-still.png"
 ---
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>Meta Muse is an errand runner for your personal life. Grok Bot is a team of work agents for your job. Both put the agent on a cloud computer you rent, and they lock that computer very differently. If you want work agents without renting anyone's computer, a free option runs them on your own.</p></div>
