@@ -17,7 +17,11 @@ permalink: /topics/index.html
   <div class="post-grid">
     {% for c in collections.categories %}
     <a class="card" href="{{ ('/topics/' + c.slug + '/') | u }}" style="text-decoration:none">
+      {%- if c.slug in ["guides", "orchestration", "memory", "internals", "concepts", "comparisons", "use-cases", "story"] %}
+      <span class="thumb t-{{ c.slug }}" aria-hidden="true"><img src="{{ ('/assets/media/topics/' + c.slug + '.png') | u }}" alt="" width="960" height="540" loading="lazy" decoding="async" /></span>
+      {%- else %}
       <span class="thumb t-{{ c.slug }}" aria-hidden="true">{{ c.name | upper }}</span>
+      {%- endif %}
       <div class="body">
         <h3 style="color:var(--ink)">{{ c.name }}</h3>
         <p class="dek">{{ c.posts.length }} post{{ "s" if c.posts.length != 1 }}.</p>
