@@ -27,7 +27,8 @@ import {
 import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
 import { HiveManager, type AgentMeta, type HiveMessage, type HiveTask } from './hive';
 import { HookServer } from './hooks';
-import { CircuitBreaker, type BreakerInput } from './breaker';
+import { CircuitBreaker, tokensOf, type BreakerInput } from './breaker';
+import { workerCapVerdict } from './workerCap';
 import { CumulativeSampleGate, type UsageProvider } from './usage';
 import { MemoryManager } from './memory';
 import { KnowledgeManager } from './knowledge';
@@ -4813,11 +4814,10 @@ async function processSpawnRequest(filePath: string): Promise<void> {
 }
 
 /** Total tokens (input+output+cache) a worker has burned so far, from the usage
- *  provider — 0 when unknown. Mirrors the breaker's `tokensOf`. Used only by the
- *  (default-off) per-worker token cap. */
+ *  provider — 0 when unknown. The display/cost figure (the fleet snapshot); the
+ *  token-cap reap tests work tokens instead, via `workerCapVerdict`. */
 function workerTokensUsed(workerId: string): number {
-  const s = usageProvider.getAgentUsage(workerId);
-  return s ? s.input + s.output + s.cacheRead + s.cacheCreation : 0;
+  return tokensOf(usageProvider.getAgentUsage(workerId));
 }
 
 /** Throttle for the GC sweep — git checks are cheap but pointless every 1.5s tick. */
@@ -4904,16 +4904,17 @@ async function ephemeralWorkerTick(): Promise<void> {
         continue;
       }
       // Token-cap reap (default-off plumbing). An effective cap > 0 → reap when the
-      // worker's cumulative token use exceeds it; its committed work is preserved.
+      // worker's cumulative WORK tokens (no cacheRead, as the breaker's per-agent
+      // budget) exceed it; its committed work is preserved.
       const tokenCap = (rec.tokenCap && rec.tokenCap > 0) ? rec.tokenCap : defaultTokenCap;
       if (tokenCap > 0) {
-        const used = workerTokensUsed(workerId);
-        if (used > tokenCap) {
+        const { reap, work, total } = workerCapVerdict(usageProvider.getAgentUsage(workerId), tokenCap);
+        if (reap) {
           rec.releasing = true;
-          console.warn(`[worker] reaping ${workerId} — token cap (${used.toLocaleString()} > ${tokenCap.toLocaleString()})`);
+          console.warn(`[worker] reaping ${workerId} — token cap (${work.toLocaleString()} work > ${tokenCap.toLocaleString()}; ${total.toLocaleString()} total)`);
           informGod(
             `[worker reaped — token cap] ${workerId}`,
-            `Worker ${workerId} used ${used.toLocaleString()} tokens (> its cap of ${tokenCap.toLocaleString()}) and was reaped. Any committed work on its branch is preserved for you.`,
+            `Worker ${workerId} used ${work.toLocaleString()} work tokens (> its cap of ${tokenCap.toLocaleString()}; ${total.toLocaleString()} total incl. cache reads) and was reaped. Any committed work on its branch is preserved for you.`,
             rec.slack
           );
           ptyManager.kill(workerId);
