@@ -4248,5 +4248,15 @@
       }
     },
     "youtube": []
+  },
+  "open-source-ai-agents": {
+    "title": "Best Open Source AI Agents: 10 Picks by Job, Checked 1 Oct 2026",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/open-source-ai-agents/hero.png",
+      "alt": "A yellow bean tinkers with a screwdriver at a workbench where four small robot agents each sit beside their own computer, under an open padlock and a pinned sheet of code.",
+      "prompt": "Drawn in code with blog/media-src/scene-lib.js by bob-mub2nu0z, 1 Oct 2026, house style: ink line art, yellow bean, no red, no text.",
+      "status": "ready"
+    }
   }
 }
