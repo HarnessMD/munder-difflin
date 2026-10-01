@@ -22,7 +22,7 @@ faq:
     a: "Yes, OpenDevin was renamed OpenHands. As of 1 Oct 2026 its README leads with Agent Canvas, a self hosted control center that runs the OpenHands agent or other agents such as Claude Code and Codex."
 ---
 
-The best open source AI agents right now are OpenClaw for a personal assistant, Munder Difflin for a team of agents on your computer, Hermes Agent for memory that learns, and OpenCode or Cline for coding. All ten picks below are MIT or Apache 2.0, checked on their repos on 1 Oct 2026.
+The best open source AI agents right now are OpenClaw for a personal assistant, [Munder Difflin](https://harnessmd.com/download) for a team of agents on your computer, Hermes Agent for memory that learns, and OpenCode or Cline for coding. All ten picks below are MIT or Apache 2.0, checked on their repos on 1 Oct 2026.
 
 ## What is an open source AI agent?
 
@@ -46,7 +46,7 @@ It is a program that calls a language model in a loop and uses tools to finish a
 
 **6. Cline.** Cline (Apache 2.0) calls itself the open source coding agent in your IDE, terminal and desktop. Best for: working inside your editor.
 
-**7. Aider.** [Aider](https://github.com/Aider-AI/aider) (Apache 2.0) is AI pair programming in your terminal, with git built into the loop. Its latest release is from August 2025, though some 2026 lists still rank it first. Best for: a small, proven tool, if slow updates are fine.
+**7. Aider.** [Aider](https://github.com/Aider-AI/aider) (Apache 2.0) is AI pair programming in your terminal, with git built into the loop. Its latest release is from August 2025. Best for: a small, proven tool, if slow updates are fine.
 
 **8. OpenHands.** OpenHands (MIT), formerly OpenDevin, leads its README with Agent Canvas: a self hosted control center that runs the OpenHands agent, Claude Code, Codex or Gemini on local, Docker, VM or cloud backends. Best for: a shared agent server for a team.
 
@@ -84,11 +84,11 @@ One oddity: GitHub's API labels OpenClaw's licence `NOASSERTION`, but its LICENS
 
 ## Which open source AI agent can I self host?
 
-All ten run on hardware you control; the difference is which hardware. OpenClaw, Hermes Agent and OpenHands are built to live on a server, so they keep working with your laptop shut. Munder Difflin, Cline and Aider expect the machine you work at, and NanoClaw needs Docker. Self hosted is not the same as private: prompts still go to the model provider you pick. Our [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/) splits the same field into local and cloud.
+All ten run on hardware you control; the difference is which hardware. OpenClaw, Hermes Agent and OpenHands are built to live on a server, so they keep working with your laptop shut. Cline, Munder Difflin and Aider expect the machine you work at, and NanoClaw needs Docker. Self hosted is not the same as private: prompts still go to the model provider you pick. Our [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/) splits the same field into local and cloud.
 
 ## Why do other open source AI agent lists look different?
 
-Most top results list frameworks, and some have aged. As of 1 Oct 2026, Modal's page from September 2024 still names OpenDevin, Devika and smol developer. AIMultiple, updated 30 Sep 2026, still says OpenDevin and skips OpenClaw and Hermes Agent. Eesel's list, edited 8 Sep 2026, is all frameworks and builders, including Flowise, which that page says was archived in August 2026.
+Most top results list frameworks, and some have aged. As of 1 Oct 2026, Modal's page from September 2024 still leads with Devika and smol developer. AIMultiple, updated 16 Aug 2026, skips OpenClaw and Hermes Agent. Eesel's list, edited 8 Sep 2026, is mostly frameworks and builders, including Flowise, which that page says was archived in August 2026.
 
 ## Which open source AI agent should you pick?
 
