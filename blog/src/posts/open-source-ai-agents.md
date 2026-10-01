@@ -6,8 +6,8 @@ date: 2026-10-01
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
-primaryKeyword: "best open source ai agents"
-secondaryKeywords: ["open source ai agents", "open source ai agent", "self hosted ai agent", "open source ai coding agent", "open source personal ai assistant"]
+primaryKeyword: "open source ai agents"
+secondaryKeywords: ["best open source ai agents", "open source ai agent", "self hosted ai agent", "open source ai coding agent", "open source personal ai assistant"]
 tags: ["Comparisons", "AI Agents", "Open Source", "CLI Agents"]
 faq:
   - q: "What is the best open source AI agent?"
