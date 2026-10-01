@@ -82,7 +82,7 @@ The usual open source picks are OpenCode, Codex CLI, Gemini CLI and Aider. We re
 4. **Gemini CLI** (`google-gemini/gemini-cli`): Apache 2.0, but Google said on 19 May 2026 that from 18 Jun 2026 it would stop serving free, Google AI Pro and Ultra users, leaving paid API keys and enterprise licences.
 5. **Aider** (`Aider-AI/aider`): Apache 2.0, with its last commit on main dated 22 May 2026.
 
-One trap: Crush from Charm is source available, not open source. Its `LICENSE.md` is FSL-1.1-MIT, which bars competing commercial use and turns each version into MIT on its second anniversary.
+One trap: Crush from Charm is source available, not open source. Its `LICENSE.md` is FSL-1.1-MIT, which bars competing commercial use and turns each version into MIT on its second anniversary. If you want open agents beyond coding, such as personal assistants and agent teams, we keep a list of [open source AI agents](/blog/open-source-ai-agents/) sorted by job.
 
 ## Does it matter that Claude Code is closed?
 
