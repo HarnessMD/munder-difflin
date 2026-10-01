@@ -144,6 +144,10 @@ const CONTEXT_COMMANDS: Record<AgentProvider, ProviderContextCommands> = {
   // auto-compact. Revisit when a shipped command table is transcribed.
   cursor: NO_CONTEXT_COMMANDS,
 
+  // Devin's Essential Commands reference lists /compact (no documented focus
+  // argument) and /clear for a fresh conversation.
+  devin: { compact: '/compact', clear: '/clear', compactTakesFocus: false },
+
   // An arbitrary user binary. We cannot know its command surface, and guessing
   // means typing slashes into someone's unknown REPL.
   custom: NO_CONTEXT_COMMANDS

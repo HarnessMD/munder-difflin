@@ -66,7 +66,7 @@ countries and as low as $100 a year. <a href="https://app.harnessmd.com/console/
 > [!NOTE]
 > **The world's best agents. The world's worst paper company.**
 > Munder Difflin takes the terminal-agent CLIs you already run (`claude`, `agy`, `codex`, `grok`,
-> `kimi`, `qwen`, `opencode`, `crush`, `pi`, and `copilot`) and turns them
+> `kimi`, `qwen`, `opencode`, `crush`, `pi`, `copilot`, and `devin`) and turns them
 > into a self-coordinating team: each agent gets long-term memory, a mailbox, and a desk on a 2D
 > office floor, and **your clone** (Michael) routes work between them while you watch. He's the
 > boss of the floor; you're still the boss of him.
@@ -116,7 +116,7 @@ wires them into a **hive mind**, and puts **your clone** in charge. Michael is t
 talk to in order to get things done. Under the hood it runs the **fastest memory layer in the
 world** so every agent remembers what it learns and recalls it instantly.
 
-- **Every terminal is an agent.** Each `claude`, `agy`, `codex`, `grok`, `kimi`, `qwen`, `opencode`, `crush`, `pi`, `copilot`, or custom session runs as a real
+- **Every terminal is an agent.** Each `claude`, `agy`, `codex`, `grok`, `kimi`, `qwen`, `opencode`, `crush`, `pi`, `copilot`, `devin`, or custom session runs as a real
   process in a pseudo-terminal (`node-pty`), byte-for-byte authentic, rendered with xterm.js.
 - **Every agent is an avatar.** Sessions appear as characters on a Pixi.js office floor. They walk
   to stations as they work, and envelopes fly desk-to-desk when they message each other.
@@ -398,7 +398,8 @@ Everything below is for contributors and for people who want to run an unrelease
 - At least one supported agent CLI on your `PATH`, one of **[Claude Code](https://claude.com/claude-code)**
   (`claude`, the default), **Antigravity** (`agy`), **OpenAI Codex** (`codex`), **xAI Grok** (`grok`),
   **Kimi Code** (`kimi`), **Gemini CLI** (`gemini`), **Qwen** (`qwen`), **OpenCode** (`opencode`),
-  **Crush** (`crush`), **pi.dev** (`pi`), **GitHub Copilot** (`copilot`), or **Cursor** (`cursor-agent`).
+  **Crush** (`crush`), **pi.dev** (`pi`), **GitHub Copilot** (`copilot`), **Cursor** (`cursor-agent`),
+  or **[Devin CLI](https://docs.devin.ai/cli)** (`devin`).
   Most missing CLIs self-heal: the harness runs the installer in the
   terminal and continues into the new binary.
 - *Optional:* **your own API keys and local LLMs** in **Settings → AI Engines** (Ollama / LM Studio / vLLM).
@@ -415,6 +416,18 @@ npm run dev        # launches the Electron app with hot reload
 
 On first launch you'll go through the onboarding wizard, then land on the floor. Use **Add agent** to
 spawn your first session. The GOD agent seats itself in Michael's office automatically.
+
+To use Devin, select **Devin CLI** in Add agent and choose a SWE-2 model. The command field is
+editable, so you can add a personal prompt file, for example:
+
+```text
+devin --model swe-2 --permission-mode dangerous --prompt-file /path/to/DEVIN.md
+```
+
+The hive briefing is passed as Devin's initial interactive prompt. If you set `--prompt-file`,
+the app copies its contents and the hive briefing into a private per-agent prompt file because
+Devin rejects a prompt file together with an inline prompt. Your original file is untouched.
+Auto mode supplies `--permission-mode dangerous` when enabled.
 
 ### Other scripts
 

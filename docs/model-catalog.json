@@ -120,6 +120,22 @@
       { "id": "claude-opus-4-8-high", "label": "Opus 4.8 1M", "minAppVersion": null, "maxAppVersion": null },
       { "id": "claude-sonnet-5-thinking-high", "label": "Sonnet 5 1M Thinking", "minAppVersion": null, "maxAppVersion": null }
     ],
+    "devin": [
+      { "label": "CLI default", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "adaptive", "label": "Adaptive", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2", "label": "SWE-2", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2-high", "label": "SWE-2 High", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2-medium", "label": "SWE-2 Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "swe-2-max", "label": "SWE-2 Max", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "claude-opus-5-5-medium", "label": "Opus 5.5 Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "claude-fable-5-1-medium", "label": "Fable 5.1 Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "gpt-6-sol-medium", "label": "GPT-6 Sol Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "gpt-6-astra-medium", "label": "GPT-6 Astra Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "fusion-claude-opus-5-5-high-sidekick-swe-2-medium", "label": "Fusion · Opus 5.5 High + SWE-2 Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "fusion-claude-fable-5-1-high-sidekick-swe-2-medium", "label": "Fusion · Fable 5.1 High + SWE-2 Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "fusion-gpt-6-sol-high-sidekick-swe-2-medium", "label": "Fusion · GPT-6 Sol High + SWE-2 Medium", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "fusion-gpt-6-astra-high-sidekick-swe-2-medium", "label": "Fusion · GPT-6 Astra High + SWE-2 Medium", "minAppVersion": null, "maxAppVersion": null }
+    ],
     "custom": []
   }
 }
