@@ -1,0 +1,191 @@
+/* ==========================================================================
+   Halloween dress for the munderdiffl.in story page (Pam, 1 Oct 2026).
+   One layer over the live page: tokens, the costumed cast, the dusk that
+   falls as the workday scrolls by, and the motion. html.hw-full turns on the
+   extra trim of version C. Motion is transform and opacity on HTML boxes;
+   every moving part stops under prefers-reduced-motion.
+   No red anywhere: the season palette is orange, plum and purple.
+   ========================================================================== */
+
+/* ---- tokens, from the app's season.css (Pro skin) ---- */
+:root{
+  --paper:#FBF4EA;--paper-2:#F4E8DA;--card:#FFFCF7;--ink:#1F1628;--muted:#5B4F63;--faint:#8C8093;
+  --line:#EADCCB;--line-strong:#D9C6B0;
+  --accent:#F59A3C;--accent-hover:#FFB067;--accent-ink:#1E1208;--accent-soft:rgba(245,154,60,.18);
+  --maroon:#7B4FB0;--terminal:#1C1424;--terminal-ink:#F3EAD3;--sky:#9A77D0;--sky-light:#EEE6F8;
+  --night:#130E19;--night-2:#1E1727;--night-ink:#F1E8F7;
+  --hw-orange:#F59A3C;--hw-orange-hi:#FFB067;--hw-orange-sh:#A4520A;--hw-purple:#7B4FB0;--hw-purple-hi:#A77BE0;
+  --hw-flame:#FFE08A;--hw-carved:#5A2C0A;--hw-bat:#2B2238;--hw-ghost:#FBF8FF;--hw-stem:#5E7E2E;
+  --hw-sky:#FBF4EA;
+}
+html{background:var(--hw-sky)}
+body{background:transparent}
+nav{background:color-mix(in srgb,var(--hw-sky) 88%,transparent);transition:background .45s ease,border-color .45s ease}
+.hw-night nav{background:rgba(19,14,25,.86);border-bottom-color:#2E2438}
+.hw-night nav .brand,.hw-night nav .nav-links .txt{color:#E6DCEF}
+.hw-night nav .nav-links .txt:hover{background:#231B2D;color:#fff}
+.hw-night nav .btn:not(.primary){background:#1E1727;color:#F1E8F7;border-color:#3E3350}
+.hw-night .nav-burger{background:#1E1727;border-color:#3E3350}.hw-night .nav-burger span{background:#F1E8F7}
+.band{background:rgba(236,220,202,.34);border-color:rgba(217,198,176,.7)}
+.scard{background:#FBEBD6}
+.puck-btn:hover:not(:disabled){box-shadow:0 8px 20px rgba(26,19,32,.28),0 0 0 4px rgba(154,119,208,.2)}
+.puck-btn:focus-visible{outline-color:var(--sky)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,154,60,.6)}50%{box-shadow:0 0 0 12px rgba(245,154,60,0)}}
+.machine .flr{fill:#56696A}
+.pixfloor{background:conic-gradient(#5E7272 25%,#546666 0 50%,#5E7272 0 75%,#546666 0) 0 0/40px 40px}
+.dayclock.dark .dc-l{color:#B9AEC8}
+.afterhours p{color:#D6CBE0}
+.btn.ghost{border-color:#5A4E68}
+footer .foot,footer .foot a,footer .foot .credit a{color:#8C8093}
+footer{border-top-color:#2E2438}
+
+/* ---- the title: "AI" takes the pumpkin colour in the season (weight and reveal live in the always-on sheet) ---- */
+.hw-h1 .w.ai>span{color:var(--hw-orange)}
+
+/* ---- the pumpkin, one drawing, lit through custom properties ---- */
+.hw-pk{display:inline-block;width:1.25em;height:1.05em;vertical-align:-.16em;overflow:visible}
+.btn .hw-pk{--pk-shell:currentColor;--pk-stem:currentColor;--pk-face:var(--accent);margin-right:-1px}
+.btn.primary .hw-pk{--pk-face:var(--accent)}
+.btn.primary:hover .hw-pk{--pk-face:var(--hw-flame);animation:hw-flick .9s steps(2) infinite}
+@keyframes hw-flick{50%{opacity:.86}}
+.btn.primary{position:relative;transition:background .12s,border-color .12s,box-shadow .25s,transform .12s}
+.btn.primary:hover{box-shadow:0 6px 22px rgba(245,154,60,.42)}
+.btn.primary:active{transform:translateY(1px) scale(.985)}
+
+/* ---- the hero screen: the real office, recorded with the season on ---- */
+.screen.hw-office{aspect-ratio:1942/1340;background:#1B1524;border-color:var(--ink)}
+.screen.hw-office video{background:#1B1524}
+.vload{background:linear-gradient(180deg,transparent 45%,rgba(27,21,36,.85))}
+.vl-t{color:#F1E8F7}
+.sound .hw-play{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent-ink);color:var(--accent)}
+.cinema{position:relative}
+.cinema.hw-grow{transition:width .75s cubic-bezier(.2,.8,.2,1),margin-left .75s cubic-bezier(.2,.8,.2,1)}
+.cinema.hw-grow .screen{transition:height .75s cubic-bezier(.2,.8,.2,1),transform .2s linear}
+
+/* ---- more of the cast walks the hero floor ---- */
+.w6{animation-delay:-8s;animation-duration:27s}.w7{animation-delay:-14s;animation-duration:33s}.w8{animation-delay:-23s;animation-duration:29s}
+
+/* ---- the costume comes off on hover: the app's own plain art underneath ---- */
+.pt{transition:transform .18s cubic-bezier(.2,.9,.3,1.4)}
+.hw-can:hover{transform:translateY(-3px) scale(1.08)}
+
+/* ---- the day clock: a sun that turns into a moon as the day goes ---- */
+.dayclock{grid-template-columns:auto auto auto}
+.dc-t{grid-column:2}.dc-l{grid-column:3}.dc-bar{grid-column:3}
+.hw-orb{grid-row:span 2;grid-column:1;position:relative;width:22px;height:22px;border-radius:50%;background:var(--hw-orange);overflow:hidden;box-shadow:0 0 0 1px var(--ink)}
+.hw-orb i{position:absolute;inset:0;border-radius:50%;background:var(--card);transform:translate(calc((1 - var(--dusk,0)) * 26px + 7px),calc((1 - var(--dusk,0)) * -12px - 3px))}
+.dayclock.dark .hw-orb{background:#FFF1D0;box-shadow:0 0 12px rgba(255,241,208,.55)}
+.dayclock.dark .hw-orb i{background:var(--night-2)}
+
+/* ---- lantern strings between chapters: they light as you pass, swing when you touch them ---- */
+.hw-string{position:relative;height:96px;margin:-28px auto -40px;max-width:var(--maxw);z-index:3;pointer-events:none}
+.hw-string .cord{position:absolute;left:var(--pad);right:var(--pad);top:0;height:60px;width:calc(100% - 2 * var(--pad));overflow:visible}
+.hw-string .cord path{fill:none;stroke:var(--ink);stroke-width:1;opacity:.55;vector-effect:non-scaling-stroke}
+.hw-lan{position:absolute;width:30px;height:48px;margin-left:-15px;pointer-events:auto;cursor:grab}
+.hw-lan-in{position:absolute;inset:0;transform-origin:50% 0;will-change:transform}
+.hw-lan-in::before{content:"";position:absolute;left:50%;top:0;width:1px;height:14px;background:var(--ink);opacity:.55}
+.hw-lan-in .hw-pk{position:absolute;left:1px;top:13px;width:28px;height:24px;--pk-shell:#D9C6B0;--pk-stem:#8C8093;--pk-face:#B5A28C;transition:filter .4s}
+.hw-lan .glow{position:absolute;left:-18px;top:-4px;width:66px;height:66px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,103,.55),rgba(255,176,103,0) 65%);opacity:0;transition:opacity .6s}
+.hw-lan.lit .hw-pk{--pk-shell:var(--hw-orange);--pk-stem:var(--hw-stem);--pk-face:var(--hw-flame)}
+.hw-lan.lit .glow{opacity:1;animation:hw-glow 2.6s ease-in-out infinite}
+.hw-lan:nth-child(odd).lit .glow{animation-delay:-1.3s}
+@keyframes hw-glow{0%,100%{opacity:.85}40%{opacity:1}55%{opacity:.7}70%{opacity:.95}}
+.afterhours .hw-string .cord path{stroke:#F1E8F7;opacity:.35}
+.afterhours .hw-lan-in::before{background:#F1E8F7;opacity:.35}
+@media (max-width:640px){.hw-string .hw-lan.m-hide{display:none}.hw-string{height:84px}}
+
+/* ---- the candy that jumps out of a Download button ---- */
+.hw-fx{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:70}
+
+/* ---- after hours: the moon rises, stars come out, bats cross, lanterns on the desks ---- */
+.nightfloor{height:300px}
+.nightfloor .win{z-index:4}
+.nightfloor .win.hw-mwin{width:170px;height:112px;top:0;left:calc(50% - 85px)!important;overflow:hidden;background:linear-gradient(#241B30,#2E2340);border-color:#6A5C7C}
+.nightfloor .win.hw-mwin::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:#6A5C7C;z-index:2}
+.nightfloor .win.hw-mwin::after{content:"";position:absolute;left:0;right:0;top:55%;height:1px;background:#6A5C7C;z-index:2}
+.nightfloor>.moon{display:none}
+.nightfloor .hw-moon{position:absolute;width:58px;height:58px;left:calc(50% - 29px);top:22px;border-radius:50%;background:radial-gradient(circle at 36% 38%,#FFF7E2 0 30%,#FBE8C0 62%,#EFD39B 100%);box-shadow:0 0 34px 6px rgba(255,224,160,.35);transform:translateY(calc((1 - var(--rise,1)) * 96px))}
+.nightfloor .hw-moon::before,.nightfloor .hw-moon::after{content:"";position:absolute;border-radius:50%;background:rgba(214,178,120,.38)}
+.nightfloor .hw-moon::before{width:12px;height:12px;left:13px;top:30px}.nightfloor .hw-moon::after{width:8px;height:8px;left:34px;top:14px}
+.nightfloor .win:not(.hw-mwin){top:18px}
+@media (max-width:640px){.nightfloor .win:not(.hw-mwin){display:none}.nightfloor .win.hw-mwin{width:150px;height:100px;left:calc(50% - 75px)!important}}
+.afterhours>.hw-string{margin:calc(-1 * clamp(58px,7.4vw,104px)) auto 22px}
+.hw-stars{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;z-index:0}
+.afterhours .wrap{position:relative;z-index:1}
+.nd .hw-dpk{position:absolute;right:-14px;bottom:10px;width:18px;height:15px}
+.nd .hw-dpk .hw-pk{width:18px;height:15px;--pk-shell:var(--hw-orange);--pk-stem:var(--hw-stem);--pk-face:var(--hw-flame)}
+.nd .hw-dpk::after{content:"";position:absolute;left:-10px;top:-10px;width:38px;height:36px;border-radius:50%;background:radial-gradient(circle,rgba(255,176,103,.45),transparent 65%);animation:hw-glow 2.2s ease-in-out infinite}
+.hw-batlane{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+
+/* a bat: two wing boxes and a body; the outer box flies, the wings flap */
+.hw-bat{position:absolute;left:0;top:0;width:64px;height:32px;will-change:transform}
+.hw-bat .hw-fl{position:absolute;inset:0;animation:hw-bob .3s ease-in-out infinite alternate}
+.hw-bat .hw-wl,.hw-bat .hw-wr{position:absolute;top:0;width:32px;height:32px}
+.hw-bat .hw-wl{left:0;transform-origin:94% 34%;animation:hw-flapl .3s ease-in-out infinite alternate}
+.hw-bat .hw-wr{left:32px;transform-origin:6% 34%;animation:hw-flapr .3s ease-in-out infinite alternate}
+.hw-bat svg{display:block;overflow:visible}
+.hw-bat .bd{position:absolute;left:0;top:0}
+@keyframes hw-flapl{from{transform:rotate(16deg)}to{transform:rotate(-30deg) scaleY(.8)}}
+@keyframes hw-flapr{from{transform:rotate(-16deg)}to{transform:rotate(30deg) scaleY(.8)}}
+@keyframes hw-bob{from{transform:translateY(2px)}to{transform:translateY(-2px)}}
+.afterhours .hw-bat{--hw-bat:#0B0810}
+.hw-moonbat{animation:hw-moonpass 11s linear infinite;opacity:0}
+.hw-moonbat.b2{animation-delay:-4.5s;animation-duration:13s}.hw-moonbat.b3{animation-delay:-8s;animation-duration:12s}
+@keyframes hw-moonpass{0%{opacity:0;transform:translate(8vw,120px) scale(.55)}6%{opacity:1}46%{opacity:1;transform:translate(52vw,40px) scale(.8)}52%{opacity:0;transform:translate(60vw,30px) scale(.8)}100%{opacity:0;transform:translate(60vw,30px) scale(.8)}}
+
+/* =================================  C: full dress  ================================= */
+/* the hero air: embers rising, fog under the screen, bats crossing */
+.hw-full .hero{position:relative}
+.hw-full .hero>.wrap{position:relative;z-index:1}
+.hw-embers{position:absolute;inset:0;z-index:0;pointer-events:none}
+.hw-fog{position:absolute;left:-20%;right:-20%;bottom:30px;height:260px;z-index:0;pointer-events:none;overflow:hidden}
+.hw-fog i{position:absolute;bottom:0;width:70%;height:100%;border-radius:50%;background:radial-gradient(ellipse at center,rgba(167,123,224,.2),rgba(167,123,224,0) 70%);animation:hw-drift 28s ease-in-out infinite alternate}
+.hw-fog i:nth-child(2){left:40%;bottom:-40px;animation-duration:36s;animation-direction:alternate-reverse;background:radial-gradient(ellipse at center,rgba(245,154,60,.12),rgba(245,154,60,0) 70%)}
+@keyframes hw-drift{from{transform:translateX(-8%)}to{transform:translateX(14%)}}
+.hw-herobats{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hw-full .hero .eyebrow,.hw-full .hero .lead,.hw-full .hero .meta{position:relative;z-index:1}
+.hw-herobats .hw-bat{animation:hw-cross 16s linear infinite;opacity:0}
+.hw-herobats .hw-bat.b2{animation-delay:-5s;animation-duration:19s}
+.hw-herobats .hw-bat.b3{animation-delay:-11s;animation-duration:17s}
+@keyframes hw-cross{0%{opacity:0;transform:translate(-60px,340px) scale(.7) rotate(-8deg)}3%{opacity:1}18%{transform:translate(28vw,180px) scale(.9) rotate(6deg)}30%{transform:translate(56vw,250px) scale(.85) rotate(-6deg)}44%{opacity:1;transform:translate(104vw,120px) scale(.7) rotate(4deg)}45%,100%{opacity:0;transform:translate(104vw,120px) scale(.7)}}
+
+/* the title catches candle light once it lands */
+.hw-full .hw-h1.lit .w>span{background:linear-gradient(100deg,var(--ink) 0 46.5%,#C9661A 49%,var(--hw-flame) 50%,#C9661A 51%,var(--ink) 53.5% 100%) 100% 0/400% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .08em .3em;margin:0 -.08em -.3em;animation:hw-shine 1.1s cubic-bezier(.45,0,.3,1) forwards}
+.hw-full .hw-h1.lit .w.ai>span{background-image:linear-gradient(100deg,var(--hw-orange) 0 46.5%,var(--hw-flame) 50%,var(--hw-orange) 53.5% 100%)}
+.hw-full .hw-h1.lit .w:nth-child(2)>span{animation-delay:.3s}.hw-full .hw-h1.lit .w:nth-child(3)>span{animation-delay:.42s}.hw-full .hw-h1.lit .w:nth-child(4)>span{animation-delay:.58s}
+@keyframes hw-shine{to{background-position:0 0}}
+
+/* spiders drop from the lantern cords, and climb back up when you reach for them */
+.hw-spider{position:absolute;width:14px;height:84px;margin-left:-7px;overflow:hidden;pointer-events:auto;z-index:2}
+.hw-spider .rig{position:absolute;inset:0;transform:translateY(-66px);transition:transform .45s cubic-bezier(.5,0,.2,1)}
+.hw-spider .rig::before{content:"";position:absolute;left:6.5px;top:0;width:1px;height:66px;background:var(--ink);opacity:.45}
+.hw-spider svg{position:absolute;left:0;top:64px;transform-origin:7px -62px;animation:hw-dangle 3.4s ease-in-out infinite}
+.hw-spider.down .rig{transform:none;transition:transform 1.2s cubic-bezier(.3,1.45,.5,1)}
+@keyframes hw-dangle{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+
+/* a cobweb spins itself into the corner of a card you hover */
+.hw-webbed{position:relative}
+.hw-cweb{position:absolute;right:-1px;top:-1px;width:58px;height:58px;pointer-events:none;z-index:2}
+.hw-cweb path{fill:none;stroke:var(--ink);stroke-width:1;opacity:.32;stroke-dasharray:120;stroke-dashoffset:120;transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1)}
+.hw-cweb path:nth-child(n+5){transition-delay:.18s}
+.hw-webbed:hover .hw-cweb path{stroke-dashoffset:0}
+
+/* a ghost peeks out from an answer you open */
+.faq details{position:relative}
+.hw-peek{position:absolute;right:-8px;top:6px;width:34px;height:40px;pointer-events:none;opacity:0;transform:translateX(24px) rotate(10deg)}
+.hw-peek.go{animation:hw-peek 1.9s cubic-bezier(.3,1.3,.5,1) forwards}
+@keyframes hw-peek{0%{opacity:0;transform:translateX(24px) rotate(10deg)}18%{opacity:1;transform:translateX(-14px) rotate(-6deg)}70%{opacity:1;transform:translateX(-14px) rotate(-6deg)}100%{opacity:0;transform:translateX(28px) rotate(12deg)}}
+
+/* a torch in the dark office: the cast shows where you point */
+.hw-full .nightfloor{overflow:hidden}
+.hw-torch{position:absolute;left:0;top:0;width:1600px;height:1600px;margin:-800px 0 0 -800px;z-index:3;pointer-events:none;background:radial-gradient(circle at center,rgba(19,14,25,0) 0 110px,rgba(19,14,25,.5) 230px,rgba(19,14,25,.72) 420px);will-change:transform}
+
+/* ---- reduced motion: everything holds still, the page stays whole ---- */
+@media (prefers-reduced-motion:reduce){
+  .hw-lan .glow,.nd .hw-dpk::after,.hw-bat .hw-wl,.hw-bat .hw-wr,.hw-bat .hw-fl,.hw-moonbat,.hw-herobats .hw-bat,.hw-fog i,.hw-spider svg,.btn.primary:hover .hw-pk{animation:none!important}
+  .hw-moonbat,.hw-herobats,.hw-embers,.hw-torch,.hw-peek{display:none}
+  .hw-spider .rig{transform:none;transition:none}
+  .hw-cweb path{stroke-dashoffset:0;transition:none}
+  .hw-full .hw-h1.lit .w>span{animation:none;background:none;color:inherit}
+  .nightfloor .hw-moon{transform:none}
+}
