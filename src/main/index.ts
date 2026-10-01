@@ -1299,11 +1299,19 @@ function writeFleetSnapshot(): void {
       .map(([id, a]) => {
         const u = usageById.get(id);
         const spans = snap.spans[id] ?? [];
-        const tokens = u ? u.input + u.output + u.cacheRead + u.cacheCreation : 0;
-        // `usd` is LIFETIME (reset-corrected). Until the first fold completes we
-        // fall back to the session figure rather than publishing a cold $0.
+        // `usd` and `tokens` are both LIFETIME (reset-corrected) from the ledger. Until
+        // the first fold completes we fall back to the session figures rather than
+        // publishing a cold $0.
+        //
+        // `tokens` used to be the session sample alone, and that was wrong two ways: it
+        // read 0 for any agent with no live sample this process, and it understated any
+        // agent that had been through an app restart by the same margin the lifetime fold
+        // exists to recover — measured at ~10x on a real ledger.
         const lifetime = costTotals.usdFor(id);
+        const lifetimeTokens = costTotals.tokensFor(id);
         const sessionUsd = u ? Number(u.usd.toFixed(4)) : 0;
+        const sessionTokens = u ? u.input + u.output + u.cacheRead + u.cacheCreation : 0;
+        const tokens = lifetimeTokens === null ? sessionTokens : lifetimeTokens;
         return {
           id,
           name: a.name,
