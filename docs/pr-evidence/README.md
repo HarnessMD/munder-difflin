@@ -17,3 +17,4 @@ Before/after screenshots for pull request evidence, served to the PR body via
 - `before-topic-tiles.png` / `after-topic-tiles.png` — the tile grid on
   /blog/topics/ at 1280px wide: the live page (topic name on a flat colour)
   and the local build with the drawn tile images.
+- `before-readme-org-links.png` / `after-readme-org-links.png`: the README top on GitHub before and after the move to HarnessMD (link row under the title, first paragraph naming the agent harness and the engines). Same page width, same crop.
