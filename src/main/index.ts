@@ -55,6 +55,7 @@ import { registerRealtimeActionIpc } from './realtimeActions';
 import { initCompletionWatcher } from './realtimeCompletionWatcher';
 import type { TaskCard, InboxMessage } from './realtimeCompletionWatcher';
 import { TelemetryCollector } from './telemetry';
+import { readCodexRegistryContexts } from './codexContext';
 import { CostLedgerTotals } from './costLifetime';
 import { analytics, isRendererMessageSurface } from './analytics';
 import type { SpawnFailReason } from './analytics';
@@ -278,6 +279,7 @@ const breaker = new CircuitBreaker(() => {
 // heartbeat mission is disabled (it ships off).
 let fleetTimer: ReturnType<typeof setInterval> | null = null;
 let breakerBeatTimer: ReturnType<typeof setInterval> | null = null;
+let codexContextTimer: ReturnType<typeof setInterval> | null = null;
 // Feed the breaker's api_error-storm trip from Oscar's OTel api_error spans —
 // Jim's one breaker input with no on-branch source (telemetry.onApiError seam).
 telemetry.onApiError((agentId) => breaker.recordError(agentId));
@@ -1325,6 +1327,21 @@ function writeFleetSnapshot(): void {
     hive.writeFleetSnapshot({ ts: now, agents, hooks: hookServer.health() });
   } catch (e) {
     console.error('[fleet] snapshot failed:', e);
+  }
+}
+
+/** Backfill Codex context from its provider-specific rollout data. Claude can
+ *  use status hooks or the renderer's 15-second transcript fallback, while
+ *  fleet telemetry is a separate input. Codex hook delivery was traced through
+ *  the shared shim architecture but was not empirically verified for this fix. */
+function pollCodexContext(): void {
+  if (!hive.enabled()) return;
+  try {
+    for (const { agentId, reading } of readCodexRegistryContexts(hive)) {
+      hookServer.reportContext(agentId, reading.tokens, reading.limit);
+    }
+  } catch (e) {
+    console.error('[fleet] codex context poll failed:', e);
   }
 }
 
@@ -5279,6 +5296,9 @@ function armAlwaysOnBeats(): void {
   if (fleetTimer) clearInterval(fleetTimer);
   writeFleetSnapshot();
   fleetTimer = setInterval(writeFleetSnapshot, 8_000);
+  if (codexContextTimer) clearInterval(codexContextTimer);
+  pollCodexContext();
+  codexContextTimer = setInterval(pollCodexContext, 8_000);
   if (breakerBeatTimer) clearInterval(breakerBeatTimer);
   breakerBeatTimer = setInterval(() => { try { runBreakerBeat(300_000); } catch (e) { console.error('[breaker beat]', e); } }, 30_000);
   if (workerWakeTimer) clearInterval(workerWakeTimer);
