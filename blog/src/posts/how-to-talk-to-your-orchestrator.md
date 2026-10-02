@@ -96,4 +96,4 @@ The same brief discipline applies out loud. "Michael, goal: the changelog is upd
 
 Goal, constraints, budget, deliverable. Say it once, let Michael staff it, steer when reality changes, and answer your approvals. That's the whole skill — and it's the difference between a floor that looks busy and a floor that ships.
 
-[Download Munder Difflin](https://github.com/chaitanyagiri/munder-difflin/releases/latest) and brief your first floor — and if it ships something, [a GitHub star](https://github.com/chaitanyagiri/munder-difflin) is appreciated.
+[Download Munder Difflin](https://github.com/HarnessMD/munder-difflin/releases/latest) and brief your first floor — and if it ships something, [a GitHub star](https://github.com/HarnessMD/munder-difflin) is appreciated.

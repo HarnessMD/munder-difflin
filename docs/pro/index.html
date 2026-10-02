@@ -427,7 +427,7 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
       <a class="txt" href="https://discord.gg/SEDzP5ZPk5" target="_blank" rel="noopener">Discord</a>
       <a class="txt" href="https://harnessmd.com/signin">Sign in</a>
       <!-- Star count: GitHub API on 2026-09-09 said 6,686. Every .starct on the page is written correct and then refreshed live; see updateStars(). -->
-      <a class="btn sm" href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span></a>
+      <a class="btn sm" href="https://github.com/HarnessMD/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span></a>
       <a class="btn primary sm" href="https://harnessmd.com/download">Download</a>
     </div>
     <button type="button" class="nav-burger" id="navBurger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -440,7 +440,7 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
     <a href="https://munderdiffl.in/blog/" target="_blank" rel="noopener">Blog</a>
     <a href="https://discord.gg/SEDzP5ZPk5" target="_blank" rel="noopener">Discord</a>
     <a href="https://harnessmd.com/signin">Sign in</a>
-    <a href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span> on GitHub</a>
+    <a href="https://github.com/HarnessMD/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span> on GitHub</a>
   </div>
 </nav>
 
@@ -807,15 +807,15 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
     <div class="foot-row">
       <span>© 2026 Munder Difflin. Free and open source. <span id="fontCheck"></span></span>
       <div class="foot-links">
-        <a href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/HarnessMD/munder-difflin" target="_blank" rel="noopener">GitHub</a>
         <a href="https://munderdiffl.in/blog/" target="_blank" rel="noopener">Blog</a>
         <a href="https://discord.gg/SEDzP5ZPk5" target="_blank" rel="noopener">Discord</a>
         <a href="/#pricing">Pricing</a>
         <a href="https://munderdiffl.in/wall.html" target="_blank" rel="noopener">Founders' Wall</a>
         <a href="mailto:girichaitanya11@gmail.com">Contact</a>
         <a href="https://harnessmd.com/download">Download</a>
-        <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/SECURITY.md" target="_blank" rel="noopener">Security</a>
-        <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+        <a href="https://github.com/HarnessMD/munder-difflin/blob/main/SECURITY.md" target="_blank" rel="noopener">Security</a>
+        <a href="https://github.com/HarnessMD/munder-difflin/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
         <a href="https://munderdiffl.in/terms.html" target="_blank" rel="noopener">Terms</a>
         <a href="https://munderdiffl.in/privacy.html" target="_blank" rel="noopener">Privacy</a>
       </div>
@@ -834,7 +834,7 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
   if (burger && drawer) burger.addEventListener('click', function () { var o = drawer.classList.toggle('open'); burger.classList.toggle('open', o); burger.setAttribute('aria-expanded', o ? 'true' : 'false'); });
 
   /* the live star count, as on the landing page */
-  try { fetch('https://api.github.com/repos/chaitanyagiri/munder-difflin').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+  try { fetch('https://api.github.com/repos/HarnessMD/munder-difflin').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     if (!j || !j.stargazers_count) return; var n = j.stargazers_count, t = n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : String(n);
     document.querySelectorAll('.starct').forEach(function (el) { el.textContent = t; }); }).catch(function () {}); } catch (e) {}
 

@@ -7,16 +7,24 @@
 ### Agent harness to run an office of your clones
 
 <p>
+  <a href="https://munderdiffl.in"><strong>Website</strong></a> ·
+  <a href="https://harnessmd.com/download"><strong>Download</strong></a> ·
+  <a href="https://discord.gg/SEDzP5ZPk5"><strong>Discord</strong></a> ·
+  <a href="./CONTRIBUTING.md"><strong>Contributing</strong></a>
+</p>
+
+<p>
   <a href="https://trendshift.io/repositories/46562" target="_blank" rel="noopener noreferrer"><img alt="GitHub Trending: #1 Repository of the Day" src="./docs/badge-github-trending.png" width="250" height="54"></a>
   <a href="https://www.producthunt.com/products/munder-difflin?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_campaign=badge-munder-difflin" target="_blank" rel="noopener noreferrer"><img alt="Munder Difflin, #5 Product of the Day on Product Hunt" src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=1221363&theme=light&period=daily" width="250" height="54"></a>
 </p>
 
 <img src="./docs/media/floor.png" alt="The Munder Difflin office floor: agents at desks working in parallel, with the Command Center and a live agent terminal on the right" width="1240">
 
-**Free, open source and performant.** A multi-agent harness that works with the
-subscriptions you already pay for, on their hourly limits. It turns the terminal coding CLI
-you already run into a clone of you, one that keeps working while you're away and
-coordinates a whole office of agents on your own machine.
+**Free, open source and performant.** Munder Difflin is an agent harness for Claude Code, Codex
+and ten more coding agents: a multi agent harness that works with the subscriptions you already
+pay for, on their hourly limits. It turns the terminal coding CLI you already run into a clone of
+you, one that keeps working while you're away and coordinates a whole office of agents on your
+own machine.
 
 Wraps [Claude Code](https://claude.com/claude-code), Antigravity (Gemini), OpenAI Codex,
 **xAI Grok**, **Kimi Code**, **Gemini CLI**, **Qwen**, **OpenCode**, **Crush**,
@@ -30,8 +38,8 @@ visualized as avatars at work on a shared office floor.
 
 <p>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F4D35E.svg?style=flat-square&labelColor=6E1423"></a>
-  <a href="./CHANGELOG.md"><img alt="Version: 0.5.3" src="https://img.shields.io/badge/version-0.5.3-F4D35E.svg?style=flat-square&labelColor=6E1423"></a>
-  <a href="https://github.com/chaitanyagiri/munder-difflin/releases"><img alt="Downloads across all releases" src="https://img.shields.io/github/downloads/chaitanyagiri/munder-difflin/total?style=flat-square&label=downloads&color=F4D35E&labelColor=6E1423"></a>
+  <a href="./CHANGELOG.md"><img alt="Version: 0.5.5" src="https://img.shields.io/badge/version-0.5.5-F4D35E.svg?style=flat-square&labelColor=6E1423"></a>
+  <a href="https://github.com/HarnessMD/munder-difflin/releases"><img alt="Downloads across all releases" src="https://img.shields.io/github/downloads/HarnessMD/munder-difflin/total?style=flat-square&label=downloads&color=F4D35E&labelColor=6E1423"></a>
   <img alt="Status: pre-release" src="https://img.shields.io/badge/status-pre--release-F4F1EA.svg?style=flat-square&labelColor=6E1423">
   <img alt="Platform: macOS | Windows | Linux" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-F4F1EA.svg?style=flat-square&labelColor=6E1423">
   <a href="./CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-F4D35E.svg?style=flat-square&labelColor=6E1423"></a>
@@ -42,16 +50,16 @@ visualized as avatars at work on a shared office floor.
 <br>
 
 <!-- Inline player renders on github.com (raw URL required; relative paths only link). -->
-<video src="https://github.com/chaitanyagiri/munder-difflin/raw/main/docs/media/hero.mp4" controls muted loop playsinline width="820">
-  <a href="https://github.com/chaitanyagiri/munder-difflin/raw/main/docs/media/hero.mp4">▶ Watch the floor: Munder Difflin running a hive of Claude Code agents</a>
+<video src="https://github.com/HarnessMD/munder-difflin/raw/main/docs/media/hero.mp4" controls muted loop playsinline width="820">
+  <a href="https://github.com/HarnessMD/munder-difflin/raw/main/docs/media/hero.mp4">▶ Watch the floor: Munder Difflin running a hive of Claude Code agents</a>
 </video>
 
 <br><br>
 
-**[⬇ Download 0.5.3 for macOS, Windows or Linux](https://harnessmd.com/download)**
+**[⬇ Download 0.5.5 for macOS, Windows or Linux](https://harnessmd.com/download)**
 
 <sub>macOS builds are signed and notarized. You do not need to build from source to use it.
-The open source build is on the <a href="https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.3">GitHub releases page</a>.</sub>
+The open source build is on the <a href="https://github.com/HarnessMD/munder-difflin/releases/tag/v0.5.5">GitHub releases page</a>.</sub>
 
 **Cancel your Granola and Wispr Flow subscriptions.** 0.5.3 dictates into any app and transcribes your
 meetings, all running locally.
@@ -208,7 +216,7 @@ escalates the few things that actually need you.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/chaitanyagiri/munder-difflin/raw/main/docs/media/demo/orchestrator.mp4"><img src="./docs/media/demo/orchestrator-poster.jpg" alt="Briefing Michael, the orchestrator agent, from the Command Center" width="100%"></a>
+  <a href="https://github.com/HarnessMD/munder-difflin/raw/main/docs/media/demo/orchestrator.mp4"><img src="./docs/media/demo/orchestrator-poster.jpg" alt="Briefing Michael, the orchestrator agent, from the Command Center" width="100%"></a>
 </td>
 </tr>
 <tr>
@@ -261,7 +269,7 @@ Click any desk to read that terminal live, and type straight back into it.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/chaitanyagiri/munder-difflin/raw/main/docs/media/demo/agents.mp4"><img src="./docs/media/demo/agents-poster.jpg" alt="Agents working in parallel on the office floor" width="100%"></a>
+  <a href="https://github.com/HarnessMD/munder-difflin/raw/main/docs/media/demo/agents.mp4"><img src="./docs/media/demo/agents-poster.jpg" alt="Agents working in parallel on the office floor" width="100%"></a>
 </td>
 </tr>
 <tr>
@@ -274,7 +282,7 @@ than sending you to a docs page.
 
 </td>
 <td width="50%">
-  <a href="https://github.com/chaitanyagiri/munder-difflin/raw/main/docs/media/demo/setup.mp4"><img src="./docs/media/demo/setup-poster.jpg" alt="The first run setup wizard" width="100%"></a>
+  <a href="https://github.com/HarnessMD/munder-difflin/raw/main/docs/media/demo/setup.mp4"><img src="./docs/media/demo/setup-poster.jpg" alt="The first run setup wizard" width="100%"></a>
 </td>
 </tr>
 </table>
@@ -361,7 +369,7 @@ than sending you to a docs page.
 > and it has been removed entirely.
 > macOS (signed & notarized), Windows, and Linux builds are on the
 > [download page](https://harnessmd.com/download). The open source build is on the
-> [releases page](https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.3).
+> [releases page](https://github.com/HarnessMD/munder-difflin/releases/tag/v0.5.5).
 
 <div align="right">(<a href="#munder-difflin">↑ back to top</a>)</div>
 
@@ -370,8 +378,8 @@ than sending you to a docs page.
 ### Download the app
 
 **Most people want this one.** Munder Difflin is free and open source. Signed and notarized macOS
-builds of 0.5.3, plus Windows and Linux, are on the [download page](https://harnessmd.com/download).
-The open source build is on the [latest GitHub release](https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.3). Install it,
+builds of 0.5.5, plus Windows and Linux, are on the [download page](https://harnessmd.com/download).
+The open source build is on the [latest GitHub release](https://github.com/HarnessMD/munder-difflin/releases/tag/v0.5.5). Install it,
 open it, and the wizard takes you the rest of the way. You do not need Node, a toolchain, or this
 repository.
 
@@ -407,7 +415,7 @@ Everything below is for contributors and for people who want to run an unrelease
 ### Install & run
 
 ```bash
-git clone https://github.com/chaitanyagiri/munder-difflin.git
+git clone https://github.com/HarnessMD/munder-difflin.git
 cd munder-difflin
 npm install        # postinstall rebuilds node-pty against Electron's ABI
 npm run dev        # launches the Electron app with hot reload
@@ -484,7 +492,7 @@ first areas: wiring real hook events, the add-agent flow, the config drawer, and
 Questions, bugs, or want to show off your office? Join the Discord: **<https://discord.gg/SEDzP5ZPk5>**. Add your Discord handle to a PR and you'll get the `employee of the month` role when it merges.
 
 **Looking for somewhere to start?** The
-[`good first issue`](https://github.com/chaitanyagiri/munder-difflin/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[`good first issue`](https://github.com/HarnessMD/munder-difflin/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 list is kept stocked with small, self contained work that has a clear finish line.
 
 **Everyone whose code is in Munder Difflin is listed in [`CONTRIBUTORS.md`](./CONTRIBUTORS.md).**
@@ -494,7 +502,7 @@ updates on its own, so you appear without having to ask. It also names the contr
 and not theirs to explain.
 
 <a href="./CONTRIBUTORS.md">
-  <img src="https://contrib.rocks/image?repo=chaitanyagiri/munder-difflin" alt="Munder Difflin contributors">
+  <img src="https://contrib.rocks/image?repo=HarnessMD/munder-difflin" alt="Munder Difflin contributors">
 </a>
 
 ## Telemetry

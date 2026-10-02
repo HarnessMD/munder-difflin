@@ -122,8 +122,8 @@ contributor the project ever had. Thank you.
 
 Munder Difflin is **free, open source, and local-first** on macOS, Windows, and Linux. No account. No cloud. Your machine, your subscriptions, your floor.
 
-[**Download v0.2.4**](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — install the CLIs you want (`claude`, `agy`, and/or `codex`), add them to the floor, and brief your first GOD orchestrator.
+[**Download v0.2.4**](https://github.com/HarnessMD/munder-difflin/releases/latest) — install the CLIs you want (`claude`, `agy`, and/or `codex`), add them to the floor, and brief your first GOD orchestrator.
 
-Want the deep dive on *how* every piece works? That's the [technical walkthrough](/blog/munder-difflin-v0-2-4-feature-walkthrough/). Full release notes live in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+Want the deep dive on *how* every piece works? That's the [technical walkthrough](/blog/munder-difflin-v0-2-4-feature-walkthrough/). Full release notes live in the [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 That's it. Go build a floor.

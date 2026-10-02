@@ -115,10 +115,10 @@ the floor you already love — now engine-agnostic, with a front door for your t
 
 Munder Difflin is **free, open source, and local-first** on macOS, Windows, and Linux. no account, no cloud — your machine, your subscriptions, your floor.
 
-[**Download v0.3.0**](https://github.com/chaitanyagiri/munder-difflin/releases/latest), then pick an engine for your first hire, browse the [**Agent Gallery**](https://munderdiffl.in/hires), and — if you're feeling brave — point a Slack channel at Michael and watch him spawn a worker, answer, and tidy up after himself.
+[**Download v0.3.0**](https://github.com/HarnessMD/munder-difflin/releases/latest), then pick an engine for your first hire, browse the [**Agent Gallery**](https://munderdiffl.in/hires), and — if you're feeling brave — point a Slack channel at Michael and watch him spawn a worker, answer, and tidy up after himself.
 
 curious how the orchestrator decides any of this? read [how the god orchestrator works](/blog/how-the-god-orchestrator-works/). want the local-first philosophy? that's [why local-first matters](/blog/why-local-first-matters-for-ai-agents/). missed the last launch? [v0.2.8 shareable hires is right here](/blog/launching-munder-difflin-v0-2-8/).
 
-full release notes live in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+full release notes live in the [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 that's it. go pick a brain, plug in a tool, and let Michael run the floor. (he'd like you to know the engine is now *his* choice too.)

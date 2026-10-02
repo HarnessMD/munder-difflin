@@ -46,7 +46,7 @@ We read the security pages of both, [Meta's Muse privacy page](https://www.meta.
 | Where is your data? | Meta's cloud | Cursor's cloud, in the US | Your disk |
 | Can you run it yourself? | No | No | Yes, it is open source (MIT) |
 
-Checked on 26 September 2026 against Meta's help page, SpaceXAI's security FAQ and the [Munder Difflin repo](https://github.com/chaitanyagiri/munder-difflin).
+Checked on 26 September 2026 against Meta's help page, SpaceXAI's security FAQ and the [Munder Difflin repo](https://github.com/HarnessMD/munder-difflin).
 
 ## How Meta Muse protects you, and where it asks for a lot
 

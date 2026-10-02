@@ -78,4 +78,4 @@ Isolation keeps them from colliding: each hire gets its own pseudo-terminal and,
 
 Don't design the org chart up front. Hire Claude Code as Michael, add one Codex or Copilot desk for a real coding task, and one OpenCode desk on a Groq or Ollama model for something routine. Watch what each engine is actually good at on *your* work, then grow the floor around the evidence.
 
-Munder Difflin is free, MIT-licensed, and local-first. [Grab the latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest) and try a mixed floor — and if it earns a spot in your toolkit, a [GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+Munder Difflin is free, MIT-licensed, and local-first. [Grab the latest release](https://github.com/HarnessMD/munder-difflin/releases/latest) and try a mixed floor — and if it earns a spot in your toolkit, a [GitHub star](https://github.com/HarnessMD/munder-difflin) helps more people find it.

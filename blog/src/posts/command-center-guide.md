@@ -118,4 +118,4 @@ already waiting for you on [the ask me tab](/blog/human-in-the-loop-approving-ai
 ## Try it
 
 The Command Center is part of the free classic office. [Download Munder Difflin](https://munderdiffl.in/), and if the board earns a
-place in your morning routine, [a star on GitHub](https://github.com/chaitanyagiri/munder-difflin) helps other people find it.
+place in your morning routine, [a star on GitHub](https://github.com/HarnessMD/munder-difflin) helps other people find it.

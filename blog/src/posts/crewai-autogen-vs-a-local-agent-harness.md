@@ -84,6 +84,6 @@ There's no loser here. It's the same distinction as Rails vs. a deployed app: no
 
 ## Try the harness side in five minutes
 
-If your answer was "I just want the team," that's the job Munder Difflin exists for. [Download the latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — free, open source, local-first — and if it earns it, [a GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+If your answer was "I just want the team," that's the job Munder Difflin exists for. [Download the latest release](https://github.com/HarnessMD/munder-difflin/releases/latest) — free, open source, local-first — and if it earns it, [a GitHub star](https://github.com/HarnessMD/munder-difflin) helps more people find it.
 
 Sources: [CrewAI on GitHub](https://github.com/crewAIInc/crewAI); [Microsoft Agent Framework overview](https://learn.microsoft.com/en-us/agent-framework/overview/); [Migrating Semantic Kernel and AutoGen to Agent Framework](https://devblogs.microsoft.com/agent-framework/migrate-your-semantic-kernel-and-autogen-projects-to-microsoft-agent-framework-release-candidate/); [LangGraph](https://www.langchain.com/langgraph).

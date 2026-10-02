@@ -79,7 +79,7 @@ codebase shouldn't ship your code and memory to someone else's cloud — you kee
 privacy, and the predictable cost ([the full case](/blog/why-local-first-matters-for-ai-agents/)).
 And **open source (MIT)**, because a tool you run against your own code is one you should be able to
 read, trust, and extend. The code lives on
-[GitHub](https://github.com/chaitanyagiri/munder-difflin).
+[GitHub](https://github.com/HarnessMD/munder-difflin).
 
 ## What it's for
 

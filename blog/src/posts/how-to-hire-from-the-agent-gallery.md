@@ -108,4 +108,4 @@ gallery page, then import it with Add agent and import hire. Manifests are plain
 ---
 
 Grab the latest build from [munderdiffl.in](https://munderdiffl.in/), and if the gallery saves you an afternoon of blank forms,
-[a GitHub star](https://github.com/chaitanyagiri/munder-difflin) is appreciated.
+[a GitHub star](https://github.com/HarnessMD/munder-difflin) is appreciated.

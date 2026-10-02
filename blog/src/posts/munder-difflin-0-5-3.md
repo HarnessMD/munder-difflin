@@ -211,13 +211,13 @@ The ones most likely to have annoyed you:
 
 Four came from people outside the team, on Windows, through the public repository:
 
-- **An agent no longer stops at Claude Code's folder trust dialog** ([#607](https://github.com/chaitanyagiri/munder-difflin/issues/607), [@himeshram](https://github.com/himeshram)).
+- **An agent no longer stops at Claude Code's folder trust dialog** ([#607](https://github.com/HarnessMD/munder-difflin/issues/607), [@himeshram](https://github.com/himeshram)).
 - **config.json and the hive's registry and task files are written whole**, temp file then rename, so a
   crash or a locked file mid write can no longer empty your settings, your roster or your board
-  ([#529](https://github.com/chaitanyagiri/munder-difflin/issues/529), [@UsryAce](https://github.com/UsryAce);
-  [#578](https://github.com/chaitanyagiri/munder-difflin/issues/578), [@TTAWDTT](https://github.com/TTAWDTT)).
-- **Antigravity is found** at its own install location ([#592](https://github.com/chaitanyagiri/munder-difflin/issues/592), [@HsienW](https://github.com/HsienW)), and the
-  Windows tests run the same on every machine ([#403](https://github.com/chaitanyagiri/munder-difflin/issues/403), [@oleg-ai-dev](https://github.com/oleg-ai-dev)).
+  ([#529](https://github.com/HarnessMD/munder-difflin/issues/529), [@UsryAce](https://github.com/UsryAce);
+  [#578](https://github.com/HarnessMD/munder-difflin/issues/578), [@TTAWDTT](https://github.com/TTAWDTT)).
+- **Antigravity is found** at its own install location ([#592](https://github.com/HarnessMD/munder-difflin/issues/592), [@HsienW](https://github.com/HsienW)), and the
+  Windows tests run the same on every machine ([#403](https://github.com/HarnessMD/munder-difflin/issues/403), [@oleg-ai-dev](https://github.com/oleg-ai-dev)).
 
 Plus the rest that landed through September: release drop pictures and fonts, Stapler drift and dark mode,
 the sent to toast, memory cards that no longer clip in Chinese, status dots, the canvas design skill
@@ -238,7 +238,7 @@ Two things, said plainly rather than left for you to discover.
 
 The app updates itself: you will see the new version offered, and the release notes appear once on
 first launch. To install fresh, the [releases
-page](https://github.com/chaitanyagiri/munder-difflin/releases) has macOS, Windows and Linux builds.
+page](https://github.com/HarnessMD/munder-difflin/releases) has macOS, Windows and Linux builds.
 
 Munder Difflin is free and open source. The Pro annual plan is on a launch offer at $150 USD, adjusted for
 purchasing power so it is as low as $100 a year in some countries. If this is your first look, [your first

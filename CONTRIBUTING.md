@@ -37,7 +37,7 @@ much cheaper than finding out in review.
 ### Prerequisites
 
 - **macOS, Windows, or Linux** — signed/notarized macOS builds, plus Windows and
-  Linux builds, ship from the [releases page](https://github.com/chaitanyagiri/munder-difflin/releases/latest).
+  Linux builds, ship from the [releases page](https://github.com/HarnessMD/munder-difflin/releases/latest).
   Cross-platform smoke-testing and fixes are still very welcome (see
   [Good first areas](#good-first-areas)).
 - **Node.js 18+** and npm.
@@ -133,7 +133,7 @@ negotiate, and every one of them is cheaper to avoid than to fix in review:
 - **Wholesale reformatting** of files, or a diff where the real change is buried
   in whitespace and import reordering.
 - **A rewrite nobody asked for.** Large architectural changes need an issue or a
-  [discussion](https://github.com/chaitanyagiri/munder-difflin/discussions) with
+  [discussion](https://github.com/HarnessMD/munder-difflin/discussions) with
   agreement **before** you write the code. We would rather say no to a paragraph
   than to a week of your work.
 - **Generated or unattributed content** — art that isn't yours or compatibly
@@ -171,7 +171,7 @@ the module by module layout, and the design system.
 ## Commit & PR conventions
 
 - Branch off `main`. One change per PR — see
-  [What gets a PR closed](#what-gets-a-pr-closed).
+  [Where the bar is](#where-the-bar-is).
 - Write a clear description of *what* changed and *why*. We can read the diff;
   we cannot read your reasoning.
 - Say how you tested it, and on which OS. "Tested locally" tells us nothing.
@@ -195,4 +195,4 @@ licensed, and you must add it to `ATTRIBUTION.md`. Don't add unlicensed assets.
 
 ## Questions
 
-Open a [discussion or issue](../../issues) — happy to help you get oriented.
+Open a [discussion](https://github.com/HarnessMD/munder-difflin/discussions) or an [issue](https://github.com/HarnessMD/munder-difflin/issues), and we will help you get oriented.

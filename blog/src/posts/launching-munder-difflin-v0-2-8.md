@@ -128,10 +128,10 @@ plus the multi-provider parity (Claude Code + Antigravity + Codex, no second-cla
 
 Munder Difflin is **free, open source, and local-first** on macOS, Windows, and Linux. no account, no cloud — your machine, your subscriptions, your floor.
 
-[**Download v0.2.8**](https://github.com/chaitanyagiri/munder-difflin/releases/latest), then head over to [**The Hiring Fair**](https://munderdiffl.in/hires), find a coworker, and hit ⚡hire. review the modal. spawn it. watch Pam get to work.
+[**Download v0.2.8**](https://github.com/HarnessMD/munder-difflin/releases/latest), then head over to [**The Hiring Fair**](https://munderdiffl.in/hires), find a coworker, and hit ⚡hire. review the modal. spawn it. watch Pam get to work.
 
 want the why-it's-built-this-way story? read the concept companion on [shareable agent roles](/blog/shareable-agent-roles/). want the trust model and threat surface in detail? that's the [hire manifest security deep-dive](/blog/hire-manifest-untrusted-input/). curious how we even ended up with a Dwight in the first place? the [Office parody behind Munder Difflin](/blog/the-office-parody-behind-munder-difflin/) explains the casting. and if you missed the multi-provider launch, [v0.2.4 is right here](/blog/launching-munder-difflin-v0-2-4/).
 
-full release notes live in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+full release notes live in the [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 that's it. go hire someone. (Dwight is already volunteering.)
