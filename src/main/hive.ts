@@ -2386,9 +2386,10 @@ export class HiveManager {
    *  lets the renderer idle inbox-wake nudge deliver mail. Returns the per-agent dir
    *  for PI_CODING_AGENT_DIR.
    *
-   *  LIVE-UNVERIFIED: Pi's exact extension-discovery path + event API need BYOK keys
-   *  to confirm; this is written best-effort and wrapped so a wrong guess can never
-   *  break the spawn. The renderer nudge is the guaranteed drain regardless. */
+   *  Session discovery/identity/resume verified with Pi 1.0.0 in offline RPC mode
+   *  (test/pi-session-resume.manual.cjs). Live model/tool execution was not part
+   *  of that check; the bridge stays best-effort and the renderer nudge remains
+   *  the inbox-drain fallback. */
   private installPiHooks(dir: string): string {
     const home = join(dir, '.pi-agent');
     try {
@@ -3228,16 +3229,24 @@ process.stdin.on('end', () => {
 // mode (HIVE_AUTO_APPROVE, gated by config.autoMode — Pam guardrail #5). The
 // agent_end→Stop keeps the harness status in step (→ idle) so the renderer idle
 // inbox-wake nudge can deliver mail. Fully wrapped so a wrong API guess can never
-// break the spawn. LIVE-UNVERIFIED (Pi's exact extension surface needs BYOK keys).
+// break the spawn. Session forwarding is checked by the offline RPC experiment;
+// live model/tool execution is not part of that experiment.
 const PI_EXTENSION = `'use strict';
 var net = require('node:net');
 var SOCK = process.env.HIVE_SOCK;
 var AGENT = process.env.AGENT_ID || null;
 var AUTO = process.env.HIVE_AUTO_APPROVE === '1';
-function post(payload) {
+function post(payload, ctx) {
   try {
     if (!SOCK) return;
     payload.agent_id = payload.agent_id || AGENT;
+    // The context is the current Pi conversation. Tool events themselves do
+    // not identify it; do not cache an id across new/resumed/forked sessions.
+    try {
+      var manager = ctx && ctx.sessionManager;
+      var sid = manager && typeof manager.getSessionId === 'function' ? manager.getSessionId() : undefined;
+      if (typeof sid === 'string' && sid.trim()) payload.session_id = sid;
+    } catch (e) {} // older/missing context must not break tool reporting
     var c = net.createConnection(SOCK, function () { try { c.end(JSON.stringify(payload) + '\\n'); } catch (e) {} });
     c.on('error', function () {});
   } catch (e) {}
@@ -3265,13 +3274,14 @@ function piToolPayload(hookEventName, ev) {
 function register(pi) {
   if (!pi || typeof pi.on !== 'function') return false;
   try {
-    pi.on('tool_call', function (ev) {
-      post(piToolPayload('PreToolUse', ev));
+    pi.on('tool_call', function (ev, ctx) {
+      post(piToolPayload('PreToolUse', ev), ctx);
       if (AUTO) { try { if (ev && typeof ev.approve === 'function') ev.approve(); } catch (e) {} return { approve: true }; }
       return undefined;
     });
-    pi.on('tool_result', function (ev) { post(piToolPayload('PostToolUse', ev)); });
-    pi.on('agent_end', function () { post({ hook_event_name: 'Stop' }); });
+    pi.on('tool_result', function (ev, ctx) { post(piToolPayload('PostToolUse', ev), ctx); });
+    pi.on('agent_end', function (_ev, ctx) { post({ hook_event_name: 'Stop' }, ctx); });
+    pi.on('session_start', function (_ev, ctx) { post({ hook_event_name: 'SessionStart' }, ctx); });
     return true;
   } catch (e) { return false; }
 }
