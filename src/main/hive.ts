@@ -151,6 +151,9 @@ export interface AgentMeta {
   role?: string;
   capabilities?: string[];
   cwd: string;
+  /** Durable isolation recipe; cwd is the actual checkout, not the origin. */
+  worktreePath?: string;
+  worktreeOrigin?: string;
   isGod?: boolean;
   /** Michael's prep assistant — enriches prompts and forwards them to Michael.
    *  Send-only: excluded from broadcast fan-out so it never drains an inbox. */

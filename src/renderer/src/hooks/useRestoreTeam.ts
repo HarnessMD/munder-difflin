@@ -110,25 +110,9 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
           }
           const [exe, ...args] = tokenizeCommand(command);
           const ptyId = a.ptyId ?? `pty-${a.id}`;
-          // An isolated agent's worktree SURVIVES an app restart on disk (it's only
-          // torn down on per-tab close / mid-session exit, not on quit). So re-enter
-          // that exact worktree as the cwd rather than re-isolating — `git worktree
-          // add` would conflict with the existing path/branch, and re-isolating would
-          // also lose the worktree's uncommitted work. cwd = the worktree means
-          // resume + seedSessionTranscript land in the CORRECT checkout.
-          // But the user may have manually pruned/deleted the worktree between runs —
-          // gitIsRepo (git rev-parse) returns false for a missing/invalid dir, so
-          // fall back to the base repo cwd rather than spawning into a dead path.
-          let cwd = a.cwd;
-          let worktreeGone = false;
-          if (a.worktreePath) {
-            if (await window.cth.gitIsRepo(a.worktreePath)) {
-              cwd = a.worktreePath;
-            } else {
-              worktreeGone = true;
-              console.warn(`[restore] worktree gone for ${a.id} (${a.worktreePath}); falling back to base repo ${a.cwd}`);
-            }
-          }
+          // Main resolves the durable recipe once for every restart path: reuse
+          // the exact checkout, or fall back to its saved origin without pruning.
+          const cwd = a.cwd;
           const res = await window.cth.spawnPty({
             id: ptyId,
             cwd,
@@ -147,22 +131,24 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
             // agent id is preserved across restart, so its registry entry,
             // memory.md and inbox reattach by id. No-op without a recorded session.
             resume: true,
-            hive: { id: a.id, name: a.name, provider, cwd, role: roleForHiveSpawn(a) }
+            hive: { id: a.id, name: a.name, provider, cwd, worktreePath: a.worktreePath, worktreeOrigin: a.worktreeOrigin, role: roleForHiveSpawn(a) }
           });
           if (res.ok) {
             restored++;
             return {
                 ...a,
                 provider,
+                cwd: res.cwd ?? cwd,
                 ptyId,
                 archived: false,
                 status: 'idle',
                 // Surface the worktree fallback on the floor card; otherwise normal.
-                action: worktreeGone ? 'worktree gone — using base repo' : 'starting up',
+                action: res.worktreeGone ? 'worktree gone — using base repo' : 'starting up',
                 // The worktree is no longer on disk — drop it so this agent is treated
                 // as a plain base-cwd agent going forward (a future restore won't keep
                 // re-probing a dead path).
-                worktreePath: worktreeGone ? undefined : a.worktreePath,
+                worktreePath: res.worktreePath,
+                worktreeOrigin: res.worktreeOrigin,
                 // Crush spawns bare (no positional protocol) and hands the seed back
                 // here; useHive types it after boot. Re-seeding a resumed worker is
                 // idempotent (it just re-reads its inbox per protocol). (ondev-b)
