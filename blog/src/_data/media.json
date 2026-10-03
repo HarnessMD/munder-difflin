@@ -4345,5 +4345,55 @@
       }
     },
     "youtube": []
+  },
+  "what-is-gemini-spark": {
+    "title": "Gemini Spark: what it is, what it costs and who can get it",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-gemini-spark/hero.png",
+      "alt": "Hand drawn sketch: a yellow character pointing at a board with four lines on it, labelled works from your google apps, and an agent inside gemini",
+      "prompt": "Code drawn hero (media-src/spec.js, spotlight archetype).",
+      "status": "ready"
+    },
+    "inline": {
+      "note-1": {
+        "file": "assets/media/what-is-gemini-spark/note-1.png",
+        "alt": "Hand drawn sketch: a yellow character pointing at a board with a short list",
+        "prompt": "",
+        "status": "ready"
+      },
+      "note-2": {
+        "file": "assets/media/what-is-gemini-spark/note-2.png",
+        "alt": "Hand drawn sketch: two yellow characters talking, one waiting and one with an answer",
+        "prompt": "",
+        "status": "ready"
+      }
+    },
+    "youtube": []
+  },
+  "what-is-claude-cowork": {
+    "title": "What Is Claude Cowork? Plans, Prices and How to Use It",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-claude-cowork/hero.png",
+      "alt": "Hand drawn sketch: a yellow character handing a card to a board with todo, doing and done columns, labelled hand over the whole task, and claude, beyond chat",
+      "prompt": "Code drawn hero (media-src/spec.js, kanban archetype).",
+      "status": "ready"
+    },
+    "inline": {
+      "note-1": {
+        "file": "assets/media/what-is-claude-cowork/note-1.png",
+        "alt": "Hand drawn sketch: a board with todo, doing and done columns and one finished card",
+        "prompt": "",
+        "status": "ready"
+      },
+      "note-2": {
+        "file": "assets/media/what-is-claude-cowork/note-2.png",
+        "alt": "Hand drawn sketch: a yellow character sending an envelope to a box",
+        "prompt": "",
+        "status": "ready"
+      }
+    },
+    "youtube": []
   }
 }

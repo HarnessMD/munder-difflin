@@ -156,4 +156,6 @@ const SPEC = {
   "what-is-hermes-agent": { a: "night", blue: "always on, remembers", orange: "you sleep, it works" },
   "what-is-pi-agent": { a: "terminal", blue: "small core, your extensions", orange: "pi 1.0, MIT" },
   "what-is-codex": { a: "stack", blue: "CLI, app, cloud", orange: "one agent, three places" },
+  "what-is-gemini-spark": { a: "spotlight", blue: "works from your google apps", orange: "an agent inside gemini" },
+  "what-is-claude-cowork": { a: "kanban", blue: "hand over the whole task", orange: "claude, beyond chat" },
 };
