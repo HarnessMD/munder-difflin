@@ -16,6 +16,22 @@
     <summary>The top 5 launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 3 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>What Is Claude Cowork? Plans, Prices and How to Use It</title>
+    <link href="https://munderdiffl.in/blog/what-is-claude-cowork/" />
+    <id>https://munderdiffl.in/blog/what-is-claude-cowork/</id>
+    <published>2026-10-03T00:00:00.000Z</published>
+    <updated>2026-10-03T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Cowork is Anthropic&#39;s agent for multi-step office work. Which plans include it, what it costs, where it runs and how to start, checked 3 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>Gemini Spark: what it is, what it costs and who can get it</title>
+    <link href="https://munderdiffl.in/blog/what-is-gemini-spark/" />
+    <id>https://munderdiffl.in/blog/what-is-gemini-spark/</id>
+    <published>2026-10-03T00:00:00.000Z</published>
+    <updated>2026-10-03T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Gemini Spark is Google&#39;s personal AI agent in the Gemini app. Plans, US prices, countries, limits and how it compares with Grok Bot, checked 3 Oct 2026.</summary>
+  </entry>
+  <entry>
     <title>Hermes Agent: what it is, how to install it and what it costs</title>
     <link href="https://munderdiffl.in/blog/what-is-hermes-agent/" />
     <id>https://munderdiffl.in/blog/what-is-hermes-agent/</id>
@@ -68,8 +84,8 @@
     <link href="https://munderdiffl.in/blog/what-is-chatgpt-dots/" />
     <id>https://munderdiffl.in/blog/what-is-chatgpt-dots/</id>
     <published>2026-09-30T00:00:00.000Z</published>
-    <updated>2026-09-30T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>ChatGPT dots are OpenAI&#39;s always on agents, launched 29 Sep 2026. What a dot does, who can get one, what it costs and what it cannot do yet.</summary>
+    <updated>2026-10-03T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>A ChatGPT dot is an always on agent with its own cloud computer. Needs Pro (from $100 a month) or Business Premium, not Plus. Not on Pro in the UK or EU.</summary>
   </entry>
   <entry>
     <title>What Is OpenCode? Install, Pricing and How It Compares</title>
@@ -470,21 +486,5 @@
     <published>2026-07-03T00:00:00.000Z</published>
     <updated>2026-09-29T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Claude Code vs GitHub Copilot, checked 29 Sep 2026: Copilot CLI and the editor, AI Credits vs Claude plans, models, hooks, and when to pick each.</summary>
-  </entry>
-  <entry>
-    <title>How to Add a GitHub Copilot CLI Agent to Your Floor</title>
-    <link href="https://munderdiffl.in/blog/how-to-add-a-github-copilot-cli-agent/" />
-    <id>https://munderdiffl.in/blog/how-to-add-a-github-copilot-cli-agent/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-07-03T00:00:00.000Z</updated><category term="Guides" />
-    <summary>A step-by-step v0.3.3 walkthrough: install GitHub Copilot CLI (or let the harness install it for you), hire a Copilot worker, pick a model, and know exactly what print mode can and can&#39;t do.</summary>
-  </entry>
-  <entry>
-    <title>How to Hire From the Agent Gallery</title>
-    <link href="https://munderdiffl.in/blog/how-to-hire-from-the-agent-gallery/" />
-    <id>https://munderdiffl.in/blog/how-to-hire-from-the-agent-gallery/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-09-10T00:00:00.000Z</updated><category term="Guides" />
-    <summary>A practical guide to Munder Difflin&#39;s Agent Gallery: pick one of 80 ready made roles, download its manifest, import it with Add agent, review every field, customise identity, workspace, engine and briefing, then spawn it yourself.</summary>
   </entry>
 </feed>
