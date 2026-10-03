@@ -18,9 +18,9 @@
 ## Product
 
 - [Homepage](https://munderdiffl.in/): features, download links, FAQ
-- [GitHub repository](https://github.com/chaitanyagiri/munder-difflin): source, issues, releases
-- [Latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest): macOS dmg, Windows setup, Linux AppImage
-- [Changelog](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md)
+- [GitHub repository](https://github.com/HarnessMD/munder-difflin): source, issues, releases
+- [Latest release](https://github.com/HarnessMD/munder-difflin/releases/latest): macOS dmg, Windows setup, Linux AppImage
+- [Changelog](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md)
 
 ## Key guides
 

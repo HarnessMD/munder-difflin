@@ -49,7 +49,7 @@ What that means depends on which one you run:
   SmartScreen warning before it runs.
 
 The source on GitHub stays MIT licensed. 0.5.2 itself is a binaries only release: its
-[GitHub release](https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.2) carries the installers, not
+[GitHub release](https://github.com/HarnessMD/munder-difflin/releases/tag/v0.5.2) carries the installers, not
 the 0.5.2 source.
 
 ## How do I install Munder Difflin 0.5.2?
@@ -184,30 +184,30 @@ version added along the way.
 0.5.0 brought in pull requests from people outside the company, merged from public main, with fixes across Slack,
 worktrees, hooks, the terminal, the circuit breaker and the sandbox. Thank you:
 
-* [@AmIrRX0](https://github.com/chaitanyagiri/munder-difflin/pull/218)
-* [@LavaDMan](https://github.com/chaitanyagiri/munder-difflin/pull/309)
-* @aaroncoville ([#321](https://github.com/chaitanyagiri/munder-difflin/pull/321), [#337](https://github.com/chaitanyagiri/munder-difflin/pull/337))
-* [@reschandreas](https://github.com/chaitanyagiri/munder-difflin/pull/332)
-* [@savvaskoualis](https://github.com/chaitanyagiri/munder-difflin/pull/335)
-* [@devrahulbanjara](https://github.com/chaitanyagiri/munder-difflin/pull/347)
-* [@HaningZS](https://github.com/chaitanyagiri/munder-difflin/pull/356)
-* @drona23 ([#367](https://github.com/chaitanyagiri/munder-difflin/pull/367), [#368](https://github.com/chaitanyagiri/munder-difflin/pull/368), [#369](https://github.com/chaitanyagiri/munder-difflin/pull/369))
-* [@gpinkham](https://github.com/chaitanyagiri/munder-difflin/pull/384)
-* [@xxiaoxiong](https://github.com/chaitanyagiri/munder-difflin/pull/388)
-* @HsienW ([#390](https://github.com/chaitanyagiri/munder-difflin/pull/390), [#400](https://github.com/chaitanyagiri/munder-difflin/pull/400), [#438](https://github.com/chaitanyagiri/munder-difflin/pull/438))
-* [@wckleinhenz](https://github.com/chaitanyagiri/munder-difflin/pull/396)
-* [@vicenteliu](https://github.com/chaitanyagiri/munder-difflin/pull/406)
-* [@ketan0095](https://github.com/chaitanyagiri/munder-difflin/pull/410)
-* [@skyzhao1223](https://github.com/chaitanyagiri/munder-difflin/pull/412)
-* @Vasilispapg ([#415](https://github.com/chaitanyagiri/munder-difflin/pull/415), [#416](https://github.com/chaitanyagiri/munder-difflin/pull/416))
-* @snehithareddy28 ([#424](https://github.com/chaitanyagiri/munder-difflin/pull/424), [#425](https://github.com/chaitanyagiri/munder-difflin/pull/425), [#426](https://github.com/chaitanyagiri/munder-difflin/pull/426))
-* [@M1chaelTran](https://github.com/chaitanyagiri/munder-difflin/pull/433)
-* [@divijendra](https://github.com/chaitanyagiri/munder-difflin/pull/442)
+* [@AmIrRX0](https://github.com/HarnessMD/munder-difflin/pull/218)
+* [@LavaDMan](https://github.com/HarnessMD/munder-difflin/pull/309)
+* @aaroncoville ([#321](https://github.com/HarnessMD/munder-difflin/pull/321), [#337](https://github.com/HarnessMD/munder-difflin/pull/337))
+* [@reschandreas](https://github.com/HarnessMD/munder-difflin/pull/332)
+* [@savvaskoualis](https://github.com/HarnessMD/munder-difflin/pull/335)
+* [@devrahulbanjara](https://github.com/HarnessMD/munder-difflin/pull/347)
+* [@HaningZS](https://github.com/HarnessMD/munder-difflin/pull/356)
+* @drona23 ([#367](https://github.com/HarnessMD/munder-difflin/pull/367), [#368](https://github.com/HarnessMD/munder-difflin/pull/368), [#369](https://github.com/HarnessMD/munder-difflin/pull/369))
+* [@gpinkham](https://github.com/HarnessMD/munder-difflin/pull/384)
+* [@xxiaoxiong](https://github.com/HarnessMD/munder-difflin/pull/388)
+* @HsienW ([#390](https://github.com/HarnessMD/munder-difflin/pull/390), [#400](https://github.com/HarnessMD/munder-difflin/pull/400), [#438](https://github.com/HarnessMD/munder-difflin/pull/438))
+* [@wckleinhenz](https://github.com/HarnessMD/munder-difflin/pull/396)
+* [@vicenteliu](https://github.com/HarnessMD/munder-difflin/pull/406)
+* [@ketan0095](https://github.com/HarnessMD/munder-difflin/pull/410)
+* [@skyzhao1223](https://github.com/HarnessMD/munder-difflin/pull/412)
+* @Vasilispapg ([#415](https://github.com/HarnessMD/munder-difflin/pull/415), [#416](https://github.com/HarnessMD/munder-difflin/pull/416))
+* @snehithareddy28 ([#424](https://github.com/HarnessMD/munder-difflin/pull/424), [#425](https://github.com/HarnessMD/munder-difflin/pull/425), [#426](https://github.com/HarnessMD/munder-difflin/pull/426))
+* [@M1chaelTran](https://github.com/HarnessMD/munder-difflin/pull/433)
+* [@divijendra](https://github.com/HarnessMD/munder-difflin/pull/442)
 
 ## Get it
 
 * Download 0.5.2: [harnessmd.com/download](https://harnessmd.com/download)
 * Plans and prices: [munderdiffl.in/#pricing](https://munderdiffl.in/#pricing)
-* The release on GitHub, with checksums: [v0.5.2](https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.2)
+* The release on GitHub, with checksums: [v0.5.2](https://github.com/HarnessMD/munder-difflin/releases/tag/v0.5.2)
 * New here? Start with [your first hour with Munder Difflin](/blog/your-first-hour-with-munder-difflin/).
 * The previous release: [Munder Difflin v0.4.6](/blog/launching-munder-difflin-v0-4-6/).

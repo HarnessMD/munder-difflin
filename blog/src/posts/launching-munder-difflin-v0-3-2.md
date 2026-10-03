@@ -119,10 +119,10 @@ the floor you already run — now with a regional manager you can actually call.
 
 Munder Difflin is **free, open source, and local-first** on macOS, Windows, and Linux. no account, no cloud for the floor itself — your machine, your subscriptions, your office.
 
-[**Download v0.3.2**](https://github.com/chaitanyagiri/munder-difflin/releases/latest), set your OpenAI key under **Settings → AI Engines**, hit **Talk**, and ask Michael what everyone's working on. then — if you're feeling brave — tell him to spawn someone, listen to him read the plan back, and say the magic word.
+[**Download v0.3.2**](https://github.com/HarnessMD/munder-difflin/releases/latest), set your OpenAI key under **Settings → AI Engines**, hit **Talk**, and ask Michael what everyone's working on. then — if you're feeling brave — tell him to spawn someone, listen to him read the plan back, and say the magic word.
 
 curious how the orchestrator decides any of this under the hood? read [how the GOD orchestrator works](/blog/how-the-god-orchestrator-works/). want the last launch? [v0.3.0's platform release is right here](/blog/launching-munder-difflin-v0-3-0/).
 
-full release notes live in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+full release notes live in the [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 that's it. go pick up the phone. (Michael's been waiting for someone to call.)

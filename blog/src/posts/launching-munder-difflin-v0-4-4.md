@@ -113,5 +113,5 @@ thematically required.
 If you're already on 0.3.5 or later, do nothing — the app will offer the update itself, and the
 toast will tell you exactly what's inside. Fresh install:
 [munderdiffl.in](https://munderdiffl.in). And if Windows burned you during launch week, this is
-the release that's owed to you — [the full changelog](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md)
+the release that's owed to you — [the full changelog](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md)
 has every receipt.

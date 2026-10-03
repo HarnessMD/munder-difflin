@@ -35,15 +35,15 @@ Within a few minutes, five pull requests had detailed automated reviews posted a
 
 A few examples, grounded in what's actually on GitHub:
 
-**[PR #39](https://github.com/chaitanyagiri/munder-difflin/pull/39)** — fixing an invisible text-cursor on the cream theme. The review caught that this was the correct follow-up to the earlier `caret-color` fix, analyzed the SVG structure (ink stroke layered over a cream halo for contrast), and flagged the UA fallback as appropriate. Clean, scoped, nothing missed.
+**[PR #39](https://github.com/HarnessMD/munder-difflin/pull/39)** — fixing an invisible text-cursor on the cream theme. The review caught that this was the correct follow-up to the earlier `caret-color` fix, analyzed the SVG structure (ink stroke layered over a cream halo for contrast), and flagged the UA fallback as appropriate. Clean, scoped, nothing missed.
 
-**[PR #34](https://github.com/chaitanyagiri/munder-difflin/pull/34)** — fixing the Windows usage meter reading 0/0. The review correctly identified that the reconciler's POSIX path-encoding rule (`replace(/^\//,'').replaceAll('/','-')`) never matched Windows directory names, and explained why gating on `process.platform === 'win32'` with a different encoding was the right fix.
+**[PR #34](https://github.com/HarnessMD/munder-difflin/pull/34)** — fixing the Windows usage meter reading 0/0. The review correctly identified that the reconciler's POSIX path-encoding rule (`replace(/^\//,'').replaceAll('/','-')`) never matched Windows directory names, and explained why gating on `process.platform === 'win32'` with a different encoding was the right fix.
 
-**[PR #33](https://github.com/chaitanyagiri/munder-difflin/pull/33)** — enforcing the assistant's send-only contract at the router level. The review described the bounce behavior accurately, confirmed the scope was correctly limited to `route()`'s direct-mail path (broadcast already filters assistants), and called it a surgical fix for issue #32.
+**[PR #33](https://github.com/HarnessMD/munder-difflin/pull/33)** — enforcing the assistant's send-only contract at the router level. The review described the bounce behavior accurately, confirmed the scope was correctly limited to `route()`'s direct-mail path (broadcast already filters assistants), and called it a surgical fix for issue #32.
 
-**[PR #26](https://github.com/chaitanyagiri/munder-difflin/pull/26)** — terminal theme toggle plus Unicode 11 emoji widths. The review caught the earlier design issue (using `claude config set -g` would restyle the user's own external Claude sessions) and confirmed the correction — mirroring the theme into per-agent settings files at spawn — was the right scoping.
+**[PR #26](https://github.com/HarnessMD/munder-difflin/pull/26)** — terminal theme toggle plus Unicode 11 emoji widths. The review caught the earlier design issue (using `claude config set -g` would restyle the user's own external Claude sessions) and confirmed the correction — mirroring the theme into per-agent settings files at spawn — was the right scoping.
 
-**[PR #12](https://github.com/chaitanyagiri/munder-difflin/pull/12)** — the statusLine context gauge. This was the most complex PR in the batch: three follow-up commits, a ratcheting limit heuristic, and a statusLine-based push mechanism replacing transcript polling. The review identified a real gap — a `NaN` that would survive the `Math.min/max` clamp — and Gulum addressed it in a follow-up commit with a `Number.isFinite` guard.
+**[PR #12](https://github.com/HarnessMD/munder-difflin/pull/12)** — the statusLine context gauge. This was the most complex PR in the batch: three follow-up commits, a ratcheting limit heuristic, and a statusLine-based push mechanism replacing transcript polling. The review identified a real gap — a `NaN` that would survive the `Math.min/max` clamp — and Gulum addressed it in a follow-up commit with a `Number.isFinite` guard.
 
 Five reviews. One prompt. The reviews were posted so close together (all within seconds, around `2026-06-07T01:47`) that they clearly came from a single agent run. The whole batch took a few minutes I spent doing something else.
 

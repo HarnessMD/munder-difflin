@@ -106,4 +106,4 @@ That's a seventh engine on your floor, powered by a subscription you already hav
 
 ## Try it
 
-Grab the latest build from [the releases page](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — and if the Copilot engine saves you a hire, a [star on GitHub](https://github.com/chaitanyagiri/munder-difflin) is how community contributions like PR #101 keep coming.
+Grab the latest build from [the releases page](https://github.com/HarnessMD/munder-difflin/releases/latest) — and if the Copilot engine saves you a hire, a [star on GitHub](https://github.com/HarnessMD/munder-difflin) is how community contributions like PR #101 keep coming.

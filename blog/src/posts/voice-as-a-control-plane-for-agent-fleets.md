@@ -76,4 +76,4 @@ None of these guardrails would matter for a demo. All of them matter for a contr
 
 Judge voice by the payload you put on it. As an authoring channel for code, it loses to a keyboard every time. As a **control plane** for a fleet — delegation, status, approvals, completions — it's the natural interface, *provided* it's built like infrastructure: confirmations for anything destructive, a distinct audit identity, caps on spend, and a timeout on silence. That's the difference between a gimmick and a plane you'd actually fly.
 
-If you want to try the case study, [download Munder Difflin](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — free, MIT-licensed, local-first — and if the idea resonates, a [star on GitHub](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+If you want to try the case study, [download Munder Difflin](https://github.com/HarnessMD/munder-difflin/releases/latest) — free, MIT-licensed, local-first — and if the idea resonates, a [star on GitHub](https://github.com/HarnessMD/munder-difflin) helps more people find it.

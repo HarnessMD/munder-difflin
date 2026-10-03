@@ -72,4 +72,4 @@ Reading diffs is code-level review. But half of supervising agents is **decision
 
 Put together, the review story has two lanes and zero alt-tabs. Approvals catch the *should we* questions before damage happens; the IDE's diff rail catches the *what actually happened* questions before code merges. Both live where the agents live. The supervision loop stays unbroken, review stays cheap, and cheap review is review that actually happens.
 
-Agents got fast. The winning move isn't reviewing less — it's moving review to where the work is. [Grab the latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest) and try the IDE button, and if the floor earns it, [a GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+Agents got fast. The winning move isn't reviewing less — it's moving review to where the work is. [Grab the latest release](https://github.com/HarnessMD/munder-difflin/releases/latest) and try the IDE button, and if the floor earns it, [a GitHub star](https://github.com/HarnessMD/munder-difflin) helps more people find it.

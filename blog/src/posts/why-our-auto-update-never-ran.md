@@ -163,7 +163,7 @@ ask.
 You'll need to install v0.3.7 by hand, once. Your current build carries the broken updater,
 so it can't fetch the fix that repairs it — the one bootstrap problem a self-updating app
 can't solve for itself. Grab it from [munderdiffl.in](https://munderdiffl.in/) or the
-[releases page](https://github.com/chaitanyagiri/munder-difflin/releases/latest).
+[releases page](https://github.com/HarnessMD/munder-difflin/releases/latest).
 
 After that, it updates itself. For real this time — and if it ever doesn't, it'll tell you
 why.

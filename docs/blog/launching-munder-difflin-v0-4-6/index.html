@@ -201,7 +201,7 @@ moves until you pick a language in Settings, under General. The app deliberately
 your operating system locale, because changing somebody’s whole interface out from under them on
 an upgrade is rude even when you are right about what they speak.</p>
 <p>The Chinese work came from the community. <a href="https://github.com/Schopenhauer-loves-Hegel">@Schopenhauer-loves-Hegel</a>
-opened <a href="https://github.com/chaitanyagiri/munder-difflin/pull/205">PR #205</a> and built the entire
+opened <a href="https://github.com/HarnessMD/munder-difflin/pull/205">PR #205</a> and built the entire
 foundation: react-i18next mounted, the language picker, and then the slow part, walking every
 screen and pulling out hardcoded strings. The office floor, the Command Center, Settings, the
 setup wizard, the triggers tabs, the Kanban board, the IDE panels. It is a little under 1,200 strings.
@@ -240,9 +240,9 @@ written by an agent and checked by machine for the things you can check without 
 coverage and placeholders and structure. Whether it reads well is unverified. We shipped it anyway,
 because a translation you can use and file bugs against beats a perfect one that never arrives. If
 you read Arabic and something is wrong,
-<a href="https://github.com/chaitanyagiri/munder-difflin/issues">tell us</a> and it gets fixed.</p>
+<a href="https://github.com/HarnessMD/munder-difflin/issues">tell us</a> and it gets fixed.</p>
 <p>The Arabic and right to left groundwork started as
-<a href="https://github.com/chaitanyagiri/munder-difflin/pull/213">PR #213</a> from
+<a href="https://github.com/HarnessMD/munder-difflin/pull/213">PR #213</a> from
 <a href="https://github.com/abo123v-glitch">@abo123v-glitch</a>, including the terminal shaping recipe, which
 is the fiddly part.</p>
 <h2 id="the-updater-actually-updates-now" tabindex="-1">The updater actually updates now <a class="anchor" href="#the-updater-actually-updates-now" aria-hidden="true">#</a></h2>
@@ -277,7 +277,7 @@ asks first. The Connections tab also stopped repeating itself.</p>
 Shipping a new model used to mean editing code and rebuilding. Now it is one line in a catalog,
 and entries can say which app versions they belong to, so a build stops offering a model its CLI
 never shipped. That was <a href="https://github.com/aaroncoville">@aaroncoville</a> in
-<a href="https://github.com/chaitanyagiri/munder-difflin/pull/339">PR #339</a>.</p>
+<a href="https://github.com/HarnessMD/munder-difflin/pull/339">PR #339</a>.</p>
 <h2 id="security-and-privacy" tabindex="-1">Security and privacy <a class="anchor" href="#security-and-privacy" aria-hidden="true">#</a></h2>
 <p>Three things, plainly.</p>
 <p><strong>Engine command launching is hardened.</strong> When an agent launches its CLI, the command name is now
@@ -307,14 +307,14 @@ interface uses to report a message does not accept a message argument at all, so
 in which your text could cross it by accident. It is counted when you hit send, not per keystroke.</p>
 <p>Everything in the funnel is a closed list of values: which engine, and one of four reasons a spawn
 failed. No prompts, no code, no file paths, no agent output, ever. The full list of every event and every
-property is in <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/TELEMETRY.md">TELEMETRY.md</a>,
+property is in <a href="https://github.com/HarnessMD/munder-difflin/blob/main/TELEMETRY.md">TELEMETRY.md</a>,
 and it is short on purpose.</p>
 <h2 id="the-rest" tabindex="-1">The rest <a class="anchor" href="#the-rest" aria-hidden="true">#</a></h2>
 <ul>
 <li><strong>Terminals stop blacking out.</strong> Chromium allows about 16 live WebGL contexts and silently
 evicts the oldest when you pass it. Switching between agents leaked one per switch, so eventually
 a terminal or the office floor itself went black. Contexts are released properly now.
-<a href="https://github.com/aaroncoville">@aaroncoville</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/323">PR #323</a>.</li>
+<a href="https://github.com/aaroncoville">@aaroncoville</a>, <a href="https://github.com/HarnessMD/munder-difflin/pull/323">PR #323</a>.</li>
 <li><strong>The release notes page no longer shows a white screen.</strong> It painted nothing until its
 stylesheets resolved, and it was still fetching fonts from Google. On a network where that host
 is blocked the fetch does not fail, it hangs, so a new version greeted you with a blank rectangle
@@ -331,7 +331,7 @@ render properly instead of showing you their raw asterisks.</li>
 <li><strong>The ASK ME board is in order.</strong> It had no sort at all, so a question from five minutes ago
 could sit below one from three days ago.</li>
 <li><strong>An agent’s usage counter resets when its terminal exits.</strong>
-<a href="https://github.com/aaroncoville">@aaroncoville</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/317">PR #317</a>.</li>
+<a href="https://github.com/aaroncoville">@aaroncoville</a>, <a href="https://github.com/HarnessMD/munder-difflin/pull/317">PR #317</a>.</li>
 </ul>
 <figure class="fig fig-inline"><img src="/blog/assets/media/launching-munder-difflin-v0-4-6/note-3.png" alt="Hand-drawn sketch from “Launching Munder Difflin v0.4.6: It Speaks Chinese and Arabic Now”" loading="lazy" decoding="async" /><figcaption>Sixteen community pull requests from thirteen contributors, one of them re-implemented rather than merged.</figcaption></figure>
 <h2 id="credits" tabindex="-1">Credits <a class="anchor" href="#credits" aria-hidden="true">#</a></h2>
@@ -343,7 +343,7 @@ multilingual foundation, which is the biggest single piece of work in the releas
 including the terminal shaping recipe. <a href="https://github.com/aaroncoville">@aaroncoville</a> landed
 three, among them the WebGL fix that stops terminals going black.
 <a href="https://github.com/LavaDMan">@LavaDMan</a> fixed a test that raced its own input.</p>
-<p><strong>About that re-implemented one.</strong> <a href="https://github.com/chaitanyagiri/munder-difflin/pull/213">PR #213</a>
+<p><strong>About that re-implemented one.</strong> <a href="https://github.com/HarnessMD/munder-difflin/pull/213">PR #213</a>
 counts because the work shipped, not because it merged. We split it, took the terminal half, then
 re-implemented the UI half against the language picker that landed after it was written. The code
 ships and the design is theirs. On GitHub the pull request still reads as unmerged, which looks
@@ -363,7 +363,7 @@ like a rejection and is not one, so this is the place to say so plainly.</p>
 <h2 id="get-it" tabindex="-1">Get it <a class="anchor" href="#get-it" aria-hidden="true">#</a></h2>
 <p>If you are on 0.3.5 or later the app will offer the update itself, and this time clicking the
 badge actually installs it. Fresh install: <a href="https://munderdiffl.in">munderdiffl.in</a>. Every receipt
-is in <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md">the changelog</a>.</p>
+is in <a href="https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md">the changelog</a>.</p>
 <p>If you run the app in Chinese or Arabic, we want to hear what is broken. Especially Arabic, and
 especially the wording, since nobody who reads it has checked it yet.</p>
 
@@ -488,7 +488,7 @@ especially the wording, since nobody who reads it has checked it yet.</p>
         <a href="/blog/topics/">Topics</a>
         <a href="/blog/about/">About</a>
         <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
-        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://github.com/HarnessMD/munder-difflin">GitHub</a>
         <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
       </div>
     </div>

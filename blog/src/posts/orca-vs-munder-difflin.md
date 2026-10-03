@@ -87,4 +87,4 @@ v0.3.3 did add a built-in Monaco IDE — file tree, tabs, side-by-side diffs vs 
 
 And genuinely: **you can run both.** Same CLIs, same subscriptions, same machine, no conflict. Orca for the sessions you drive; Munder Difflin for the office that keeps working when you stop. (For the broader decision framework, see [how to choose a multi-agent tool](/blog/how-to-choose-a-multi-agent-tool/).)
 
-If the office side sounds like your bottleneck, [grab the latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — and if it earns it, [a GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+If the office side sounds like your bottleneck, [grab the latest release](https://github.com/HarnessMD/munder-difflin/releases/latest) — and if it earns it, [a GitHub star](https://github.com/HarnessMD/munder-difflin) helps more people find it.

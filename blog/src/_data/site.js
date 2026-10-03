@@ -28,7 +28,7 @@ export default {
     opensource: "https://munderdiffl.in/#opensource",
   },
   social: {
-    github: "https://github.com/chaitanyagiri/munder-difflin",
+    github: "https://github.com/HarnessMD/munder-difflin",
     site: "https://munderdiffl.in",
   },
   // Default OG image (absolute). Per-post `ogImage` overrides this.

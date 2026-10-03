@@ -117,10 +117,10 @@ do that a headless harness can't: real terminals, voice, an IDE, auto-update. We
 
 ## Get it
 
-**[Download v0.3.5](https://github.com/chaitanyagiri/munder-difflin/releases/latest)** for
+**[Download v0.3.5](https://github.com/HarnessMD/munder-difflin/releases/latest)** for
 macOS, Windows, or Linux — or clone and `npm run dev`. On v0.3.4? Do nothing — the update
 toast will find you. Free, MIT-licensed, local-first.
 
 If Munder Difflin is useful to you, a
-[star on GitHub](https://github.com/chaitanyagiri/munder-difflin) is the single biggest way
+[star on GitHub](https://github.com/HarnessMD/munder-difflin) is the single biggest way
 to help it reach more people.
