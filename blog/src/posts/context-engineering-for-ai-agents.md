@@ -160,6 +160,8 @@ When an agent underperforms, resist the urge to rewrite its prompt first. Audit 
 Most "the model got dumber" complaints are context problems wearing a model costume. The fix is rarely a
 better sentence; it's a cleaner window.
 
+The same care applies to what comes back out: [ASD-STE100 prompting](/blog/asd-ste100-prompting/) is a one line way to make an agent's answers shorter and easier to check.
+
 ## Why this is the durable skill
 
 Models will keep getting bigger windows, and every jump tempts people to stop curating. Don't. A bigger
