@@ -4,9 +4,17 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-03T00:00:00.000Z</updated>
+  <updated>2026-10-05T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers</title>
+    <link href="https://munderdiffl.in/blog/asd-ste100-prompting/" />
+    <id>https://munderdiffl.in/blog/asd-ste100-prompting/</id>
+    <published>2026-10-05T00:00:00.000Z</published>
+    <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Ask your AI to answer in ASD-STE100, the aerospace manual standard, about 80% of the way. Plus Karpathy&#39;s three other tricks: diagrams, HTML and video.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 3 Oct 2026: Claude Code Mods, OpenDots, Conductor Mobile</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-03/" />
@@ -478,13 +486,5 @@
     <published>2026-07-03T00:00:00.000Z</published>
     <updated>2026-07-03T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>CrewAI, AutoGen (now Microsoft Agent Framework), and LangGraph are frameworks — Python you write to build your own agent system. A multi-agent harness is an app you download that runs a team on your repos today. Here&#39;s how to tell which one you actually need.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code vs GitHub Copilot: CLI, Editor and Pricing Compared</title>
-    <link href="https://munderdiffl.in/blog/github-copilot-cli-vs-claude-code-for-hive-work/" />
-    <id>https://munderdiffl.in/blog/github-copilot-cli-vs-claude-code-for-hive-work/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Claude Code vs GitHub Copilot, checked 29 Sep 2026: Copilot CLI and the editor, AI Credits vs Claude plans, models, hooks, and when to pick each.</summary>
   </entry>
 </feed>

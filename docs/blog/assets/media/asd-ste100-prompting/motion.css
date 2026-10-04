@@ -1,0 +1,29 @@
+/* Motion graphics for the ASD-STE100 prompting post. Scoped to .mg. */
+.prose figure.mg { margin: 42px 0; }
+.prose figure.mg img, .mg .mg-svg { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 1px solid #1A1320; border-radius: 16px; background: #1A1320; }
+.mg figcaption { font: 500 13px/1.5 "Space Grotesk", system-ui, sans-serif; color: #6B5878; padding-top: 10px; text-align: center; }
+
+.mg-sip { background: #1A1320; color: #FCFAF0; border: 1px solid #1A1320; border-radius: 16px; padding: 22px; font-family: "Space Grotesk", system-ui, sans-serif; }
+.mg-sip-head { display: flex; align-items: center; gap: 12px; font-size: 20px; margin-bottom: 18px; }
+.mg-chip { background: #FFCA54; color: #1A1320; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; padding: 5px 12px; border-radius: 999px; }
+.mg-sip-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; }
+.mg-sip-controls label { display: grid; grid-template-columns: 1fr auto; row-gap: 8px; font-size: 14px; color: #D9CFE0; margin-bottom: 20px; }
+.mg-sip-controls output { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 700; color: #FFCA54; font-size: 16px; }
+.mg-sip-controls input { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: #FFCA54; height: 28px; cursor: pointer; }
+.mg-sip-controls input:focus-visible { outline: 2px solid #FFCA54; outline-offset: 4px; }
+.mg-sip-total span { display: block; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #8E7B9C; }
+.mg-sip-total b { display: block; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: clamp(24px, 5vw, 34px); line-height: 1.2; color: #FFCA54; font-variant-numeric: tabular-nums; }
+.mg-sip-split { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: #D9CFE0; margin: 8px 0 14px; }
+.mg-sip-split b { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; color: #FCFAF0; }
+.mg-sip-split i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.mg-sip-split i.a { background: #6C8EF5; }
+.mg-sip-split i.b { background: #FFCA54; }
+.mg-sip-bars { display: flex; align-items: flex-end; gap: 3px; height: 150px; border-bottom: 1px solid #4A3A58; }
+.mg-bar { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.mg-bar i { display: block; transition: height 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.mg-bar i:first-child { background: #FFCA54; border-radius: 3px 3px 0 0; }
+.mg-bar i:last-child { background: #6C8EF5; }
+.mg-sip-axis { display: flex; justify-content: space-between; font-size: 12px; color: #8E7B9C; padding-top: 6px; }
+.mg-sip-note { font-size: 12.5px !important; line-height: 1.5 !important; color: #8E7B9C; margin: 16px 0 0 !important; }
+@media (max-width: 640px) { .mg-sip-grid { grid-template-columns: 1fr; } .mg-sip { padding: 18px; } }
+@media (prefers-reduced-motion: reduce) { .mg-bar i { transition: none; } }

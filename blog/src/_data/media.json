@@ -4395,5 +4395,16 @@
       }
     },
     "youtube": []
+  },
+  "asd-ste100-prompting": {
+    "title": "ASD-STE100 Prompting: Karpathy's 4 Tricks for Clearer AI Answers",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/asd-ste100-prompting/hero.png",
+      "alt": "Four cards on a dark panel under the words Four ways to ask for a clearer answer: 1 writing, 2 diagram, 3 web page, 4 video",
+      "prompt": "Code drawn motion still (assets/media/asd-ste100-prompting/motion.js, hero scene).",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
