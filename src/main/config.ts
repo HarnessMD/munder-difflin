@@ -264,7 +264,8 @@ export interface HarnessConfig {
    *  handle, never the secret value (secrets live encrypted in a separate file via
    *  Electron safeStorage — see src/main/integrations.ts). Default []. */
   integrations?: IntegrationRecord[];
-  /** Default per-worker TOTAL-token cap (input+output+cache) applied to every
+  /** Default per-worker token cap (fresh input + output + cache writes; prompt
+   *  cache re-reads do not count) applied to every
    *  god-triggered ephemeral worker; a worker's own spawn-request `tokenCap`
    *  overrides it. When the effective cap is exceeded the worker is reaped (its
    *  committed work preserved) and god is informed. This is PLUMBING for a later

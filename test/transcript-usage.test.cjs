@@ -43,13 +43,20 @@ function makeProject() {
 }
 
 function rec(output, opts = {}) {
+  const message = {
+    model: opts.model ?? 'claude-haiku-4-5',
+    usage: {
+      input_tokens: opts.input ?? 10,
+      output_tokens: output,
+      cache_read_input_tokens: opts.cacheRead ?? 0,
+      cache_creation_input_tokens: opts.cacheWrite ?? 0
+    }
+  };
+  if (opts.id) message.id = opts.id;
   return JSON.stringify({
     type: 'assistant',
     sessionId: opts.sessionId ?? 's1',
-    message: {
-      model: opts.model ?? 'claude-haiku-4-5',
-      usage: { input_tokens: opts.input ?? 10, output_tokens: output, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }
-    }
+    message
   });
 }
 
@@ -137,6 +144,39 @@ test('model is the last one seen (per current semantics)', () => {
   fs.writeFileSync(path.join(dir, 'a.jsonl'),
     rec(1, { model: 'claude-haiku-4-5' }) + '\n' + rec(2, { model: 'claude-opus-4-8' }) + '\n');
   assert.equal(readAgentUsage(cwd).model, 'claude-opus-4-8');
+});
+
+test('one API turn split across content-block lines is counted once', () => {
+  const { cwd, dir } = makeProject();
+  // Live shape: thinking, then tool_use, then text — same message.id, full usage on each.
+  const turn = (id, output) => [
+    rec(output, { id, input: 2, cacheRead: 50000, cacheWrite: 1000 }),
+    rec(output, { id, input: 2, cacheRead: 50000, cacheWrite: 1000 }),
+    rec(output, { id, input: 2, cacheRead: 50000, cacheWrite: 1000 })
+  ].join('\n');
+  fs.writeFileSync(path.join(dir, 'a.jsonl'), turn('msg_a', 200) + '\n' + turn('msg_b', 50) + '\n');
+  const u = readAgentUsage(cwd);
+  assert.equal(u.outputTokens, 250);
+  assert.equal(u.inputTokens, 4);
+  assert.equal(u.cacheReadTokens, 100000);
+  assert.equal(u.cacheWriteTokens, 2000);
+});
+
+test('a content-block sibling appended later is not counted again', () => {
+  const { cwd, dir } = makeProject();
+  const f = path.join(dir, 'a.jsonl');
+  fs.writeFileSync(f, rec(200, { id: 'msg_a', cacheRead: 50000 }) + '\n');
+  assert.equal(readAgentUsage(cwd).outputTokens, 200);
+  fs.appendFileSync(f, rec(200, { id: 'msg_a', cacheRead: 50000 }) + '\n');
+  const u = readAgentUsage(cwd);
+  assert.equal(u.outputTokens, 200);
+  assert.equal(u.cacheReadTokens, 50000);
+});
+
+test('records without a message id still sum (older transcripts)', () => {
+  const { cwd, dir } = makeProject();
+  fs.writeFileSync(path.join(dir, 'a.jsonl'), rec(100) + '\n' + rec(40) + '\n');
+  assert.equal(readAgentUsage(cwd).outputTokens, 140);
 });
 
 test('missing project dir yields zeros', () => {

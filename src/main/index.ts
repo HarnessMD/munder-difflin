@@ -63,6 +63,7 @@ import { RosterStore } from './roster';
 import { buildWorkerLaunch } from './workerLaunch';
 import { ControlRegistry } from './control';
 import { WorkerWakeWatchdog, type WorkerWakeFacts } from './workerWake';
+import { tokensAgainstWorkerCap } from './workerTokens';
 import { inboxNudgeText } from '../shared/hiveNudge';
 import { fetchHireManifest, readHireManifestFiles } from './hire';
 import { parseHireDeepLink, type HireManifest } from '../shared/hire';
@@ -4775,12 +4776,11 @@ async function processSpawnRequest(filePath: string): Promise<void> {
   archiveRequest(filePath, '.done');
 }
 
-/** Total tokens (input+output+cache) a worker has burned so far, from the usage
- *  provider — 0 when unknown. Mirrors the breaker's `tokensOf`. Used only by the
- *  (default-off) per-worker token cap. */
+/** Tokens counted against the per-worker cap — 0 when unknown. Cache reads are
+ *  excluded; see tokensAgainstWorkerCap. */
 function workerTokensUsed(workerId: string): number {
   const s = usageProvider.getAgentUsage(workerId);
-  return s ? s.input + s.output + s.cacheRead + s.cacheCreation : 0;
+  return s ? tokensAgainstWorkerCap(s) : 0;
 }
 
 /** Throttle for the GC sweep — git checks are cheap but pointless every 1.5s tick. */

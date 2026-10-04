@@ -164,6 +164,9 @@ interface FileUsageEntry {
    *  trailing line is simply re-read once the writer completes it. */
   offset: number;
   totals: AgentUsage;
+  /** message.id values already counted. One API turn is several JSONL lines
+   *  (thinking, then tool_use, then text) and each line repeats the full usage. */
+  seenMessageIds: Set<string>;
 }
 
 const usageCache = new Map<string, FileUsageEntry>();
@@ -172,14 +175,19 @@ const usageCache = new Map<string, FileUsageEntry>();
 const USAGE_CACHE_MAX = 2048;
 
 /** Parse complete JSONL lines into `acc` (the shared per-record logic). */
-function parseUsageLines(text: string, sessionId: string | undefined, acc: AgentUsage): void {
+function parseUsageLines(
+  text: string,
+  sessionId: string | undefined,
+  acc: AgentUsage,
+  seenMessageIds: Set<string>
+): void {
   for (const line of text.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed) continue;
     let rec: {
       type?: unknown;
       sessionId?: unknown;
-      message?: { model?: unknown; usage?: Record<string, unknown> };
+      message?: { id?: unknown; model?: unknown; usage?: Record<string, unknown> };
     };
     try {
       rec = JSON.parse(trimmed);
@@ -191,6 +199,14 @@ function parseUsageLines(text: string, sessionId: string | undefined, acc: Agent
     if (sessionId && rec.sessionId !== sessionId) continue;
     const u = rec.message?.usage;
     if (!u) continue;
+    // Same message.id on every content-block line, with the full usage copied
+    // onto each. Summing them bills one turn two or three times and trips the
+    // worker token cap after a single burst.
+    const messageId = typeof rec.message?.id === 'string' ? rec.message.id : '';
+    if (messageId) {
+      if (seenMessageIds.has(messageId)) continue;
+      seenMessageIds.add(messageId);
+    }
     const model = typeof rec.message?.model === 'string' ? normalizeModel(rec.message.model) : undefined;
     if (model) acc.model = model;
     const rIn = num(u.input_tokens);
@@ -224,8 +240,14 @@ function readFileUsage(dir: string, file: string, sessionId: string | undefined)
   if (cached && cached.size === st.size && cached.mtimeMs === st.mtimeMs) return cached;
   const fromScratch = !cached || st.size < cached.offset;
   const entry: FileUsageEntry = fromScratch
-    ? { size: st.size, mtimeMs: st.mtimeMs, offset: 0, totals: zero() }
-    : { size: st.size, mtimeMs: st.mtimeMs, offset: cached!.offset, totals: { ...cached!.totals } };
+    ? { size: st.size, mtimeMs: st.mtimeMs, offset: 0, totals: zero(), seenMessageIds: new Set() }
+    : {
+      size: st.size,
+      mtimeMs: st.mtimeMs,
+      offset: cached!.offset,
+      totals: { ...cached!.totals },
+      seenMessageIds: new Set(cached!.seenMessageIds)
+    };
   try {
     const fd = openSync(full, 'r');
     try {
@@ -240,7 +262,7 @@ function readFileUsage(dir: string, file: string, sessionId: string | undefined)
         const lastNl = text.lastIndexOf('\n');
         if (lastNl !== -1) {
           const complete = text.slice(0, lastNl + 1);
-          parseUsageLines(complete, sessionId, entry.totals);
+          parseUsageLines(complete, sessionId, entry.totals, entry.seenMessageIds);
           entry.offset += Buffer.byteLength(complete, 'utf8');
         }
       }
