@@ -1,8 +1,9 @@
 ---
 title: "What Is ChatGPT Dots? OpenAI's Always On Agents Explained"
-seoTitle: "What Is ChatGPT Dots? Plans, Markets and Limits (Sep 2026)"
-description: "ChatGPT dots are OpenAI's always on agents, launched 29 Sep 2026. What a dot does, who can get one, what it costs and what it cannot do yet."
+seoTitle: "ChatGPT Dots: What They Do, Price and Who Can Get One"
+description: "A ChatGPT dot is an always on agent with its own cloud computer. Needs Pro (from $100 a month) or Business Premium, not Plus. Not on Pro in the UK or EU."
 date: 2026-09-30
+updated: 2026-10-03
 category: concepts
 categoryLabel: Concepts
 type: Non-technical
