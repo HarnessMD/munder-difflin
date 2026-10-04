@@ -235,6 +235,15 @@ test('ARRAY args: the whole prompt reaches the child intact', () => {
   assert.ok(line.includes('\n'), 'the newlines ride through as literal characters');
 });
 
+test('ARRAY args: a Copilot directory grant with spaces stays one token', () => {
+  const copilotExe = 'C:\\Program Files\\GitHub Copilot\\copilot.exe';
+  const grant = '--add-dir=C:\\Users\\Foo Bar\\Munder Difflin\\hive';
+  const argv = [copilotExe, grant, '-p', 'inspect the hive inbox'];
+  const line = argsToCommandLine(copilotExe, argv.slice(1));
+
+  assert.deepEqual(parseWindowsCommandLine(line), argv);
+});
+
 test('cmd.exe: the same prompt is destroyed — which is the bug', () => {
   const line = buildCmdCommandLine(`${NPM_DIR}\\opencode.cmd`, ['--prompt', HOSTILE_PROMPT]);
 
@@ -271,6 +280,14 @@ test('single-line args still go through cmd.exe unchanged (fallback preserved)',
   assert.equal(
     buildCmdCommandLine('C:\\Program Files\\x\\tool.cmd', ['--model', 'gpt-5-codex']),
     '/d /s /c ""C:\\Program Files\\x\\tool.cmd" --model gpt-5-codex"'
+  );
+});
+
+test('cmd.exe fallback quotes a Copilot directory grant as one inert token', () => {
+  const grant = '--add-dir=C:\\Users\\Foo Bar\\Munder & Difflin\\hive';
+  assert.equal(
+    buildCmdCommandLine('C:\\Program Files\\GitHub Copilot\\copilot.cmd', [grant]),
+    '/d /s /c ""C:\\Program Files\\GitHub Copilot\\copilot.cmd" "--add-dir=C:\\Users\\Foo Bar\\Munder & Difflin\\hive""'
   );
 });
 
