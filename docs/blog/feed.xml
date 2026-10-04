@@ -16,6 +16,14 @@
     <summary>Ask your AI to answer in ASD-STE100, the aerospace manual standard, about 80% of the way. Plus Karpathy&#39;s three other tricks: diagrams, HTML and video.</summary>
   </entry>
   <entry>
+    <title>Agent Tools Today, 4 Oct 2026: You should Know, OpenClaw&#39;s Android Wait, Codex Wish List</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-04/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-04/</id>
+    <published>2026-10-04T00:00:00.000Z</published>
+    <updated>2026-10-04T00:00:00.000Z</updated><category term="News" />
+    <summary>The top 5 launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 4 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 3 Oct 2026: Claude Code Mods, OpenDots, Conductor Mobile</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-03/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-03/</id>
@@ -478,13 +486,5 @@
     <published>2026-07-03T00:00:00.000Z</published>
     <updated>2026-09-10T00:00:00.000Z</updated><category term="Guides" />
     <summary>A guide to Munder Difflin&#39;s Command Center in 0.5.2: the kanban with task dependencies, the ask me tab, triggers, memory, live token use against each agent&#39;s budget, and when to watch the board instead of the floor.</summary>
-  </entry>
-  <entry>
-    <title>CrewAI and AutoGen vs a Local Agent Harness: Framework or App?</title>
-    <link href="https://munderdiffl.in/blog/crewai-autogen-vs-a-local-agent-harness/" />
-    <id>https://munderdiffl.in/blog/crewai-autogen-vs-a-local-agent-harness/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-07-03T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>CrewAI, AutoGen (now Microsoft Agent Framework), and LangGraph are frameworks — Python you write to build your own agent system. A multi-agent harness is an app you download that runs a team on your repos today. Here&#39;s how to tell which one you actually need.</summary>
   </entry>
 </feed>
