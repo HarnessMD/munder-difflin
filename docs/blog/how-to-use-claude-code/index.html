@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://munderdiffl.in/blog/assets/media/how-to-use-claude-code/hero.png" />
 <meta property="og:image:width" content="1600" />
 <meta property="og:image:height" content="900" />
-<meta property="og:image:alt" content="Title card. The words How to use Claude Code, with Michael and Pam from the office cast standing beside them" />
+<meta property="og:image:alt" content="Title card on white. The words How to use Claude Code above a dotted track with five small icons: a box, a key, a folder, a speech bubble and a line of code, and a yellow marble at the end" />
 <meta property="og:locale" content="en_US" />
 <meta property="article:published_time" content="2026-10-05T00:00:00.000Z" />
 <meta property="article:author" content="Chaitanya Giri" />
@@ -49,7 +49,7 @@
 <meta name="twitter:title" content="How to Use Claude Code: Setup, First Task and the Commands That Matter — Munder Difflin Blog" />
 <meta name="twitter:description" content="How to use Claude Code, checked 5 Oct 2026: install it, sign in, run a first task, then the commands, shortcuts and habits a beginner needs." />
 <meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/how-to-use-claude-code/hero.png" />
-<meta name="twitter:image:alt" content="Title card. The words How to use Claude Code, with Michael and Pam from the office cast standing beside them" />
+<meta name="twitter:image:alt" content="Title card on white. The words How to use Claude Code above a dotted track with five small icons: a box, a key, a folder, a speech bubble and a line of code, and a yellow marble at the end" />
 
 <link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -177,12 +177,12 @@
       <span class="dot" aria-hidden="true">·</span>
       <time datetime="2026-10-05">Oct 5, 2026</time>
       <span class="dot" aria-hidden="true">·</span>
-      <span>6 min read</span>
+      <span>5 min read</span>
       <span class="tag kind">Guides</span>
     </div>
   </header>
 
-  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/how-to-use-claude-code/hero.png" alt="Title card. The words How to use Claude Code, with Michael and Pam from the office cast standing beside them" loading="lazy" decoding="async" /></figure></div>
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/how-to-use-claude-code/hero.png" alt="Title card on white. The words How to use Claude Code above a dotted track with five small icons: a box, a key, a folder, a speech bubble and a line of code, and a yellow marble at the end" loading="lazy" decoding="async" /></figure></div>
 
   <div class="post-wrap wrap">
     <div class="prose">
@@ -193,7 +193,7 @@
 <p>On accounts, the same page says Claude Code requires a Pro, Max, Team, Enterprise or Console account, and that the free <a href="http://claude.ai">claude.ai</a> plan does not include it. Our <a href="/blog/how-much-does-claude-code-cost/">Claude Code cost breakdown</a> covers which plan fits.</p>
 <h2 id="how-do-you-set-up-claude-code" tabindex="-1">How do you set up Claude Code? <a class="anchor" href="#how-do-you-set-up-claude-code" aria-hidden="true">#</a></h2>
 <p>Run the native installer, check the version, then start <code>claude</code> in a project and log in. These are the commands from Anthropic’s <a href="https://code.claude.com/docs/en/quickstart">quickstart</a>, read on 5 Oct 2026.</p>
-<figure class="mg" data-scene="flow"><img src="/blog/assets/media/how-to-use-claude-code/setup-steps.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. Pam walks along five boxes that light up in order: Install, Sign in, Open a project, Ask a question, Make a change."><script type="application/json">{"kicker":"Setup","title":"Claude Code from zero to a first change","nodes":[{"label":"Install","note":"One command in your terminal."},{"label":"Sign in","note":"Run claude. Log in in the browser."},{"label":"Open a project","note":"cd to the folder, then run claude."},{"label":"Ask a question","note":"Try: what does this project do?"},{"label":"Make a change","note":"It shows you the change."}],"labels":["--version","","",""],"host":"pam","say":"Five boxes. I drew them myself."}</script><figcaption>The five setup steps, from Anthropic's quickstart. Checked 5 Oct 2026.</figcaption></figure>
+<figure class="mg" data-scene="marble"><img src="/blog/assets/media/how-to-use-claude-code/setup-steps.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation on a white card. A yellow marble rolls along a dotted track through five stops, and each one comes alive as it passes: a box opens for Install, a key turns for Sign in, files rise out of a folder for Open a project, a speech bubble pops for Ask a question, and a line of code turns green for Make a change. A strip below shows the command for each stop."><figcaption>The five setup steps, from Anthropic's quickstart. Tap a stop for its command. Checked 5 Oct 2026.</figcaption></figure>
 <ol>
 <li><strong>Install.</strong> On macOS, Linux or WSL:</li>
 </ol>
@@ -225,7 +225,7 @@ claude</code></pre>
 <p>Then run <code>/init</code>. It generates a starter <code>CLAUDE.md</code>, the file Claude reads at the start of every conversation. Put build commands, code style and workflow rules in it. The <a href="https://code.claude.com/docs/en/memory">memory docs</a> say to target under 200 lines per file. It’s a memo, not the employee handbook.</p>
 <h2 id="how-do-you-write-a-prompt-claude-code-can-act-on" tabindex="-1">How do you write a prompt Claude Code can act on? <a class="anchor" href="#how-do-you-write-a-prompt-claude-code-can-act-on" aria-hidden="true">#</a></h2>
 <p>Name the symptom, the likely location and what fixed looks like. That advice, and the example below, come from Anthropic’s <a href="https://code.claude.com/docs/en/best-practices">best practices page</a>, which puts it this way: “The more precise your instructions, the fewer corrections you’ll need.”</p>
-<figure class="mg" data-scene="before-after"><img src="/blog/assets/media/how-to-use-claude-code/prompt.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. A card showing a four word prompt flips over to show a three line prompt that names the symptom, the folder to check and the failing test to write."><script type="application/json">{"kicker":"Prompts","title":"The same bug, asked for twice","before":{"label":"Vague","lines":["fix the login bug"]},"after":{"label":"Specific","lines":["Users report that login fails after session timeout.","Check the auth flow in src/auth/, especially token refresh.","Write a failing test that reproduces the issue, then fix it."]},"host":"jim","say":"Symptom, place, proof. That's it."}</script><figcaption>Adapted from the before and after on Anthropic's best practices page. Checked 5 Oct 2026.</figcaption></figure>
+<figure class="mg" data-scene="focus"><img src="/blog/assets/media/how-to-use-claude-code/prompt.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation on a white card. A slider moves from vague to specific. At vague the card says fix the login bug among floating question marks. At specific it shows three tagged lines: the symptom, where to look, and the proof, a failing test."><figcaption>Drag the slider. Adapted from the before and after on Anthropic's best practices page. Checked 5 Oct 2026.</figcaption></figure>
 <p>The second half matters as much as the first. Give Claude a check it can run (a test, a build, a linter) and it does the work, runs the check and iterates until it passes. Without one, in the docs’ words, “you become the verification loop”. Use <code>@</code> to point at a file by path.</p>
 <h2 id="which-claude-code-commands-and-shortcuts-are-worth-knowing" tabindex="-1">Which Claude Code commands and shortcuts are worth knowing? <a class="anchor" href="#which-claude-code-commands-and-shortcuts-are-worth-knowing" aria-hidden="true">#</a></h2>
 <p>About a dozen cover daily use. Type <code>/</code> to see the commands and skills available to you.</p>
@@ -292,11 +292,11 @@ claude</code></pre>
 <p>Sources: the <a href="https://code.claude.com/docs/en/commands">commands reference</a> and <a href="https://code.claude.com/docs/en/interactive-mode">interactive mode</a> pages.</p>
 <h2 id="the-working-loop-explore-plan-implement-commit" tabindex="-1">The working loop: explore, plan, implement, commit <a class="anchor" href="#the-working-loop-explore-plan-implement-commit" aria-hidden="true">#</a></h2>
 <p>Anthropic’s recommended workflow has four phases, and it exists to stop Claude solving the wrong problem.</p>
-<figure class="mg" data-scene="flow"><img src="/blog/assets/media/how-to-use-claude-code/loop.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. Four boxes light up left to right, Explore, Plan, Implement and Commit, while Pam points at each one in turn."><script type="application/json">{"kicker":"Workflow","title":"The four phases Anthropic recommends","nodes":[{"label":"Explore","note":"Plan mode: it reads, no changes."},{"label":"Plan","note":"Ask for a detailed plan."},{"label":"Implement","note":"It codes and runs the tests."},{"label":"Commit","note":"Ask for a commit and a PR."}],"labels":["","ok",""],"host":"pam","say":"Fixing a typo? Skip the plan."}</script><figcaption>Explore, plan, implement, commit. From the best practices page, checked 5 Oct 2026.</figcaption></figure>
+<figure class="mg" data-scene="loop"><img src="/blog/assets/media/how-to-use-claude-code/loop.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation on a white card. A yellow dot travels around a ring through four phases, Explore, Plan, Implement and Commit. Each phase lights up in turn with a small moving icon and a one line note in the middle."><figcaption>Explore, plan, implement, commit. From the best practices page, checked 5 Oct 2026.</figcaption></figure>
 <p>Press <code>Shift+Tab</code> until the status bar shows plan mode, and Claude reads files and answers questions without making changes. Ask for a plan, approve it, let it implement and run the tests, then ask it to commit. The docs add a limit: “If you could describe the diff in one sentence, skip the plan.” Our <a href="/blog/how-to-use-claude-code-plan-mode/">plan mode guide</a> has the details.</p>
 <h2 id="common-mistakes" tabindex="-1">Common mistakes <a class="anchor" href="#common-mistakes" aria-hidden="true">#</a></h2>
 <p>In our experience, most beginner trouble is a full context window. Everything Claude reads and every command output lands in it, and the best practices page says performance degrades as it fills.</p>
-<figure class="mg" data-scene="stage"><img src="/blog/assets/media/how-to-use-claude-code/mistakes.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. Michael opens, then Dwight points at a board of common mistakes while Jim and Oscar add one rule each in speech bubbles."><script type="application/json">{"kicker":"House rules","title":"Three mistakes Anthropic's docs warn about","board":{"label":"Avoid","lines":["The kitchen sink session","Correcting over and over","The trust-then-verify gap"]},"script":[{"who":"michael","say":"New here? Dwight has rules."},{"who":"dwight","say":"/clear between unrelated tasks.","point":"up-left"},{"who":"dwight","say":"Two failed fixes? /clear. New prompt.","carry":"/clear"},{"who":"jim","say":"Give it a test, or you are the test."},{"who":"oscar","say":"Rewind is not a replacement for git."}]}</script><figcaption>Failure patterns named on Anthropic's best practices page. Checked 5 Oct 2026.</figcaption></figure>
+<figure class="mg" data-scene="jar"><img src="/blog/assets/media/how-to-use-claude-code/mistakes.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation on a white card. Coloured balls for files, command output and the conversation drop into a jar until it is full and a note says performance degrades as it fills. Two buttons empty it: clear throws everything out, compact squeezes it into one summary block."><figcaption>Why a full context window causes trouble, and the two commands that fix it. Checked 5 Oct 2026.</figcaption></figure>
 <ul>
 <li><strong>One session for everything.</strong> Run <code>/clear</code> between unrelated tasks.</li>
 <li><strong>Correcting the same thing a third time.</strong> After two failed corrections, <code>/clear</code> and write a better first prompt.</li>
@@ -312,7 +312,7 @@ claude</code></pre>
 <li><a href="/blog/claude-code-subagents-vs-multi-agent-harness/">Subagents</a>, to keep research out of your main context.</li>
 <li><a href="/blog/manage-multiple-claude-code-sessions/">Managing multiple Claude Code sessions</a>, for when one terminal stops being enough.</li>
 </ul>
-<link rel="stylesheet" href="/blog/assets/mg/kit.css"><script defer src="/blog/assets/mg/kit.js"></script>
+<link rel="stylesheet" href="/blog/assets/media/how-to-use-claude-code/motion.css"><script defer src="/blog/assets/media/how-to-use-claude-code/motion.js"></script>
 
 
       
