@@ -4424,8 +4424,8 @@
     "category": "guides",
     "hero": {
       "file": "assets/media/how-to-use-claude-code/hero.png",
-      "alt": "Title card. The words How to use Claude Code, with Michael and Pam from the office cast standing beside them",
-      "prompt": "Title card: the kit's title scene (assets/mg/kit.js).",
+      "alt": "Title card on white. The words How to use Claude Code above a dotted track with five small icons: a box, a key, a folder, a speech bubble and a line of code, and a yellow marble at the end",
+      "prompt": "Still of the hero scene in assets/media/how-to-use-claude-code/motion.js.",
       "status": "ready"
     },
     "inline": {}
