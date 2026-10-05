@@ -4418,5 +4418,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "how-to-use-claude-code": {
+    "title": "How to Use Claude Code: Setup, First Task and the Commands That Matter",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/how-to-use-claude-code/hero.png",
+      "alt": "Michael and Jim stand under a board with the path of this guide: install and sign in, run a first task, learn the commands that matter",
+      "prompt": "Title card: a stage scene drawn by the blog scene kit (assets/mg/kit.js), made for the title image only.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "openclaw-alternatives": {
+    "title": "OpenClaw Alternatives: 7 Picks for Chat, Code and Cloud",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/openclaw-alternatives/hero.png",
+      "alt": "Michael and Jim stand under a board that lists seven OpenClaw alternatives: Hermes Agent, Munder Difflin, NanoClaw, ZeroClaw, nanobot, Goose and Claude",
+      "prompt": "Title card: a stage scene drawn by the blog scene kit (assets/mg/kit.js), made for the title image only.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-code-alternatives": {
+    "title": "Claude Code Alternatives: 7 Coding Agents to Switch To",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/claude-code-alternatives/hero.png",
+      "alt": "Michael and Jim stand under a board that lists Claude Code alternatives: Codex CLI, OpenCode, Cursor, Gemini CLI, Cline, Pi and Aider, with a last line that reads Munder Difflin runs a team",
+      "prompt": "Title card: a stage scene drawn by the blog scene kit (assets/mg/kit.js), made for the title image only.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

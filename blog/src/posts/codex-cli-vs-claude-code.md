@@ -1,8 +1,8 @@
 ---
 title: "Codex vs Claude Code: Plans, Limits and Computer Use (Sep 2026)"
-description: "Codex vs Claude Code, checked 29 Sep 2026: models, plans, usage limits, sandboxing, computer use, MCP and subagents in one dated table, then which to pick."
+description: "Codex vs Claude Code, plans checked 5 Oct 2026: models, plans, usage limits, sandboxing, computer use, MCP and subagents in one dated table, then which to pick."
 date: 2026-09-10
-updated: 2026-09-29
+updated: 2026-10-05
 category: comparisons
 categoryLabel: Comparisons
 type: Technical
@@ -13,7 +13,7 @@ faq:
   - q: "Is Codex better than Claude Code?"
     a: "Neither wins outright as of 29 Sep 2026. Codex is the better fit if you want to try it free in the desktop app, limits published per model, and computer use that can run in the background on a Mac. Claude Code is the better fit if you want Opus 5.5 as the default model and computer use from inside the CLI on a Pro or Max plan."
   - q: "Is Codex CLI free?"
-    a: "No. The CLI needs ChatGPT Plus ($20 a month) or higher, or an API key billed at API rates, per OpenAI's Codex pricing page checked 29 Sep 2026. The Free ($0) and Go ($8 a month) plans get GPT-6 Luna in the desktop app only, subject to rollout. Claude Code is not on Claude's Free plan either; it starts at Pro."
+    a: "Partly. OpenAI's help centre says Codex is included across ChatGPT plans, including Free and Go, but the Free ($0) and Go ($8 a month) cards on its Codex pricing page list the desktop app only, subject to rollout. Plus ($20 a month) is the first card that lists the CLI, or you can use an API key billed at API rates. Checked 5 Oct 2026. Claude Code is not on Claude's Free plan either; it starts at Pro."
   - q: "Which has higher usage limits, Codex or Claude Code?"
     a: "You can only compare them on paper for Codex, because OpenAI publishes estimated messages per five hours for each model and Anthropic does not. Both products meter a rolling five hour window plus a weekly limit, and both sell credits once you run out. The multipliers line up: 5x and 20x tiers on each side."
   - q: "Does Claude Code read AGENTS.md?"
@@ -35,8 +35,8 @@ You can also skip the choice: switch between the two by hand, or run both in [Mu
 | Where it runs | CLI, IDE extension, ChatGPT desktop app, web, iOS | CLI, IDE extensions, desktop app, web |
 | Source | CLI is Apache-2.0 on GitHub | Closed, Anthropic commercial terms |
 | Models | GPT-6 Astra, GPT-6 Sol, GPT-6 Luna, GPT-5.6 family. The pricing page still lists GPT-5.5 (retires 14 Oct 2026), GPT-5.4 and GPT-5.4 mini | Opus 5.5 is the default on Pro, Max, Team and Enterprise, plus Sonnet and Haiku. Fable 5.1 can bill to usage credits, depending on plan and seat tier |
-| Cheapest plan with the CLI | Plus, $20 a month (Free and Go get the desktop app only) | Pro, $20 a month |
-| Heavy plans | Pro 5x from $100, Pro 20x at $200 (new sign ups paused, reported 11 Sep 2026) | Max 5x at $100, Max 20x at $200 |
+| First plan that lists the CLI | Plus, $20 a month (the Free and Go cards list the desktop app only) | Pro, $20 a month |
+| Heavy plans | Pro at $100, $200 or $500 a month; Astra Ultrafast on the $500 plan only (checked 5 Oct 2026) | Max 5x at $100, Max 20x at $200 |
 | Limits | Published ranges per model per 5 hours, weekly limits may apply, credits after | 5 hour session limit plus a weekly limit, no published message counts, credits after |
 | Sandbox | On by default: Seatbelt on macOS, bubblewrap on Linux and WSL2, native Windows sandbox | Built in Bash sandbox (Seatbelt, bubblewrap), set up with `/sandbox`. No native Windows |
 | Approval controls | `--sandbox` and `--ask-for-approval`, two flags | One `--permission-mode` with six modes |
@@ -49,21 +49,22 @@ Sources: OpenAI's [Codex pricing page](https://learn.chatgpt.com/docs/pricing), 
 
 ## Which one has higher usage limits, Codex or Claude Code?
 
-Only Codex lets you compare on paper, because OpenAI publishes estimated local messages per five hours for each model and Anthropic publishes none. OpenAI's pricing page, checked 29 Sep 2026, lists these ranges:
+Only Codex lets you compare on paper, because OpenAI publishes estimated local messages per five hours for each model and Anthropic publishes none. OpenAI's pricing page, checked 5 Oct 2026, lists these ranges for Plus and says Pro plans currently have no five hour limit:
 
-| Model | Plus | Pro 5x | Pro 20x |
-|:--|:--|:--|:--|
-| GPT-6 Astra | 5 to 45 | 25 to 225 | 100 to 900 |
-| GPT-6 Sol | 15 to 150 | 70 to 700 | 300 to 3,000 |
-| GPT-6 Luna | 350 to 3,000 | 1,750 to 14,000 | 7,000 to 56,000 |
+| Model | Plus, local messages per five hours |
+|:--|:--|
+| GPT-6 Astra | 5 to 45 |
+| GPT-6.1 Sol | 15 to 160 |
+| GPT-6 Sol | 15 to 150 |
+| GPT-6 Luna | 350 to 3,000 |
 
 The same page says weekly limits may also apply, and that Plus and Pro users can buy credits when they run out. The spread inside each range comes from task size, context and reasoning, so a long Astra session lands near the bottom end.
 
 Anthropic describes its limits as multipliers instead. Max 5x gives five times Pro's per session usage and Max 20x gives twenty times, both with a weekly limit across all models that resets at a fixed time for your account, per its Max plan article checked 29 Sep 2026. Anthropic's Opus 5.5 announcement on 22 Sep 2026 also raised five hour limits on Pro, Max, Team and seat based Enterprise. Claude Code and the Claude apps share one pool, so a long chat eats into your coding time. Our [Claude Code Max plan tips](/blog/claude-code-max-plan-tips/) cover how to stretch it, and the [Codex Max plan tips](/blog/codex-max-plan-tips/) do the same for OpenAI's side.
 
-### Can new subscribers still get ChatGPT Pro 20x?
+### Can new subscribers still get ChatGPT Pro 200?
 
-Probably not right now. [Fortune reported on 11 Sep 2026](https://fortune.com/2026/09/11/openai-astra-chatgpt-pro-pause/) that OpenAI had paused new sign ups and upgrades to the $200 ChatGPT Pro tier because of demand for GPT-6 Astra, with existing Pro accounts unaffected. We could not load OpenAI's own help page to confirm it, so check before you plan around it. If you burn through Pro 5x, your options are credits, an API key, or a second tool. Anthropic's Max plan article carried no pause of that kind on 29 Sep 2026.
+Yes. OpenAI's [Pro tiers article](https://help.openai.com/en/articles/9793128), checked 5 Oct 2026, says "Pro 200 is also available for new subscriptions again". New subscriptions get a lower usage allowance than the plan used to carry. The same article lists a new Pro 500 at $500 a month, the only Pro tier with Astra Ultrafast. The pause [Fortune reported on 11 Sep 2026](https://fortune.com/2026/09/11/openai-astra-chatgpt-pro-pause/) is over. If you burn through Pro 100, step up, buy credits, or use an API key.
 
 ## Does Codex or Claude Code have better computer use?
 
@@ -99,7 +100,7 @@ Yes, but only when there is no `CLAUDE.md`, by default. Claude Code's memory doc
 
 ## Is Codex CLI free?
 
-No: the free tier covers the desktop app, not the CLI. OpenAI's pricing page, checked 29 Sep 2026, lists Free at $0 and Go at $8 a month, both with GPT-6 Luna in the desktop app subject to rollout, and Plus at $20 a month for Codex on the web, in the CLI, in the IDE extension and on iOS. You can also run the CLI on an API key and pay API rates. Claude Code is not on Claude's Free plan; it starts at Pro.
+Partly: the Free and Go cards list the desktop app, not the CLI. OpenAI's pricing page, checked 5 Oct 2026, lists Free at $0 and Go at $8 a month, both with GPT-6 Luna in the desktop app subject to rollout, and Plus at $20 a month for Codex on the web, in the CLI, in the IDE extension and on iOS. You can also run the CLI on an API key and pay API rates. Claude Code is not on Claude's Free plan; it starts at Pro.
 
 {% img "note-2" %}
 
