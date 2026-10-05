@@ -51,7 +51,7 @@ Every scene takes `kicker` (the yellow chip) and `title`. `host` is a cast name;
 | `title` | `title` (up to 3 lines of 27 characters), `sub`, `cast: [names]` (2 or 3, default Michael and Jim), `say` (first cast member, under 40 characters) | Nothing to tap, no hint |
 | `stage` | `script: [{ who, say, point, carry }]`, optional `board: { label, lines }`. Up to 5 script lines. A board holds 4 lines of 43 characters; with a board, keep each `say` under 68 characters (two bubble lines) so it stays below the board. `point`: left, right, up-left, up-right, raise. `carry`: a short sign held at the chest | Tap a character to hear the line again |
 | `price-ladder` | `prefix`, `suffix`, `items: [{ label, value, display, note, highlight }]`, up to 6 | Tap or hover a step for its note |
-| `compare` | `cols: [a, b]`, `pick` (0 or 1), `rows: [{ label, a, b, win, note }]`, up to 5. `win` is "a", "b" or "" | Tap a row for its note |
+| `compare` | `cols: [a, b]`, `pick` (0 or 1), `rows: [{ label, a, b, win, note }]`, up to 5. `win` is "a", "b" or "". A cell fits about 17 characters at full size (15 with a tick); longer cells shrink to fit and are cut at 30 | Tap a row for its note |
 | `timeline` | `events: [{ when, label, note }]`, up to 6 | Tap a date; the host walks to it |
 | `flow` | `nodes: [{ label, note }]`, up to 8 (5 or more wrap to two rows), `labels: [text on arrow i]`, each up to 16 characters, drawn as a tag above the arrow | Tap a step or use arrow keys |
 | `before-after` | `before: { label, lines }`, `after: { label, lines }` | Tap the card to flip it |

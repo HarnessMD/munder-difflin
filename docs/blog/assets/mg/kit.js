@@ -277,9 +277,10 @@
         const lab = wrap(r.label, Math.floor((lw - 6) / (f * 0.54))).slice(0, 2);
         lines(g, cx[0] + 4, y + rh / 2 + 6 - (lab.length - 1) * f * 0.6, lab, f, C.soft, { "font-weight": 600 }, f * 1.2);
         const ticks = ["a", "b"].map((k, j) => {
-          const won = r.win === k, s = cut(r[k], won ? mc - 2 : mc), mid = cx[j + 1] + cw / 2;
-          txt(g, mid + (won ? 10 : 0), y + rh / 2 + 6, s, f, won ? C.y : C.paper, { "text-anchor": "middle", "font-weight": won ? 700 : 500 });
-          return won ? el("path", { d: `M${mid - s.length * f * 0.29 - 20} ${y + rh / 2}l6 6 11-12`, fill: "none", stroke: C.y, "stroke-width": 3.5, "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-dasharray": 26 }, g) : null;
+          // a long cell shrinks to fit its column (down to 11 px) before it is cut
+          const won = r.win === k, s = cut(r[k], 30), mid = cx[j + 1] + cw / 2, fs = Math.max(11, Math.min(f, (cw - (won ? 50 : 20)) / (Math.max(1, s.length) * 0.56)));
+          txt(g, mid + (won ? 10 : 0), y + rh / 2 + fs * 0.35, s, fs, won ? C.y : C.paper, { "text-anchor": "middle", "font-weight": won ? 700 : 500 });
+          return won ? el("path", { d: `M${mid - s.length * fs * 0.29 - 20} ${y + rh / 2}l6 6 11-12`, fill: "none", stroke: C.y, "stroke-width": 3.5, "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-dasharray": 26 }, g) : null;
         });
         ring(g, L.x0 - 8, y + 3, L.x1 - L.x0 + 16, rh - 6, 10);
         return { g, bg, ticks };
