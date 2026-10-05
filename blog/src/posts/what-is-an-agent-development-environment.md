@@ -73,7 +73,7 @@ Match the tool to your delegation level, not the hype cycle:
 
 These stack rather than compete — Orca and Munder Difflin both *run* Claude Code and Codex; your CLI subscription is the engine either way. For a decision framework with sharper questions (team size, autonomy appetite, budget controls), see [how to choose a multi-agent tool](/blog/how-to-choose-a-multi-agent-tool/).
 
-And if the office model sounds like your level of delegation: Munder Difflin is free, MIT-licensed, and local-first — [grab the latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest), and if it earns it, a [GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+And if the office model sounds like your level of delegation: Munder Difflin is free, MIT-licensed, and local-first — [grab the latest release](https://github.com/HarnessMD/munder-difflin/releases/latest), and if it earns it, a [GitHub star](https://github.com/HarnessMD/munder-difflin) helps more people find it.
 
 Sources: [Letta — Introducing the Agent Development Environment](https://www.letta.com/blog/introducing-the-agent-development-environment);
 [Orca (stablyai/orca)](https://github.com/stablyai/orca); [Orca — onorca.dev](https://www.onorca.dev/);

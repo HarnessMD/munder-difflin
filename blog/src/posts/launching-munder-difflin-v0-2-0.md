@@ -43,7 +43,7 @@ issues and sending pull requests. We'll credit every one of them by name at the 
 
 > **A note on what's in here.** Everything described below shipped in the v0.2.0 milestone (48 commits since
 > v0.1.9). Where a change closed a specific issue or merged a specific PR, we've credited the contributor and
-> the issue/PR number — the same credits appear in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+> the issue/PR number — the same credits appear in the [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 ## The Command Center, rebuilt
 
@@ -153,7 +153,7 @@ and pull requests turned into features. Thank you, sincerely, to everyone below.
 - **@wild-gobatz** — agents showing idle until clicked (#3).
 
 And, as ever, maintained by **@chaitanyagiri**. If you want the full, line-by-line list with every credit, the
-[CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md) has it.
+[CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md) has it.
 
 ## Get v0.2.0
 
@@ -165,5 +165,5 @@ and run a few agents until you want to *watch* them — which, as of v0.2.0, you
 ---
 
 This release exists because people filed issues, sent PRs, and told us what hurt. If v0.2.0 fixed something you
-reported: thank you. If it didn't fix something you're hitting, [open an issue](https://github.com/chaitanyagiri/munder-difflin) —
+reported: thank you. If it didn't fix something you're hitting, [open an issue](https://github.com/HarnessMD/munder-difflin) —
 the next release is built the same way this one was.

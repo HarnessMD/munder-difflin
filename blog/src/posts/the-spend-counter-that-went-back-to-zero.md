@@ -247,7 +247,7 @@ scheduling for triggers, clickable paths everywhere in terminal output, one edit
 two, one click updates, and 23 community pull requests.
 
 The full notes are on the
-[releases page](https://github.com/chaitanyagiri/munder-difflin/releases/latest), and if you want
+[releases page](https://github.com/HarnessMD/munder-difflin/releases/latest), and if you want
 the wider version of this argument, the
 [multi-agent cost playbook](/blog/the-multi-agent-cost-playbook/) is about spending less rather
 than counting it correctly. Both matter. Counting it correctly comes first, because you cannot

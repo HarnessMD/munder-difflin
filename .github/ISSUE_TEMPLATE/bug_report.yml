@@ -68,7 +68,7 @@ body:
     attributes:
       label: Munder Difflin version
       description: Settings → the version is on the hero card. Or `Munder Difflin → About`.
-      placeholder: e.g. 0.4.5
+      placeholder: e.g. 0.5.5
     validations:
       required: true
   - type: input

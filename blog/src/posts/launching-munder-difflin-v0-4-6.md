@@ -42,7 +42,7 @@ your operating system locale, because changing somebody's whole interface out fr
 an upgrade is rude even when you are right about what they speak.
 
 The Chinese work came from the community. [@Schopenhauer-loves-Hegel](https://github.com/Schopenhauer-loves-Hegel)
-opened [PR #205](https://github.com/chaitanyagiri/munder-difflin/pull/205) and built the entire
+opened [PR #205](https://github.com/HarnessMD/munder-difflin/pull/205) and built the entire
 foundation: react-i18next mounted, the language picker, and then the slow part, walking every
 screen and pulling out hardcoded strings. The office floor, the Command Center, Settings, the
 setup wizard, the triggers tabs, the Kanban board, the IDE panels. It is a little under 1,200 strings.
@@ -93,10 +93,10 @@ written by an agent and checked by machine for the things you can check without 
 coverage and placeholders and structure. Whether it reads well is unverified. We shipped it anyway,
 because a translation you can use and file bugs against beats a perfect one that never arrives. If
 you read Arabic and something is wrong,
-[tell us](https://github.com/chaitanyagiri/munder-difflin/issues) and it gets fixed.
+[tell us](https://github.com/HarnessMD/munder-difflin/issues) and it gets fixed.
 
 The Arabic and right to left groundwork started as
-[PR #213](https://github.com/chaitanyagiri/munder-difflin/pull/213) from
+[PR #213](https://github.com/HarnessMD/munder-difflin/pull/213) from
 [@abo123v-glitch](https://github.com/abo123v-glitch), including the terminal shaping recipe, which
 is the fiddly part.
 
@@ -142,7 +142,7 @@ Underneath, the model lists moved out of the renderer source and into a checked 
 Shipping a new model used to mean editing code and rebuilding. Now it is one line in a catalog,
 and entries can say which app versions they belong to, so a build stops offering a model its CLI
 never shipped. That was [@aaroncoville](https://github.com/aaroncoville) in
-[PR #339](https://github.com/chaitanyagiri/munder-difflin/pull/339).
+[PR #339](https://github.com/HarnessMD/munder-difflin/pull/339).
 
 ## Security and privacy
 
@@ -181,7 +181,7 @@ in which your text could cross it by accident. It is counted when you hit send, 
 
 Everything in the funnel is a closed list of values: which engine, and one of four reasons a spawn
 failed. No prompts, no code, no file paths, no agent output, ever. The full list of every event and every
-property is in [TELEMETRY.md](https://github.com/chaitanyagiri/munder-difflin/blob/main/TELEMETRY.md),
+property is in [TELEMETRY.md](https://github.com/HarnessMD/munder-difflin/blob/main/TELEMETRY.md),
 and it is short on purpose.
 
 ## The rest
@@ -189,7 +189,7 @@ and it is short on purpose.
 - **Terminals stop blacking out.** Chromium allows about 16 live WebGL contexts and silently
   evicts the oldest when you pass it. Switching between agents leaked one per switch, so eventually
   a terminal or the office floor itself went black. Contexts are released properly now.
-  [@aaroncoville](https://github.com/aaroncoville), [PR #323](https://github.com/chaitanyagiri/munder-difflin/pull/323).
+  [@aaroncoville](https://github.com/aaroncoville), [PR #323](https://github.com/HarnessMD/munder-difflin/pull/323).
 - **The release notes page no longer shows a white screen.** It painted nothing until its
   stylesheets resolved, and it was still fetching fonts from Google. On a network where that host
   is blocked the fetch does not fail, it hangs, so a new version greeted you with a blank rectangle
@@ -206,7 +206,7 @@ and it is short on purpose.
 - **The ASK ME board is in order.** It had no sort at all, so a question from five minutes ago
   could sit below one from three days ago.
 - **An agent's usage counter resets when its terminal exits.**
-  [@aaroncoville](https://github.com/aaroncoville), [PR #317](https://github.com/chaitanyagiri/munder-difflin/pull/317).
+  [@aaroncoville](https://github.com/aaroncoville), [PR #317](https://github.com/HarnessMD/munder-difflin/pull/317).
 
 {% img "note-3", "Sixteen community pull requests from thirteen contributors, one of them re-implemented rather than merged." %}
 
@@ -222,7 +222,7 @@ including the terminal shaping recipe. [@aaroncoville](https://github.com/aaronc
 three, among them the WebGL fix that stops terminals going black.
 [@LavaDMan](https://github.com/LavaDMan) fixed a test that raced its own input.
 
-**About that re-implemented one.** [PR #213](https://github.com/chaitanyagiri/munder-difflin/pull/213)
+**About that re-implemented one.** [PR #213](https://github.com/HarnessMD/munder-difflin/pull/213)
 counts because the work shipped, not because it merged. We split it, took the terminal half, then
 re-implemented the UI half against the language picker that landed after it was written. The code
 ships and the design is theirs. On GitHub the pull request still reads as unmerged, which looks
@@ -246,7 +246,7 @@ Merge a pull request and a workflow hands you the **employee of the month** role
 
 If you are on 0.3.5 or later the app will offer the update itself, and this time clicking the
 badge actually installs it. Fresh install: [munderdiffl.in](https://munderdiffl.in). Every receipt
-is in [the changelog](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+is in [the changelog](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 If you run the app in Chinese or Arabic, we want to hear what is broken. Especially Arabic, and
 especially the wording, since nobody who reads it has checked it yet.

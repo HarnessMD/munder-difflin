@@ -82,4 +82,4 @@ That last step is the point. [Human-in-the-loop approval](/blog/human-in-the-loo
 
 ## Try it
 
-The IDE ships in v0.3.3 for macOS, Windows, and Linux — [grab the latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest), or start with the [install guide](/blog/how-to-install-and-use-munder-difflin/) if you're new. If the review loop saves you an alt-tab, a [GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+The IDE ships in v0.3.3 for macOS, Windows, and Linux — [grab the latest release](https://github.com/HarnessMD/munder-difflin/releases/latest), or start with the [install guide](/blog/how-to-install-and-use-munder-difflin/) if you're new. If the review loop saves you an alt-tab, a [GitHub star](https://github.com/HarnessMD/munder-difflin) helps more people find it.

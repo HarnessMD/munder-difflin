@@ -84,21 +84,21 @@ true than claim a drain path that isn't there yet.
 
 ### Our first community-contributed engine
 
-The Copilot adapter arrived as [PR #101](https://github.com/chaitanyagiri/munder-difflin/pull/101)
+The Copilot adapter arrived as [PR #101](https://github.com/HarnessMD/munder-difflin/pull/101)
 from **[Anas Khan (@anxkhn)](https://github.com/anxkhn)** — the first provider added by someone
 outside the project, complete with a registry test and live verification against the real CLI.
 That's exactly the kind of contribution the preset registry was designed for. Thank you, Anas. If
-there's a CLI agent you want on the floor, [the door is open](https://github.com/chaitanyagiri/munder-difflin/blob/main/CONTRIBUTING.md).
+there's a CLI agent you want on the floor, [the door is open](https://github.com/HarnessMD/munder-difflin/blob/main/CONTRIBUTING.md).
 
 {% img "note-2" %}
 
 ## Get it
 
-**[Download v0.3.3](https://github.com/chaitanyagiri/munder-difflin/releases/latest)** for macOS,
+**[Download v0.3.3](https://github.com/HarnessMD/munder-difflin/releases/latest)** for macOS,
 Windows, or Linux — or clone and `npm run dev`. Free, MIT-licensed, local-first, and everything
 from v0.3.2 and earlier — Talk mode, the Agent Gallery, MemPalace memory, the Command Center —
 still ships.
 
 If Munder Difflin is useful to you, a
-[star on GitHub](https://github.com/chaitanyagiri/munder-difflin) is the single biggest way to
+[star on GitHub](https://github.com/HarnessMD/munder-difflin) is the single biggest way to
 help it reach more people.

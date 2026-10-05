@@ -66,7 +66,7 @@ The inaugural class earned it properly:
 [@gts-47](https://github.com/gts-47) with eight, from atomic task-ledger writes to un-silencing
 an agent's wake nudge, and [@baziyer](https://github.com/baziyer) with the fix that stops the
 office floor rendering when nobody's watching it. If you've been thinking about a first
-contribution, the [good-first-issue path](https://github.com/chaitanyagiri/munder-difflin)
+contribution, the [good-first-issue path](https://github.com/HarnessMD/munder-difflin)
 now ends with a job title.
 
 {% img "note-2", "Merge a PR, get the role. Recognition is a workflow now, like everything else around here." %}

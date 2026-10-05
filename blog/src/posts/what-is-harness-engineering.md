@@ -75,7 +75,7 @@ Munder Difflin is this discipline shipped as a product, so its internals make go
 
 The pattern across all four: **reliability was engineered into the environment, not prompted into the model.** Each subsystem exists because a specific failure mode exists, and each closes that failure mode for every model, every provider, permanently. Swap Claude for Codex or a local model tomorrow — the breaker still breaks, the mail still routes, the memory still recalls. That's what "the model is a commodity" means in practice: the harness is the part that compounds.
 
-If you want to see a harness rather than read about one, [download Munder Difflin](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — free, MIT-licensed, local-first — and if the idea resonates, [a GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+If you want to see a harness rather than read about one, [download Munder Difflin](https://github.com/HarnessMD/munder-difflin/releases/latest) — free, MIT-licensed, local-first — and if the idea resonates, [a GitHub star](https://github.com/HarnessMD/munder-difflin) helps more people find it.
 
 Sources: [Mitchell Hashimoto — My AI Adoption Journey](https://mitchellh.com/writing/my-ai-adoption-journey);
 [Faros AI — Harness Engineering: Making AI Coding Agents Work in 2026](https://www.faros.ai/blog/harness-engineering).

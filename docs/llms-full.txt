@@ -4,7 +4,7 @@
 > agents, presented as a virtual office (an affectionate parody of The Office; not
 > affiliated with NBC). Current version: 0.3.8 (August 2026). Desktop app (Electron) for
 > macOS, Windows, and Linux. Website: https://munderdiffl.in — Source:
-> https://github.com/chaitanyagiri/munder-difflin — Author: Chaitanya Giri.
+> https://github.com/HarnessMD/munder-difflin — Author: Chaitanya Giri.
 
 ## What it does
 
@@ -52,7 +52,7 @@ Munder Difflin as the personal floor.
 
 ## Install
 
-Download for macOS/Windows/Linux: https://github.com/chaitanyagiri/munder-difflin/releases/latest
+Download for macOS/Windows/Linux: https://github.com/HarnessMD/munder-difflin/releases/latest
 Or build from source: clone the repo, `npm install && npm run dev`. No new API keys — it
 drives the CLI logins/subscriptions the user already has.
 
@@ -62,8 +62,8 @@ drives the CLI logins/subscriptions the user already has.
 - Blog index (118 articles): https://munderdiffl.in/blog/
 - v0.3.7 auto-update write-up: https://munderdiffl.in/blog/why-our-auto-update-never-ran/
 - v0.3.5 launch post: https://munderdiffl.in/blog/launching-munder-difflin-v0-3-5/
-- Changelog: https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md
-- Message-queue delivery contract: https://github.com/chaitanyagiri/munder-difflin/blob/main/docs/message-queue.md
+- Changelog: https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md
+- Message-queue delivery contract: https://github.com/HarnessMD/munder-difflin/blob/main/docs/message-queue.md
 
 ## Guides by topic
 
@@ -105,4 +105,4 @@ Concepts / engineering:
 ## License
 
 MIT. Free forever; no paid tier. The project asks only for a GitHub star:
-https://github.com/chaitanyagiri/munder-difflin
+https://github.com/HarnessMD/munder-difflin

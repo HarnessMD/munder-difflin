@@ -48,7 +48,7 @@ coordinated hive — shared memory, messaging, and a <a href="/#how">GOD orchest
 Windows, and Linux. The full answers to the questions people ask most are below.</p></div>
 
 This page answers the questions we hear most about Munder Difflin, kept short and direct. If your
-question isn't here, the [GitHub repo](https://github.com/chaitanyagiri/munder-difflin) and the rest
+question isn't here, the [GitHub repo](https://github.com/HarnessMD/munder-difflin) and the rest
 of [the blog](/blog/) go deeper.
 
 ## The one-sentence version

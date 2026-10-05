@@ -124,4 +124,4 @@ The fastest way to feel the idea is to use it. Open [The Hiring Fair](https://mu
 - [Inside the GOD orchestrator](/blog/how-the-god-orchestrator-works/) — who coordinates the roles you hire.
 - [The clone army trap](/blog/the-clone-army-trap-mixed-swarm-vs-identical-agents/) — why a *mix* of well-chosen roles beats ten identical agents.
 - [Why we built Munder Difflin](/blog/why-we-built-munder-difflin/) — the origin story.
-- [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md) — everything that shipped.
+- [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md) — everything that shipped.

@@ -55,7 +55,7 @@ about what "yes" even means.
 It also adds its own failure modes. Munder Difflin shipped exactly this at first — a floating approvals
 panel — and learned the lesson the hard way: approving an item could **re-queue it**, because resolving
 an approval re-routed the message back into the queue. The
-[v0.1.7 release](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md) notes it plainly:
+[v0.1.7 release](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md) notes it plainly:
 "Moving to native HITL removes the panel and the bug." Deleting the abstraction deleted the class of bug
 with it.
 

@@ -71,4 +71,4 @@ Crucially, the terminals are still terminals. Every agent is the real CLI — Cl
 
 The DIY path isn't wrong; it's version one. Every feature above started life as somebody's shell script, and if you kept iterating on your tmux setup — add a router script, a memory file, a budget checker, a Slack bridge, a recovery script — you'd converge on a harness. Munder Difflin is that convergence, already built, MIT-licensed, and local-first, so the six months of scripting goes into your actual work instead.
 
-If you're at two panes, enjoy them. If you're at five and tired of being the message bus, [download the latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — and if it saves you a script or two, [a GitHub star](https://github.com/chaitanyagiri/munder-difflin) is appreciated.
+If you're at two panes, enjoy them. If you're at five and tired of being the message bus, [download the latest release](https://github.com/HarnessMD/munder-difflin/releases/latest) — and if it saves you a script or two, [a GitHub star](https://github.com/HarnessMD/munder-difflin) is appreciated.

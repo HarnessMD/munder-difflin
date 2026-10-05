@@ -119,8 +119,8 @@ The task kanban board (Command Center → Tasks) now has a dismiss button on eac
 
 ## What ships with v0.2.4
 
-Everything from v0.2.0 (observability, circuit breaker, fleet monitoring, persistence), v0.2.1 (queue-aware compaction, inbox-driven heartbeat), v0.2.2 (context gauges, all-human-dispatch-through-god, community fixes), and v0.2.3 (multi-provider foundation, Schedules tab, tunnelmole) is included. The full log is in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+Everything from v0.2.0 (observability, circuit breaker, fleet monitoring, persistence), v0.2.1 (queue-aware compaction, inbox-driven heartbeat), v0.2.2 (context gauges, all-human-dispatch-through-god, community fixes), and v0.2.3 (multi-provider foundation, Schedules tab, tunnelmole) is included. The full log is in the [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 To use the new providers: install the relevant CLIs (`agy` for Antigravity, `codex` for OpenAI Codex) and put them on your `PATH`. When you add a worker in the Add Agent dialog, select the provider. The hive handles the rest.
 
-Download v0.2.4 from the [releases page](https://github.com/chaitanyagiri/munder-difflin/releases/latest). Munder Difflin is free, open source, and local-first on macOS, Windows, and Linux.
+Download v0.2.4 from the [releases page](https://github.com/HarnessMD/munder-difflin/releases/latest). Munder Difflin is free, open source, and local-first on macOS, Windows, and Linux.
