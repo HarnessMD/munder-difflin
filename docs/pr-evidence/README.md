@@ -17,3 +17,5 @@ Before/after screenshots for pull request evidence, served to the PR body via
 - `before-topic-tiles.png` / `after-topic-tiles.png` — the tile grid on
   /blog/topics/ at 1280px wide: the live page (topic name on a flat colour)
   and the local build with the drawn tile images.
+- `before-blog-mg-kit.png` / `after-blog-mg-kit.png` — /blog/assets/mg/demo.html before the blog scene kit
+  (the live site has no such page) and after (every kit scene on its still frame, from the local files).
