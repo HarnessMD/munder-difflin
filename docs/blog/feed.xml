@@ -16,6 +16,30 @@
     <summary>Ask your AI to answer in ASD-STE100, the aerospace manual standard, about 80% of the way. Plus Karpathy&#39;s three other tricks: diagrams, HTML and video.</summary>
   </entry>
   <entry>
+    <title>Claude Code Alternatives: 7 Coding Agents to Switch To</title>
+    <link href="https://munderdiffl.in/blog/claude-code-alternatives/" />
+    <id>https://munderdiffl.in/blog/claude-code-alternatives/</id>
+    <published>2026-10-05T00:00:00.000Z</published>
+    <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Seven Claude Code alternatives checked on 5 Oct 2026: Codex CLI, OpenCode, Cursor, Gemini CLI, Cline, Pi and Aider, by licence, starting price and models.</summary>
+  </entry>
+  <entry>
+    <title>How to Use Claude Code: Setup, First Task and the Commands That Matter</title>
+    <link href="https://munderdiffl.in/blog/how-to-use-claude-code/" />
+    <id>https://munderdiffl.in/blog/how-to-use-claude-code/</id>
+    <published>2026-10-05T00:00:00.000Z</published>
+    <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
+    <summary>How to use Claude Code, checked 5 Oct 2026: install it, sign in, run a first task, then the commands, shortcuts and habits a beginner needs.</summary>
+  </entry>
+  <entry>
+    <title>OpenClaw Alternatives: 7 Picks for Chat, Code and Cloud</title>
+    <link href="https://munderdiffl.in/blog/openclaw-alternatives/" />
+    <id>https://munderdiffl.in/blog/openclaw-alternatives/</id>
+    <published>2026-10-05T00:00:00.000Z</published>
+    <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Seven OpenClaw alternatives sorted by job: Hermes Agent, Munder Difflin, NanoClaw, ZeroClaw, nanobot, Goose and Claude. Licences and prices checked 5 Oct 2026.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 4 Oct 2026: You should Know, OpenClaw&#39;s Android Wait, Codex Wish List</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-04/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-04/</id>
@@ -324,8 +348,8 @@
     <link href="https://munderdiffl.in/blog/codex-cli-vs-claude-code/" />
     <id>https://munderdiffl.in/blog/codex-cli-vs-claude-code/</id>
     <published>2026-09-10T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Codex vs Claude Code, checked 29 Sep 2026: models, plans, usage limits, sandboxing, computer use, MCP and subagents in one dated table, then which to pick.</summary>
+    <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Codex vs Claude Code, plans checked 5 Oct 2026: models, plans, usage limits, sandboxing, computer use, MCP and subagents in one dated table, then which to pick.</summary>
   </entry>
   <entry>
     <title>Claude Code Pricing (Sep 2026): Every Plan, and Is It Free?</title>
@@ -462,29 +486,5 @@
     <published>2026-08-08T00:00:00.000Z</published>
     <updated>2026-08-08T00:00:00.000Z</updated><category term="Internals" />
     <summary>Munder Difflin shipped auto-update in v0.3.4 and it silently never worked in a single packaged build. The cause was one destructuring assignment across the CommonJS/ESM boundary — and a catch block that threw the evidence away. Here&#39;s how we found it, and what v0.3.7 changes.</summary>
-  </entry>
-  <entry>
-    <title>Launching Munder Difflin v0.3.5: A Michael Who Knows the Floor, a Git Time-Machine, and an App That Updates Itself</title>
-    <link href="https://munderdiffl.in/blog/launching-munder-difflin-v0-3-5/" />
-    <id>https://munderdiffl.in/blog/launching-munder-difflin-v0-3-5/</id>
-    <published>2026-08-06T00:00:00.000Z</published>
-    <updated>2026-08-06T00:00:00.000Z</updated><category term="Story" />
-    <summary>The v0.3.4 + v0.3.5 wave: voice orchestration with live floor context and full app control, markdown previews everywhere, commit history and branch compare in the built-in IDE, a six-tab Settings redesign, xAI Grok and Kimi Code engines, auto-update, and a queue that always has an escape hatch.</summary>
-  </entry>
-  <entry>
-    <title>qm vs Munder Difflin: YC&#39;s Multiplayer Harness or an Office of Your Clones?</title>
-    <link href="https://munderdiffl.in/blog/qm-vs-munder-difflin/" />
-    <id>https://munderdiffl.in/blog/qm-vs-munder-difflin/</id>
-    <published>2026-08-06T00:00:00.000Z</published>
-    <updated>2026-09-10T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>An honest September 2026 comparison of YC&#39;s qm and Munder Difflin. qm is a multiplayer agent harness a company deploys for Slack and the web. Munder Difflin runs an office of your clones on your own machine, with Teams to connect them.</summary>
-  </entry>
-  <entry>
-    <title>The Command Center: Kanban, Fleet and Budgets in One Place</title>
-    <link href="https://munderdiffl.in/blog/command-center-guide/" />
-    <id>https://munderdiffl.in/blog/command-center-guide/</id>
-    <published>2026-07-03T00:00:00.000Z</published>
-    <updated>2026-09-10T00:00:00.000Z</updated><category term="Guides" />
-    <summary>A guide to Munder Difflin&#39;s Command Center in 0.5.2: the kanban with task dependencies, the ask me tab, triggers, memory, live token use against each agent&#39;s budget, and when to watch the board instead of the floor.</summary>
   </entry>
 </feed>

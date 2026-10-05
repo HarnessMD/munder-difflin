@@ -94,7 +94,7 @@ Zero assets is expected: the installer pulls from git, so the release is a tag a
 
 ## Hermes Agent vs OpenClaw, Munder Difflin, Claude Code and Pi: which should you use?
 
-Hermes or OpenClaw if you want a personal assistant in your chat apps, the other three if the job is code. Licences and releases read from each repo through `gh api` on 3 Oct 2026, dates in UTC:
+Hermes or OpenClaw if you want a personal assistant in your chat apps, the other three if the job is code. Our [OpenClaw alternatives](/blog/openclaw-alternatives/) list has more picks. Licences and releases read from each repo through `gh api` on 3 Oct 2026, dates in UTC:
 
 | | Licence | Where it runs | What it is for | Latest release |
 | --- | --- | --- | --- | --- |

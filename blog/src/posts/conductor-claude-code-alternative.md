@@ -85,7 +85,8 @@ language, shared MemPalace memory, inter-agent messaging, and a watchable office
 
 For the broader field, see [the best tools to run multiple Claude Code
 agents](/blog/best-claude-code-multi-agent-tools/) and a criteria-based [orchestration tools
-comparison](/blog/claude-code-orchestration-tools-compared/).
+comparison](/blog/claude-code-orchestration-tools-compared/). To replace the agent itself, see our
+[Claude Code alternatives](/blog/claude-code-alternatives/).
 
 ---
 

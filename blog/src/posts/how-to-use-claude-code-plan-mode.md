@@ -130,7 +130,7 @@ Use them in order. Plan mode decides what to change, accept edits auto-approves 
 * **Pick accept edits if** you already know the change and will read `git diff` afterwards.
 * **Pick auto mode if** it's a long task you've already planned and you'd rather not click through prompts.
 
-If one risky command is the real worry, a [PreToolUse hook](/blog/claude-code-hooks-explained/) blocks just that call, and [why Claude Code keeps asking for permission](/blog/why-does-claude-code-keep-asking-for-permission/) explains the prompts you'll see in Manual mode.
+If one risky command is the real worry, a [PreToolUse hook](/blog/claude-code-hooks-explained/) blocks just that call, and [why Claude Code keeps asking for permission](/blog/why-does-claude-code-keep-asking-for-permission/) explains the prompts you'll see in Manual mode. New to the tool? Start with [how to use Claude Code](/blog/how-to-use-claude-code/).
 
 ## What changed in plan mode in the last six months?
 
