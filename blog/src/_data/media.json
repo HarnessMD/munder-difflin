@@ -4424,8 +4424,8 @@
     "category": "guides",
     "hero": {
       "file": "assets/media/how-to-use-claude-code/hero.png",
-      "alt": "Michael and Jim stand under a board with the path of this guide: install and sign in, run a first task, learn the commands that matter",
-      "prompt": "Title card: a stage scene drawn by the blog scene kit (assets/mg/kit.js), made for the title image only.",
+      "alt": "Title card. The words How to use Claude Code, with Michael and Pam from the office cast standing beside them",
+      "prompt": "Title card: the kit's title scene (assets/mg/kit.js).",
       "status": "ready"
     },
     "inline": {}
@@ -4435,8 +4435,8 @@
     "category": "comparisons",
     "hero": {
       "file": "assets/media/openclaw-alternatives/hero.png",
-      "alt": "Michael and Jim stand under a board that lists seven OpenClaw alternatives: Hermes Agent, Munder Difflin, NanoClaw, ZeroClaw, nanobot, Goose and Claude",
-      "prompt": "Title card: a stage scene drawn by the blog scene kit (assets/mg/kit.js), made for the title image only.",
+      "alt": "Title card. The words OpenClaw alternatives: 7 picks, with Michael and Jim from the office cast standing beside them",
+      "prompt": "Title card: the kit's title scene (assets/mg/kit.js).",
       "status": "ready"
     },
     "inline": {}
@@ -4446,8 +4446,8 @@
     "category": "comparisons",
     "hero": {
       "file": "assets/media/claude-code-alternatives/hero.png",
-      "alt": "Michael and Jim stand under a board that lists Claude Code alternatives: Codex CLI, OpenCode, Cursor, Gemini CLI, Cline, Pi and Aider, with a last line that reads Munder Difflin runs a team",
-      "prompt": "Title card: a stage scene drawn by the blog scene kit (assets/mg/kit.js), made for the title image only.",
+      "alt": "Title card. The words Claude Code alternatives: 7 coding agents, with Michael, Oscar and Kevin from the office cast standing beside them",
+      "prompt": "Title card: the kit's title scene (assets/mg/kit.js).",
       "status": "ready"
     },
     "inline": {}
