@@ -4485,5 +4485,41 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "codex-pricing": {
+    "title": "Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/codex-pricing/hero.png",
+      "alt": "Hand drawn sketch: a yellow character beside a ledger, labelled plan, limits, API, and what codex really costs",
+      "prompt": "Code drawn hero (media-src/spec.js, ledger archetype).",
+      "status": "ready"
+    },
+    "inline": {
+      "note-1": {
+        "file": "assets/media/codex-pricing/note-1.png",
+        "alt": "Hand drawn sketch: a yellow character checking entries in a ledger",
+        "prompt": "",
+        "status": "ready"
+      },
+      "note-2": {
+        "file": "assets/media/codex-pricing/note-2.png",
+        "alt": "Hand drawn sketch: a yellow character adding a line to a ledger",
+        "prompt": "",
+        "status": "ready"
+      }
+    }
+  },
+  "agent-tools-today-2026-10-05": {
+    "title": "Agent Tools Today, 5 Oct 2026: Paperclip Goes Full Auto, Strata's Codex API, Cloudflare's Git Contest",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
   }
 }

@@ -158,4 +158,5 @@ const SPEC = {
   "what-is-codex": { a: "stack", blue: "CLI, app, cloud", orange: "one agent, three places" },
   "what-is-gemini-spark": { a: "spotlight", blue: "works from your google apps", orange: "an agent inside gemini" },
   "what-is-claude-cowork": { a: "kanban", blue: "hand over the whole task", orange: "claude, beyond chat" },
+  "codex-pricing": { a: "ledger", blue: "plan, limits, API", orange: "what codex really costs" },
 };

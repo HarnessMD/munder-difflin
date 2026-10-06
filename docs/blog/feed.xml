@@ -32,6 +32,14 @@
     <summary>Reflection AI Beam is a 501B parameter open weight model. Size, Reflection&#39;s own scores, licence and when you can get it, checked 6 Oct 2026.</summary>
   </entry>
   <entry>
+    <title>Agent Tools Today, 5 Oct 2026: Paperclip Goes Full Auto, Strata&#39;s Codex API, Cloudflare&#39;s Git Contest</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-05/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-05/</id>
+    <published>2026-10-05T00:00:00.000Z</published>
+    <updated>2026-10-05T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 5 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
     <title>ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers</title>
     <link href="https://munderdiffl.in/blog/asd-ste100-prompting/" />
     <id>https://munderdiffl.in/blog/asd-ste100-prompting/</id>
@@ -46,6 +54,14 @@
     <published>2026-10-05T00:00:00.000Z</published>
     <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Seven Claude Code alternatives checked on 5 Oct 2026: Codex CLI, OpenCode, Cursor, Gemini CLI, Cline, Pi and Aider, by licence, starting price and models.</summary>
+  </entry>
+  <entry>
+    <title>Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/codex-pricing/" />
+    <id>https://munderdiffl.in/blog/codex-pricing/</id>
+    <published>2026-10-05T00:00:00.000Z</published>
+    <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Codex pricing checked 5 Oct 2026: which ChatGPT plans include Codex, US prices from $0 to $500, how usage limits are counted, credits and API key rates.</summary>
   </entry>
   <entry>
     <title>How to Use Claude Code: Setup, First Task and the Commands That Matter</title>
@@ -470,21 +486,5 @@
     <published>2026-08-19T00:00:00.000Z</published>
     <updated>2026-08-19T00:00:00.000Z</updated><category term="Internals" />
     <summary>A cmd.exe parsing rule from the 1980s meant Windows agents received exactly one line of their multi-line startup protocol — and nothing errored. The anatomy of our worst silent failure, and the fix.</summary>
-  </entry>
-  <entry>
-    <title>Turn a Firehose of Feedback into a Backlog with Agents</title>
-    <link href="https://munderdiffl.in/blog/turn-feedback-into-a-backlog-with-agents/" />
-    <id>https://munderdiffl.in/blog/turn-feedback-into-a-backlog-with-agents/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>Reddit threads, Product Hunt comments, GitHub issues and Discord — launch week buries you in feedback that decays if unprocessed. The agent workflow that turned ours into a ranked backlog, with receipts.</summary>
-  </entry>
-  <entry>
-    <title>We Opened a Discord (Merge a PR, Become Employee of the Month)</title>
-    <link href="https://munderdiffl.in/blog/we-opened-a-discord/" />
-    <id>https://munderdiffl.in/blog/we-opened-a-discord/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Story" />
-    <summary>Munder Difflin has a Discord now. Come watch releases land, get help with your floor, and earn the most thematically necessary contributor role in open source.</summary>
   </entry>
 </feed>
