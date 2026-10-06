@@ -1,5 +1,6 @@
 ---
 title: "OpenAI text watermarking: textGrain, who gets it, limits"
+seoTitle: "ChatGPT Watermark: OpenAI Text Watermarking (textGrain)"
 description: "OpenAI text watermarking (textGrain) is opt in for the API now and is coming to eligible ChatGPT and Codex text in the EU. Limits checked 6 Oct 2026."
 date: 2026-10-06
 category: concepts
