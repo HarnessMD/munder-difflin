@@ -9,6 +9,7 @@ const {
   codexRemoteEndpoint,
   codexRemoteSocketFits,
   withCodexRemoteArgs,
+  planCodexLaunch,
   CODEX_REMOTE_SOCKET_MAX,
   CODEX_REMOTE_SOCKET_RELATIVE
 } = loadTs('src/shared/codexRemote.ts');
@@ -23,6 +24,75 @@ test('Codex remote uses a short stable per-agent home alias', {
   assert.notEqual(first, other);
   assert.ok(first.length < 80);
   assert.match(codexRemoteEndpoint(first), /^unix:\/\/\/tmp\//);
+});
+
+test('Auto Mode resume keeps its permissions, hive roots and prompt in a local TUI', () => {
+  const args = ['resume', 'session-id', '-a', 'never', '-s', 'workspace-write',
+    '--dangerously-bypass-hook-trust', '--add-dir', '/hive/agent', 'Drain the inbox'];
+  const original = [...args];
+  const plan = planCodexLaunch(args);
+  assert.equal(plan.managedRemote, false);
+  assert.match(plan.localReason, /resume/);
+  assert.deepEqual(plan.args, ['--no-daemon', ...original]);
+  assert.deepEqual(args, original);
+});
+
+test('fresh sandboxed launches retain --add-dir and use local execution', () => {
+  for (const args of [
+    ['-a', 'never', '-s', 'workspace-write', '--add-dir', '/hive', 'hello'],
+    ['--add-dir=/hive', 'hello']
+  ]) {
+    const plan = planCodexLaunch(args);
+    assert.equal(plan.managedRemote, false);
+    assert.deepEqual(plan.args, ['--no-daemon', ...args]);
+    assert.match(plan.localReason, /--add-dir/);
+  }
+});
+
+test('fresh full-bypass launches can use remote without redundant directory grants', () => {
+  for (const bypass of ['--dangerously-bypass-approvals-and-sandbox', '--yolo']) {
+    const plan = planCodexLaunch([bypass, '--add-dir', '/hive', '--add-dir=/shared',
+      '--dangerously-bypass-hook-trust', 'hello']);
+    assert.equal(plan.managedRemote, true);
+    assert.deepEqual(plan.args, [bypass, '--dangerously-bypass-hook-trust', 'hello']);
+  }
+});
+
+test('compatible fresh launches and resumes retain remote support', () => {
+  for (const args of [
+    ['-a', 'never', '-s', 'workspace-write', 'hello'],
+    ['resume', 'session-id', '--model', 'gpt-5.6-sol', 'hello'],
+    ['--model', 'resume', 'hello'], // an option value is not a subcommand
+    ['resume', 'session-id', '--', '--add-dir'] // literal prompt text
+  ]) {
+    assert.deepEqual(planCodexLaunch(args), { args, managedRemote: true });
+  }
+});
+
+test('permission overrides on resume select local execution across CLI spellings', () => {
+  for (const override of [
+    ['--ask-for-approval=never'], ['--sandbox=workspace-write'], ['-anever'],
+    ['-sworkspace-write'], ['--approve-for-me'], ['--yolo'],
+    ['--profile', 'custom'], ['--permission-profile', 'custom'],
+    ['-c', 'approval_policy="never"'], ['--config=sandbox_mode="workspace-write"'],
+    ['-csandbox_workspace_write.writable_roots=["/hive"]'],
+    ['-c=default_permissions="custom"']
+  ]) {
+    const args = [...override, 'resume', 'session-id'];
+    assert.deepEqual(planCodexLaunch(args).args, ['--no-daemon', ...args]);
+    assert.equal(planCodexLaunch(args).managedRemote, false);
+  }
+  assert.equal(planCodexLaunch(['fork', 'session-id', '-a', 'never']).managedRemote, false);
+});
+
+test('explicit transports are preserved without starting the managed remote daemon', () => {
+  for (const args of [
+    ['--no-daemon', 'resume', 'session-id', '-a', 'never'],
+    ['--remote', 'wss://custom.example', 'resume', 'session-id'],
+    ['--remote=unix:///custom.sock', 'hello']
+  ]) {
+    assert.deepEqual(planCodexLaunch(args), { args, managedRemote: false });
+  }
 });
 
 test('the default alias root yields a socket within sun_path', () => {
