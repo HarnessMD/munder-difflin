@@ -4474,5 +4474,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "reflection-beam": {
+    "title": "Reflection AI Beam: the 501B open weight model, explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/reflection-beam/hero.png",
+      "alt": "Title card on white. The words Reflection AI Beam above a wall of small round lamps, with one patch of 23 lamps lit yellow",
+      "prompt": "Still of the hero scene in assets/media/reflection-beam/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

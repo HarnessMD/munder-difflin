@@ -77,7 +77,7 @@ expose it, often `:8000/v1`.
 
 Pull a model, tell the engine where it lives, and pick it for an agent.
 
-Want a local model behind Claude Code itself? That route is covered in [how to connect Ollama to Claude Code](/blog/how-to-connect-ollama-to-claude-code/).
+Want a local model behind Claude Code itself? That route is covered in [how to connect Ollama to Claude Code](/blog/how-to-connect-ollama-to-claude-code/). A newer open weight model to watch is [Reflection AI's Beam](/blog/reflection-beam/); its weights were not out when we checked on 6 Oct 2026.
 
 **1. Pull a model.** With [Ollama](https://ollama.com) installed, grab one sized to your memory:
 
