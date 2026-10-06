@@ -24,6 +24,14 @@
     <summary>OpenAI text watermarking (textGrain) is opt in for the API now and is coming to eligible ChatGPT and Codex text in the EU. Limits checked 6 Oct 2026.</summary>
   </entry>
   <entry>
+    <title>Reflection AI Beam: the 501B open weight model, explained</title>
+    <link href="https://munderdiffl.in/blog/reflection-beam/" />
+    <id>https://munderdiffl.in/blog/reflection-beam/</id>
+    <published>2026-10-06T00:00:00.000Z</published>
+    <updated>2026-10-06T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Reflection AI Beam is a 501B parameter open weight model. Size, Reflection&#39;s own scores, licence and when you can get it, checked 6 Oct 2026.</summary>
+  </entry>
+  <entry>
     <title>ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers</title>
     <link href="https://munderdiffl.in/blog/asd-ste100-prompting/" />
     <id>https://munderdiffl.in/blog/asd-ste100-prompting/</id>
@@ -478,13 +486,5 @@
     <published>2026-08-19T00:00:00.000Z</published>
     <updated>2026-08-19T00:00:00.000Z</updated><category term="Story" />
     <summary>Munder Difflin has a Discord now. Come watch releases land, get help with your floor, and earn the most thematically necessary contributor role in open source.</summary>
-  </entry>
-  <entry>
-    <title>What Reddit Told Us About Munder Difflin</title>
-    <link href="https://munderdiffl.in/blog/what-reddit-told-us-about-munder-difflin/" />
-    <id>https://munderdiffl.in/blog/what-reddit-told-us-about-munder-difflin/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Story" />
-    <summary>We launched across ten subreddits and then read every single comment. What landed, what got roasted, and what we shipped because of it.</summary>
   </entry>
 </feed>

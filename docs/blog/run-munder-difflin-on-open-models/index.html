@@ -293,7 +293,7 @@ expose it, often <code>:8000/v1</code>.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/run-munder-difflin-on-open-models/note-1.png" alt="Hand-drawn sketch from “Run Munder Difflin on Open-Source Models — Fully Local or via a Third-Party Provider”" loading="lazy" decoding="async" /><figcaption>Same model id everywhere. Only the prefix changes: local/ on OpenCode, ollama/ on Crush and Pi, and the provider name when you use a key.</figcaption></figure>
 <h2 id="how-do-you-run-a-model-fully-locally" tabindex="-1">How do you run a model fully locally? <a class="anchor" href="#how-do-you-run-a-model-fully-locally" aria-hidden="true">#</a></h2>
 <p>Pull a model, tell the engine where it lives, and pick it for an agent.</p>
-<p>Want a local model behind Claude Code itself? That route is covered in <a href="/blog/how-to-connect-ollama-to-claude-code/">how to connect Ollama to Claude Code</a>.</p>
+<p>Want a local model behind Claude Code itself? That route is covered in <a href="/blog/how-to-connect-ollama-to-claude-code/">how to connect Ollama to Claude Code</a>. A newer open weight model to watch is <a href="/blog/reflection-beam/">Reflection AI’s Beam</a>; its weights were not out when we checked on 6 Oct 2026.</p>
 <p><strong>1. Pull a model.</strong> With <a href="https://ollama.com">Ollama</a> installed, grab one sized to your memory:</p>
 <pre class="language-bash"><code class="language-bash">ollama pull gpt-oss:20b        <span class="token comment"># about 14 GB, fits a 16 GB Mac</span>
 ollama pull qwen3:30b-a3b      <span class="token comment"># about 19 GB, a fast generalist for 32 GB</span>
