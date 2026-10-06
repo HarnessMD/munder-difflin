@@ -26,7 +26,7 @@ thumb: "/blog/assets/media/openclaw-alternatives/hero.png"
 
 The best OpenClaw alternative is Hermes Agent if you want the same job done, a personal assistant in your chat apps, and [Munder Difflin](https://harnessmd.com/download) if your real work is code. NanoClaw, ZeroClaw, nanobot, Goose and Claude cover tighter isolation, smaller installs and a hosted option. Checked 5 Oct 2026.
 
-<figure class="mg" data-scene="stage"><img src="/blog/assets/media/openclaw-alternatives/cast.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. Michael, Jim, Dwight, Kevin and Oscar walk on one by one and each says one line about choosing between seven OpenClaw alternatives."><script type="application/json">{"kicker":"OpenClaw alternatives","title":"Seven ways out, sorted by job","script":[{"who":"michael","say":"Leaving OpenClaw? Seven ways out."},{"who":"jim","say":"Chat helper, coding team or cloud."},{"who":"dwight","say":"Rule: check where the tools run.","point":"up-left"},{"who":"kevin","say":"Six of the seven are free.","carry":"$0"},{"who":"oscar","say":"I read every repo on 5 Oct 2026."}]}</script><figcaption>Seven alternatives. Six are free and open source, one is hosted.</figcaption></figure>
+<figure class="mg" data-scene="sorter"><img src="/blog/assets/media/openclaw-alternatives/sorter.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Seven named pills drop out of a hopper one at a time and a tilting flap sorts them. Six land in a tray marked free and open source, and the last one, Claude, lands in a tray marked hosted."><figcaption>Seven alternatives. Six are free and open source, one is hosted.</figcaption></figure>
 
 This guide sits in our [Comparisons hub](/blog/topics/comparisons/), next to the wider list of [open source AI agents](/blog/open-source-ai-agents/).
 
@@ -77,7 +77,7 @@ Licences come from each repo, checked on 5 Oct 2026. The Claude price is from [c
 
 Hermes Agent, for most people who liked what OpenClaw does. It does the same job under the same licence, and it is the only pick here whose README documents an import from `~/.openclaw`.
 
-<figure class="mg" data-scene="compare"><img src="/blog/assets/media/openclaw-alternatives/versus.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. A table compares OpenClaw and Hermes Agent on licence, GitHub stars, latest release, chat apps and switching, then Oscar gives the verdict."><script type="application/json">{"kicker":"Checked 5 Oct 2026","title":"OpenClaw against Hermes Agent","cols":["OpenClaw","Hermes Agent"],"pick":1,"rows":[{"label":"Licence","a":"MIT","b":"MIT","win":"","note":"A tie. Both repos are MIT licensed."},{"label":"GitHub stars","a":"391,425","b":"251,363","win":"a","note":"Read on GitHub, 5 Oct 2026."},{"label":"Latest release","a":"v2026.9.8, 3 Oct","b":"v2026.9.24, 24 Sep","win":"","note":"Both shipped a release in the last two weeks."},{"label":"Chat apps in README","a":"6 named, 20+ more","b":"5 named, plus CLI","win":"a","note":"Counted from each README's headline list."},{"label":"Switching","a":"You are here","b":"hermes claw migrate","win":"b","note":"Add --dry-run to preview the import."}],"host":"oscar","say":"Hermes is the closest swap."}</script><figcaption>OpenClaw is the bigger project. Hermes Agent is the easiest move.</figcaption></figure>
+<figure class="mg" data-scene="move"><img src="/blog/assets/media/openclaw-alternatives/move.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four parcels marked settings, memories, skills and API keys hop from an OpenClaw crate to a Hermes Agent crate when the command hermes claw migrate is pressed. Both crates carry an MIT tag."><figcaption>OpenClaw is the bigger project. Hermes Agent is the easiest move.</figcaption></figure>
 
 OpenClaw still wins on size and reach: more stars, more channels, and native apps for macOS, iOS, Android, Windows and Linux. If none of the three reasons above bothers you, stay. That is a fair outcome for a list like this.
 
@@ -85,7 +85,7 @@ OpenClaw still wins on size and reach: more stars, more channels, and native app
 
 Yes: six of the seven are free and open source, and so is OpenClaw. The software costs nothing. The model does, unless you run a local one or reuse a plan you already pay for. Goose, for example, can use an existing Claude, ChatGPT or Gemini subscription.
 
-<figure class="mg" data-scene="price-ladder"><img src="/blog/assets/media/openclaw-alternatives/prices.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. Six price steps appear in a row, four flat at free and two rising to 20 and 100 dollars a month, while Kevin points at them."><script type="application/json">{"kicker":"Checked 5 Oct 2026","title":"What it costs to start, per month","prefix":"$","items":[{"label":"OpenClaw","value":0,"display":"Free","note":"MIT. No paid tier."},{"label":"Hermes Agent","value":0,"display":"Free","highlight":true,"note":"MIT. Bring any model."},{"label":"NanoClaw","value":0,"display":"Free","note":"MIT. Needs Docker."},{"label":"Goose","value":0,"display":"Free","note":"Apache 2.0. 15+ providers."},{"label":"Claude Pro","value":20,"note":"$20 if billed monthly."},{"label":"Claude Max","value":100,"display":"$100+","note":"Max is listed as from $100."}],"host":"kevin","say":"Free software. Bring your own model."}</script><figcaption>Prices to start per month, with Claude figures from claude.com/pricing on 5 Oct 2026.</figcaption></figure>
+<figure class="mg" data-scene="tags"><img src="/blog/assets/media/openclaw-alternatives/tags.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Eight price tags hang on two lines and flip over one by one. OpenClaw and six alternatives say Free, and the Claude tag says Pro, 20 dollars a month."><figcaption>Prices to start per month, with Claude figures from claude.com/pricing on 5 Oct 2026.</figcaption></figure>
 
 Claude is the one pick here where the agent work starts on a paid plan: on 5 Oct 2026, Pro is $20 a month billed monthly, and Max is listed "From $100".
 
@@ -93,7 +93,7 @@ Claude is the one pick here where the agent work starts on a paid plan: on 5 Oct
 
 Pick by the job first, then by whose computer does the work.
 
-<figure class="mg" data-scene="flow"><img src="/blog/assets/media/openclaw-alternatives/pick.png" width="1600" height="900" loading="lazy" decoding="async" alt="Animation. Four boxes draw themselves in a row, asking what job, whose computer, how isolated and which model, while Pam points at each one."><script type="application/json">{"kicker":"Who should pick what","title":"Four questions, in this order","nodes":[{"label":"What job?","note":"Chat assistant: Hermes Agent. Coding team: Munder Difflin."},{"label":"Whose computer?","note":"Yours: six picks. Anthropic's servers: Claude."},{"label":"How isolated?","note":"NanoClaw runs each agent in its own Linux container."},{"label":"Which model?","note":"Hermes, ZeroClaw, nanobot and Goose take many providers."}],"labels":["then","then","last"],"host":"pam","say":"Four questions. Ask them in order."}</script><figcaption>Tap a box for the pick that goes with it.</figcaption></figure>
+<figure class="mg" data-scene="switches"><img src="/blog/assets/media/openclaw-alternatives/switches.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Two switches flip, one for the job and one for whose computer, and a card pops out with the pick: Hermes Agent, then Munder Difflin, then Claude."><figcaption>Tap the switches for the next pick.</figcaption></figure>
 
 - **Hermes Agent** if you want OpenClaw's job with a learning loop and an import command.
 - **Munder Difflin** if the work is code and you want several agents on it at once.
@@ -105,4 +105,4 @@ Pick by the job first, then by whose computer does the work.
 
 For hosted agents from the other big vendors, see [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/).
 
-<link rel="stylesheet" href="/blog/assets/mg/kit.css"><script defer src="/blog/assets/mg/kit.js"></script>
+<link rel="stylesheet" href="/blog/assets/media/openclaw-alternatives/motion.css"><script defer src="/blog/assets/media/openclaw-alternatives/motion.js"></script>

@@ -4333,6 +4333,18 @@
     "inline": {},
     "youtube": []
   },
+  "agent-tools-today-2026-10-06": {
+    "title": "Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
   "what-is-hermes-agent": {
     "title": "Hermes Agent: what it is, how to install it and what it costs",
     "category": "concepts",
@@ -4435,8 +4447,8 @@
     "category": "comparisons",
     "hero": {
       "file": "assets/media/openclaw-alternatives/hero.png",
-      "alt": "Title card. The words OpenClaw alternatives: 7 picks, with Michael and Jim from the office cast standing beside them",
-      "prompt": "Title card: the kit's title scene (assets/mg/kit.js).",
+      "alt": "Title card on white. The words OpenClaw alternatives, 7 picks for chat, code and cloud, above six coloured name pills, with a Claude pill dropping from a hopper onto a yellow flap",
+      "prompt": "Title card: the hero scene in assets/media/openclaw-alternatives/motion.js, shot at 1600 by 900.",
       "status": "ready"
     },
     "inline": {}
@@ -4446,8 +4458,19 @@
     "category": "comparisons",
     "hero": {
       "file": "assets/media/claude-code-alternatives/hero.png",
-      "alt": "Title card. The words Claude Code alternatives: 7 coding agents, with Michael, Oscar and Kevin from the office cast standing beside them",
-      "prompt": "Title card: the kit's title scene (assets/mg/kit.js).",
+      "alt": "Title card on white. The words Claude Code alternatives, 7 coding agents to switch to, above a tray of seven coloured pegs: a circle, square, triangle, hexagon, star and cross sit in place and a diamond hovers over its empty slot",
+      "prompt": "Title card: the hero scene in assets/media/claude-code-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "openai-text-watermarking": {
+    "title": "OpenAI text watermarking: textGrain, who gets it, limits",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/openai-text-watermarking/hero.png",
+      "alt": "Title card on white. The words OpenAI text watermarking above two rows of grey word shapes, where a frame hanging from a large key has turned some of the words yellow in a pattern",
+      "prompt": "Still of the hero scene in assets/media/openai-text-watermarking/motion.js.",
       "status": "ready"
     },
     "inline": {}

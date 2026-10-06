@@ -4,9 +4,25 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-05T00:00:00.000Z</updated>
+  <updated>2026-10-06T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-06/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-06/</id>
+    <published>2026-10-06T00:00:00.000Z</published>
+    <updated>2026-10-06T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 6 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>OpenAI text watermarking: textGrain, who gets it, limits</title>
+    <link href="https://munderdiffl.in/blog/openai-text-watermarking/" />
+    <id>https://munderdiffl.in/blog/openai-text-watermarking/</id>
+    <published>2026-10-06T00:00:00.000Z</published>
+    <updated>2026-10-06T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>OpenAI text watermarking (textGrain) is opt in for the API now and is coming to eligible ChatGPT and Codex text in the EU. Limits checked 6 Oct 2026.</summary>
+  </entry>
   <entry>
     <title>ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers</title>
     <link href="https://munderdiffl.in/blog/asd-ste100-prompting/" />
@@ -470,21 +486,5 @@
     <published>2026-08-19T00:00:00.000Z</published>
     <updated>2026-08-19T00:00:00.000Z</updated><category term="Story" />
     <summary>We launched across ten subreddits and then read every single comment. What landed, what got roasted, and what we shipped because of it.</summary>
-  </entry>
-  <entry>
-    <title>What&#39;s Up With Munder Difflin: Six Weeks, Four Releases, and the Part of the Stack You Actually Own</title>
-    <link href="https://munderdiffl.in/blog/whats-up-with-munder-difflin/" />
-    <id>https://munderdiffl.in/blog/whats-up-with-munder-difflin/</id>
-    <published>2026-08-08T00:00:00.000Z</published>
-    <updated>2026-08-08T00:00:00.000Z</updated><category term="Story" />
-    <summary>Everything that shipped between v0.3.3 and v0.3.7 — a Michael who knows the floor and runs the app by voice, a git time-machine in the IDE, nine agent engines, a queue that respects your draft, Node that installs itself, and the auto-update bug that had been silently broken since the day we shipped it.</summary>
-  </entry>
-  <entry>
-    <title>Our Auto-Update Never Ran Once: A CommonJS Export That Vanished Into an ESM Namespace</title>
-    <link href="https://munderdiffl.in/blog/why-our-auto-update-never-ran/" />
-    <id>https://munderdiffl.in/blog/why-our-auto-update-never-ran/</id>
-    <published>2026-08-08T00:00:00.000Z</published>
-    <updated>2026-08-08T00:00:00.000Z</updated><category term="Internals" />
-    <summary>Munder Difflin shipped auto-update in v0.3.4 and it silently never worked in a single packaged build. The cause was one destructuring assignment across the CommonJS/ESM boundary — and a catch block that threw the evidence away. Here&#39;s how we found it, and what v0.3.7 changes.</summary>
   </entry>
 </feed>
