@@ -617,6 +617,8 @@ html:not(.hw-on) .hw-x{display:none!important}html.hw-on .hw-n{display:none!impo
 .hw-h1 .w>span{display:inline-block;transform:translateY(105%);transition:transform .9s cubic-bezier(.2,.9,.1,1)}
 .hw-h1.in .w>span{transform:none}
 html:not(.js-hw) .hw-h1 .w>span{transform:none}
+/* phones: the title is there at once, no rise; the shine still plays */
+@media (max-width:720px){.hw-h1 .w>span{transform:none;transition:none}}
 @media (prefers-reduced-motion:reduce){.hw-h1 .w>span{transform:none!important;transition:none}}
 .hw-toggle{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 4px 0 6px;margin-left:12px;border:1px solid var(--line-strong);border-radius:999px;background:var(--card);color:var(--ink);font:500 .78rem var(--mono);cursor:pointer;white-space:nowrap;transition:border-color .2s,background .3s,color .3s}
 .hw-toggle:hover{border-color:var(--ink)}
@@ -1794,7 +1796,9 @@ function O({l:t,c:e,h:s}){let n=s*Math.PI/180,r=e*Math.cos(n),o=e*Math.sin(n),c=
   var h1 = $('.hw-h1');
   if (h1) {
     var go = function () { requestAnimationFrame(function () { h1.classList.add('in'); if (FULL && !reduce) setTimeout(function () { h1.classList.add('lit'); }, 1050); }); };
-    if (reduce) h1.classList.add('in'); else if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(go, 120); }); else setTimeout(go, 200);
+    if (reduce) h1.classList.add('in');
+    else if (window.matchMedia && matchMedia('(max-width:720px)').matches) { h1.classList.add('in'); if (FULL) setTimeout(function () { h1.classList.add('lit'); }, 300); }
+    else if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { setTimeout(go, 120); }); else setTimeout(go, 200);
   }
 
   /* ---- the hero screen plays the office in the season, the launch film otherwise; the button always plays the film, with sound ---- */
