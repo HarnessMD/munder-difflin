@@ -84,7 +84,7 @@ Yes, with limits: every ChatGPT plan includes Codex, Free included, and OpenAI's
 | Business | $20 per user a month billed annually, $25 monthly | Desktop and mobile apps, larger cloud machines |
 | API key | API rates | CLI, SDK and IDE extension, no cloud features |
 
-So you can try Codex for nothing, and Codex Cloud starts at Plus. If you are on Pro, our [Codex plan tips](/blog/codex-max-plan-tips/) cover how the weekly limit works and how to stretch it.
+So you can try Codex for nothing, and Codex Cloud starts at Plus. Our [Codex pricing](/blog/codex-pricing/) page has every plan, the usage limits and the API rates. If you are on Pro, our [Codex plan tips](/blog/codex-max-plan-tips/) cover how the weekly limit works and how to stretch it.
 
 {% img "note-2" %}
 
