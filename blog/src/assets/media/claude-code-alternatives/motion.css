@@ -1,0 +1,13 @@
+/* Bright coded scenes for "Claude Code alternatives". Pairs with motion.js. */
+.prose figure.mg { margin: 42px 0; }
+.prose figure.mg img, .mg .mg-svg { display: block; width: 100%; height: auto; border: 1px solid #1A1320; border-radius: 18px; background: #fff; }
+.mg figcaption { font: 500 13px/1.5 "Space Grotesk", system-ui, sans-serif; color: #6B5878; padding-top: 10px; text-align: center; }
+.mg .mg-svg { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.mg .mg-svg text { -webkit-user-select: none; user-select: none; pointer-events: none; }
+.mg .mg-hit { cursor: pointer; outline: none; }
+.mg [role="slider"] { cursor: grab; touch-action: none; }
+.mg .mg-ring { stroke-opacity: 0; transition: stroke-opacity 0.15s; }
+.mg .mg-hit:focus-visible .mg-ring { stroke-opacity: 1; }
+.mg [role="slider"]:focus-visible circle:nth-child(2) { stroke-width: 5; }
+@media (hover: hover) { .mg .mg-hit:hover .mg-ring { stroke-opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .mg .mg-ring { transition: none; } }
