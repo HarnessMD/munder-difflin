@@ -65,6 +65,11 @@ test('the remote file and the baked file agree on every model', () => {
   assert.deepEqual(remote.providers, baked.providers);
 });
 
+test('Devin has the same SWE-2 choices before and after a remote refresh', () => {
+  const remote = require('../docs/model-catalog.json');
+  assert.deepEqual(remote.providers.devin, baked.providers.devin);
+});
+
 test('a version this build does not know is rejected whole', () => {
   assert.equal(parseModelCatalog({ version: 2, providers: { claude: [{ label: 'X' }] } }), null);
   assert.equal(parseModelCatalog({ providers: { claude: [{ label: 'X' }] } }), null);

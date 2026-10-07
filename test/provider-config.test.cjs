@@ -90,6 +90,42 @@ test('every non-hive-aware inbox provider declares exactly one bootstrap deliver
   }
 });
 
+test('Devin is selectable with an interactive prompt, model, and permission flags', () => {
+  assert.equal(isAgentProvider('devin'), true);
+  assert.equal(inferAgentProvider('/opt/homebrew/bin/devin --model swe-2'), 'devin');
+  assert.equal(inferAgentProvider('devin --permission-mode dangerous --prompt-file /tmp/DEVIN.md', 'custom'), 'devin');
+  assert.equal(inferAgentProvider('my-wrapper --model swe-2', 'custom'), 'custom');
+  const preset = providerPreset('devin');
+  assert.equal(preset.defaultCommand, 'devin');
+  assert.equal(preset.initialPromptFlag, '--');
+  assert.equal(preset.autoFlag, '--permission-mode dangerous');
+  assert.deepEqual(preset.autoStanceTokens, ['--permission-mode', '--sandbox']);
+  assert.equal(preset.modelFlag, '--model');
+  assert.equal(preset.canReceiveInbox, true);
+  assert.equal(preset.resumeFlag, '--resume');
+  assert.equal(
+    buildSpawnCommand(autoConfig, 'swe-2', 'devin'),
+    'devin --model swe-2 --permission-mode dangerous'
+  );
+  assert.deepEqual(modelsForProvider('devin').map((model) => model.id),
+    [
+      undefined,
+      'adaptive',
+      'swe-2',
+      'swe-2-high',
+      'swe-2-medium',
+      'swe-2-max',
+      'claude-opus-5-5-medium',
+      'claude-fable-5-1-medium',
+      'gpt-6-sol-medium',
+      'gpt-6-astra-medium',
+      'fusion-claude-opus-5-5-high-sidekick-swe-2-medium',
+      'fusion-claude-fable-5-1-high-sidekick-swe-2-medium',
+      'fusion-gpt-6-sol-high-sidekick-swe-2-medium',
+      'fusion-gpt-6-astra-high-sidekick-swe-2-medium'
+    ]);
+});
+
 test('provider commands use matching models and equivalent bypass modes', () => {
   assert.equal(
     buildSpawnCommand(autoConfig, 'claude-sonnet-5', 'claude'),
@@ -177,10 +213,10 @@ test('God only sees providers that can drain hive inbox messages', () => {
   // Cursor is interactive (no -p) so it IS god-eligible.
   assert.deepEqual(
     modelProvidersForAgent(true).map((preset) => preset.id),
-    ['claude', 'codex', 'grok', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'cursor']
+    ['claude', 'codex', 'grok', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'cursor', 'devin']
   );
   assert.deepEqual(
     modelProvidersForAgent(false).map((preset) => preset.id),
-    ['claude', 'codex', 'grok', 'kimi', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'copilot', 'cursor']
+    ['claude', 'codex', 'grok', 'kimi', 'gemini', 'antigravity', 'qwen', 'opencode', 'crush', 'pi', 'copilot', 'cursor', 'devin']
   );
 });

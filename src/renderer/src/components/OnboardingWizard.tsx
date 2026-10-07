@@ -84,7 +84,8 @@ const PROVIDER_BLURB_KEYS: Partial<Record<AgentProvider, string>> = {
   codex: 'onboarding.providerBlurb.codex',
   antigravity: 'onboarding.providerBlurb.antigravity',
   qwen: 'onboarding.providerBlurb.qwen',
-  cursor: 'onboarding.providerBlurb.cursor'
+  cursor: 'onboarding.providerBlurb.cursor',
+  devin: 'onboarding.providerBlurb.devin'
 };
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
