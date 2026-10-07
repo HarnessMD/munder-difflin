@@ -4544,5 +4544,38 @@
     },
     "inline": {},
     "youtube": []
+  },
+  "mistral-large-4": {
+    "title": "Mistral Large 4 (Le Chonk): size, price, scores and weights",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/mistral-large-4/hero.png",
+      "alt": "Title card on white. Mistral Large 4 in large ink type with a lilac kettlebell labelled Le Chonk and the line Checked 6 Oct 2026",
+      "prompt": "Still of the hero scene in assets/media/mistral-large-4/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-vs-claude-code": {
+    "title": "OpenCode vs Claude Code: Licence, Price and Models Compared",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/opencode-vs-claude-code/hero.png",
+      "alt": "Title card on white. OpenCode vs Claude Code in large ink type beside a signpost with two arrows reading any model and Claude plan",
+      "prompt": "Still of the hero scene in assets/media/opencode-vs-claude-code/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-cowork-vs-claude-code": {
+    "title": "Claude Cowork vs Claude Code: Which One Do You Need?",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/claude-cowork-vs-claude-code/hero.png",
+      "alt": "Title card on white. Claude Cowork vs Claude Code in large ink type, with a key ring holding a yellow document key and a blue terminal key",
+      "prompt": "Still of the hero scene in assets/media/claude-cowork-vs-claude-code/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

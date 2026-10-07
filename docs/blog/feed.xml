@@ -32,12 +32,36 @@
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 6 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Claude Cowork vs Claude Code: Which One Do You Need?</title>
+    <link href="https://munderdiffl.in/blog/claude-cowork-vs-claude-code/" />
+    <id>https://munderdiffl.in/blog/claude-cowork-vs-claude-code/</id>
+    <published>2026-10-06T00:00:00.000Z</published>
+    <updated>2026-10-06T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Claude Cowork does office work, Claude Code writes software. What each is, where it runs, which plans include it and what it can touch, checked 6 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>Mistral Large 4 (Le Chonk): size, price, scores and weights</title>
+    <link href="https://munderdiffl.in/blog/mistral-large-4/" />
+    <id>https://munderdiffl.in/blog/mistral-large-4/</id>
+    <published>2026-10-06T00:00:00.000Z</published>
+    <updated>2026-10-06T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Mistral Large 4 is a 1 trillion parameter open weight model in public preview. Context window, API price, Mistral&#39;s own scores and weights, checked 6 Oct 2026.</summary>
+  </entry>
+  <entry>
     <title>OpenAI text watermarking: textGrain, who gets it, limits</title>
     <link href="https://munderdiffl.in/blog/openai-text-watermarking/" />
     <id>https://munderdiffl.in/blog/openai-text-watermarking/</id>
     <published>2026-10-06T00:00:00.000Z</published>
     <updated>2026-10-06T00:00:00.000Z</updated><category term="Concepts" />
     <summary>OpenAI text watermarking (textGrain) is opt in for the API now and is coming to eligible ChatGPT and Codex text in the EU. Limits checked 6 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>OpenCode vs Claude Code: Licence, Price and Models Compared</title>
+    <link href="https://munderdiffl.in/blog/opencode-vs-claude-code/" />
+    <id>https://munderdiffl.in/blog/opencode-vs-claude-code/</id>
+    <published>2026-10-06T00:00:00.000Z</published>
+    <updated>2026-10-06T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>OpenCode vs Claude Code, checked 6 Oct 2026: licence, price to start, models, where each runs, and whether a Claude subscription works in OpenCode.</summary>
   </entry>
   <entry>
     <title>Reflection AI Beam: the 501B open weight model, explained</title>
@@ -462,29 +486,5 @@
     <published>2026-08-19T00:00:00.000Z</published>
     <updated>2026-08-19T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>Reddit said our blog was unreadable and AI-sloppy. So one agent redesigned it end to end: a new editorial theme, and 119 hand-drawn hero illustrations rendered as code for exactly $0 in image APIs. This is the making-of.</summary>
-  </entry>
-  <entry>
-    <title>Launching Munder Difflin v0.4.4: Windows Agents Can Finally Talk</title>
-    <link href="https://munderdiffl.in/blog/launching-munder-difflin-v0-4-4/" />
-    <id>https://munderdiffl.in/blog/launching-munder-difflin-v0-4-4/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Story" />
-    <summary>v0.4.4 fixes the bug that silently broke agent-to-agent messaging on Windows, starts hive services on the very first run, rebuilds dark mode so you can read it, and adds a 227-skill catalog, a Prerequisites page, and designed release notes.</summary>
-  </entry>
-  <entry>
-    <title>Nº 5 Product of the Day: How Our First Product Hunt Launch Went</title>
-    <link href="https://munderdiffl.in/blog/number-five-on-product-hunt/" />
-    <id>https://munderdiffl.in/blog/number-five-on-product-hunt/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Story" />
-    <summary>Munder Difflin finished #5 Product of the Day on Product Hunt — ahead of DeepSeek&#39;s harness launch that day. The honest retro: who showed up, what they asked, and the two pieces of feedback we&#39;re already shipping fixes for.</summary>
-  </entry>
-  <entry>
-    <title>Run a Release Train with Agents</title>
-    <link href="https://munderdiffl.in/blog/run-a-release-train-with-agents/" />
-    <id>https://munderdiffl.in/blog/run-a-release-train-with-agents/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>Version bumps, changelog entries, release notes in plain language, site updates, and link checks — the release chores that always slip are exactly the work a hive does well. The workflow behind our seven-releases-in-eight-days week.</summary>
   </entry>
 </feed>

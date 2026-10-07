@@ -190,24 +190,24 @@
 <h2 id="why-look-for-a-chatgpt-dots-alternative" tabindex="-1">Why look for a ChatGPT dots alternative? <a class="anchor" href="#why-look-for-a-chatgpt-dots-alternative" aria-hidden="true">#</a></h2>
 <p>Dots are pricey, regional and single at launch. From <a href="https://openai.com/index/introducing-dots/">OpenAI’s launch post</a> and help pages, as of 30 Sep 2026:</p>
 <ul>
-<li><strong>Price.</strong> Your first dot comes with ChatGPT Pro, from $100 a month, or Business Premium. Free, Go and Plus do not get one.</li>
-<li><strong>Region.</strong> Pro users in the EEA, Switzerland and the UK are left out at launch.</li>
-<li><strong>One dot.</strong> You get one primary dot. OpenAI writes that “over time, we envision teams of dots working together”, which is a plan, not a feature.</li>
-<li><strong>Where the work lives.</strong> A dot works on its own cloud computer at OpenAI. Access to your own computer is optional and off by default.</li>
+<li><strong>Price.</strong> Your first dot needs ChatGPT Pro, from $100 a month, or Business Premium. Free, Go and Plus get none.</li>
+<li><strong>Region.</strong> Launch skips Pro users in the EEA, Switzerland and the UK.</li>
+<li><strong>One dot.</strong> One primary dot each. OpenAI writes “over time, we envision teams of dots working together”: a plan, not a feature.</li>
+<li><strong>Where the work lives.</strong> A dot works on its own OpenAI cloud computer. Access to your computer is optional, off by default.</li>
 </ul>
-<p>Dots still have real strengths: zero setup, a mobile app, voice calls and over 4,000 app plugins.</p>
+<p>Dots still have strengths: zero setup, a mobile app, voice calls and 4,000+ app plugins.</p>
 <h2 id="does-it-run-on-your-computer-or-in-the-cloud" tabindex="-1">Does it run on your computer or in the cloud? <a class="anchor" href="#does-it-run-on-your-computer-or-in-the-cloud" aria-hidden="true">#</a></h2>
-<p>This settles who holds your files and whether work stops when you close the lid. Three picks run on hardware you control, four on a vendor’s cloud, like dots. We drew the same line in our <a href="/blog/grok-bot-alternatives/">Grok Bot alternatives</a> guide, and <a href="/blog/why-local-first-matters-for-ai-agents/">why local first matters for AI agents</a> explains which side we lean to.</p>
+<p>This settles who holds your files and whether a closed lid stops work. Three picks run on your hardware, four on a vendor’s cloud, like dots. <a href="/blog/grok-bot-alternatives/">Grok Bot alternatives</a> draws the same line; <a href="/blog/why-local-first-matters-for-ai-agents/">why local first matters for AI agents</a> explains our lean.</p>
 <figure class="fig fig-inline"><video autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="/blog/assets/media/chatgpt-dots-alternatives/note-1-still.png" aria-label="A looping sketch. Seven name cards slide into two bins. OpenClaw, Munder Difflin and Hermes Agent go into your computer; Claude Cowork, Gemini Spark, Grok Bot and Meta Muse go into cloud."><source src="/blog/assets/media/chatgpt-dots-alternatives/note-1.mp4" type="video/mp4"><img src="/blog/assets/media/chatgpt-dots-alternatives/note-1.gif" width="960" height="540" alt="A looping sketch. Seven name cards slide into two bins. OpenClaw, Munder Difflin and Hermes Agent go into your computer; Claude Cowork, Gemini Spark, Grok Bot and Meta Muse go into cloud."></video></figure>
 <h3 id="runs-on-your-computer" tabindex="-1">Runs on your computer <a class="anchor" href="#runs-on-your-computer" aria-hidden="true">#</a></h3>
-<p><strong>1. OpenClaw.</strong> <a href="https://github.com/openclaw/openclaw">OpenClaw</a> is an open source (MIT) personal assistant that runs on your own computer and answers in WhatsApp, Telegram, Discord, Slack, Teams, iMessage and 20+ more channels. It runs as a background daemon, keeps memory and credentials on your hardware, and has no paid tier. Best for: a personal errand runner you own.</p>
+<p><strong>1. OpenClaw.</strong> <a href="https://github.com/openclaw/openclaw">OpenClaw</a> is an open source (MIT) personal assistant that runs on your computer and answers in WhatsApp, Telegram, Discord, Slack, Teams, iMessage and 20+ more. It runs as a background daemon, keeps memory and credentials on your hardware, with no paid tier. Best for: an errand runner you own.</p>
 <p><strong>2. Munder Difflin.</strong> <a href="https://harnessmd.com/download">Munder Difflin</a> is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own <code>memory.md</code>, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: agents run while your computer runs, and you install the CLIs yourself. Best for: engineering and project work across several engines. (Munder Difflin 0.5.3, checked 30 Sep 2026.)</p>
-<p><strong>3. Hermes Agent.</strong> <a href="https://github.com/NousResearch/hermes-agent">Hermes Agent</a> from Nous Research is open source (MIT) and built around a learning loop: it curates its own memory and writes new skills from experience. Its cron scheduler runs jobs unattended, and you reach it over Telegram, Discord, Slack, WhatsApp or Signal. Best for: memory that grows, on a box you control.</p>
+<p><strong>3. Hermes Agent.</strong> <a href="https://github.com/NousResearch/hermes-agent">Hermes Agent</a> from Nous Research is open source (MIT), built on a learning loop: it curates its memory and writes new skills from experience. Its cron scheduler runs jobs unattended. Reach it on Telegram, Discord, Slack, WhatsApp or Signal. Best for: memory that grows on your box.</p>
 <h3 id="runs-in-the-cloud" tabindex="-1">Runs in the cloud <a class="anchor" href="#runs-in-the-cloud" aria-hidden="true">#</a></h3>
-<p><strong>4. Claude Cowork.</strong> <a href="/blog/what-is-claude-cowork/">Cowork</a> is Anthropic’s agent for longer pieces of work, and it now runs in the cloud. Anthropic’s <a href="https://support.claude.com/en/articles/13345190-get-started-with-cowork">Cowork help page</a> says “Claude’s work runs on Anthropic’s servers, in an isolated environment” and that scheduled tasks don’t need your computer to be awake. Since 16 Sep 2026 Anthropic has been <a href="https://claude.com/blog/cowork-is-now-claude">folding Cowork into the main Claude app</a>, Pro and Max first. Claude Pro was $20 a month, billed monthly, on 30 Sep 2026. Best for: reports, files and research, task by task.</p>
-<p><strong>5. Gemini Spark.</strong> <a href="/blog/what-is-gemini-spark/">Spark</a> is Google’s personal agent in the Gemini app. It works from your Connected Apps and chats, and can drive your local Chrome. If your device goes off before a task is done, Google’s <a href="https://support.google.com/gemini/answer/17094507">Spark help page</a> says it “might use a remote browser” in the cloud instead. You need Google AI Pro or Ultra and to be 18 or over. Like dots on Pro, it is not available in the EEA, Switzerland or the UK, nor in Nigeria. Best for: Google app users outside Europe.</p>
-<p><strong>6. Grok Bot.</strong> SpaceXAI’s docs say your Bots run on “a persistent cloud computer with a browser, filesystem, and terminal”, and closing your laptop or phone does not stop a routine. It comes with paid Cursor plans or a SuperGrok account. Cursor’s Individual plan was $20 a month on 30 Sep 2026. <a href="/blog/grok-bot-pricing/">Grok Bot pricing</a> has the other plans. Best for: hosted work agents whose computer never sleeps.</p>
-<p><strong>7. Meta Muse.</strong> <a href="https://www.meta.com/help/artificial-intelligence/1047255454427887/">Meta’s help centre</a> says Muse runs on “a cloud-based environment called a virtual machine”. On 29 Sep 2026 Meta said Muse is “available in the US and Canada” and free for most use; its <a href="https://www.meta.com/help/subscriptions/1021145227643680/">subscriptions page</a> lists Power at $20 a month and Max at $100. Best for: a free hosted agent in North America. Elsewhere, see <a href="/blog/meta-muse-alternatives/">Meta Muse alternatives</a>.</p>
+<p><strong>4. Claude Cowork.</strong> <a href="/blog/what-is-claude-cowork/">Cowork</a> is Anthropic’s agent for longer work, now cloud based. Its <a href="https://support.claude.com/en/articles/13345190-get-started-with-cowork">help page</a> says “Claude’s work runs on Anthropic’s servers, in an isolated environment” and scheduled tasks don’t need your computer awake. Since 16 Sep 2026 Anthropic has been <a href="https://claude.com/blog/cowork-is-now-claude">folding Cowork into the main Claude app</a>, Pro and Max first. Claude Pro was $20 a month, billed monthly, on 30 Sep 2026. Best for: reports, files and research by task.</p>
+<p><strong>5. Gemini Spark.</strong> <a href="/blog/what-is-gemini-spark/">Spark</a> is Google’s personal agent in the Gemini app. It works from your Connected Apps and chats and can drive your local Chrome. If your device goes off mid task, Google’s <a href="https://support.google.com/gemini/answer/17094507">help page</a> says it “might use a remote browser” in the cloud. It needs Google AI Pro or Ultra and age 18+. Like dots on Pro, it skips the EEA, Switzerland and the UK, plus Nigeria. Best for: Google app users outside Europe.</p>
+<p><strong>6. Grok Bot.</strong> SpaceXAI’s docs say Bots run on “a persistent cloud computer with a browser, filesystem, and terminal”, and closing your laptop or phone does not stop routines. It comes with paid Cursor plans or SuperGrok. Cursor Individual was $20 a month on 30 Sep 2026. <a href="/blog/grok-bot-pricing/">Grok Bot pricing</a> has the rest. Best for: hosted work agents that never sleep.</p>
+<p><strong>7. Meta Muse.</strong> <a href="https://www.meta.com/help/artificial-intelligence/1047255454427887/">Meta’s help centre</a> says Muse runs on “a cloud-based environment called a virtual machine”. On 29 Sep 2026 Meta said Muse is “available in the US and Canada” and free for most use; its <a href="https://www.meta.com/help/subscriptions/1021145227643680/">subscriptions page</a> lists Power at $20 a month and Max at $100. Best for: a free hosted agent in North America. Elsewhere: <a href="/blog/meta-muse-alternatives/">Meta Muse alternatives</a>.</p>
 <h2 id="chatgpt-dots-alternatives-checked-30-sep-2026" tabindex="-1">ChatGPT dots alternatives, checked 30 Sep 2026 <a class="anchor" href="#chatgpt-dots-alternatives-checked-30-sep-2026" aria-hidden="true">#</a></h2>
 <div class="table-scroll">
 <table>
@@ -215,9 +215,9 @@
 <tr>
 <th>Agent</th>
 <th>Runs on</th>
-<th>Always on or task based</th>
-<th>Who can get it</th>
-<th>Price to start</th>
+<th>Always on or tasks</th>
+<th>Who gets it</th>
+<th>Starting price</th>
 </tr>
 </thead>
 <tbody>
@@ -244,7 +244,7 @@
 </tr>
 <tr>
 <td>Hermes Agent</td>
-<td>Your computer or your server</td>
+<td>Your computer or server</td>
 <td>Always on, cron jobs</td>
 <td>Anyone</td>
 <td>Free and open source.</td>
@@ -252,7 +252,7 @@
 <tr>
 <td>Claude Cowork</td>
 <td>Anthropic’s cloud</td>
-<td>Tasks, plus scheduled tasks</td>
+<td>Tasks and schedules</td>
 <td>Paid Claude plans</td>
 <td>Claude Pro, $20/month.</td>
 </tr>
@@ -281,12 +281,14 @@
 </table>
 </div>
 <h2 id="is-there-a-free-alternative-to-chatgpt-dots" tabindex="-1">Is there a free alternative to ChatGPT dots? <a class="anchor" href="#is-there-a-free-alternative-to-chatgpt-dots" aria-hidden="true">#</a></h2>
-<p>Yes: OpenClaw, Munder Difflin and Hermes Agent are all free and open source. The software costs nothing, but the model still does. OpenClaw and Hermes Agent take API keys, local models or a provider login. Munder Difflin drives the CLIs you already have, so the Claude or ChatGPT subscription you pay for today does the work.</p>
+<p>Yes: OpenClaw, Munder Difflin and Hermes Agent are free and open source. The model still costs money. OpenClaw and Hermes Agent take API keys, local models or a provider login. Munder Difflin drives the CLIs you already have, so the Claude or ChatGPT subscription you pay for today does the work.</p>
 <figure class="fig fig-inline"><video autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="/blog/assets/media/chatgpt-dots-alternatives/note-2-still.png" aria-label="A looping sketch. A yellow character tries a locked door marked for ChatGPT Pro at $100 a month or more, then walks through an open door marked free and open source."><source src="/blog/assets/media/chatgpt-dots-alternatives/note-2.mp4" type="video/mp4"><img src="/blog/assets/media/chatgpt-dots-alternatives/note-2.gif" width="960" height="540" alt="A looping sketch. A yellow character tries a locked door marked for ChatGPT Pro at $100 a month or more, then walks through an open door marked free and open source."></video></figure>
-<p>Meta Muse is the only hosted pick with a free tier, and only in the US and Canada. Dots start at $100 a month on Pro (30 Sep 2026), and OpenAI has not said how dots usage will count against your plan after the first month.</p>
+<p>Only Meta Muse has a free hosted tier, US and Canada only. Dots start at $100 a month on Pro (30 Sep 2026). OpenAI has not said how usage counts against your plan after month one.</p>
 <h2 id="what-is-the-best-open-source-alternative-to-chatgpt-dots" tabindex="-1">What is the best open source alternative to ChatGPT dots? <a class="anchor" href="#what-is-the-best-open-source-alternative-to-chatgpt-dots" aria-hidden="true">#</a></h2>
-<p>OpenClaw, if you want what a dot does for your personal life: one assistant, in your chat apps, on your hardware. Munder Difflin, if you want agents for work: several named agents with roles, each on the engine that suits the job. Hermes Agent is strongest on memory.</p>
-<p>None of the three is a hosted computer that works with your laptop shut: you need a server, or a machine that stays on. We put Munder Difflin and dots side by side in <a href="/blog/munder-difflin-vs-chatgpt-dots/">Munder Difflin vs ChatGPT dots</a>.</p>
+<p>OpenClaw, for a dot’s job in your personal life: one assistant in your chat apps, on your hardware. Munder Difflin, if you want agents for work: several named agents with roles, each on the engine that suits the job. Hermes Agent, for memory.</p>
+<p>None works with your laptop shut: you need a server or an always on machine. We put Munder Difflin and dots side by side in <a href="/blog/munder-difflin-vs-chatgpt-dots/">Munder Difflin vs ChatGPT dots</a>.</p>
+<h2 id="is-there-an-open-source-copy-of-chatgpt-dots" tabindex="-1">Is there an open source copy of ChatGPT dots? <a class="anchor" href="#is-there-an-open-source-copy-of-chatgpt-dots" aria-hidden="true">#</a></h2>
+<p>Yes: <a href="https://github.com/CopilotKit/OpenDots">OpenDots</a> from CopilotKit is an open source template for similar agents. Created on 29 Sep 2026, it is MIT licensed and had about 3,850 stars on 6 Oct 2026. The README describes always on AI coworkers that move between text, calls and Slack. It is not among the seven: the README calls it “A template, not a hosted product.” You run it with Node 24, and the README says conversations require CopilotKit Intelligence: a hosted service, a local Docker evaluation or a licensed self-hosted deployment. It carries an alpha badge.</p>
 
 
       
@@ -334,7 +336,7 @@
     <aside class="toc-rail" aria-label="Table of contents">
       <div class="tt">On this page</div>
       <ol>
-        <li class="lvl-2"><a href="#why-look-for-a-chatgpt-dots-alternative">Why look for a ChatGPT dots alternative?</a></li><li class="lvl-2"><a href="#does-it-run-on-your-computer-or-in-the-cloud">Does it run on your computer or in the cloud?</a></li><li class="lvl-3"><a href="#runs-on-your-computer">Runs on your computer</a></li><li class="lvl-3"><a href="#runs-in-the-cloud">Runs in the cloud</a></li><li class="lvl-2"><a href="#chatgpt-dots-alternatives-checked-30-sep-2026">ChatGPT dots alternatives, checked 30 Sep 2026</a></li><li class="lvl-2"><a href="#is-there-a-free-alternative-to-chatgpt-dots">Is there a free alternative to ChatGPT dots?</a></li><li class="lvl-2"><a href="#what-is-the-best-open-source-alternative-to-chatgpt-dots">What is the best open source alternative to ChatGPT dots?</a></li>
+        <li class="lvl-2"><a href="#why-look-for-a-chatgpt-dots-alternative">Why look for a ChatGPT dots alternative?</a></li><li class="lvl-2"><a href="#does-it-run-on-your-computer-or-in-the-cloud">Does it run on your computer or in the cloud?</a></li><li class="lvl-3"><a href="#runs-on-your-computer">Runs on your computer</a></li><li class="lvl-3"><a href="#runs-in-the-cloud">Runs in the cloud</a></li><li class="lvl-2"><a href="#chatgpt-dots-alternatives-checked-30-sep-2026">ChatGPT dots alternatives, checked 30 Sep 2026</a></li><li class="lvl-2"><a href="#is-there-a-free-alternative-to-chatgpt-dots">Is there a free alternative to ChatGPT dots?</a></li><li class="lvl-2"><a href="#what-is-the-best-open-source-alternative-to-chatgpt-dots">What is the best open source alternative to ChatGPT dots?</a></li><li class="lvl-2"><a href="#is-there-an-open-source-copy-of-chatgpt-dots">Is there an open source copy of ChatGPT dots?</a></li>
       </ol>
     </aside>
     
@@ -364,34 +366,34 @@
   </div>
 </article>
 <article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/claude-code-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-comparisons" href="/blog/claude-cowork-vs-claude-code/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-cowork-vs-claude-code/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-05">Oct 5, 2026</time>
+      <time datetime="2026-10-06">Oct 6, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/claude-code-alternatives/">Claude Code Alternatives: 7 Coding Agents to Switch To</a></h3>
-    <p class="dek">Seven Claude Code alternatives checked on 5 Oct 2026: Codex CLI, OpenCode, Cursor, Gemini CLI, Cline, Pi and Aider, by licence, starting price and models.</p>
+    <h3><a href="/blog/claude-cowork-vs-claude-code/">Claude Cowork vs Claude Code: Which One Do You Need?</a></h3>
+    <p class="dek">Claude Cowork does office work, Claude Code writes software. What each is, where it runs, which plans include it and what it can touch, checked 6 Oct 2026.</p>
     <div class="foot">
       <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/claude-code-alternatives/" aria-label="Read: Claude Code Alternatives: 7 Coding Agents to Switch To">Read →</a>
+      <a class="more" href="/blog/claude-cowork-vs-claude-code/" aria-label="Read: Claude Cowork vs Claude Code: Which One Do You Need?">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/openclaw-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/openclaw-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-comparisons" href="/blog/opencode-vs-claude-code/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opencode-vs-claude-code/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-05">Oct 5, 2026</time>
+      <time datetime="2026-10-06">Oct 6, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/openclaw-alternatives/">OpenClaw Alternatives: 7 Picks for Chat, Code and Cloud</a></h3>
-    <p class="dek">Seven OpenClaw alternatives sorted by job: Hermes Agent, Munder Difflin, NanoClaw, ZeroClaw, nanobot, Goose and Claude. Licences and prices checked 5 Oct 2026.</p>
+    <h3><a href="/blog/opencode-vs-claude-code/">OpenCode vs Claude Code: Licence, Price and Models Compared</a></h3>
+    <p class="dek">OpenCode vs Claude Code, checked 6 Oct 2026: licence, price to start, models, where each runs, and whether a Claude subscription works in OpenCode.</p>
     <div class="foot">
       <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/openclaw-alternatives/" aria-label="Read: OpenClaw Alternatives: 7 Picks for Chat, Code and Cloud">Read →</a>
+      <a class="more" href="/blog/opencode-vs-claude-code/" aria-label="Read: OpenCode vs Claude Code: Licence, Price and Models Compared">Read →</a>
     </div>
   </div>
 </article>

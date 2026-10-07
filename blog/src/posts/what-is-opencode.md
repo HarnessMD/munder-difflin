@@ -117,7 +117,7 @@ OpenCode if you want to choose the model, Claude Code if you want Anthropic's ow
 
 **Pick Codex CLI if** you pay for ChatGPT and want OpenAI's agent with an open source client.
 
-Our [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) comparison goes further on those two, and [best AI coding agents](/blog/best-ai-coding-agents/) covers the wider field.
+Our [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) comparison goes further on those two, and [best AI coding agents](/blog/best-ai-coding-agents/) covers the wider field. For the two tool version with prices, see [OpenCode vs Claude Code](/blog/opencode-vs-claude-code/).
 
 {% img "note-2" %}
 

@@ -97,7 +97,7 @@ Our view: do not read "23 billion active" as "fits on a laptop". The download wi
 
 It means one more open model that may plug into the tools you already use, but not yet. Reflection's [launch post](https://reflection.ai/blog/introducing-beam) says Beam will launch with distribution partners and integration with a broad range of open source libraries and harnesses. It also describes a demo where the team plugged Beam into OpenCode.
 
-The post does not name the partners, so nobody can say yet which agents Beam will work in. For what works now, see our [best AI coding agents](/blog/best-ai-coding-agents/) roundup.
+The post does not name the partners, so nobody can say yet which agents Beam will work in. For what works now, see our [best AI coding agents](/blog/best-ai-coding-agents/) roundup. Mistral announced a larger open weight model a day later, covered in our [Mistral Large 4 explainer](/blog/mistral-large-4/).
 
 ## What should you do now?
 

@@ -113,4 +113,4 @@ It cannot run on the free plan, work offline, or reach files you have not shared
 
 Cowork for documents, Claude Code for software. Anthropic's product page describes Claude Code as built for software engineering (writing, debugging and shipping code) and Cowork as built for non-coding knowledge work.
 
-Pick Claude Code when the output is a commit. If you want always on agents from another vendor, our [ChatGPT dots explainer](/blog/what-is-chatgpt-dots/) covers OpenAI's version.
+Pick Claude Code when the output is a commit. See [Claude Cowork vs Claude Code](/blog/claude-cowork-vs-claude-code/). For another vendor's always on agents, see our [ChatGPT dots explainer](/blog/what-is-chatgpt-dots/).
