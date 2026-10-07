@@ -4,9 +4,25 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-06T00:00:00.000Z</updated>
+  <updated>2026-10-07T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-07/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-07/</id>
+    <published>2026-10-07T00:00:00.000Z</published>
+    <updated>2026-10-07T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 7 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>Hermes Agent vs OpenClaw: which self-hosted AI assistant to pick</title>
+    <link href="https://munderdiffl.in/blog/hermes-agent-vs-openclaw/" />
+    <id>https://munderdiffl.in/blog/hermes-agent-vs-openclaw/</id>
+    <published>2026-10-07T00:00:00.000Z</published>
+    <updated>2026-10-07T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Hermes Agent vs OpenClaw, checked 7 Oct 2026: licence, latest release, install, channels, models, memory, skills, security notes and who should pick which.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-06/" />
@@ -470,21 +486,5 @@
     <published>2026-08-19T00:00:00.000Z</published>
     <updated>2026-08-19T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>Version bumps, changelog entries, release notes in plain language, site updates, and link checks — the release chores that always slip are exactly the work a hive does well. The workflow behind our seven-releases-in-eight-days week.</summary>
-  </entry>
-  <entry>
-    <title>Seven Releases in Eight Days: 0.3.8 → 0.4.4</title>
-    <link href="https://munderdiffl.in/blog/seven-releases-in-eight-days/" />
-    <id>https://munderdiffl.in/blog/seven-releases-in-eight-days/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Story" />
-    <summary>Between August 11 and August 18 we shipped seven releases: memory condensation that finally works, an update checker, a whole new brand, a public telemetry contract, ten engines named honestly, and the Windows fix. The full tour.</summary>
-  </entry>
-  <entry>
-    <title>The Newline That Silenced Every Windows Agent</title>
-    <link href="https://munderdiffl.in/blog/the-newline-that-silenced-windows-agents/" />
-    <id>https://munderdiffl.in/blog/the-newline-that-silenced-windows-agents/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Internals" />
-    <summary>A cmd.exe parsing rule from the 1980s meant Windows agents received exactly one line of their multi-line startup protocol — and nothing errored. The anatomy of our worst silent failure, and the fix.</summary>
   </entry>
 </feed>
