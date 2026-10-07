@@ -4,9 +4,17 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-07T00:00:00.000Z</updated>
+  <updated>2026-10-08T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Claude Haiku 5.5: price, benchmarks and where it fits</title>
+    <link href="https://munderdiffl.in/blog/claude-haiku-5-5/" />
+    <id>https://munderdiffl.in/blog/claude-haiku-5-5/</id>
+    <published>2026-10-08T00:00:00.000Z</published>
+    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Haiku 5.5 is Anthropic&#39;s new small model. Its tiered price, Anthropic&#39;s own scores and how to pick it in Claude Code, checked 8 Oct 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-07/" />
@@ -478,13 +486,5 @@
     <published>2026-09-10T00:00:00.000Z</published>
     <updated>2026-09-10T00:00:00.000Z</updated><category term="Story" />
     <summary>Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds.</summary>
-  </entry>
-  <entry>
-    <title>Launching Munder Difflin v0.4.6: It Speaks Chinese and Arabic Now</title>
-    <link href="https://munderdiffl.in/blog/launching-munder-difflin-v0-4-6/" />
-    <id>https://munderdiffl.in/blog/launching-munder-difflin-v0-4-6/</id>
-    <published>2026-08-27T00:00:00.000Z</published>
-    <updated>2026-08-27T00:00:00.000Z</updated><category term="Story" />
-    <summary>v0.4.6 adds Chinese and Arabic interfaces with right-to-left support, ships its fonts inside the app so nothing is fetched from Google, and makes the updater actually update itself instead of pointing at a download page.</summary>
   </entry>
 </feed>

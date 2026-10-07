@@ -79,7 +79,7 @@ You can also force it: name the subagent in plain words, @-mention it with `@age
 
 ## How do you set a subagent's model and tools?
 
-Use `model` and `tools` in the front matter. The model is resolved in this order: a model Claude passes when it spawns the subagent, then the `model` field, then the `CLAUDE_CODE_SUBAGENT_MODEL` variable, then your session's model. Since 2.1.251 that variable is only a default. To force one model on every subagent, also set `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (2.1.257 and later). Run `/tasks` to see which model each subagent is on.
+Use `model` and `tools` in the front matter. The model is resolved in this order: a model Claude passes when it spawns the subagent, then the `model` field, then the `CLAUDE_CODE_SUBAGENT_MODEL` variable, then your session's model. Since 2.1.251 that variable is only a default. To force one model on every subagent, also set `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (2.1.257 and later). Run `/tasks` to see which model each subagent is on. The newest Haiku is [Claude Haiku 5.5](/blog/claude-haiku-5-5/).
 
 `tools` is an allowlist and `disallowedTools` a denylist. A `disallowedTools` entry such as `Bash(git push *)` removes the whole Bash tool, so block single commands with a deny rule in settings instead. The Task tool was renamed Agent in 2.1.63, and old `Task(...)` rules still work.
 
