@@ -4610,5 +4610,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "claude-haiku-5-5": {
+    "title": "Claude Haiku 5.5: price, benchmarks and where it fits",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-haiku-5-5/hero.png",
+      "alt": "Title card on white. Claude Haiku 5.5 in large ink type over a yellow underline, a Concepts kicker, the line Checked 8 Oct 2026, and a row of coloured dominoes part way through falling",
+      "prompt": "Still of the hero scene in assets/media/claude-haiku-5-5/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
