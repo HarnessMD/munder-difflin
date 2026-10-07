@@ -4588,5 +4588,27 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "codex-vs-cursor": {
+    "title": "Codex vs Cursor: Which Should You Pick in 2026?",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/codex-vs-cursor/hero.png",
+      "alt": "Title card on white. Codex vs Cursor in large ink type, with a Comparisons kicker, Checked 7 Oct 2026, and two table tennis bats sending a ball over a net",
+      "prompt": "Still of the hero scene in assets/media/codex-vs-cursor/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-cli-vs-claude-code": {
+    "title": "Gemini CLI vs Claude Code: price, licence, models",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-cli-vs-claude-code/hero.png",
+      "alt": "Title card on white. The words Gemini CLI vs Claude Code in large ink type with the kicker Comparisons, the line Checked 7 Oct 2026, and two kites with bow tails",
+      "prompt": "Still of the hero scene in assets/media/gemini-cli-vs-claude-code/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

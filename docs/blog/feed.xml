@@ -16,6 +16,22 @@
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 7 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Codex vs Cursor: Which Should You Pick in 2026?</title>
+    <link href="https://munderdiffl.in/blog/codex-vs-cursor/" />
+    <id>https://munderdiffl.in/blog/codex-vs-cursor/</id>
+    <published>2026-10-07T00:00:00.000Z</published>
+    <updated>2026-10-07T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Codex vs Cursor, checked 7 Oct 2026: what each is, licence, paid plans from $8 a month, models, where each runs, and whether Codex works inside Cursor.</summary>
+  </entry>
+  <entry>
+    <title>Gemini CLI vs Claude Code: price, licence, models</title>
+    <link href="https://munderdiffl.in/blog/gemini-cli-vs-claude-code/" />
+    <id>https://munderdiffl.in/blog/gemini-cli-vs-claude-code/</id>
+    <published>2026-10-07T00:00:00.000Z</published>
+    <updated>2026-10-07T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Gemini CLI vs Claude Code, checked 7 Oct 2026: whether Gemini CLI is still free, what each costs, licence, models, features and who should pick which.</summary>
+  </entry>
+  <entry>
     <title>Hermes Agent vs OpenClaw: which self-hosted AI assistant to pick</title>
     <link href="https://munderdiffl.in/blog/hermes-agent-vs-openclaw/" />
     <id>https://munderdiffl.in/blog/hermes-agent-vs-openclaw/</id>
@@ -229,7 +245,7 @@
     <id>https://munderdiffl.in/blog/grok-bot-pricing/</id>
     <published>2026-09-26T00:00:00.000Z</published>
     <updated>2026-09-26T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Grok Bot has no plan of its own. It comes bundled with SuperGrok and Cursor plans from $20 to $300 a month. Here is what each one gets you, what the free trial is, and the $0 route for work agents.</summary>
+    <summary>Grok Bot has no plan of its own. The cheapest way in is a $20 a month Cursor plan, SuperGrok is $30, and there is a seven day trial, not a free plan.</summary>
   </entry>
   <entry>
     <title>Meta Muse Alternatives: 7 Picks for People Who Can&#39;t (or Won&#39;t) Use Muse</title>
@@ -470,21 +486,5 @@
     <published>2026-08-27T00:00:00.000Z</published>
     <updated>2026-08-27T00:00:00.000Z</updated><category term="Story" />
     <summary>v0.4.6 adds Chinese and Arabic interfaces with right-to-left support, ships its fonts inside the app so nothing is fetched from Google, and makes the updater actually update itself instead of pointing at a download page.</summary>
-  </entry>
-  <entry>
-    <title>The Spend Counter That Went Back to Zero</title>
-    <link href="https://munderdiffl.in/blog/the-spend-counter-that-went-back-to-zero/" />
-    <id>https://munderdiffl.in/blog/the-spend-counter-that-went-back-to-zero/</id>
-    <published>2026-08-22T00:00:00.000Z</published>
-    <updated>2026-08-22T00:00:00.000Z</updated><category term="Internals" />
-    <summary>Our own floor was under reporting what it cost by 59 percent. The counter was cumulative since process start, the app restarts, and the session id stayed the same. Here is how a monotonic invariant let us recover the real number from an append-only log.</summary>
-  </entry>
-  <entry>
-    <title>Our Agents Ran Our Launch-Week Analytics</title>
-    <link href="https://munderdiffl.in/blog/agents-ran-our-launch-week-analytics/" />
-    <id>https://munderdiffl.in/blog/agents-ran-our-launch-week-analytics/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>Ten Reddit threads, a Product Hunt page, GitHub traffic and PostHog funnels — every comment read, cross-referenced, and reported by a hive of agents. The workflow, and how to point it at your own launch.</summary>
   </entry>
 </feed>

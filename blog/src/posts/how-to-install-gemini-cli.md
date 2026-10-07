@@ -118,4 +118,4 @@ npm uninstall -g @google/gemini-cli
 
 The [configuration reference](https://geminicli.com/docs/reference/configuration/) lists `general.enableAutoUpdate`, on by default, but compare `gemini --version` with npm now and then anyway. If it still shows an old number after updating, `which -a gemini` lists every copy on your `PATH` in the order your shell tries them, which is how you spot a leftover Homebrew copy shadowing a fresh npm one.
 
-Running Codex too? [How to install Codex CLI](/blog/how-to-install-codex-cli/) covers OpenAI's agent and its sign in quirks.
+Running Codex too? [How to install Codex CLI](/blog/how-to-install-codex-cli/) covers OpenAI's agent and its sign in quirks. Comparing tools? See [Gemini CLI vs Claude Code](/blog/gemini-cli-vs-claude-code/).

@@ -1,7 +1,7 @@
 ---
 title: "Grok Bot Pricing: What $20, $30, $100 and $300 a Month Actually Buy"
-seoTitle: "Grok Bot Pricing 2026: Every Plan, Free Trial and Cheapest Way In"
-description: "Grok Bot has no plan of its own. It comes bundled with SuperGrok and Cursor plans from $20 to $300 a month. Here is what each one gets you, what the free trial is, and the $0 route for work agents."
+seoTitle: "Grok Bot Pricing: Plans From $20 to $300, and Is It Free?"
+description: "Grok Bot has no plan of its own. The cheapest way in is a $20 a month Cursor plan, SuperGrok is $30, and there is a seven day trial, not a free plan."
 date: 2026-09-26
 category: comparisons
 categoryLabel: Comparisons
