@@ -343,7 +343,7 @@ It prints `Hello, Scranton`.
 <p><strong>Pick Munder Difflin if</strong> you’d rather not choose: it runs all three side by side, each agent a real CLI in its own terminal.</p>
 <p><strong>Pick Claude Code if</strong> you’re on a Claude plan and want Anthropic’s agent. Anthropic’s gateway docs say it doesn’t support routing Claude Code to non Claude models.</p>
 <p><strong>Pick Codex CLI if</strong> you pay for ChatGPT and want OpenAI’s agent with an open source client.</p>
-<p>Our <a href="/blog/codex-cli-vs-claude-code/">Codex CLI vs Claude Code</a> comparison goes further on those two, and <a href="/blog/best-ai-coding-agents/">best AI coding agents</a> covers the wider field.</p>
+<p>Our <a href="/blog/codex-cli-vs-claude-code/">Codex CLI vs Claude Code</a> comparison goes further on those two, and <a href="/blog/best-ai-coding-agents/">best AI coding agents</a> covers the wider field. For the two tool version with prices, see <a href="/blog/opencode-vs-claude-code/">OpenCode vs Claude Code</a>.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/what-is-opencode/note-2.png" alt="Hand drawn sketch: a yellow character at a desk typing into a terminal" loading="lazy" decoding="async" /></figure>
 <h2 id="does-munder-difflin-run-opencode" tabindex="-1">Does Munder Difflin run OpenCode? <a class="anchor" href="#does-munder-difflin-run-opencode" aria-hidden="true">#</a></h2>
 <p>Yes. In Munder Difflin 0.5.3, <code>src/shared/agentProvider.ts</code> lists OpenCode as an engine, with a comment naming anomalyco/opencode and ruling out the archived Go project. It starts the normal <code>opencode</code> interface in the agent’s terminal and passes the brief with <code>--prompt</code>.</p>
@@ -410,6 +410,22 @@ It prints `Hello, Scranton`.
       <h2>Related in Concepts</h2>
       <div class="post-grid">
         <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/mistral-large-4/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/mistral-large-4/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-06">Oct 6, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/mistral-large-4/">Mistral Large 4 (Le Chonk): size, price, scores and weights</a></h3>
+    <p class="dek">Mistral Large 4 is a 1 trillion parameter open weight model in public preview. Context window, API price, Mistral&#39;s own scores and weights, checked 6 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/mistral-large-4/" aria-label="Read: Mistral Large 4 (Le Chonk): size, price, scores and weights">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
   <a class="thumb t-concepts" href="/blog/openai-text-watermarking/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/openai-text-watermarking/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -438,22 +454,6 @@ It prints `Hello, Scranton`.
     <div class="foot">
       <span class="tag kind">Concepts</span>
       <a class="more" href="/blog/reflection-beam/" aria-label="Read: Reflection AI Beam: the 501B open weight model, explained">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/what-is-claude-cowork/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-claude-cowork/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-10-03">Oct 3, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/what-is-claude-cowork/">What Is Claude Cowork? Plans, Prices and How to Use It</a></h3>
-    <p class="dek">Claude Cowork is Anthropic&#39;s agent for multi-step office work. Which plans include it, what it costs, where it runs and how to start, checked 3 Oct 2026.</p>
-    <div class="foot">
-      <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/what-is-claude-cowork/" aria-label="Read: What Is Claude Cowork? Plans, Prices and How to Use It">Read →</a>
     </div>
   </div>
 </article>
