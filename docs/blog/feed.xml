@@ -24,6 +24,14 @@
     <summary>Hermes Agent vs OpenClaw, checked 7 Oct 2026: licence, latest release, install, channels, models, memory, skills, security notes and who should pick which.</summary>
   </entry>
   <entry>
+    <title>OpenAI Decisions API: what it is, price and limits</title>
+    <link href="https://munderdiffl.in/blog/openai-decisions-api/" />
+    <id>https://munderdiffl.in/blog/openai-decisions-api/</id>
+    <published>2026-10-07T00:00:00.000Z</published>
+    <updated>2026-10-07T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>The OpenAI Decisions API is a beta endpoint that returns a probability, a pick or a score. Price, limits and how to call it, checked 7 Oct 2026.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-06/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-06/</id>
@@ -478,13 +486,5 @@
     <published>2026-08-19T00:00:00.000Z</published>
     <updated>2026-08-19T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>Ten Reddit threads, a Product Hunt page, GitHub traffic and PostHog funnels — every comment read, cross-referenced, and reported by a hive of agents. The workflow, and how to point it at your own launch.</summary>
-  </entry>
-  <entry>
-    <title>An Agent Redesigned the Blog You&#39;re Reading</title>
-    <link href="https://munderdiffl.in/blog/an-agent-redesigned-this-blog/" />
-    <id>https://munderdiffl.in/blog/an-agent-redesigned-this-blog/</id>
-    <published>2026-08-19T00:00:00.000Z</published>
-    <updated>2026-08-19T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>Reddit said our blog was unreadable and AI-sloppy. So one agent redesigned it end to end: a new editorial theme, and 119 hand-drawn hero illustrations rendered as code for exactly $0 in image APIs. This is the making-of.</summary>
   </entry>
 </feed>

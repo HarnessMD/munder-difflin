@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenAI Decisions API: what it is, price and limits — Munder Difflin Blog</title>
+<meta name="description" content="The OpenAI Decisions API is a beta endpoint that returns a probability, a pick or a score. Price, limits and how to call it, checked 7 Oct 2026." />
+<link rel="canonical" href="https://munderdiffl.in/blog/openai-decisions-api/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="OpenAI Decisions API: what it is, price and limits — Munder Difflin Blog" />
+<meta property="og:description" content="The OpenAI Decisions API is a beta endpoint that returns a probability, a pick or a score. Price, limits and how to call it, checked 7 Oct 2026." />
+<meta property="og:url" content="https://munderdiffl.in/blog/openai-decisions-api/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/openai-decisions-api/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. OpenAI Decisions API in large ink type above three desk bells on a shelf, the middle one ringing" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-07T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="OpenAI" />
+<meta property="article:tag" content="AI Agents" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="OpenAI Decisions API: what it is, price and limits — Munder Difflin Blog" />
+<meta name="twitter:description" content="The OpenAI Decisions API is a beta endpoint that returns a probability, a pick or a score. Price, limits and how to call it, checked 7 Oct 2026." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/openai-decisions-api/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. OpenAI Decisions API in large ink type above three desk bells on a shelf, the middle one ringing" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "OpenAI Decisions API: what it is, price and limits",
+  "description": "The OpenAI Decisions API is a beta endpoint that returns a probability, a pick or a score. Price, limits and how to call it, checked 7 Oct 2026.",
+  "image": ["https://munderdiffl.in/blog/assets/media/openai-decisions-api/hero.png"],
+  "datePublished": "2026-10-07T00:00:00.000Z",
+  "dateModified": "2026-10-07T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/openai-decisions-api/" },
+  "keywords": "openai decisions api, decisions api, gpt-6-luna decisions, openai decisions api pricing, decision model, what is a decision model, v1/decisions",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/openai-decisions-api/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "OpenAI Decisions API: what it is, price and limits", "item": "https://munderdiffl.in/blog/openai-decisions-api/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is the OpenAI Decisions API generally available?", "acceptedAnswer": { "@type": "Answer", "text": "No. OpenAI's Decisions guide says the API is in public beta and that OpenAI expects to GA in the coming weeks. It gives no date. The API changelog entry for the beta release is dated Oct 6, 2026. Checked 7 Oct 2026." } },
+    { "@type": "Question", "name": "How much does the OpenAI Decisions API cost?", "acceptedAnswer": { "@type": "Answer", "text": "OpenAI's guide says that with gpt-6-luna, input costs $0.10 per 1M tokens, and that you pay only for input tokens, with no cache-read, cache-write or output-token charges. It adds that regional processing premiums and long-context input pricing multipliers apply. Checked 7 Oct 2026." } },
+    { "@type": "Question", "name": "Which models work with the Decisions API?", "acceptedAnswer": { "@type": "Answer", "text": "One. OpenAI's guide says gpt-6-luna is the only model currently available on the POST /v1/decisions endpoint." } },
+    { "@type": "Question", "name": "Can the Decisions API read images?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, with a limit. OpenAI's guide says images must be inline base64 data URLs. Hosted HTTP or HTTPS image URLs and file_id inputs are not supported by this endpoint." } },
+    { "@type": "Question", "name": "Can the Decisions API write code?", "acceptedAnswer": { "@type": "Answer", "text": "No. It returns typed answers: a probability, a choice from your options or a score. OpenAI's guide points you to Structured Outputs with the Responses API when you need an object in your own JSON schema, such as a written explanation, and to function calling when you need a tool call." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>OpenAI Decisions API: what it is, price and limits</h1>
+    <p class="dek">The OpenAI Decisions API is a beta endpoint that returns a probability, a pick or a score. Price, limits and how to call it, checked 7 Oct 2026.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-07">Oct 7, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/openai-decisions-api/hero.png" alt="Title card on white. OpenAI Decisions API in large ink type above three desk bells on a shelf, the middle one ringing" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>The OpenAI Decisions API is a beta endpoint that answers fixed questions with a probability, a pick or a score instead of written text. OpenAI released it on 6 Oct 2026 with one model, gpt-6-luna, at $0.10 per 1M input tokens. Our view: worth a test for classifying and routing, not a coding tool. Checked 7 Oct 2026.</p>
+<p>Agents need sorting and routing too, which is why we looked. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried the Decisions API, so nothing here is a test result. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup and the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms.</p>
+<h2 id="what-is-the-openai-decisions-api" tabindex="-1">What is the OpenAI Decisions API? <a class="anchor" href="#what-is-the-openai-decisions-api" aria-hidden="true">#</a></h2>
+<p>It is an OpenAI endpoint, <code>POST /v1/decisions</code>, that reads text, images or both and returns a typed answer. OpenAI’s <a href="https://developers.openai.com/api/docs/guides/decisions">Decisions guide</a> says it “returns typed answers about 10x faster than the Responses API”, and names three uses: classify content, route requests and prioritize work. The speed figure is OpenAI’s own.</p>
+<p>The <a href="https://developers.openai.com/api/docs/changelog">API changelog</a> entry dated Oct 6 reads: “Released the Decisions API in beta with gpt-6-luna.” The guide says the API is in public beta, “and we expect to GA in the coming weeks”.</p>
+<p>Each question has one of three types. From the guide, 7 Oct 2026:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Use it to</th>
+<th>Main result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>predicate</code></td>
+<td>Check a condition, such as visible damage</td>
+<td><code>probability</code>: an estimate from 0 to 1 that the condition is true</td>
+</tr>
+<tr>
+<td><code>choice</code></td>
+<td>Select one option, such as a department</td>
+<td><code>choice</code>: one of your supplied values</td>
+</tr>
+<tr>
+<td><code>score</code></td>
+<td>Rate an input against ordered levels, such as issue severity</td>
+<td><code>score</code>: the probability-weighted average of the level indices</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <a href="https://news.ycombinator.com/item?id=49984025">Hacker News thread</a> had more than 250 points and 114 comments when we read it on 7 Oct 2026.</p>
+<figure class="mg" data-scene="chute"><img src="/blog/assets/media/openai-decisions-api/chute.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Marbles roll down a sorting chute and drop through one of three gates labelled predicate, choice and score. Each gate lights a small tag: probability, one of your supplied values, or a score."><figcaption>The three question types in OpenAI's Decisions guide, read on 7 Oct 2026.</figcaption></figure>
+<h2 id="what-is-a-decision-model-and-how-is-it-different-from-a-chat-model-call" tabindex="-1">What is a decision model, and how is it different from a chat model call? <a class="anchor" href="#what-is-a-decision-model-and-how-is-it-different-from-a-chat-model-call" aria-hidden="true">#</a></h2>
+<p>A decision model picks from options you supply and attaches a number, where a chat model writes free text. OpenAI’s guide does not use the term. This definition is from <a href="https://strandsagents.com/blog/introducing-strands-decider/">Strands’ post</a> of 1 October 2026: “Unlike LLMs that can generate arbitrary output, decision models are designed to pick between sets of options” and “assign simple numerical scores”.</p>
+<p>OpenAI’s guide describes an endpoint, not a new kind of model. The <a href="https://developers.openai.com/api/docs/models/gpt-6-luna">gpt-6-luna model page</a> calls it OpenAI’s “most efficient model for focused, high-volume tasks” and lists the Responses endpoint as supported too.</p>
+<p>The practical difference is the reply. In a chat call you ask for a label and then parse a sentence. Here the answer arrives as fields: <code>probability</code>, <code>choice</code> or <code>score</code>, with a <code>confidence</code> field and per option <code>probabilities</code> on choice and score answers. It answers the question and stops.</p>
+<p>The guide draws the line: use Structured Outputs with the Responses API when you need “extracted fields or a written explanation”, and function calling when you need a tool call with arguments.</p>
+<h2 id="what-does-the-decisions-api-cost" tabindex="-1">What does the Decisions API cost? <a class="anchor" href="#what-does-the-decisions-api-cost" aria-hidden="true">#</a></h2>
+<p>Input costs $0.10 per 1M tokens on 7 Oct 2026, and output is not charged. OpenAI’s <a href="https://developers.openai.com/api/docs/guides/decisions">guide</a> says: “You pay only for input tokens: there are no cache-read, cache-write, or output-token charges.” The two rows below are a selection from the guide and OpenAI’s <a href="https://developers.openai.com/api/docs/pricing">pricing page</a>, which lists more tiers.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Where gpt-6-luna runs (7 Oct 2026)</th>
+<th>Input per 1M tokens</th>
+<th>Output per 1M tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/v1/decisions</code></td>
+<td>$0.10</td>
+<td>No charge</td>
+</tr>
+<tr>
+<td>Other requests, Standard, short context</td>
+<td>$0.10</td>
+<td>$0.50</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>One qualifier: the guide says “Regional processing premiums and long-context input pricing multipliers apply”, and gives no figures for them.</p>
+<figure class="mg" data-scene="meter"><img src="/blog/assets/media/openai-decisions-api/meter.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A parking meter with two slots. Tokens dropped in the slot marked input make the display tick up to $0.10 per 1M tokens. Tokens dropped in the slot marked output fall straight through and the display does not move."><figcaption>On /v1/decisions, input costs $0.10 per 1M tokens and output is not charged. OpenAI's guide, 7 Oct 2026.</figcaption></figure>
+<h2 id="what-are-the-limits-in-beta" tabindex="-1">What are the limits in beta? <a class="anchor" href="#what-are-the-limits-in-beta" aria-hidden="true">#</a></h2>
+<p>One model, inline images and typed answers. From OpenAI’s <a href="https://developers.openai.com/api/docs/guides/decisions">guide</a>:</p>
+<ul>
+<li><strong>Beta.</strong> GA is expected “in the coming weeks”. No date.</li>
+<li><strong>One model.</strong> “<code>gpt-6-luna</code> is the only model currently available.”</li>
+<li><strong>Images.</strong> “Images must be inline base64 data URLs.” Hosted HTTP or HTTPS image URLs and <code>file_id</code> inputs aren’t supported by this endpoint.</li>
+<li><strong>No chained questions.</strong> Independent questions can share one request. A decision that depends on an earlier answer needs a separate request.</li>
+<li><strong>Compliance.</strong> Zero Data Retention and HIPAA use are supported “for eligible customers”.</li>
+</ul>
+<p>The guide states no rate limit and no input size cap for the endpoint.</p>
+<figure class="mg" data-scene="turnstile"><img src="/blog/assets/media/openai-decisions-api/turnstile.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three picture cards arrive at a turnstile. The card marked inline base64 data URL passes through. The cards marked hosted image URL and file_id are stopped as the arm locks."><figcaption>Images must be inline base64 data URLs. OpenAI's guide, 7 Oct 2026.</figcaption></figure>
+<h2 id="how-do-you-call-the-decisions-api" tabindex="-1">How do you call the Decisions API? <a class="anchor" href="#how-do-you-call-the-decisions-api" aria-hidden="true">#</a></h2>
+<p>You send a POST with a model, an input and a list of questions. This request is trimmed from the guide’s routing example, which lists four choices:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token function">curl</span> https://api.openai.com/v1/decisions <span class="token punctuation">\</span>
+  <span class="token parameter variable">-H</span> <span class="token string">"Authorization: Bearer <span class="token variable">$OPENAI_API_KEY</span>"</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">-H</span> <span class="token string">"Content-Type: application/json"</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">-d</span> <span class="token string">'{
+    "model": "gpt-6-luna",
+    "input": "I was charged twice for my order.",
+    "questions": [{
+      "type": "choice",
+      "name": "department",
+      "instructions": "Which department should handle this complaint?",
+      "choices": [
+        {"value": "billing", "description": "Payments, invoices, and refunds."},
+        {"value": "other", "description": "Requests outside these categories."}
+      ]
+    }]
+  }'</span></code></pre>
+<p>The guide’s score example shows how a score is built. Three severity levels get probabilities of 0.1, 0.7 and 0.2, and because level indices start at 0, the score comes out at 1.1. The guide calls that response illustrative.</p>
+<figure class="mg" data-scene="thermometer"><img src="/blog/assets/media/openai-decisions-api/thermometer.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A thermometer with three marks numbered 0, 1 and 2 for cosmetic, workaround available and fully blocked. Three bars sized 0.1, 0.7 and 0.2 grow beside the marks and the liquid rises to rest at 1.1, just above the middle mark."><figcaption>Probabilities of 0.1, 0.7 and 0.2 produce a score of 1.1 in the illustrative example in OpenAI's guide, 7 Oct 2026.</figcaption></figure>
+<h2 id="is-there-an-open-alternative" tabindex="-1">Is there an open alternative? <a class="anchor" href="#is-there-an-open-alternative" aria-hidden="true">#</a></h2>
+<p>Yes, Strands Decider 2B is one you can run yourself. The <a href="https://strandsagents.com/blog/introducing-strands-decider/">Strands post</a> of 1 October 2026 describes “a 2 billion parameter model, suitable for running on a local CPU or GPU”, with weights on Hugging Face. GitHub listed the <a href="https://github.com/strands-labs/strands-decider">repo</a> as Apache 2.0 on 7 Oct 2026.</p>
+<p>The vendor’s own figures: a median of around 115ms on an Nvidia RTX3090, and “3rd of 33 in the 2B class” on JevBench’s public set. No source we opened compares it with OpenAI’s endpoint.</p>
+<h2 id="what-does-it-mean-if-you-run-coding-agents" tabindex="-1">What does it mean if you run coding agents? <a class="anchor" href="#what-does-it-mean-if-you-run-coding-agents" aria-hidden="true">#</a></h2>
+<p>Little for the code writing itself, because the endpoint returns answers, not code. Strands says of this class of model that its “lack of ability to generate text makes it unsuited for coding”. No source we opened says the Decisions API works with Codex or any other coding agent.</p>
+<p>Our view: the fit is the small jobs around an agent, such as <a href="/blog/do-more-with-less-model-routing/">model routing</a> or scoring a bug report’s severity. Strands lists model routing, tool selection, evaluations and guardrails among early uses. These are ideas, not results.</p>
+<h2 id="what-should-you-do-now" tabindex="-1">What should you do now? <a class="anchor" href="#what-should-you-do-now" aria-hidden="true">#</a></h2>
+<p>Our view: try it on one narrow labelling job if you already use the OpenAI API, and otherwise wait for GA.</p>
+<ol>
+<li>Test your own inputs in the <a href="https://platform.openai.com/decisions">Playground</a>.</li>
+<li>Set thresholds from labeled examples of your own, as the guide advises.</li>
+<li>Keep a beta endpoint out of anything you cannot change later.</li>
+<li>For the code writing, see <a href="/blog/best-ai-coding-agents/">best AI coding agents</a> and <a href="/blog/what-is-codex/">what Codex is</a>.</li>
+</ol>
+<link rel="stylesheet" href="/blog/assets/media/openai-decisions-api/motion.css"><script defer src="/blog/assets/media/openai-decisions-api/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is the OpenAI Decisions API generally available?</p>
+          <p class="a">No. OpenAI&#39;s Decisions guide says the API is in public beta and that OpenAI expects to GA in the coming weeks. It gives no date. The API changelog entry for the beta release is dated Oct 6, 2026. Checked 7 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How much does the OpenAI Decisions API cost?</p>
+          <p class="a">OpenAI&#39;s guide says that with gpt-6-luna, input costs $0.10 per 1M tokens, and that you pay only for input tokens, with no cache-read, cache-write or output-token charges. It adds that regional processing premiums and long-context input pricing multipliers apply. Checked 7 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Which models work with the Decisions API?</p>
+          <p class="a">One. OpenAI&#39;s guide says gpt-6-luna is the only model currently available on the POST /v1/decisions endpoint.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can the Decisions API read images?</p>
+          <p class="a">Yes, with a limit. OpenAI&#39;s guide says images must be inline base64 data URLs. Hosted HTTP or HTTPS image URLs and file_id inputs are not supported by this endpoint.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can the Decisions API write code?</p>
+          <p class="a">No. It returns typed answers: a probability, a choice from your options or a score. OpenAI&#39;s guide points you to Structured Outputs with the Responses API when you need an object in your own JSON schema, such as a written explanation, and to function calling when you need a tool call.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/openai/">OpenAI</a><a class="tag" href="/blog/tags/ai-agents/">AI Agents</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-the-openai-decisions-api">What is the OpenAI Decisions API?</a></li><li class="lvl-2"><a href="#what-is-a-decision-model-and-how-is-it-different-from-a-chat-model-call">What is a decision model, and how is it different from a chat model call?</a></li><li class="lvl-2"><a href="#what-does-the-decisions-api-cost">What does the Decisions API cost?</a></li><li class="lvl-2"><a href="#what-are-the-limits-in-beta">What are the limits in beta?</a></li><li class="lvl-2"><a href="#how-do-you-call-the-decisions-api">How do you call the Decisions API?</a></li><li class="lvl-2"><a href="#is-there-an-open-alternative">Is there an open alternative?</a></li><li class="lvl-2"><a href="#what-does-it-mean-if-you-run-coding-agents">What does it mean if you run coding agents?</a></li><li class="lvl-2"><a href="#what-should-you-do-now">What should you do now?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/agent-tools-today-2026-10-06/"><span class="k">← Older</span><span class="t">Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search</span></a>
+      <a class="pn next" href="/blog/hermes-agent-vs-openclaw/"><span class="k">Newer →</span><span class="t">Hermes Agent vs OpenClaw: which self-hosted AI assistant to pick</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/mistral-large-4/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/mistral-large-4/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-06">Oct 6, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/mistral-large-4/">Mistral Large 4 (Le Chonk): size, price, scores and weights</a></h3>
+    <p class="dek">Mistral Large 4 is a 1 trillion parameter open weight model in public preview. Context window, API price, Mistral&#39;s own scores and weights, checked 6 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/mistral-large-4/" aria-label="Read: Mistral Large 4 (Le Chonk): size, price, scores and weights">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/openai-text-watermarking/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/openai-text-watermarking/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-06">Oct 6, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/openai-text-watermarking/">OpenAI text watermarking: textGrain, who gets it, limits</a></h3>
+    <p class="dek">OpenAI text watermarking (textGrain) is opt in for the API now and is coming to eligible ChatGPT and Codex text in the EU. Limits checked 6 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/openai-text-watermarking/" aria-label="Read: OpenAI text watermarking: textGrain, who gets it, limits">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/reflection-beam/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/reflection-beam/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-06">Oct 6, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/reflection-beam/">Reflection AI Beam: the 501B open weight model, explained</a></h3>
+    <p class="dek">Reflection AI Beam is a 501B parameter open weight model. Size, Reflection&#39;s own scores, licence and when you can get it, checked 6 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/reflection-beam/" aria-label="Read: Reflection AI Beam: the 501B open weight model, explained">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      if (!id) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
