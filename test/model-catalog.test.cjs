@@ -33,6 +33,7 @@ const SHIPPED = {
     ["claude-sonnet-5", "Sonnet 5"],
     ["claude-sonnet-4-6", "Sonnet 4.6"],
     ["claude-sonnet-4-6[1m]", "Sonnet 4.6 · 1M"],
+    ["claude-haiku-5-5", "Haiku 5.5"],
     ["claude-haiku-4-5-20251001", "Haiku 4.5"]
   ],
   antigravity: [
