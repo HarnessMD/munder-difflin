@@ -24,7 +24,7 @@ faq:
 
 OpenAI text watermarking is textGrain, an invisible signal in the model's word choices. [OpenAI announced it](https://openai.com/index/eu-text-provenance) on 5 Oct 2026: opt in for API customers worldwide, and on for eligible ChatGPT and Codex text output in the EU over the coming weeks. Our view: a compliance signal, not proof of who wrote a text. Checked 6 Oct 2026.
 
-Codex is one of the coding agents people run inside [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. So this change reaches some of our readers directly. The [Concepts hub](/blog/topics/concepts/) has more explainers like this one.
+Codex is one of the coding agents people run inside [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. So this change reaches some of our readers directly. The [Concepts hub](/blog/topics/concepts/) has more explainers like this one. Also new: [the OpenAI Decisions API](/blog/openai-decisions-api/).
 
 ## What is OpenAI text watermarking?
 

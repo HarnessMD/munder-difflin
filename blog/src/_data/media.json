@@ -4577,5 +4577,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "openai-decisions-api": {
+    "title": "OpenAI Decisions API: what it is, price and limits",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/openai-decisions-api/hero.png",
+      "alt": "Title card on white. OpenAI Decisions API in large ink type above three desk bells on a shelf, the middle one ringing",
+      "prompt": "Still of the hero scene in assets/media/openai-decisions-api/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
