@@ -4521,5 +4521,28 @@
     },
     "inline": {},
     "youtube": []
+  },
+  "hermes-agent-vs-openclaw": {
+    "title": "Hermes Agent vs OpenClaw: which self-hosted AI assistant to pick",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/hermes-agent-vs-openclaw/hero.png",
+      "alt": "Title card on white. Hermes Agent vs OpenClaw, checked 7 Oct 2026, above two tin cans joined by a string",
+      "prompt": "Still of the hero scene in assets/media/hermes-agent-vs-openclaw/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-10-07": {
+    "title": "Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
   }
 }
