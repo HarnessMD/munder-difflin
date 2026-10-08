@@ -44,7 +44,7 @@ The Claude Code repo is public, but its licence file says "All rights reserved",
 
 **3. OpenCode.** [OpenCode](https://opencode.ai/) is an MIT licensed agent for your terminal, IDE or desktop. Its site says "free models included or connect any model from any provider", with 75+ providers and local models. OpenCode Go was $10 a month on 5 Oct 2026. Best for: model freedom. See [what is OpenCode](/blog/what-is-opencode/).
 
-**4. Cursor.** [Cursor](https://cursor.com/pricing) is a proprietary editor with an agent built in, plus a CLI. Hobby is free with limited Agent requests, and Individual was $20 a month on 5 Oct 2026. Its docs list models from OpenAI, Anthropic, Google and SpaceXAI. Best for: people who think in an editor. See [Claude Code vs Cursor](/blog/claude-code-vs-cursor/).
+**4. Cursor.** [Cursor](https://cursor.com/pricing) is a proprietary editor with an agent built in, plus a CLI. Hobby is free with limited Agent requests, and Individual was $20 a month on 5 Oct 2026. Its docs list models from OpenAI, Anthropic, Google and SpaceXAI. Best for: people who think in an editor. See [Claude Code vs Cursor](/blog/claude-code-vs-cursor/). Leaving Cursor? See [Cursor alternatives](/blog/cursor-alternatives/).
 
 **5. Gemini CLI.** [Gemini CLI](https://github.com/google-gemini/gemini-cli) is Google's Apache 2.0 terminal agent for Gemini models. Read the fine print: Google's [transition notice](https://github.com/google-gemini/gemini-cli/discussions/27274) set 18 Jun 2026 as the day it stops serving free, Google AI Pro and Ultra users, while paid Gemini API keys keep working. Those tiers are now supported through Antigravity CLI. The repo README still advertises a free tier, which the notice overrides. Best for: teams already paying Google.
 
