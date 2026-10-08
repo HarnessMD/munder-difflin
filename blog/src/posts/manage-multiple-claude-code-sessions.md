@@ -30,6 +30,7 @@ is what keeps it calm.</p></div>
 Running one Claude Code session is easy. The trouble starts around session three, when "what is each
 of these doing right now?" stops having an obvious answer. Here's how to keep multiple sessions
 legible — first by hand, then with tooling once the hand-management stops scaling.
+Claude Code also has experimental [agent teams](/blog/claude-code-agent-teams/).
 
 ## The three failure modes
 

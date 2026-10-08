@@ -1,6 +1,6 @@
 ---
 title: "Does the June 2026 Agent SDK Change Affect Munder Difflin?"
-description: "From June 15, 2026 the Claude Agent SDK gets a separate credit. Munder Difflin drives the native Claude Code CLI, so your hive runs on your plan as before."
+description: "Anthropic paused its June 15, 2026 Agent SDK billing change. Munder Difflin drives the native Claude Code CLI, so your hive runs on your plan as before."
 date: 2026-06-06
 category: guides
 categoryLabel: Guides
@@ -13,12 +13,14 @@ author:
   initials: CG
 faq:
   - q: "Does the June 15, 2026 Claude Agent SDK change affect Munder Difflin?"
-    a: "The agents that do your work are unaffected. Munder Difflin runs its hive as interactive Claude Code terminal sessions, and Anthropic's update states that Claude Code in the terminal or IDE 'continues to use your subscription usage limits exactly as before.' The one exception is Munder Difflin's optional enrich assistant, which uses claude -p (print mode) and therefore draws on the new Agent SDK credit — but it's off by default and covered by that credit."
+    a: "The agents that do your work are unaffected. Munder Difflin runs its hive as interactive Claude Code terminal sessions, and Anthropic's update states that Claude Code in the terminal or IDE 'continues to use your subscription usage limits exactly as before.' Update, 8 Oct 2026: Anthropic paused the change on June 15, 2026, so claude -p usage, which Munder Difflin's optional enrich assistant uses, also still draws from your subscription limits."
   - q: "What changes for the Claude Agent SDK on June 15, 2026?"
-    a: "Per Anthropic's support article, from June 15, 2026 Agent SDK usage stops counting toward your subscription limits; Pro, Max, Team, and Enterprise plans instead get a separate monthly Agent SDK credit ($20-$200 depending on tier). Your underlying plan usage limits are unchanged, and interactive Claude Code in the terminal/IDE is explicitly unaffected."
+    a: "Anthropic paused it. The June 15, 2026 update in its support article says that for now nothing has changed: Claude Agent SDK, claude -p and third-party app usage still draw from your subscription limits. As first announced, from June 15, 2026 Agent SDK usage stops counting toward your subscription limits; Pro, Max, Team, and Enterprise plans instead get a separate monthly Agent SDK credit ($20-$200 depending on tier). Your underlying plan usage limits are unchanged, and interactive Claude Code in the terminal/IDE is explicitly unaffected."
   - q: "Do I need to pay extra to keep running my Munder Difflin hive?"
-    a: "No — the agents run on your existing Claude Pro/Max subscription, exactly as before, because they're interactive Claude Code sessions, not Agent SDK calls. You'd only touch the new Agent SDK credit if you enable the optional enrich assistant (which uses claude -p), and that usage fits within the included monthly credit."
+    a: "No — the agents run on your existing Claude Pro/Max subscription, exactly as before, because they're interactive Claude Code sessions, not Agent SDK calls. Update, 8 Oct 2026: Anthropic paused the Agent SDK change, so the optional enrich assistant (which uses claude -p) also draws from your subscription limits for now."
 ---
+
+<div class="callout note"><span class="ic">Update</span><p><strong>Update, 8 Oct 2026:</strong> Anthropic paused this change. Its <a href="https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan">support article</a> says, in an update dated June 15, 2026: "We've paused the previously-announced changes to Claude Agent SDK usage. For now, nothing has changed: Claude Agent SDK, claude -p, and third-party app usage still draw from your subscription limits." An update dated October 7, 2026 adds that Claude Max and Team plans now include monthly API credits. The rest of this post describes the change as it was announced and is kept for the record. For what applies today, see <a href="/blog/what-is-claude-agent-sdk/">what the Claude Agent SDK is</a>.</p></div>
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>On <strong>June 15, 2026</strong>, Anthropic
 changes how the <strong>Claude Agent SDK</strong> is billed: SDK usage stops counting against your

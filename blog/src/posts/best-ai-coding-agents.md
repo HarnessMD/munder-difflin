@@ -116,7 +116,7 @@ Copilot's billing has a catch worth knowing. Since [GitHub's switch to usage bas
 
 ## Which coding agents are open source?
 
-Codex CLI, Gemini CLI, OpenCode, Cline and Aider are open source; Claude Code, Cursor, Copilot, Antigravity CLI and Devin are not. OpenCode is MIT licensed and the other four are Apache 2.0, per their GitHub repos on 29 Sep 2026.
+Codex CLI, Gemini CLI, OpenCode, Cline and Aider are open source; Claude Code, Cursor, Copilot, Antigravity CLI and Devin are not. OpenCode is MIT licensed and the other four are Apache 2.0, per their GitHub repos on 29 Sep 2026. Z.ai's [ZCode](/blog/what-is-zcode/) is Apache 2.0 too (8 Oct 2026).
 
 Claude Code confuses people here because its GitHub repo is public. The repo carries no open source licence and the product is used under Anthropic's terms. [Is Claude Code open source](/blog/is-claude-code-open-source/) walks through the detail.
 

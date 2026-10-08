@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude Agent SDK: what it is, languages, cost and limits — Munder Difflin Blog</title>
+<meta name="description" content="The Claude Agent SDK is Claude Code as a Python and TypeScript library. Install commands, features, billing, licence and limits, checked 8 Oct 2026." />
+<link rel="canonical" href="https://munderdiffl.in/blog/what-is-claude-agent-sdk/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Claude Agent SDK: what it is, languages, cost and limits — Munder Difflin Blog" />
+<meta property="og:description" content="The Claude Agent SDK is Claude Code as a Python and TypeScript library. Install commands, features, billing, licence and limits, checked 8 Oct 2026." />
+<meta property="og:url" content="https://munderdiffl.in/blog/what-is-claude-agent-sdk/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/what-is-claude-agent-sdk/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. The words Claude Agent SDK above a small wall of toy building bricks, with one brick hovering over a gap" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-08T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="AI Agents" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Claude Agent SDK: what it is, languages, cost and limits — Munder Difflin Blog" />
+<meta name="twitter:description" content="The Claude Agent SDK is Claude Code as a Python and TypeScript library. Install commands, features, billing, licence and limits, checked 8 Oct 2026." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/what-is-claude-agent-sdk/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. The words Claude Agent SDK above a small wall of toy building bricks, with one brick hovering over a gap" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude Agent SDK: what it is, languages, cost and limits",
+  "description": "The Claude Agent SDK is Claude Code as a Python and TypeScript library. Install commands, features, billing, licence and limits, checked 8 Oct 2026.",
+  "image": ["https://munderdiffl.in/blog/assets/media/what-is-claude-agent-sdk/hero.png"],
+  "datePublished": "2026-10-08T00:00:00.000Z",
+  "dateModified": "2026-10-08T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/what-is-claude-agent-sdk/" },
+  "keywords": "claude agent sdk, what is claude agent sdk, claude agent sdk python, claude agent sdk typescript, claude agent sdk pricing, claude agent sdk vs claude code, claude code sdk",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/what-is-claude-agent-sdk/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Claude Agent SDK: what it is, languages, cost and limits", "item": "https://munderdiffl.in/blog/what-is-claude-agent-sdk/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is the Claude Agent SDK?", "acceptedAnswer": { "@type": "Answer", "text": "It is a library from Anthropic for Python and TypeScript. Anthropic's overview says it gives you the same tools, agent loop and context management that power Claude Code, and describes it as a library that runs the Claude Code binary. Checked 8 Oct 2026." } },
+    { "@type": "Question", "name": "Is the Claude Agent SDK the same as the Claude Code SDK?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, it is the new name. Anthropic's migration guide says the Claude Code SDK has been renamed to the Claude Agent SDK. The packages changed from @anthropic-ai/claude-code and claude-code-sdk to @anthropic-ai/claude-agent-sdk and claude-agent-sdk." } },
+    { "@type": "Question", "name": "How much does the Claude Agent SDK cost?", "acceptedAnswer": { "@type": "Answer", "text": "No page we opened lists a charge for the package. The quickstart uses an API key from the Claude Console. Anthropic's help article says that when you are signed in with your Claude plan, Agent SDK usage still draws from your plan's usage limits. Checked 8 Oct 2026." } },
+    { "@type": "Question", "name": "Can I use my Claude subscription with the Claude Agent SDK?", "acceptedAnswer": { "@type": "Answer", "text": "For your own runs, Anthropic's help article, updated 7 October 2026 says you can still use the Claude Agent SDK with your subscription limits. For products you offer to others, the docs say Anthropic does not allow third party developers to offer claude.ai login or rate limits unless previously approved." } },
+    { "@type": "Question", "name": "Is the Claude Agent SDK open source?", "acceptedAnswer": { "@type": "Answer", "text": "Partly, by repo. GitHub lists the Python repo under the MIT License. The TypeScript repo's licence file says all rights reserved, with use subject to Anthropic's Commercial Terms of Service. The docs say those terms govern use of the SDK, except where a component's LICENSE file says otherwise. Checked 8 Oct 2026." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>Claude Agent SDK: what it is, languages, cost and limits</h1>
+    <p class="dek">The Claude Agent SDK is Claude Code as a Python and TypeScript library. Install commands, features, billing, licence and limits, checked 8 Oct 2026.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-08">Oct 8, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/what-is-claude-agent-sdk/hero.png" alt="Title card on white. The words Claude Agent SDK above a small wall of toy building bricks, with one brick hovering over a gap" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>The Claude Agent SDK is Claude Code packaged as a Python and TypeScript library, so your own program can run the same agent loop and tools. Our view: pick it when you are building a product, not when you want a coding assistant today. Billing depends on how you sign in. Checked 8 Oct 2026.</p>
+<p><a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We did not run the SDK for this page. Everything below comes from Anthropic’s docs and package pages. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup and the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms.</p>
+<h2 id="what-is-the-claude-agent-sdk" tabindex="-1">What is the Claude Agent SDK? <a class="anchor" href="#what-is-the-claude-agent-sdk" aria-hidden="true">#</a></h2>
+<p>It is an Anthropic library that lets your Python or TypeScript code run Claude Code’s agent. Anthropic’s <a href="https://code.claude.com/docs/en/agent-sdk/overview">Agent SDK overview</a> says it “gives you the same tools, agent loop, and context management that power Claude Code”. The same page calls it “a library that runs the Claude Code binary”.</p>
+<h2 id="how-does-it-relate-to-claude-code-and-the-claude-code-sdk" tabindex="-1">How does it relate to Claude Code and the Claude Code SDK? <a class="anchor" href="#how-does-it-relate-to-claude-code-and-the-claude-code-sdk" aria-hidden="true">#</a></h2>
+<p>It is the same agent with a different way in, and “Claude Code SDK” is its old name. The <a href="https://code.claude.com/docs/en/agent-sdk/migration-guide">migration guide</a> says: “The Claude Code SDK has been renamed to the Claude Agent SDK”. The packages moved from <code>@anthropic-ai/claude-code</code> and <code>claude-code-sdk</code> to the names in the table below.</p>
+<p>The overview draws the line by job. The Agent SDK is for embedding the agent “in a process you operate”. The Claude Code CLI is “built for daily interactive use”. One default differs: the migration guide says the SDK “no longer uses Claude Code’s system prompt by default”, and you request the <code>claude_code</code> preset to get it back.</p>
+<figure class="mg" data-scene="musicbox"><img src="/blog/assets/media/what-is-claude-agent-sdk/musicbox.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A wind-up music box mechanism lifts out of a case labelled Claude Code CLI and lowers into a plain case labelled your app. The same cylinder keeps turning in both cases."><figcaption>The SDK is a library that runs the Claude Code binary. Anthropic's Agent SDK overview, read on 8 Oct 2026.</figcaption></figure>
+<h2 id="which-languages-does-it-support-and-how-do-you-install-it" tabindex="-1">Which languages does it support, and how do you install it? <a class="anchor" href="#which-languages-does-it-support-and-how-do-you-install-it" aria-hidden="true">#</a></h2>
+<p>Python and TypeScript. Versions below are the latest listed on <a href="https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk">npm</a> and <a href="https://pypi.org/project/claude-agent-sdk/">PyPI</a> on 8 Oct 2026. Install commands and requirements are from the <a href="https://code.claude.com/docs/en/agent-sdk/quickstart">quickstart</a>.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>TypeScript</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Install</td>
+<td><code>npm install @anthropic-ai/claude-agent-sdk</code></td>
+<td><code>pip install claude-agent-sdk</code></td>
+</tr>
+<tr>
+<td>Latest version</td>
+<td>0.3.293</td>
+<td>0.2.164</td>
+</tr>
+<tr>
+<td>Needs</td>
+<td><code>Node.js</code> 18+</td>
+<td>Python 3.10+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For other languages, the overview says to run the CLI as a subprocess with the <code>-p</code> flag and <code>--output-format json</code>.</p>
+<h2 id="what-do-you-get-with-it" tabindex="-1">What do you get with it? <a class="anchor" href="#what-do-you-get-with-it" aria-hidden="true">#</a></h2>
+<p>You get eight Claude Code capabilities, according to the overview’s table:</p>
+<ul>
+<li><strong>Built-in tools</strong>: “Read, write, edit files, run commands, and search the web”.</li>
+<li><strong>Hooks</strong>: custom code at key points in the agent lifecycle. Our <a href="/blog/claude-code-hooks-explained/">hooks explainer</a> covers the idea.</li>
+<li><strong>Subagents</strong>: specialized agents for focused subtasks. See <a href="/blog/claude-code-subagents-vs-multi-agent-harness/">subagents compared with a harness</a>.</li>
+<li><strong>MCP</strong>: external tools and data sources.</li>
+<li><strong>Permissions</strong>: which tools run automatically and which need approval.</li>
+<li><strong>Sessions</strong>: context you can resume or fork later.</li>
+<li><strong>Skills, commands and memory</strong>: loaded from <code>.claude/</code> and <code>~/.claude/</code>.</li>
+<li><strong>Plugins</strong>: loaded by local path.</li>
+</ul>
+<figure class="mg" data-scene="penknife"><img src="/blog/assets/media/what-is-claude-agent-sdk/penknife.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A folded pocket knife opens one tool at a time until eight tools fan out. Each carries a small label: tools, hooks, subagents, MCP, permissions, sessions, skills, plugins."><figcaption>The eight capabilities in Anthropic's Agent SDK overview, read on 8 Oct 2026.</figcaption></figure>
+<h2 id="what-does-it-cost-and-how-is-it-billed" tabindex="-1">What does it cost, and how is it billed? <a class="anchor" href="#what-does-it-cost-and-how-is-it-billed" aria-hidden="true">#</a></h2>
+<p>No page we opened lists a charge for the package itself. Where the model usage it creates lands depends on how you sign in.</p>
+<ul>
+<li><strong>API key.</strong> The quickstart has you set <code>ANTHROPIC_API_KEY</code> from the Claude Console. It also lists Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform and Microsoft Foundry.</li>
+<li><strong>Claude plan login.</strong> Anthropic’s <a href="https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan">help article</a>, updated October 7, 2026, says: “You can still use the Claude Agent SDK, <code>claude -p</code>, and third-party apps with your subscription limits.”</li>
+<li><strong>Monthly API credits.</strong> The <a href="https://support.claude.com/en/articles/17154008-monthly-api-credits-for-max-and-team-plans">credits article</a> listed, on 8 Oct 2026, $100 a month for Max 5x and $200 for Max 20x. On 8 Oct 2026 it listed $20 per Standard seat and $100 per Premium seat for Team plans, pooled and capped at $500. Free, Pro and Enterprise plans aren’t eligible. You claim the credit by linking a Console organization, after seven days on the plan. It covers SDK runs made with an API key from that organization, and unused credit doesn’t roll over.</li>
+</ul>
+<p>Two qualifiers. The help article says the changes announced earlier were paused on June 15, 2026, and the credits article says of the Agent SDK credits announced in June: “That credit isn’t available.” And the overview says that, “unless previously approved”, third party developers may not offer <a href="http://claude.ai">claude.ai</a> login or rate limits in their products. For the plans themselves, see <a href="/blog/how-much-does-claude-code-cost/">what Claude Code costs</a>.</p>
+<figure class="mg" data-scene="points"><img src="/blog/assets/media/what-is-claude-agent-sdk/points.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A toy rail cart rolls to a set of points. With the lever on API key it runs to a siding labelled Claude Console. The lever flips to plan login and the next cart runs to a siding labelled plan usage limits."><figcaption>Signed in with a Claude plan, SDK usage draws from the plan's usage limits. Run with an API key from a linked Console organization, it can use the monthly API credits on Max and Team plans. Anthropic's help articles, 8 Oct 2026.</figcaption></figure>
+<h2 id="what-licence-is-it-under" tabindex="-1">What licence is it under? <a class="anchor" href="#what-licence-is-it-under" aria-hidden="true">#</a></h2>
+<p>It depends on the repo. GitHub lists the <a href="https://github.com/anthropics/claude-agent-sdk-python">Python repo</a> under the MIT License. The <a href="https://github.com/anthropics/claude-agent-sdk-typescript">TypeScript repo</a>’s <code>LICENSE.md</code> reads “All rights reserved”, with use subject to Anthropic’s Commercial Terms of Service.</p>
+<p>The overview says those terms govern use of the SDK, including in products you offer to your own customers, “except to the extent a specific component or dependency is covered by a different license”.</p>
+<h2 id="what-are-the-limits-and-requirements" tabindex="-1">What are the limits and requirements? <a class="anchor" href="#what-are-the-limits-and-requirements" aria-hidden="true">#</a></h2>
+<p>Each session is a real process on your machine, not a stateless API call. The <a href="https://code.claude.com/docs/en/agent-sdk/hosting">hosting page</a> says “One agent session maps to one subprocess”, and gives 1 GiB RAM, 5 GiB disk and 1 CPU per agent as “a reasonable starting point”. It adds that the 1 GiB figure “is a floor, not the ceiling”.</p>
+<ul>
+<li><strong>Network.</strong> Outbound HTTPS to <code>api.anthropic.com</code>, or your provider’s regional endpoint.</li>
+<li><strong>State.</strong> Session files sit on local disk by default and are lost on a container restart.</li>
+<li><strong>Bundled binary.</strong> The quickstart says “most installs need no separate Claude Code install”.</li>
+<li><strong>Cost fields.</strong> The <a href="https://code.claude.com/docs/en/agent-sdk/cost-tracking">cost page</a> calls <code>total_cost_usd</code> a client-side estimate, “not authoritative billing data”.</li>
+</ul>
+<figure class="mg" data-scene="eggbox"><img src="/blog/assets/media/what-is-claude-agent-sdk/eggbox.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An empty egg box fills one egg at a time. Each egg is one session and gets a small label reading 1 GiB RAM, 5 GiB disk, 1 CPU. When the box is full, the next egg has nowhere to sit."><figcaption>One session maps to one subprocess, with 1 GiB RAM, 5 GiB disk and 1 CPU as a starting point. Anthropic's hosting page, 8 Oct 2026.</figcaption></figure>
+<h2 id="what-does-a-minimal-example-look-like" tabindex="-1">What does a minimal example look like? <a class="anchor" href="#what-does-a-minimal-example-look-like" aria-hidden="true">#</a></h2>
+<p>One call to <code>query()</code> with a prompt. This Python example is copied from Anthropic’s hosting page, not written or run by us:</p>
+<pre class="language-python"><code class="language-python"><span class="token keyword">import</span> asyncio
+
+<span class="token keyword">from</span> claude_agent_sdk <span class="token keyword">import</span> ClaudeAgentOptions<span class="token punctuation">,</span> query
+
+
+<span class="token keyword">async</span> <span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">async</span> <span class="token keyword">for</span> message <span class="token keyword">in</span> query<span class="token punctuation">(</span>
+        prompt<span class="token operator">=</span><span class="token string">"Summarize the files in this directory"</span><span class="token punctuation">,</span>
+        options<span class="token operator">=</span>ClaudeAgentOptions<span class="token punctuation">(</span>cwd<span class="token operator">=</span><span class="token string">"/work/session-a"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>message<span class="token punctuation">)</span>
+
+
+asyncio<span class="token punctuation">.</span>run<span class="token punctuation">(</span>main<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span></code></pre>
+<h2 id="when-should-you-use-the-sdk-and-when-does-a-ready-made-app-fit-better" tabindex="-1">When should you use the SDK, and when does a ready-made app fit better? <a class="anchor" href="#when-should-you-use-the-sdk-and-when-does-a-ready-made-app-fit-better" aria-hidden="true">#</a></h2>
+<p>Our view: use the SDK when the agent is a part inside software you ship or schedule, and you are ready to own hosting, permissions and billing. If you want agents on your repo this afternoon, we think an app is less work:</p>
+<ol>
+<li>The Claude Code CLI, for interactive work in a terminal.</li>
+<li>Munder Difflin, if you want several CLI agents side by side. See <a href="/blog/what-is-a-multi-agent-harness/">what a multi-agent harness is</a>.</li>
+<li>Managed Agents, which the overview lists for when you want Anthropic to host the agent.</li>
+</ol>
+<p>A library gives you every knob. It also gives you every knob.</p>
+<link rel="stylesheet" href="/blog/assets/media/what-is-claude-agent-sdk/motion.css"><script defer src="/blog/assets/media/what-is-claude-agent-sdk/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">What is the Claude Agent SDK?</p>
+          <p class="a">It is a library from Anthropic for Python and TypeScript. Anthropic&#39;s overview says it gives you the same tools, agent loop and context management that power Claude Code, and describes it as a library that runs the Claude Code binary. Checked 8 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is the Claude Agent SDK the same as the Claude Code SDK?</p>
+          <p class="a">Yes, it is the new name. Anthropic&#39;s migration guide says the Claude Code SDK has been renamed to the Claude Agent SDK. The packages changed from @anthropic-ai/claude-code and claude-code-sdk to @anthropic-ai/claude-agent-sdk and claude-agent-sdk.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How much does the Claude Agent SDK cost?</p>
+          <p class="a">No page we opened lists a charge for the package. The quickstart uses an API key from the Claude Console. Anthropic&#39;s help article says that when you are signed in with your Claude plan, Agent SDK usage still draws from your plan&#39;s usage limits. Checked 8 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can I use my Claude subscription with the Claude Agent SDK?</p>
+          <p class="a">For your own runs, Anthropic&#39;s help article, updated 7 October 2026 says you can still use the Claude Agent SDK with your subscription limits. For products you offer to others, the docs say Anthropic does not allow third party developers to offer claude.ai login or rate limits unless previously approved.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is the Claude Agent SDK open source?</p>
+          <p class="a">Partly, by repo. GitHub lists the Python repo under the MIT License. The TypeScript repo&#39;s licence file says all rights reserved, with use subject to Anthropic&#39;s Commercial Terms of Service. The docs say those terms govern use of the SDK, except where a component&#39;s LICENSE file says otherwise. Checked 8 Oct 2026.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/ai-agents/">AI Agents</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-the-claude-agent-sdk">What is the Claude Agent SDK?</a></li><li class="lvl-2"><a href="#how-does-it-relate-to-claude-code-and-the-claude-code-sdk">How does it relate to Claude Code and the Claude Code SDK?</a></li><li class="lvl-2"><a href="#which-languages-does-it-support-and-how-do-you-install-it">Which languages does it support, and how do you install it?</a></li><li class="lvl-2"><a href="#what-do-you-get-with-it">What do you get with it?</a></li><li class="lvl-2"><a href="#what-does-it-cost-and-how-is-it-billed">What does it cost, and how is it billed?</a></li><li class="lvl-2"><a href="#what-licence-is-it-under">What licence is it under?</a></li><li class="lvl-2"><a href="#what-are-the-limits-and-requirements">What are the limits and requirements?</a></li><li class="lvl-2"><a href="#what-does-a-minimal-example-look-like">What does a minimal example look like?</a></li><li class="lvl-2"><a href="#when-should-you-use-the-sdk-and-when-does-a-ready-made-app-fit-better">When should you use the SDK, and when does a ready-made app fit better?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/what-is-zcode/"><span class="k">← Older</span><span class="t">ZCode: Z.ai&#39;s coding agent harness, explained</span></a>
+      <a class="pn next" href="/blog/gpt-6-intelligent-ui/"><span class="k">Newer →</span><span class="t">GPT-6 in ChatGPT: who gets it, when, and Intelligent UI</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/claude-code-agent-teams/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-agent-teams/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-08">Oct 8, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-agent-teams/">Claude Code agent teams: what they are, how to use them</a></h3>
+    <p class="dek">Claude Code agent teams, checked 8 Oct 2026: what they are, the experimental setting that turns them on, how they differ from subagents, token cost and limits.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/claude-code-agent-teams/" aria-label="Read: Claude Code agent teams: what they are, how to use them">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/claude-haiku-5-5/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-haiku-5-5/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-08">Oct 8, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-haiku-5-5/">Claude Haiku 5.5: price, benchmarks and where it fits</a></h3>
+    <p class="dek">Claude Haiku 5.5 is Anthropic&#39;s new small model. Its tiered price, Anthropic&#39;s own scores and how to pick it in Claude Code, checked 8 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/claude-haiku-5-5/" aria-label="Read: Claude Haiku 5.5: price, benchmarks and where it fits">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/gpt-6-intelligent-ui/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gpt-6-intelligent-ui/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-08">Oct 8, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/gpt-6-intelligent-ui/">GPT-6 in ChatGPT: who gets it, when, and Intelligent UI</a></h3>
+    <p class="dek">GPT-6 with Intelligent UI in ChatGPT: Plus, Pro, Business and Enterprise from 7 Oct 2026, then Free and Go. Codex models are not changing in this release.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/gpt-6-intelligent-ui/" aria-label="Read: GPT-6 in ChatGPT: who gets it, when, and Intelligent UI">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      if (!id) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
