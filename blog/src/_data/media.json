@@ -4655,5 +4655,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "claude-code-agent-teams": {
+    "title": "Claude Code agent teams: what they are, how to use them",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-code-agent-teams/hero.png",
+      "alt": "Title card on white. Claude Code agent teams in large ink type, an Explainer kicker, Checked 8 Oct 2026, and four kites flying from one reel",
+      "prompt": "Still of the hero scene in assets/media/claude-code-agent-teams/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-claude-agent-sdk": {
+    "title": "Claude Agent SDK: what it is, languages, cost and limits",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-claude-agent-sdk/hero.png",
+      "alt": "Title card on white. The words Claude Agent SDK above a small wall of toy building bricks, with one brick hovering over a gap",
+      "prompt": "Still of the hero scene in assets/media/what-is-claude-agent-sdk/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-zcode": {
+    "title": "ZCode: Z.ai's coding agent harness, explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-zcode/hero.png",
+      "alt": "Title card on white. The word ZCode in large ink type with an Explainer kicker, the line Checked 8 Oct 2026, and a paper kite flying from a spool of string",
+      "prompt": "Still of the hero scene in assets/media/what-is-zcode/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

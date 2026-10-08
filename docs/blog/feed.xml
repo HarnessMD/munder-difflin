@@ -16,6 +16,14 @@
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 8 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Claude Code agent teams: what they are, how to use them</title>
+    <link href="https://munderdiffl.in/blog/claude-code-agent-teams/" />
+    <id>https://munderdiffl.in/blog/claude-code-agent-teams/</id>
+    <published>2026-10-08T00:00:00.000Z</published>
+    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Code agent teams, checked 8 Oct 2026: what they are, the experimental setting that turns them on, how they differ from subagents, token cost and limits.</summary>
+  </entry>
+  <entry>
     <title>Claude Haiku 5.5: price, benchmarks and where it fits</title>
     <link href="https://munderdiffl.in/blog/claude-haiku-5-5/" />
     <id>https://munderdiffl.in/blog/claude-haiku-5-5/</id>
@@ -38,6 +46,22 @@
     <published>2026-10-08T00:00:00.000Z</published>
     <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
     <summary>GPT-6 with Intelligent UI in ChatGPT: Plus, Pro, Business and Enterprise from 7 Oct 2026, then Free and Go. Codex models are not changing in this release.</summary>
+  </entry>
+  <entry>
+    <title>Claude Agent SDK: what it is, languages, cost and limits</title>
+    <link href="https://munderdiffl.in/blog/what-is-claude-agent-sdk/" />
+    <id>https://munderdiffl.in/blog/what-is-claude-agent-sdk/</id>
+    <published>2026-10-08T00:00:00.000Z</published>
+    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>The Claude Agent SDK is Claude Code as a Python and TypeScript library. Install commands, features, billing, licence and limits, checked 8 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>ZCode: Z.ai&#39;s coding agent harness, explained</title>
+    <link href="https://munderdiffl.in/blog/what-is-zcode/" />
+    <id>https://munderdiffl.in/blog/what-is-zcode/</id>
+    <published>2026-10-08T00:00:00.000Z</published>
+    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>ZCode is Z.ai&#39;s Apache-2.0 coding workspace: desktop app, browser view and terminal agent. How to install it, which models it lists, and what it costs.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API</title>
@@ -462,29 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
     <summary>Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code Planning Mode: How to Use Claude Plan Mode</title>
-    <link href="https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/" />
-    <id>https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/</id>
-    <published>2026-09-11T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Claude Code plan mode, checked 29 Sep 2026: the Shift+Tab shortcut, --permission-mode plan, defaultMode, what it blocks, the approval options and opusplan.</summary>
-  </entry>
-  <entry>
-    <title>What Is an MCP Server?</title>
-    <link href="https://munderdiffl.in/blog/what-is-an-mcp-server/" />
-    <id>https://munderdiffl.in/blog/what-is-an-mcp-server/</id>
-    <published>2026-09-11T00:00:00.000Z</published>
-    <updated>2026-09-11T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>An MCP server gives an AI agent tools, data and prompts over one open protocol. What it is, the host, client and server roles, and where Claude Code plugs in.</summary>
-  </entry>
-  <entry>
-    <title>Codex vs Claude Code: Plans, Limits and Computer Use (Sep 2026)</title>
-    <link href="https://munderdiffl.in/blog/codex-cli-vs-claude-code/" />
-    <id>https://munderdiffl.in/blog/codex-cli-vs-claude-code/</id>
-    <published>2026-09-10T00:00:00.000Z</published>
-    <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Codex vs Claude Code, plans checked 5 Oct 2026: models, plans, usage limits, sandboxing, computer use, MCP and subagents in one dated table, then which to pick.</summary>
   </entry>
 </feed>
