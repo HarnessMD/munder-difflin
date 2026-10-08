@@ -224,7 +224,7 @@
 <figure class="mg" data-scene="chute"><img src="/blog/assets/media/openai-decisions-api/chute.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Marbles roll down a sorting chute and drop through one of three gates labelled predicate, choice and score. Each gate lights a small tag: probability, one of your supplied values, or a score."><figcaption>The three question types in OpenAI's Decisions guide, read on 7 Oct 2026.</figcaption></figure>
 <h2 id="what-is-a-decision-model-and-how-is-it-different-from-a-chat-model-call" tabindex="-1">What is a decision model, and how is it different from a chat model call? <a class="anchor" href="#what-is-a-decision-model-and-how-is-it-different-from-a-chat-model-call" aria-hidden="true">#</a></h2>
 <p>A decision model picks from options you supply and attaches a number, where a chat model writes free text. OpenAI’s guide does not use the term. This definition is from <a href="https://strandsagents.com/blog/introducing-strands-decider/">Strands’ post</a> of 1 October 2026: “Unlike LLMs that can generate arbitrary output, decision models are designed to pick between sets of options” and “assign simple numerical scores”.</p>
-<p>OpenAI’s guide describes an endpoint, not a new kind of model. The <a href="https://developers.openai.com/api/docs/models/gpt-6-luna">gpt-6-luna model page</a> calls it OpenAI’s “most efficient model for focused, high-volume tasks” and lists the Responses endpoint as supported too.</p>
+<p>OpenAI’s guide describes an endpoint, not a new kind of model. The <a href="https://developers.openai.com/api/docs/models/gpt-6-luna">gpt-6-luna model page</a> calls it OpenAI’s “most efficient model for focused, high-volume tasks” and lists the Responses endpoint as supported too. See also <a href="/blog/gpt-6-intelligent-ui/">GPT-6 Luna in ChatGPT</a>.</p>
 <p>The practical difference is the reply. In a chat call you ask for a label and then parse a sentence. Here the answer arrives as fields: <code>probability</code>, <code>choice</code> or <code>score</code>, with a <code>confidence</code> field and per option <code>probabilities</code> on choice and score answers. It answers the question and stops.</p>
 <p>The guide draws the line: use Structured Outputs with the Responses API when you need “extracted fields or a written explanation”, and function calling when you need a tool call with arguments.</p>
 <h2 id="what-does-the-decisions-api-cost" tabindex="-1">What does the Decisions API cost? <a class="anchor" href="#what-does-the-decisions-api-cost" aria-hidden="true">#</a></h2>
@@ -377,6 +377,22 @@
   </div>
 </article>
 <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/gpt-6-intelligent-ui/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gpt-6-intelligent-ui/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-08">Oct 8, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/gpt-6-intelligent-ui/">GPT-6 in ChatGPT: who gets it, when, and Intelligent UI</a></h3>
+    <p class="dek">GPT-6 with Intelligent UI in ChatGPT: Plus, Pro, Business and Enterprise from 7 Oct 2026, then Free and Go. Codex models are not changing in this release.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/gpt-6-intelligent-ui/" aria-label="Read: GPT-6 in ChatGPT: who gets it, when, and Intelligent UI">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
   <a class="thumb t-concepts" href="/blog/mistral-large-4/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/mistral-large-4/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -389,22 +405,6 @@
     <div class="foot">
       <span class="tag kind">Concepts</span>
       <a class="more" href="/blog/mistral-large-4/" aria-label="Read: Mistral Large 4 (Le Chonk): size, price, scores and weights">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/openai-text-watermarking/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/openai-text-watermarking/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-10-06">Oct 6, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/openai-text-watermarking/">OpenAI text watermarking: textGrain, who gets it, limits</a></h3>
-    <p class="dek">OpenAI text watermarking (textGrain) is opt in for the API now and is coming to eligible ChatGPT and Codex text in the EU. Limits checked 6 Oct 2026.</p>
-    <div class="foot">
-      <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/openai-text-watermarking/" aria-label="Read: OpenAI text watermarking: textGrain, who gets it, limits">Read →</a>
     </div>
   </div>
 </article>

@@ -47,7 +47,7 @@ The [Hacker News thread](https://news.ycombinator.com/item?id=49984025) had more
 
 A decision model picks from options you supply and attaches a number, where a chat model writes free text. OpenAI's guide does not use the term. This definition is from [Strands' post](https://strandsagents.com/blog/introducing-strands-decider/) of 1 October 2026: "Unlike LLMs that can generate arbitrary output, decision models are designed to pick between sets of options" and "assign simple numerical scores".
 
-OpenAI's guide describes an endpoint, not a new kind of model. The [gpt-6-luna model page](https://developers.openai.com/api/docs/models/gpt-6-luna) calls it OpenAI's "most efficient model for focused, high-volume tasks" and lists the Responses endpoint as supported too.
+OpenAI's guide describes an endpoint, not a new kind of model. The [gpt-6-luna model page](https://developers.openai.com/api/docs/models/gpt-6-luna) calls it OpenAI's "most efficient model for focused, high-volume tasks" and lists the Responses endpoint as supported too. See also [GPT-6 Luna in ChatGPT](/blog/gpt-6-intelligent-ui/).
 
 The practical difference is the reply. In a chat call you ask for a label and then parse a sentence. Here the answer arrives as fields: `probability`, `choice` or `score`, with a `confidence` field and per option `probabilities` on choice and score answers. It answers the question and stops.
 
