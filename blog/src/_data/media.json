@@ -4621,5 +4621,28 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-10-08": {
+    "title": "Agent Tools Today, 8 Oct 2026: Claude Haiku 5.5, GPT-6 Intelligent UI, Docker Agent",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "cursor-alternatives": {
+    "title": "Cursor Alternatives: 7 AI Coding Tools to Switch To",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/cursor-alternatives/hero.png",
+      "alt": "Title card on white. Cursor alternatives in large ink type above a row of seven coloured doors, one of them ajar",
+      "prompt": "Still of the hero scene in assets/media/cursor-alternatives/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

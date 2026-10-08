@@ -8,12 +8,28 @@
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
   <entry>
+    <title>Agent Tools Today, 8 Oct 2026: Claude Haiku 5.5, GPT-6 Intelligent UI, Docker Agent</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-08/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-08/</id>
+    <published>2026-10-08T00:00:00.000Z</published>
+    <updated>2026-10-08T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 8 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
     <title>Claude Haiku 5.5: price, benchmarks and where it fits</title>
     <link href="https://munderdiffl.in/blog/claude-haiku-5-5/" />
     <id>https://munderdiffl.in/blog/claude-haiku-5-5/</id>
     <published>2026-10-08T00:00:00.000Z</published>
     <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Claude Haiku 5.5 is Anthropic&#39;s new small model. Its tiered price, Anthropic&#39;s own scores and how to pick it in Claude Code, checked 8 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>Cursor Alternatives: 7 AI Coding Tools to Switch To</title>
+    <link href="https://munderdiffl.in/blog/cursor-alternatives/" />
+    <id>https://munderdiffl.in/blog/cursor-alternatives/</id>
+    <published>2026-10-08T00:00:00.000Z</published>
+    <updated>2026-10-08T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Seven Cursor alternatives checked on 8 Oct 2026: Claude Code, Codex, Cline, OpenCode, Zed, Devin Desktop and GitHub Copilot, by licence and price.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API</title>
@@ -470,21 +486,5 @@
     <published>2026-09-10T00:00:00.000Z</published>
     <updated>2026-09-29T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Claude Code pricing checked 29 Sep 2026: Pro, Max, Team, Enterprise and API rates, usage limits, what changed this year, and whether Claude Code is free.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code MCP Servers: How to Add One, Scopes and .mcp.json</title>
-    <link href="https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/" />
-    <id>https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/</id>
-    <published>2026-09-10T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Add Claude Code MCP servers with claude mcp add: transports, scopes, --env and --header, .mcp.json, OAuth sign in and output limits. Checked 29 Sep 2026.</summary>
-  </entry>
-  <entry>
-    <title>Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6</title>
-    <link href="https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/" />
-    <id>https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/</id>
-    <published>2026-09-10T00:00:00.000Z</published>
-    <updated>2026-09-10T00:00:00.000Z</updated><category term="Story" />
-    <summary>Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds.</summary>
   </entry>
 </feed>
