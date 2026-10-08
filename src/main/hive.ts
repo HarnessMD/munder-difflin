@@ -1705,7 +1705,8 @@ export class HiveManager {
     const reg = this.registry();
     const id = to === 'god' || to === 'human' ? (reg.godId ?? 'god') : to;
     const a = reg.agents[id];
-    const dead = id !== reg.godId && (!a || a.archived === true);
+    const isGod = id === reg.godId || id === 'god';
+    const dead = !isGod && (!a || a.archived === true);
     let waiting = false;
     try { waiting = !dead && (this._isWaiting?.(id) ?? false); } catch { waiting = false; }
     return { dead, waiting };

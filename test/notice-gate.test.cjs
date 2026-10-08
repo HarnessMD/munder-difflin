@@ -91,6 +91,24 @@ test('rule 2: a signature re-arms only when its condition cleared', (t) => {
   assert.equal(gate.decide('god-1', n, LIVE), 'deliver');
 });
 
+test('rule 2: a held notice whose condition cleared is dropped, not sent stale', (t) => {
+  const gate = new NoticeGate(path.join(tmp(t, 'ng-2h-'), 'notice-ledger.json'));
+  gate.hold('jim', { kind: 'breaker', key: 'steer:looping' }, {}, 'breaker');
+  gate.hold('jim', { kind: 'worker', key: 'reaped-idle:w1', ctx: ['w1'] }, {}, 'x');
+  assert.equal(gate.rearm('jim', 'breaker', () => true), 1);
+  assert.deepEqual(gate.held().map((d) => d.sig), ['worker:reaped-idle:w1']);
+  assert.equal(gate.release(() => LIVE).send.length, 1);
+});
+
+test('rule 1: a long-lived gate prunes past-TTL entries on its next write', (t) => {
+  let now = Date.parse('2026-10-01T00:00:00Z');
+  const gate = new NoticeGate(path.join(tmp(t, 'ng-ttlw-'), 'notice-ledger.json'), () => now);
+  gate.markDelivered('god-1', { kind: 'worker', key: 'reaped-idle:old' });
+  now += NOTICE_LEDGER_TTL_MS + 1;
+  gate.markDelivered('god-1', { kind: 'worker', key: 'reaped-idle:new' });
+  assert.deepEqual(gate.delivered('god-1'), ['worker:reaped-idle:new']);
+});
+
 test('rule 2: re-arming one kind leaves the other kinds alone', (t) => {
   const gate = new NoticeGate(path.join(tmp(t, 'ng-2k-'), 'notice-ledger.json'));
   gate.markDelivered('jim', { kind: 'breaker', key: 'steer:looping' });
@@ -144,6 +162,12 @@ test('WaitTracker: a permission prompt or an open question is a wait, the idle p
   assert.equal(w.why('jim'), 'question');
   note('UserPromptSubmit');
   assert.equal(w.isWaiting('jim'), false);
+  note('Notification', 'Claude needs your permission to use Read');
+  note('PreToolUse', undefined, 'Read');
+  assert.equal(w.isWaiting('jim'), false, 'the next tool call proves the agent moved on');
+  note('PreToolUse', undefined, 'AskUserQuestion');
+  note('Notification', 'Claude is waiting for your input');
+  assert.equal(w.isWaiting('jim'), false, 'a question closed with Esc ends at the idle prompt');
   note('Notification', 'Claude needs your permission to use Edit');
   w.forget('jim');
   assert.equal(w.isWaiting('jim'), false, 'a closed PTY waits for nothing');
@@ -221,6 +245,12 @@ test('floor: nothing to an archived or unknown agent; god is never dead', async 
   assert.equal(hive.sendNotice(n, { to: 'nobody', subject: 'Circuit breaker: steer' }, 'breaker'), 'dead');
   assert.equal(hive.inbox('jim-1').length, 0);
   assert.equal(hive.inbox('god-1').length, 0, 'a dead notice is not bounced to god either');
+  assert.equal(hive.noticeFacts('god').dead, false);
+});
+
+test('floor: god is never dead, even before a god is registered', (t) => {
+  const home = tmp(t, 'ng-nogod-');
+  const hive = new HiveManager(() => home);
   assert.equal(hive.noticeFacts('god').dead, false);
 });
 

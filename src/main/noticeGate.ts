@@ -112,7 +112,21 @@ export class NoticeGate<P = unknown> {
     }
   }
 
+  /** Drop delivered entries past the TTL (on load and before every write, so a
+   *  long-lived app does not keep them until restart). */
+  private prune(): void {
+    const cutoff = this.now() - NOTICE_LEDGER_TTL_MS;
+    for (const [to, sigs] of Object.entries(this.state.delivered)) {
+      for (const [sig, e] of Object.entries(sigs)) {
+        const t = Date.parse(e?.at ?? '');
+        if (!Number.isFinite(t) || t < cutoff) delete sigs[sig];
+      }
+      if (!Object.keys(sigs).length) delete this.state.delivered[to];
+    }
+  }
+
   private save(): void {
+    this.prune();
     try {
       mkdirSync(dirname(this.file), { recursive: true });
       const tmp = `${this.file}.tmp`;
@@ -174,20 +188,25 @@ export class NoticeGate<P = unknown> {
   /** Rule 2: drop the recorded signatures of `kind` for `to` whose condition
    *  has cleared (`cleared(entryKey, ctx)` returns true). Returns how many. */
   rearm(to: string, kind: NoticeKind, cleared: (key: string, ctx: string[] | undefined) => boolean): number {
-    const sigs = this.state.delivered[to];
-    if (!sigs) return 0;
     const prefix = `${kind}:`;
     let n = 0;
-    for (const [sig, e] of Object.entries(sigs)) {
-      if (!sig.startsWith(prefix)) continue;
-      if (!cleared(sig.slice(prefix.length), e.ctx)) continue;
-      delete sigs[sig];
-      n++;
-    }
-    if (n) {
+    const sigs = this.state.delivered[to];
+    if (sigs) {
+      for (const [sig, e] of Object.entries(sigs)) {
+        if (!sig.startsWith(prefix)) continue;
+        if (!cleared(sig.slice(prefix.length), e.ctx)) continue;
+        delete sigs[sig];
+        n++;
+      }
       if (!Object.keys(sigs).length) delete this.state.delivered[to];
-      this.save();
     }
+    // A HELD notice whose condition cleared while it waited is stale news (a
+    // steer for an agent that is healthy again): drop it instead of sending it.
+    const before = this.state.deferred.length;
+    this.state.deferred = this.state.deferred.filter((d) =>
+      !(d.to === to && d.sig.startsWith(prefix) && cleared(d.sig.slice(prefix.length), d.notice.ctx)));
+    n += before - this.state.deferred.length;
+    if (n) this.save();
     return n;
   }
 
@@ -207,7 +226,8 @@ export class NoticeGate<P = unknown> {
  *    PreToolUse of another tool; and by forget() when the PTY closes.
  *
  * The idle prompt ("waiting for your input" after a finished turn) is NOT a
- * wait: that agent is free and its mail should go.
+ * wait: that agent is free and its mail should go, and it also CLEARS a wait
+ * (a dialog closed with Esc leaves no other trace).
  */
 export const QUESTION_TOOLS = new Set(['AskUserQuestion']);
 
@@ -226,6 +246,9 @@ export class WaitTracker {
     if (!agentId || !event) return;
     if (event === 'Notification') {
       if (hookClass === 'needsHuman') this.waiting.set(agentId, { since: at, why: 'permission' });
+      // The idle prompt is evidence the agent left the dialog: a prompt or a
+      // question closed with Esc sends no PostToolUse, so this is its exit.
+      else if (hookClass === 'idle') this.waiting.delete(agentId);
       return;
     }
     if (event === 'PreToolUse') {
