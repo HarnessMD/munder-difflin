@@ -4644,5 +4644,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gpt-6-intelligent-ui": {
+    "title": "GPT-6 in ChatGPT: who gets it, when, and Intelligent UI",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gpt-6-intelligent-ui/hero.png",
+      "alt": "Title card on white. GPT-6 in ChatGPT in large ink type, with a paper pinwheel beside it",
+      "prompt": "Still of the hero scene in assets/media/gpt-6-intelligent-ui/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
