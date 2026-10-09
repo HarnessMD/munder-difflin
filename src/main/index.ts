@@ -64,7 +64,8 @@ import { validateBaseUrl, buildAuthHeaders, resolveUpstreamUrl, secretRefFor, IN
 import { RosterStore } from './roster';
 import { buildWorkerLaunch } from './workerLaunch';
 import { ControlRegistry } from './control';
-import { WorkerWakeWatchdog, WORKER_WAKE_REPORT_MS, activityEvidenceAt, type WorkerWakeFacts } from './workerWake';
+import { WorkerWakeWatchdog, WORKER_WAKE_REPORT_MS, activityEvidenceAt, classifyHook, type WorkerWakeFacts } from './workerWake';
+import { WaitTracker, breakerReasonClass, type Notice } from './noticeGate';
 import { inboxNudgeText } from '../shared/hiveNudge';
 import { resolveGodName } from '../shared/godIdentity';
 import { fetchHireManifest, readHireManifestFiles } from './hire';
@@ -300,6 +301,10 @@ function standingGoalFromRoster(agentId: string): string | null {
 // background window can't leave a worker parked on an unread inbox forever).
 // HookServer feeds it the hook stream so a permission/HITL prompt blocks nudges.
 const workerWake = new WorkerWakeWatchdog();
+// T-796 rule 3: who is waiting on the human (permission prompt or open
+// question), learned from the same hook stream the watchdog reads.
+const waitTracker = new WaitTracker();
+hive.setWaitingProbe((agentId) => waitTracker.isWaiting(agentId));
 // HookServer needs BOTH: Oscar's control registry (HITL pause/gate/steer/halt via
 // hook returns) AND Jim's breaker (feed recordToolUse on each PostToolUse).
 const hookServer = new HookServer(
@@ -309,7 +314,10 @@ const hookServer = new HookServer(
   control,
   breaker,
   standingGoalFromRoster,
-  (agentId, event, message) => workerWake.noteHook(agentId, event, message)
+  (agentId, event, message, toolName) => {
+    workerWake.noteHook(agentId, event, message);
+    waitTracker.note(agentId, event, classifyHook(event, message), toolName);
+  }
 );
 const memory = new MemoryManager(
   () => readConfig().harnessHome,
@@ -456,6 +464,7 @@ function teardownPty(id: string): void {
     ptyToAgent.delete(id);
     // Drop watchdog state so a dead agent can't get nudged or leak its grace.
     try { workerWake.forget(agentId, id); } catch { /* best-effort */ }
+    try { waitTracker.forget(agentId); } catch { /* best-effort */ }
     // Drop breaker state so a dead agent can't leak/zombie a tripped level.
     try { breaker.forget(agentId); } catch { /* best-effort */ }
     // A replacement using this id needs a new usage counter, not the dead PTY's.
@@ -506,7 +515,7 @@ function teardownPty(id: string): void {
  *  controller uses this to surface every terminal failure AND to carry the Slack
  *  {channel,thread_ts} so god can post a 'couldn't complete' reply — closing the
  *  Slack loop (the success path is the worker replying in-thread itself). */
-function informGod(subject: string, body: string, slack?: { channel: string; thread_ts: string }): void {
+function informGod(subject: string, body: string, slack?: { channel: string; thread_ts: string }, notice?: Notice): void {
   try {
     const slackLine = slack
       // The bundled-node launcher, spelled as an ABSOLUTE PATH — NOT bare `node`
@@ -515,7 +524,11 @@ function informGod(subject: string, body: string, slack?: { channel: string; thr
       // whole reply command was dead on Windows).
       ? `\n\n[SLACK] Close the loop — post a reply to channel ${slack.channel} thread ${slack.thread_ts} via:\n  "${hive.nodeCommand()}" "${slackReplyScriptPath()}" --channel ${slack.channel} --thread ${slack.thread_ts} --text "<your message>"`
       : '';
-    hive.send({ to: 'god', act: 'inform', subject, body: body + slackLine }, 'ephemeral-worker');
+    const partial = { to: 'god', act: 'inform' as const, subject, body: body + slackLine };
+    // T-796: a worker or spawn report is a harness notice; without a signature
+    // it keeps the plain send.
+    if (notice) hive.sendNotice(notice, partial, 'ephemeral-worker');
+    else hive.send(partial, 'ephemeral-worker');
   } catch (e) {
     console.error('[worker] informGod failed:', e);
   }
@@ -543,7 +556,8 @@ async function finalizeWorkerWorktree(wtPath: string, origCwd: string, worker: W
         `Ephemeral worker ${worker.workerId} ended but its worktree holds unintegrated work, so it was NOT auto-removed (you are the sole integrator).\n`
         + `Worktree: ${wtPath}\nBranch: ${work.branch}\nState: ${work.detail}\n`
         + `Review/merge it — it will be auto-reclaimed once its work lands in ${worker.baseBranch}, or remove it now with: git -C "${origCwd}" worktree remove "${wtPath}"`,
-        worker.slack
+        worker.slack,
+        { kind: 'worker', key: `preserved:${worker.workerId}`, ctx: [worker.workerId] }
       );
       return;
     }
@@ -1167,11 +1181,16 @@ const SYSTEM_SENDERS = new Set(['heartbeat', 'scheduler', 'breaker', 'system']);
  *  the floor-quiet gate alone misses that case — any active agent keeps the floor
  *  "loud", so god was never re-engaged until everything else went idle. */
 function godActionableInboxCount(): number {
+  return godActionableInboxIds().length;
+}
+
+/** The ids behind godActionableInboxCount, sorted: the heartbeat's signature. */
+function godActionableInboxIds(): string[] {
   try {
     const godId = hive.registry().godId;
-    if (!godId) return 0;
-    return hive.inbox(godId).filter((m) => !SYSTEM_SENDERS.has(m.from)).length;
-  } catch { return 0; }
+    if (!godId) return [];
+    return hive.inbox(godId).filter((m) => !SYSTEM_SENDERS.has(m.from)).map((m) => m.id).filter(Boolean).sort();
+  } catch { return []; }
 }
 
 /** Re-engage a quiet floor: drop a durable digest into god's inbox. We never
@@ -1179,9 +1198,24 @@ function godActionableInboxCount(): number {
  *  inbox message is delivered by the renderer's busy-aware inbox-wake (it nudges
  *  god to read his inbox only once he's idle), so the heartbeat defers around a
  *  working god instead of interrupting him. */
-function reengageGod(digest: string): void {
+function reengageGod(digest: string, actionableIds: string[] = []): void {
   if (!hive.enabled()) return;
-  hive.send({ to: 'god', act: 'request', subject: 'Heartbeat', body: digest }, 'heartbeat');
+  // T-796 rule 2: re-arm what cleared. "quiet" clears once god has drained the
+  // last heartbeat; an actionable set clears once none of its ids is undrained.
+  try {
+    const godId = hive.registry().godId;
+    const pending = godId ? hive.inbox(godId) : [];
+    const pendingIds = new Set(pending.map((m) => m.id));
+    const heartbeatPending = pending.some((m) => m.from === 'heartbeat');
+    hive.rearmNotices('god', 'heartbeat', (key, ctx) =>
+      key === 'quiet' ? !heartbeatPending : !(ctx ?? []).some((id) => pendingIds.has(id)));
+  } catch { /* best-effort */ }
+  // Rule 1: the same finding (a quiet floor, or this exact set of unread mail)
+  // reaches god once.
+  const notice: Notice = actionableIds.length
+    ? { kind: 'heartbeat', key: `actionable:${createHash('sha1').update(actionableIds.join('\n')).digest('hex').slice(0, 16)}`, ctx: actionableIds }
+    : { kind: 'heartbeat', key: 'quiet' };
+  hive.sendNotice(notice, { to: 'god', act: 'request', subject: 'Heartbeat', body: digest }, 'heartbeat');
 }
 
 /** A native toast for breaker constrain/stop, gated on the notifications setting. */
@@ -1258,15 +1292,20 @@ function runBreakerBeat(progressWindowMs: number): void {
   }
   for (const d of breaker.tick(inputs, now)) {
     try { liveWebContents()?.send('control:breakerState', d.state); } catch { /* window gone */ }
+    // T-796 rule 2: back to healthy = the finding cleared, so it may report again.
+    if (d.state.level === 'healthy') { try { hive.rearmNotices(d.state.agentId, 'breaker', () => true); } catch { /* best-effort */ } }
     if (d.action === 'none') continue;
     const name = reg.agents[d.state.agentId]?.name ?? d.state.agentId;
     const reason = d.state.reason;
     if (d.action === 'steer') {
-      hive.send({ to: d.state.agentId, act: 'request', subject: 'Circuit breaker: steer',
-        body: `Automated guardrail: ${reason}. Re-check your approach — if you're looping or stuck, STOP repeating, summarize what you've tried, and ask god for direction.` }, 'breaker');
+      hive.sendNotice({ kind: 'breaker', key: `steer:${breakerReasonClass(reason)}` },
+        { to: d.state.agentId, act: 'request', subject: 'Circuit breaker: steer',
+          body: `Automated guardrail: ${reason}. Re-check your approach — if you're looping or stuck, STOP repeating, summarize what you've tried, and ask god for direction.` }, 'breaker');
     } else if (d.action === 'constrain') {
-      hive.send({ to: d.state.agentId, act: 'request', subject: 'Circuit breaker: constrain',
-        body: `Automated guardrail escalated: ${reason}. Stop active work now: switch to read-only/plan, write a short plan of your next step, and send it to god for sign-off BEFORE running more tools.` }, 'breaker');
+      // Urgent: a constrain still reaches an agent that waits on the human.
+      hive.sendNotice({ kind: 'breaker', key: `constrain:${breakerReasonClass(reason)}`, urgent: true },
+        { to: d.state.agentId, act: 'request', subject: 'Circuit breaker: constrain',
+          body: `Automated guardrail escalated: ${reason}. Stop active work now: switch to read-only/plan, write a short plan of your next step, and send it to god for sign-off BEFORE running more tools.` }, 'breaker');
       breakerToast(`${name} constrained`, reason);
     } else if (d.action === 'stop') {
       const ptyId = ptyForAgent(d.state.agentId);
@@ -1343,9 +1382,10 @@ function armHeartbeat(m: ScheduledMission): void {
       // Re-engage god when the floor is quiet OR when real agent/human mail is
       // waiting in god's inbox — the latter is independent of floor-quiet so a
       // worker's reply doesn't sit unread while other agents keep the floor busy.
-      const actionable = godActionableInboxCount();
+      const actionableIds = godActionableInboxIds();
+      const actionable = actionableIds.length;
       if (isFloorQuiet(quiet) || actionable > 0) {
-        reengageGod(buildHeartbeatDigest(quiet, actionable));
+        reengageGod(buildHeartbeatDigest(quiet, actionable), actionableIds);
         next = Math.round(base * 2.5);            // back off after re-engaging
       } else if (looksStuck(quiet)) {
         next = Math.max(30_000, Math.round(base / 4)); // tighten when an agent is wedged
@@ -4686,20 +4726,31 @@ function workerDoneAt(workerId: string, spawnedAt: number): number | null {
  *  Slack coords so god can post a 'couldn't start' reply. On success the worker is
  *  registered (for done-scan / reaping / safe teardown) and dispatched its
  *  objective via the standard inbox path. */
+/** T-796: one spawn ATTEMPT, so a request file that is processed twice (an
+ *  archive that failed, a restart) is one finding, while a new file under the
+ *  same name (a new mtime) is a new one. */
+function spawnAttemptKey(filePath: string): string {
+  let m = 0;
+  try { m = Math.round(statSync(filePath).mtimeMs); } catch { /* gone: name alone */ }
+  return `${basename(filePath)}@${m}`;
+}
+
 async function processSpawnRequest(filePath: string): Promise<void> {
   let raw: SpawnRequest;
   try {
     raw = JSON.parse(readFileSync(filePath, 'utf8')) as SpawnRequest;
   } catch (e) {
     console.error('[worker] unparseable spawn-request:', filePath, e);
-    informGod('[worker spawn rejected] unparseable request', `Could not parse spawn-request ${basename(filePath)} — ${String(e)}`);
+    informGod('[worker spawn rejected] unparseable request', `Could not parse spawn-request ${basename(filePath)} — ${String(e)}`,
+      undefined, { kind: 'spawn-rejected', key: `${spawnAttemptKey(filePath)}:unparseable` });
     archiveRequest(filePath, '.failed');
     return;
   }
   const slack = raw.slack && typeof raw.slack.channel === 'string' && typeof raw.slack.thread_ts === 'string'
     ? { channel: raw.slack.channel, thread_ts: raw.slack.thread_ts } : undefined;
   const fail = (reason: string): void => {
-    informGod(`[worker spawn rejected] ${reason}`, `Spawn-request ${basename(filePath)} rejected: ${reason}.`, slack);
+    informGod(`[worker spawn rejected] ${reason}`, `Spawn-request ${basename(filePath)} rejected: ${reason}.`, slack,
+      { kind: 'spawn-rejected', key: `${spawnAttemptKey(filePath)}:${reason}` });
     archiveRequest(filePath, '.failed');
   };
 
@@ -4806,6 +4857,8 @@ async function processSpawnRequest(filePath: string): Promise<void> {
   const tokenCap = typeof raw.tokenCap === 'number' && Number.isFinite(raw.tokenCap) && raw.tokenCap > 0
     ? raw.tokenCap : undefined;
   liveWorkers.set(workerId, { workerId, reqId, name: meta.name, slack, baseBranch, spawnedAt: Date.now(), tokenCap });
+  // T-796 rule 2: a worker id spawned again is a new life; its old reports re-arm.
+  try { hive.rearmNotices('god', 'worker', (_key, ctx) => ctx?.[0] === workerId); } catch { /* best-effort */ }
 
   // Dispatch the objective via the standard inbox path (zero new transport),
   // reusing the autonomous-request preamble so the worker gets the exact Slack
@@ -4875,7 +4928,8 @@ async function gcPreservedWorktrees(): Promise<void> {
       informGod(
         `[worker worktree reclaimed] ${e.workerId}`,
         `The preserved worktree for ${e.workerId} is now integrated (${safe.detail}), so it and its scratch dir were garbage-collected.\nWorktree: ${e.wtPath}`,
-        e.slack
+        e.slack,
+        { kind: 'worker', key: `reclaimed:${e.workerId}`, ctx: [e.workerId] }
       );
     }
   } finally {
@@ -4959,7 +5013,8 @@ async function ephemeralWorkerTick(): Promise<void> {
           informGod(
             `[worker reaped — token cap] ${workerId}`,
             `Worker ${workerId} used ${used.toLocaleString()} tokens (> its cap of ${tokenCap.toLocaleString()}) and was reaped. Any committed work on its branch is preserved for you.`,
-            rec.slack
+            rec.slack,
+            { kind: 'worker', key: `reaped-token-cap:${workerId}`, ctx: [workerId] }
           );
           ptyManager.kill(workerId);
           teardownPty(workerId);
@@ -4974,7 +5029,8 @@ async function ephemeralWorkerTick(): Promise<void> {
         informGod(
           `[worker reaped — idle] ${workerId}`,
           `Worker ${workerId} produced no output for ${Math.round(idleMs / 60000)} min (> the ${Math.round(idleTimeoutMs / 60000)} min cap) and never signaled done, so it was reaped. Any committed work on its branch is preserved for you.`,
-          rec.slack
+          rec.slack,
+          { kind: 'worker', key: `reaped-idle:${workerId}`, ctx: [workerId] }
         );
         ptyManager.kill(workerId);
         teardownPty(workerId);
@@ -5203,6 +5259,10 @@ function nudgeWorker(ptyId: string, ids: string[] = []): void {
  *  path already re-engages it). */
 function runWorkerWakeBeat(): void {
   if (!hive.enabled()) return;
+  // T-796 rules 3 and 4: release held notices whose recipient stopped waiting,
+  // drop those whose recipient died. Before the nudge pass, so a released
+  // notice is announced in this same beat.
+  try { hive.flushNotices(); } catch (e) { console.error('[notices] flush failed:', e); }
   const reg = hive.registry();
   if (!reg?.agents || !reg.godId) return;
   const now = Date.now();
