@@ -4,9 +4,17 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-08T00:00:00.000Z</updated>
+  <updated>2026-10-09T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 9 Oct 2026: Gemini Agent, Codex CLI 0.162.0, Step 5 Preview</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-09/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-09/</id>
+    <published>2026-10-09T00:00:00.000Z</published>
+    <updated>2026-10-09T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 9 Oct 2026, each with its source.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 8 Oct 2026: Claude Haiku 5.5, GPT-6 Intelligent UI, Docker Agent</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-08/" />
@@ -368,12 +376,12 @@
     <summary>Install Gemini CLI 0.62.0 with one npm command, see which sign ins still work after 18 Jun 2026, and why Gemini 4 Argon isn&#39;t in it yet.</summary>
   </entry>
   <entry>
-    <title>Is Ollama Good for Coding? What Local Models Can and Can&#39;t Do</title>
+    <title>Is Ollama Good for Coding? Yes, for Scoped Work on the Right Model</title>
     <link href="https://munderdiffl.in/blog/is-ollama-good-for-coding/" />
     <id>https://munderdiffl.in/blog/is-ollama-good-for-coding/</id>
     <published>2026-09-15T00:00:00.000Z</published>
     <updated>2026-09-15T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Ollama only runs the model, so the answer depends on which one you pull and your memory. What local models do well, where Claude wins, and a verdict.</summary>
+    <summary>Ollama is good for coding on scoped, private work if the model fits your memory. Which models to pull, how much RAM, and where Claude still wins.</summary>
   </entry>
   <entry>
     <title>How to Get the Most Out of Your Claude Code Max Plan</title>
@@ -478,13 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-14T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Vibe coding means building software from AI prompts without reading the code. Where the term came from, when it is fine, where it bites, and what to check.</summary>
-  </entry>
-  <entry>
-    <title>Why Does Claude Code Keep Asking for Permission?</title>
-    <link href="https://munderdiffl.in/blog/why-does-claude-code-keep-asking-for-permission/" />
-    <id>https://munderdiffl.in/blog/why-does-claude-code-keep-asking-for-permission/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass.</summary>
   </entry>
 </feed>
