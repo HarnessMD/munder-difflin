@@ -25,7 +25,10 @@ import {
   getLogGraph, getCommitFiles, getFileAtRev, compareRefs, listWorktrees, checkoutRef
 } from './git';
 import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
-import { HiveManager, type AgentMeta, type HiveMessage, type HiveTask } from './hive';
+import {
+  HIVE_COST_LEDGER_FILE_NAME, HIVE_LOG_FILE_NAME, HiveManager,
+  type AgentMeta, type HiveMessage, type HiveTask
+} from './hive';
 import { HookServer } from './hooks';
 import { CircuitBreaker, type BreakerInput } from './breaker';
 import { CumulativeSampleGate, type UsageProvider } from './usage';
@@ -65,6 +68,7 @@ import { RosterStore } from './roster';
 import { buildWorkerLaunch } from './workerLaunch';
 import { ControlRegistry } from './control';
 import { WorkerWakeWatchdog, WORKER_WAKE_REPORT_MS, activityEvidenceAt, type WorkerWakeFacts } from './workerWake';
+import { isFloorActivityQuiet } from './floorActivity';
 import { inboxNudgeText } from '../shared/hiveNudge';
 import { resolveGodName } from '../shared/godIdentity';
 import { fetchHireManifest, readHireManifestFiles } from './hire';
@@ -1019,17 +1023,19 @@ function ensureDefaultMissions(): void {
 // ─── Heartbeat (Lane A #1) + circuit-breaker beat (#6.6b) ────────────────────
 
 /** Is the floor quiet? Derived ONLY from signals the main process owns or can
- *  stat — log.jsonl mtime (the master signal: every routed msg/drain/spawn/task
- *  append touches it), each agent's inbox + outbox/.sent mtimes, and every live
- *  PTY's lastOutputAt (an agent printing/thinking counts as activity). Crucially
+ *  stat — log.jsonl mtime plus confirmed current-process appends, each agent's
+ *  inbox + outbox/.sent mtimes, and every live PTY's lastOutputAt (an agent
+ *  printing/thinking counts as activity). Crucially
  *  NOT registry.status, which is written 'idle' once at spawn and never
  *  transitions in main — reading it would see the floor quiet forever. */
 function isFloorQuiet(thresholdMs: number): boolean {
   const root = hive.root();
   if (!root) return false;
   const times: number[] = [];
+  const lastLogAppendAt = hive.lastLogAppendAt();
+  if (lastLogAppendAt > 0) times.push(lastLogAppendAt);
   const pushMtime = (p: string): void => { try { times.push(statSync(p).mtimeMs); } catch { /* missing */ } };
-  pushMtime(join(root, 'log.jsonl'));
+  pushMtime(join(root, HIVE_LOG_FILE_NAME));
   const agentsDir = join(root, 'agents');
   if (existsSync(agentsDir)) {
     for (const id of readdirSync(agentsDir)) {
@@ -1039,7 +1045,7 @@ function isFloorQuiet(thresholdMs: number): boolean {
   }
   for (const t of ptyManager.list()) times.push(t.lastOutputAt);
   if (times.length === 0) return false; // nothing to judge → don't fire
-  return Date.now() - Math.max(...times) > thresholdMs;
+  return isFloorActivityQuiet(times, thresholdMs);
 }
 
 /** Newest coordination-file mtime for one agent (inbox + inbox/.done, outbox +
@@ -1293,7 +1299,7 @@ function writeFleetSnapshot(): void {
     const now = Date.now();
     // Async + incremental; returns immediately and never throws into the timer.
     const hiveRoot = hive.root();
-    if (hiveRoot) void costTotals.refresh(join(hiveRoot, 'cost-ledger.jsonl'));
+    if (hiveRoot) void costTotals.refresh(join(hiveRoot, HIVE_COST_LEDGER_FILE_NAME));
     const agents = Object.entries(reg.agents)
       .filter(([, a]) => !a.archived)
       .map(([id, a]) => {
@@ -3288,6 +3294,7 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   try { stopWebhookServer(); } catch (e) { console.error('[changeHome] webhook.stop:', e); }
   try { memory.stop(); } catch (e) { console.error('[changeHome] memory.stop:', e); }
   try { reflector.stop(); } catch (e) { console.error('[changeHome] reflector.stop:', e); }
+  try { hive.closeAppendFiles(); } catch (e) { console.error('[changeHome] closeAppendFiles:', e); }
 
   if (mode === 'move' && oldHome) {
     try {
@@ -3792,6 +3799,7 @@ function teardownAndQuit(): void {
   try { persist.close(); } catch (e) { console.error('[quit] persist.close:', e); }
   try { hive.stopAllProxyBridges(); } catch (e) { console.error('[quit] stopAllProxyBridges:', e); }
   try { ptyManager.killAll(); } catch (e) { console.error('[quit] killAll:', e); }
+  try { hive.closeAppendFiles(); } catch (e) { console.error('[quit] closeAppendFiles:', e); }
   app.quit();
 }
 ipcMain.handle('app:confirmClose', () => {
@@ -3852,6 +3860,7 @@ ipcMain.handle('app:resetAll', () => {
   try { persist.close(); } catch (e) { console.error('[reset] persist.close:', e); }
   try { ptyManager.killAll(); } catch (e) { console.error('[reset] killAll:', e); }
   try { hive.removeExposedCodexData(); } catch (e) { console.error('[reset] removeExposedCodexData:', e); }
+  try { hive.closeAppendFiles(); } catch (e) { console.error('[reset] closeAppendFiles:', e); }
   // Erase the hive (Michael's + every agent's memory, inboxes, tasks, board,
   // git history) and the semantic-memory palace. Only these harness-created
   // subdirs are removed — never the user's whole harnessHome folder.
@@ -5500,6 +5509,9 @@ app.on('window-all-closed', () => {
 // exactly what's left to do.
 let analyticsFlushed = false;
 app.on('will-quit', (e) => {
+  // A direct quit with no live PTYs bypasses teardownAndQuit(). Keep descriptor
+  // ownership explicit on that path too; closeAppendFiles is intentionally idempotent.
+  try { hive.closeAppendFiles(); } catch (err) { console.error('[quit] closeAppendFiles:', err); }
   if (analyticsFlushed) return;
   analyticsFlushed = true;
   e.preventDefault();
