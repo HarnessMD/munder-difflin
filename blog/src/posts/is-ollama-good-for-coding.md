@@ -1,6 +1,6 @@
 ---
-title: "Is Ollama Good for Coding? What Local Models Can and Can't Do"
-description: "Ollama only runs the model, so the answer depends on which one you pull and your memory. What local models do well, where Claude wins, and a verdict."
+title: "Is Ollama Good for Coding? Yes, for Scoped Work on the Right Model"
+description: "Ollama is good for coding on scoped, private work if the model fits your memory. Which models to pull, how much RAM, and where Claude still wins."
 date: 2026-09-15
 category: concepts
 categoryLabel: Concepts

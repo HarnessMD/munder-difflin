@@ -4634,6 +4634,18 @@
     "inline": {},
     "youtube": []
   },
+  "agent-tools-today-2026-10-09": {
+    "title": "Agent Tools Today, 9 Oct 2026: Gemini Agent, Codex CLI 0.162.0, Step 5 Preview",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
   "cursor-alternatives": {
     "title": "Cursor Alternatives: 7 AI Coding Tools to Switch To",
     "category": "comparisons",
