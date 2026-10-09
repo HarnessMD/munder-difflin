@@ -25,6 +25,7 @@ import {
   getLogGraph, getCommitFiles, getFileAtRev, compareRefs, listWorktrees, checkoutRef
 } from './git';
 import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
+import { resolveAgentWorktree } from './agentWorktree';
 import { HiveManager, type AgentMeta, type HiveMessage, type HiveTask } from './hive';
 import { HookServer } from './hooks';
 import { CircuitBreaker, type BreakerInput } from './breaker';
@@ -2624,7 +2625,7 @@ ipcMain.handle('pty:spawn', async (evt, opts: AgentSpawnOptions) => {
  *  it can ALSO be invoked by the god-triggered ephemeral-worker watcher (which has
  *  no renderer `evt`). `owner` is the window that should receive this PTY's output
  *  (null → the primary window). Behavior-identical to the prior inline handler. */
-async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
+async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; worktreeOrigin?: string; worktreeGone?: boolean; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
   // ── cwd INGESTION — expand `~` exactly once, here ───────────────────────────
   // This is the single door every agent spawn comes through (`pty:spawn` IPC and
   // the god-triggered ephemeral-worker watcher), so it is where a user-typed
@@ -2635,6 +2636,17 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // returned to the caller so the renderer records the same absolute path.
   opts.cwd = expandTilde(opts.cwd);
   if (opts.hive) opts.hive = { ...opts.hive, cwd: expandTilde(opts.hive.cwd) };
+  let worktreeGone = false;
+  if (opts.hive && opts.isolate !== true) {
+    const restored = await resolveAgentWorktree(
+      { ...opts.hive, cwd: opts.cwd }, hive.registry().agents[opts.hive.id]
+    );
+    if (!restored.ok) return restored;
+    opts.cwd = restored.cwd;
+    worktreeGone = restored.worktreeGone === true;
+    // Explicit undefined clears stale registry fields when falling back or moving.
+    opts.hive = { ...opts.hive, cwd: opts.cwd, worktreePath: restored.worktreePath, worktreeOrigin: restored.worktreeOrigin };
+  }
   // Which CLI is this? Explicit wins; else inferred from the binary
   // (claude/codex/grok/agy). Non-Claude providers skip every Claude-only spawn step
   // below. Persist the resolved provider onto opts (+ hive meta) so the registry
@@ -2722,11 +2734,12 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // its own worktree on an `agent/<id>` branch so it can't clobber other agents'
   // (or the user's) working tree. Best-effort — a failure falls back to the
   // shared cwd rather than blocking the spawn.
-  // NOTE (tracked, not yet hardened): the restore flow passes isolate:false and
-  // re-enters the existing worktree by cwd, so it never reaches here. But a stale
-  // `isolate:true` recipe spawned against an already-existing worktree path would
-  // make addWorktree below conflict (path/branch exists) and fall back to the base
-  // cwd — reuse-existing-worktree handling here is the follow-up.
+  if (opts.isolate !== true) {
+    worktreePaths.delete(opts.id);
+    worktreeOrigins.delete(opts.id);
+    if (opts.hive?.worktreePath) worktreePaths.set(opts.id, opts.hive.worktreePath);
+    if (opts.hive?.worktreeOrigin) worktreeOrigins.set(opts.id, opts.hive.worktreeOrigin);
+  }
   if (opts.isolate === true && await isRepo(opts.cwd)) {
     try {
       const origCwd = opts.cwd;
@@ -2778,7 +2791,7 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   if (opts.hive && hive.enabled()) {
     try {
       const inj = await hive.ensureAgent(
-        { ...opts.hive, cwd: opts.cwd, provider },
+        { ...opts.hive, cwd: opts.cwd, provider, worktreePath: worktreePaths.get(opts.id), worktreeOrigin: worktreeOrigins.get(opts.id) },
         {
           semanticMemory: memory.active(),
           knowledgeGraph: knowledge.active(),
@@ -3030,7 +3043,7 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   const worktreePath = worktreePaths.get(opts.id);
   // `cwd` echoes back the TILDE-EXPANDED absolute path so the renderer's agent
   // record matches what the registry and the PTY actually used.
-  return { ...res, cwd: opts.cwd, ...(worktreePath ? { worktreePath } : {}), ...(resumeNotFound ? { resumeNotFound: true } : {}), ...(didResume ? { resumed: true } : {}), ...(seedPrompt ? { seedPrompt } : {}) };
+  return { ...res, cwd: opts.cwd, worktreePath, worktreeOrigin: worktreeOrigins.get(opts.id), ...(worktreeGone ? { worktreeGone: true } : {}), ...(resumeNotFound ? { resumeNotFound: true } : {}), ...(didResume ? { resumed: true } : {}), ...(seedPrompt ? { seedPrompt } : {}) };
 }
 ipcMain.handle('pty:write', (_evt, id: string, data: string) => {
   if (typeof id !== 'string' || typeof data !== 'string') return { ok: false, error: 'invalid args' };
@@ -4505,10 +4518,11 @@ registerRealtimeActionIpc({
           id: o.id,
           name: o.hive?.name ?? o.id,
           provider: o.provider ?? o.hive?.provider ?? 'claude',
-          cwd: res.worktreePath ?? o.cwd,
+          cwd: res.cwd ?? o.cwd,
           command: o.command,
           role: o.hive?.role,
-          worktreePath: res.worktreePath
+          worktreePath: res.worktreePath,
+          worktreeOrigin: res.worktreeOrigin
         });
       } catch { /* window torn down */ }
     }
@@ -4771,7 +4785,7 @@ async function processSpawnRequest(filePath: string): Promise<void> {
     hive: meta, isolate, provider: raw.provider, env: brokerEnv
   };
 
-  let res: { ok: boolean; error?: string; worktreePath?: string };
+  let res: { ok: boolean; error?: string; cwd?: string; worktreePath?: string; worktreeOrigin?: string };
   try {
     res = await spawnAgentCore(spawnOpts, liveWebContents());
   } catch (e) {
@@ -4792,10 +4806,11 @@ async function processSpawnRequest(filePath: string): Promise<void> {
       id: workerId,
       name: meta.name,
       provider: raw.provider ?? 'claude',
-      cwd: res.worktreePath ?? cwd,
+      cwd: res.cwd ?? cwd,
       command: launch.command,
       role: meta.role,
       worktreePath: res.worktreePath,
+      worktreeOrigin: res.worktreeOrigin,
       character: typeof raw.character === 'string' ? raw.character : undefined,
       accent: typeof raw.accent === 'string' ? raw.accent : undefined
     });
