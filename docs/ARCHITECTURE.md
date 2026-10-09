@@ -37,6 +37,9 @@ Two data planes feed one renderer:
   server that provider bridges POST lifecycle payloads to (`cth-hook` for Claude Code, `agy-hook`
   for Antigravity). `memory.ts` wraps the semantic memory CLI. The router delivers messages, drains
   provider outboxes, the GOD agent adjudicates, and idle/inbox wakeups keep workers draining mail.
+- **Memory reflection.** `reflect.ts` resolves each agent's provider/model before
+  backup, verification and atomic replacement. Provider-specific summarization
+  and quota cooldowns are documented in [memory reflection](./memory-reflection.md).
 
 ## Project structure
 
@@ -54,6 +57,8 @@ src/
     usage.ts / pricing.ts    UsageProvider seam + per-model cost attribution
     breaker.ts / control.ts  cost/runaway circuit breaker (steer/constrain/stop) + HITL gate / steer / stop
     reflect.ts               MemoryReflector — memory condensation
+    reflectSession.ts        Claude/OpenCode summary runners (no silent provider fallback)
+    reflectLimit.ts          quota detection and retry deadlines
     db.ts                    SQLite durable store (window bounds + history) + durable cost ledger
     github.ts                GitHub issue + CI run ingestion via the gh CLI
     shellEnv.ts              resolve PATH and shell env for child processes
