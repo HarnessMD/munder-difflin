@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Codex Usage Limits vs Claude Code Usage Limits (Oct 2026)</title>
+<meta name="description" content="Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan." />
+<link rel="canonical" href="https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Codex Usage Limits vs Claude Code Usage Limits (Oct 2026)" />
+<meta property="og:description" content="Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan." />
+<meta property="og:url" content="https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/codex-vs-claude-code-usage-limits/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. The words Codex vs Claude Code usage limits in large ink type with the kicker Comparisons, the line Checked 10 Oct 2026 and a yellow tape measure pulled out with no numbers on it." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-10T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Comparisons" />
+<meta property="article:tag" content="Codex" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="Usage Limits" />
+<meta property="article:tag" content="Cost" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Codex Usage Limits vs Claude Code Usage Limits (Oct 2026)" />
+<meta name="twitter:description" content="Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/codex-vs-claude-code-usage-limits/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. The words Codex vs Claude Code usage limits in large ink type with the kicker Comparisons, the line Checked 10 Oct 2026 and a yellow tape measure pulled out with no numbers on it." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Codex Usage Limits vs Claude Code: What Each Plan Gives You",
+  "description": "Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan.",
+  "image": ["https://munderdiffl.in/blog/assets/media/codex-vs-claude-code-usage-limits/hero.png"],
+  "datePublished": "2026-10-10T00:00:00.000Z",
+  "dateModified": "2026-10-10T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/" },
+  "keywords": "codex usage limits, codex limits, claude code usage limits, codex rate limits, claude code weekly limit, codex vs claude code limits",
+  "articleSection": "Comparisons",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Codex Usage Limits vs Claude Code: What Each Plan Gives You", "item": "https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What are the Codex usage limits on ChatGPT Plus?", "acceptedAnswer": { "@type": "Answer", "text": "OpenAI publishes estimates, not fixed caps. On 10 Oct 2026 its Codex pricing page estimated 5 to 45 local messages per five hours on GPT-6 Astra, 15 to 160 on GPT-6.1 Sol, 15 to 150 on GPT-6 Sol and 350 to 3,000 on GPT-6 Luna for Plus, and said weekly limits may also apply." } },
+    { "@type": "Question", "name": "Does Claude Code have a weekly limit?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Anthropic's help article on Claude Code, checked 10 Oct 2026, says both Pro and Max plans have a five hour session limit and a weekly limit, and that Max plans also have a separate weekly limit for Fable. Anthropic gives no number for either limit." } },
+    { "@type": "Question", "name": "Which runs out first, Codex or Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "No page we opened says, and we ran no test. OpenAI publishes message estimates for Plus. Anthropic publishes multipliers and no counts, so the two cannot be compared on paper. Checked 10 Oct 2026." } },
+    { "@type": "Question", "name": "How do I check my Codex or Claude Code usage?", "acceptedAnswer": { "@type": "Answer", "text": "In Codex, type /status in an active CLI session or open the usage dashboard at chatgpt.com/codex/settings/usage. In Claude Code, run /usage to see your plan limits and when they reset. Both come from each vendor's own docs, checked 10 Oct 2026." } },
+    { "@type": "Question", "name": "What happens when I hit a limit in Codex or Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Codex can finish the turn in progress, subject to fair use limits, and Plus and Pro users can buy credits. Claude Code blocks further requests until the reset time in the message, unless you turn on usage credits in Settings > Usage, which are billed at standard API rates." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-comparisons">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/comparisons/">Comparisons</a>
+    </nav>
+    <h1>Codex Usage Limits vs Claude Code: What Each Plan Gives You</h1>
+    <p class="dek">Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-10">Oct 10, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Comparisons</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/codex-vs-claude-code-usage-limits/hero.png" alt="Title card on white. The words Codex vs Claude Code usage limits in large ink type with the kicker Comparisons, the line Checked 10 Oct 2026 and a yellow tape measure pulled out with no numbers on it." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>On paper you can count only the Codex limits: OpenAI publishes estimated messages per five hours for ChatGPT Plus, while Anthropic publishes multipliers for Claude Code and no counts. Checked 10 Oct 2026.</p>
+<p>This page is one of our <a href="/blog/topics/comparisons/">Comparisons</a>. If you use both tools, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It fits when you run both plans. Setup is in <a href="/blog/how-to-install-and-use-munder-difflin/">how to install and use Munder Difflin</a>.</p>
+<h2 id="codex-vs-claude-code-usage-limits-at-a-glance-checked-10-oct-2026" tabindex="-1">Codex vs Claude Code usage limits at a glance (checked 10 Oct 2026) <a class="anchor" href="#codex-vs-claude-code-usage-limits-at-a-glance-checked-10-oct-2026" aria-hidden="true">#</a></h2>
+<p>This table is our selection of rows from the vendor pages named under it, in US prices.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Checked 10 Oct 2026</th>
+<th>Codex (OpenAI)</th>
+<th>Claude Code (Anthropic)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$20 plan</td>
+<td>Plus, $20 a month</td>
+<td>Pro, $20 billed monthly, $17 a month billed annually</td>
+</tr>
+<tr>
+<td>Bigger plans</td>
+<td>Pro from $100 a month, with $100, $200 and $500 tiers</td>
+<td>Max 5x at $100 a month, Max 20x at $200</td>
+</tr>
+<tr>
+<td>Five hour window</td>
+<td>Plus: estimated ranges per model. Pro plans “currently have no five-hour limit”</td>
+<td>Pro and Max: a five hour session limit, no number given</td>
+</tr>
+<tr>
+<td>Weekly limit</td>
+<td>“Weekly limits may also apply”, no number given</td>
+<td>Pro and Max: a weekly limit, no number given. Max: a separate weekly limit for Fable</td>
+</tr>
+<tr>
+<td>When you run out</td>
+<td>The turn in progress can continue, subject to fair use limits</td>
+<td>Requests are blocked until the reset time shown</td>
+</tr>
+<tr>
+<td>Paying for more</td>
+<td>Plus and Pro users can buy credits</td>
+<td>Usage credits on Pro, Max 5x and Max 20x, turned on in Settings &gt; Usage, at standard API rates</td>
+</tr>
+<tr>
+<td>How to check</td>
+<td><code>/status</code> in the CLI, or the usage dashboard</td>
+<td><code>/usage</code> in Claude Code, or Settings &gt; Usage</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Sources: OpenAI’s <a href="https://learn.chatgpt.com/docs/pricing">Codex pricing page</a>, <a href="https://claude.com/pricing">claude.com/pricing</a>, Anthropic’s help articles on <a href="https://support.claude.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan">Claude Code with Pro or Max</a>, the <a href="https://support.claude.com/en/articles/11049741-what-is-the-max-plan">Max plan</a> and <a href="https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans">usage credits</a>, and Claude Code’s <a href="https://code.claude.com/docs/en/costs">cost docs</a>.</p>
+<h2 id="what-are-the-codex-usage-limits" tabindex="-1">What are the Codex usage limits? <a class="anchor" href="#what-are-the-codex-usage-limits" aria-hidden="true">#</a></h2>
+<p>Codex has no fixed message cap: OpenAI publishes estimates that move with the model and the task. Its pricing page said on 10 Oct 2026 that the number depends on the model, the size and complexity of the task, and whether it runs locally or in the cloud.</p>
+<p>For Plus and Standard Business seats, the page estimated these local messages per five hours:</p>
+<ul>
+<li>GPT-6 Astra: 5 to 45</li>
+<li>GPT-6.1 Sol: 15 to 160</li>
+<li>GPT-6 Sol: 15 to 150</li>
+<li>GPT-6 Luna: 350 to 3,000</li>
+</ul>
+<p>The same page says “Pro plans currently have no five-hour limit”, that local messages and cloud chats share one allowance, and that “weekly limits may also apply”. It gives no size for the weekly limit and no estimate for Free, Go or Pro. <a href="/blog/codex-pricing/">Codex pricing</a> covers each plan.</p>
+<figure class="mg" data-scene="jugs"><img src="/blog/assets/media/codex-vs-claude-code-usage-limits/jugs.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four measuring jugs fill one after another to different heights. Each jug has a low mark and a high mark, and the water wobbles between the two without settling on one line."><figcaption>OpenAI publishes ranges, not fixed caps, for Plus. Codex pricing page, 10 Oct 2026. The drawing shows the ranges as jug marks.</figcaption></figure>
+<h2 id="what-are-the-claude-code-usage-limits" tabindex="-1">What are the Claude Code usage limits? <a class="anchor" href="#what-are-the-claude-code-usage-limits" aria-hidden="true">#</a></h2>
+<p>Claude Code on Pro and Max has two limits, a five hour session limit and a weekly limit, and Anthropic puts no number on either. Its help article, checked 10 Oct 2026, says “Both Pro and Max plans have a five-hour session limit and a weekly limit”, and that Max plans also have a separate weekly limit for Fable.</p>
+<p>What Anthropic does publish is multipliers. Its pricing page said on 10 Oct 2026 that Max gives “5x or 20x more usage per 5-hour session than Pro”. The Max plan article says the weekly limit applies across all models and resets at a fixed time each week that is assigned to your account.</p>
+<p>Claude Code also shares its limits with the rest of your plan, per the pricing page. <a href="/blog/how-much-does-claude-code-cost/">Claude Code pricing</a> has the plan prices.</p>
+<figure class="mg" data-scene="timers"><img src="/blog/assets/media/codex-vs-claude-code-usage-limits/timers.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A small sand timer and a large one run side by side. The small one empties and flips over again and again, while the large one drains slowly the whole time and never flips."><figcaption>Two limits run at once on Pro and Max: a five hour session limit and a weekly limit. Anthropic help article, 10 Oct 2026.</figcaption></figure>
+<h2 id="which-runs-out-first-codex-or-claude-code" tabindex="-1">Which runs out first, Codex or Claude Code? <a class="anchor" href="#which-runs-out-first-codex-or-claude-code" aria-hidden="true">#</a></h2>
+<p>No page we opened says, and we ran no test. OpenAI gives message estimates for Plus. Anthropic gives multipliers of a Pro allowance it does not size. A count and a ratio cannot be compared.</p>
+<p>Two things the sources do say. Pro plans in Codex currently have no five hour limit, so a weekly limit, if one applies, is the only one left. And Claude Code’s <a href="https://code.claude.com/docs/en/errors">error docs</a> warn that a burst of heavy activity “can exhaust the weekly allowance before the session window resets”.</p>
+<p>Our view: do not pick a tool on limits you cannot measure. Read your own meter for a week. See <a href="/blog/codex-cli-vs-claude-code/">Codex vs Claude Code</a>.</p>
+<h2 id="how-do-you-check-your-usage-in-each-tool" tabindex="-1">How do you check your usage in each tool? <a class="anchor" href="#how-do-you-check-your-usage-in-each-tool" aria-hidden="true">#</a></h2>
+<p>Type <code>/status</code> in Codex and <code>/usage</code> in Claude Code. OpenAI’s pricing page says you can find your current limits in the usage dashboard at <code>chatgpt.com/codex/settings/usage</code>, and that <code>/status</code> shows your remaining limits during an active Codex CLI session.</p>
+<p>Claude Code’s error docs say to run <code>/usage</code> to see your plan limits and when they reset. The cost docs add that pressing <code>d</code> or <code>w</code> switches between the last 24 hours and the last 7 days. Anthropic’s help article names <code>/status</code> for the same job, and the Max plan article points to Settings &gt; Usage for your next reset time. Two vendors, three commands.</p>
+<figure class="mg" data-scene="dials"><img src="/blog/assets/media/codex-vs-claude-code-usage-limits/dials.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Two round dials sit side by side, one labelled slash status and one labelled slash usage. A cloth lifts off each in turn and the needle swings up to show how much is left."><figcaption>/status in the Codex CLI, /usage in Claude Code. Each vendor's docs, 10 Oct 2026.</figcaption></figure>
+<h2 id="what-do-you-do-when-you-hit-a-limit" tabindex="-1">What do you do when you hit a limit? <a class="anchor" href="#what-do-you-do-when-you-hit-a-limit" aria-hidden="true">#</a></h2>
+<p>Wait for the reset, pay for more, or move up a plan. In Codex, the pricing page says that if you reach your limits during an active turn, the agent can keep working on that turn, subject to fair use limits. After that, ChatGPT Plus and Pro users can buy credits without changing plan.</p>
+<p>In Claude Code, the error docs say it blocks further requests until the reset time shown in the message. Those two limits are shared across all models, so switching models does not restore access. For Pro and Max, Anthropic’s help article lists four options:</p>
+<ol>
+<li>Wait for the limits to reset.</li>
+<li>Turn on usage credits in Settings &gt; Usage. Anthropic’s usage credits article says they are billed at standard API rates, and you can set a monthly spend limit.</li>
+<li>Move up to Max 5x, or from Max 5x to Max 20x.</li>
+<li>Switch to the Claude Console and buy API credits.</li>
+</ol>
+<h2 id="how-do-you-stretch-a-plan" tabindex="-1">How do you stretch a plan? <a class="anchor" href="#how-do-you-stretch-a-plan" aria-hidden="true">#</a></h2>
+<p>Send less context per message, which is what both vendors’ own tips come down to.</p>
+<p>OpenAI’s pricing page says to be precise with instructions, limit source material, reduce the size of your <code>AGENTS.md</code> and limit the number of MCP servers you use. Claude Code’s cost docs say to <code>/clear</code> between unrelated tasks, use Sonnet for most coding tasks because it costs less than Opus, and aim to keep <code>CLAUDE.md</code> under 200 lines.</p>
+<figure class="mg" data-scene="suitcase"><img src="/blog/assets/media/codex-vs-claude-code-usage-limits/suitcase.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An overstuffed suitcase will not close. Two bulky blocks lift out, two more shrink, and the lid then drops shut with room to spare."><figcaption>Both vendors' tips come down to carrying less context. Vendor docs, 10 Oct 2026. The drawing shows it as packing light.</figcaption></figure>
+<p>See our <a href="/blog/codex-max-plan-tips/">Codex plan tips</a> and <a href="/blog/claude-code-max-plan-tips/">Claude Code Max plan tips</a>.</p>
+<link rel="stylesheet" href="/blog/assets/media/codex-vs-claude-code-usage-limits/motion.css"><script defer src="/blog/assets/media/codex-vs-claude-code-usage-limits/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">What are the Codex usage limits on ChatGPT Plus?</p>
+          <p class="a">OpenAI publishes estimates, not fixed caps. On 10 Oct 2026 its Codex pricing page estimated 5 to 45 local messages per five hours on GPT-6 Astra, 15 to 160 on GPT-6.1 Sol, 15 to 150 on GPT-6 Sol and 350 to 3,000 on GPT-6 Luna for Plus, and said weekly limits may also apply.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does Claude Code have a weekly limit?</p>
+          <p class="a">Yes. Anthropic&#39;s help article on Claude Code, checked 10 Oct 2026, says both Pro and Max plans have a five hour session limit and a weekly limit, and that Max plans also have a separate weekly limit for Fable. Anthropic gives no number for either limit.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Which runs out first, Codex or Claude Code?</p>
+          <p class="a">No page we opened says, and we ran no test. OpenAI publishes message estimates for Plus. Anthropic publishes multipliers and no counts, so the two cannot be compared on paper. Checked 10 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I check my Codex or Claude Code usage?</p>
+          <p class="a">In Codex, type /status in an active CLI session or open the usage dashboard at chatgpt.com/codex/settings/usage. In Claude Code, run /usage to see your plan limits and when they reset. Both come from each vendor&#39;s own docs, checked 10 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What happens when I hit a limit in Codex or Claude Code?</p>
+          <p class="a">Codex can finish the turn in progress, subject to fair use limits, and Plus and Pro users can buy credits. Claude Code blocks further requests until the reset time in the message, unless you turn on usage credits in Settings &gt; Usage, which are billed at standard API rates.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/comparisons/">Comparisons</a><a class="tag" href="/blog/tags/codex/">Codex</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/usage-limits/">Usage Limits</a><a class="tag" href="/blog/tags/cost/">Cost</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#codex-vs-claude-code-usage-limits-at-a-glance-checked-10-oct-2026">Codex vs Claude Code usage limits at a glance (checked 10 Oct 2026)</a></li><li class="lvl-2"><a href="#what-are-the-codex-usage-limits">What are the Codex usage limits?</a></li><li class="lvl-2"><a href="#what-are-the-claude-code-usage-limits">What are the Claude Code usage limits?</a></li><li class="lvl-2"><a href="#which-runs-out-first-codex-or-claude-code">Which runs out first, Codex or Claude Code?</a></li><li class="lvl-2"><a href="#how-do-you-check-your-usage-in-each-tool">How do you check your usage in each tool?</a></li><li class="lvl-2"><a href="#what-do-you-do-when-you-hit-a-limit">What do you do when you hit a limit?</a></li><li class="lvl-2"><a href="#how-do-you-stretch-a-plan">How do you stretch a plan?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/agent-tools-today-2026-10-09/"><span class="k">← Older</span><span class="t">Agent Tools Today, 9 Oct 2026: Gemini Agent, Codex CLI 0.162.0, Step 5 Preview</span></a>
+      <span></span>
+    </div>
+    <section class="related">
+      <h2>Related in Comparisons</h2>
+      <div class="post-grid">
+        <article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/cursor-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/cursor-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-08">Oct 8, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/cursor-alternatives/">Cursor Alternatives: 7 AI Coding Tools to Switch To</a></h3>
+    <p class="dek">Seven Cursor alternatives checked on 8 Oct 2026: Claude Code, Codex, Cline, OpenCode, Zed, Devin Desktop and GitHub Copilot, by licence and price.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/cursor-alternatives/" aria-label="Read: Cursor Alternatives: 7 AI Coding Tools to Switch To">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/codex-vs-cursor/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-vs-cursor/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-07">Oct 7, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/codex-vs-cursor/">Codex vs Cursor: Which Should You Pick in 2026?</a></h3>
+    <p class="dek">Codex vs Cursor, checked 7 Oct 2026: what each is, licence, paid plans from $8 a month, models, where each runs, and whether Codex works inside Cursor.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/codex-vs-cursor/" aria-label="Read: Codex vs Cursor: Which Should You Pick in 2026?">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/gemini-cli-vs-claude-code/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-cli-vs-claude-code/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-07">Oct 7, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/gemini-cli-vs-claude-code/">Gemini CLI vs Claude Code: price, licence, models</a></h3>
+    <p class="dek">Gemini CLI vs Claude Code, checked 7 Oct 2026: whether Gemini CLI is still free, what each costs, licence, models, features and who should pick which.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/gemini-cli-vs-claude-code/" aria-label="Read: Gemini CLI vs Claude Code: price, licence, models">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      if (!id) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

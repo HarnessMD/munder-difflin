@@ -4700,5 +4700,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "codex-vs-claude-code-usage-limits": {
+    "title": "Codex vs Claude Code usage limits",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/codex-vs-claude-code-usage-limits/hero.png",
+      "alt": "Title card on white. The words Codex vs Claude Code usage limits in large ink type with the kicker Comparisons, the line Checked 10 Oct 2026 and a yellow tape measure pulled out with no numbers on it.",
+      "prompt": "Still of the hero scene in assets/media/codex-vs-claude-code-usage-limits/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
