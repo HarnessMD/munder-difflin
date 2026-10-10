@@ -71,7 +71,7 @@ Four rules from the same page decide how fast you get through that:
 
 OpenAI does not publish message estimates for the Pro tiers on the pages we opened, only that Pro 200 includes more than Pro 100 and Pro 500 the most. One dated catch: new Pro 200 subscriptions carry a lower allowance than before. Anyone with an active Pro 200 subscription between 22 Sep and 10 a.m. Pacific on 29 Sep 2026 keeps the old one through 29 Oct 2026, while the subscription stays active.
 
-To see where you stand, type `/status` in a Codex CLI session or open the usage dashboard. See our [Codex plan tips](/blog/codex-max-plan-tips/).
+To see where you stand, type `/status` in a Codex CLI session or open the usage dashboard. See our [Codex plan tips](/blog/codex-max-plan-tips/). See [limits compared](/blog/codex-vs-claude-code-usage-limits/).
 
 ## What happens when you hit the limit?
 

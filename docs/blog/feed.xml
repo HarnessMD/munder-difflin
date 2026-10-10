@@ -16,6 +16,14 @@
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 10 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Codex Usage Limits vs Claude Code: What Each Plan Gives You</title>
+    <link href="https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/" />
+    <id>https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/</id>
+    <published>2026-10-10T00:00:00.000Z</published>
+    <updated>2026-10-10T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 9 Oct 2026: Gemini Agent, Codex CLI 0.162.0, Step 5 Preview</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-09/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-09/</id>
@@ -453,7 +461,7 @@
     <id>https://munderdiffl.in/blog/how-to-connect-ollama-to-claude-code/</id>
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Point Claude Code at Ollama with ollama launch claude or three environment variables, give the model 64K of context, and know what stops working.</summary>
+    <summary>Yes, Claude Code can run on Ollama. Run ollama launch claude or set three environment variables, give the model 64K of context, and see what stops working.</summary>
   </entry>
   <entry>
     <title>Codex CLI: What It Is and How to Install It on Mac, Windows and Linux</title>
@@ -478,13 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-14T00:00:00.000Z</updated><category term="Concepts" />
     <summary>No. Claude Code is proprietary under Anthropic&#39;s terms. What its GitHub repo holds, what the 2026 leak changed, and which open tools sit around it.</summary>
-  </entry>
-  <entry>
-    <title>OmniAgent Alternatives: What to Use Instead of Databricks Omnigent</title>
-    <link href="https://munderdiffl.in/blog/omniagent-alternatives/" />
-    <id>https://munderdiffl.in/blog/omniagent-alternatives/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits.</summary>
   </entry>
 </feed>

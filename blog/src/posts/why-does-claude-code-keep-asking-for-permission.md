@@ -1,6 +1,7 @@
 ---
 title: "Why Does Claude Code Keep Asking for Permission?"
-description: "Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass."
+seoTitle: "Claude Code Keeps Asking for Permission? Fixes, Safest First"
+description: "Claude Code keeps asking because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass."
 date: 2026-09-14
 category: guides
 categoryLabel: Guides
@@ -27,7 +28,7 @@ Claude Code keeps asking for permission because the session is in Manual mode, w
 
 Run four sessions and you have four queues of approvals, and by the fortieth `npm test` the prompt is mostly guarding your Enter key. If several terminals are already the problem, [managing multiple Claude Code sessions](/blog/manage-multiple-claude-code-sessions/) covers the rest of it. The Claude Code facts below come from its docs, checked on 14 Sep 2026 against 2.1.270.
 
-You can tune these rules by hand, or use [Munder Difflin](https://harnessmd.com/download), a free and open source desktop app that runs several Claude Code agents, each in its own terminal. As of 0.5.2, its Auto Mode is on by default and starts every Claude Code agent with `--permission-mode bypassPermissions`, so agents stop asking. That is the bypass mode Claude Code's docs keep for containers and VMs, not its classifier based auto mode. It also turns on Claude Code's Bash sandbox per agent (macOS, and Linux with bubblewrap and socat), but that covers shell commands only, a blocked command can be retried outside it, and file edits and MCP tools run outside it without a prompt. Deny rules in your `~/.claude/settings.json` still block. On your main machine, switch Autonomy to ask-first under Settings, Autonomy & Budgets; agents you add after that ask in their own terminal.
+You can tune these rules by hand, or use [Munder Difflin](https://harnessmd.com/download), a free and open source desktop app that runs several Claude Code agents, each in its own terminal. As of 0.5.2, its Auto Mode is on by default and starts every Claude Code agent with `--permission-mode bypassPermissions`, so agents stop asking. That is the bypass mode Claude Code's docs keep for containers and VMs, not its classifier based auto mode. It also turns on Claude Code's Bash sandbox per agent (macOS, and Linux with bubblewrap and socat), but that covers shell commands only, a blocked command can be retried outside it, and file edits and MCP tools run outside it without a prompt. Deny rules in your `~/.claude/settings.json` still block. On your main machine, switch Autonomy to ask-first under Settings, Autonomy & Budgets; agents you add after that ask in their own terminal. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 ## What does Claude Code ask about by default?
 
