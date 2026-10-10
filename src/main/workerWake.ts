@@ -32,6 +32,10 @@
  * No electron import — unit-testable (mirrors ControlRegistry).
  */
 
+import { classifyHook } from '../shared/hookClassify';
+
+export { classifyHook, type HookClass } from '../shared/hookClassify';
+
 /** The exact nudge the renderer's inbox-wake loop would have typed. */
 export const WORKER_WAKE_NUDGE =
   'You have new hive inbox message(s) — read your inbox, act on them now, and move handled ones to inbox/.done/. Act autonomously; only message god if you genuinely need a decision.';
@@ -67,28 +71,6 @@ export const WORKER_WAKE_HITL_REARM_MS = 5 * 60_000;
 export const WORKER_WAKE_STALL_MS = 90_000;
 /** Minimum age of pending mail before a held worker is reported in the log. */
 export const WORKER_WAKE_REPORT_MS = 60_000;
-
-/** A hook event message that means "the agent needs the human" — permission /
- *  approve / confirm prompts (mirrors the renderer's needsHuman detection in
- *  useHive.ts). Anything matching the idle-waiting shape is NOT a HITL hold. */
-export type HookClass = 'needsHuman' | 'idle' | null;
-
-export function classifyHook(event: string | undefined, message: string | undefined): HookClass {
-  if (event === 'Notification') {
-    const msg = (message ?? '').toLowerCase();
-    const idleWaiting = !msg
-      || msg.includes('waiting for your input')
-      || msg.includes('is idle')
-      || msg.includes('waiting for input');
-    const needsHuman = msg.includes('permission')
-      || msg.includes('approve')
-      || msg.includes('confirm')
-      || msg.includes('needs your');
-    if (needsHuman && !idleWaiting) return 'needsHuman';
-    return 'idle';
-  }
-  return null;
-}
 
 /** A hook event that proves the CLI took a turn — the activity signal every
  *  engine the harness shims produces (Codex, Gemini, grok, … are mapped onto
@@ -212,11 +194,17 @@ export class WorkerWakeWatchdog {
   /** Feed hook events (from HookServer): a HITL prompt blocks nudges, and any
    *  turn-proving event is activity the stall rule credits — the one channel
    *  every engine has, telemetry being Claude-only. */
-  noteHook(agentId: string | undefined, event: string | undefined, message: string | undefined, at = Date.now()): void {
+  noteHook(
+    agentId: string | undefined,
+    event: string | undefined,
+    message: unknown,
+    at = Date.now(),
+    notificationType?: unknown
+  ): void {
     if (!agentId) return;
     this.hookSeenAt.set(agentId, at);
     if (isTurnHook(event) && at > (this.lastTurnHookAt.get(agentId) ?? 0)) this.lastTurnHookAt.set(agentId, at);
-    if (classifyHook(event, message) === 'needsHuman') this.lastHumanNeedsAt.set(agentId, at);
+    if (classifyHook(event, message, notificationType) === 'needsHuman') this.lastHumanNeedsAt.set(agentId, at);
   }
 
   /** When the agent's hooks last proved a turn, or 0 when they never have. */
