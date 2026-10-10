@@ -4700,5 +4700,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "claude-managed-agents-dynamic-workflows": {
+    "title": "Claude Managed Agents dynamic workflows",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-managed-agents-dynamic-workflows/hero.png",
+      "alt": "Title card on white. Dynamic workflows in large ink type, a Claude Managed Agents beta kicker, Checked 11 Oct 2026, and a cotton reel with five coloured threads fanning out.",
+      "prompt": "Still of the hero scene in assets/media/claude-managed-agents-dynamic-workflows/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

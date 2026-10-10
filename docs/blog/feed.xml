@@ -4,9 +4,17 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-09T00:00:00.000Z</updated>
+  <updated>2026-10-11T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Claude Managed Agents dynamic workflows: limits and cost</title>
+    <link href="https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/" />
+    <id>https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/</id>
+    <published>2026-10-11T00:00:00.000Z</published>
+    <updated>2026-10-11T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Dynamic workflows let a Claude Managed Agents agent write a program that runs many agents. How to turn them on, beta limits and cost, checked 11 Oct 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 9 Oct 2026: Gemini Agent, Codex CLI 0.162.0, Step 5 Preview</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-09/" />
@@ -478,13 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-14T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits.</summary>
-  </entry>
-  <entry>
-    <title>What Is Vibe Coding? Meaning, Risks and Safer Habits</title>
-    <link href="https://munderdiffl.in/blog/what-is-vibe-coding/" />
-    <id>https://munderdiffl.in/blog/what-is-vibe-coding/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Vibe coding means building software from AI prompts without reading the code. Where the term came from, when it is fine, where it bites, and what to check.</summary>
   </entry>
 </feed>
