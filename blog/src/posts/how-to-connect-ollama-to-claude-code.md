@@ -1,6 +1,7 @@
 ---
 title: "How to Connect Ollama to Claude Code"
-description: "Point Claude Code at Ollama with ollama launch claude or three environment variables, give the model 64K of context, and know what stops working."
+seoTitle: "Ollama With Claude Code: Set It Up in One Command"
+description: "Yes, Claude Code can run on Ollama. Run ollama launch claude or set three environment variables, give the model 64K of context, and see what stops working."
 date: 2026-09-14
 category: guides
 categoryLabel: Guides
