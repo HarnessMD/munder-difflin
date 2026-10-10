@@ -120,7 +120,7 @@ Our view: use the SDK when the agent is a part inside software you ship or sched
 
 1. The Claude Code CLI, for interactive work in a terminal.
 2. Munder Difflin, if you want several CLI agents side by side. See [what a multi-agent harness is](/blog/what-is-a-multi-agent-harness/).
-3. Managed Agents, which the overview lists for when you want Anthropic to host the agent.
+3. Managed Agents, which the overview lists for when you want Anthropic to host the agent. See [dynamic workflows in Managed Agents](/blog/claude-managed-agents-dynamic-workflows/).
 
 A library gives you every knob. It also gives you every knob.
 
