@@ -16,6 +16,14 @@
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 11 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Claude Code Projects: what they are and who can use them</title>
+    <link href="https://munderdiffl.in/blog/claude-code-projects/" />
+    <id>https://munderdiffl.in/blog/claude-code-projects/</id>
+    <published>2026-10-11T00:00:00.000Z</published>
+    <updated>2026-10-11T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Code Projects, checked 11 Oct 2026: a public beta on Pro and Max where Claude runs your tasks as parallel threads. Access, limits and plan use.</summary>
+  </entry>
+  <entry>
     <title>Claude Managed Agents dynamic workflows: limits and cost</title>
     <link href="https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/" />
     <id>https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/</id>
@@ -478,13 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
     <summary>Yes, Claude Code can run on Ollama. Run ollama launch claude or set three environment variables, give the model 64K of context, and see what stops working.</summary>
-  </entry>
-  <entry>
-    <title>Codex CLI: What It Is and How to Install It on Mac, Windows and Linux</title>
-    <link href="https://munderdiffl.in/blog/how-to-install-codex-cli/" />
-    <id>https://munderdiffl.in/blog/how-to-install-codex-cli/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Codex CLI is OpenAI&#39;s open source coding agent for the terminal. Install it on Mac, Windows or Linux, sign in, update it, check the version or remove it.</summary>
   </entry>
 </feed>

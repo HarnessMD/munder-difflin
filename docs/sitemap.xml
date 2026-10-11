@@ -28,6 +28,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://munderdiffl.in/blog/claude-code-projects/</loc>
+    <lastmod>2026-10-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>

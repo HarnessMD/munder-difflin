@@ -4746,5 +4746,16 @@
     },
     "inline": {},
     "youtube": []
+  },
+  "claude-code-projects": {
+    "title": "Claude Code Projects: what they are and who can use them",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-code-projects/hero.png",
+      "alt": "Title card on white. The words Claude Code Projects in large ink type with a Concepts kicker, Checked 11 Oct 2026, and three spools of thread with their threads running side by side",
+      "prompt": "Still of the hero scene in assets/media/claude-code-projects/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
