@@ -8,6 +8,14 @@
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
   <entry>
+    <title>Agent Tools Today, 11 Oct 2026: Dynamic Workflows, TypeSafe AI&#39;s Raise, OpenCode 1.19.0</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-11/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-11/</id>
+    <published>2026-10-11T00:00:00.000Z</published>
+    <updated>2026-10-11T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 11 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
     <title>Claude Managed Agents dynamic workflows: limits and cost</title>
     <link href="https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/" />
     <id>https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/</id>
@@ -478,13 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-29T00:00:00.000Z</updated><category term="Guides" />
     <summary>Codex CLI is OpenAI&#39;s open source coding agent for the terminal. Install it on Mac, Windows or Linux, sign in, update it, check the version or remove it.</summary>
-  </entry>
-  <entry>
-    <title>Claude Max Plan: Is It Worth It? Max 5x vs 20x vs Pro</title>
-    <link href="https://munderdiffl.in/blog/is-claude-code-max-worth-it/" />
-    <id>https://munderdiffl.in/blog/is-claude-code-max-worth-it/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Is the Claude Max plan worth it? Max 5x and 20x against Pro, checked 29 Sep 2026: price, five hour and weekly limits, Fable, and the API break even.</summary>
   </entry>
 </feed>
