@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HarnessConfig } from '@/store/config';
 import { useStore } from '@/store/store';
@@ -7,35 +7,53 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import type { ThemeId } from '@/scene/office/themeRegistry';
+import type { PackSummary } from '@/shared/themePack';
 
-// TV-show office themes (Phase 1 = the switch flow infra). Only `office` has a
-// real map+cast today; the five shows render via the loader's office fallback
-// until their content lands (Phase 2). `built: false` shows a "soon" tag and a
-// fallback note on switch, but the destructive switch flow still runs so the
-// whole pipeline (modal → delete cast → persist → re-seat) is exercisable now.
-interface ThemeMeta { id: ThemeId; label: string; blurb: string; built: boolean; swatch: string; }
-const THEME_META: ThemeMeta[] = [
-  { id: 'office',        label: 'The Office',         blurb: 'Dunder Mifflin — the original floor', built: true,  swatch: '#6b5a4a' },
-  { id: 'friends',       label: 'Friends',            blurb: 'Central Perk coffee house',           built: false, swatch: '#9a5a32' },
-  { id: 'brooklyn99',    label: 'Brooklyn Nine-Nine', blurb: 'The 99th precinct bullpen',           built: true,  swatch: '#3a5a7a' },
-  { id: 'siliconvalley', label: 'Silicon Valley',     blurb: 'The Hacker Hostel',                   built: false, swatch: '#4a6a4a' },
-  { id: 'got',           label: 'Game of Thrones',    blurb: 'The Red Keep throne room',            built: false, swatch: '#6a2630' },
-  { id: 'hogwarts',      label: 'Harry Potter',       blurb: 'Hogwarts great hall',                 built: false, swatch: '#39305a' },
-];
+interface ThemeCardItem {
+  id: ThemeId;
+  label: string;
+  blurb: string;
+  built: boolean;
+  swatch: string;
+}
 
-/** Settings "Office Theme" section: an experimental flag toggle + a 6-card
- *  theme picker with the destructive switch flow (report §E). Self-contained so
- *  it stays out of SettingsModal's bulk. */
+/** Settings "Office Theme" section: an experimental flag toggle + theme picker
+ *  cards from window.cth.listThemes() with the destructive switch flow (report §E).
+ *  Self-contained so it stays out of SettingsModal's bulk. */
 export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
   const { t } = useTranslation();
   const [enabled, setEnabled] = useState(!!config.tvShowOffices);
-  const [current, setCurrent] = useState<ThemeId>((config.officeTheme as ThemeId) ?? 'office');
+  const [current, setCurrent] = useState<ThemeId>((config.officeTheme as ThemeId) ?? 'munder-difflin');
   const [pending, setPending] = useState<ThemeId | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
+  const [themes, setThemes] = useState<ThemeCardItem[]>([]);
 
   const archiveAgent = useStore((s) => s.archiveAgent);
   const setOfficeTheme = useStore((s) => s.setOfficeTheme);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchThemes = async () => {
+      try {
+        if (!window.cth?.listThemes) return;
+        const list: PackSummary[] = await window.cth.listThemes();
+        if (cancelled) return;
+        const cards: ThemeCardItem[] = list.map((p) => ({
+          id: p.id,
+          label: p.name || p.id,
+          blurb: p.blurb || '',
+          built: p.available,
+          swatch: p.swatch || '#6b5a4a',
+        }));
+        setThemes(cards);
+      } catch {
+        // Fallback or ignore if bridge unavailable
+      }
+    };
+    void fetchThemes();
+    return () => { cancelled = true; };
+  }, []);
 
   const toggleFlag = async () => {
     const next = !enabled;
@@ -45,7 +63,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       await window.cth.updateConfig({ tvShowOffices: next });
       // Flag off → the office renders regardless of the saved theme; flag on →
       // restore the persisted theme.
-      setOfficeTheme(next ? current : 'office');
+      setOfficeTheme(next ? current : 'munder-difflin');
     } catch {
       setEnabled(!next); // revert optimistic toggle on failure
     }
@@ -64,6 +82,16 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
   const applyTheme = async (id: ThemeId) => {
     setBusy(true);
     try {
+      // Validate theme before proceeding if window.cth.validateTheme is present
+      if (window.cth?.validateTheme) {
+        const val = await window.cth.validateTheme(id);
+        if (!val.valid) {
+          setNote(t('officeTheme.switchAborted', { error: 'Theme validation failed' }));
+          setBusy(false);
+          setPending(null);
+          return;
+        }
+      }
       // Tear down every non-god agent through the EXISTING lifecycle (kill PTY →
       // dispose terminal → archive). god + the prep assistant carry over; god's
       // PTY is never touched. If a PTY won't die, abort the switch (surface the
@@ -79,7 +107,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       await window.cth.updateConfig({ officeTheme: id });
       setCurrent(id);
       setOfficeTheme(id); // → OfficeFloor rebuilds the scene on the new map/cast
-      const meta = THEME_META.find((t) => t.id === id);
+      const meta = themes.find((item) => item.id === id);
       if (meta && !meta.built) setNote(t('officeTheme.notBuiltYet', { label: meta.label }));
     } catch (e) {
       setNote(t('officeTheme.switchAborted', { error: e instanceof Error ? e.message : String(e) }));
@@ -89,7 +117,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
     }
   };
 
-  const pendingMeta = pending ? THEME_META.find((t) => t.id === pending) : null;
+  const pendingMeta = pending ? themes.find((item) => item.id === pending) : null;
 
   return (
     <div>
@@ -118,8 +146,8 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       {/* Theme picker grid (only when the flag is on) */}
       {enabled && (
         <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-          {THEME_META.map((theme) => {
-            const isCurrent = theme.id === current;
+          {themes.map((theme) => {
+            const isCurrent = theme.id === current || (theme.id === 'munder-difflin' && current === 'office');
             return (
               <button
                 key={theme.id}
