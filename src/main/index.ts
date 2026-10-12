@@ -92,6 +92,12 @@ import {
   codexRemoteSocketFits,
   withCodexRemoteArgs
 } from '../shared/codexRemote';
+import { scanThemes, readPack, validateThemePack, getThemeSearchPaths } from './themes';
+
+// Dev isolation: apply MD_USER_DATA_DIR early before config, db, or hive initialize
+if (process.env.MD_USER_DATA_DIR && typeof process.env.MD_USER_DATA_DIR === 'string') {
+  app.setPath('userData', resolve(process.env.MD_USER_DATA_DIR));
+}
 
 const isDev = !!process.env.ELECTRON_RENDERER_URL;
 
@@ -234,13 +240,17 @@ const ptyToAgent = new Map<string, string>();
  *  no user click. Cleared the moment it's consumed, so it can never loop installs. */
 const pendingInstallRelaunch = new Map<string, { opts: AgentSpawnOptions; owner: Electron.WebContents | null; bin: string; rung: string }>();
 const hive = new HiveManager(
-  () => readConfig().harnessHome,
+  () => process.env.MD_HIVE_ROOT || readConfig().harnessHome,
   (channel, payload) => {
     const wc = liveWebContents();
     if (!wc) return false;
     try { wc.send(channel, payload); return true; } catch { return false; }
   }
 );
+if (process.env.MD_HOOKS_PIPE) {
+  const customPipe = process.env.MD_HOOKS_PIPE;
+  hive.sockPath = () => customPipe;
+}
 // #7C — operator control state (pause/gate/steer/halt), read by the HookServer
 // when deciding hook returns.
 const control = new ControlRegistry();
@@ -3353,6 +3363,39 @@ ipcMain.handle('fs:statAbs', (_evt, p: unknown) => {
     return { exists: false, isFile: false, path: '' };
   }
   return statAbs(p);
+});
+
+// ─── IPC: themes (scanned set only, §2.5 - §2.7) ────────────────────────────
+ipcMain.handle('themes:list', () => {
+  return scanThemes().packs;
+});
+
+ipcMain.handle('themes:load', (_evt, id: unknown) => {
+  if (typeof id !== 'string') return null;
+  return readPack(id);
+});
+
+ipcMain.handle('themes:validate', (_evt, id: unknown) => {
+  if (typeof id !== 'string') {
+    return {
+      valid: false,
+      issues: [{ level: 'error', code: 'bad-arg', path: '', message: 'id must be a string' }]
+    };
+  }
+  return validateThemePack(id);
+});
+
+ipcMain.handle('themes:openFolder', async () => {
+  const userThemesDir = join(app.getPath('userData'), 'themes');
+  try {
+    if (!existsSync(userThemesDir)) {
+      mkdirSync(userThemesDir, { recursive: true });
+    }
+    const err = await shell.openPath(userThemesDir);
+    return { ok: !err, error: err || undefined };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 });
 
 /** Reveal a path in the OS file browser — Finder, Explorer, or whatever the
