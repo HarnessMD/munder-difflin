@@ -327,7 +327,7 @@ function execDispatch(deps: RealtimeActionDeps, a: Record<string, unknown>): Act
     `OBJECTIVE: ${objective}\n` +
     `CONTEXT: ${str(a.context) || '(none given)'}\n` +
     `CONSTRAINTS: ${str(a.constraints) || '(use your judgement; respect the guardrails)'}\n` +
-    `DONE WHEN: ${str(a.doneWhen) || str(a.done) || 'you report the outcome back to god'}`;
+    `DONE WHEN: ${str(a.doneWhen) || str(a.done) || 'you report the outcome back to the orchestrator'}`;
   const msg = deps.hiveSend(
     { to: r.id, act: 'request', subject: `Voice dispatch: ${objective.slice(0, 60)}`, body, requires_reply: true },
     VOICE_ACTOR
@@ -620,7 +620,7 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
     // clear_context on god is ALLOWED behind confirm — it's recoverable
     // (sessions resume) and "clear Michael's context" is a real operator need.
     if (r.isGod && verb !== 'clear_context')
-      return { ok: false, spoken: `${verb} on the god orchestrator is voice-forbidden. That has to be done in the UI.` };
+      return { ok: false, spoken: `${verb} on the orchestrator is voice-forbidden. That has to be done in the UI.` };
 
     const commit =
       verb === 'kill' ? buildKill(deps, r)
