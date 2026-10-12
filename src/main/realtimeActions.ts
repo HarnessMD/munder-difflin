@@ -40,6 +40,7 @@ import type { ScheduledMission } from './config';
 import { inferAgentProvider } from '../shared/agentProvider';
 import { clearCommandForProvider } from '../shared/providerAutomation';
 import { resolveGodName } from '../shared/godIdentity';
+import { scanThemes } from './themes';
 
 export const VOICE_ACTOR = 'michael-voice';
 
@@ -139,7 +140,7 @@ const SETTING_POLICY: Record<string, {
   // soft: cosmetic / low-blast, instantly reversible
   notifications: { tier: 'soft', type: 'boolean' },
   tvShowOffices: { tier: 'soft', type: 'boolean' },
-  officeTheme: { tier: 'soft', type: 'string', values: ['office', 'friends', 'brooklyn99', 'siliconvalley', 'got', 'hogwarts'] },
+  officeTheme: { tier: 'soft', type: 'string' },
   terminalTheme: { tier: 'soft', type: 'string', values: ['light', 'dark'] },
   freeflowEnabled: { tier: 'soft', type: 'boolean' },
   strongKeepalive: { tier: 'soft', type: 'boolean' },
@@ -749,7 +750,12 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
         return { ok: false, spoken: `What should ${key} be set to?` };
       }
       value = value.trim();
-      if (policy.values && !policy.values.includes(value as string)) {
+      if (key === 'officeTheme') {
+        const availableThemes = scanThemes().packs.filter((p) => p.available).map((p) => p.id);
+        if (!availableThemes.includes(value as string) && value !== 'office') {
+          return { ok: false, spoken: `officeTheme must be one of: ${availableThemes.join(', ')}.` };
+        }
+      } else if (policy.values && !policy.values.includes(value as string)) {
         return { ok: false, spoken: `${key} must be one of: ${policy.values.join(', ')}.` };
       }
     }
