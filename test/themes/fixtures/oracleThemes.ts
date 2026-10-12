@@ -68,6 +68,7 @@ export const ORACLE_OFFICE_THEME: ThemeConfig = {
     background: 0x1a1320,
     noteColors: { todo: 0xf2df8a, doing: 0x9ecbf0, blocked: 0xf0a3a3, done: 0xa8e0b0 },
   },
+  seatFacing: { 'desk-ceo': 'down' },
   cast: undefined as any,
 };
 

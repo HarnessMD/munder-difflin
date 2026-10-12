@@ -336,16 +336,19 @@ export function OfficeFloor() {
       // Build the ordered seat list once: PC desks + named desks first, then
       // conference-room chairs as overflow. Each agent claims one and stays there;
       // they never wander off it (except when blocked, or on a coffee break).
+      interface SeatInfo { tile: Tile; name?: string; }
       const seatTiles: Tile[] = [];
+      const seatInfos: SeatInfo[] = [];
       const seatSeen = new Set<string>();
-      const addSeat = (t?: Tile) => {
+      const addSeat = (t?: Tile, name?: string) => {
         if (!t) return;
         const k = `${t.x},${t.y}`;
         if (seatSeen.has(k)) return;
         seatSeen.add(k);
         seatTiles.push({ x: t.x, y: t.y });
+        seatInfos.push({ tile: { x: t.x, y: t.y }, name });
       };
-      for (const name of theme.primarySeatNames) addSeat(mapRenderer.getSpawnPoint(name));
+      for (const name of theme.primarySeatNames) addSeat(mapRenderer.getSpawnPoint(name), name);
       const addZoneSeats = (zone: string) => {
         const z = mapRenderer.getZone(zone);
         if (!z) return;
@@ -395,7 +398,8 @@ export function OfficeFloor() {
       // the south, so the agent faces 'up' and we see their back — like a real
       // worker. Only a desk directly to the SOUTH (face 'down') puts furniture in
       // front of them, which is the one case the leg-crop tucks legs under.
-      const facingForSeat = (t: Tile): 'up' | 'down' | 'left' | 'right' => {
+      const facingForSeat = (t: Tile, name?: string): 'up' | 'down' | 'left' | 'right' => {
+        if (name && theme.seatFacing?.[name]) return theme.seatFacing[name];
         if (!mapRenderer.isWalkable(t.x, t.y - 1)) return 'up';
         if (!mapRenderer.isWalkable(t.x, t.y + 1)) return 'down';
         if (!mapRenderer.isWalkable(t.x - 1, t.y)) return 'left';
@@ -422,7 +426,7 @@ export function OfficeFloor() {
       // Seats first (so partner indices are stable), then the standing spots.
       for (const name of theme.cafeSeatNames) {
         const p = mapRenderer.getSpawnPoint(name);
-        if (p) cafeSpots.push({ tile: p, facing: facingForSeat(p), spot: 'table', seated: true, partner: -1 });
+        if (p) cafeSpots.push({ tile: p, facing: facingForSeat(p, name), spot: 'table', seated: true, partner: -1 });
       }
       // Pair the two seats that share a table (same column, two tiles apart).
       for (let i = 0; i < cafeSpots.length; i++) {
@@ -1385,7 +1389,8 @@ export function OfficeFloor() {
         const charName = theme.cast.byName[agent.character] ? agent.character : theme.cast.defaultCharacter;
         const member = theme.cast.byName[charName];
         const seatIndex = claimSeat(agent);
-        const seatTile: Tile = (seatIndex != null ? seatTiles[seatIndex] : undefined)
+        const seatInfo = seatIndex != null ? seatInfos[seatIndex] : undefined;
+        const seatTile: Tile = seatInfo?.tile
           ?? mapRenderer.getSpawnPoint('entrance')
           ?? { x: 2, y: 2 };
         const waitTile = waitTiles[(seatIndex ?? 0) % waitTiles.length];
@@ -1402,7 +1407,7 @@ export function OfficeFloor() {
           mapRenderer,
           frames,
           seatTile,
-          seatDirection: agent.isGod ? 'down' : facingForSeat(seatTile),
+          seatDirection: facingForSeat(seatTile, seatInfo?.name),
           spawnTile: entrance, // walk in from the office door
           glowColor: hexNum(colors.accent[agent.accent]) ?? hexToNumber(member.shirt),
           onClick: (id) => useStore.getState().select(id),
