@@ -4,8 +4,9 @@ import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 
 import { validatePack, hexToNumber, type ValidatedPack } from '../../src/shared/themePack';
-import { OFFICE_THEME, BROOKLYN99_THEME, type ThemeConfig } from '../../src/renderer/src/scene/office/themeRegistry';
+import type { ThemeConfig } from '../../src/renderer/src/scene/office/themeRegistry';
 import { resolveThemeMap } from '../../src/renderer/src/scene/office/themeLoader';
+import { ORACLE_OFFICE_THEME as OFFICE_THEME, ORACLE_BROOKLYN99_THEME as BROOKLYN99_THEME } from './fixtures/oracleThemes';
 
 function sha256(buf: Buffer | Uint8Array): string {
   return createHash('sha256').update(buf).digest('hex');
