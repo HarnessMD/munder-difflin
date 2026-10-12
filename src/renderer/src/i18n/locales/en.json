@@ -580,13 +580,14 @@
     "titles": {
       "persona": "WELCOME TO MUNDER DIFFLIN",
       "welcome": "MEET YOUR OFFICE",
-      "home": "STEP 1 OF 4 · HARNESS HOME",
-      "homePlain": "STEP 1 OF 4 · A HOME FOR THE APP",
-      "orchestrator": "STEP 2 OF 4 · YOUR CLONE'S ENGINE",
-      "orchestratorPlain": "STEP 2 OF 4 · YOUR CLONE",
-      "repos": "STEP 3 OF 4 · YOUR REPOS",
-      "reposPlain": "STEP 3 OF 4 · YOUR PROJECTS",
-      "permissions": "STEP 4 OF 4 · PERMISSIONS & RELIABILITY",
+      "theme": "STEP 1 OF 5 · CHOOSE A THEME",
+      "home": "STEP 2 OF 5 · HARNESS HOME",
+      "homePlain": "STEP 2 OF 5 · A HOME FOR THE APP",
+      "orchestrator": "STEP 3 OF 5 · YOUR CLONE'S ENGINE",
+      "orchestratorPlain": "STEP 3 OF 5 · YOUR CLONE",
+      "repos": "STEP 4 OF 5 · YOUR REPOS",
+      "reposPlain": "STEP 4 OF 5 · YOUR PROJECTS",
+      "permissions": "STEP 5 OF 5 · PERMISSIONS & RELIABILITY",
       "done": "ALL SET"
     },
     "persona": {
@@ -635,6 +636,14 @@
           "descPlain": "Hire a ready-made agent from the gallery in one click — no setup needed."
         }
       }
+    },
+    "theme": {
+      "desc": "Pick your app appearance and office world. You can change this anytime in Settings.",
+      "modeLabel": "APPEARANCE",
+      "lightMode": "Light",
+      "darkMode": "Dark",
+      "packLabel": "OFFICE THEME PACK",
+      "packNote": "Theme packs customize your office floor, cast, and decorations."
     },
     "providerBlurb": {
       "claude": "Claude Code — Anthropic",

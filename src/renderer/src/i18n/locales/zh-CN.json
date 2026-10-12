@@ -580,13 +580,14 @@
     "titles": {
       "persona": "欢迎来到 MUNDER DIFFLIN",
       "welcome": "认识你的办公室",
-      "home": "第 1 步，共 4 步 · HARNESS 主目录",
-      "homePlain": "第 1 步，共 4 步 · 为应用找一个家",
-      "orchestrator": "第 2 步，共 4 步 · 你的克隆引擎",
-      "orchestratorPlain": "第 2 步，共 4 步 · 你的克隆",
-      "repos": "第 3 步，共 4 步 · 你的仓库",
-      "reposPlain": "第 3 步，共 4 步 · 你的项目",
-      "permissions": "第 4 步，共 4 步 · 权限与可靠性",
+      "theme": "第 1 步，共 5 步 · 选择主题",
+      "home": "第 2 步，共 5 步 · HARNESS 主目录",
+      "homePlain": "第 2 步，共 5 步 · 为应用找一个家",
+      "orchestrator": "第 3 步，共 5 步 · 你的克隆引擎",
+      "orchestratorPlain": "第 3 步，共 5 步 · 你的克隆",
+      "repos": "第 4 步，共 5 步 · 你的仓库",
+      "reposPlain": "第 4 步，共 5 步 · 你的项目",
+      "permissions": "第 5 步，共 5 步 · 权限与可靠性",
       "done": "全部就绪"
     },
     "persona": {
@@ -635,6 +636,14 @@
           "descPlain": "一键从画廊雇一个现成智能体——无需任何设置。"
         }
       }
+    },
+    "theme": {
+      "desc": "选择你的应用外观和办公室风格。之后随时可以在设置中更改。",
+      "modeLabel": "外观",
+      "lightMode": "浅色",
+      "darkMode": "深色",
+      "packLabel": "办公室主题包",
+      "packNote": "主题包可定制你的办公室地面、角色和装饰物。"
     },
     "providerBlurb": {
       "claude": "Claude Code — Anthropic",
