@@ -69,7 +69,7 @@ def vacate(ref: Image.Image) -> Image.Image:
         (1268, 1366, (1280, 404, 1303, 490), (1303, 446, 1342, 488), (1360, 400, 1385, 480)),
     ]:
         d.rectangle((fx0, 376, fx1, 505), fill=maroon)
-        d.rectangle((hand[0] + 6, 436, hand[0] + 24, 458), fill=(24, 30, 48))
+        d.rectangle((hand[0] + 12, 434, hand[0] + 25, 460), fill=maroon) if hand[0] < 1000 else d.rectangle((hand[0] - 2, 434, hand[0] + 9, 460), fill=maroon)
         d.rectangle((min(back[0], seat[0]) + 8, 486, max(back[2], seat[2]) - 8, 500), fill=base)
         d.rectangle(seat, fill=tan_dk, outline=line, width=2)
         d.rectangle(back, fill=tan, outline=line, width=2)
