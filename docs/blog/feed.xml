@@ -4,9 +4,25 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-11T00:00:00.000Z</updated>
+  <updated>2026-10-12T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 12 Oct 2026: WordCraft 0.5.0, Genkit Dart 1.0, 500 Billion Tokens</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-12/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-12/</id>
+    <published>2026-10-12T00:00:00.000Z</published>
+    <updated>2026-10-12T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 12 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>Claude routines: what they are, triggers, cost and limits</title>
+    <link href="https://munderdiffl.in/blog/claude-code-routines/" />
+    <id>https://munderdiffl.in/blog/claude-code-routines/</id>
+    <published>2026-10-12T00:00:00.000Z</published>
+    <updated>2026-10-12T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude routines run a saved Claude Code prompt in the cloud on a schedule, an API call or a GitHub event. Plans, steps and limits, checked 12 Oct 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 11 Oct 2026: Dynamic Workflows, TypeSafe AI&#39;s Raise, OpenCode 1.19.0</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-11/" />
@@ -470,21 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-30T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Grok Bot runs every Bot on one shared cloud computer in the US. Nine alternatives checked on 30 Sep 2026, from ChatGPT dots to open source agents you run.</summary>
-  </entry>
-  <entry>
-    <title>Herdr Alternatives: What to Pick and Who Each One Fits</title>
-    <link href="https://munderdiffl.in/blog/herdr-alternatives/" />
-    <id>https://munderdiffl.in/blog/herdr-alternatives/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Herdr alternatives checked on 14 Sep 2026: tmux, Munder Difflin, Claude Squad, cmux, Orca, Conductor, Superset and Emdash, and who each fits.</summary>
-  </entry>
-  <entry>
-    <title>How to Connect Ollama to Claude Code</title>
-    <link href="https://munderdiffl.in/blog/how-to-connect-ollama-to-claude-code/" />
-    <id>https://munderdiffl.in/blog/how-to-connect-ollama-to-claude-code/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Yes, Claude Code can run on Ollama. Run ollama launch claude or set three environment variables, give the model 64K of context, and see what stops working.</summary>
   </entry>
 </feed>

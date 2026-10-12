@@ -4757,5 +4757,28 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-10-12": {
+    "title": "Agent Tools Today, 12 Oct 2026: WordCraft 0.5.0, Genkit Dart 1.0, 500 Billion Tokens",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "claude-code-routines": {
+    "title": "Claude routines",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-code-routines/hero.png",
+      "alt": "Title card on white. Claude routines in large ink type beside a wall calendar with one column of days ticked, checked 12 Oct 2026.",
+      "prompt": "Still of the hero scene in assets/media/claude-code-routines/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
