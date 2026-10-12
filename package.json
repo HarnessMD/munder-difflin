@@ -12,6 +12,7 @@
   },
   "scripts": {
     "dev": "electron-vite dev",
+    "dev:sandbox": "node -e \"const p=require('path');const os=require('os');const s=process.env.MD_SANDBOX_DIR||p.join(os.tmpdir(),'munder-difflin-sandbox');const u=p.join(s,'userData');const h=p.join(s,'harness');const t=p.join(s,'themes');const pipe='\\\\\\\\.\\\\pipe\\\\munder-difflin-dev-sandbox';const env=Object.assign({},process.env,{MD_USER_DATA_DIR:u,MD_THEMES_DIR:t,MD_HIVE_ROOT:h,MD_HOOKS_PIPE:pipe});require('child_process').spawn('npx',['electron-vite','dev'],{stdio:'inherit',shell:true,env});\"",
     "build": "electron-vite build && npm run copy:main-assets",
     "copy:main-assets": "node tools/copy-main-assets.cjs",
     "preview": "electron-vite preview",
