@@ -399,7 +399,7 @@ export function IdePanel() {
               <span style={{
                 fontFamily: 'var(--cth-font-display)', fontSize: 7, padding: '1px 3px',
                 background: 'var(--cth-lilac-light)', color: 'var(--cth-ink-900)'
-              }}>god</span>
+              }}>{t('idePanel.orchestratorTag')}</span>
             )}
             {target.inferred && (
               // Never assert a name we had to guess at. One quiet word is enough

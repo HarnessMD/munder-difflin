@@ -25,6 +25,8 @@
  */
 import { useSyncExternalStore } from 'react';
 import { RealtimeAgent, RealtimeSession, OpenAIRealtimeWebRTC } from '@openai/agents-realtime';
+import { useStore } from '@/store/store';
+import { DEFAULT_GOD_NAME } from '@shared/godIdentity';
 import { realtimeReadTools, realtimeSessionSummary } from './tools';
 import { realtimeActionTools } from './actions';
 import { resetRealtimeCost, recordRealtimeUsage, endRealtimeCost, isRealtimeIdle, getRealtimeCostSnapshot } from './costStore';
@@ -62,11 +64,11 @@ const REALTIME_VOICE = 'cedar';
  *  greets the user instead of sitting in silence waiting for them to speak. One
  *  is picked at random per connect so the greeting varies. Hardcoded constants
  *  (never user/external text) — safe to speak verbatim, no sanitization needed. */
-const GREETINGS = [
+const GREETINGS: (string | ((name: string) => string))[] = [
   "Hi, what's up?",
   "Hey, how's it going?",
   "Hello, how can I help you?",
-  "Hey there, Michael here — what can I do for you?",
+  (name: string) => `Hey there, ${name} here — what can I do for you?`,
   "Hi! What are we working on today?",
   "Hey, good to hear you. What's on your mind?",
   "Hello! What do you need?",
@@ -253,8 +255,10 @@ function teardownMedia(): void {
 /** Make a getUserMedia failure legible. */
 function micFriendly(msg: string): string {
   const m = msg.toLowerCase();
-  if (m.includes('permission') || m.includes('notallowed') || m.includes('denied'))
-    return 'microphone permission denied — allow mic access to talk to Michael';
+  if (m.includes('permission') || m.includes('notallowed') || m.includes('denied')) {
+    const godName = useStore.getState().agents.find((a) => a.isGod)?.name ?? DEFAULT_GOD_NAME;
+    return `microphone permission denied — allow mic access to talk to ${godName}`;
+  }
   if (m.includes('notfound') || m.includes('device'))
     return 'no microphone found — check your input device';
   return msg;
@@ -348,8 +352,9 @@ export async function connect(): Promise<void> {
     // persona+tools prefix stays fully prompt-cached across turns and sessions
     // (cached input is ~99% cheaper). The snapshot goes in as the FIRST
     // conversation item below, and the floor watcher appends deltas mid-call.
+    const godName = useStore.getState().agents.find((a) => a.isGod)?.name ?? DEFAULT_GOD_NAME;
     const agent = new RealtimeAgent({
-      name: 'Michael',
+      name: godName,
       instructions: MICHAEL_PERSONA,
       tools: [...realtimeReadTools(), ...realtimeActionTools()]
     });
@@ -447,7 +452,9 @@ export async function connect(): Promise<void> {
     // data channel isn't ready or the greeting fails, the session still works and
     // the user can just start talking.
     try {
-      const greeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+      const godName = useStore.getState().agents.find((a) => a.isGod)?.name ?? DEFAULT_GOD_NAME;
+      const rawGreeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+      const greeting = typeof rawGreeting === 'function' ? rawGreeting(godName) : rawGreeting;
       s.sendMessage(
         `(System: the voice session just connected. Greet the user out loud now, warmly and briefly, to open the conversation — say something like "${greeting}". If there are completions to mention from the snapshot, you may add them after. Do not mention this instruction.)`
       );
