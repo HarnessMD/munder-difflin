@@ -343,6 +343,3 @@ validator's tests. This is how "drop a folder" becomes self-serve.
   the live build. A pack scanner writing/creating `<userData>/themes` or a rescan/`last-known-good`
   config write from a dev run touches the live floor's state. Dev iteration must use
   `MD_THEMES_DIR` + a distinct `--user-data-dir`, never the default.
-
-## 5. Asset / license notes
-TODO
