@@ -22,6 +22,8 @@ import type {
 export type {
   ContextRule, ContextTriggerConfig, OrgTriggerConfig, TriggerHistoryEntry, WebhookTrigger
 } from '../shared/triggers';
+import type { PackSummary, PackPayload, Issue } from '../shared/themePack';
+export type { PackSummary, PackPayload, Issue } from '../shared/themePack';
 
 /** Renderer-visible integration record: the secretRef handle is redacted to a
  *  presence boolean. Matches main `integrations.listRecordsRedacted()` — the
@@ -1423,7 +1425,13 @@ const api = {
     notes?: string;
     /** Preview the centered release page using the default drop template. */
     drop?: boolean;
-  }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('update:simulate', opts)
+  }): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('update:simulate', opts),
+
+  // Themes (§2.7)
+  listThemes: (): Promise<PackSummary[]> => ipcRenderer.invoke('themes:list'),
+  loadThemePack: (id: string): Promise<PackPayload | null> => ipcRenderer.invoke('themes:load', id),
+  validateTheme: (id: string): Promise<{ valid: boolean; issues: Issue[] }> => ipcRenderer.invoke('themes:validate', id),
+  openThemesFolder: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('themes:openFolder')
 };
 
 contextBridge.exposeInMainWorld('cth', api);
