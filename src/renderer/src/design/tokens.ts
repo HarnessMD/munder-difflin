@@ -49,6 +49,61 @@ export const colors = {
     woodDark: 0xc9a66b,
     path: 0xe8d8b0,
     wall: 0x8b6f47
+  },
+  // Mirrors the new tokens.css groups added for theme-surface enablement
+  // (worker-themeable-surfaces). Light-default values only — tokens.ts does
+  // not mirror dark overrides, same as every other group above.
+  terminal: {
+    selectionBg: 0xffec99,
+    black: 0x1a1320,
+    red: 0xd1453b,
+    green: 0x20904b,
+    yellow: 0x9c6b00,
+    blue: 0x2b6cb0,
+    magenta: 0x8a5cf0,
+    cyan: 0x1f9c94,
+    white: 0x3a2f44,
+    brightRed: 0xe0584e,
+    brightGreen: 0x2e9e54,
+    brightYellow: 0xb8860b,
+    brightBlue: 0x3b7dc4,
+    brightMagenta: 0x9b72f2,
+    brightCyan: 0x2ba89f,
+    brightWhite: 0x1a1320
+  },
+  termview: {
+    bg: 0xfcfaf0,
+    fg: 0x1a1320,
+    brightBlack: 0x6b5878
+  },
+  legacy: {
+    coral: 0xff6b6b,
+    selection: 0xffec99
+  },
+  editor: {
+    bg: 0xfcfaf0,
+    text: 0x1a1320,
+    gutterBg: 0xf0ead2,
+    muted: 0x6b5878,
+    border: 0xd9cfe0,
+    searchMatch: 0xa8e6e0,
+    searchMatchSelected: 0xffd93d,
+    syntaxKeyword: 0xb197fc,
+    syntaxString: 0x6bcf7f,
+    syntaxFunction: 0xffa07a,
+    syntaxType: 0x4ecdc4,
+    syntaxProperty: 0x3d2e4a
+  },
+  release: {
+    paper: 0xfffdf7,
+    ink: 0x1b1b1b,
+    inkFaint: 0x8a867a,
+    yellow: 0xffca54,
+    sky: 0x72c2df,
+    maroon: 0xb23a4e
+  },
+  danger: {
+    text: 0x6e1423
   }
 } as const;
 

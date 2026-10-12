@@ -46,12 +46,17 @@ export interface ReleaseDropProps {
 // Landing site palette (docs/DESIGN.md §2). Restated here because the modal is
 // app chrome and cannot reach the site's stylesheet; kept in one place so the
 // frame's tokens in shared/releaseDrop.ts and this chrome never drift apart.
-const PAPER = '#FFFDF7';
-const INK = '#1B1B1B';
-const INK_FAINT = '#8A867A';
-const YELLOW = '#FFCA54';
-const SKY = '#72C2DF';
-const MAROON = '#B23A4E';
+//
+// Routed through dedicated, FROZEN `--cth-release-*` tokens (no dark
+// override) rather than the app's `--cth-*` chrome tokens on purpose: this
+// mirrors the munderdiffl.in site's own fixed brand, not the current app
+// theme or an active theme pack, so it must not shift with either.
+const PAPER = 'var(--cth-release-paper)';
+const INK = 'var(--cth-release-ink)';
+const INK_FAINT = 'var(--cth-release-ink-faint)';
+const YELLOW = 'var(--cth-release-yellow)';
+const SKY = 'var(--cth-release-sky)';
+const MAROON = 'var(--cth-release-maroon)';
 const MONO = '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 
 // How long the loader may cover the frame before it is revealed regardless.
@@ -99,7 +104,7 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
       style={{
         position: 'fixed', inset: 0, zIndex: 600,
         background:
-          'radial-gradient(rgba(255,253,247,0.16) 1px, transparent 1px) 0 0 / 22px 22px, rgba(27,27,27,0.72)',
+          'radial-gradient(var(--cth-release-backdrop-dot) 1px, transparent 1px) 0 0 / 22px 22px, var(--cth-release-backdrop)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 28,
         // Center with auto margins on the child and let the overlay scroll, so a
@@ -140,8 +145,8 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
         }}>
           <span aria-hidden style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
             <i style={{ width: 10, height: 10, background: YELLOW, display: 'block' }} />
-            <i style={{ width: 10, height: 10, background: '#72C2DF', display: 'block' }} />
-            <i style={{ width: 10, height: 10, background: '#B23A4E', display: 'block' }} />
+            <i style={{ width: 10, height: 10, background: SKY, display: 'block' }} />
+            <i style={{ width: 10, height: 10, background: MAROON, display: 'block' }} />
           </span>
           <span style={{
             flex: 1, minWidth: 0, fontSize: 12, fontWeight: 700, letterSpacing: '.08em',

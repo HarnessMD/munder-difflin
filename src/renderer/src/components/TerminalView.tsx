@@ -2,36 +2,45 @@ import { useEffect, useRef } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
+import { cssVar } from '@/design/xtermPalette';
 
 // Cream-paper light theme — kept in sync with the tuned light palette in
 // PtyTerminalView.tsx. The old palette here used the dark-theme neon colours
 // (e.g. green #6BCF7F, yellow #FFD93D) which are near-invisible as foreground on
 // the cream background; these dark/deep inks read on cream, and the terminal's
 // `minimumContrastRatio` (below) keeps coloured backgrounds legible too.
-const theme = {
-  background: '#FCFAF0',
-  foreground: '#1A1320',
-  cursor: '#FF6B6B',
-  cursorAccent: '#FCFAF0',
-  selectionBackground: '#FFEC99',
-  selectionForeground: '#1A1320',
-  black:        '#1A1320',
-  red:          '#D1453B',
-  green:        '#20904B',
-  yellow:       '#9C6B00',
-  blue:         '#2B6CB0',
-  magenta:      '#8A5CF0',
-  cyan:         '#1F9C94',
-  white:        '#3A2F44',
-  brightBlack:  '#6B5878',
-  brightRed:    '#E0584E',
-  brightGreen:  '#2E9E54',
-  brightYellow: '#B8860B',
-  brightBlue:   '#3B7DC4',
-  brightMagenta:'#9B72F2',
-  brightCyan:   '#2BA89F',
-  brightWhite:  '#1A1320'
-};
+//
+// This view never branched by app theme (no useAppTheme here), so these read
+// from FROZEN tokens (`--cth-termview-*`, `--cth-legacy-*` — no dark override)
+// rather than PtyTerminalView's reactive `--cth-term-*` ones: tokenizing must
+// not newly couple this view to the app's dark toggle. `--cth-legacy-coral` is
+// the pre-recalibration cursor colour, shared verbatim with CodeEditor.tsx.
+function buildTheme() {
+  return {
+    background: cssVar('--cth-termview-bg'),
+    foreground: cssVar('--cth-termview-fg'),
+    cursor: cssVar('--cth-legacy-coral'),
+    cursorAccent: cssVar('--cth-termview-bg'),
+    selectionBackground: cssVar('--cth-legacy-selection'),
+    selectionForeground: cssVar('--cth-termview-fg'),
+    black:        cssVar('--cth-termview-fg'),
+    red:          cssVar('--cth-termview-red'),
+    green:        cssVar('--cth-termview-green'),
+    yellow:       cssVar('--cth-termview-yellow'),
+    blue:         cssVar('--cth-termview-blue'),
+    magenta:      cssVar('--cth-termview-magenta'),
+    cyan:         cssVar('--cth-termview-cyan'),
+    white:        cssVar('--cth-termview-white'),
+    brightBlack:  cssVar('--cth-termview-bright-black'),
+    brightRed:    cssVar('--cth-termview-bright-red'),
+    brightGreen:  cssVar('--cth-termview-bright-green'),
+    brightYellow: cssVar('--cth-termview-bright-yellow'),
+    brightBlue:   cssVar('--cth-termview-bright-blue'),
+    brightMagenta:cssVar('--cth-termview-bright-magenta'),
+    brightCyan:   cssVar('--cth-termview-bright-cyan'),
+    brightWhite:  cssVar('--cth-termview-fg')
+  };
+}
 
 export interface TerminalViewProps {
   initialLines?: string[];
@@ -47,7 +56,7 @@ export function TerminalView({ initialLines = [], feed = [] }: TerminalViewProps
   useEffect(() => {
     if (!hostRef.current) return;
     const term = new Terminal({
-      theme,
+      theme: buildTheme(),
       fontFamily: '"JetBrains Mono", "SF Mono", Menlo, monospace',
       fontSize: 13,
       lineHeight: 1.0,

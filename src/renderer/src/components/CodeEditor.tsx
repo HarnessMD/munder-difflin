@@ -14,42 +14,47 @@ import { Icon } from './Icon';
 import { PixelButton } from './PixelButton';
 
 // ─── Theme matching CTH palette ─────────────────────────────────────────────
+// Declared `{ dark: false }` — this editor is frozen by its own config and
+// has never followed the app's dark toggle. These route through NEW, FROZEN
+// `--cth-editor-*` / shared `--cth-legacy-*` tokens (no dark override) so
+// tokenizing doesn't newly couple it to the dark toggle. `--cth-legacy-coral`
+// is the pre-recalibration arcade red, shared verbatim with TerminalView.tsx.
 const cthEditorTheme = EditorView.theme({
   '&': {
-    background: '#FCFAF0',
-    color: '#1A1320',
+    background: 'var(--cth-editor-bg)',
+    color: 'var(--cth-editor-text)',
     height: '100%',
     fontFamily: 'VT323, "JetBrains Mono", monospace',
     fontSize: '16px'
   },
-  '.cm-content': { caretColor: '#FF6B6B', padding: '8px 0' },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#FF6B6B', borderLeftWidth: '2px' },
+  '.cm-content': { caretColor: 'var(--cth-legacy-coral)', padding: '8px 0' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--cth-legacy-coral)', borderLeftWidth: '2px' },
   '.cm-scroller': { fontFamily: 'inherit', overflow: 'auto' },
   '.cm-gutters': {
-    background: '#F0EAD2',
-    color: '#6B5878',
-    borderRight: '1px solid #D9CFE0'
+    background: 'var(--cth-editor-gutter-bg)',
+    color: 'var(--cth-editor-muted)',
+    borderRight: '1px solid var(--cth-editor-border)'
   },
-  '.cm-activeLineGutter': { background: '#FFEC99' },
-  '.cm-activeLine': { background: 'rgba(255, 217, 61, 0.10)' },
-  '.cm-selectionBackground, ::selection': { background: '#FFEC99 !important' },
-  '.cm-searchMatch': { background: '#A8E6E0', outline: '1px solid #1A1320' },
-  '.cm-searchMatch.cm-searchMatch-selected': { background: '#FFD93D' }
+  '.cm-activeLineGutter': { background: 'var(--cth-legacy-selection)' },
+  '.cm-activeLine': { background: 'var(--cth-editor-active-line)' },
+  '.cm-selectionBackground, ::selection': { background: 'var(--cth-legacy-selection) !important' },
+  '.cm-searchMatch': { background: 'var(--cth-editor-search-match)', outline: '1px solid var(--cth-editor-text)' },
+  '.cm-searchMatch.cm-searchMatch-selected': { background: 'var(--cth-editor-search-match-selected)' }
 }, { dark: false });
 
 const cthSyntax = HighlightStyle.define([
-  { tag: tags.keyword,        color: '#B197FC' },
-  { tag: tags.operator,       color: '#6B5878' },
-  { tag: [tags.string, tags.regexp], color: '#6BCF7F' },
-  { tag: [tags.number, tags.bool, tags.null], color: '#FF6B6B' },
-  { tag: tags.comment,        color: '#6B5878', fontStyle: 'italic' },
-  { tag: tags.variableName,   color: '#1A1320' },
-  { tag: tags.function(tags.variableName), color: '#FFA07A' },
-  { tag: [tags.typeName, tags.className], color: '#4ECDC4' },
-  { tag: tags.propertyName,   color: '#3D2E4A' },
-  { tag: tags.heading,        color: '#1A1320', fontWeight: 'bold' as any },
-  { tag: tags.link,           color: '#4ECDC4', textDecoration: 'underline' as any },
-  { tag: tags.meta,           color: '#6B5878' }
+  { tag: tags.keyword,        color: 'var(--cth-editor-syntax-keyword)' },
+  { tag: tags.operator,       color: 'var(--cth-editor-muted)' },
+  { tag: [tags.string, tags.regexp], color: 'var(--cth-editor-syntax-string)' },
+  { tag: [tags.number, tags.bool, tags.null], color: 'var(--cth-legacy-coral)' },
+  { tag: tags.comment,        color: 'var(--cth-editor-muted)', fontStyle: 'italic' },
+  { tag: tags.variableName,   color: 'var(--cth-editor-text)' },
+  { tag: tags.function(tags.variableName), color: 'var(--cth-editor-syntax-function)' },
+  { tag: [tags.typeName, tags.className], color: 'var(--cth-editor-syntax-type)' },
+  { tag: tags.propertyName,   color: 'var(--cth-editor-syntax-property)' },
+  { tag: tags.heading,        color: 'var(--cth-editor-text)', fontWeight: 'bold' as any },
+  { tag: tags.link,           color: 'var(--cth-editor-syntax-type)', textDecoration: 'underline' as any },
+  { tag: tags.meta,           color: 'var(--cth-editor-muted)' }
 ]);
 
 function extensionsFor(filename: string) {

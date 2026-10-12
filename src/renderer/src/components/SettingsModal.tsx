@@ -818,7 +818,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
       onClick={busy ? undefined : onClose}
       style={{
         position: 'fixed', inset: 0,
-        background: 'rgba(26, 19, 32, 0.7)',
+        background: 'var(--cth-modal-backdrop)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         zIndex: 300
       }}
@@ -828,7 +828,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
         style={{
           width: 840, maxWidth: '92vw', maxHeight: '88vh',
           display: 'flex', flexDirection: 'column',
-          filter: 'drop-shadow(4px 4px 0 rgba(26, 19, 32, 0.25))'
+          filter: 'drop-shadow(4px 4px 0 var(--cth-modal-shadow))'
         }}
       >
         <PixelPanel
@@ -881,7 +881,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
               </div>
 
               {changeErr && (
-                <div style={{ fontSize: 12, lineHeight: '18px', color: '#6E1423' }}>{changeErr}</div>
+                <div style={{ fontSize: 12, lineHeight: '18px', color: 'var(--cth-danger-text)' }}>{changeErr}</div>
               )}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -1668,7 +1668,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         )}
 
                         {/* Public surface warning. Loud, not buried. */}
-                        <span style={{ fontSize: 12, lineHeight: '16px', color: '#6E1423' }}>
+                        <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-danger-text)' }}>
                           {t('settings.connections.webhookWarning')}
                         </span>
 
@@ -2078,7 +2078,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                       <div style={{
                         fontFamily: 'var(--cth-font-display)', fontSize: 10, lineHeight: '14px',
-                        color: '#6E1423'
+                        color: 'var(--cth-danger-text)'
                       }}>{t('settings.general.dangerZone')}</div>
                       <p style={{ margin: 0, fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-700)' }}>
                         {t('settings.general.dangerDesc', { godName })}

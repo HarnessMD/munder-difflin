@@ -94,6 +94,94 @@
   --cth-panel-border-inset:    inset 0 0 0 1px var(--cth-ink-100);
   --cth-panel-border-terminal: inset 0 0 0 1px var(--cth-ink-300);
   --cth-panel-border-dialog:   inset 0 0 0 1px var(--cth-ink-500);
+
+  /* ── Terminal (xterm) ANSI palette — PtyTerminalView ──────────────────────
+     PtyTerminalView already branches light/dark itself; these hold the ANSI
+     slots that don't coincide with an existing token's light+dark pair (see
+     worker-themeable-surfaces audit). Defaults are the literals already in
+     use — restyling these is a theme pack's job, not this change's. */
+  --cth-term-selection-bg: #FFEC99;
+  --cth-term-black:        #1A1320;
+  --cth-term-red:          #D1453B;
+  --cth-term-green:        #20904B;
+  --cth-term-yellow:       #9C6B00;
+  --cth-term-blue:         #2B6CB0;
+  --cth-term-magenta:      #8A5CF0;
+  --cth-term-cyan:         #1F9C94;
+  --cth-term-white:        #3A2F44;
+  --cth-term-bright-red:     #E0584E;
+  --cth-term-bright-green:   #2E9E54;
+  --cth-term-bright-yellow:  #B8860B;
+  --cth-term-bright-blue:    #3B7DC4;
+  --cth-term-bright-magenta: #9B72F2;
+  --cth-term-bright-cyan:    #2BA89F;
+  --cth-term-bright-white:   #1A1320;
+
+  /* ── TerminalView (pipe-pane) xterm palette ────────────────────────────────
+     This view never branched by app theme (no useAppTheme here, static since
+     before v0.3.4) — these stay FROZEN (no dark override) so tokenizing them
+     changes nothing about when/whether they vary. */
+  --cth-termview-bg:          #FCFAF0;
+  --cth-termview-fg:          #1A1320;
+  --cth-termview-red:         #D1453B;
+  --cth-termview-green:       #20904B;
+  --cth-termview-yellow:      #9C6B00;
+  --cth-termview-blue:        #2B6CB0;
+  --cth-termview-magenta:     #8A5CF0;
+  --cth-termview-cyan:        #1F9C94;
+  --cth-termview-white:       #3A2F44;
+  --cth-termview-bright-black:  #6B5878;
+  --cth-termview-bright-red:    #E0584E;
+  --cth-termview-bright-green:  #2E9E54;
+  --cth-termview-bright-yellow: #B8860B;
+  --cth-termview-bright-blue:   #3B7DC4;
+  --cth-termview-bright-magenta:#9B72F2;
+  --cth-termview-bright-cyan:   #2BA89F;
+
+  /* Shared pre-v0.3.4 "legacy" literals: unmigrated arcade-era accents still
+     used verbatim by CodeEditor.tsx and TerminalView.tsx. Frozen (no dark
+     override) — same value in both components, both themes, as today. */
+  --cth-legacy-coral:    #FF6B6B;
+  --cth-legacy-selection: #FFEC99;
+
+  /* ── CodeEditor (CodeMirror) — declared `{ dark: false }`, i.e. frozen
+     by its own config; these stay frozen (no dark override) so tokenizing
+     doesn't newly couple it to the app's dark toggle. */
+  --cth-editor-bg:          #FCFAF0;
+  --cth-editor-text:        #1A1320;
+  --cth-editor-gutter-bg:   #F0EAD2;
+  --cth-editor-muted:       #6B5878;
+  --cth-editor-border:      #D9CFE0;
+  --cth-editor-active-line: rgba(255, 217, 61, 0.10);
+  --cth-editor-search-match:          #A8E6E0;
+  --cth-editor-search-match-selected: #FFD93D;
+  --cth-editor-syntax-keyword:  #B197FC;
+  --cth-editor-syntax-string:   #6BCF7F;
+  --cth-editor-syntax-function: #FFA07A;
+  --cth-editor-syntax-type:     #4ECDC4;
+  --cth-editor-syntax-property: #3D2E4A;
+
+  /* ── ReleaseDrop — mirrors the munderdiffl.in landing site's own fixed
+     brand palette (docs/DESIGN.md §2), not the app chrome, on purpose: it is
+     meant to look the same as the download site regardless of app theme.
+     Frozen (no dark override) for that reason. */
+  --cth-release-paper:     #FFFDF7;
+  --cth-release-ink:       #1B1B1B;
+  --cth-release-ink-faint: #8A867A;
+  --cth-release-yellow:    #FFCA54;
+  --cth-release-sky:       #72C2DF;
+  --cth-release-maroon:    #B23A4E;
+  --cth-release-backdrop-dot: rgba(255, 253, 247, 0.16);
+  --cth-release-backdrop:     rgba(27, 27, 27, 0.72);
+
+  /* ── SettingsModal ── */
+  --cth-modal-backdrop: rgba(26, 19, 32, 0.7);
+  --cth-modal-shadow:   rgba(26, 19, 32, 0.25);
+  --cth-danger-text:    #6E1423;
+  /* Was already referenced as var(--cth-mint-700, #1f7a4d) with the custom
+     property never defined, so the fallback always won — defining it here
+     changes nothing today but makes it reachable by a theme pack. */
+  --cth-mint-700:       #1f7a4d;
 }
 
 /* ── Dark theme ──────────────────────────────────────────────────────────────
@@ -170,4 +258,24 @@
 
   /* Hard shadow reads as depth, not void */
   --cth-shadow-hard: 4px 4px 0 rgba(0, 0, 0, 0.45);
+
+  /* Terminal (xterm) ANSI palette dark counterparts — PtyTerminalView's own
+     dark-theme literals, now reachable as tokens instead of a second
+     hardcoded JS object. */
+  --cth-term-selection-bg: #37363F;
+  --cth-term-black:        #222229;
+  --cth-term-red:          #E08C82;
+  --cth-term-green:        #74C096;
+  --cth-term-yellow:       #CFAA57;
+  --cth-term-blue:         #6FB3C4;
+  --cth-term-magenta:      #A896E3;
+  --cth-term-cyan:         #6FB3C4;
+  --cth-term-white:        #DEDBD6;
+  --cth-term-bright-red:     #EBA39C;
+  --cth-term-bright-green:   #96CDA9;
+  --cth-term-bright-yellow:  #E5C87E;
+  --cth-term-bright-blue:    #8FC5D1;
+  --cth-term-bright-magenta: #C0B3EB;
+  --cth-term-bright-cyan:    #8FC5D1;
+  --cth-term-bright-white:   #EFEDE9;
 }
