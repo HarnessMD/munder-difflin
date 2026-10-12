@@ -73,6 +73,7 @@ function validatedPackToSceneThemeConfig(validated: ValidatedPack): Omit<ThemeCo
         Object.entries(manifest.palette.noteColors).map(([k, v]) => [k, hexToNumber(v)])
       ),
     },
+    seatFacing: manifest.seats.facing ? { ...manifest.seats.facing } : undefined,
   };
 }
 
@@ -119,12 +120,13 @@ describe('Theme Pack Equivalence Oracle', () => {
       expect(sceneConfig.cafeSeatNames).toEqual(OFFICE_THEME.cafeSeatNames);
       expect(sceneConfig.cafeStands).toEqual(OFFICE_THEME.cafeStands);
 
-      // coffee, anchors, errandSpots, monitor, palette
+      // coffee, anchors, errandSpots, monitor, palette, seatFacing
       expect(sceneConfig.coffee).toEqual(OFFICE_THEME.coffee);
       expect(sceneConfig.anchors).toEqual(OFFICE_THEME.anchors);
       expect(sceneConfig.errandSpots).toEqual(OFFICE_THEME.errandSpots);
       expect(sceneConfig.monitor).toEqual(OFFICE_THEME.monitor);
       expect(sceneConfig.palette).toEqual(OFFICE_THEME.palette);
+      expect(sceneConfig.seatFacing).toEqual(OFFICE_THEME.seatFacing);
 
       // tilesets metadata equivalence (ignoring `url`)
       expect(sceneConfig.tilesets.map(({ url, ...rest }) => rest)).toEqual(
@@ -185,12 +187,13 @@ describe('Theme Pack Equivalence Oracle', () => {
       expect(sceneConfig.cafeSeatNames).toEqual(BROOKLYN99_THEME.cafeSeatNames);
       expect(sceneConfig.cafeStands).toEqual(BROOKLYN99_THEME.cafeStands);
 
-      // coffee, anchors, errandSpots, monitor, palette
+      // coffee, anchors, errandSpots, monitor, palette, seatFacing
       expect(sceneConfig.coffee).toEqual(BROOKLYN99_THEME.coffee);
       expect(sceneConfig.anchors).toEqual(BROOKLYN99_THEME.anchors);
       expect(sceneConfig.errandSpots).toEqual(BROOKLYN99_THEME.errandSpots);
       expect(sceneConfig.monitor).toEqual(BROOKLYN99_THEME.monitor);
       expect(sceneConfig.palette).toEqual(BROOKLYN99_THEME.palette);
+      expect(sceneConfig.seatFacing).toEqual(BROOKLYN99_THEME.seatFacing);
 
       // tilesets metadata equivalence (ignoring `url`)
       expect(sceneConfig.tilesets.map(({ url, ...rest }) => rest)).toEqual(
