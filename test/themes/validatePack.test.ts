@@ -97,6 +97,21 @@ describe('validatePack: happy path', () => {
     const r = validatePack(pack(m));
     expect(r.pack!.tilesets[1].meta).toMatchObject({ firstgid: 33, image: 'label' });
   });
+
+  it('accepts optional seats.facing for declared primary and cafe seats', () => {
+    const m = baseManifest({
+      seats: {
+        primary: ['desk-ceo', 'pc-1'],
+        cafe: ['cafe-seat-1'],
+        cafeStands: [['cafe-stand-coffee', 'coffee']],
+        facing: { 'desk-ceo': 'down', 'cafe-seat-1': 'left' },
+      },
+    });
+    const r = validatePack(pack(m));
+    expect(codes(r, 'error')).toEqual([]);
+    expect(r.pack).not.toBeNull();
+    expect(r.pack!.manifest.seats.facing).toEqual({ 'desk-ceo': 'down', 'cafe-seat-1': 'left' });
+  });
 });
 
 describe('validatePack: errors reject the pack whole', () => {
@@ -123,6 +138,9 @@ describe('validatePack: errors reject the pack whole', () => {
     ['reserved id', () => ({ ...pack(), dirName: 'office' }), 'reserved-id'],
     ['bad dir name', () => ({ ...pack(), dirName: '_template' }), 'bad-dir-name'],
     ['map file name', () => pack({ ...baseManifest(), map: 'map.json' }), 'bad-map-name'],
+    ['seat facing not an object', () => pack(baseManifest({ seats: { primary: ['desk-ceo', 'pc-1'], cafe: ['cafe-seat-1'], cafeStands: [['cafe-stand-coffee', 'coffee']], facing: 'down' as any } })), 'bad-seat-facing'],
+    ['seat facing invalid direction', () => pack(baseManifest({ seats: { primary: ['desk-ceo', 'pc-1'], cafe: ['cafe-seat-1'], cafeStands: [['cafe-stand-coffee', 'coffee']], facing: { 'desk-ceo': 'sideways' as any } } })), 'bad-seat-facing'],
+    ['seat facing undeclared seat name', () => pack(baseManifest({ seats: { primary: ['desk-ceo', 'pc-1'], cafe: ['cafe-seat-1'], cafeStands: [['cafe-stand-coffee', 'coffee']], facing: { 'non-existent-seat': 'down' } } })), 'bad-seat-facing'],
   ])('%s', (_label, make, code) => {
     const r = validatePack(make() as any);
     expect(r.pack).toBeNull();
