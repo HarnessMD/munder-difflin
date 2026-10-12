@@ -11,14 +11,16 @@ import {
   classifyEngineAvailability, engineAvailabilityBadge, engineAvailabilityMessage, engineBlocksOnboarding
 } from '@shared/engineAvailability';
 import type { ToolStatus } from '@shared/toolCatalog';
+import type { PackSummary } from '@shared/themePack';
 import { useResolvedGodName } from '@/hooks/useResolvedGodName';
+import { setAppTheme, useAppTheme, type AppTheme } from '@/design/theme';
 
 export interface OnboardingWizardProps {
   onComplete: (config: HarnessConfig) => void;
 }
 
 type Audience = 'technical' | 'non-technical';
-type Step = 'persona' | 'welcome' | 'home' | 'orchestrator' | 'repos' | 'permissions' | 'done';
+type Step = 'persona' | 'welcome' | 'theme' | 'home' | 'orchestrator' | 'repos' | 'permissions' | 'done';
 
 // First-run showcase "— the highest-value features a brand-new user should grasp
 // before any setup. Labels and copy live in i18n (two registers: `desc` for the
@@ -109,6 +111,43 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   );
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
+
+  // Appearance & Theme Pack selection (#3, #4)
+  const currentAppTheme = useAppTheme();
+  const [selectedMode, setSelectedMode] = useState<AppTheme>(currentAppTheme);
+  const [selectedPack, setSelectedPack] = useState<string>('munder-difflin');
+  const [themeSelected, setThemeSelected] = useState<boolean>(false);
+  const [packs, setPacks] = useState<PackSummary[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchThemes = async () => {
+      try {
+        if (!window.cth?.listThemes) return;
+        const list: PackSummary[] = await window.cth.listThemes();
+        if (cancelled) return;
+        setPacks(list);
+      } catch {
+        /* ignore */
+      }
+    };
+    void fetchThemes();
+    return () => { cancelled = true; };
+  }, []);
+
+  const chooseMode = (mode: AppTheme) => {
+    setSelectedMode(mode);
+    setThemeSelected(true);
+    setAppTheme(mode);
+  };
+
+  const choosePack = (id: string) => {
+    setSelectedPack(id);
+    setThemeSelected(true);
+    if (window.cth?.updateConfig) {
+      void window.cth.updateConfig({ officeTheme: id });
+    }
+  };
 
   // Which engine CLIs are actually on this machine. The picker used to record the
   // choice blind; the first check happened when Michael spawned, and for a
@@ -224,18 +263,25 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       autoMode,
       godProvider,
       godModel,
-      telemetryEnabled: shareStats
+      telemetryEnabled: shareStats,
+      officeTheme: selectedPack
     });
     setBusy(false);
     onComplete(next);
   };
 
+  const overlayBackground = themeSelected
+    ? 'var(--cth-cream-200)'
+    : '#121316';
+  const overlayPattern = themeSelected
+    ? `repeating-linear-gradient(45deg, rgba(232, 217, 160, 0.4) 0 1px, transparent 1px 8px)`
+    : `repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 8px)`;
+
   return (
     <div style={{
       position: 'fixed', inset: 0,
-      background: 'var(--cth-cream-200)',
-      backgroundImage:
-        `repeating-linear-gradient(45deg, rgba(232, 217, 160, 0.4) 0 1px, transparent 1px 8px)`,
+      background: overlayBackground,
+      backgroundImage: overlayPattern,
       // Scroll the overlay rather than clip the wizard. Step 2 lists every
       // installed CLI engine (8 rows + a model select), which is taller than a
       // 1080p-class window once the OS chrome is subtracted "— the panel was
@@ -252,9 +298,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       <div style={{ width: 640, maxWidth: '94vw', margin: 'auto' }}>
         <PixelPanel
           variant="dialog"
+          style={!themeSelected ? { background: '#1c1e24', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12)' } : undefined}
           title={
-            step === 'persona' ? t('onboarding.titles.persona')
+            step === 'persona' ? (themeSelected ? t('onboarding.titles.persona') : 'WELCOME')
             : step === 'welcome' ? t('onboarding.titles.welcome')
+            : step === 'theme' ? t('onboarding.titles.theme')
             : step === 'home' ? (plain ? t('onboarding.titles.homePlain') : t('onboarding.titles.home'))
             : step === 'orchestrator' ? (plain ? t('onboarding.titles.orchestratorPlain') : t('onboarding.titles.orchestrator'))
             : step === 'repos' ? (plain ? t('onboarding.titles.reposPlain') : t('onboarding.titles.repos'))
@@ -364,6 +412,123 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               </>
             )}
 
+            {step === 'theme' && (
+              <>
+                <p style={{ margin: 0, lineHeight: '22px' }}>
+                  {t('onboarding.theme.desc')}
+                </p>
+
+                {/* Appearance mode: Light vs Dark */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ fontFamily: 'var(--cth-font-display)', fontSize: 10, color: 'var(--cth-ink-700)' }}>
+                    {t('onboarding.theme.modeLabel')}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => chooseMode('light')}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10, padding: 12, textAlign: 'left',
+                        cursor: 'pointer', border: 'none',
+                        background: selectedMode === 'light' ? 'var(--cth-mint-light)' : 'var(--cth-paper-100)',
+                        boxShadow: `inset 0 0 0 ${selectedMode === 'light' ? 2 : 1}px ${selectedMode === 'light' ? 'var(--cth-mint)' : 'var(--cth-ink-300)'}`
+                      }}
+                    >
+                      <span style={{
+                        width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
+                        fontSize: 14, color: 'var(--cth-ink-900)'
+                      }}>
+                        ☀
+                      </span>
+                      <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 11, color: 'var(--cth-ink-900)' }}>
+                        {t('onboarding.theme.lightMode')}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => chooseMode('dark')}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10, padding: 12, textAlign: 'left',
+                        cursor: 'pointer', border: 'none',
+                        background: selectedMode === 'dark' ? 'var(--cth-mint-light)' : 'var(--cth-paper-100)',
+                        boxShadow: `inset 0 0 0 ${selectedMode === 'dark' ? 2 : 1}px ${selectedMode === 'dark' ? 'var(--cth-mint)' : 'var(--cth-ink-300)'}`
+                      }}
+                    >
+                      <span style={{
+                        width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
+                        fontSize: 14, color: 'var(--cth-ink-900)'
+                      }}>
+                        ☾
+                      </span>
+                      <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 11, color: 'var(--cth-ink-900)' }}>
+                        {t('onboarding.theme.darkMode')}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Theme Pack Selection */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ fontFamily: 'var(--cth-font-display)', fontSize: 10, color: 'var(--cth-ink-700)' }}>
+                    {t('onboarding.theme.packLabel')}
+                  </div>
+                  <div style={{
+                    display: 'flex', flexDirection: 'column', gap: 6,
+                    maxHeight: 200, overflowY: 'auto'
+                  }}>
+                    {packs.map((p) => {
+                      const isSel = selectedPack === p.id;
+                      return (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => choosePack(p.id)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left',
+                            padding: 10, cursor: 'pointer', border: 'none',
+                            background: isSel ? 'var(--cth-mint-light)' : 'var(--cth-paper-100)',
+                            boxShadow: isSel
+                              ? 'inset 0 0 0 2px var(--cth-mint)'
+                              : 'inset 0 0 0 1px var(--cth-ink-300)',
+                            opacity: !p.available && !isSel ? 0.6 : 1
+                          }}
+                        >
+                          <span style={{
+                            width: 28, height: 28, flexShrink: 0,
+                            background: p.swatch || '#6b5a4a',
+                            boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500)'
+                          }} />
+                          <span style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 12, fontFamily: 'var(--cth-font-display)', color: 'var(--cth-ink-900)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {p.name || p.id}
+                              </span>
+                              {!p.available && (
+                                <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-ink-500)', textTransform: 'uppercase' }}>
+                                  SOON
+                                </span>
+                              )}
+                            </span>
+                            {p.blurb && (
+                              <span style={{ fontSize: 11, color: 'var(--cth-ink-700)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {p.blurb}
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>
+                    {t('onboarding.theme.packNote')}
+                  </div>
+                </div>
+              </>
+            )}
+
             {step === 'home' && (
               <>
                 <p style={{ margin: 0, lineHeight: '22px' }}>
@@ -403,7 +568,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                   <span style={{ flexShrink: 0, marginTop: 1 }}><Icon name="sparkle" /></span>
                   <span>
                     {plain ? (
-                      <Trans i18nKey="onboarding.orchestrator.cliAgentPlain" components={{ strong: <strong /> }}>
+                      <Trans i18nKey="onboarding.orchestrator.cliAgentPlain" values={{ godName }} components={{ strong: <strong /> }}>
                         A <strong>CLI agent</strong> is an AI coding assistant that runs on your
                         computer — popular ones are Claude Code (Anthropic), Codex (OpenAI) and
                         Antigravity (Google Gemini). <strong>Your clone</strong> is the always-on
@@ -411,12 +576,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                         You can add or switch the others later.
                       </Trans>
                     ) : (
-                      <Trans i18nKey="onboarding.orchestrator.cliAgent" components={{ strong: <strong /> }}>
+                      <Trans i18nKey="onboarding.orchestrator.cliAgent" values={{ godName }} components={{ strong: <strong /> }}>
                         Each option is a <strong>CLI engine</strong> (Claude Code, Codex,
                         Antigravity/Gemini, or a local proxy like Qwen). Engines marked
                         INSTALLED are already on this machine; INSTALLS ON FIRST RUN means the app
-                        sets it up when Michael first starts.
-                        <strong> Your clone</strong> (Michael) is the engine that orchestrates the whole
+                        sets it up when {godName} first starts.
+                        <strong> Your clone</strong> ({godName}) is the engine that orchestrates the whole
                         hive. Recommended: Claude Code · Opus 4.8 · 1M. Other providers can be wired
                         per agent later.
                       </Trans>
@@ -873,7 +1038,7 @@ function ToggleRow({ icon, label, desc, on, tint, edge, onChange }: {
 }
 
 function Dots({ step }: { step: Step }) {
-  const order: Step[] = ['persona', 'welcome', 'home', 'orchestrator', 'repos', 'permissions'];
+  const order: Step[] = ['persona', 'welcome', 'theme', 'home', 'orchestrator', 'repos', 'permissions'];
   return (
     <div style={{ display: 'flex', gap: 4 }}>
       {order.map((s) => (
@@ -889,7 +1054,8 @@ function Dots({ step }: { step: Step }) {
 
 function nextStep(s: Step): Step {
   return s === 'persona' ? 'welcome'
-    : s === 'welcome' ? 'home'
+    : s === 'welcome' ? 'theme'
+    : s === 'theme' ? 'home'
     : s === 'home' ? 'orchestrator'
     : s === 'orchestrator' ? 'repos'
     : s === 'repos' ? 'permissions'
@@ -899,7 +1065,8 @@ function prevStep(s: Step): Step {
   return s === 'permissions' ? 'repos'
     : s === 'repos' ? 'orchestrator'
     : s === 'orchestrator' ? 'home'
-    : s === 'home' ? 'welcome'
+    : s === 'home' ? 'theme'
+    : s === 'theme' ? 'welcome'
     : s === 'welcome' ? 'persona'
     : 'persona';
 }
