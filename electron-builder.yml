@@ -75,6 +75,9 @@ extraResources:
   # repo resources/skills). Directory copy preserves the <id>/SKILL.md tree.
   - from: resources/skills
     to: skills
+  # Built-in theme packs (§2.6 discovery order)
+  - from: resources/themes
+    to: themes
 
 asarUnpack:
   - "**/node_modules/node-pty/**"
