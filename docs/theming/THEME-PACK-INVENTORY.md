@@ -91,7 +91,8 @@ are ignored. Total pack size cap 24 MB (soft warn at 12 MB).
   ],                                 // firstgid optional: loader assigns 1, then prev+tilecount
 
   "seats":  { "primary": ["desk-ceo","pc-1", "…"], "cafe": ["cafe-seat-1","…"],
-              "cafeStands": [["cafe-stand-coffee","coffee"],["cafe-stand-vending","vending"]] },
+              "cafeStands": [["cafe-stand-coffee","coffee"],["cafe-stand-vending","vending"]],
+              "facing": { "desk-ceo": "down" } },                     // optional per-seat facing override
   "coffee": { "trayTile":{"x":29,"y":15}, "trayStand":{…}, "machineStand":{…},
               "sinkTile":{…}, "sinkStand":{…}, "maxCups":4 },        // optional => coffee loop disabled
   "anchors": { "calendar":{"x":4,"y":1}, "boards":{"x":6,"y":10}, "clock":{"x":1,"y":1} },
@@ -107,9 +108,11 @@ are ignored. Total pack size cap 24 MB (soft warn at 12 MB).
 }
 ```
 Field names deliberately equal `ThemeConfig` so the TS interface is a superset of the existing one:
-`seats.primary` = `primarySeatNames`, `seats.cafe` = `cafeSeatNames`, etc. Colours are `#rrggbb`
-strings on disk (the in-memory `PaletteConfig` stays `number`, converted by the loader via
-`hexNum`/`hexToNumber`, as `OfficeFloor.tsx:247` and `cast.ts:50` already do).
+`seats.primary` = `primarySeatNames`, `seats.cafe` = `cafeSeatNames`, `seats.facing` = `seatFacing`, etc.
+Colours are `#rrggbb` strings on disk (the in-memory `PaletteConfig` stays `number`, converted by the loader via
+`hexNum`/`hexToNumber`, as `OfficeFloor.tsx:247` and `cast.ts:50` already do). `seats.facing` is an optional map
+of declared seat name (`seats.primary` union `seats.cafe`) to direction (`"up" | "down" | "left" | "right"`). If
+omitted for a seat, facing falls back to geometric neighbor deduction (`facingForSeat()`).
 
 ### 2.3 Naming conventions (hard requirements)
 | Thing | Rule |
