@@ -187,6 +187,57 @@ describe('validatePack: warnings degrade one field', () => {
     const ok = validatePack(pack(man, baseMap(), { 'chrome/tokens.css': enc(':root{--cth-coral:#f00}') }));
     expect(ok.pack!.tokensCss).toContain('--cth-coral');
   });
+
+  it('accepts a valid chrome.tokens css with both light and dark blocks', () => {
+    const man = baseManifest({ chrome: { tokens: 'chrome/tokens.css', defaultMode: 'dark' } });
+    const css = ":root{--cth-coral:#cc6666;--cth-ink-900:#e8ecf4}\n:root[data-cth-theme='dark']{--cth-ink-900:#f1f4fa}";
+    const r = validatePack(pack(man, baseMap(), { 'chrome/tokens.css': enc(css) }));
+    expect(codes(r, 'warn')).not.toContain('bad-tokens');
+    expect(r.pack).not.toBeNull();
+    expect(r.pack!.tokensCss).toBe(css);
+    expect(r.pack!.manifest.chrome).toEqual({ tokens: 'chrome/tokens.css', defaultMode: 'dark' });
+  });
+
+  it('warns and drops an oversize tokens.css', () => {
+    const man = baseManifest({ chrome: { tokens: 'chrome/tokens.css' } });
+    const big = enc(':root{--cth-coral:#f00}' + ' '.repeat(PACK_LIMITS.tokensBytes));
+    const r = validatePack(pack(man, baseMap(), { 'chrome/tokens.css': big }));
+    expect(r.pack).not.toBeNull();
+    expect(r.pack!.tokensCss).toBeUndefined();
+    expect(codes(r, 'warn')).toContain('bad-tokens');
+  });
+
+  it('warns and drops chrome.tokens when the referenced file is missing', () => {
+    const man = baseManifest({ chrome: { tokens: 'chrome/tokens.css' } });
+    const r = validatePack(pack(man));
+    expect(r.pack).not.toBeNull();
+    expect(r.pack!.tokensCss).toBeUndefined();
+    expect(codes(r, 'warn')).toContain('bad-tokens');
+  });
+
+  it('accepts valid fonts[] (woff2, <= 300 KB, <= 4 entries) and drops the rest', () => {
+    const okBytes = new Uint8Array(1024);
+    const tooBig = new Uint8Array(PACK_LIMITS.fontBytes + 1);
+    const man = baseManifest({
+      fonts: [
+        { family: 'Pack UI', file: 'chrome/fonts/ui.woff2', slot: 'ui' },
+        { family: 'Pack Mono', file: 'chrome/fonts/mono.woff2', slot: 'mono' },
+        { family: 'Too Big', file: 'chrome/fonts/big.woff2', slot: 'display' },
+        { family: 'Missing', file: 'chrome/fonts/missing.woff2', slot: 'display' },
+      ],
+    });
+    const r = validatePack(pack(man, baseMap(), {
+      'chrome/fonts/ui.woff2': okBytes,
+      'chrome/fonts/mono.woff2': okBytes,
+      'chrome/fonts/big.woff2': tooBig,
+    }));
+    expect(r.pack).not.toBeNull();
+    expect(r.pack!.manifest.fonts).toEqual([
+      { family: 'Pack UI', file: 'chrome/fonts/ui.woff2', slot: 'ui' },
+      { family: 'Pack Mono', file: 'chrome/fonts/mono.woff2', slot: 'mono' },
+    ]);
+    expect(codes(r, 'warn').filter((c) => c === 'bad-font')).toHaveLength(2);
+  });
 });
 
 describe('helpers', () => {

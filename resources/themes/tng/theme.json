@@ -62,5 +62,9 @@
   "cast": {
     "roster": "cast/cast.json",
     "default": "commander"
+  },
+  "chrome": {
+    "tokens": "chrome/tokens.css",
+    "defaultMode": "dark"
   }
 }

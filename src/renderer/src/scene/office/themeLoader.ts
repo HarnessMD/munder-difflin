@@ -13,6 +13,7 @@ import {
   type ThemeId,
   type ThemeCast,
   type TilesetEntry,
+  type ThemeFontFace,
 } from './themeRegistry';
 import {
   DEFAULT_THEME_ID,
@@ -26,6 +27,9 @@ import {
   type CastMember,
 } from './cast';
 import { SCENE_W, SCENE_H } from './portraitArt';
+import { type as FontStacks } from '@/design/tokens';
+import { setAppTheme } from '@/design/theme';
+
 
 /** Track created object URLs per theme to allow cleanup if needed. */
 const THEME_OBJECT_URLS = new Map<ThemeId, string[]>();
@@ -164,7 +168,7 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
     return null;
   }
 
-  const { manifest, mapRaw, tilesets: validatedTilesets } = validation.pack;
+  const { manifest, mapRaw, tilesets: validatedTilesets, tokensCss } = validation.pack;
   const urls: string[] = [];
 
   const tilesets: TilesetEntry[] = [];
@@ -210,6 +214,22 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
     noteColors[k] = hexToNumber(v);
   }
 
+  // Chrome: validated tokens.css text + validated fonts[] resolved to blob: URLs.
+  // undefined (not an empty object) when the pack has nothing to say about
+  // chrome at all, so the applier can tell "restore base" from "empty override".
+  const fontFaces: ThemeFontFace[] = (manifest.fonts ?? []).flatMap((f) => {
+    const bytes = payload.files[f.file];
+    if (!bytes) return [];
+    const blob = new Blob([bytes as BlobPart], { type: 'font/woff2' });
+    const url = URL.createObjectURL(blob);
+    urls.push(url);
+    return [{ family: f.family, url, weight: f.weight, slot: f.slot }];
+  });
+  const chrome =
+    tokensCss !== undefined || fontFaces.length > 0 || manifest.chrome?.defaultMode !== undefined
+      ? { tokensCss, fonts: fontFaces, defaultMode: manifest.chrome?.defaultMode }
+      : undefined;
+
   // Revoke any previous blob URLs for this theme ID before assigning new ones
   const prevUrls = THEME_OBJECT_URLS.get(id);
   if (prevUrls) {
@@ -243,9 +263,67 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
       noteColors,
     },
     cast,
+    chrome,
   };
 
   return themeConfig;
+}
+
+/** The chrome `<style>` tag id. Exported for tests only. */
+export const CHROME_STYLE_ID = 'cth-theme-chrome';
+
+/** Per-slot fallback stacks the pack's font prepends to, so a loading/missing
+ *  pack font degrades to the same system faces the base theme already uses. */
+const FALLBACK_STACK: Record<'display' | 'ui' | 'mono', string> = {
+  display: FontStacks.display,
+  ui: FontStacks.ui,
+  mono: FontStacks.mono,
+};
+
+/**
+ * Applies (or clears) a theme's chrome restyle on the whole page — NOT the
+ * cached loadTheme() step, but theme ACTIVATION, so switching away from a
+ * pack and back always re-evaluates the current pack rather than a stale one.
+ *
+ * Injects/replaces ONE `<style id="cth-theme-chrome">` via `textContent`
+ * (never innerHTML), appended to <head> so it sits after the base
+ * design/tokens.css stylesheet and wins the cascade. Removes the tag
+ * entirely when the theme has no chrome overrides (e.g. switching back to
+ * munder-difflin), so nothing leaks between packs.
+ */
+export function applyThemeChrome(theme: ThemeConfig): void {
+  const existing = document.getElementById(CHROME_STYLE_ID) as HTMLStyleElement | null;
+  const chrome = theme.chrome;
+
+  if (!chrome || (chrome.tokensCss === undefined && chrome.fonts.length === 0)) {
+    existing?.remove();
+    return;
+  }
+
+  let css = chrome.tokensCss ?? '';
+
+  if (chrome.fonts.length > 0) {
+    const bySlot: Partial<Record<'display' | 'ui' | 'mono', string>> = {};
+    for (const f of chrome.fonts) {
+      try {
+        const face = new FontFace(f.family, `url(${f.url})`, f.weight ? { weight: f.weight } : undefined);
+        document.fonts.add(face);
+        void face.load().catch(() => { /* falls through to the fallback stack below */ });
+      } catch { /* malformed font bytes slipped past validation; skip it */ }
+      if (f.slot && !bySlot[f.slot]) bySlot[f.slot] = f.family;
+    }
+    const rules = Object.entries(bySlot).map(
+      ([slot, family]) => `--cth-font-${slot}: "${family}", ${FALLBACK_STACK[slot as 'display' | 'ui' | 'mono']};`
+    );
+    if (rules.length > 0) css += `\n:root{${rules.join(' ')}}`;
+  }
+
+  const style = existing ?? document.createElement('style');
+  style.id = CHROME_STYLE_ID;
+  style.textContent = css;
+  if (!existing) document.head.appendChild(style);
+
+  if (chrome.defaultMode) setAppTheme(chrome.defaultMode);
 }
 
 /** Resolve a theme id to a renderable ThemeConfig. Async by design;

@@ -1,0 +1,84 @@
+/* TNG Bridge — LCARS-inspired chrome restyle. Only --cth-* custom properties,
+   only inside :root{} / [data-cth-theme='dark']{} (theme-pack contract). */
+:root {
+  /* Surfaces: black bridge panels, not paper */
+  --cth-cream-50:  #05060B;
+  --cth-cream-100: #0B0E16;
+  --cth-cream-200: #141A26;
+  --cth-cream-300: #1E2636;
+  --cth-paper-100: #0D1018;
+  --cth-paper-200: #161C28;
+
+  /* Ink: off-white LCARS readout text */
+  --cth-ink-900: #E8ECF4;
+  --cth-ink-700: #B9C3D6;
+  --cth-ink-500: #8793AC;
+  --cth-ink-300: #4C5A78;
+  --cth-ink-100: #2A334A;
+
+  /* Accents: LCARS amber/blue/red */
+  --cth-coral: #CC6666;       --cth-coral-light: #3A2024;
+  --cth-mint:  #5CC9A7;       --cth-mint-light:  #173530;
+  --cth-sky:   #5B9BD9;       --cth-sky-light:   #172A3F;
+  --cth-lemon: #F5A623;       --cth-lemon-light: #3A2A10;
+  --cth-lilac: #C77DD2;       --cth-lilac-light: #33223A;
+  --cth-peach: #E8833A;       --cth-peach-light: #3A2611;
+
+  --cth-status-idle:     #4C5A78;
+  --cth-status-thinking: #5B9BD9;
+  --cth-status-working:  #F5A623;
+  --cth-status-waiting:  #8793AC;
+  --cth-status-blocked:  #CC6666;
+  --cth-status-success:  #5CC9A7;
+  --cth-status-ghost:    #2A334A;
+  --cth-status-compacting: #C77DD2;
+  --cth-status-looping:    #E8833A;
+  --cth-status-typing:     #F5A623;
+
+  --cth-shadow-hard: 3px 3px 0 rgba(245, 166, 35, 0.18);
+  --cth-on-accent: #05060B;
+}
+
+:root[data-cth-theme='dark'] {
+  /* The pack's "light" ground above is already a bridge-dark surface, so the
+     dark override only pushes contrast a little further for the OS dark pass. */
+  --cth-cream-50:  #03040A;
+  --cth-cream-100: #080B12;
+  --cth-cream-200: #11161F;
+  --cth-cream-300: #1A212F;
+  --cth-paper-100: #090B12;
+  --cth-paper-200: #121722;
+
+  --cth-ink-900: #F1F4FA;
+  --cth-ink-700: #C7D0E0;
+  --cth-ink-500: #8F9BB5;
+  --cth-ink-300: #566282;
+  --cth-ink-100: #2E3850;
+
+  --cth-coral: #D97A7A;
+  --cth-mint:  #6AD6B4;
+  --cth-sky:   #6FABE4;
+  --cth-lemon: #F7B13E;
+  --cth-lilac: #CF8FDA;
+  --cth-peach: #EC9552;
+
+  --cth-coral-light: #452529;
+  --cth-mint-light:  #1C3F38;
+  --cth-sky-light:   #1C3246;
+  --cth-lemon-light: #453015;
+  --cth-lilac-light: #3B2742;
+  --cth-peach-light: #452C14;
+
+  --cth-status-idle:     #566282;
+  --cth-status-thinking: #6FABE4;
+  --cth-status-working:  #F7B13E;
+  --cth-status-waiting:  #8F9BB5;
+  --cth-status-blocked:  #D97A7A;
+  --cth-status-success:  #6AD6B4;
+  --cth-status-ghost:    #2E3850;
+  --cth-status-compacting: #CF8FDA;
+  --cth-status-looping:    #EC9552;
+  --cth-status-typing:     #F7B13E;
+
+  --cth-shadow-hard: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}

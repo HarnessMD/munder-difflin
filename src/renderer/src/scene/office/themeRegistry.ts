@@ -98,6 +98,24 @@ export interface ThemeCast {
   defaultCharacter: string;
 }
 
+/** A pack font resolved to a loadable blob: URL, per theme.json `fonts[]`. */
+export interface ThemeFontFace {
+  family: string;
+  url: string;
+  weight?: string;
+  slot?: 'display' | 'ui' | 'mono';
+}
+
+/** The chrome-restyle half of a pack: CSS custom-property overrides + fonts,
+ *  applied to the whole page (not just the Pixi scene) on theme activation. */
+export interface ThemeChrome {
+  /** Validated `chrome/tokens.css` contents (`--cth-*` only); undefined when
+   *  the pack ships none or it failed validation. */
+  tokensCss?: string;
+  fonts: ThemeFontFace[];
+  defaultMode?: 'light' | 'dark';
+}
+
 /** The full contract a theme must supply. See report §A (theme contract). */
 export interface ThemeConfig {
   id: ThemeId;
@@ -118,6 +136,9 @@ export interface ThemeConfig {
   monitor: MonitorConfig;
   palette: PaletteConfig;
   cast: ThemeCast;
+  /** Undefined when the pack has no chrome overrides at all (e.g. the default
+   *  munder-difflin pack) — the loader/applier treats that as "restore base". */
+  chrome?: ThemeChrome;
 }
 
 /** Runtime registry of loaded themes, populated on demand by loadTheme. */

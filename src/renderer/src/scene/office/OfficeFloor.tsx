@@ -12,7 +12,7 @@ import { MessageEnvelope, type MessageAct } from './MessageEnvelope';
 import { hexToNumber, DEFAULT_CHARACTER } from './cast';
 import { pickSoloLine, pickExchange, type BreakSpot } from './cafeteriaLines';
 import { colors } from '@/design/tokens';
-import { loadTheme, resolveThemeMap, themeTilesetUrls } from './themeLoader';
+import { loadTheme, resolveThemeMap, themeTilesetUrls, applyThemeChrome } from './themeLoader';
 import {
   installContextLossRecovery, planInitFailure, DEFAULT_MAX_INIT_RETRIES
 } from './glRecovery';
@@ -244,6 +244,10 @@ export function OfficeFloor() {
     const init = async () => {
       // Load the active theme bundle (falls back to 'office' on a bad/absent bundle).
       const theme = await loadTheme(officeTheme);
+      // Chrome (tokens.css + fonts) restyles the whole page, not just the scene,
+      // so it's applied on ACTIVATION here rather than inside the cached
+      // loadTheme() step — every switch re-evaluates and replaces/clears it.
+      applyThemeChrome(theme);
       await app.init({
         background: hexNum(theme.palette.background),
         antialias: false,
