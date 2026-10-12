@@ -22,6 +22,7 @@ import {
   type OrgTriggerConfig,
   type WebhookTrigger
 } from '../shared/triggers';
+import { normalizeThemeId, DEFAULT_THEME_ID } from '../shared/themePack';
 
 /** A recurring auto-dispatched mission fired on an interval by the scheduler. */
 export interface ScheduledMission {
@@ -317,7 +318,7 @@ export interface HarnessConfig {
   /** Which office map/cast theme the pixel office renders. Only honored when
    *  `tvShowOffices` is on; otherwise the office theme is used. Unbuilt show
    *  themes fall back to 'office' in the loader. */
-  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  officeTheme?: string;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn (config-injection or proxy
    *  upstream). API KEYS are NOT stored here — they live write-only in the secret
@@ -594,7 +595,11 @@ export function readConfig(): HarnessConfig {
   try {
     const raw = readFileSync(p, 'utf8');
     const parsed = JSON.parse(raw);
-    return normalizeStoredHomes(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...parsed })));
+    const merged = withTriggerDefaults({ ...DEFAULTS, ...parsed });
+    if (merged.officeTheme) {
+      merged.officeTheme = normalizeThemeId(merged.officeTheme);
+    }
+    return normalizeStoredHomes(migrateTriggersV1(merged));
   } catch {
     return withTriggerDefaults({ ...DEFAULTS });
   }
