@@ -263,6 +263,7 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
       noteColors,
     },
     cast,
+    seatFacing: manifest.seats.facing ? { ...manifest.seats.facing } : undefined,
     chrome,
   };
 
