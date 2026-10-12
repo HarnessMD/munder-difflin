@@ -1398,7 +1398,7 @@ export function OfficeFloor() {
           mapRenderer,
           frames,
           seatTile,
-          seatDirection: facingForSeat(seatTile),
+          seatDirection: agent.isGod ? 'down' : facingForSeat(seatTile),
           spawnTile: entrance, // walk in from the office door
           glowColor: hexNum(colors.accent[agent.accent]) ?? hexToNumber(member.shirt),
           onClick: (id) => useStore.getState().select(id),
