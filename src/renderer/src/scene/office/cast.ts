@@ -98,3 +98,10 @@ export async function paintCastPortrait(
 ): Promise<void> {
   paintPortrait(ctx, name, scale);
 }
+
+/** Built-in procedural cast satisfying ThemeCast for packs without cast/ directory. */
+export const PROCEDURAL_THEME_CAST = {
+  byName: CAST_BY_NAME as Record<string, CastMember>,
+  getFrames: (name: string) => getCastFrames(name as OfficeCharacterName),
+  defaultCharacter: DEFAULT_CHARACTER,
+};
