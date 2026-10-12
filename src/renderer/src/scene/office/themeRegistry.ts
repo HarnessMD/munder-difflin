@@ -16,7 +16,7 @@ import type { Texture } from 'pixi.js';
 import {
   type CastMember,
 } from './cast';
-import type { ThemeId } from '@/shared/themePack';
+import type { ThemeId } from '@shared/themePack';
 
 export type { ThemeId };
 

@@ -4,7 +4,7 @@
 // for tilesets/fonts/portraits/sprites, and caches the resulting ThemeConfig in THEMES.
 // On failure, falls back to munder-difflin.
 
-import { Texture } from 'pixi.js';
+import { Texture, Rectangle } from 'pixi.js';
 import type { TiledMap } from './TiledMapRenderer';
 import {
   THEMES,
@@ -20,7 +20,7 @@ import {
   validatePack,
   hexToNumber,
   type PackPayload,
-} from '@/shared/themePack';
+} from '@shared/themePack';
 import {
   PROCEDURAL_THEME_CAST,
   type CastMember,
@@ -108,7 +108,7 @@ function buildDiskThemeCast(
       return PROCEDURAL_THEME_CAST.getFrames(name);
     }
 
-    const blob = new Blob([spriteBytes], { type: 'image/png' });
+    const blob = new Blob([spriteBytes as BlobPart], { type: 'image/png' });
     const url = URL.createObjectURL(blob);
     urls.push(url);
 
@@ -120,12 +120,12 @@ function buildDiskThemeCast(
           const baseTex = Texture.from(img);
           baseTex.source.scaleMode = 'nearest';
 
-          const frontStand = new Texture({ source: baseTex.source, frame: new (Texture as any).Rectangle?.(0, 0, SCENE_W, SCENE_H) ?? { x: 0, y: 0, width: SCENE_W, height: SCENE_H } });
-          const frontStepL = new Texture({ source: baseTex.source, frame: new (Texture as any).Rectangle?.(SCENE_W, 0, SCENE_W, SCENE_H) ?? { x: SCENE_W, y: 0, width: SCENE_W, height: SCENE_H } });
-          const frontStepR = new Texture({ source: baseTex.source, frame: new (Texture as any).Rectangle?.(SCENE_W * 2, 0, SCENE_W, SCENE_H) ?? { x: SCENE_W * 2, y: 0, width: SCENE_W, height: SCENE_H } });
-          const backStand  = new Texture({ source: baseTex.source, frame: new (Texture as any).Rectangle?.(SCENE_W * 3, 0, SCENE_W, SCENE_H) ?? { x: SCENE_W * 3, y: 0, width: SCENE_W, height: SCENE_H } });
-          const backStepL  = new Texture({ source: baseTex.source, frame: new (Texture as any).Rectangle?.(SCENE_W * 4, 0, SCENE_W, SCENE_H) ?? { x: SCENE_W * 4, y: 0, width: SCENE_W, height: SCENE_H } });
-          const backStepR  = new Texture({ source: baseTex.source, frame: new (Texture as any).Rectangle?.(SCENE_W * 5, 0, SCENE_W, SCENE_H) ?? { x: SCENE_W * 5, y: 0, width: SCENE_W, height: SCENE_H } });
+          const frontStand = new Texture({ source: baseTex.source, frame: new Rectangle(0, 0, SCENE_W, SCENE_H) });
+          const frontStepL = new Texture({ source: baseTex.source, frame: new Rectangle(SCENE_W, 0, SCENE_W, SCENE_H) });
+          const frontStepR = new Texture({ source: baseTex.source, frame: new Rectangle(SCENE_W * 2, 0, SCENE_W, SCENE_H) });
+          const backStand  = new Texture({ source: baseTex.source, frame: new Rectangle(SCENE_W * 3, 0, SCENE_W, SCENE_H) });
+          const backStepL  = new Texture({ source: baseTex.source, frame: new Rectangle(SCENE_W * 4, 0, SCENE_W, SCENE_H) });
+          const backStepR  = new Texture({ source: baseTex.source, frame: new Rectangle(SCENE_W * 5, 0, SCENE_W, SCENE_H) });
 
           const frontRow = [frontStand, frontStepL, frontStepR, frontStand, frontStand, frontStand, frontStand];
           const backRow  = [backStand, backStepL, backStepR, backStand, backStand, backStand, backStand];
@@ -175,7 +175,7 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
       console.warn(`[themeLoader] missing tileset bytes for '${t.file}'`);
       return null;
     }
-    const blob = new Blob([bytes], { type: 'image/png' });
+    const blob = new Blob([bytes as BlobPart], { type: 'image/png' });
     const url = URL.createObjectURL(blob);
     urls.push(url);
 

@@ -7,7 +7,7 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import type { ThemeId } from '@/scene/office/themeRegistry';
-import type { PackSummary } from '@/shared/themePack';
+import type { PackSummary } from '@shared/themePack';
 
 interface ThemeCardItem {
   id: ThemeId;
