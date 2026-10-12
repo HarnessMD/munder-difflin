@@ -104,7 +104,12 @@ export interface PackManifest {
   swatch?: string;
   map: string;
   tilesets: PackManifestTileset[];
-  seats: { primary: string[]; cafe: string[]; cafeStands: [string, 'coffee' | 'vending'][] };
+  seats: {
+    primary: string[];
+    cafe: string[];
+    cafeStands: [string, 'coffee' | 'vending'][];
+    facing?: Record<string, Facing>;
+  };
   coffee?: CoffeeConfig;
   anchors: AnchorConfig;
   errandSpots: ErrandSpot[];
@@ -295,6 +300,21 @@ export function validatePack(input: ValidateInput): ValidateResult {
       if (!(Array.isArray(cs) && cs.length === 2 && isStr(cs[0]) && (cs[1] === 'coffee' || cs[1] === 'vending'))) {
         err('bad-seats', 'seats.cafeStands', 'cafeStands entries must be [name, "coffee"|"vending"]');
         break;
+      }
+    }
+    const declaredSeats = new Set(names);
+    if (seats.facing !== undefined) {
+      if (!isObj(seats.facing)) {
+        err('bad-seat-facing', 'seats.facing', 'seats.facing must be an object');
+      } else {
+        for (const [seatName, facing] of Object.entries(seats.facing)) {
+          if (!declaredSeats.has(seatName)) {
+            err('bad-seat-facing', `seats.facing.${seatName}`, `seat '${seatName}' in seats.facing is not declared in seats.primary or seats.cafe`);
+          }
+          if (typeof facing !== 'string' || !FACINGS.includes(facing)) {
+            err('bad-seat-facing', `seats.facing.${seatName}`, `facing value '${String(facing)}' is invalid (must be 'up'|'down'|'left'|'right')`);
+          }
+        }
       }
     }
   }
