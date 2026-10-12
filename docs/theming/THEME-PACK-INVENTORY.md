@@ -8,7 +8,30 @@ Status: analysis only (no source changed). Paths are relative to `src/renderer/s
 hand-author themes. "Munder Difflin" is pack #1: the current office look, migrated byte-identical.
 
 ## 1. Inventory of themeable surfaces
-TODO
+Representative, not exhaustive. "Pack key" = where it lands in §2.
+
+| Surface | Where it lives now | Examples | Pack key |
+|---|---|---|---|
+| **Chrome tokens** | `design/tokens.css` (173 lines; mirrored by `design/tokens.ts`, comment line 1 says "update both together") | cream/paper/ink ramps `--cth-cream-50..`, `--cth-ink-900..` (`:2-17`); accents `--cth-coral/mint/sky/lemon/lilac/peach` + `-light` (`:19-26`); status colours `--cth-status-*` (`:28-37`); spacing `--cth-space-0..8` (`:40-48`); shadows `--cth-shadow-hard` (`:82`, dark `:172`); dark overrides in `:root[data-cth-theme='dark']` (`:125`) | `chrome/tokens.css` |
+| **Fonts** | `design/fonts.css` (3 `@font-face`), stacks in `tokens.css` | Press Start 2P (display), Inter var (UI), JetBrains Mono var (mono); `--cth-font-display/ui/mono` (`tokens.css:57-59`); files in `assets/fonts/` (84 KB total, self-hosted for China reachability) | `fonts[]`, `chrome.tokens` |
+| **Light/dark mode** | `design/theme.ts` | `AppTheme`, localStorage `cth.theme`, stamps `data-cth-theme` on `<html>` (`:35-40`) | orthogonal; `chrome.defaultMode` only seeds |
+| **Inline literals outside tokens** | `components/*.tsx` | `OfficeThemePicker.tsx` swatch hexes in `THEME_META` (`:17-24`, e.g. `#6b5a4a`, `#3a5a7a`) and inline `style={{color:'var(--cth-ink-500)'}}`; `#xxxxxx` literal counts: `PtyTerminalView.tsx` 44, `TerminalView.tsx` 22, `CodeEditor.tsx` 21, `ReleaseDrop.tsx` 8, `SettingsModal.tsx` 3 | tokens where possible; swatches → `theme.json swatch` |
+| **Scene ThemeConfig** | `scene/office/themeRegistry.ts` | `tilesets` (`:147`), `primarySeatNames` (`:153`), `coffee` (`:165`), `anchors` (`:173`), `errandSpots` (`:178`), `monitor` gids (`:201`), `palette` (`:208`), `cast` (`:212`); second theme `BROOKLYN99_THEME` (`:228`) | `theme.json` (whole of §2.2 scene block) |
+| **Map** | `assets/maps/office.tmj` (34x22, 16px, layers `floor/walls/furniture-below/furniture-above/collision` + objectgroups `spawn-points`(24), `zones`(2)); `brooklyn99.tmj` | name-based lookup `TiledMapRenderer.ts:259` | `map.tmj` |
+| **Scene engine constants (not themeable)** | `TiledMapRenderer`, `Camera`, `portraitArt.ts` | tile 16px, cast frame 18x32 (`portraitArt.ts:15-16`), `OfficeFloor.tsx:254` render resolution | n/a — fixed |
+| **Cast** | `scene/office/cast.ts` (`OFFICE_CAST` 15 members, `:27-43`; `CastMember {name,displayName,shirt,blurb}`), `scene/office/portraitArt.ts` (procedural pixel recipes), `components/SpritePortrait.tsx` | `DEFAULT_CHARACTER='jim'` (`:48`); `OfficeCharacterName` closed union (`:12-15`); `getCastFrames` 3 rows x 7 frames (`:69-90`) | `cast/` |
+| **Terminal palette** | `components/PtyTerminalView.tsx` (`:55-110`, light + dark `ITheme`), `components/termColor.ts` (hex parse, OSC 10/11 replies, `isDarkBackground`) | `foreground '#1A1320'`, `cursorAccent '#FCFAF0'`, `brightRed '#E0584E'`; dark `foreground '#DEDBD6'` ("= --cth-ink-900") — duplicated by hand from tokens | `terminal.json` |
+| **Branding / copy** | `i18n/locales/{en,zh-CN,ar}.json` (en 1409 lines; `officeTheme.*` group at `:176`), `electron-builder.yml:2` (`productName: Munder Difflin`) | "Munder Difflin" appears inline in many strings (en.json `:168,172,594,695,834,884,911`); god's name "Michael" and the show names are literals in components (`MichaelBooting.tsx`, `CommandCenterPanel.tsx`, `OfficeThemePicker.tsx`) | `copy.appName/godName`, `copy/<locale>.json` |
+| **Theme selection state** | `main/config.ts:316-320, 452` (`tvShowOffices`, `officeTheme`), `store/store.ts:281-284,883-884`, `App.tsx:113`, `realtimeActions.ts:142` | closed union of 6 ids in 4 places | widen to `string` |
+
+**Gaps worth knowing.** (1) Chrome tokens exist twice (`tokens.css` + `tokens.ts`) and the terminal
+palette is a third hand-copied set — a pack's `tokens.css` will not reach `tokens.ts` consumers
+(`colors.ink[900]` is read by `themeRegistry.ts:209` for the Pixi background) or the xterm palette
+unless those are made to read the pack. (2) Many inline hex literals bypass tokens (see counts);
+they will not re-skin. (3) Product name is not parameterised: window title, installer
+`productName`, telemetry and `app.setName` are build-time and NOT pack-themeable; only in-UI copy
+is. (4) `OfficeCharacterName` is a closed union used as a type throughout (`store.ts:45`), so the
+type must widen to `string` before disk rosters work.
 
 ## 2. The pack format (centerpiece)
 
@@ -16,9 +39,9 @@ TODO
 `scene/office/themeRegistry.ts` defines `ThemeConfig` (map + tilesets + seat/cafe names + coffee +
 anchors + errands + monitor gids + palette + cast) and `themeLoader.ts` has an async
 `loadTheme(id)` that already validates lightly and falls back to `OFFICE_THEME`. What blocks
-"drop in a folder": (a) `ThemeId` is a closed union (`themeRegistry.ts:36`, mirrored in
+"drop in a folder": (a) `ThemeId` is a closed union (`themeRegistry.ts:34`, mirrored in
 `main/config.ts:320`, `store/config.ts:127`, `preload/index.ts:327`, `main/realtimeActions.ts:142`);
-(b) the map and tilesets are build-time Vite `?raw`/`?url` imports (`themeRegistry.ts:23-28`);
+(b) the map and tilesets are build-time Vite `?raw`/`?url` imports (`themeRegistry.ts:25-30`);
 (c) the cast is compiled TS (`cast.ts` + `portraitArt.ts`); (d) chrome tokens, copy and terminal
 palette are not part of the contract at all. The pack format below makes `ThemeConfig` the
 **in-memory** shape and adds a **JSON manifest** as the on-disk shape, extending rather than
@@ -104,7 +127,7 @@ strings on disk (the in-memory `PaletteConfig` stays `number`, converted by the 
 
 ### 2.4 Dimension / size requirements
 Engine constants (NOT themeable): **tile = 16x16 px** (every tileset and the map; see the
-`TilesetEntry` literals at `themeRegistry.ts:163-164`); cast scene frame = **18x32 px**
+`TilesetEntry` literals at `themeRegistry.ts:149-150`); cast scene frame = **18x32 px**
 (`SCENE_W`/`SCENE_H`, `portraitArt.ts:15-16`).
 
 | Asset | Requirement | Hard limit (reject) |
@@ -213,7 +236,7 @@ export interface ThemePack extends ThemeConfig {
   rejected for v1: a `cth-theme://` protocol + widened `img-src` — a CSP widening for no gain.)
   `resolveThemeMap` / `themeTilesetUrls` keep their signatures, so the scene call sites
   (`OfficeFloor.tsx:281-285`) are untouched.
-- **Superseding the registry:** delete the Vite `?url`/`?raw` imports at `themeRegistry.ts:23-28`.
+- **Superseding the registry:** delete the Vite `?url`/`?raw` imports at `themeRegistry.ts:25-30`.
   `THEMES`/`getTheme` become a runtime `Map<ThemeId, ThemePack>` filled by `loadTheme`. The
   `OFFICE_THEME` / `BROOKLYN99_THEME` literals become two `theme.json` files (§4).
 - **Config:** `officeTheme` becomes `string` (the four mirrors in §2.0); the hard enum at
@@ -226,14 +249,100 @@ export interface ThemePack extends ThemeConfig {
   `components/PtyTerminalView.tsx:55-110` become `pack.terminal?.[mode] ?? DEFAULT[mode]`.
 - **Cast default:** a pack with no `cast/` uses the built-in procedural roster
   (`cast.ts` + `portraitArt.ts`) via `ThemeCast`, exactly as `BROOKLYN99_THEME` reuses
-  `OFFICE_THEME.cast` today (`themeRegistry.ts:285`). Disk cast and procedural cast satisfy the
+  `OFFICE_THEME.cast` today (`themeRegistry.ts:~283`). Disk cast and procedural cast satisfy the
   same `ThemeCast { byName, getFrames, defaultCharacter }`.
 
 ## 3. Switch layers (cast-reseat vs. live)
-TODO
+
+The destructive part of today's switch is `OfficeThemePicker.applyTheme` (`:64-88`): kill every
+non-god PTY, `disposeTerminal`, `archiveAgent`, then `updateConfig({officeTheme})` and
+`setOfficeTheme` (which rebuilds the scene, effect deps at `OfficeFloor.tsx:1774`). It exists
+because agents hold **seat indices into `primarySeatNames`** and a **`character` from the old
+roster** (`store/store.ts:45`); a new map/roster would orphan both.
+
+| Layer | Pack source | Needs reseat? | How it switches |
+|---|---|---|---|
+| Chrome tokens (colours, spacing, radii, shadows) | `chrome/tokens.css` | **No** — live | swap one `<style>`; everything reads `var(--cth-*)`. Light/dark stays orthogonal (`design/theme.ts`, `data-cth-theme`). |
+| Fonts | `chrome/fonts`, `theme.json fonts[]` | **No** — live | `FontFace.load()` + swap the `--cth-font-*` stack; falls through to system faces until loaded. |
+| Copy (app name, god name, strings) | `copy/<locale>.json`, `copy.*` | **No** — live | `addResourceBundle` overlay; React re-renders via react-i18next. Caveat: strings already baked into persisted data (agent names, chat history, task titles) do NOT change. |
+| Terminal palette | `terminal.json` | **No** — live for xterm; **next spawn** for the Claude TUI | xterm `options.theme` re-assignment on every pooled terminal (the pool already follows light/dark). The per-agent Claude session theme (`config.terminalTheme`) is applied on spawn, so running TUIs keep their old palette until restart — same as today's dark-mode toggle. |
+| Scene palette (`background`, `noteColors`) | `theme.json palette` | **Scene rebuild, no reseat** if map unchanged | Pixi `background` + note colours re-read. Cheap, but in practice shipped together with a map change. |
+| Tileset art **only** (same map, same spawn names, same gid layout — a "re-skin") | `tilesets/*.png` | **No reseat; scene rebuild** | Seats/spawns unchanged, so agents keep seats. Detect: new pack has `seats`/`map` hash equal to the active one → skip the destructive modal. This is the useful non-destructive case for pack authors. |
+| Map / seats / cafe / coffee / anchors / errands / monitor | `map.tmj`, `theme.json` | **Yes** | seat names or counts differ → keep the existing confirm + archive flow. |
+| Cast roster / sprites | `cast/` | **Yes** | agents' `character` keys are invalid in a new roster. |
+
+**Recommendation:** compute a `switchClass` in the loader by diffing the new pack against the
+active one: `live` (chrome/copy/terminal/fonts only), `rebuild` (same `seats`+`map` identity, only
+art/palette differ), `reseat` (anything else). The picker shows the destructive modal only for
+`reseat`. A cheaper v1 that avoids seat-diff logic: pack authors may declare
+`"compat": "<seat-set-hash>"`, and the picker trusts equal hashes. A pack that only supplies
+chrome/copy/terminal (no `map`, no `cast`) should be legal ("overlay pack") — then `map` and
+`tilesets` become optional in the manifest and default to the active scene; this is the common
+case for "just recolour/rename the app" and never touches agents.
 
 ## 4. Migration plan
-TODO
+
+**Step 0 — contract only (no behaviour change).** Add `themePack.ts` types + `validatePack()` with
+unit tests (pure, runnable without Electron, like `termColor.ts` is). Widen `ThemeId` to `string`
+and the four config mirrors; keep `'office'` accepted as a legacy alias for `munder-difflin` and
+rewrite it on config load so existing `config.json` files keep working.
+
+**Step 1 — pack #1 "Munder Difflin", byte-identical.**
+- `resources/themes/munder-difflin/`: `map.tmj` = `assets/maps/office.tmj` copied byte-for-byte;
+  `tilesets/*.png` = the three existing PNGs copied byte-for-byte; `theme.json` generated *from*
+  `OFFICE_THEME` by a one-off script (not hand-typed) so values cannot drift.
+- Cast: v1 ships **no** `cast/` dir — the procedural roster stays in code as the default
+  `ThemeCast` (it is MIT, §5). Optional later: bake it to `cast/` PNGs with a script that calls
+  `sceneFrameBufs`/`paintPortrait`, then delete the procedural path.
+- Chrome: `chrome/tokens.css` is NOT needed for pack #1 (the app's own `tokens.css` is the base
+  layer). Packs only override.
+- **Equivalence test (the gate):** a vitest that loads the pack through `validatePack` +
+  `resolveThemeMap` and asserts deep-equality with `OFFICE_THEME` (all fields) and
+  `sha256(file)` equality of map/tilesets against `assets/`. Keep `OFFICE_THEME` in the test only
+  as the oracle, then delete from runtime. Do the same for `brooklyn99` (placeholder reusing the
+  office atlases; becomes a pack whose `tilesets` point at *copies* of the office PNGs — packs
+  cannot reference outside their folder).
+- Flip the loader to disk-only; delete the Vite `?url`/`?raw` imports. Visual check on a real
+  build is by a human, not by launching this fork (§5 hazard).
+
+**Step 2 — disk-loaded custom packs.** Enable `<userData>/themes` scanning + picker cards from
+`PackSummary` (replace the hard-coded `THEME_META` at `OfficeThemePicker.tsx:17-24`), "Open themes
+folder", issue toasts. Persist last-known-good. Gate the whole picker behind the existing
+`tvShowOffices` flag at first (`main/config.ts:316`) so it ships dark.
+
+**Step 3 — author template.** `resources/themes/_template/` (underscore = never listed): a
+minimal valid pack (small map with all required layers/spawns, one tileset, `theme.json` with every
+key commented via a sibling `theme.schema.json` + `README.md`), plus a CLI `npm run theme:check
+<dir>` that runs `validatePack` and prints issues. The template is also the fixture for the
+validator's tests. This is how "drop a folder" becomes self-serve.
+
+## 5. Asset / license notes
+- **LimeZu tiles require a visible credit link.** `LICENSE-ASSETS` and
+  `assets/ATTRIBUTION.md`: the Complete Version licence allows edit + commercial use but REQUIRES
+  credit linking to <https://limezu.itch.io/>; the link must stay in README acknowledgements, the
+  in-app about/credits surface, and the website. Only the three tilesets are LimeZu art
+  (`interiors.png`, `office-tileset.png`, `a5-office-floors-walls.png`). Licence text ships at
+  `assets/tilesets/LIMEZUASSETS-LICENSE.txt`. The licence forbids re-sale of the (edited) assets.
+- **Consequence for packs:** moving tilesets out of `src/.../assets` into `resources/themes/` must
+  carry `LIMEZUASSETS-LICENSE.txt` + a `CREDITS.md` with the link into the pack, and the About
+  screen must aggregate `meta.license`/CREDITS of **every loaded pack**. User packs that bundle
+  LimeZu art are the *author's* licence problem, not ours — but the loader should surface
+  `CREDITS.md` and warn when a pack has no `license`/`CREDITS.md` and uses >=1 tileset.
+- **Do not let packs redistribute our LimeZu PNGs implicitly** (a template that copies them would
+  re-publish them under a repo licence they do not carry). The `_template` must use an original
+  or CC0 tileset.
+- **Cast is procedural**, drawn in `scene/office/portraitArt.ts` and MIT (see `LICENSE-ASSETS`);
+  not LimeZu. Likenesses are of TV characters ("The Office"): trademark/likeness exposure is
+  separate from copyright of the pixels — keep cast names/blurbs out of pack #1 *defaults* that
+  ship to the store if that is a concern, and treat pack names such as "The Office" /
+  "Brooklyn Nine-Nine" (`THEME_META`, `OfficeThemePicker.tsx:19-23`) as the same class of risk.
+- **Fonts:** Press Start 2P / Inter / JetBrains Mono are self-hosted OFL faces
+  (`design/fonts.css`). Packs may ship woff2; require an OFL/compatible licence string in
+  `fonts[]` metadata or `CREDITS.md`.
+- **Fork hazard (operational):** this fork shares appId `in.munderdiffl.app` and `userData` with
+  the live build. A pack scanner writing/creating `<userData>/themes` or a rescan/`last-known-good`
+  config write from a dev run touches the live floor's state. Dev iteration must use
+  `MD_THEMES_DIR` + a distinct `--user-data-dir`, never the default.
 
 ## 5. Asset / license notes
 TODO
