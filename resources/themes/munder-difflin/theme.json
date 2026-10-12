@@ -58,7 +58,10 @@
         "cafe-stand-vending",
         "vending"
       ]
-    ]
+    ],
+    "facing": {
+      "desk-ceo": "down"
+    }
   },
   "coffee": {
     "trayTile": {
