@@ -107,6 +107,6 @@ Our view: a team is worth it when the work splits into independent pieces that g
 
 On size, the docs say to start with 3 to 5 teammates for most workflows, and that "three focused teammates often outperform five scattered ones". We think a PR review is the right first run. A team of five to rename a variable is a meeting that should have been an email.
 
-To run separate sessions by hand, see [managing multiple Claude Code sessions](/blog/manage-multiple-claude-code-sessions/).
+To run separate sessions by hand, see [managing multiple Claude Code sessions](/blog/manage-multiple-claude-code-sessions/). See also [Claude Code Projects](/blog/claude-code-projects/).
 
 <link rel="stylesheet" href="/blog/assets/media/claude-code-agent-teams/motion.css"><script defer src="/blog/assets/media/claude-code-agent-teams/motion.js"></script>

@@ -4746,5 +4746,62 @@
     },
     "inline": {},
     "youtube": []
+  },
+  "claude-code-projects": {
+    "title": "Claude Code Projects: what they are and who can use them",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-code-projects/hero.png",
+      "alt": "Title card on white. The words Claude Code Projects in large ink type with a Concepts kicker, Checked 11 Oct 2026, and three spools of thread with their threads running side by side",
+      "prompt": "Still of the hero scene in assets/media/claude-code-projects/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-10-12": {
+    "title": "Agent Tools Today, 12 Oct 2026: WordCraft 0.5.0, Genkit Dart 1.0, 500 Billion Tokens",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "claude-code-routines": {
+    "title": "Claude routines",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-code-routines/hero.png",
+      "alt": "Title card on white. Claude routines in large ink type beside a wall calendar with one column of days ticked, checked 12 Oct 2026.",
+      "prompt": "Still of the hero scene in assets/media/claude-code-routines/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-10-13": {
+    "title": "Agent Tools Today, 13 Oct 2026: Muse Wonder, GLM-Legal, the Codex Daemon Issue",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "muse-wonder": {
+    "title": "Muse Wonder",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/muse-wonder/hero.png",
+      "alt": "Title card on white. Muse Wonder in large ink type over a yellow underline, a kicker reading Meta's new models, prices and scores, a Checked 13 Oct 2026 pill and a pocket compass.",
+      "prompt": "Still of the hero scene in assets/media/muse-wonder/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
