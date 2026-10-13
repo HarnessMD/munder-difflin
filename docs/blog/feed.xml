@@ -16,6 +16,14 @@
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 13 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Gemini 4 Argon: Google&#39;s Flagship Model Shares a Name With a Gas That Barely Reacts</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-argon/" />
+    <id>https://munderdiffl.in/blog/gemini-4-argon/</id>
+    <published>2026-10-13T00:00:00.000Z</published>
+    <updated>2026-10-13T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Gemini 4 Argon went on general release on 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, a 1M token window, and where you can use it.</summary>
+  </entry>
+  <entry>
     <title>Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores</title>
     <link href="https://munderdiffl.in/blog/muse-wonder/" />
     <id>https://munderdiffl.in/blog/muse-wonder/</id>
@@ -478,13 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-29T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Claude Code vs Cursor, checked 29 Sep 2026: a dated table of models, plans, background agents, MCP and licences, then when to pick each or run both.</summary>
-  </entry>
-  <entry>
-    <title>How to Make the Most of Your Codex Max Plan</title>
-    <link href="https://munderdiffl.in/blog/codex-max-plan-tips/" />
-    <id>https://munderdiffl.in/blog/codex-max-plan-tips/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>There is no Codex Max plan. What ChatGPT Pro 5x and 20x give you in Codex, how the weekly limit works, and how to stretch it.</summary>
   </entry>
 </feed>
