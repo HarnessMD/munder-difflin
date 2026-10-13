@@ -24,7 +24,7 @@ faq:
 
 Our view: Gemini 4 Argon is worth a test on your longest agent jobs, but the launch price is a countdown. Google put Gemini 4 Argon on general release on 13 October 2026 at $2 input and $10 output per 1M tokens through 30 November 2026. Checked 13 Oct 2026.
 
-New models drive coding agents. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried Gemini 4 Argon. A [pull request](https://github.com/HarnessMD/munder-difflin/pull/738) adding it to the app's Antigravity and Cursor model pickers was merged on 13 Oct 2026. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+New models drive coding agents. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Gemini 4 Argon is already in the app's model pickers for Antigravity and Cursor, added by a [pull request](https://github.com/HarnessMD/munder-difflin/pull/738) merged on 13 Oct 2026. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Gemini 4 Argon?
 
@@ -105,7 +105,7 @@ The model card is blunter about one risk: "We cannot rule out that Gemini 4 Argo
 
 ## Should you switch your coding agents to Gemini 4 Argon?
 
-Test it on long jobs first, and do not move everything at once. Our reasons: it tops most of Google's table, the coding rows are split, and the price doubles on 1 December 2026. We have not tried it.
+Test it on long jobs first, and do not move everything at once. Our reasons: it tops most of Google's table, the coding rows are split, and the price doubles on 1 December 2026.
 
 For how it sits beside Google's other tools, see [Gemini CLI vs Claude Code](/blog/gemini-cli-vs-claude-code/) and [Claude Code vs Antigravity](/blog/claude-code-vs-antigravity/). For Meta's rival launch this week, see [Muse Wonder](/blog/muse-wonder/).
 
