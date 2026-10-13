@@ -14,10 +14,11 @@ eleventyExcludeFromCollections: true
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>{{ site.origin }}/</loc>
-    <lastmod>{{ build.date }}</lastmod>
+    <lastmod>{{ collections.posts | newestPostDate | htmlDate }}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+  <url><loc>{{ site.origin }}/pro/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>{{ site.origin }}/wall.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>{{ site.origin }}/terms.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>{{ site.origin }}/privacy.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
@@ -35,7 +36,5 @@ eleventyExcludeFromCollections: true
   {%- for c in collections.categories %}
   <url><loc>{{ site.origin }}{{ ('/topics/' + c.slug + '/') | u }}</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   {%- endfor %}
-  {%- for t in collections.tagList %}
-  <url><loc>{{ site.origin }}{{ ('/tags/' + t.slug + '/') | u }}</loc><changefreq>weekly</changefreq><priority>0.3</priority></url>
-  {%- endfor %}
+  {#- Tag pages are noindex (see tag.njk), so they stay out of the sitemap. #}
 </urlset>

@@ -194,7 +194,7 @@
 <p>Aider is a pair programmer you steer file by file, and Claude Code is an agent that goes looking for itself.</p>
 <p>In Aider you add the files you want changed to the chat, and it sends the model a repo map: a ranked outline of classes and function signatures across the repo, 1k tokens by default. The model replies in an edit format Aider picks per model, usually search and replace blocks, and Aider applies the edit and commits it to git, so <code>/undo</code> takes it back. Claude Code starts from the task. It searches and reads files with its own tools, edits them, runs commands such as your tests, and commits when you ask. Instead of a commit per edit, it snapshots files before each prompt so <code>/rewind</code> can roll a turn back.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/aider-vs-claude-code/note-1.png" alt="Hand-drawn sketch from “Aider vs Claude Code in 2026: Which Should You Use?”" loading="lazy" decoding="async" /></figure>
-<p>Claude Code also has subagents with their own context window, tools and permissions, hooks around every tool call, MCP servers, and a plan mode that researches without editing. Aider’s extras are more manual: an architect mode where one model plans and another writes the edits, <code>/run</code> and <code>/test</code> to feed command output back, and <code>--watch-files</code> for AI coding comments left in your files.</p>
+<p>Claude Code also has subagents with their own context window, tools and permissions, hooks around every tool call, MCP servers, and a <a href="/blog/how-to-use-claude-code-plan-mode/">plan mode</a> that researches without editing. Aider’s extras are more manual: an architect mode where one model plans and another writes the edits, <code>/run</code> and <code>/test</code> to feed command output back, and <code>--watch-files</code> for AI coding comments left in your files.</p>
 <h2 id="what-does-a-fresh-aider-install-show" tabindex="-1">What does a fresh Aider install show? <a class="anchor" href="#what-does-a-fresh-aider-install-show" aria-hidden="true">#</a></h2>
 <p>It shows version 0.86.2 and two git defaults worth knowing. We installed Aider into a throwaway folder with <code>uv tool install --python 3.12 aider-chat</code>, which took 28 seconds, then ran only version and help commands, with no key and no prompt:</p>
 <pre><code>$ aider --version
@@ -225,7 +225,7 @@ $ aider --help | grep -ci mcp
 <ol>
 <li><strong>Claude Code</strong>, if you want more autonomy and Claude models suit you. You trade a commit per edit for checkpoints, and you decide when to commit.</li>
 <li><strong><a href="https://harnessmd.com/download">Munder Difflin</a></strong>, if you are picking Claude Code and will want more than one session going. It is a free and open source desktop app that runs Claude Code agents side by side, each in a real terminal and optionally its own git worktree, with long term memory and a shared task board (todo, doing, blocked, done). Aider is not a built in engine as of 0.5.2. You can type <code>aider</code> into the Custom engine, but that agent gets no hooks, so the app cannot tell when it is idle and messages to it go back to the orchestrator.</li>
-<li><strong>OpenCode</strong>, if model choice was the point. It is MIT licensed, and its docs say it supports 75+ LLM providers and local models, checked 15 Sep 2026.</li>
+<li><strong><a href="/blog/what-is-opencode/">OpenCode</a></strong>, if model choice was the point. It is MIT licensed, and its docs say it supports 75+ LLM providers and local models, checked 15 Sep 2026.</li>
 <li><strong>cecli</strong>, if you want to stay on Aider’s codebase. This GitHub fork of Aider (Apache 2.0, formerly aider-ce) published v1.5.1 on 12 Sep 2026, and its README links docs for MCP configuration and subagents. We have not tested it.</li>
 </ol>
 <h2 id="should-you-choose-aider-or-claude-code-today" tabindex="-1">Should you choose Aider or Claude Code today? <a class="anchor" href="#should-you-choose-aider-or-claude-code-today" aria-hidden="true">#</a></h2>
@@ -285,56 +285,56 @@ $ aider --help | grep -ci mcp
 
   <footer class="post-foot wrap"><div class="prevnext">
       <a class="pn prev" href="/blog/build-your-personal-agi-on-your-computer/"><span class="k">← Older</span><span class="t">Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin</span></a>
-      <span></span>
+      <a class="pn next" href="/blog/indian-open-source-ai-projects-vs-big-tech/"><span class="k">Newer →</span><span class="t">Top 10 Indian open source projects that are giving US big tech a tough time</span></a>
     </div>
     <section class="related">
       <h2>Related in Comparisons</h2>
       <div class="post-grid">
         <article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/claude-code-vs-antigravity/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-vs-antigravity/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-comparisons" href="/blog/codex-vs-claude-code-usage-limits/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-vs-claude-code-usage-limits/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-09-14">Sep 14, 2026</time>
+      <time datetime="2026-10-10">Oct 10, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/claude-code-vs-antigravity/">Claude Code vs Antigravity: Which One Fits Your Work?</a></h3>
-    <p class="dek">Claude Code vs Google Antigravity, checked 14 Sep 2026: terminal agent or desktop agent app, Claude inside Antigravity, plans, limits and a verdict.</p>
+    <h3><a href="/blog/codex-vs-claude-code-usage-limits/">Codex Usage Limits vs Claude Code: What Each Plan Gives You</a></h3>
+    <p class="dek">Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan.</p>
     <div class="foot">
       <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/claude-code-vs-antigravity/" aria-label="Read: Claude Code vs Antigravity: Which One Fits Your Work?">Read →</a>
+      <a class="more" href="/blog/codex-vs-claude-code-usage-limits/" aria-label="Read: Codex Usage Limits vs Claude Code: What Each Plan Gives You">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/claude-code-vs-cursor/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-vs-cursor/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-comparisons" href="/blog/cursor-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/cursor-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-09-14">Sep 14, 2026</time>
+      <time datetime="2026-10-08">Oct 8, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/claude-code-vs-cursor/">Claude Code vs Cursor: Which Is Better in 2026?</a></h3>
-    <p class="dek">Claude Code vs Cursor, checked 14 Sep 2026: where each runs, models, plans, the new Claude Code weekly limits, parallel agents and using both.</p>
+    <h3><a href="/blog/cursor-alternatives/">Cursor Alternatives: 7 AI Coding Tools to Switch To</a></h3>
+    <p class="dek">Seven Cursor alternatives checked on 8 Oct 2026: Claude Code, Codex, Cline, OpenCode, Zed, Devin Desktop and GitHub Copilot, by licence and price.</p>
     <div class="foot">
       <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/claude-code-vs-cursor/" aria-label="Read: Claude Code vs Cursor: Which Is Better in 2026?">Read →</a>
+      <a class="more" href="/blog/cursor-alternatives/" aria-label="Read: Cursor Alternatives: 7 AI Coding Tools to Switch To">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/grok-bot-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/grok-bot-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-comparisons" href="/blog/codex-vs-cursor/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-vs-cursor/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-09-14">Sep 14, 2026</time>
+      <time datetime="2026-10-07">Oct 7, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span><span class="pin">Pinned</span>
+      <span>5 min</span>
     </div>
-    <h3><a href="/blog/grok-bot-alternatives/">Grok Bot Alternatives: Six Picks, Grouped by What You Want</a></h3>
-    <p class="dek">Grok Bot runs every Bot on one shared cloud computer. Six alternatives checked on 14 Sep 2026, grouped by hosting, privacy and model choice.</p>
+    <h3><a href="/blog/codex-vs-cursor/">Codex vs Cursor: Which Should You Pick in 2026?</a></h3>
+    <p class="dek">Codex vs Cursor, checked 7 Oct 2026: what each is, licence, paid plans from $8 a month, models, where each runs, and whether Codex works inside Cursor.</p>
     <div class="foot">
       <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/grok-bot-alternatives/" aria-label="Read: Grok Bot Alternatives: Six Picks, Grouped by What You Want">Read →</a>
+      <a class="more" href="/blog/codex-vs-cursor/" aria-label="Read: Codex vs Cursor: Which Should You Pick in 2026?">Read →</a>
     </div>
   </div>
 </article>

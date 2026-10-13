@@ -13,7 +13,7 @@ author:
   initials: CG
 faq:
   - q: "Is Munder Difflin 0.5.2 free?"
-    a: "Yes. The 0.5.2 download runs the classic office for free after you sign in to your harnessMD account, and your work stays on your machine. Pro and Teams are optional paid plans on the same download, and both come with a 14 day trial."
+    a: "Yes. The 0.5.2 download runs the classic office for free after you sign in to your harnessMD account, and your work stays on your machine. Pro and Teams are optional paid plans on the same download."
   - q: "Do I need a different download for Pro?"
     a: "No. The free classic office, Pro and Teams all run on the same 0.5.2 download. Buying Pro or entering a licence key switches that machine to Pro."
   - q: "Are Community builds still signed and notarized?"
@@ -90,7 +90,7 @@ words, your agents run as a company, with an orchestrator, a task board, an inbo
 machine. Free keeps the classic desktop, local and at no charge.
 
 A Pro licence runs on one machine at a time. Teams is the plan for 2 to 20 people whose clones message each
-other, sealed on each device. Plans and trials are on the [pricing page](https://munderdiffl.in/#pricing).
+other, sealed on each device. Plans and prices are on the [pricing page](https://munderdiffl.in/#pricing).
 
 ## What is new in Pro?
 
@@ -207,7 +207,7 @@ worktrees, hooks, the terminal, the circuit breaker and the sandbox. Thank you:
 ## Get it
 
 * Download 0.5.2: [harnessmd.com/download](https://harnessmd.com/download)
-* Plans and trials: [munderdiffl.in/#pricing](https://munderdiffl.in/#pricing)
+* Plans and prices: [munderdiffl.in/#pricing](https://munderdiffl.in/#pricing)
 * The release on GitHub, with checksums: [v0.5.2](https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.2)
 * New here? Start with [your first hour with Munder Difflin](/blog/your-first-hour-with-munder-difflin/).
 * The previous release: [Munder Difflin v0.4.6](/blog/launching-munder-difflin-v0-4-6/).

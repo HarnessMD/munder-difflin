@@ -73,6 +73,34 @@ export default function (eleventyConfig) {
       .sort((a, b) => b.date - a.date)
   );
 
+  // "Start here" on the blog index: the guides marked `startHere: true`, in
+  // `startOrder`. The index adds the newest posts after them. Pillars keep
+  // `pinned` for topic pages; it no longer puts them in Start here.
+  eleventyConfig.addCollection("startHere", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && p.data.startHere)
+      .sort((a, b) => (a.data.startOrder ?? 99) - (b.data.startOrder ?? 99) || b.date - a.date)
+  );
+
+  // Every other post, newest first: the newest few join Start here and the
+  // rest fill the index grid, pillars included.
+  eleventyConfig.addCollection("notStartHere", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && !p.data.startHere)
+      .sort((a, b) => b.date - a.date)
+  );
+
+  // Featured posts for the blog home hero, newest first. Opt a post in with
+  // `featured: true` in its frontmatter; the newest one leads the hero.
+  eleventyConfig.addCollection("featured", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && p.data.featured)
+      .sort((a, b) => b.date - a.date)
+  );
+
   // Topic clusters (categories) — derived from each post's `category` field.
   eleventyConfig.addCollection("categories", (api) => {
     const map = {};
@@ -124,6 +152,14 @@ export default function (eleventyConfig) {
   );
   eleventyConfig.addFilter("htmlDate", (d) =>
     DateTime.fromJSDate(d, { zone: "utc" }).toFormat("yyyy-LL-dd")
+  );
+  // Newest publish or update date across posts. The sitemap uses it for the
+  // home page lastmod so a rebuild on a later day does not change the file.
+  eleventyConfig.addFilter("newestPostDate", (posts) =>
+    (posts || []).reduce((max, p) => {
+      const d = new Date(p.data.updated || p.date);
+      return d > max ? d : max;
+    }, new Date(0))
   );
 
   // Reading time from rendered HTML / raw content (~225 wpm).

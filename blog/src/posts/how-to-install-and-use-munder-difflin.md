@@ -18,13 +18,15 @@ faq:
   - q: "Do I need to know how to code to use Munder Difflin?"
     a: "No. The onboarding asks whether you are technical or not on its very first screen, and the non-technical path replaces every piece of jargon with plain language. You will open a terminal exactly once, to install and log into your AI engine, and you can copy and paste those commands."
   - q: "Does Munder Difflin cost anything?"
-    a: "The classic app is free and open source, with unlimited local agents. Pro and Teams are optional paid plans with a 14 day trial. What you may pay for is the AI engine behind it. Antigravity is available at no charge and OpenCode has a free path, so you can run the whole thing without paying anything. If you already pay for ChatGPT or Claude, you can use those subscriptions instead."
+    a: "The classic app is free and open source, with unlimited local agents. Pro and Teams are optional paid plans. What you may pay for is the AI engine behind it. Antigravity is available at no charge and OpenCode has a free path, so you can run the whole thing without paying anything. If you already pay for ChatGPT or Claude, you can use those subscriptions instead."
   - q: "Can these agents really change files on my computer?"
     a: "Yes, and that is the point, so it is worth understanding before you start. An agent can read files, write files and run commands in the folders you give it. You choose how much freedom it has during setup, and you can set it to ask permission before every change."
   - q: "Which operating systems does Munder Difflin run on?"
     a: "macOS, Windows and Linux. macOS ships as one universal .dmg for Apple Silicon and Intel, Windows 10 and 11 as a setup installer or a portable build, and Linux as an AppImage."
   - q: "Is my code or data sent anywhere?"
     a: "The app runs on your machine and stores its files there. Your prompts and the files an agent reads do go to whichever AI engine you picked, the same as if you used that tool directly. Anonymous usage telemetry is opt-out and every event is listed publicly in TELEMETRY.md."
+startHere: true
+startOrder: 1
 ---
 
 <div class="callout tldr"><span class="ic">TL;DR</span><p>Pick an AI engine based on what you

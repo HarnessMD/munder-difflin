@@ -13,6 +13,13 @@ permalink: /index.html
   "name": "{{ site.blogName }}",
   "description": {{ site.description | dump | safe }},
   "url": "{{ site.baseUrl }}",
+  {%- if collections.featured.length %}
+  "blogPost": [
+    {%- for f in collections.featured | limit(3) %}
+    { "@type": "BlogPosting", "headline": {{ f.data.title | dump | safe }}, "url": "{{ site.origin }}{{ f.url | u }}", "datePublished": "{{ f.date | isoDate }}"{% if f.fileSlug | heroReady %}, "image": "{{ site.origin }}{{ ('/' + (f.fileSlug | heroFile)) | u }}"{% endif %} }{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  ],
+  {%- endif %}
   "publisher": { "@type": "Organization", "name": "Munder Difflin", "logo": { "@type": "ImageObject", "url": "{{ site.origin }}/logo.png" } }
 }
 </script>
@@ -44,13 +51,44 @@ permalink: /index.html
   </div>
 </header>
 
+{%- set lead = collections.featured[0] if collections.featured.length else false -%}
+{% if lead %}
+{%- set ld = lead.data -%}
+<section class="fhero wrap" aria-labelledby="fhero-title">
+  <div class="fhero-card t-{{ (ld.category | slug) if ld.category else 'default' }}">
+    <div class="fhero-text">
+      <p class="fhero-kicker"><span class="fhero-pill">Featured</span><span>{{ ld.categoryLabel or ld.category or "Notes" }}</span></p>
+      <h2 id="fhero-title"><a href="{{ lead.url | u }}">{{ ld.title }}</a></h2>
+      {% if ld.description %}<p class="fhero-dek">{{ ld.description }}</p>{% endif %}
+      <p class="fhero-meta">{{ ld.author.name if ld.author else site.author.name }} &middot; <time datetime="{{ lead.date | htmlDate }}">{{ lead.date | readableDate }}</time> &middot; {{ lead.content | readingTime }} min read</p>
+      <a class="btn primary" href="{{ lead.url | u }}">Read the story &rarr;</a>
+    </div>
+    <a class="fhero-art" href="{{ lead.url | u }}" tabindex="-1" aria-hidden="true">
+      {%- if lead.fileSlug | heroReady -%}
+      <img src="{{ ('/' + (lead.fileSlug | heroFile)) | u }}" alt="" width="1600" height="900" fetchpriority="high" decoding="async" />
+      {%- endif -%}
+    </a>
+  </div>
+  {% if collections.featured.length > 1 %}
+  <ul class="fhero-more" aria-label="More featured posts">
+    {% for f in collections.featured %}{% if not loop.first and loop.index <= 4 %}
+    <li><a href="{{ f.url | u }}">{{ f.data.title }}</a></li>
+    {% endif %}{% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% endif %}
+
 {% if posts.length %}
-{%- set rest = collections.unpinned -%}
-{% if collections.pinned.length %}
+{%- set pool = collections.notStartHere | excludeSelf(lead.url if lead else "") -%}
+{%- set latest = pool.slice(0, 3) -%}
+{%- set rest = pool.slice(3) -%}
+{% if collections.startHere.length or latest.length %}
 <section class="wrap pinned" aria-labelledby="pinned-title">
   <h2 class="pinned-title" id="pinned-title">Start here</h2>
   <div class="post-grid">
-    {% for p in collections.pinned %}{% include "card.njk" %}{% endfor %}
+    {% for p in collections.startHere %}{% include "card.njk" %}{% endfor %}
+    {% for p in latest %}{% include "card.njk" %}{% endfor %}
   </div>
 </section>
 {% endif %}

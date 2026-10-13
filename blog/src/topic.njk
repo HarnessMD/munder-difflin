@@ -27,6 +27,7 @@ eleventyComputed:
     "comparisons": "Honest side-by-sides with the other ways to run many coding agents, trade-offs included.",
     "orchestration": "Patterns for making one boss agent run a floor of workers without you in the middle.",
     "memory": "How agents remember across sessions — and how a whole team shares what any one of them learned.",
+    "news": "Agent Tools Today: a daily brief of the top five launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents, each with its source.",
     "story": "Launches, releases, and the occasional confession — the running diary of building this thing in the open."
   } -%}
   <p class="lead">{{ blurbs[cat.slug] or (cat.posts.length ~ " post" ~ ("s" if cat.posts.length != 1) ~ " in this cluster.") }}</p>

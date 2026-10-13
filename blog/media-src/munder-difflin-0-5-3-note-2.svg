@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560"><rect width="100%" height="100%" fill="#FCFAF0"/>
+<text x="600" y="54" text-anchor="middle" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="27" font-weight="700" fill="#1A1320">The row tells you the six things you were going to ask</text>
+<g transform="translate(60,92)">
+  
+<g transform="translate(0,0)">
+  <rect x="0" y="0" width="700" height="96" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <g transform="translate(18,26)"><rect x="-6" y="2" width="4" height="4" rx="2" fill="#8C8577"/><rect x="-6" y="12" width="4" height="4" rx="2" fill="#8C8577"/><rect x="-6" y="22" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="2" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="12" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="22" width="4" height="4" rx="2" fill="#8C8577"/></g>
+  <circle cx="60" cy="34" r="19" fill="#FFCA54" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="54" cy="31" r="3.2" fill="#1A1320"/><circle cx="66" cy="31" r="3.2" fill="#1A1320"/>
+  <text x="90" y="30" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" font-weight="700" fill="#1A1320">Kevin</text>
+  <g transform="translate(155,15)"><rect x="0" y="0" width="64.19999999999999" height="20" rx="10" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="32.099999999999994" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">V53-299</text></g>
+  <g transform="translate(90,44)"><rect x="0" y="0" width="57.599999999999994" height="20" rx="10" fill="#FFF8E7" stroke="#1A1320" stroke-width="1.5"/><text x="28.799999999999997" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">claude</text></g>
+  <g transform="translate(155.6,44)"><rect x="0" y="0" width="70.8" height="20" rx="10" fill="#FFF8E7" stroke="#1A1320" stroke-width="1.5"/><text x="35.4" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">opus 5.5</text></g>
+  <g transform="translate(236.39999999999998,44)"><rect x="0" y="0" width="86" height="20" rx="10" fill="#DFF3E4" stroke="#1A1320" stroke-width="1.5"/><text x="43" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">working</text></g>
+  <g transform="translate(508,44)">
+    <rect x="0" y="4" width="120" height="12" rx="6" fill="#EDE7D6" stroke="#1A1320" stroke-width="1.5"/>
+    <rect x="2" y="6" width="36" height="8" rx="4" fill="#FFCA54"/>
+    <text x="130" y="14" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#8C8577">31%</text>
+  </g>
+  <text x="90" y="82" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#8C8577">typing into the terminal</text>
+</g>
+  
+<g transform="translate(0,112)">
+  <rect x="0" y="0" width="700" height="96" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <g transform="translate(18,26)"><rect x="-6" y="2" width="4" height="4" rx="2" fill="#8C8577"/><rect x="-6" y="12" width="4" height="4" rx="2" fill="#8C8577"/><rect x="-6" y="22" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="2" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="12" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="22" width="4" height="4" rx="2" fill="#8C8577"/></g>
+  <circle cx="60" cy="34" r="19" fill="#FFCA54" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="54" cy="31" r="3.2" fill="#1A1320"/><circle cx="66" cy="31" r="3.2" fill="#1A1320"/>
+  <text x="90" y="30" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" font-weight="700" fill="#1A1320">Creed</text>
+  <g transform="translate(155,15)"><rect x="0" y="0" width="64.19999999999999" height="20" rx="10" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="32.099999999999994" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">MTK-122</text></g>
+  <g transform="translate(90,44)"><rect x="0" y="0" width="51" height="20" rx="10" fill="#FFF8E7" stroke="#1A1320" stroke-width="1.5"/><text x="25.5" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">codex</text></g>
+  <g transform="translate(149,44)"><rect x="0" y="0" width="51" height="20" rx="10" fill="#FFF8E7" stroke="#1A1320" stroke-width="1.5"/><text x="25.5" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">gpt 5</text></g>
+  <g transform="translate(210,44)"><rect x="0" y="0" width="86" height="20" rx="10" fill="#FFE9B8" stroke="#1A1320" stroke-width="1.5"/><text x="43" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">needs you</text></g>
+  <g transform="translate(508,44)">
+    <rect x="0" y="4" width="120" height="12" rx="6" fill="#EDE7D6" stroke="#1A1320" stroke-width="1.5"/>
+    <rect x="2" y="6" width="74" height="8" rx="4" fill="#FFCA54"/>
+    <text x="130" y="14" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#8C8577">64%</text>
+  </g>
+  <text x="90" y="82" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#8C8577">waiting on your answer</text>
+</g>
+  
+<g transform="translate(0,224)">
+  <rect x="0" y="0" width="700" height="96" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <g transform="translate(18,26)"><rect x="-6" y="2" width="4" height="4" rx="2" fill="#8C8577"/><rect x="-6" y="12" width="4" height="4" rx="2" fill="#8C8577"/><rect x="-6" y="22" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="2" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="12" width="4" height="4" rx="2" fill="#8C8577"/><rect x="2" y="22" width="4" height="4" rx="2" fill="#8C8577"/></g>
+  <circle cx="60" cy="34" r="19" fill="#FFCA54" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="54" cy="31" r="3.2" fill="#1A1320"/><circle cx="66" cy="31" r="3.2" fill="#1A1320"/>
+  <text x="90" y="30" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" font-weight="700" fill="#1A1320">Pam</text>
+  <g transform="translate(134.6,15)"><rect x="0" y="0" width="64.19999999999999" height="20" rx="10" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="32.099999999999994" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">V53-301</text></g>
+  <g transform="translate(90,44)"><rect x="0" y="0" width="57.599999999999994" height="20" rx="10" fill="#FFF8E7" stroke="#1A1320" stroke-width="1.5"/><text x="28.799999999999997" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">gemini</text></g>
+  <g transform="translate(155.6,44)"><rect x="0" y="0" width="51" height="20" rx="10" fill="#FFF8E7" stroke="#1A1320" stroke-width="1.5"/><text x="25.5" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">3 pro</text></g>
+  <g transform="translate(216.6,44)"><rect x="0" y="0" width="86" height="20" rx="10" fill="#E6E9F5" stroke="#1A1320" stroke-width="1.5"/><text x="43" y="14" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#1A1320">waiting</text></g>
+  <g transform="translate(508,44)">
+    <rect x="0" y="4" width="120" height="12" rx="6" fill="#EDE7D6" stroke="#1A1320" stroke-width="1.5"/>
+    <rect x="2" y="6" width="21" height="8" rx="4" fill="#FFCA54"/>
+    <text x="130" y="14" style="font-family:Menlo,Consolas,monospace" font-size="10.5" fill="#8C8577">18%</text>
+  </g>
+  <text x="90" y="82" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#8C8577">parked on Kevin</text>
+</g>
+</g>
+<g transform="translate(800,104)">
+  <g transform="translate(0,26)"><circle cx="0" cy="-4" r="4.5" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="16" y="0" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">name and picture</text></g><g transform="translate(0,62)"><circle cx="0" cy="-4" r="4.5" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="16" y="0" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">ticket key</text></g><g transform="translate(0,98)"><circle cx="0" cy="-4" r="4.5" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="16" y="0" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">engine and model</text></g><g transform="translate(0,134)"><circle cx="0" cy="-4" r="4.5" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="16" y="0" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">status in plain words</text></g><g transform="translate(0,170)"><circle cx="0" cy="-4" r="4.5" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="16" y="0" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">context gauge</text></g><g transform="translate(0,206)"><circle cx="0" cy="-4" r="4.5" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/><text x="16" y="0" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">what it is doing now</text></g>
+  <path d="M-14 8 v212" stroke="#1A1320" stroke-width="2" stroke-dasharray="5 6"/>
+</g>
+<g transform="translate(60,452)">
+  <rect x="0" y="0" width="700" height="58" rx="12" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/>
+  <g transform="translate(20,20)"><rect x="0" y="2" width="4" height="4" rx="2" fill="#1A1320"/><rect x="0" y="12" width="4" height="4" rx="2" fill="#1A1320"/><rect x="8" y="2" width="4" height="4" rx="2" fill="#1A1320"/><rect x="8" y="12" width="4" height="4" rx="2" fill="#1A1320"/></g>
+  <text x="48" y="27" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">Keep my agent order: drag the handle and they stay where you put them.</text>
+  <text x="48" y="46" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#8C8577">and one update now redraws one row, not the whole list</text>
+</g>
+<text x="980" y="486" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#8C8577">Classic and Pro</text>
+<g transform="translate(980,452)"><rect x="-86" y="-22" width="172" height="34" rx="17" fill="#FFCA54" stroke="#1A1320" stroke-width="2"/><text x="0" y="0" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">both skins</text></g></svg>

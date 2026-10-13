@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+<rect width="1600" height="900" fill="#FFF8E7"/>
+<ellipse cx="300" cy="300" rx="90" ry="26" fill="#FCFAF0"/><ellipse cx="820" cy="250" rx="120" ry="30" fill="#FCFAF0"/>
+<g transform="translate(86,110)"><rect x="0" y="-40" width="118" height="54" rx="27" fill="#FFCA54" stroke="#1A1320" stroke-width="3"/><text x="59" y="-4" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="26" fill="#1A1320">TOP 10</text>
+<text x="140" y="4" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="60" fill="#1A1320">Indian open source vs big tech</text></g>
+<text x="86" y="172" font-family="Space Grotesk, system-ui, sans-serif" font-weight="600" font-size="24" fill="#6F6680">ten small teams, one very long rope</text>
+<line x1="0" y1="792" x2="1600" y2="792" stroke="#1A1320" stroke-width="3" stroke-dasharray="3 12" stroke-linecap="round"/>
+<line x1="40" y1="668" x2="1150" y2="668" stroke="#E8A33D" stroke-width="11" stroke-linecap="round"/>
+<line x1="40" y1="668" x2="1150" y2="668" stroke="#1A1320" stroke-width="11" stroke-linecap="round" stroke-dasharray="1 17" opacity=".35"/>
+<g transform="translate(1040,668)"><line x1="0" y1="0" x2="0" y2="46" stroke="#1A1320" stroke-width="3.5"/><path d="M0,46 L36,60 L0,74Z" fill="#FFCA54" stroke="#1A1320" stroke-width="3"/></g>
+<line x1="86" y1="474" x2="86" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(86,452) rotate(-2)"><rect x="-43.4" y="-24" width="86.8" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Laya</text><text x="-41.4" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#1</text></g>
+<g transform="translate(86,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#C9B6E4" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<path d="M-7,-3 Q0,7 7,-3 Z" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#C9B6E4" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="182" y1="562" x2="182" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(182,540) rotate(-1)"><rect x="-43.4" y="-24" width="86.8" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Mem0</text><text x="-41.4" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#2</text></g>
+<g transform="translate(182,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#9ED9B8" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<ellipse cx="0" cy="0" rx="3.5" ry="4.5" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#9ED9B8" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="278" y1="474" x2="278" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(278,452) rotate(0)"><rect x="-109.39999999999999" y="-24" width="218.79999999999998" height="48" rx="12" fill="#FFCA54" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Munder Difflin</text><text x="-107.39999999999999" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#3</text></g>
+<g transform="translate(278,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#FFCA54" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<path d="M-7,-3 Q0,7 7,-3 Z" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#FFCA54" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="374" y1="562" x2="374" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(374,540) rotate(-2)"><rect x="-50" y="-24" width="100" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Plane</text><text x="-48" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#4</text></g>
+<g transform="translate(374,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#A9D4F5" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<path d="M-5,-2 Q0,4 5,-2" fill="none" stroke="#1A1320" stroke-width="2.6" stroke-linecap="round"/>
+<circle cx="26" cy="-4" r="6.5" fill="#A9D4F5" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="470" y1="474" x2="470" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(470,452) rotate(-1)"><rect x="-63.199999999999996" y="-24" width="126.39999999999999" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">ToolJet</text><text x="-61.199999999999996" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#5</text></g>
+<g transform="translate(470,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#F29E4C" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<path d="M-7,-3 Q0,7 7,-3 Z" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#F29E4C" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="566" y1="562" x2="566" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(566,540) rotate(0)"><rect x="-43.4" y="-24" width="86.8" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Khoj</text><text x="-41.4" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#6</text></g>
+<g transform="translate(566,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#C9B6E4" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<ellipse cx="0" cy="0" rx="3.5" ry="4.5" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#C9B6E4" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="662" y1="474" x2="662" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(662,452) rotate(-2)"><rect x="-69.8" y="-24" width="139.6" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Chatwoot</text><text x="-67.8" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#7</text></g>
+<g transform="translate(662,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#9ED9B8" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<path d="M-7,-3 Q0,7 7,-3 Z" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#9ED9B8" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="758" y1="562" x2="758" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(758,540) rotate(-1)"><rect x="-56.599999999999994" y="-24" width="113.19999999999999" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">SigNoz</text><text x="-54.599999999999994" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#8</text></g>
+<g transform="translate(758,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#FFCA54" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<path d="M-5,-2 Q0,4 5,-2" fill="none" stroke="#1A1320" stroke-width="2.6" stroke-linecap="round"/>
+<circle cx="26" cy="-4" r="6.5" fill="#FFCA54" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="854" y1="474" x2="854" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(854,452) rotate(0)"><rect x="-89.6" y="-24" width="179.2" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Supermemory</text><text x="-87.6" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#9</text></g>
+<g transform="translate(854,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#A9D4F5" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<ellipse cx="0" cy="0" rx="3.5" ry="4.5" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#A9D4F5" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<line x1="950" y1="562" x2="950" y2="646" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>
+<g transform="translate(950,540) rotate(-2)"><rect x="-69.8" y="-24" width="139.6" height="48" rx="12" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><text x="0" y="8" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="22" fill="#1A1320">Composio</text><text x="-67.8" y="-30" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">#10</text></g>
+<g transform="translate(950,690) rotate(-10) scale(1.25)">
+<path d="M-10,28 l-4,12 M10,28 l-2,12" stroke="#1A1320" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M-27,14 C-30,-22 -17,-38 0,-38 C17,-38 30,-22 27,14 C24,33 -24,33 -27,14Z" fill="#F29E4C" stroke="#1A1320" stroke-width="3"/>
+<circle cx="-8" cy="-13" r="3.6" fill="#1A1320"/><circle cx="8" cy="-13" r="3.6" fill="#1A1320"/>
+<ellipse cx="-16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/><ellipse cx="16" cy="-3" rx="5" ry="3" fill="#F29E4C" opacity=".45"/>
+<path d="M-7,-3 Q0,7 7,-3 Z" fill="#1A1320"/>
+<circle cx="26" cy="-4" r="6.5" fill="#F29E4C" stroke="#1A1320" stroke-width="2.5"/>
+</g>
+<g transform="translate(1360,520) rotate(-7)">
+<path d="M-190,60 Q-226,100 -200,124" fill="none" stroke="#1A1320" stroke-width="7" stroke-linecap="round"/>
+<line x1="0" y1="-330" x2="0" y2="-372" stroke="#1A1320" stroke-width="4"/><circle cx="0" cy="-380" r="12" fill="#B9B0C4" stroke="#1A1320" stroke-width="4"/>
+<rect x="-190" y="-330" width="380" height="580" rx="30" fill="#E4DEE9" stroke="#1A1320" stroke-width="4"/>
+<rect x="-160" y="-300" width="320" height="100" rx="18" fill="#B9B0C4" stroke="#1A1320" stroke-width="3.5"/>
+<circle cx="-62" cy="-248" r="12" fill="#1A1320"/><circle cx="62" cy="-248" r="12" fill="#1A1320"/><circle cx="-58" cy="-252" r="3.5" fill="#FCFAF0"/><circle cx="66" cy="-252" r="3.5" fill="#FCFAF0"/>
+<path d="M-92,-276 l34,-10 M92,-276 l-34,-10" stroke="#1A1320" stroke-width="5" stroke-linecap="round"/>
+<path d="M-20,-218 q20,-12 40,0" fill="none" stroke="#1A1320" stroke-width="4" stroke-linecap="round"/>
+<text x="0" y="-160" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="30" letter-spacing="3" fill="#6F6680">BIG TECH</text>
+<g transform="translate(-110,-60) rotate(-8)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><path d="M-28,8 C-28,-18 -12,-18 0,0 C12,18 28,18 28,-4 C28,-18 12,-18 0,0 C-12,18 -28,26 -28,8Z" fill="none" stroke="#6F6680" stroke-width="7" stroke-linejoin="round"/></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">Meta</text></g><g transform="translate(0,-70) rotate(5)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><text x="0" y="17" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="54" fill="#6F6680">G</text></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">Google</text></g><g transform="translate(110,-55) rotate(-4)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><rect x="-24" y="-24" width="22" height="22" fill="#6F6680"/><rect x="2" y="-24" width="22" height="22" fill="#6F6680"/><rect x="-24" y="2" width="22" height="22" fill="#6F6680"/><rect x="2" y="2" width="22" height="22" fill="#6F6680"/></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">Microsoft</text></g>
+<g transform="translate(-112,60) rotate(6)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><ellipse cx="0" cy="-11" rx="8" ry="15" fill="none" stroke="#6F6680" stroke-width="4.5" transform="rotate(0)"/><ellipse cx="0" cy="-11" rx="8" ry="15" fill="none" stroke="#6F6680" stroke-width="4.5" transform="rotate(60)"/><ellipse cx="0" cy="-11" rx="8" ry="15" fill="none" stroke="#6F6680" stroke-width="4.5" transform="rotate(120)"/><ellipse cx="0" cy="-11" rx="8" ry="15" fill="none" stroke="#6F6680" stroke-width="4.5" transform="rotate(180)"/><ellipse cx="0" cy="-11" rx="8" ry="15" fill="none" stroke="#6F6680" stroke-width="4.5" transform="rotate(240)"/><ellipse cx="0" cy="-11" rx="8" ry="15" fill="none" stroke="#6F6680" stroke-width="4.5" transform="rotate(300)"/></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">OpenAI</text></g><g transform="translate(0,55) rotate(-6)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><text x="0" y="6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="40" fill="#6F6680">a</text><path d="M-22,14 Q0,28 22,14" fill="none" stroke="#6F6680" stroke-width="5" stroke-linecap="round"/><path d="M16,8 L24,13 L17,20" fill="none" stroke="#6F6680" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">Amazon</text></g><g transform="translate(112,65) rotate(4)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><text x="0" y="12" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="34" fill="#6F6680">x</text><path d="M-26,6 Q0,-30 28,-14" fill="none" stroke="#6F6680" stroke-width="4" stroke-linecap="round"/></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">SpaceXAI</text></g>
+<g transform="translate(-60,170) rotate(-3)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><path d="M-26,12 C-34,12 -34,-4 -24,-4 C-24,-16 -8,-20 -2,-10 C4,-20 20,-18 20,-6 C32,-8 34,12 22,12 Z" fill="#6F6680"/></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">Salesforce</text></g><g transform="translate(60,175) rotate(7)"><circle r="52" fill="#FCFAF0" stroke="#1A1320" stroke-width="3"/><g transform="translate(0,-10) scale(.9)"><path d="M-6,-26 C-16,-8 -14,10 2,24 L22,24 C8,8 6,-8 -6,-26Z" fill="#6F6680"/><path d="M-12,4 C-16,0 -20,2 -22,6 L-30,24 L-12,24 C-10,16 -10,10 -12,4Z" fill="#6F6680"/></g><text x="0" y="36" text-anchor="middle" font-family="Space Grotesk, system-ui, sans-serif" font-weight="700" font-size="15" fill="#6F6680">Atlassian</text></g>
+<circle cx="-198" cy="124" r="14" fill="#E4DEE9" stroke="#1A1320" stroke-width="3.5"/>
+<path d="M-120,250 l-6,26 M120,250 l6,26" stroke="#1A1320" stroke-width="6" stroke-linecap="round"/>
+</g>
+<path transform="translate(1150,190)" d="M0,0 C7,10 7,17 0,19 C-7,17 -7,10 0,0Z" fill="#A9D4F5" stroke="#1A1320" stroke-width="2.5"/><path transform="translate(1560,330)" d="M0,0 C7,10 7,17 0,19 C-7,17 -7,10 0,0Z" fill="#A9D4F5" stroke="#1A1320" stroke-width="2.5"/><path transform="translate(1210,150)" d="M0,0 C7,10 7,17 0,19 C-7,17 -7,10 0,0Z" fill="#A9D4F5" stroke="#1A1320" stroke-width="2.5"/>
+<g fill="#E4DEE9" stroke="#1A1320" stroke-width="2"><circle cx="1150" cy="784" r="12"/><circle cx="1128" cy="776" r="8"/><circle cx="1560" cy="786" r="10"/></g>
+<text x="1514" y="870" text-anchor="end" font-family="Space Grotesk, system-ui, sans-serif" font-weight="600" font-size="20" fill="#6F6680">munderdiffl.in/blog</text>
+</svg>

@@ -41,7 +41,7 @@ The platform story moved quickly. OpenAI replaced its experimental Swarm with a 
 **Agents SDK**; Google shipped **ADK** across multiple languages; Anthropic renamed its SDK to the
 **Claude Agent SDK** to signal broader ambitions; and Microsoft merged Semantic Kernel and AutoGen into
 a unified **Agent Framework**, which [shipped 1.0 GA on April 3, 2026](https://visualstudiomagazine.com/articles/2026/04/06/microsoft-ships-production-ready-agent-framework-1-0-for-net-and-python.aspx)
-with graph workflows, checkpointing, streaming, and human-in-the-loop built in.
+with graph workflows, checkpointing, streaming, and human-in-the-loop built in. See [what the Claude Agent SDK is](/blog/what-is-claude-agent-sdk/).
 
 Underneath the SDKs, the protocol layer is converging on a two-layer stack: **MCP** (Model Context
 Protocol) for vertical *tool* integration and **A2A** (Agent-to-Agent) for horizontal *agent*

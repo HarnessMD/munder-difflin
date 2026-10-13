@@ -22,7 +22,7 @@ import { arabicJoinRanges } from '@/terminal/arabicJoiner';
 import { attachArabicSpacingFix } from '@/terminal/arabicSpacingFix';
 import { isArabicTerminalEnabled } from '@/terminal/arabicSetting';
 import {
-  classifyPathToken, isPathToken, pathTokenMatcher, stripPathToken, type PathAction
+  classifyPathToken, isPathToken, stripPathToken, terminalLinkSpans, type PathAction
 } from '@shared/terminalPaths';
 import {
   createTerminalRecoveryState,
@@ -39,6 +39,7 @@ import {
   type TerminalAutomationBlock
 } from './terminalAutomation';
 import { sanitizeTerminalSelection } from './terminalSelection';
+import { terminalKeySequence } from './terminalKeys';
 import '@xterm/xterm/css/xterm.css';
 
 export interface TerminalEntry {
@@ -255,6 +256,18 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
   };
   term.attachCustomKeyEventHandler((ev) => {
     if (ev.type !== 'keydown') return true;
+    // Keys xterm would encode in a way the TUI cannot read. Checked BEFORE the
+    // Ctrl/Cmd gate below, because Shift+Enter holds neither: without this it
+    // fell straight through to xterm's default, which sends the same bare CR as
+    // Enter — so Shift+Enter submitted the prompt instead of opening a new line
+    // (#481). Writing to the pty directly is the same path the OSC colour replies
+    // below already use.
+    const seq = terminalKeySequence(ev);
+    if (seq !== null) {
+      if (!entry.exited) window.cth.writePty(ptyId, seq);
+      ev.preventDefault();
+      return false;
+    }
     if (!(ev.ctrlKey || ev.metaKey)) return true;
     const key = ev.key.toLowerCase();
     if (key === 'c' && (ev.shiftKey || term.hasSelection())) {
@@ -970,21 +983,40 @@ function registerMarkdownLinkProvider(term: Terminal, ptyId: string): void {
       provideLinks(bufferLineNumber, callback) {
         const line = term.buffer.active.getLine(bufferLineNumber - 1);
         const text = line ? line.translateToString(true) : '';
-        if (!text || !text.includes('.')) { callback(undefined); return; }
+        // A URL host need not carry a dot (`https://localhost:3000/x`), so the
+        // cheap bail-out has to let `://` through as well.
+        if (!text || (!text.includes('.') && !text.includes('://'))) { callback(undefined); return; }
         const links: Parameters<typeof callback>[0] = [];
-        const re = pathTokenMatcher();
-        let m: RegExpExecArray | null;
-        while ((m = re.exec(text)) !== null) {
-          const raw = m[0];
-          const abs = resolvePathCandidate(ptyId, raw);
+
+        // Ordering (URLs win overlaps with path tokens) lives in
+        // @shared/terminalPaths so it can be unit-tested; this only turns a
+        // span into an xterm link and decides what a click does.
+        for (const span of terminalLinkSpans(text)) {
+          const range = {
+            start: { x: span.start + 1, y: bufferLineNumber },
+            end: { x: span.start + span.raw.length, y: bufferLineNumber }
+          };
+          if (span.kind === 'url') {
+            const url = span.token;
+            links!.push({
+              range, text: url,
+              decorations: { underline: true, pointerCursor: true },
+              activate: (event: MouseEvent | undefined) => {
+                // ⌘/Ctrl+click only, like the path links: a plain click must
+                // keep going to the TUI.
+                if (event && !(event.metaKey || event.ctrlKey)) return;
+                // The URL is agent output. It reaches nothing but the opener,
+                // which is https-only and re-checks in the main process.
+                void window.cth.openExternal?.(url).catch(() => { /* opener refused */ });
+              }
+            });
+            continue;
+          }
+          const abs = resolvePathCandidate(ptyId, span.raw);
           if (!abs) continue;
-          const action = classifyPathToken(stripPathToken(raw));
+          const action = classifyPathToken(span.token);
           links!.push({
-            range: {
-              start: { x: m.index + 1, y: bufferLineNumber },
-              end: { x: m.index + raw.length, y: bufferLineNumber }
-            },
-            text: raw,
+            range, text: span.raw,
             decorations: { underline: true, pointerCursor: true },
             activate: (event: MouseEvent | undefined) => {
               // ⌘/Ctrl+click only — a plain click must keep going to the TUI.

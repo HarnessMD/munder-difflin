@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally — Munder Difflin Blog</title>
+<meta name="description" content="0.5.3 turns the Stapler into dictation for any app and a meeting recorder that hears both sides of a call, all on your machine. Plus the new sidebar, a Tasks tab with real ticket keys, two floors on one computer, Opus 5.5 as the default, and a long list of fixes." />
+<link rel="canonical" href="https://munderdiffl.in/blog/munder-difflin-0-5-3/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally — Munder Difflin Blog" />
+<meta property="og:description" content="0.5.3 turns the Stapler into dictation for any app and a meeting recorder that hears both sides of a call, all on your machine. Plus the new sidebar, a Tasks tab with real ticket keys, two floors on one computer, Opus 5.5 as the default, and a long list of fixes." />
+<meta property="og:url" content="https://munderdiffl.in/blog/munder-difflin-0-5-3/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/munder-difflin-0-5-3/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Illustration: the Stapler sits inside a dotted box labelled YOUR MACHINE, between an app window where dictated words are being typed and a meeting transcript whose lines are labelled You and Them. A cloud outside the box is crossed out and marked no upload." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-09-26T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Story" />
+<meta property="article:tag" content="Release" />
+<meta property="article:tag" content="Local-First" />
+<meta property="article:tag" content="Transcription" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally — Munder Difflin Blog" />
+<meta name="twitter:description" content="0.5.3 turns the Stapler into dictation for any app and a meeting recorder that hears both sides of a call, all on your machine. Plus the new sidebar, a Tasks tab with real ticket keys, two floors on one computer, Opus 5.5 as the default, and a long list of fixes." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/munder-difflin-0-5-3/hero.png" />
+<meta name="twitter:image:alt" content="Illustration: the Stapler sits inside a dotted box labelled YOUR MACHINE, between an app window where dictated words are being typed and a meeting transcript whose lines are labelled You and Them. A cloud outside the box is crossed out and marked no upload." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally",
+  "description": "0.5.3 turns the Stapler into dictation for any app and a meeting recorder that hears both sides of a call, all on your machine. Plus the new sidebar, a Tasks tab with real ticket keys, two floors on one computer, Opus 5.5 as the default, and a long list of fixes.",
+  "image": ["https://munderdiffl.in/blog/assets/media/munder-difflin-0-5-3/hero.png"],
+  "datePublished": "2026-09-26T00:00:00.000Z",
+  "dateModified": "2026-09-26T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/munder-difflin-0-5-3/" },
+  "keywords": "munder difflin 0.5.3, munder difflin release notes, local transcription ai agents, ai meeting transcription local, dictate into any app, opus 5.5, munder difflin download",
+  "articleSection": "Story",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/munder-difflin-0-5-3/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally", "item": "https://munderdiffl.in/blog/munder-difflin-0-5-3/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is new in Munder Difflin 0.5.3?", "acceptedAnswer": { "@type": "Answer", "text": "Dictation into any app on macOS, Windows and Linux, meeting transcripts that hear both sides of a call and label them You and Them, transcription that runs on your machine, the new agent sidebar in both skins, a Tasks tab with three letter ticket keys, a second floor on the same computer, Opus 5.5 as the default Claude model, automatic compaction every 40 minutes at 30 percent of the context window, and a long list of fixes." } },
+    { "@type": "Question", "name": "Does the transcription send my audio anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "Not by default. A Whisper model ships inside the app and runs on your computer, and on macOS 26 dictation can use Apple's on device recogniser. Groq is a fallback that stays off until you paste a key. Your prompts and the files an agent reads still go to whichever AI engine you picked, the same as before." } },
+    { "@type": "Question", "name": "How does it record the other side of a call?", "acceptedAnswer": { "@type": "Answer", "text": "Through the system's own audio: screen audio on the Mac, the system loopback on Windows, and the PulseAudio or PipeWire monitor on Linux. Your microphone is written as You and the call's audio as Them. Settings has the switch and a line saying whether it works on this machine." } },
+    { "@type": "Question", "name": "Is Munder Difflin free?", "acceptedAnswer": { "@type": "Answer", "text": "The app is free and open source. What you may pay for is the AI engine behind it, and several engines have a free path. Some features are in the paid Pro build, and this post says which." } },
+    { "@type": "Question", "name": "How do I update?", "acceptedAnswer": { "@type": "Answer", "text": "The app checks for updates and offers the new version when one lands. You can also download 0.5.3 directly from the releases page for macOS, Windows or Linux." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-story">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/story/">Story</a>
+    </nav>
+    <h1>Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally</h1>
+    <p class="dek">0.5.3 turns the Stapler into dictation for any app and a meeting recorder that hears both sides of a call, all on your machine. Plus the new sidebar, a Tasks tab with real ticket keys, two floors on one computer, Opus 5.5 as the default, and a long list of fixes.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">CG</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-09-26">Sep 26, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>11 min read</span>
+      <span class="tag kind">Story</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/munder-difflin-0-5-3/hero.png" alt="Illustration: the Stapler sits inside a dotted box labelled YOUR MACHINE, between an app window where dictated words are being typed and a meeting transcript whose lines are labelled You and Them. A cloud outside the box is crossed out and marked no upload." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <div class="callout tldr"><span class="ic">TL;DR</span><p><strong>0.5.3</strong> is the release where
+the app starts listening. <strong>Stapler</strong> transcribes on your machine: hold a key and talk into any
+field in any app, or start a meeting and get a transcript that knows which voice was yours. Transcription runs
+on the computer, so by default no audio leaves it. Also in: the new agent sidebar in both skins, a
+<strong>Tasks</strong> tab with real ticket keys, a <strong>second floor</strong> on the same machine,
+<strong>Opus 5.5</strong> as the default Claude model, compaction that runs sooner on purpose, and a long
+list of fixes.</p></div>
+<p>Most of what we shipped this year made the agents easier to watch. 0.5.3 makes them easier to talk
+to, which turns out to be a different problem and a more interesting one.</p>
+<p>The founder’s way of putting it: cancel your Granola and Wispr Flow subscriptions, because the Stapler now
+does both, on your own computer.</p>
+<h2 id="the-headline-stapler-transcribes-on-your-machine" tabindex="-1">The headline: Stapler transcribes, on your machine <a class="anchor" href="#the-headline-stapler-transcribes-on-your-machine" aria-hidden="true">#</a></h2>
+<p>Stapler is the capture button in the corner of the app. In 0.5.3 it does three things with your
+voice, and all three run locally.</p>
+<p><strong>Dictate into any app.</strong> Hold Option on the Mac, or Control+Alt+Space on Windows and Linux running X11,
+talk, and let go. The words land in whatever field is in front of you, in any application on the machine,
+which means the app is a dictation tool on days when you are not running agents at all. The audio streams
+while you hold the key, so the words arrive a moment after you release it.</p>
+<p><strong>The composer mic.</strong> The mic in the composer works with whichever engine you picked, in both skins and in
+the orchestrator’s prompt bar. Briefing an agent out loud is faster than typing it, and the things you say
+are longer and more specific than the things you type.</p>
+<p><strong>Meetings hear both sides.</strong> Press Stapler when the meeting starts, or use the meeting key:
+Shift+Command+Space on the Mac, Control+Shift+Space on Windows and Linux. Your microphone is written as
+<strong>You</strong> and the call’s audio as <strong>Them</strong>, taken from the system itself: screen audio on the Mac, the system
+loopback on Windows, the PulseAudio or PipeWire monitor on Linux. Settings has the switch and a line saying
+whether it works on this machine. If a call is playing through the built in speakers, the meeting mic cancels
+the echo so the other side does not end up inside your own lines, and the Stapler suggests headphones.</p>
+<p>When it ends you have the transcript, on disk, and you can correct it, add a description under the title,
+and send it to one or more agents to do the follow up work. The audio itself is never changed. That last
+part is what a notes app cannot do: the transcript is not the deliverable, the work that follows it is.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/munder-difflin-0-5-3/note-1.png" alt="Illustration: a mail window, a terminal and a notes window all taking dictated text from one Stapler below them, with the hold keys shown as Option on the Mac and Control plus Alt plus Space on Windows and Linux." loading="lazy" decoding="async" /></figure>
+<h3 id="where-the-words-are-actually-made" tabindex="-1">Where the words are actually made <a class="anchor" href="#where-the-words-are-actually-made" aria-hidden="true">#</a></h3>
+<p>The default engine is <strong>auto</strong>, and it picks the nearest thing to your machine. Apple’s on device
+recogniser handles dictation on macOS 26 and is warmed at launch so the first one does not wait. A Whisper
+model that ships inside the app handles meetings, and handles everything on every other machine: Windows,
+Linux, older and Intel Macs. Groq is the last resort and only runs if you pasted a key and nothing local
+is there.</p>
+<p>The bundled model is base.en at 60 MB. If you want more accuracy, small.en is an optional 190 MB download
+in Settings, and a missing model falls back to the bundled one rather than failing.</p>
+<p>By default nothing leaves the machine: no upload, no account, no per minute fee, and it works on a plane.
+Text arrives within a second of releasing the key, and on clean dictation about 97 to 99 percent of words
+come out right in our tests. Each transcription also starts clean now, so the end of one meeting no longer
+shapes the start of the next.</p>
+<p>Dictation into any app on a Mac asks for two permissions, Microphone and Accessibility. A <strong>Dictation &amp;
+Meetings</strong> section in Settings holds the engine, the model, the shortcuts, the other side of calls and your
+own words, on top of a built in vocabulary of 126 tech names: companies, models, tools and startup words,
+so Anthropic, Claude, Kubernetes and ARR come out spelled right.</p>
+<p>0.5.3 transcribes English. The bundled model is English only; on macOS 26 dictation runs on Apple’s engine, which follows the Mac’s language and we have tested it in English. Other languages arrive as a model download in a later release.</p>
+<p>The Stapler itself got easier to live with too. It has eyes, a level meter and a sound while it listens.
+Its panel is compact, with collapsible sections and one Save. It takes several screenshots in one message,
+its To menu remembers who you picked, and its cards open whole instead of half off the edge of the screen.</p>
+<h2 id="the-new-agent-sidebar-in-both-skins" tabindex="-1">The new agent sidebar, in both skins <a class="anchor" href="#the-new-agent-sidebar-in-both-skins" aria-hidden="true">#</a></h2>
+<p>The sidebar that tells you what every agent is doing is new in 0.5.3, and the new agent cards are in the
+free Classic office as well as in Pro.</p>
+<p>Each agent gets a row with the things you actually check: <strong>status</strong>, which <strong>engine</strong> it is on, which
+<strong>model</strong>, a <strong>context gauge</strong>, the <strong>ticket</strong> it is working, and the <strong>live action</strong> it is taking right
+now, plus the Asked you, Finished and Crashed lines. There are notes and a search box over them. Hover a
+ticket and its details open beside the sidebar rather than over the rows below. A <strong>right click menu</strong> on
+the row does the common jobs without a trip to another screen, and the card strip along the bottom of the
+floor gives you everyone at a glance.</p>
+<p><strong>Keep my agent order</strong> is a setting: turn it on, Save, then drag an agent by the handle under its picture,
+or a project by its name. Left off, the sidebar orders itself the way it always did. In Pro you can also
+drag the sidebar’s edge to change its width, and it stays where you put it across launches. If you want
+less on screen, one setting shows only agents and notes.</p>
+<p><strong>Status words say what they mean.</strong> Needs you means the agent is waiting on you. Waiting means it is
+waiting on another agent. The status dots are readable in both themes.</p>
+<p>Under all of it, a fix that is invisible and worth more than it sounds: one update now redraws one row, so a
+busy floor no longer repaints the whole list.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/munder-difflin-0-5-3/note-2.png" alt="Illustration: three agent sidebar rows showing name, ticket key, engine, model, status in plain words, a context gauge and the live action, with a note that dragging the handle keeps your order." loading="lazy" decoding="async" /></figure>
+<h2 id="tasks-get-a-tab-a-key-and-a-clock" tabindex="-1">Tasks get a tab, a key and a clock <a class="anchor" href="#tasks-get-a-tab-a-key-and-a-clock" aria-hidden="true">#</a></h2>
+<p>Work that agents do now looks like work you can track.</p>
+<ul>
+<li><strong>A Tasks tab</strong> sits beside Inbox and Terminal on an agent’s screen, so you can see what one agent is
+carrying without leaving it.</li>
+<li><strong>Tickets have three letter keys</strong>, like V53-299 or MTK-122, assigned by the harness. A key you can say
+out loud is the difference between “that task” and a thing two people can refer to.</li>
+<li><strong>Tasks carry their times</strong>, and the Tasks screen filters by Today, This week, This month or All time.</li>
+<li>A card dropped anywhere in a column lands in that column, instead of only on the exact row under the
+pointer.</li>
+</ul>
+<h2 id="two-floors-on-one-machine" tabindex="-1">Two floors on one machine <a class="anchor" href="#two-floors-on-one-machine" aria-hidden="true">#</a></h2>
+<p><strong>New Floor</strong> asks where to start and runs a second office in parallel on the same computer, on its own
+hive, under one licence for the machine. When more than one is open the offices are numbered so you can
+tell them apart. A single hive is only ever open in one floor, which is the rule that keeps two offices
+from writing over each other.</p>
+<h2 id="opus-55-is-the-default" tabindex="-1">Opus 5.5 is the default <a class="anchor" href="#opus-55-is-the-default" aria-hidden="true">#</a></h2>
+<p>Claude’s Opus 5.5 is now the default Claude model rather than an option you have to go and find. Model
+names come from the live catalog, so a new model shows up without waiting for us to ship a release. The
+model an agent is running shows in the sidebar and survives a restart, and every engine is listed wherever
+an agent’s engine is chosen, the orchestrator’s included.</p>
+<h2 id="compaction-now-runs-sooner-on-purpose" tabindex="-1">Compaction now runs sooner, on purpose <a class="anchor" href="#compaction-now-runs-sooner-on-purpose" aria-hidden="true">#</a></h2>
+<p>Automatic compaction runs every 40 minutes at 30 percent of the context window, and it is the same 30
+percent whether the model holds two hundred thousand tokens or a million.</p>
+<p>That is a move in both directions. Before 0.5.3 the default was every two hours at 60 percent, and 40
+percent on a million token window, so the app now compacts earlier and more often than it used to.</p>
+<p>It is an operating opinion, not a benchmark result, and it is worth saying which. Compaction is cheap
+and losing the thread is not, so an agent should compact early rather than work from a summary of a
+summary. The million token window loses its looser bar too: one bar for every model size.</p>
+<p>Two smaller things went with it. The scheduled maintenance pass and the trigger carried different
+intervals, 60 minutes and 120 minutes, and the pass now runs on the trigger’s own interval instead of
+a second number. The pass is off by default; that is the interval it uses when you switch it on. And
+a rule you have edited yourself keeps your numbers: only untouched defaults move with the release.</p>
+<h2 id="agents-are-easier-to-start-restart-and-steer" tabindex="-1">Agents are easier to start, restart and steer <a class="anchor" href="#agents-are-easier-to-start-restart-and-steer" aria-hidden="true">#</a></h2>
+<ul>
+<li><strong>A missing CLI is a card, not an error.</strong> Install it from the agent’s terminal and only that terminal
+restarts. You can <strong>sign in from inside the app</strong> for every engine, and <strong>Set up manually</strong> is there for
+when an install or a sign in fails.</li>
+<li><strong>Command and Restart live in the right panel.</strong> An agent’s start command can be edited, Restart is
+always there, a stopped agent restarts from the panel, and the orchestrator’s command is editable too.</li>
+<li><strong>Restart keeps the session</strong> for every engine that can resume one, and says so when it cannot. Restart
+&amp; Continue frees a Claude session something else was holding.</li>
+<li><strong>Send now goes straight in.</strong> On a queued message it types into Claude Code at once, even mid turn,
+ahead of the rest of the queue. Other engines take it first when they are idle.</li>
+<li><strong>Ask me</strong> is on every agent’s Inbox, answered from one box over the composer, with Dismiss all,
+questions grouped by who asked and a badge while one waits. An open question is never answered by the
+app: a queued message waits while a multiple choice question is on screen.</li>
+<li><strong>Attach PDFs, videos and folders</strong> from the composer, and paste an image into a Pro composer.</li>
+<li><strong>Temps are on by default again</strong>, so the orchestrator starts one when you ask.</li>
+</ul>
+<h2 id="settings-redesigned" tabindex="-1">Settings, redesigned <a class="anchor" href="#settings-redesigned" aria-hidden="true">#</a></h2>
+<p>One <strong>Save</strong> for everything. Every section waits for it, anything that did not save is named, and leaving
+with unsaved changes asks first. Long paragraphs are gone in favour of collapsible sections and tooltips.</p>
+<p>Inbound integrations now cover <strong>Telegram, Linear, GitHub and your own webhook</strong>, each with the agent that
+answers it. A webhook shows Creating address until it is live and says which agent takes it. Agents can
+edit connections themselves, and Settings never saves over a change an agent made. <strong>Keys &amp; Secrets</strong> holds
+your provider keys and your own custom secrets, encrypted. <strong>Worktrees</strong> lists the folders on disk and
+deletes one on request. If the webhook or Slack port is taken, the server moves to a free one and Settings
+tells you which.</p>
+<h2 id="the-ide" tabindex="-1">The IDE <a class="anchor" href="#the-ide" aria-hidden="true">#</a></h2>
+<p>Command+I opens the IDE from any screen. Find and replace is in the open file, on Command+F on the Mac and
+Control+F on Windows and Linux. Unsaved text is never lost: it always keeps a tab, the IDE asks before
+closing, it comes back the way you left it, and quitting warns only for windows that are open.</p>
+<h2 id="the-fixes-people-asked-for" tabindex="-1">The fixes people asked for <a class="anchor" href="#the-fixes-people-asked-for" aria-hidden="true">#</a></h2>
+<p>The ones most likely to have annoyed you:</p>
+<ul>
+<li><strong>A restarted agent’s terminal takes the mouse again.</strong> Restart an agent and the terminal was dead
+to clicks and scrolling until you restarted the app. Fixed, and the terminal takes the width of its pane.</li>
+<li><strong>The hive folder no longer swallows agents’ git folders.</strong> Codex runs were quietly pulling agent git
+directories into the hive repository’s object database and the disk kept filling. Fixed, and the space
+comes back.</li>
+<li><strong>A crashed agent keeps its uncommitted work</strong> and restarts in that folder.</li>
+<li><strong>The Stapler stays where you put it.</strong> Its drag is driven by the real pointer, so the disc can no longer
+walk away from your cursor, and Reset puts it back in the middle of the screen without needing a Save. It
+also survives a monitor arriving, leaving or waking.</li>
+</ul>
+<p>Four came from people outside the team, on Windows, through the public repository:</p>
+<ul>
+<li><strong>An agent no longer stops at Claude Code’s folder trust dialog</strong> (<a href="https://github.com/chaitanyagiri/munder-difflin/issues/607">#607</a>, <a href="https://github.com/himeshram">@himeshram</a>).</li>
+<li><strong>config.json and the hive’s registry and task files are written whole</strong>, temp file then rename, so a
+crash or a locked file mid write can no longer empty your settings, your roster or your board
+(<a href="https://github.com/chaitanyagiri/munder-difflin/issues/529">#529</a>, <a href="https://github.com/UsryAce">@UsryAce</a>;
+<a href="https://github.com/chaitanyagiri/munder-difflin/issues/578">#578</a>, <a href="https://github.com/TTAWDTT">@TTAWDTT</a>).</li>
+<li><strong>Antigravity is found</strong> at its own install location (<a href="https://github.com/chaitanyagiri/munder-difflin/issues/592">#592</a>, <a href="https://github.com/HsienW">@HsienW</a>), and the
+Windows tests run the same on every machine (<a href="https://github.com/chaitanyagiri/munder-difflin/issues/403">#403</a>, <a href="https://github.com/oleg-ai-dev">@oleg-ai-dev</a>).</li>
+</ul>
+<p>Plus the rest that landed through September: release drop pictures and fonts, Stapler drift and dark mode,
+the sent to toast, memory cards that no longer clip in Chinese, status dots, the canvas design skill
+install, model changes that stick, IDE tabs that survive, the blank agent after a restart, every engine
+listed in the picker, concise output, the Slack port clash, a deleted config at launch, Grok staying light
+in a light app, a file share that closes its public link when it expires, the crash row with a Restart
+button, and an editable orchestrator command. Arabic now reads right to left across the app and the
+terminal, and code in the IDE reads left to right in every language.</p>
+<h2 id="what-is-not-in-this-release" tabindex="-1">What is not in this release <a class="anchor" href="#what-is-not-in-this-release" aria-hidden="true">#</a></h2>
+<p>Two things, said plainly rather than left for you to discover.</p>
+<ul>
+<li><strong>The Kimi scroll and queue bug.</strong> We could not reproduce it. It is open and next in line for a fix.</li>
+<li><strong>The Brooklyn 99 skin.</strong> Needs a rebase from its author.</li>
+</ul>
+<h2 id="getting-it" tabindex="-1">Getting it <a class="anchor" href="#getting-it" aria-hidden="true">#</a></h2>
+<p>The app updates itself: you will see the new version offered, and the release notes appear once on
+first launch. To install fresh, the <a href="https://github.com/chaitanyagiri/munder-difflin/releases">releases
+page</a> has macOS, Windows and Linux builds.</p>
+<p>Munder Difflin is free and open source. The Pro annual plan is on a launch offer at $150 USD, adjusted for
+purchasing power so it is as low as $100 a year in some countries. If this is your first look, <a href="/blog/your-first-hour-with-munder-difflin/">your first
+hour with Munder Difflin</a> is the fastest way in, and <a href="/blog/why-we-built-munder-difflin/">why we
+built it</a> explains the idea behind the floor.</p>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">What is new in Munder Difflin 0.5.3?</p>
+          <p class="a">Dictation into any app on macOS, Windows and Linux, meeting transcripts that hear both sides of a call and label them You and Them, transcription that runs on your machine, the new agent sidebar in both skins, a Tasks tab with three letter ticket keys, a second floor on the same computer, Opus 5.5 as the default Claude model, automatic compaction every 40 minutes at 30 percent of the context window, and a long list of fixes.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does the transcription send my audio anywhere?</p>
+          <p class="a">Not by default. A Whisper model ships inside the app and runs on your computer, and on macOS 26 dictation can use Apple&#39;s on device recogniser. Groq is a fallback that stays off until you paste a key. Your prompts and the files an agent reads still go to whichever AI engine you picked, the same as before.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How does it record the other side of a call?</p>
+          <p class="a">Through the system&#39;s own audio: screen audio on the Mac, the system loopback on Windows, and the PulseAudio or PipeWire monitor on Linux. Your microphone is written as You and the call&#39;s audio as Them. Settings has the switch and a line saying whether it works on this machine.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is Munder Difflin free?</p>
+          <p class="a">The app is free and open source. What you may pay for is the AI engine behind it, and several engines have a free path. Some features are in the paid Pro build, and this post says which.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I update?</p>
+          <p class="a">The app checks for updates and offers the new version when one lands. You can also download 0.5.3 directly from the releases page for macOS, Windows or Linux.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/story/">Story</a><a class="tag" href="/blog/tags/release/">Release</a><a class="tag" href="/blog/tags/local-first/">Local-First</a><a class="tag" href="/blog/tags/transcription/">Transcription</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#the-headline-stapler-transcribes-on-your-machine">The headline: Stapler transcribes, on your machine</a></li><li class="lvl-3"><a href="#where-the-words-are-actually-made">Where the words are actually made</a></li><li class="lvl-2"><a href="#the-new-agent-sidebar-in-both-skins">The new agent sidebar, in both skins</a></li><li class="lvl-2"><a href="#tasks-get-a-tab-a-key-and-a-clock">Tasks get a tab, a key and a clock</a></li><li class="lvl-2"><a href="#two-floors-on-one-machine">Two floors on one machine</a></li><li class="lvl-2"><a href="#opus-55-is-the-default">Opus 5.5 is the default</a></li><li class="lvl-2"><a href="#compaction-now-runs-sooner-on-purpose">Compaction now runs sooner, on purpose</a></li><li class="lvl-2"><a href="#agents-are-easier-to-start-restart-and-steer">Agents are easier to start, restart and steer</a></li><li class="lvl-2"><a href="#settings-redesigned">Settings, redesigned</a></li><li class="lvl-2"><a href="#the-ide">The IDE</a></li><li class="lvl-2"><a href="#the-fixes-people-asked-for">The fixes people asked for</a></li><li class="lvl-2"><a href="#what-is-not-in-this-release">What is not in this release</a></li><li class="lvl-2"><a href="#getting-it">Getting it</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/indian-open-source-ai-projects-vs-big-tech/"><span class="k">← Older</span><span class="t">Top 10 Indian open source projects that are giving US big tech a tough time</span></a>
+      <a class="pn next" href="/blog/meta-muse-vs-grok-bot/"><span class="k">Newer →</span><span class="t">Meta Muse vs Grok Bot: Same Blueprint, Different Locks</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Story</h2>
+      <div class="post-grid">
+        <article class="card t-story">
+  <a class="thumb t-story" href="/blog/launching-munder-difflin-v0-5-2/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/launching-munder-difflin-v0-5-2/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-09-10">Sep 10, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>7 min</span>
+    </div>
+    <h3><a href="/blog/launching-munder-difflin-v0-5-2/">Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6</a></h3>
+    <p class="dek">Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds.</p>
+    <div class="foot">
+      <span class="tag kind">Story</span>
+      <a class="more" href="/blog/launching-munder-difflin-v0-5-2/" aria-label="Read: Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-story">
+  <a class="thumb t-story" href="/blog/launching-munder-difflin-v0-4-6/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/launching-munder-difflin-v0-4-6/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-08-27">Aug 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>10 min</span>
+    </div>
+    <h3><a href="/blog/launching-munder-difflin-v0-4-6/">Launching Munder Difflin v0.4.6: It Speaks Chinese and Arabic Now</a></h3>
+    <p class="dek">v0.4.6 adds Chinese and Arabic interfaces with right-to-left support, ships its fonts inside the app so nothing is fetched from Google, and makes the updater actually update itself instead of pointing at a download page.</p>
+    <div class="foot">
+      <span class="tag kind">Story</span>
+      <a class="more" href="/blog/launching-munder-difflin-v0-4-6/" aria-label="Read: Launching Munder Difflin v0.4.6: It Speaks Chinese and Arabic Now">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-story">
+  <a class="thumb t-story" href="/blog/launching-munder-difflin-v0-4-4/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/launching-munder-difflin-v0-4-4/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-08-19">Aug 19, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/launching-munder-difflin-v0-4-4/">Launching Munder Difflin v0.4.4: Windows Agents Can Finally Talk</a></h3>
+    <p class="dek">v0.4.4 fixes the bug that silently broke agent-to-agent messaging on Windows, starts hive services on the very first run, rebuilds dark mode so you can read it, and adds a 227-skill catalog, a Prerequisites page, and designed release notes.</p>
+    <div class="foot">
+      <span class="tag kind">Story</span>
+      <a class="more" href="/blog/launching-munder-difflin-v0-4-4/" aria-label="Read: Launching Munder Difflin v0.4.4: Windows Agents Can Finally Talk">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      if (!id) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

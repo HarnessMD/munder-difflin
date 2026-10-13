@@ -1,0 +1,168 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>html,body{margin:0;background:transparent;overflow:hidden}</style>
+<body>
+<script src="scene-lib.js"></script>
+<script>
+// Tile art for the topic cards on /blog/topics/ (2 Oct 2026). No text in the image.
+// Open topic-tiles.html?t=<slug>; the page title becomes "scene-ready" when drawn.
+// Transparent background so each card keeps its topic colour (.t-<slug> in blog-press.css).
+const T = new URLSearchParams(location.search).get("t") || "guides";
+
+const gear = (x, y, r, n = 8) => {
+  let d = "";
+  for (let i = 0; i < n * 2; i++) {
+    const a = (Math.PI * i) / n, rr = i % 2 ? r : r + r * 0.22;
+    const a2 = (Math.PI * (i + 1)) / n;
+    d += `${i ? "L" : "M"}${(x + rr * Math.cos(a)).toFixed(1)} ${(y + rr * Math.sin(a)).toFixed(1)} L${(x + rr * Math.cos(a2)).toFixed(1)} ${(y + rr * Math.sin(a2)).toFixed(1)} `;
+  }
+  return `<path d="${d}Z"/><circle cx="${x}" cy="${y}" r="${r * 0.34}"/>`;
+};
+const bulb = (x, y, s = 1) => `<path d="M${x - 34 * s} ${y} a${44 * s} ${44 * s} 0 1 1 ${68 * s} 0 c ${-10 * s} ${14 * s} ${-14 * s} ${22 * s} ${-14 * s} ${36 * s} h${-40 * s} c 0 ${-14 * s} ${-4 * s} ${-22 * s} ${-14 * s} ${-36 * s} z" fill="${YEL}"/>` +
+  `<path d="M${x - 18 * s} ${y + 48 * s} h${36 * s} M${x - 14 * s} ${y + 60 * s} h${28 * s}"/>` +
+  `<path d="M${x} ${y - 70 * s} v${-22 * s} M${x - 62 * s} ${y - 30 * s} l${-18 * s} ${-12 * s} M${x + 62 * s} ${y - 30 * s} l${18 * s} ${-12 * s}"/>`;
+const rocket = (x, y, s = 1) => `<path d="M${x} ${y - 120 * s} c ${30 * s} ${24 * s} ${36 * s} ${66 * s} ${30 * s} ${110 * s} h${-60 * s} c ${-6 * s} ${-44 * s} 0 ${-86 * s} ${30 * s} ${-110 * s} z"/>` +
+  `<circle cx="${x}" cy="${y - 62 * s}" r="${12 * s}" fill="${YEL}"/>` +
+  `<path d="M${x - 30 * s} ${y - 30 * s} l${-22 * s} ${30 * s} h${22 * s} M${x + 30 * s} ${y - 30 * s} l${22 * s} ${30 * s} h${-22 * s}"/>` +
+  `<path d="M${x - 14 * s} ${y + 12 * s} l${-6 * s} ${34 * s} M${x} ${y + 12 * s} v${48 * s} M${x + 14 * s} ${y + 12 * s} l${6 * s} ${34 * s}" stroke="${ORANGE}"/>`;
+const drawer = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/><path d="M${x + w / 2 - 18} ${y + h / 2} h36"/>`;
+const dots = (pts) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${YEL}"/>`).join("");
+const floor = `<path d="M60 790 H1540"/>`;
+
+const SCENES = {
+  // A route on a map: start pin, dotted steps, finish flag, the bean walking it with a laptop under one arm.
+  guides() {
+    let s = floor;
+    s += `<path d="M150 230 l260 -50 l260 50 l260 -50 l260 50 v380 l-260 50 l-260 -50 l-260 50 l-260 -50 z M410 180 v430 M670 230 v430 M930 180 v430"/>`;
+    s += `<path d="M230 540 C 330 420, 470 520, 560 420 S 790 300, 900 380 S 1060 300, 1110 280" stroke-dasharray="4 22" stroke-width="7"/>`;
+    s += dots([[230, 540], [560, 420], [900, 380]]);
+    s += `<path d="M230 540 c -30 -40 -30 -80 0 -96 c 30 16 30 56 0 96 z" fill="${YEL}"/><circle cx="230" cy="472" r="9"/>`;
+    s += flag(1120, 300, 1.4);
+    s += hei(1330, 600, 1.35, { legs: "walk", armL: "out", armR: "down" });
+    s += `<g transform="rotate(-8 1430 640)">${laptop(1400, 680, 90)}</g>`;
+    return s;
+  },
+  // The bean on a podium with a baton; three agent desks fan out below, each with its own terminal.
+  orchestration() {
+    let s = floor;
+    s += `<path d="M680 790 v-150 h240 v150 M660 640 h280"/>`;
+    s += hei(800, 470, 1.3, { legs: "stand", armL: "down", armR: "up" });
+    s += `<path d="M872 368 L960 260" stroke-width="6"/><circle cx="964" cy="254" r="7" fill="${YEL}"/>`;
+    s += `<path d="M990 240 q30 -20 54 0 M1000 200 q34 -26 66 -4" stroke="${BLUE}"/>`;
+    [[150, 0.95], [1180, 0.95]].forEach(([x]) => {
+      s += desk(x, 660, 300) + terminal(x + 70, 520, 170, 120);
+    });
+    s += `<path d="M640 470 C 520 470, 420 480, 360 510" marker-end="url(#ah)"/>`;
+    s += `<path d="M960 470 C 1080 470, 1180 480, 1240 510" marker-end="url(#ah)"/>`;
+    s += hei(200, 600, 0.55, { legs: "none", armR: "out", armL: "none" });
+    s += hei(1440, 600, 0.55, { legs: "none", armL: "out", armR: "none" });
+    s += sticky(1350, 300, 70, 6) + sticky(1440, 330, 70, -5) + sticky(170, 300, 70, -6);
+    return s;
+  },
+  // A filing cabinet with an open drawer of cards; a thought cloud of linked notes above the bean.
+  memory() {
+    let s = floor;
+    s += `<rect x="230" y="330" width="300" height="460" rx="8"/>`;
+    s += drawer(255, 360, 250, 110) + drawer(255, 660, 250, 110);
+    s += `<path d="M255 490 h250 v120 h-250 z M215 490 h330 l-40 150 h-250 z"/>`;
+    s += `<path d="M270 500 v-46 h60 v46 M320 500 v-60 h60 v60 M370 500 v-40 h60 v40 M420 500 v-54 h60 v54" fill="#fff"/>`;
+    s += hei(860, 590, 1.3, { legs: "stand", armL: "out", armR: "down" });
+    s += `<g transform="rotate(-10 700 560)"><rect x="660" y="520" width="80" height="56" rx="4" fill="#fff"/><path d="M672 540 h56 M672 556 h36"/></g>`;
+    s += `<path d="M960 300 a70 70 0 0 1 120 -80 a90 90 0 0 1 170 0 a70 70 0 0 1 60 120 a60 60 0 0 1 -80 90 h-220 a60 60 0 0 1 -50 -130 z"/>`;
+    s += `<circle cx="920" cy="470" r="12"/><circle cx="950" cy="430" r="18"/>`;
+    s += `<path d="M1060 300 L1160 250 L1250 320 L1140 360 Z M1160 250 L1140 360" stroke="${BLUE}"/>`;
+    s += dots([[1060, 300], [1160, 250], [1250, 320], [1140, 360]]);
+    s += book(1250, 680, 180);
+    return s;
+  },
+  // A machine with its panel swung open: gears, a server rack and a chip; the bean inside with a wrench.
+  internals() {
+    let s = floor;
+    s += `<rect x="200" y="200" width="760" height="560" rx="14"/>`;
+    s += `<path d="M960 220 l200 -60 v580 l-200 20" />`;
+    s += `<circle cx="1120" cy="460" r="12"/>`;
+    s += gear(380, 360, 90, 9) + gear(540, 470, 62, 7) + gear(410, 600, 50, 6);
+    s += `<g fill="${YEL}">${gear(540, 470, 22, 6)}</g>`;
+    s += rack(700, 270, 200, 220);
+    s += `<rect x="720" y="560" width="150" height="110" rx="6"/><path d="M745 560 v-18 M775 560 v-18 M805 560 v-18 M835 560 v-18 M745 670 v18 M775 670 v18 M805 670 v18 M835 670 v18"/>`;
+    s += `<path d="M570 600 C 640 640, 660 600, 720 615" stroke="${BLUE}"/>`;
+    s += hei(1340, 590, 1.25, { legs: "stand", armL: "up", armR: "down" });
+    s += wrench(1250, 440, 1.6);
+    return s;
+  },
+  // The bean at a whiteboard: boxes joined by arrows and a lightbulb overhead.
+  concepts() {
+    let s = floor;
+    s += `<rect x="160" y="160" width="900" height="520" rx="10"/><path d="M300 680 l-50 110 M920 680 l50 110 M200 690 h820"/>`;
+    s += `<circle cx="340" cy="320" r="60"/><rect x="560" y="260" width="180" height="110" rx="10"/><rect x="560" y="470" width="180" height="110" rx="10"/>`;
+    s += `<path d="M880 420 l60 -60 l60 60 l-60 60 z" fill="${YEL}"/>`;
+    s += `<path d="M400 320 H550" marker-end="url(#ah)"/><path d="M400 340 C 470 420, 500 500, 550 520" marker-end="url(#ah)"/>`;
+    s += `<path d="M750 315 C 820 330, 860 360, 878 400" marker-end="url(#ah)" stroke="${BLUE}"/><path d="M750 525 C 820 510, 860 480, 878 440" marker-end="url(#ah)" stroke="${BLUE}"/>`;
+    s += hei(1280, 600, 1.3, { legs: "stand", armL: "up", armR: "down" });
+    s += `<path d="M1188 500 L1110 450" stroke-width="5"/>`;
+    s += bulb(1290, 270, 1.1);
+    return s;
+  },
+  // A balance scale with a box in each pan; the bean leans in with a magnifier.
+  comparisons() {
+    let s = floor;
+    s += `<path d="M700 790 v-520 M620 790 h160 M640 790 l60 -60 l60 60"/>`;
+    s += `<circle cx="700" cy="250" r="16" fill="${YEL}"/>`;
+    s += `<path d="M360 300 L1040 220" stroke-width="5"/>`;
+    s += `<path d="M360 300 L290 470 M360 300 L430 470 M1040 220 L970 390 M1040 220 L1110 390"/>`;
+    s += `<path d="M250 470 h220 a110 40 0 0 1 -220 0 z M930 390 h220 a110 40 0 0 1 -220 0 z"/>`;
+    s += `<rect x="300" y="380" width="120" height="90" rx="4" fill="${YEL}"/><path d="M320 415 h80 M320 440 h50"/>` + box(985, 330, 110, 60, true);
+    s += hei(1340, 610, 1.3, { legs: "stand", armL: "up", armR: "down" });
+    s += magnifier(1205, 470, 1.8);
+    s += `<path d="M180 640 l20 -16 M150 600 l26 -4 M1480 330 l22 -12" stroke="${BLUE}"/>`;
+    return s;
+  },
+  // A conveyor of real work: a message comes in, a reviewed page with a tick, a shipped parcel goes out.
+  "use-cases"() {
+    let s = floor;
+    s += `<path d="M160 600 H1180 M160 650 H1180"/>`;
+    [200, 360, 520, 680, 840, 1000, 1140].forEach((x) => (s += `<circle cx="${x}" cy="625" r="18"/>`));
+    s += envelope(200, 500, 130, -4);
+    s += `<rect x="520" y="420" width="150" height="180" rx="6" fill="#fff"/><path d="M545 460 h100 M545 490 h80 M545 520 h96"/>`;
+    s += `<path d="M560 560 l24 22 l50 -52" stroke="${BLUE}" stroke-width="6"/>`;
+    s += `<path d="M880 480 h170 v120 h-170 z M880 480 l30 -40 h170 l-30 40 M1050 600 l30 -40 v-120" fill="${YEL}"/><path d="M940 480 l30 -40 M990 480 l30 -40" />`;
+    s += `<path d="M380 540 H480 M720 540 H840" marker-end="url(#ah)"/>`;
+    s += hei(1360, 600, 1.3, { legs: "stand", armL: "out", armR: "down" });
+    s += clock(380, 250, 60) + checklist(640, 150, 200, [1, 1, 0]);
+    return s;
+  },
+  // Launch day diary: a rocket lifting off a pad, an open journal and the bean waving.
+  story() {
+    let s = floor;
+    s += `<path d="M260 790 l40 -60 h200 l40 60"/>`;
+    s += rocket(400, 600, 1.6);
+    s += `<path d="M300 740 c -40 -10 -60 -40 -40 -70 M500 740 c 40 -10 60 -40 40 -70" stroke-dasharray="6 12"/>`;
+    s += cloudS(170, 300, 1.3) + cloudS(560, 220, 1);
+    s += `<path d="M720 560 c 80 -30 160 -30 220 0 c 60 -30 140 -30 220 0 v190 c -80 -30 -160 -30 -220 0 c -60 -30 -140 -30 -220 0 z M940 560 v190"/>`;
+    s += `<path d="M760 610 c 50 -14 100 -14 140 0 M760 650 c 50 -14 100 -14 140 0 M980 610 c 50 -14 100 -14 140 0 M980 650 c 30 -10 60 -10 90 0"/>`;
+    s += `<circle cx="1060" cy="700" r="20" fill="${YEL}"/>`;
+    s += hei(1350, 590, 1.3, { legs: "stand", armL: "down", armR: "up" });
+    s += `<path d="M1460 430 q16 -10 30 0 M1470 400 q20 -16 40 -2" stroke="${BLUE}"/>`;
+    s += sticky(1100, 250, 90, 8) + `<path d="M1120 290 h50 M1120 310 h34"/>`;
+    return s;
+  },
+  // Daily brief: a front page with five numbered lines, a clock, and the bean reading it out.
+  news() {
+    let s = floor;
+    s += `<rect x="380" y="200" width="520" height="560" rx="10" fill="#fff"/>`;
+    s += `<rect x="420" y="240" width="440" height="70" rx="6" fill="${YEL}"/><path d="M450 275 h220"/>`;
+    [360, 440, 520, 600, 680].forEach((y, i) => (s += `<circle cx="450" cy="${y}" r="20" fill="${i === 0 ? YEL : "#fff"}"/><path d="M500 ${y - 8} h${300 - i * 30} M500 ${y + 14} h${200 - i * 16}"/>`));
+    s += clock(1090, 290, 70);
+    s += `<path d="M960 520 H1060" marker-end="url(#ah)" stroke="${BLUE}"/>`;
+    s += hei(1330, 600, 1.3, { legs: "stand", armL: "out", armR: "up" });
+    s += `<path d="M1450 420 q16 -10 30 0 M1460 390 q20 -16 40 -2 M230 420 l22 -14 M200 380 l26 -4" stroke="${BLUE}"/>`;
+    s += sticky(170, 520, 110, -6) + `<path d="M195 565 h60 M195 590 h40"/>`;
+    return s;
+  },
+};
+
+RICH["topic-" + T] = () => SCENES[T]();
+document.body.innerHTML = buildScene("topic-" + T, {}).replace('stroke-width="3.2"', 'stroke-width="5"');
+document.title = "scene-ready";
+</script>
+</body>

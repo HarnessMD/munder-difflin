@@ -39,6 +39,7 @@
 .t-comparisons    { --c: #b5179e; --c-soft: #f8e0f4; }
 .t-use-cases      { --c: #ffb238; --c-soft: #fff1d8; }
 .t-story          { --c: #7bc950; --c-soft: #e9f7e0; }
+.t-news           { --c: #5b7a99; --c-soft: #e3ebf3; }
 .t-default        { --c: #5b5bd6; --c-soft: #e7e7fb; }
 
 * { box-sizing: border-box; }

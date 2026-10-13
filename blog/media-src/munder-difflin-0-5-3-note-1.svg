@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560"><rect width="100%" height="100%" fill="#FCFAF0"/>
+<text x="600" y="56" text-anchor="middle" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="27" font-weight="700" fill="#1A1320">One key. Whatever field is in front of you.</text>
+
+<g transform="translate(70,104)">
+  <rect x="0" y="0" width="300" height="186" rx="10" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <path d="M0 26 h300" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="14" cy="13" r="3.5" fill="#8C8577"/><circle cx="26" cy="13" r="3.5" fill="#8C8577"/><circle cx="38" cy="13" r="3.5" fill="#8C8577"/>
+  <text x="150" y="17" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#8C8577">mail</text>
+  <text x="20" y="56" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="13" fill="#8C8577">Subject</text><path d="M20 68 h260" stroke="#EDE7D6" stroke-width="2"/><text x="20" y="100" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="14" fill="#1A1320">Release notes are up<tspan fill="#FFCA54">|</tspan></text><rect x="20" y="114" width="150" height="3" rx="1.5" fill="#FFCA54"/><text x="20" y="152" style="font-family:Menlo,Consolas,monospace" font-size="11.5" fill="#8C8577">a mail client</text>
+</g>
+
+<g transform="translate(450,104)">
+  <rect x="0" y="0" width="300" height="186" rx="10" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <path d="M0 26 h300" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="14" cy="13" r="3.5" fill="#8C8577"/><circle cx="26" cy="13" r="3.5" fill="#8C8577"/><circle cx="38" cy="13" r="3.5" fill="#8C8577"/>
+  <text x="150" y="17" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#8C8577">terminal</text>
+  <rect x="14" y="38" width="272" height="100" rx="6" fill="#1A1320"/><text x="28" y="64" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#FFCA54">$ git commit -m "</text><text x="28" y="86" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#fff">the stapler hears</text><text x="28" y="108" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#fff">both sides now"<tspan fill="#FFCA54">█</tspan></text><text x="14" y="160" style="font-family:Menlo,Consolas,monospace" font-size="11.5" fill="#8C8577">a shell</text>
+</g>
+
+<g transform="translate(830,104)">
+  <rect x="0" y="0" width="300" height="186" rx="10" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <path d="M0 26 h300" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="14" cy="13" r="3.5" fill="#8C8577"/><circle cx="26" cy="13" r="3.5" fill="#8C8577"/><circle cx="38" cy="13" r="3.5" fill="#8C8577"/>
+  <text x="150" y="17" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#8C8577">notes</text>
+  <text x="20" y="56" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="14" fill="#1A1320">Meeting follow ups</text><path d="M20 68 h260" stroke="#EDE7D6" stroke-width="2"/><text x="20" y="94" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="13" fill="#1A1320">1. Credit the Windows fixes</text><text x="20" y="118" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="13" fill="#1A1320">2. Ship the post<tspan fill="#FFCA54">|</tspan></text><rect x="20" y="130" width="112" height="3" rx="1.5" fill="#FFCA54"/><text x="20" y="160" style="font-family:Menlo,Consolas,monospace" font-size="11.5" fill="#8C8577">a notes app</text>
+</g>
+<g>
+  <path d="M220 290 C 220 356 432 382 556 396" fill="none" stroke="#1A1320" stroke-width="2" stroke-dasharray="6 7"/>
+  <path d="M600 290 C 600 336 600 348 600 364" fill="none" stroke="#1A1320" stroke-width="2" stroke-dasharray="6 7"/>
+  <path d="M980 290 C 980 356 768 382 644 396" fill="none" stroke="#1A1320" stroke-width="2" stroke-dasharray="6 7"/>
+</g>
+
+<g transform="translate(600,406)">
+  <circle cx="0" cy="0" r="47" fill="none" stroke="#FFCA54" stroke-width="3" opacity=".5"/>
+  <circle cx="0" cy="0" r="59" fill="none" stroke="#FFCA54" stroke-width="2" opacity=".28"/>
+  <circle cx="0" cy="4" r="34" fill="#1A1320"/>
+  <circle cx="0" cy="0" r="34" fill="#FFCA54" stroke="#1A1320" stroke-width="2.5"/>
+  <ellipse cx="-16" cy="-8" rx="8" ry="10" fill="#fff" stroke="#1A1320" stroke-width="2"/>
+  <ellipse cx="16" cy="-8" rx="8" ry="10" fill="#fff" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="-14" cy="-5" r="4" fill="#1A1320"/><circle cx="18" cy="-5" r="4" fill="#1A1320"/>
+  <g transform="translate(0,22)">
+    <rect x="-22" y="-4.5" width="5" height="9" rx="2.5" fill="#1A1320"/><rect x="-13" y="-8.5" width="5" height="17" rx="2.5" fill="#1A1320"/><rect x="-4" y="-13" width="5" height="26" rx="2.5" fill="#1A1320"/><rect x="5" y="-7.5" width="5" height="15" rx="2.5" fill="#1A1320"/><rect x="14" y="-4" width="5" height="8" rx="2.5" fill="#1A1320"/>
+  </g>
+</g>
+<text x="600" y="478" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="12.5" fill="#8C8577">hold, talk, let go</text>
+<g transform="translate(600,510)">
+  
+<g transform="translate(-196,-14)">
+  <rect x="0" y="4" width="96" height="30" rx="7" fill="#1A1320"/>
+  <rect x="0" y="0" width="96" height="30" rx="7" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/>
+  <text x="48" y="20" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">hold  ⌥</text>
+</g>
+  <text x="-88" y="8" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#8C8577">Mac</text>
+  <text x="-44" y="8" style="font-family:Menlo,Consolas,monospace" font-size="14" fill="#EDE7D6">│</text>
+  
+<g transform="translate(-26,-14)">
+  <rect x="0" y="4" width="168" height="30" rx="7" fill="#1A1320"/>
+  <rect x="0" y="0" width="168" height="30" rx="7" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/>
+  <text x="84" y="20" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">Control+Alt+Space</text>
+</g>
+  <text x="152" y="8" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#8C8577">Windows, Linux</text>
+</g></svg>

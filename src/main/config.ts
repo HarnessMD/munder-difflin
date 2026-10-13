@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { homedir } from 'node:os';
 import {
@@ -639,7 +639,20 @@ export function onConfigWritten(listener: ConfigWriteListener): () => void {
 function persistConfig(next: HarnessConfig): HarnessConfig {
   const p = configPath();
   mkdirSync(dirname(p), { recursive: true });
-  writeFileSync(p, JSON.stringify(next, null, 2), 'utf8');
+  // Temp + rename: `rename` is atomic within a filesystem, so a crash mid-write
+  // leaves either the old config.json or the new one, never half of either. A
+  // bare writeFileSync truncates the live file first, and readConfig maps any
+  // unparseable config.json to factory defaults — one torn write would wipe
+  // harnessHome, the Slack/webhook secrets and every saved setting. Same
+  // discipline as roster.ts and hive.ts atomicWriteJson.
+  const tmp = `${p}.tmp-${Math.random().toString(36).slice(2, 10)}`;
+  try {
+    writeFileSync(tmp, JSON.stringify(next, null, 2), 'utf8');
+    renameSync(tmp, p);
+  } catch (e) {
+    try { rmSync(tmp, { force: true }); } catch { /* the tmp file is disposable */ }
+    throw e;
+  }
   // Saving one setting stores only that setting, so fill the rest back in first:
   // subscribers must see the same complete config a read gives them, never a
   // half-filled one. Skip the migration — it saves in its own right, and has
@@ -818,9 +831,23 @@ function ensureClaudeProjectTrust(home: string, cwd: string): void {
       if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return;
       c = parsed as ClaudeConfig;
     }
-    if (c.projects?.[cwd]?.hasTrustDialogAccepted !== true) {
+    // Claude Code looks this entry up under a path normalised to FORWARD
+    // slashes — its own lookup walks parents with `o.startsWith(r + "/")`, and
+    // the entries it writes on Windows are keyed "C:/Users/…". Writing only the
+    // raw Windows path ("C:\Users\…") puts the flag somewhere Claude never
+    // reads, so the agent still hits the interactive "Accessing workspace /
+    // Quick safety check" dialog, which it cannot answer: god exits 1 and every
+    // message to it sits at "waiting".
+    //
+    // Both spellings are written — the normalised one is what current Claude
+    // reads, the raw one keeps older builds working. On macOS and Linux the two
+    // are identical, the Set collapses to one key, and this is a no-op.
+    const keys = Array.from(new Set([cwd.replace(/\\/g, '/'), cwd]));
+    if (keys.some((k) => c.projects?.[k]?.hasTrustDialogAccepted !== true)) {
       c.projects = c.projects ?? {};
-      c.projects[cwd] = { ...(c.projects[cwd] ?? {}), hasTrustDialogAccepted: true };
+      for (const k of keys) {
+        c.projects[k] = { ...(c.projects[k] ?? {}), hasTrustDialogAccepted: true };
+      }
       writeFileSync(p, JSON.stringify(c, null, 2), 'utf8');
     }
   } catch (error) {

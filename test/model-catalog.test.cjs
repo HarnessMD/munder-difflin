@@ -27,18 +27,24 @@ const SHIPPED = {
   claude: [
     ["claude-fable-5-1", "Fable 5.1"],
     ["claude-fable-5", "Fable 5"],
+    ["claude-opus-5-5", "Opus 5.5"],
     ["claude-opus-5", "Opus 5 · 1M"],
     ["claude-opus-4-8", "Opus 4.8"],
     ["claude-opus-4-8[1m]", "Opus 4.8 · 1M"],
+    ["claude-sonnet-5-5", "Sonnet 5.5"],
     ["claude-sonnet-5", "Sonnet 5"],
     ["claude-sonnet-4-6", "Sonnet 4.6"],
     ["claude-sonnet-4-6[1m]", "Sonnet 4.6 · 1M"],
+    ["claude-haiku-5-5", "Haiku 5.5"],
     ["claude-haiku-4-5-20251001", "Haiku 4.5"]
   ],
   antigravity: [
     [undefined, "CLI default"],
     ["Gemini 3.1 Pro (High)", "Gemini 3.1 Pro · High"],
     ["Gemini 3.1 Pro (Low)", "Gemini 3.1 Pro · Low"],
+    ["Gemini 3.8 Flash (High)", "Gemini 3.8 Flash · High"],
+    ["Gemini 3.8 Flash (Medium)", "Gemini 3.8 Flash · Med"],
+    ["Gemini 3.8 Flash (Low)", "Gemini 3.8 Flash · Low"],
     ["Gemini 3.7 Flash (High)", "Gemini 3.7 Flash · High"],
     ["Gemini 3.7 Flash (Medium)", "Gemini 3.7 Flash · Med"],
     ["Gemini 3.7 Flash (Low)", "Gemini 3.7 Flash · Low"],
@@ -85,7 +91,7 @@ const SHIPPED = {
     ["local/llama3", "Local · OpenAI-compatible (set base-URL)"]
   ],
   copilot: [
-    [undefined, "default (Claude Sonnet 4.5)"],
+    [undefined, "Copilot default"],
     ["auto", "Auto (Copilot picks)"],
     ["claude-sonnet-4.5", "Claude Sonnet 4.5"],
     ["claude-sonnet-4", "Claude Sonnet 4"],
@@ -98,6 +104,7 @@ const SHIPPED = {
     ["gpt-5.6-luna-high", "GPT-5.6 Luna 1M High (cheap)"],
     ["gpt-5.6-sol-medium", "GPT-5.6 Sol 1M"],
     ["gpt-5.6-sol-high", "GPT-5.6 Sol 1M High"],
+    ["gemini-3.8-flash-high", "Gemini 3.8 Flash"],
     ["gemini-3.7-flash-high", "Gemini 3.7 Flash"],
     ["claude-fable-5-1-thinking-high", "Fable 5.1 1M Thinking (no ZDR)"],
     ["composer-2.5", "Composer 2.5"],

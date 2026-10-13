@@ -84,7 +84,7 @@ v0.1.6 adds **scheduled missions** — the harness itself dispatches recurring d
 a timer you set. A 30-minute floor-check mission pointing at Michael (body: 'Are all agents making
 progress? Re-engage anyone idle.') turns the orchestrator into a self-healing system: even if the floor
 goes quiet, Michael wakes up, reads the hive state, and re-engages stuck agents without you touching
-anything.
+anything. For cloud schedules, see [Claude routines](/blog/claude-code-routines/).
 
 ## Ingredient 3 — Guardrails (the part that makes it safe)
 

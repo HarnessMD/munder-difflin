@@ -254,6 +254,7 @@ nav .links a:hover, nav .links a[aria-current="page"] { color: var(--ink); }
 .t-comparisons { background: var(--rose); }
 .t-use-cases { background: var(--sky-soft); }
 .t-story { background: var(--peach); }
+.t-news { background: var(--sky-soft); }
 .t-default { background: var(--tan); }
 
 /* ---------- post article ---------- */

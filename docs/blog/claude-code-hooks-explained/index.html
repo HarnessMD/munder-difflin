@@ -18,8 +18,8 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop) — Munder Difflin Blog</title>
-<meta name="description" content="A practical tour of Claude Code hooks — the PreToolUse, PostToolUse, and Stop lifecycle — and how a Unix-socket hook shim drives a live office floor." />
+<title>Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes — Munder Difflin Blog</title>
+<meta name="description" content="How Claude Code hooks work in 2026: the 33 events, where settings go, matcher syntax, exit code 2, and tested PreToolUse and Stop hook examples." />
 <link rel="canonical" href="https://munderdiffl.in/blog/claude-code-hooks-explained/" />
 
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
@@ -29,8 +29,8 @@
 <!-- Open Graph -->
 <meta property="og:site_name" content="Munder Difflin Blog" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop) — Munder Difflin Blog" />
-<meta property="og:description" content="A practical tour of Claude Code hooks — the PreToolUse, PostToolUse, and Stop lifecycle — and how a Unix-socket hook shim drives a live office floor." />
+<meta property="og:title" content="Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes — Munder Difflin Blog" />
+<meta property="og:description" content="How Claude Code hooks work in 2026: the 33 events, where settings go, matcher syntax, exit code 2, and tested PreToolUse and Stop hook examples." />
 <meta property="og:url" content="https://munderdiffl.in/blog/claude-code-hooks-explained/" />
 <meta property="og:image" content="https://munderdiffl.in/blog/assets/media/claude-code-hooks-explained/hero.png" />
 <meta property="og:image:width" content="1600" />
@@ -47,8 +47,8 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop) — Munder Difflin Blog" />
-<meta name="twitter:description" content="A practical tour of Claude Code hooks — the PreToolUse, PostToolUse, and Stop lifecycle — and how a Unix-socket hook shim drives a live office floor." />
+<meta name="twitter:title" content="Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes — Munder Difflin Blog" />
+<meta name="twitter:description" content="How Claude Code hooks work in 2026: the 33 events, where settings go, matcher syntax, exit code 2, and tested PreToolUse and Stop hook examples." />
 <meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/claude-code-hooks-explained/hero.png" />
 <meta name="twitter:image:alt" content="Illustration: Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)" />
 
@@ -62,11 +62,11 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)",
-  "description": "A practical tour of Claude Code hooks — the PreToolUse, PostToolUse, and Stop lifecycle — and how a Unix-socket hook shim drives a live office floor.",
+  "headline": "Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes",
+  "description": "How Claude Code hooks work in 2026: the 33 events, where settings go, matcher syntax, exit code 2, and tested PreToolUse and Stop hook examples.",
   "image": ["https://munderdiffl.in/blog/assets/media/claude-code-hooks-explained/hero.png"],
   "datePublished": "2026-06-03T00:00:00.000Z",
-  "dateModified": "2026-06-03T00:00:00.000Z",
+  "dateModified": "2026-09-29T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
   "publisher": {
     "@type": "Organization",
@@ -74,7 +74,7 @@
     "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
   },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/claude-code-hooks-explained/" },
-  "keywords": "claude code hooks, pretooluse posttooluse, stop hook, claude code lifecycle",
+  "keywords": "claude code hooks, claude code pretooluse hook, claude code posttooluse hook, claude code stop hook, stop_hook_active, claude code hooks examples, claude code hooks vs skills",
   "articleSection": "Internals",
   "inLanguage": "en-US",
   "url": "https://munderdiffl.in/blog/claude-code-hooks-explained/"
@@ -87,7 +87,7 @@
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
     { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
-    { "@type": "ListItem", "position": 3, "name": "Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)", "item": "https://munderdiffl.in/blog/claude-code-hooks-explained/" }
+    { "@type": "ListItem", "position": 3, "name": "Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes", "item": "https://munderdiffl.in/blog/claude-code-hooks-explained/" }
   ]
 }
 </script>
@@ -97,9 +97,11 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "What are Claude Code hooks?", "acceptedAnswer": { "@type": "Answer", "text": "Hooks are commands Claude Code runs at points in its lifecycle — before and after a tool call, when it's about to stop, on a notification, and more. Each hook receives a JSON payload on stdin and can return JSON to influence what Claude does next." } },
-    { "@type": "Question", "name": "What does the Stop hook do?", "acceptedAnswer": { "@type": "Answer", "text": "The Stop hook fires when Claude is about to finish a turn. If it returns {\"decision\":\"block\",\"reason\":...}, Claude keeps working with that reason as new instructions — which is how you build an autonomous loop. A stop_hook_active flag prevents it from looping forever." } },
-    { "@type": "Question", "name": "Do hooks modify my repository?", "acceptedAnswer": { "@type": "Answer", "text": "They don't have to. Claude Code accepts a --settings file, so you can attach hooks from a settings file outside your project instead of editing files in the repo itself." } }
+    { "@type": "Question", "name": "What are Claude Code hooks?", "acceptedAnswer": { "@type": "Answer", "text": "Hooks are handlers that Claude Code runs automatically at fixed points in a session, such as before a tool call, after it, or when Claude finishes a reply. A handler is usually a shell command that reads a JSON payload on stdin. Its exit code or JSON output can block, allow or redirect what Claude does next." } },
+    { "@type": "Question", "name": "Where do I put Claude Code hooks?", "acceptedAnswer": { "@type": "Answer", "text": "Under a top level hooks key in a settings file: ~/.claude/settings.json for all your projects, .claude/settings.json for one project that you commit, or .claude/settings.local.json for one project that stays on your machine. Plugins, skills and subagents can also carry hooks. Type /hooks in a session to see what is loaded and where it came from." } },
+    { "@type": "Question", "name": "What does exit code 2 do in a Claude Code hook?", "acceptedAnswer": { "@type": "Answer", "text": "Exit code 2 is a blocking error. On PreToolUse it stops the tool call and shows your stderr to Claude as the reason; on Stop it makes Claude keep working. Exit 1 does not block on most events, so a policy hook must use exit 2 or a JSON decision." } },
+    { "@type": "Question", "name": "How do I stop a Stop hook from looping forever?", "acceptedAnswer": { "@type": "Answer", "text": "Read the stop_hook_active field from the hook's input and exit 0 when it is true, because that means Claude is already continuing because of a Stop hook. Claude Code also ends the turn after eight consecutive continuations, a cap you can change with CLAUDE_CODE_STOP_HOOK_BLOCK_CAP." } },
+    { "@type": "Question", "name": "Does the Claude Agent SDK use the same hooks?", "acceptedAnswer": { "@type": "Answer", "text": "It uses the same event names, such as PreToolUse, PostToolUse and Stop, but you register them as callback functions in the options.hooks field. The SDK also runs command hooks from settings files when the matching settingSources entry is enabled, which it is by default." } }
     
   ]
 }
@@ -168,15 +170,15 @@
       <span>/</span>
       <a href="/blog/topics/internals/">Internals</a>
     </nav>
-    <h1>Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)</h1>
-    <p class="dek">A practical tour of Claude Code hooks — the PreToolUse, PostToolUse, and Stop lifecycle — and how a Unix-socket hook shim drives a live office floor.</p>
+    <h1>Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes</h1>
+    <p class="dek">How Claude Code hooks work in 2026: the 33 events, where settings go, matcher syntax, exit code 2, and tested PreToolUse and Stop hook examples.</p>
     <div class="byline">
       <span class="av" aria-hidden="true">CG</span>
       <strong>Chaitanya Giri</strong>
       <span class="dot" aria-hidden="true">·</span>
       <time datetime="2026-06-03">Jun 3, 2026</time>
       <span class="dot" aria-hidden="true">·</span>
-      <span>6 min read</span>
+      <span>8 min read</span>
       <span class="tag kind">Internals</span>
     </div>
   </header>
@@ -185,128 +187,191 @@
 
   <div class="post-wrap wrap">
     <div class="prose">
-      <div class="callout tldr"><span class="ic">TL;DR</span><p><strong>Claude Code hooks</strong> are
-commands that run at lifecycle points — <code>PreToolUse</code>, <code>PostToolUse</code>,
-<code>Stop</code>, <code>Notification</code>, and more. Each gets a JSON payload on stdin and can
-return JSON to steer Claude. Munder Difflin attaches a tiny <strong>hook shim</strong> via
-<code>--settings</code> that forwards every event to the harness over a Unix socket — driving live
-avatars from <code>PreToolUse</code>/<code>PostToolUse</code>, and building an <strong>autonomous
-loop</strong> out of the <code>Stop</code> hook.</p></div>
-<p>Hooks are the most underrated part of Claude Code. They’re the official extension point for “do
-something when Claude does something” — and once you understand them, a lot of agent tooling that
-looks like magic turns out to be a well-placed hook. This post walks the lifecycle, then shows exactly
-how Munder Difflin uses hooks to animate a multi-agent office floor and keep agents working
-autonomously.</p>
-<h2 id="what-a-hook-is" tabindex="-1">What a hook is <a class="anchor" href="#what-a-hook-is" aria-hidden="true">#</a></h2>
-<p>A hook is a command Claude Code runs at a defined moment in its lifecycle. When the moment arrives,
-Claude executes your command and pipes it a <strong>JSON payload on stdin</strong> describing what’s happening. Your
-command can do whatever it likes, and — for some events — return <strong>JSON on stdout</strong> that influences
-Claude’s next move.</p>
-<p>You configure hooks in settings, mapping each event to one or more commands:</p>
-<pre class="language-jsonc"><code class="language-jsonc">{
-  "hooks": {
-    "PreToolUse":  [{ "matcher": "*", "hooks": [{ "type": "command", "command": "node my-hook.js" }] }],
-    "PostToolUse": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "node my-hook.js" }] }],
-    "Stop":        [{ "hooks": [{ "type": "command", "command": "node my-hook.js" }] }]
-  }
-}</code></pre>
-<p>The <code>matcher</code> (for tool events) lets you scope a hook to specific tools — <code>*</code> means “every tool.” Tool
-events carry that matcher; lifecycle events like <code>Stop</code> don’t need one.</p>
+      <p>Claude Code hooks are handlers that Claude Code runs automatically at fixed points in a session: before a tool call (<code>PreToolUse</code>), after it succeeds (<code>PostToolUse</code>), when Claude finishes a reply (<code>Stop</code>) and 30 other events. Each one gets a JSON payload on stdin, and exit code 2 or a JSON reply lets it block or redirect Claude.</p>
+<p>You can wire hooks by hand for one session, as this guide shows, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, free and open source, which attaches a hook set to every Claude Code agent it launches and turns the events into a live view of the whole team.</p>
+<p>Everything below was checked on 29 Sep 2026 against the official <a href="https://code.claude.com/docs/en/hooks">hooks reference</a> and Claude Code 2.1.284.</p>
+<h2 id="what-are-claude-code-hooks" tabindex="-1">What are Claude Code hooks? <a class="anchor" href="#what-are-claude-code-hooks" aria-hidden="true">#</a></h2>
+<p>A hook is a rule that says “when this event fires, run this handler”. Most handlers are shell commands (<code>type: &quot;command&quot;</code>), but the reference now lists five types: <code>command</code>, <code>http</code>, <code>mcp_tool</code>, <code>prompt</code> and <code>agent</code>. As the <a href="https://code.claude.com/docs/en/hooks-guide">hooks guide</a> says, hooks give you deterministic control: a guard runs every time, not when the model remembers.</p>
+<p>That is also the answer to “hooks vs skills”. A skill is instructions Claude may choose to load. A hook runs whether Claude likes it or not.</p>
+<h2 id="which-hook-events-does-claude-code-have" tabindex="-1">Which hook events does Claude Code have? <a class="anchor" href="#which-hook-events-does-claude-code-have" aria-hidden="true">#</a></h2>
+<p>Claude Code 2.1.284 documents 33 hook events. These are the ones most people reach for:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Event</th>
+<th style="text-align:left">When it fires</th>
+<th style="text-align:left">Can it block?</th>
+<th style="text-align:left">Matcher filters on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>SessionStart</code></td>
+<td style="text-align:left">Session begins or resumes</td>
+<td style="text-align:left">No, adds context</td>
+<td style="text-align:left"><code>startup</code>, <code>resume</code>, <code>clear</code>, <code>compact</code>, <code>fork</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>UserPromptSubmit</code></td>
+<td style="text-align:left">You submit a prompt</td>
+<td style="text-align:left">Yes, erases the prompt</td>
+<td style="text-align:left">No matcher</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>PreToolUse</code></td>
+<td style="text-align:left">Before a tool call runs</td>
+<td style="text-align:left">Yes</td>
+<td style="text-align:left">Tool name</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>PermissionRequest</code></td>
+<td style="text-align:left">A tool call needs a permission decision</td>
+<td style="text-align:left">Through JSON only</td>
+<td style="text-align:left">Tool name</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>PostToolUse</code></td>
+<td style="text-align:left">After a tool call succeeds</td>
+<td style="text-align:left">No, the tool already ran</td>
+<td style="text-align:left">Tool name</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>PostToolUseFailure</code></td>
+<td style="text-align:left">After a tool call fails</td>
+<td style="text-align:left">No</td>
+<td style="text-align:left">Tool name</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Notification</code></td>
+<td style="text-align:left">Claude Code sends a notification</td>
+<td style="text-align:left">No</td>
+<td style="text-align:left"><code>permission_prompt</code>, <code>idle_prompt</code> and others</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SubagentStop</code></td>
+<td style="text-align:left">A subagent finishes</td>
+<td style="text-align:left">Yes</td>
+<td style="text-align:left">Agent type</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Stop</code></td>
+<td style="text-align:left">Claude finishes responding</td>
+<td style="text-align:left">Yes, Claude keeps going</td>
+<td style="text-align:left">No matcher</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>PreCompact</code></td>
+<td style="text-align:left">Before context compaction</td>
+<td style="text-align:left">Yes</td>
+<td style="text-align:left"><code>manual</code>, <code>auto</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>SessionEnd</code></td>
+<td style="text-align:left">Session terminates</td>
+<td style="text-align:left">No</td>
+<td style="text-align:left">Why it ended</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The rest cover setup, instruction loading, slash command expansion, tool batches, permission denials, subagent starts, tasks, teammates, message display, API failures, config, directory and file changes, worktrees, compaction, MCP elicitations and model switches.</p>
+<p>The <a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md">Claude Code changelog</a> records five new events in the last six months (dates are npm publish dates): <code>PermissionDenied</code> in 2.1.89 (31 Mar 2026), <code>MessageDisplay</code> in 2.1.152 (26 May), <code>DirectoryAdded</code> in 2.1.219 (24 Jul), and <code>PreModelSwitch</code> plus <code>PostModelSwitch</code> in 2.1.251 (28 Aug). The hooks reference also gained <code>UserPromptExpansion</code> and <code>PostToolBatch</code> in late April 2026, which the changelog never mentions. In the same window, 2.1.139 added the <code>args</code> exec form and 2.1.143 capped runaway Stop hooks at eight blocks in a row. It records no renamed events.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/claude-code-hooks-explained/note-1.png" alt="Hand-drawn sketch from “Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)”" loading="lazy" decoding="async" /></figure>
-<h2 id="the-lifecycle-events-that-matter" tabindex="-1">The lifecycle events that matter <a class="anchor" href="#the-lifecycle-events-that-matter" aria-hidden="true">#</a></h2>
-<p>There are several hook events; these are the ones you’ll reach for most.</p>
-<h3 id="pretooluse" tabindex="-1">PreToolUse <a class="anchor" href="#pretooluse" aria-hidden="true">#</a></h3>
-<p>Fires <strong>before</strong> Claude runs a tool. The payload includes the <code>tool_name</code> (e.g. <code>Edit</code>, <code>Bash</code>) and
-the <code>tool_input</code>. This is your “Claude is about to do X” signal. You can use it for observability, or —
-because PreToolUse can return a decision — to gate or block a tool call before it runs.</p>
-<h3 id="posttooluse" tabindex="-1">PostToolUse <a class="anchor" href="#posttooluse" aria-hidden="true">#</a></h3>
-<p>Fires <strong>after</strong> a tool completes. Same shape, now with the result available. PostToolUse is the natural
-place to react to what just happened: log it, update a UI, trigger a follow-up.</p>
-<p>Together, PreToolUse and PostToolUse bracket every action Claude takes. If you want a faithful,
-real-time picture of what an agent is doing, these two events are it — you’re not scraping terminal
-output or guessing, you’re getting structured “about to / just did” events straight from Claude.</p>
-<h3 id="stop-and-subagentstop" tabindex="-1">Stop (and SubagentStop) <a class="anchor" href="#stop-and-subagentstop" aria-hidden="true">#</a></h3>
-<p>Fires when Claude is about to <strong>finish a turn</strong> — it’s done and ready to hand control back. This is the
-most powerful hook, because of what it can return:</p>
-<pre class="language-json"><code class="language-json"><span class="token punctuation">{</span> <span class="token property">"decision"</span><span class="token operator">:</span> <span class="token string">"block"</span><span class="token punctuation">,</span> <span class="token property">"reason"</span><span class="token operator">:</span> <span class="token string">"Here's what to do next…"</span> <span class="token punctuation">}</span></code></pre>
-<p>Returning <code>block</code> tells Claude <em>not</em> to stop — to keep going, treating <code>reason</code> as fresh instructions.
-That’s the entire basis of an <strong>autonomous loop</strong>: every time the agent tries to finish, a Stop hook
-can hand it more work. <code>SubagentStop</code> is the same event for a spawned subagent.</p>
-<p>The obvious danger is an infinite loop, so the payload carries a <code>stop_hook_active</code> flag: it’s true
-when a previous Stop hook already blocked this turn. Check it, and you can guarantee you never block
-twice in a row — the loop always has an exit.</p>
-<h3 id="notification-userpromptsubmit-sessionstart" tabindex="-1">Notification, UserPromptSubmit, SessionStart <a class="anchor" href="#notification-userpromptsubmit-sessionstart" aria-hidden="true">#</a></h3>
+<h2 id="where-do-claude-code-hooks-go" tabindex="-1">Where do Claude Code hooks go? <a class="anchor" href="#where-do-claude-code-hooks-go" aria-hidden="true">#</a></h2>
+<p>Hooks live under a <code>hooks</code> key in a settings file. <code>~/.claude/settings.json</code> applies to all your projects, <code>.claude/settings.json</code> to one project and can be committed, and <code>.claude/settings.local.json</code> to one project on your machine only. Plugins (<code>hooks/hooks.json</code>), skills and subagents can carry hooks too, and entries from every level merge rather than replace each other.</p>
+<p>The shape has three levels: event, matcher group, handler. This is the project file we tested for this post:</p>
+<pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"hooks"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"PreToolUse"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">"matcher"</span><span class="token operator">:</span> <span class="token string">"Edit|Write"</span><span class="token punctuation">,</span>
+        <span class="token property">"hooks"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token punctuation">{</span>
+            <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"command"</span><span class="token punctuation">,</span>
+            <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-env.sh"</span><span class="token punctuation">,</span>
+            <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token property">"Stop"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">"hooks"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token punctuation">{</span>
+            <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"command"</span><span class="token punctuation">,</span>
+            <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"${CLAUDE_PROJECT_DIR}/.claude/hooks/tests-must-pass.sh"</span><span class="token punctuation">,</span>
+            <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token property">"timeout"</span><span class="token operator">:</span> <span class="token number">300</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>It validates against the SchemaStore <code>claude-code-settings.json</code> schema (we ran it through Ajv on 29 Sep 2026; a misspelt <code>&quot;Stopp&quot;</code> fails). The empty <code>args</code> array switches to exec form, which spawns the script directly with no shell, so the path placeholder needs no quoting. <code>timeout</code> is in seconds; command hooks default to 600.</p>
+<h2 id="how-does-the-hook-matcher-work" tabindex="-1">How does the hook matcher work? <a class="anchor" href="#how-does-the-hook-matcher-work" aria-hidden="true">#</a></h2>
+<p>The matcher is a filter on one field of the event, which is the tool name for tool events. <code>&quot;*&quot;</code>, <code>&quot;&quot;</code> or no matcher means everything. Letters, digits, <code>_</code>, <code>-</code>, spaces, <code>,</code> and <code>|</code> mean exact names, so <code>Edit|Write</code> matches exactly those two tools. Any other character turns it into an unanchored JavaScript regex: <code>mcp__github__.*</code> matches every tool from a <code>github</code> MCP server, and <code>Edit.*</code> also catches <code>NotebookEdit</code>. Matchers are case sensitive, and events without matcher support, such as <code>Stop</code>, silently ignore one.</p>
+<p>Tool event handlers can narrow further with an <code>if</code> field, such as <code>&quot;Bash(git *)&quot;</code>.</p>
+<h2 id="what-do-hook-exit-codes-mean" tabindex="-1">What do hook exit codes mean? <a class="anchor" href="#what-do-hook-exit-codes-mean" aria-hidden="true">#</a></h2>
+<p>Exit 0 is success: Claude Code reads stdout as JSON if it starts with <code>{</code> and ends with <code>}</code>. Exit 2 is a blocking error on events that can block, and your stderr becomes the reason. Any other code, including 1, is a non-blocking error unless stdout holds valid JSON: the transcript shows a hook error notice and the action goes ahead anyway. A policy hook that exits 1 is a sticky note on the fridge. Everyone sees it, nothing changes.</p>
+<p>JSON gives finer control. <code>continue: false</code> with a <code>stopReason</code> stops Claude entirely. <code>PreToolUse</code> answers inside <code>hookSpecificOutput</code> with <code>permissionDecision</code> set to <code>allow</code>, <code>deny</code>, <code>ask</code> or <code>defer</code>. <code>PostToolUse</code> and <code>Stop</code> use a top level <code>decision: &quot;block&quot;</code> plus <code>reason</code>. The old top level <code>decision</code> on <code>PreToolUse</code> is deprecated.</p>
+<h2 id="what-does-a-pretooluse-hook-look-like" tabindex="-1">What does a PreToolUse hook look like? <a class="anchor" href="#what-does-a-pretooluse-hook-look-like" aria-hidden="true">#</a></h2>
+<p>A <code>PreToolUse</code> hook sees the tool name and its full input before anything runs, which makes it the place for guards. This one refuses edits to <code>.env</code> files:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+<span class="token comment"># PreToolUse: refuse edits to .env files. Exit 2 blocks the call.</span>
+<span class="token assign-left variable">file</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>jq <span class="token parameter variable">-r</span> <span class="token string">'.tool_input.file_path // empty'</span><span class="token variable">)</span></span>
+<span class="token keyword">case</span> <span class="token string">"<span class="token variable"><span class="token variable">$(</span><span class="token function">basename</span> <span class="token string">"<span class="token variable">$file</span>"</span><span class="token variable">)</span></span>"</span> <span class="token keyword">in</span>
+  .env<span class="token operator">|</span>.env.*<span class="token punctuation">)</span>
+    <span class="token builtin class-name">echo</span> <span class="token string">"Blocked: <span class="token variable">$file</span> holds secrets. Ask the user to edit it."</span> <span class="token operator">></span><span class="token file-descriptor important">&amp;2</span>
+    <span class="token builtin class-name">exit</span> <span class="token number">2</span> <span class="token punctuation">;</span><span class="token punctuation">;</span>
+<span class="token keyword">esac</span>
+<span class="token builtin class-name">exit</span> <span class="token number">0</span></code></pre>
+<p>We piped it an <code>Edit</code> payload for <code>/repo/.env</code> on 29 Sep 2026. It printed <code>Blocked: /repo/.env holds secrets. Ask the user to edit it.</code> to stderr and exited 2. A <code>Write</code> to <code>/repo/src/app.ts</code> exited 0 with no output. A <code>deny</code> from a hook holds even in <code>bypassPermissions</code> mode; an <code>allow</code> cannot override your deny rules.</p>
+<h2 id="what-is-a-posttooluse-hook-for" tabindex="-1">What is a PostToolUse hook for? <a class="anchor" href="#what-is-a-posttooluse-hook-for" aria-hidden="true">#</a></h2>
+<p><code>PostToolUse</code> fires after a tool call succeeds, with <code>tool_input</code> and <code>tool_response</code> in the payload. It cannot undo anything, so use it for formatting, linting and logging; exit 2 or <code>decision: &quot;block&quot;</code> shows Claude your message next to the result. <code>updatedToolOutput</code> can replace what Claude sees, though the tool has already run. Failed calls go to <code>PostToolUseFailure</code> instead.</p>
+<h2 id="how-does-the-claude-code-stop-hook-work" tabindex="-1">How does the Claude Code Stop hook work? <a class="anchor" href="#how-does-the-claude-code-stop-hook-work" aria-hidden="true">#</a></h2>
+<p>The Stop hook runs when Claude finishes responding, and returning <code>{&quot;decision&quot;: &quot;block&quot;, &quot;reason&quot;: &quot;...&quot;}</code> makes Claude keep working with your reason as its next instruction. It does not fire when you interrupt, and API errors fire <code>StopFailure</code> instead. The input carries <code>stop_hook_active</code>, <code>last_assistant_message</code>, <code>background_tasks</code> and <code>session_crons</code>.</p>
+<p>This hook keeps Claude going while the test suite fails, but only once per stop:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+<span class="token comment"># Stop: keep Claude working while the test suite fails.</span>
+<span class="token assign-left variable">input</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token function">cat</span><span class="token variable">)</span></span>
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token string">"<span class="token variable"><span class="token variable">$(</span>jq <span class="token parameter variable">-r</span> <span class="token string">'.stop_hook_active'</span> <span class="token operator">&lt;&lt;&lt;</span><span class="token string">"<span class="token variable">$input</span>"</span><span class="token variable">)</span></span>"</span> <span class="token operator">=</span> <span class="token string">"true"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+  <span class="token builtin class-name">exit</span> <span class="token number">0</span>  <span class="token comment"># already continued once; let Claude stop</span>
+<span class="token keyword">fi</span>
+<span class="token builtin class-name">cd</span> <span class="token string">"<span class="token variable"><span class="token variable">$(</span>jq <span class="token parameter variable">-r</span> <span class="token string">'.cwd'</span> <span class="token operator">&lt;&lt;&lt;</span><span class="token string">"<span class="token variable">$input</span>"</span><span class="token variable">)</span></span>"</span> <span class="token operator">||</span> <span class="token builtin class-name">exit</span> <span class="token number">0</span>
+<span class="token keyword">if</span> <span class="token operator">!</span> <span class="token assign-left variable">out</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token function">npm</span> <span class="token builtin class-name">test</span> <span class="token parameter variable">--silent</span> <span class="token operator"><span class="token file-descriptor important">2</span>></span><span class="token file-descriptor important">&amp;1</span><span class="token variable">)</span></span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+  jq <span class="token parameter variable">-n</span> <span class="token parameter variable">--arg</span> log <span class="token string">"<span class="token variable"><span class="token variable">$(</span><span class="token function">tail</span> <span class="token parameter variable">-n</span> <span class="token number">5</span> <span class="token operator">&lt;&lt;&lt;</span><span class="token string">"<span class="token variable">$out</span>"</span><span class="token variable">)</span></span>"</span> <span class="token punctuation">\</span>
+    <span class="token string">'{decision: "block", reason: ("Tests fail. Fix them before you finish.\n" + $log)}'</span>
+<span class="token keyword">fi</span>
+<span class="token builtin class-name">exit</span> <span class="token number">0</span></code></pre>
+<p>Against a test project with a deliberately broken assertion, it exited 0 and printed:</p>
+<pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"decision"</span><span class="token operator">:</span> <span class="token string">"block"</span><span class="token punctuation">,</span>
+  <span class="token property">"reason"</span><span class="token operator">:</span> <span class="token string">"Tests fail. Fix them before you finish.\nFAIL add(): expected 3, got 2"</span>
+<span class="token punctuation">}</span></code></pre>
+<p>With <code>stop_hook_active</code> set to <code>true</code> it printed nothing and exited 0, so Claude may stop. Without that check you get the loop everyone hits once. Since 2.1.143 Claude Code ends the turn after eight consecutive continuations; <code>CLAUDE_CODE_STOP_HOOK_BLOCK_CAP</code> raises it. If you want Claude to continue without a hook error label, return <code>hookSpecificOutput.additionalContext</code> instead of <code>block</code>. The built in <code>/goal</code> command is a shortcut for a prompt based Stop hook.</p>
+<h2 id="why-is-my-claude-code-hook-not-working" tabindex="-1">Why is my Claude Code hook not working? <a class="anchor" href="#why-is-my-claude-code-hook-not-working" aria-hidden="true">#</a></h2>
+<p>Start with <code>/hooks</code>, which lists every loaded hook with its source file. After that, the usual causes are:</p>
 <ul>
-<li><strong>Notification</strong> fires when Claude surfaces a message — including when it’s idle and waiting for
-input, or asking permission. The payload’s text lets you tell “needs you” apart from “just done.”</li>
-<li><strong>UserPromptSubmit</strong> fires when a prompt is submitted — a clean “the agent started working” signal.</li>
-<li><strong>SessionStart</strong> fires when a session begins — handy for setup or registration.</li>
+<li><strong>Matcher case.</strong> <code>bash</code> does not match the <code>Bash</code> tool.</li>
+<li><strong>Not executable.</strong> Run <code>chmod +x</code> on the script.</li>
+<li><strong>Exit 1 instead of 2.</strong> It logs an error and the action proceeds.</li>
+<li><strong>Stray output before the JSON.</strong> A shell profile that echoes on startup breaks parsing; exec form avoids the shell.</li>
+<li><strong>Fields at the wrong level.</strong> <code>permissionDecision</code> belongs inside <code>hookSpecificOutput</code>.</li>
+<li><strong>“JSON validation failed”.</strong> Your stdout parsed but did not match the schema for that event.</li>
 </ul>
-<h2 id="how-munder-difflin-uses-hooks" tabindex="-1">How Munder Difflin uses hooks <a class="anchor" href="#how-munder-difflin-uses-hooks" aria-hidden="true">#</a></h2>
-<p>Munder Difflin runs many <code>claude</code> agents at once and needs two things from each: a live view of what
-it’s doing, and a way to keep it working through a queue. Both come from hooks.</p>
-<h3 id="a-hook-shim-over-a-unix-socket" tabindex="-1">A hook shim over a Unix socket <a class="anchor" href="#a-hook-shim-over-a-unix-socket" aria-hidden="true">#</a></h3>
-<p>The harness can’t run heavy logic inside each hook invocation — hooks fire constantly and must be fast.
-So each agent is launched with a <strong>hook shim</strong>: a tiny script wired to every relevant event. The shim
-does almost nothing. It reads the hook payload on stdin, tags it with the agent’s id (from an
-environment variable), forwards it to the harness over a <strong>Unix domain socket</strong>, and relays the
-response back to Claude. All the real logic lives in the harness’s main process, which listens on that
-socket.</p>
-<pre class="language-text"><code class="language-text">claude ──hook fires──▶ shim ──UDS──▶ harness (main process)
-                         ▲                     │
-                         └──── response ◀───────┘</code></pre>
-<p>The shim is deliberately dumb and crash-proof: if the socket isn’t there or anything errors, it exits
-cleanly and never blocks the agent. Newline-delimited JSON over the socket keeps the protocol trivial.</p>
-<h3 id="attached-without-touching-your-repo" tabindex="-1">Attached without touching your repo <a class="anchor" href="#attached-without-touching-your-repo" aria-hidden="true">#</a></h3>
-<p>A key detail: the hooks are attached with Claude Code’s <code>--settings</code> flag, pointing at a settings file
-the harness writes <strong>outside</strong> your project. Your repository is never modified to add hooks — no stray
-<code>.claude/settings.json</code> diff, nothing to gitignore. The agent is hive-aware purely through launch
-flags and environment variables.</p>
-<h3 id="pretooluseposttooluse-live-avatars" tabindex="-1">PreToolUse/PostToolUse → live avatars <a class="anchor" href="#pretooluseposttooluse-live-avatars" aria-hidden="true">#</a></h3>
-<p>Every tool event the harness receives is forwarded to the UI. That’s what drives the office floor: when
-an agent calls a file tool, its avatar walks to the right station; when it runs a command, it moves to
-a terminal. Because the events are structured and come straight from Claude, the visualization reflects
-<em>real</em> activity rather than a scripted animation or fragile log-scraping — and it pairs with each
-agent’s actual live terminal, <a href="/blog/rendering-many-live-terminals-performance/">streamed without melting the CPU</a>.</p>
-<h3 id="stop-the-autonomous-loop" tabindex="-1">Stop → the autonomous loop <a class="anchor" href="#stop-the-autonomous-loop" aria-hidden="true">#</a></h3>
-<p>This is where hooks earn their keep. When an agent’s <code>Stop</code> hook fires, the harness checks that agent’s
-inbox for unread messages. If there are any, it returns <code>{&quot;decision&quot;:&quot;block&quot;,&quot;reason&quot;: &lt;the messages&gt;}</code> — so instead of stopping, the agent reads its new messages and keeps working. If the inbox
-is empty, it returns nothing and the agent is allowed to finish.</p>
-<p>Two guards keep this safe:</p>
-<ul>
-<li><strong><code>stop_hook_active</code></strong> — if a previous Stop already blocked this turn, the harness lets it stop, so
-it can never block twice back-to-back.</li>
-<li><strong>A per-agent cursor</strong> — the harness tracks the last message id it surfaced, so each message is fed
-to the agent exactly once. No message is re-delivered, and the loop can’t spin on stale mail.</li>
-</ul>
-<p>The result is an agent that drains its work queue on its own and only goes quiet when there’s genuinely
-nothing left — the foundation of <a href="/blog/claude-code-automation-while-you-sleep/">letting agents build while you sleep</a>.
-It’s also how the <a href="/blog/how-the-god-orchestrator-works/">GOD orchestrator</a> keeps the whole floor
-moving: route a task into an agent’s inbox, and its next Stop hook picks it up automatically.</p>
+<p>Test a script alone by piping it sample JSON and printing <code>$?</code>, then run <code>claude --debug</code> and read the log in <code>~/.claude/debug/</code>.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/claude-code-hooks-explained/note-2.png" alt="Hand-drawn sketch from “Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)”" loading="lazy" decoding="async" /></figure>
-<h2 id="writing-your-own-hooks-practical-tips" tabindex="-1">Writing your own hooks: practical tips <a class="anchor" href="#writing-your-own-hooks-practical-tips" aria-hidden="true">#</a></h2>
-<p>If you’re building with hooks directly, a few lessons that save pain:</p>
+<h2 id="how-does-munder-difflin-use-claude-code-hooks" tabindex="-1">How does Munder Difflin use Claude Code hooks? <a class="anchor" href="#how-does-munder-difflin-use-claude-code-hooks" aria-hidden="true">#</a></h2>
+<p>Munder Difflin launches each Claude Code agent with <code>--settings</code> pointing at a per agent <code>settings.json</code> in its own hive folder, so your repository never gets a hooks diff. Checked against tag v0.5.3 of the app repo:</p>
 <ul>
-<li><strong>Keep them fast.</strong> Hooks run synchronously in Claude’s path. Do the minimum and offload anything
-heavy (a socket forward, a queued job) rather than blocking.</li>
-<li><strong>Fail open.</strong> A hook that errors shouldn’t wedge the agent. Catch everything and exit cleanly.</li>
-<li><strong>Respect <code>stop_hook_active</code>.</strong> Any Stop hook that can block must check this flag, or you’ll build an
-infinite loop.</li>
-<li><strong>Use <code>--settings</code> for portability.</strong> Attaching hooks via a settings file outside the repo keeps your
-project clean and lets you apply the same hooks to many sessions.</li>
+<li><strong>Nine events, one shim.</strong> <code>hookSettings()</code> in <code>src/main/hive.ts</code> registers <code>Stop</code>, <code>SubagentStop</code>, <code>PreToolUse</code> and <code>PostToolUse</code> (matcher <code>*</code>), <code>UserPromptSubmit</code>, <code>Notification</code>, <code>SessionStart</code>, <code>PreCompact</code> and <code>PostCompact</code>, all pointing at one small Node shim. The shim forwards each payload over a Unix socket (a named pipe on Windows) and exits 0 on any error, so a dead app never wedges an agent. <a href="/blog/the-hook-shim-pattern/">The hook shim pattern</a> covers the design.</li>
+<li><strong>Pause and gate at <code>PreToolUse</code>.</strong> <code>src/main/hooks.ts</code> returns <code>permissionDecision: &quot;deny&quot;</code> when you pause an agent or gate a tool, and <code>continue: false</code> when you halt one from the floor.</li>
+<li><strong>Context through <code>additionalContext</code>.</strong> At <code>SessionStart</code> and <code>UserPromptSubmit</code> the same file injects an agent’s standing goal and hands Michael, the orchestrator, the live roster; guidance you queue rides in on the next <code>UserPromptSubmit</code> or <code>PostToolUse</code>. <a href="/blog/how-the-god-orchestrator-works/">How the orchestrator works</a> explains the routing.</li>
+<li><strong>Loop detection at <code>PostToolUse</code>.</strong> Repeated identical tool calls feed a circuit breaker.</li>
 </ul>
-<h2 id="faq" tabindex="-1">FAQ <a class="anchor" href="#faq" aria-hidden="true">#</a></h2>
-<p><strong>Can a hook block a dangerous tool call?</strong> Yes — PreToolUse can return a decision that prevents a tool
-from running, which is useful for guardrails. Munder Difflin leans on its orchestrator and approval
-queue for that judgment, but the hook-level gate is available.</p>
-<p><strong>Do hooks slow Claude down?</strong> Only as much as your hook command does. A shim that just forwards a
-payload over a local socket adds negligible overhead, which is exactly why the heavy logic lives
-elsewhere.</p>
-<hr>
-<p>Munder Difflin turns Claude Code’s hook lifecycle into <a href="https://munderdiffl.in/#how">a live, autonomous office</a>: real-time avatars
-from tool events and a self-draining work loop from the Stop hook — all without editing your repo.
-<a href="https://munderdiffl.in/#install">Download Munder Difflin</a> to see hooks driving a hive of agents; it’s
-free and open source.</p>
+<p>One correction to the first version of this post: Munder Difflin no longer uses <code>Stop</code> to force an agent to keep reading its inbox. In v0.5.3 the Stop handler returns an empty reply and respects <code>stop_hook_active</code>; new mail is delivered only once the agent sits idle at its prompt, so it never types over a question you are answering. To try it, follow the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a>.</p>
 
 
       
@@ -315,17 +380,27 @@ free and open source.</p>
         
         <div class="qa">
           <p class="q">What are Claude Code hooks?</p>
-          <p class="a">Hooks are commands Claude Code runs at points in its lifecycle — before and after a tool call, when it&#39;s about to stop, on a notification, and more. Each hook receives a JSON payload on stdin and can return JSON to influence what Claude does next.</p>
+          <p class="a">Hooks are handlers that Claude Code runs automatically at fixed points in a session, such as before a tool call, after it, or when Claude finishes a reply. A handler is usually a shell command that reads a JSON payload on stdin. Its exit code or JSON output can block, allow or redirect what Claude does next.</p>
         </div>
         
         <div class="qa">
-          <p class="q">What does the Stop hook do?</p>
-          <p class="a">The Stop hook fires when Claude is about to finish a turn. If it returns {&quot;decision&quot;:&quot;block&quot;,&quot;reason&quot;:...}, Claude keeps working with that reason as new instructions — which is how you build an autonomous loop. A stop_hook_active flag prevents it from looping forever.</p>
+          <p class="q">Where do I put Claude Code hooks?</p>
+          <p class="a">Under a top level hooks key in a settings file: ~/.claude/settings.json for all your projects, .claude/settings.json for one project that you commit, or .claude/settings.local.json for one project that stays on your machine. Plugins, skills and subagents can also carry hooks. Type /hooks in a session to see what is loaded and where it came from.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Do hooks modify my repository?</p>
-          <p class="a">They don&#39;t have to. Claude Code accepts a --settings file, so you can attach hooks from a settings file outside your project instead of editing files in the repo itself.</p>
+          <p class="q">What does exit code 2 do in a Claude Code hook?</p>
+          <p class="a">Exit code 2 is a blocking error. On PreToolUse it stops the tool call and shows your stderr to Claude as the reason; on Stop it makes Claude keep working. Exit 1 does not block on most events, so a policy hook must use exit 2 or a JSON decision.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I stop a Stop hook from looping forever?</p>
+          <p class="a">Read the stop_hook_active field from the hook&#39;s input and exit 0 when it is true, because that means Claude is already continuing because of a Stop hook. Claude Code also ends the turn after eight consecutive continuations, a cap you can change with CLAUDE_CODE_STOP_HOOK_BLOCK_CAP.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does the Claude Agent SDK use the same hooks?</p>
+          <p class="a">It uses the same event names, such as PreToolUse, PostToolUse and Stop, but you register them as callback functions in the options.hooks field. The SDK also runs command hooks from settings files when the matching settingSources entry is enabled, which it is by default.</p>
         </div>
         
       </section>
@@ -344,7 +419,7 @@ free and open source.</p>
     <aside class="toc-rail" aria-label="Table of contents">
       <div class="tt">On this page</div>
       <ol>
-        <li class="lvl-2"><a href="#what-a-hook-is">What a hook is</a></li><li class="lvl-2"><a href="#the-lifecycle-events-that-matter">The lifecycle events that matter</a></li><li class="lvl-3"><a href="#pretooluse">PreToolUse</a></li><li class="lvl-3"><a href="#posttooluse">PostToolUse</a></li><li class="lvl-3"><a href="#stop-and-subagentstop">Stop (and SubagentStop)</a></li><li class="lvl-3"><a href="#notification-userpromptsubmit-sessionstart">Notification, UserPromptSubmit, SessionStart</a></li><li class="lvl-2"><a href="#how-munder-difflin-uses-hooks">How Munder Difflin uses hooks</a></li><li class="lvl-3"><a href="#a-hook-shim-over-a-unix-socket">A hook shim over a Unix socket</a></li><li class="lvl-3"><a href="#attached-without-touching-your-repo">Attached without touching your repo</a></li><li class="lvl-3"><a href="#pretooluseposttooluse-live-avatars">PreToolUse/PostToolUse → live avatars</a></li><li class="lvl-3"><a href="#stop-the-autonomous-loop">Stop → the autonomous loop</a></li><li class="lvl-2"><a href="#writing-your-own-hooks-practical-tips">Writing your own hooks: practical tips</a></li><li class="lvl-2"><a href="#faq">FAQ</a></li>
+        <li class="lvl-2"><a href="#what-are-claude-code-hooks">What are Claude Code hooks?</a></li><li class="lvl-2"><a href="#which-hook-events-does-claude-code-have">Which hook events does Claude Code have?</a></li><li class="lvl-2"><a href="#where-do-claude-code-hooks-go">Where do Claude Code hooks go?</a></li><li class="lvl-2"><a href="#how-does-the-hook-matcher-work">How does the hook matcher work?</a></li><li class="lvl-2"><a href="#what-do-hook-exit-codes-mean">What do hook exit codes mean?</a></li><li class="lvl-2"><a href="#what-does-a-pretooluse-hook-look-like">What does a PreToolUse hook look like?</a></li><li class="lvl-2"><a href="#what-is-a-posttooluse-hook-for">What is a PostToolUse hook for?</a></li><li class="lvl-2"><a href="#how-does-the-claude-code-stop-hook-work">How does the Claude Code Stop hook work?</a></li><li class="lvl-2"><a href="#why-is-my-claude-code-hook-not-working">Why is my Claude Code hook not working?</a></li><li class="lvl-2"><a href="#how-does-munder-difflin-use-claude-code-hooks">How does Munder Difflin use Claude Code hooks?</a></li>
       </ol>
     </aside>
     
@@ -358,7 +433,7 @@ free and open source.</p>
       <h2>Related in Internals</h2>
       <div class="post-grid">
         <article class="card t-internals">
-  <a class="thumb t-internals" href="/blog/the-spend-counter-that-went-back-to-zero/" aria-hidden="true" tabindex="-1"><span class="thumb-ph"><em class="ph-glyph" aria-hidden="true">✶</em><span>INTERNALS</span></span></a>
+  <a class="thumb t-internals" href="/blog/the-spend-counter-that-went-back-to-zero/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/the-spend-counter-that-went-back-to-zero/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
       <time datetime="2026-08-22">Aug 22, 2026</time>

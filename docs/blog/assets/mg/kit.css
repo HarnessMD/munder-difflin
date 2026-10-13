@@ -1,0 +1,13 @@
+/* Munder Difflin blog scene kit. One stylesheet for every post. Pairs with kit.js. */
+.prose figure.mg { margin: 42px 0; }
+.prose figure.mg img, .mg .mg-svg { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 1px solid #1A1320; border-radius: 16px; background: #1A1320; }
+.mg figcaption { font: 500 13px/1.5 "Space Grotesk", system-ui, sans-serif; color: #6B5878; padding-top: 10px; text-align: center; }
+.mg .mg-svg.mg-tall { aspect-ratio: 3 / 4; }
+.mg .mg-svg { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.mg .mg-svg text { -webkit-user-select: none; user-select: none; }
+.mg .mg-svg image { image-rendering: pixelated; }
+.mg .mg-hit { cursor: pointer; outline: none; }
+.mg .mg-ring { stroke-opacity: 0; transition: stroke-opacity 0.15s; }
+.mg .mg-hit:focus-visible > .mg-ring { stroke-opacity: 1; }
+@media (hover: hover) { .mg .mg-hit:hover > .mg-ring { stroke-opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .mg .mg-ring { transition: none; } }

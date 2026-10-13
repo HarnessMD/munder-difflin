@@ -1,266 +1,80 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
-     off, so it follows the same rule as the PostHog block on this site. -->
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){ dataLayer.push(arguments); }
-  if (navigator.doNotTrack !== '1') {
-    var gtagScript = document.createElement('script');
-    gtagScript.async = true;
-    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
-    document.head.appendChild(gtagScript);
-    gtag('js', new Date());
-    gtag('config', 'AW-18388216863');
-  }
-</script>
-
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- RETIRED 17 Sep 2026. This page used to be a second, HAND MAINTAINED copy of the
+     download page: the version, the published date and all three file sizes were typed
+     into the HTML here and read off disk on harnessmd.com/download. Two copies agree
+     only until the next release, so this one is now a redirect and harnessmd.com/download
+     is the single source.
+
+     GitHub Pages cannot serve a real 301, so the redirect is done three ways on purpose:
+       1. the meta refresh below, which crawlers treat as a permanent redirect and which
+          works with JavaScript switched off,
+       2. the cross domain canonical, which tells anything that ignores the refresh which
+          URL is the real one,
+       3. location.replace in the body, which redirects without leaving a history entry,
+          so the back button returns to wherever the visitor came from instead of
+          bouncing them forward again.
+     The visible link is the fallback for anyone none of the above reaches.
+
+     Search value given up by doing this, measured 17 Sep 2026 before the change:
+     0 clicks and 16 impressions in three months, from three queries, all of them our own
+     brand name, on which the homepage already ranks. No inbound links, no ranking
+     keywords, and this URL was never in sitemap.xml.
+
+     #554 landed on this file first and its fix survives here. It replaced an "Every release"
+     link to app.harnessmd.com/releases/, an open directory index that is being switched off,
+     with harnessmd.com/download#whats-new. Redirecting the whole page to harnessmd.com/download
+     carries that intent rather than dropping it: the dying directory is no longer linked from
+     anywhere on munderdiffl.in, and the release notes the link promised are on the page this
+     redirect lands on. The three direct installer links that also pointed at
+     app.harnessmd.com/releases/ go with the page; #554 established those still serve by exact
+     filename, so nothing broken is being left behind, and the destination lists them anyway. -->
+<meta http-equiv="refresh" content="0; url=https://harnessmd.com/download" />
+<link rel="canonical" href="https://harnessmd.com/download" />
+
 <title>Download Munder Difflin</title>
-<meta name="description" content="Download Munder Difflin for macOS, Windows and Linux. Direct installers straight from the release server, with notes and checksums for every build." />
-<link rel="canonical" href="https://munderdiffl.in/download.html" />
+<meta name="description" content="Munder Difflin downloads have moved to harnessmd.com/download, where every installer is listed straight from the release server." />
 <link rel="icon" type="image/svg+xml" href="./logo.svg" />
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
 <link rel="icon" type="image/png" sizes="512x512" href="./logo.png" />
 <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-<meta property="og:title" content="Download Munder Difflin" />
-<meta property="og:description" content="Download Munder Difflin for macOS, Windows and Linux. Direct installers straight from the release server, with notes and checksums for every build." />
-<meta property="og:image" content="https://munderdiffl.in/media/og.png" />
-<meta property="og:url" content="https://munderdiffl.in/download.html" />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="theme-color" content="#FFF8E7" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-<!-- Platform marks: Font Awesome Free 6.7.2 brand icons (apple, windows,
-     linux), CC BY 4.0, https://fontawesome.com/license/free -->
+
 <style>
-  /* Tokens copied from docs/index.html (the paper theme). Keep in lockstep. */
-  :root{
-    --paper:#FFF8E7;--paper-2:#FBEFD2;--card:#FFFDF7;--ink:#1A1320;--muted:#5A5347;--faint:#8A8274;
-    --line:#E6D9BC;--line-strong:#D6C59E;--accent:#FFCA54;--accent-hover:#FFD97E;--accent-ink:#17150E;--accent-soft:rgba(255,202,84,.22);
-    --radius:14px;--radius-sm:10px;--maxw:1120px;--pad:24px;
-    --font:Inter,system-ui,-apple-system,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
-    color-scheme:light;
+  :root { color-scheme: light; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: #FBF1D6; color: #14110C;
+    font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{-webkit-text-size-adjust:100%}
-  body{font-family:var(--font);background:var(--paper);color:var(--ink);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  img{max-width:100%;display:block}
-  a{color:inherit}
-  ::selection{background:var(--accent);color:var(--accent-ink)}
-  :focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:6px}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
-
-  nav{border-bottom:1px solid var(--line)}
-  .nav-in{max-width:var(--maxw);margin:0 auto;padding:14px var(--pad);display:flex;align-items:center;justify-content:space-between;gap:16px}
-  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--mono);font-weight:600;font-size:.95rem;letter-spacing:.06em}
-  .brand img{width:32px;height:32px}
-  .nav-links{display:flex;align-items:center;gap:20px}
-  .nav-links a.txt{font-family:var(--mono);font-size:.88rem;text-decoration:none;color:var(--muted)}
-  .nav-links a.txt:hover{color:var(--ink)}
-
-  .btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--font);font-weight:600;font-size:1rem;text-decoration:none;cursor:pointer;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);padding:12px 20px;border-radius:var(--radius-sm);white-space:nowrap;transition:background .12s,border-color .12s}
-  .btn:hover{border-color:var(--ink)}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-  .btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
-
-  header.dl{padding:clamp(48px,7vw,84px) 0 clamp(28px,4vw,44px);text-align:center}
-  .chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.78rem;font-weight:600;letter-spacing:.08em;border:1px solid var(--line-strong);background:var(--card);border-radius:999px;padding:7px 14px;margin-bottom:22px}
-  h1{font-weight:700;line-height:1.1;letter-spacing:-.025em;font-size:clamp(2.4rem,5.4vw,3.6rem)}
-  p.lead{font-size:1.1rem;color:var(--muted);max-width:640px;margin:14px auto 0}
-
-  section.dl{padding:clamp(16px,3vw,32px) 0 clamp(48px,6vw,72px)}
-  .grid{display:grid;grid-template-columns:1.25fr 1fr;gap:22px;align-items:start}
-  .grid > *{min-width:0}
-  @media (max-width:880px){.grid{grid-template-columns:1fr}}
-
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 26px 24px}
-  .card h2{font-size:1.25rem;font-weight:700;letter-spacing:-.015em}
-  .card .meta{font-size:.92rem;color:var(--muted);margin:6px 0 20px}
-  .card .meta a{color:var(--ink)}
-
-  .rows{display:flex;flex-direction:column;gap:10px}
-  .row{display:flex;align-items:center;gap:12px;border:1px solid var(--line-strong);background:var(--card);border-radius:var(--radius-sm);padding:13px 16px;text-decoration:none;transition:background .12s,border-color .12s}
-  .row:hover{border-color:var(--ink)}
-  .row .ic{width:19px;height:19px;flex:0 0 19px}
-  .row b{font-weight:600;font-size:.98rem}
-  .row b em{font-style:normal;font-family:var(--mono);font-size:.72rem;color:var(--faint);margin-left:8px}
-  .row .size{margin-left:auto;font-family:var(--mono);font-size:.85rem;color:var(--muted)}
-  .row.primary{background:var(--accent);border-color:var(--accent)}
-  .row.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
-  .row.primary,.row.primary .size,.row.primary b em{color:var(--accent-ink)}
-  .rows-note{font-family:var(--mono);font-size:.78rem;color:var(--faint);margin-top:14px}
-
-  .side{display:flex;flex-direction:column;gap:22px}
-  .steps{list-style:none;display:flex;flex-direction:column;gap:16px;margin-top:16px}
-  .steps li{display:flex;gap:14px;align-items:flex-start}
-  .steps .n{flex:0 0 26px;height:26px;border:1px solid var(--line-strong);background:var(--paper-2);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.78rem;font-weight:600;margin-top:2px}
-  .steps p{color:var(--muted);font-size:.95rem;line-height:1.55}
-
-  footer{border-top:1px solid var(--line);padding:26px 0 34px}
-  .foot-row{display:flex;flex-wrap:wrap;gap:12px 26px;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--faint)}
-  .foot-links{display:flex;flex-wrap:wrap;gap:4px 18px}
-  .foot-links a{text-decoration:none;color:var(--muted)}
-  .foot-links a:hover{color:var(--ink)}
+  .card { max-width: 32rem; text-align: center; }
+  img.logo { width: 56px; height: 56px; margin-bottom: 20px; }
+  h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.01em; }
+  p { margin: 0 0 20px; color: #4A453A; }
+  a.go {
+    display: inline-block; padding: 12px 22px; border-radius: 10px;
+    background: #14110C; color: #FBF1D6; text-decoration: none; font-weight: 600;
+  }
+  a.go:focus-visible { outline: 3px solid #14110C; outline-offset: 3px; }
 </style>
 </head>
 <body>
-
-<nav>
-  <div class="nav-in">
-    <a class="brand" href="/">
-      <img src="./logo.png" alt="Munder Difflin logo" width="32" height="32" />
-      <span>MUNDER&nbsp;DIFFLIN</span>
-    </a>
-    <div class="nav-links">
-      <a class="txt" href="/#pricing">Pricing</a>
-      <a class="txt" href="/blog/">Blog</a>
-      <a class="txt" href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">GitHub</a>
-    </div>
+  <div class="card">
+    <img class="logo" src="./logo.svg" alt="Munder Difflin" />
+    <h1>Downloads have moved</h1>
+    <p>Every installer now lives on one page, listed straight from the release server. Taking you there now.</p>
+    <a class="go" href="https://harnessmd.com/download">Go to the download page</a>
   </div>
-</nav>
-
-<header class="dl">
-  <div class="wrap">
-    <span class="chip">⤓ DESKTOP APP</span>
-    <h1>Download</h1>
-    <p class="lead">One app. It runs the coding CLIs you already have installed and shows you the floor.</p>
-  </div>
-</header>
-
-<section class="dl">
-  <div class="wrap">
-    <div class="grid">
-
-      <!-- REL, the file sizes and the published date are the constants to update at
-           each release. This page is now the only place they live: docs/index.html
-           sends every download click here. Releases live on app.harnessmd.com, NOT
-           on GitHub, whose latest published release is still v0.4.6 — do not
-           "correct" these links against the GitHub tag. Sizes verified by HEAD
-           request on 14 Sep 2026: 246423552, 131585580 and 174707641 bytes. -->
-      <div class="card">
-        <h2>Version 0.5.2</h2>
-        <p class="meta">Published 9 September 2026.
-          <a href="https://app.harnessmd.com/releases/" target="_blank" rel="noopener">Every release</a>, with notes and checksums.</p>
-        <div class="rows">
-          <a class="row" data-os="mac" href="https://app.harnessmd.com/releases/Munder-Difflin-0.5.2-mac-universal.dmg" download>
-            <svg class="ic" viewBox="0 0 384 512" aria-hidden="true" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg><b>macOS · Apple silicon and Intel</b><span class="size">246 MB</span>
-          </a>
-          <a class="row" data-os="win" href="https://app.harnessmd.com/releases/Munder-Difflin-0.5.2-win-x64-setup.exe" download>
-            <svg class="ic" viewBox="0 0 448 512" aria-hidden="true" fill="currentColor"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z"/></svg><b>Windows · x64</b><span class="size">132 MB</span>
-          </a>
-          <a class="row" data-os="linux" href="https://app.harnessmd.com/releases/Munder-Difflin-0.5.2-linux-x86_64.AppImage" download>
-            <svg class="ic" viewBox="0 0 448 512" aria-hidden="true" fill="currentColor"><path d="M220.8 123.3c1 .5 1.8 1.7 3 1.7 1.1 0 2.8-.4 2.9-1.5.2-1.4-1.9-2.3-3.2-2.9-1.7-.7-3.9-1-5.5-.1-.4.2-.8.7-.6 1.1.3 1.3 2.3 1.1 3.4 1.7zm-21.9 1.7c1.2 0 2-1.2 3-1.7 1.1-.6 3.1-.4 3.5-1.6.2-.4-.2-.9-.6-1.1-1.6-.9-3.8-.6-5.5.1-1.3.6-3.4 1.5-3.2 2.9.1 1 1.8 1.5 2.8 1.4zM420 403.8c-3.6-4-5.3-11.6-7.2-19.7-1.8-8.1-3.9-16.8-10.5-22.4-1.3-1.1-2.6-2.1-4-2.9-1.3-.8-2.7-1.5-4.1-2 9.2-27.3 5.6-54.5-3.7-79.1-11.4-30.1-31.3-56.4-46.5-74.4-17.1-21.5-33.7-41.9-33.4-72C311.1 85.4 315.7.1 234.8 0 132.4-.2 158 103.4 156.9 135.2c-1.7 23.4-6.4 41.8-22.5 64.7-18.9 22.5-45.5 58.8-58.1 96.7-6 17.9-8.8 36.1-6.2 53.3-6.5 5.8-11.4 14.7-16.6 20.2-4.2 4.3-10.3 5.9-17 8.3s-14 6-18.5 14.5c-2.1 3.9-2.8 8.1-2.8 12.4 0 3.9.6 7.9 1.2 11.8 1.2 8.1 2.5 15.7.8 20.8-5.2 14.4-5.9 24.4-2.2 31.7 3.8 7.3 11.4 10.5 20.1 12.3 17.3 3.6 40.8 2.7 59.3 12.5 19.8 10.4 39.9 14.1 55.9 10.4 11.6-2.6 21.1-9.6 25.9-20.2 12.5-.1 26.3-5.4 48.3-6.6 14.9-1.2 33.6 5.3 55.1 4.1.6 2.3 1.4 4.6 2.5 6.7v.1c8.3 16.7 23.8 24.3 40.3 23 16.6-1.3 34.1-11 48.3-27.9 13.6-16.4 36-23.2 50.9-32.2 7.4-4.5 13.4-10.1 13.9-18.3.4-8.2-4.4-17.3-15.5-29.7zM223.7 87.3c9.8-22.2 34.2-21.8 44-.4 6.5 14.2 3.6 30.9-4.3 40.4-1.6-.8-5.9-2.6-12.6-4.9 1.1-1.2 3.1-2.7 3.9-4.6 4.8-11.8-.2-27-9.1-27.3-7.3-.5-13.9 10.8-11.8 23-4.1-2-9.4-3.5-13-4.4-1-6.9-.3-14.6 2.9-21.8zM183 75.8c10.1 0 20.8 14.2 19.1 33.5-3.5 1-7.1 2.5-10.2 4.6 1.2-8.9-3.3-20.1-9.6-19.6-8.4.7-9.8 21.2-1.8 28.1 1 .8 1.9-.2-5.9 5.5-15.6-14.6-10.5-52.1 8.4-52.1zm-13.6 60.7c6.2-4.6 13.6-10 14.1-10.5 4.7-4.4 13.5-14.2 27.9-14.2 7.1 0 15.6 2.3 25.9 8.9 6.3 4.1 11.3 4.4 22.6 9.3 8.4 3.5 13.7 9.7 10.5 18.2-2.6 7.1-11 14.4-22.7 18.1-11.1 3.6-19.8 16-38.2 14.9-3.9-.2-7-1-9.6-2.1-8-3.5-12.2-10.4-20-15-8.6-4.8-13.2-10.4-14.7-15.3-1.4-4.9 0-9 4.2-12.3zm3.3 334c-2.7 35.1-43.9 34.4-75.3 18-29.9-15.8-68.6-6.5-76.5-21.9-2.4-4.7-2.4-12.7 2.6-26.4v-.2c2.4-7.6.6-16-.6-23.9-1.2-7.8-1.8-15 .9-20 3.5-6.7 8.5-9.1 14.8-11.3 10.3-3.7 11.8-3.4 19.6-9.9 5.5-5.7 9.5-12.9 14.3-18 5.1-5.5 10-8.1 17.7-6.9 8.1 1.2 15.1 6.8 21.9 16l19.6 35.6c9.5 19.9 43.1 48.4 41 68.9zm-1.4-25.9c-4.1-6.6-9.6-13.6-14.4-19.6 7.1 0 14.2-2.2 16.7-8.9 2.3-6.2 0-14.9-7.4-24.9-13.5-18.2-38.3-32.5-38.3-32.5-13.5-8.4-21.1-18.7-24.6-29.9s-3-23.3-.3-35.2c5.2-22.9 18.6-45.2 27.2-59.2 2.3-1.7.8 3.2-8.7 20.8-8.5 16.1-24.4 53.3-2.6 82.4.6-20.7 5.5-41.8 13.8-61.5 12-27.4 37.3-74.9 39.3-112.7 1.1.8 4.6 3.2 6.2 4.1 4.6 2.7 8.1 6.7 12.6 10.3 12.4 10 28.5 9.2 42.4 1.2 6.2-3.5 11.2-7.5 15.9-9 9.9-3.1 17.8-8.6 22.3-15 7.7 30.4 25.7 74.3 37.2 95.7 6.1 11.4 18.3 35.5 23.6 64.6 3.3-.1 7 .4 10.9 1.4 13.8-35.7-11.7-74.2-23.3-84.9-4.7-4.6-4.9-6.6-2.6-6.5 12.6 11.2 29.2 33.7 35.2 59 2.8 11.6 3.3 23.7.4 35.7 16.4 6.8 35.9 17.9 30.7 34.8-2.2-.1-3.2 0-4.2 0 3.2-10.1-3.9-17.6-22.8-26.1-19.6-8.6-36-8.6-38.3 12.5-12.1 4.2-18.3 14.7-21.4 27.3-2.8 11.2-3.6 24.7-4.4 39.9-.5 7.7-3.6 18-6.8 29-32.1 22.9-76.7 32.9-114.3 7.2zm257.4-11.5c-.9 16.8-41.2 19.9-63.2 46.5-13.2 15.7-29.4 24.4-43.6 25.5s-26.5-4.8-33.7-19.3c-4.7-11.1-2.4-23.1 1.1-36.3 3.7-14.2 9.2-28.8 9.9-40.6.8-15.2 1.7-28.5 4.2-38.7 2.6-10.3 6.6-17.2 13.7-21.1.3-.2.7-.3 1-.5.8 13.2 7.3 26.6 18.8 29.5 12.6 3.3 30.7-7.5 38.4-16.3 9-.3 15.7-.9 22.6 5.1 9.9 8.5 7.1 30.3 17.1 41.6 10.6 11.6 14 19.5 13.7 24.6zM173.3 148.7c2 1.9 4.7 4.5 8 7.1 6.6 5.2 15.8 10.6 27.3 10.6 11.6 0 22.5-5.9 31.8-10.8 4.9-2.6 10.9-7 14.8-10.4s5.9-6.3 3.1-6.6-2.6 2.6-6 5.1c-4.4 3.2-9.7 7.4-13.9 9.8-7.4 4.2-19.5 10.2-29.9 10.2s-18.7-4.8-24.9-9.7c-3.1-2.5-5.7-5-7.7-6.9-1.5-1.4-1.9-4.6-4.3-4.9-1.4-.1-1.8 3.7 1.7 6.5z"/></svg><b>Linux · x86_64</b><span class="size">175 MB</span>
-          </a>
-        </div>
-        <p class="rows-note">Direct downloads from the release server. No account, no email.</p>
-      </div>
-
-      <div class="side">
-        <div class="card">
-          <h2>What it needs</h2>
-          <ol class="steps">
-            <li><span class="n">1</span><p>macOS, Windows or Linux. Only the installers that exist for this version are listed; nothing here is promised.</p></li>
-            <li><span class="n">2</span><p>At least one supported coding CLI on your path, with your own subscription or key: Claude Code, Codex, Gemini CLI or any of the twelve.</p></li>
-            <li><span class="n">3</span><p>Nothing else. There is no account for the solo path and there will not be one.</p></li>
-          </ol>
-        </div>
-        <div class="card">
-          <h2>First run</h2>
-          <ol class="steps">
-            <li><span class="n">1</span><p>Open the app. It finds the CLIs on your path.</p></li>
-            <li><span class="n">2</span><p>Give the first agent a task and watch it work on the floor.</p></li>
-            <li><span class="n">3</span><p>Joining a team? Choose Join a team and paste the invite code your admin sent you.</p></li>
-          </ol>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <div class="foot-row">
-      <span>© 2026 Munder Difflin. Free and open source.</span>
-      <div class="foot-links">
-        <a href="/">Home</a>
-        <a href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">GitHub</a>
-        <a href="/blog/">Blog</a>
-        <a href="/#pricing">Pricing</a>
-        <a href="/wall.html">Founders' Wall</a>
-        <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/SECURITY.md" target="_blank" rel="noopener">Security</a>
-        <a href="/terms.html">Terms</a>
-        <a href="/privacy.html">Privacy</a>
-      </div>
-    </div>
-  </div>
-</footer>
 
 <script>
-  // Tag the visitor's OS row and paint it as the primary button, the way
-  // harnessmd.com/download highlights the detected platform. Without JS all
-  // three rows stay equal and every link still works: the hrefs are baked.
-  (function () {
-    var ua = navigator.userAgent;
-    var cur = /Windows/.test(ua) ? 'win' : (/Mac|iPhone|iPad/.test(ua) ? 'mac' : (/Linux|Android|X11/.test(ua) ? 'linux' : null));
-    if (!cur) return;
-    var row = document.querySelector('.row[data-os="' + cur + '"]');
-    if (!row) return;
-    row.classList.add('primary');
-    var b = row.querySelector('b');
-    if (b) b.insertAdjacentHTML('beforeend', '<em>your OS</em>');
-  })();
-
-  /* ---- PostHog, same block as docs/index.html: public write-only token, no
-     autocapture, no session recording, no IP or geo stored. download_clicked
-     moves with the download links from the landing page to this one. ---- */
-  (function () {
-    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
-    if (!PH_KEY || navigator.doNotTrack === '1') return;
-    var s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://us-assets.i.posthog.com/static/array.js';
-    s.onload = function () {
-      if (!window.posthog) return;
-      window.posthog.init(PH_KEY, {
-        api_host: 'https://us.i.posthog.com',
-        person_profiles: 'never',
-        autocapture: false,
-        disable_session_recording: true,
-        respect_dnt: true,
-        before_send: function (event) {
-          if (event && event.properties) {
-            event.properties.$ip = null;
-            event.properties.$geoip_disable = true;
-          }
-          return event;
-        }
-      });
-      document.addEventListener('click', function (ev) {
-        var a = ev.target && ev.target.closest ? ev.target.closest('a[download]') : null;
-        if (!a) return;
-        var href = a.getAttribute('href') || '';
-        window.posthog.capture('download_clicked', { file: href.split('/').pop() || 'releases-index' });
-      }, true);
-    };
-    document.head.appendChild(s);
-  })();
-
-  /* ---- Google Ads conversion. Watches the same a[download] links as the
-     PostHog block above, but reported separately so neither one depends on the
-     other. Under Do Not Track the tag never loads and this is a no-op. ---- */
-  (function () {
-    document.addEventListener('click', function (ev) {
-      var a = ev.target && ev.target.closest ? ev.target.closest('a[download]') : null;
-      if (!a) return;
-      gtag('event', 'conversion', { send_to: 'AW-18388216863/qnM3CI670_kcEJ_Yl8BE' });
-    }, true);
-  })();
+  /* Redirect without adding a history entry, so the back button goes back to where the
+     visitor came from rather than returning here and forwarding them again. The meta
+     refresh above still covers anyone with JavaScript switched off. */
+  location.replace('https://harnessmd.com/download');
 </script>
 </body>
 </html>

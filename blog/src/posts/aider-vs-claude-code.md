@@ -33,7 +33,7 @@ In Aider you add the files you want changed to the chat, and it sends the model 
 
 {% img "note-1" %}
 
-Claude Code also has subagents with their own context window, tools and permissions, hooks around every tool call, MCP servers, and a plan mode that researches without editing. Aider's extras are more manual: an architect mode where one model plans and another writes the edits, `/run` and `/test` to feed command output back, and `--watch-files` for AI coding comments left in your files.
+Claude Code also has subagents with their own context window, tools and permissions, hooks around every tool call, MCP servers, and a [plan mode](/blog/how-to-use-claude-code-plan-mode/) that researches without editing. Aider's extras are more manual: an architect mode where one model plans and another writes the edits, `/run` and `/test` to feed command output back, and `--watch-files` for AI coding comments left in your files.
 
 ## What does a fresh Aider install show?
 
@@ -80,7 +80,7 @@ Four sensible moves, depending on what you liked about Aider:
 
 1. **Claude Code**, if you want more autonomy and Claude models suit you. You trade a commit per edit for checkpoints, and you decide when to commit.
 2. **[Munder Difflin](https://harnessmd.com/download)**, if you are picking Claude Code and will want more than one session going. It is a free and open source desktop app that runs Claude Code agents side by side, each in a real terminal and optionally its own git worktree, with long term memory and a shared task board (todo, doing, blocked, done). Aider is not a built in engine as of 0.5.2. You can type `aider` into the Custom engine, but that agent gets no hooks, so the app cannot tell when it is idle and messages to it go back to the orchestrator.
-3. **OpenCode**, if model choice was the point. It is MIT licensed, and its docs say it supports 75+ LLM providers and local models, checked 15 Sep 2026.
+3. **[OpenCode](/blog/what-is-opencode/)**, if model choice was the point. It is MIT licensed, and its docs say it supports 75+ LLM providers and local models, checked 15 Sep 2026.
 4. **cecli**, if you want to stay on Aider's codebase. This GitHub fork of Aider (Apache 2.0, formerly aider-ce) published v1.5.1 on 12 Sep 2026, and its README links docs for MCP configuration and subagents. We have not tested it.
 
 ## Should you choose Aider or Claude Code today?

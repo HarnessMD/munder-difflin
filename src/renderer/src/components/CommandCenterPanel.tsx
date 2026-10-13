@@ -469,19 +469,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       if (!killed.ok && !/^no pty:/.test(killed.error ?? '')) {
         throw new Error(killed.error ?? 'Could not stop the current process.');
       }
-      if (resume) {
-        // A blank xterm can retain corrupt renderer/DOM/subscription state even
-        // after its PTY is healthy. Throw that one terminal away, acquire its
-        // replacement BEFORE spawning (so startup output has a listener), then
-        // bump the key so React remounts only this agent's terminal card.
-        disposeTerminal(a.ptyId);
-        acquireTerminal(a.ptyId);
-        updateAgent(a.id, {
-          terminalGeneration: (a.terminalGeneration ?? 0) + 1,
-          status: 'idle',
-          action: 'recreating terminal…'
-        });
-      } else {
+      if (!resume) {
         resetTerminal(a.ptyId);
       }
       const command = buildSpawnCommand(cfg, model, provider);
@@ -511,6 +499,25 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       if (!res.ok) throw new Error(res.error ?? 'Restart failed.');
       if (resume && res.resumed !== true) {
         throw new Error('Resume was refused; no replacement session was accepted.');
+      }
+      if (resume) {
+        // The replacement is accepted, so NOW it is safe to throw the old
+        // terminal away. (It used to run BEFORE spawnPty, so one of the throws
+        // above left a fresh blank xterm in the pool with the scrollback gone
+        // forever — node-pty keeps none — and the label stuck at
+        // 'recreating terminal…'.) A blank xterm can retain corrupt
+        // renderer/DOM/subscription state even after its PTY is healthy, which
+        // is why the resume path replaces it at all; the spawn answer beat the
+        // CLI's first frame, so no startup output can be missed.
+        disposeTerminal(a.ptyId);
+        acquireTerminal(a.ptyId);
+        // Bump the key so React remounts only this agent's terminal card; the
+        // remount's attach re-requests a PTY redraw for anything it raced.
+        updateAgent(a.id, {
+          terminalGeneration: (a.terminalGeneration ?? 0) + 1,
+          status: 'idle',
+          action: 'recreating terminal…'
+        });
       }
       if (res.ok) {
         // Record the model even on a resume. A same-provider model change now

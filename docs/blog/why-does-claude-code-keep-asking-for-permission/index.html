@@ -18,8 +18,8 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Why Does Claude Code Keep Asking for Permission? — Munder Difflin Blog</title>
-<meta name="description" content="Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass." />
+<title>Claude Code Keeps Asking for Permission? Fixes, Safest First</title>
+<meta name="description" content="Claude Code keeps asking because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass." />
 <link rel="canonical" href="https://munderdiffl.in/blog/why-does-claude-code-keep-asking-for-permission/" />
 
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
@@ -29,8 +29,8 @@
 <!-- Open Graph -->
 <meta property="og:site_name" content="Munder Difflin Blog" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="Why Does Claude Code Keep Asking for Permission? — Munder Difflin Blog" />
-<meta property="og:description" content="Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass." />
+<meta property="og:title" content="Claude Code Keeps Asking for Permission? Fixes, Safest First" />
+<meta property="og:description" content="Claude Code keeps asking because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass." />
 <meta property="og:url" content="https://munderdiffl.in/blog/why-does-claude-code-keep-asking-for-permission/" />
 <meta property="og:image" content="https://munderdiffl.in/blog/assets/media/why-does-claude-code-keep-asking-for-permission/hero.png" />
 <meta property="og:image:width" content="1600" />
@@ -48,8 +48,8 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Why Does Claude Code Keep Asking for Permission? — Munder Difflin Blog" />
-<meta name="twitter:description" content="Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass." />
+<meta name="twitter:title" content="Claude Code Keeps Asking for Permission? Fixes, Safest First" />
+<meta name="twitter:description" content="Claude Code keeps asking because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass." />
 <meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/why-does-claude-code-keep-asking-for-permission/hero.png" />
 <meta name="twitter:image:alt" content="Hand drawn sketch: a yellow character behind a shield that blocks lightning bolts, labelled allow this command and allow rules" />
 
@@ -64,7 +64,7 @@
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Why Does Claude Code Keep Asking for Permission?",
-  "description": "Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass.",
+  "description": "Claude Code keeps asking because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass.",
   "image": ["https://munderdiffl.in/blog/assets/media/why-does-claude-code-keep-asking-for-permission/hero.png"],
   "datePublished": "2026-09-14T00:00:00.000Z",
   "dateModified": "2026-09-14T00:00:00.000Z",
@@ -172,7 +172,7 @@
       <a href="/blog/topics/guides/">Guides</a>
     </nav>
     <h1>Why Does Claude Code Keep Asking for Permission?</h1>
-    <p class="dek">Claude Code asks because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass.</p>
+    <p class="dek">Claude Code keeps asking because Manual mode gates edits, shell commands and web requests. The fixes, safest first: modes, allow rules, sandboxing, then bypass.</p>
     <div class="byline">
       <span class="av" aria-hidden="true">MD</span>
       <strong>Chaitanya Giri</strong>
@@ -191,7 +191,7 @@
       <div class="callout tldr"><span class="ic">TL;DR</span><p>Claude Code asks because the session is in <strong>Manual</strong> mode, or because a saved rule doesn't match the exact command. Fix it in order of safety: check the mode with <code>Shift+Tab</code>, add narrow allow rules, turn on the Bash sandbox with <code>/sandbox</code>, and save <code>--dangerously-skip-permissions</code> for a container.</p></div>
 <p>Claude Code keeps asking for permission because the session is in Manual mode, which stops before file edits, most shell commands and web requests, or because your saved rule doesn’t match the command Claude actually wrote. Stop it by switching modes with Shift+Tab, adding narrow allow rules, turning on the Bash sandbox, and bypassing checks only inside a container.</p>
 <p>Run four sessions and you have four queues of approvals, and by the fortieth <code>npm test</code> the prompt is mostly guarding your Enter key. If several terminals are already the problem, <a href="/blog/manage-multiple-claude-code-sessions/">managing multiple Claude Code sessions</a> covers the rest of it. The Claude Code facts below come from its docs, checked on 14 Sep 2026 against 2.1.270.</p>
-<p>You can tune these rules by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, a free and open source desktop app that runs several Claude Code agents, each in its own terminal. As of 0.5.2, its Auto Mode is on by default and starts every Claude Code agent with <code>--permission-mode bypassPermissions</code>, so agents stop asking. That is the bypass mode Claude Code’s docs keep for containers and VMs, not its classifier based auto mode. It also turns on Claude Code’s Bash sandbox per agent (macOS, and Linux with bubblewrap and socat), but that covers shell commands only, a blocked command can be retried outside it, and file edits and MCP tools run outside it without a prompt. Deny rules in your <code>~/.claude/settings.json</code> still block. On your main machine, switch Autonomy to ask-first under Settings, Autonomy &amp; Budgets; agents you add after that ask in their own terminal.</p>
+<p>You can tune these rules by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, a free and open source desktop app that runs several Claude Code agents, each in its own terminal. As of 0.5.2, its Auto Mode is on by default and starts every Claude Code agent with <code>--permission-mode bypassPermissions</code>, so agents stop asking. That is the bypass mode Claude Code’s docs keep for containers and VMs, not its classifier based auto mode. It also turns on Claude Code’s Bash sandbox per agent (macOS, and Linux with bubblewrap and socat), but that covers shell commands only, a blocked command can be retried outside it, and file edits and MCP tools run outside it without a prompt. Deny rules in your <code>~/.claude/settings.json</code> still block. On your main machine, switch Autonomy to ask-first under Settings, Autonomy &amp; Budgets; agents you add after that ask in their own terminal. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
 <h2 id="what-does-claude-code-ask-about-by-default" tabindex="-1">What does Claude Code ask about by default? <a class="anchor" href="#what-does-claude-code-ask-about-by-default" aria-hidden="true">#</a></h2>
 <p>In Manual mode it asks before file edits, shell commands outside a short read-only list, web fetches and web searches. Reads inside your working directory run freely, and so do commands like <code>ls</code>, <code>cat</code>, <code>grep</code> and read-only <code>git</code> (<a href="https://code.claude.com/docs/en/permissions">Configure permissions</a>). One reason prompts repeat: “Yes, and don’t ask again” on a Bash command saves a rule to <code>.claude/settings.local.json</code> at the repository root, but a file edit approval lasts only until the session ends. Start a new session and the edit prompts come back.</p>
 <h2 id="which-permission-mode-are-you-in-and-how-do-you-switch" tabindex="-1">Which permission mode are you in, and how do you switch? <a class="anchor" href="#which-permission-mode-are-you-in-and-how-do-you-switch" aria-hidden="true">#</a></h2>
@@ -282,57 +282,57 @@
   </div>
 
   <footer class="post-foot wrap"><div class="prevnext">
-      <a class="pn prev" href="/blog/how-to-use-claude-code-plan-mode/"><span class="k">← Older</span><span class="t">How to Use Claude Code Plan Mode</span></a>
+      <a class="pn prev" href="/blog/how-to-use-claude-code-plan-mode/"><span class="k">← Older</span><span class="t">Claude Code Planning Mode: How to Use Claude Plan Mode</span></a>
       <a class="pn next" href="/blog/what-is-vibe-coding/"><span class="k">Newer →</span><span class="t">What Is Vibe Coding? Meaning, Risks and Safer Habits</span></a>
     </div>
     <section class="related">
       <h2>Related in Guides</h2>
       <div class="post-grid">
         <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/build-your-personal-agi-on-your-computer/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/asd-ste100-prompting/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/asd-ste100-prompting/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-09-15">Sep 15, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>9 min</span>
-    </div>
-    <h3><a href="/blog/build-your-personal-agi-on-your-computer/">Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin</a></h3>
-    <p class="dek">Turn Claude Code into a personal AGI on your own computer: agents with memory, schedules, Gmail, Calendar, voice and Slack, set up in Munder Difflin 0.5.2.</p>
-    <div class="foot">
-      <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/build-your-personal-agi-on-your-computer/" aria-label="Read: Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/how-to-install-gemini-cli/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-install-gemini-cli/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-09-15">Sep 15, 2026</time>
+      <time datetime="2026-10-05">Oct 5, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/how-to-install-gemini-cli/">How to Install Gemini CLI, and Who Can Still Use It in 2026</a></h3>
-    <p class="dek">Install Google&#39;s Gemini CLI with npm on Mac, Windows or Linux, why Homebrew is stuck on 0.46.0, and which sign in still works after 18 Jun 2026.</p>
+    <h3><a href="/blog/asd-ste100-prompting/">ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers</a></h3>
+    <p class="dek">Ask your AI to answer in ASD-STE100, the aerospace manual standard, about 80% of the way. Plus Karpathy&#39;s three other tricks: diagrams, HTML and video.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-install-gemini-cli/" aria-label="Read: How to Install Gemini CLI, and Who Can Still Use It in 2026">Read →</a>
+      <a class="more" href="/blog/asd-ste100-prompting/" aria-label="Read: ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/claude-code-max-plan-tips/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-max-plan-tips/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/codex-pricing/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-pricing/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-09-14">Sep 14, 2026</time>
+      <time datetime="2026-10-05">Oct 5, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span><span class="pin">Pinned</span>
+      <span>5 min</span>
     </div>
-    <h3><a href="/blog/claude-code-max-plan-tips/">How to Get the Most Out of Your Claude Code Max Plan</a></h3>
-    <p class="dek">Stretch a Claude Code Max plan: model choice, context hygiene, prompt caching, subagents and unattended runs, checked against Anthropic&#39;s own pages.</p>
+    <h3><a href="/blog/codex-pricing/">Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)</a></h3>
+    <p class="dek">Codex pricing checked 5 Oct 2026: which ChatGPT plans include Codex, US prices from $0 to $500, how usage limits are counted, credits and API key rates.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/claude-code-max-plan-tips/" aria-label="Read: How to Get the Most Out of Your Claude Code Max Plan">Read →</a>
+      <a class="more" href="/blog/codex-pricing/" aria-label="Read: Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/how-to-use-claude-code/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-use-claude-code/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-05">Oct 5, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/how-to-use-claude-code/">How to Use Claude Code: Setup, First Task and the Commands That Matter</a></h3>
+    <p class="dek">How to use Claude Code, checked 5 Oct 2026: install it, sign in, run a first task, then the commands, shortcuts and habits a beginner needs.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/how-to-use-claude-code/" aria-label="Read: How to Use Claude Code: Setup, First Task and the Commands That Matter">Read →</a>
     </div>
   </div>
 </article>

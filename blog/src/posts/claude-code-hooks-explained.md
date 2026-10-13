@@ -1,190 +1,193 @@
 ---
-title: "Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)"
-description: "A practical tour of Claude Code hooks — the PreToolUse, PostToolUse, and Stop lifecycle — and how a Unix-socket hook shim drives a live office floor."
+title: "Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes"
+description: "How Claude Code hooks work in 2026: the 33 events, where settings go, matcher syntax, exit code 2, and tested PreToolUse and Stop hook examples."
 date: 2026-06-03
+updated: 2026-09-29
 category: internals
 categoryLabel: Internals
 type: Technical
 primaryKeyword: "claude code hooks"
-secondaryKeywords: ["pretooluse posttooluse", "stop hook", "claude code lifecycle"]
+secondaryKeywords: ["claude code pretooluse hook", "claude code posttooluse hook", "claude code stop hook", "stop_hook_active", "claude code hooks examples", "claude code hooks vs skills"]
 tags: ["Internals", "Hooks", "Claude Code", "Automation"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
   - q: "What are Claude Code hooks?"
-    a: "Hooks are commands Claude Code runs at points in its lifecycle — before and after a tool call, when it's about to stop, on a notification, and more. Each hook receives a JSON payload on stdin and can return JSON to influence what Claude does next."
-  - q: "What does the Stop hook do?"
-    a: "The Stop hook fires when Claude is about to finish a turn. If it returns {\"decision\":\"block\",\"reason\":...}, Claude keeps working with that reason as new instructions — which is how you build an autonomous loop. A stop_hook_active flag prevents it from looping forever."
-  - q: "Do hooks modify my repository?"
-    a: "They don't have to. Claude Code accepts a --settings file, so you can attach hooks from a settings file outside your project instead of editing files in the repo itself."
+    a: "Hooks are handlers that Claude Code runs automatically at fixed points in a session, such as before a tool call, after it, or when Claude finishes a reply. A handler is usually a shell command that reads a JSON payload on stdin. Its exit code or JSON output can block, allow or redirect what Claude does next."
+  - q: "Where do I put Claude Code hooks?"
+    a: "Under a top level hooks key in a settings file: ~/.claude/settings.json for all your projects, .claude/settings.json for one project that you commit, or .claude/settings.local.json for one project that stays on your machine. Plugins, skills and subagents can also carry hooks. Type /hooks in a session to see what is loaded and where it came from."
+  - q: "What does exit code 2 do in a Claude Code hook?"
+    a: "Exit code 2 is a blocking error. On PreToolUse it stops the tool call and shows your stderr to Claude as the reason; on Stop it makes Claude keep working. Exit 1 does not block on most events, so a policy hook must use exit 2 or a JSON decision."
+  - q: "How do I stop a Stop hook from looping forever?"
+    a: "Read the stop_hook_active field from the hook's input and exit 0 when it is true, because that means Claude is already continuing because of a Stop hook. Claude Code also ends the turn after eight consecutive continuations, a cap you can change with CLAUDE_CODE_STOP_HOOK_BLOCK_CAP."
+  - q: "Does the Claude Agent SDK use the same hooks?"
+    a: "It uses the same event names, such as PreToolUse, PostToolUse and Stop, but you register them as callback functions in the options.hooks field. The SDK also runs command hooks from settings files when the matching settingSources entry is enabled, which it is by default."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p><strong>Claude Code hooks</strong> are
-commands that run at lifecycle points — <code>PreToolUse</code>, <code>PostToolUse</code>,
-<code>Stop</code>, <code>Notification</code>, and more. Each gets a JSON payload on stdin and can
-return JSON to steer Claude. Munder Difflin attaches a tiny <strong>hook shim</strong> via
-<code>--settings</code> that forwards every event to the harness over a Unix socket — driving live
-avatars from <code>PreToolUse</code>/<code>PostToolUse</code>, and building an <strong>autonomous
-loop</strong> out of the <code>Stop</code> hook.</p></div>
+Claude Code hooks are handlers that Claude Code runs automatically at fixed points in a session: before a tool call (`PreToolUse`), after it succeeds (`PostToolUse`), when Claude finishes a reply (`Stop`) and 30 other events. Each one gets a JSON payload on stdin, and exit code 2 or a JSON reply lets it block or redirect Claude.
 
-Hooks are the most underrated part of Claude Code. They're the official extension point for "do
-something when Claude does something" — and once you understand them, a lot of agent tooling that
-looks like magic turns out to be a well-placed hook. This post walks the lifecycle, then shows exactly
-how Munder Difflin uses hooks to animate a multi-agent office floor and keep agents working
-autonomously.
+You can wire hooks by hand for one session, as this guide shows, or use [Munder Difflin](https://harnessmd.com/download), free and open source, which attaches a hook set to every Claude Code agent it launches and turns the events into a live view of the whole team.
 
-## What a hook is
+Everything below was checked on 29 Sep 2026 against the official [hooks reference](https://code.claude.com/docs/en/hooks) and Claude Code 2.1.284.
 
-A hook is a command Claude Code runs at a defined moment in its lifecycle. When the moment arrives,
-Claude executes your command and pipes it a **JSON payload on stdin** describing what's happening. Your
-command can do whatever it likes, and — for some events — return **JSON on stdout** that influences
-Claude's next move.
+## What are Claude Code hooks?
 
-You configure hooks in settings, mapping each event to one or more commands:
+A hook is a rule that says "when this event fires, run this handler". Most handlers are shell commands (`type: "command"`), but the reference now lists five types: `command`, `http`, `mcp_tool`, `prompt` and `agent`. As the [hooks guide](https://code.claude.com/docs/en/hooks-guide) says, hooks give you deterministic control: a guard runs every time, not when the model remembers.
 
-```jsonc
+That is also the answer to "hooks vs skills". A skill is instructions Claude may choose to load. A hook runs whether Claude likes it or not.
+
+## Which hook events does Claude Code have?
+
+Claude Code 2.1.284 documents 33 hook events. These are the ones most people reach for:
+
+| Event | When it fires | Can it block? | Matcher filters on |
+| :--- | :--- | :--- | :--- |
+| `SessionStart` | Session begins or resumes | No, adds context | `startup`, `resume`, `clear`, `compact`, `fork` |
+| `UserPromptSubmit` | You submit a prompt | Yes, erases the prompt | No matcher |
+| `PreToolUse` | Before a tool call runs | Yes | Tool name |
+| `PermissionRequest` | A tool call needs a permission decision | Through JSON only | Tool name |
+| `PostToolUse` | After a tool call succeeds | No, the tool already ran | Tool name |
+| `PostToolUseFailure` | After a tool call fails | No | Tool name |
+| `Notification` | Claude Code sends a notification | No | `permission_prompt`, `idle_prompt` and others |
+| `SubagentStop` | A subagent finishes | Yes | Agent type |
+| `Stop` | Claude finishes responding | Yes, Claude keeps going | No matcher |
+| `PreCompact` | Before context compaction | Yes | `manual`, `auto` |
+| `SessionEnd` | Session terminates | No | Why it ended |
+
+The rest cover setup, instruction loading, slash command expansion, tool batches, permission denials, subagent starts, tasks, teammates, message display, API failures, config, directory and file changes, worktrees, compaction, MCP elicitations and model switches.
+
+The [Claude Code changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) records five new events in the last six months (dates are npm publish dates): `PermissionDenied` in 2.1.89 (31 Mar 2026), `MessageDisplay` in 2.1.152 (26 May), `DirectoryAdded` in 2.1.219 (24 Jul), and `PreModelSwitch` plus `PostModelSwitch` in 2.1.251 (28 Aug). The hooks reference also gained `UserPromptExpansion` and `PostToolBatch` in late April 2026, which the changelog never mentions. In the same window, 2.1.139 added the `args` exec form and 2.1.143 capped runaway Stop hooks at eight blocks in a row. It records no renamed events.
+
+{% img "note-1" %}
+
+## Where do Claude Code hooks go?
+
+Hooks live under a `hooks` key in a settings file. `~/.claude/settings.json` applies to all your projects, `.claude/settings.json` to one project and can be committed, and `.claude/settings.local.json` to one project on your machine only. Plugins (`hooks/hooks.json`), skills and subagents can carry hooks too, and entries from every level merge rather than replace each other.
+
+The shape has three levels: event, matcher group, handler. This is the project file we tested for this post:
+
+```json
 {
   "hooks": {
-    "PreToolUse":  [{ "matcher": "*", "hooks": [{ "type": "command", "command": "node my-hook.js" }] }],
-    "PostToolUse": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "node my-hook.js" }] }],
-    "Stop":        [{ "hooks": [{ "type": "command", "command": "node my-hook.js" }] }]
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-env.sh",
+            "args": []
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/tests-must-pass.sh",
+            "args": [],
+            "timeout": 300
+          }
+        ]
+      }
+    ]
   }
 }
 ```
 
-The `matcher` (for tool events) lets you scope a hook to specific tools — `*` means "every tool." Tool
-events carry that matcher; lifecycle events like `Stop` don't need one.
+It validates against the SchemaStore `claude-code-settings.json` schema (we ran it through Ajv on 29 Sep 2026; a misspelt `"Stopp"` fails). The empty `args` array switches to exec form, which spawns the script directly with no shell, so the path placeholder needs no quoting. `timeout` is in seconds; command hooks default to 600.
 
-{% img "note-1" %}
+## How does the hook matcher work?
 
-## The lifecycle events that matter
+The matcher is a filter on one field of the event, which is the tool name for tool events. `"*"`, `""` or no matcher means everything. Letters, digits, `_`, `-`, spaces, `,` and `|` mean exact names, so `Edit|Write` matches exactly those two tools. Any other character turns it into an unanchored JavaScript regex: `mcp__github__.*` matches every tool from a `github` MCP server, and `Edit.*` also catches `NotebookEdit`. Matchers are case sensitive, and events without matcher support, such as `Stop`, silently ignore one.
 
-There are several hook events; these are the ones you'll reach for most.
+Tool event handlers can narrow further with an `if` field, such as `"Bash(git *)"`.
 
-### PreToolUse
+## What do hook exit codes mean?
 
-Fires **before** Claude runs a tool. The payload includes the `tool_name` (e.g. `Edit`, `Bash`) and
-the `tool_input`. This is your "Claude is about to do X" signal. You can use it for observability, or —
-because PreToolUse can return a decision — to gate or block a tool call before it runs.
+Exit 0 is success: Claude Code reads stdout as JSON if it starts with `{` and ends with `}`. Exit 2 is a blocking error on events that can block, and your stderr becomes the reason. Any other code, including 1, is a non-blocking error unless stdout holds valid JSON: the transcript shows a hook error notice and the action goes ahead anyway. A policy hook that exits 1 is a sticky note on the fridge. Everyone sees it, nothing changes.
 
-### PostToolUse
+JSON gives finer control. `continue: false` with a `stopReason` stops Claude entirely. `PreToolUse` answers inside `hookSpecificOutput` with `permissionDecision` set to `allow`, `deny`, `ask` or `defer`. `PostToolUse` and `Stop` use a top level `decision: "block"` plus `reason`. The old top level `decision` on `PreToolUse` is deprecated.
 
-Fires **after** a tool completes. Same shape, now with the result available. PostToolUse is the natural
-place to react to what just happened: log it, update a UI, trigger a follow-up.
+## What does a PreToolUse hook look like?
 
-Together, PreToolUse and PostToolUse bracket every action Claude takes. If you want a faithful,
-real-time picture of what an agent is doing, these two events are it — you're not scraping terminal
-output or guessing, you're getting structured "about to / just did" events straight from Claude.
+A `PreToolUse` hook sees the tool name and its full input before anything runs, which makes it the place for guards. This one refuses edits to `.env` files:
 
-### Stop (and SubagentStop)
+```bash
+#!/bin/bash
+# PreToolUse: refuse edits to .env files. Exit 2 blocks the call.
+file=$(jq -r '.tool_input.file_path // empty')
+case "$(basename "$file")" in
+  .env|.env.*)
+    echo "Blocked: $file holds secrets. Ask the user to edit it." >&2
+    exit 2 ;;
+esac
+exit 0
+```
 
-Fires when Claude is about to **finish a turn** — it's done and ready to hand control back. This is the
-most powerful hook, because of what it can return:
+We piped it an `Edit` payload for `/repo/.env` on 29 Sep 2026. It printed `Blocked: /repo/.env holds secrets. Ask the user to edit it.` to stderr and exited 2. A `Write` to `/repo/src/app.ts` exited 0 with no output. A `deny` from a hook holds even in `bypassPermissions` mode; an `allow` cannot override your deny rules.
+
+## What is a PostToolUse hook for?
+
+`PostToolUse` fires after a tool call succeeds, with `tool_input` and `tool_response` in the payload. It cannot undo anything, so use it for formatting, linting and logging; exit 2 or `decision: "block"` shows Claude your message next to the result. `updatedToolOutput` can replace what Claude sees, though the tool has already run. Failed calls go to `PostToolUseFailure` instead.
+
+## How does the Claude Code Stop hook work?
+
+The Stop hook runs when Claude finishes responding, and returning `{"decision": "block", "reason": "..."}` makes Claude keep working with your reason as its next instruction. It does not fire when you interrupt, and API errors fire `StopFailure` instead. The input carries `stop_hook_active`, `last_assistant_message`, `background_tasks` and `session_crons`.
+
+This hook keeps Claude going while the test suite fails, but only once per stop:
+
+```bash
+#!/bin/bash
+# Stop: keep Claude working while the test suite fails.
+input=$(cat)
+if [ "$(jq -r '.stop_hook_active' <<<"$input")" = "true" ]; then
+  exit 0  # already continued once; let Claude stop
+fi
+cd "$(jq -r '.cwd' <<<"$input")" || exit 0
+if ! out=$(npm test --silent 2>&1); then
+  jq -n --arg log "$(tail -n 5 <<<"$out")" \
+    '{decision: "block", reason: ("Tests fail. Fix them before you finish.\n" + $log)}'
+fi
+exit 0
+```
+
+Against a test project with a deliberately broken assertion, it exited 0 and printed:
 
 ```json
-{ "decision": "block", "reason": "Here's what to do next…" }
+{
+  "decision": "block",
+  "reason": "Tests fail. Fix them before you finish.\nFAIL add(): expected 3, got 2"
+}
 ```
 
-Returning `block` tells Claude *not* to stop — to keep going, treating `reason` as fresh instructions.
-That's the entire basis of an **autonomous loop**: every time the agent tries to finish, a Stop hook
-can hand it more work. `SubagentStop` is the same event for a spawned subagent.
+With `stop_hook_active` set to `true` it printed nothing and exited 0, so Claude may stop. Without that check you get the loop everyone hits once. Since 2.1.143 Claude Code ends the turn after eight consecutive continuations; `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` raises it. If you want Claude to continue without a hook error label, return `hookSpecificOutput.additionalContext` instead of `block`. The built in `/goal` command is a shortcut for a prompt based Stop hook.
 
-The obvious danger is an infinite loop, so the payload carries a `stop_hook_active` flag: it's true
-when a previous Stop hook already blocked this turn. Check it, and you can guarantee you never block
-twice in a row — the loop always has an exit.
+## Why is my Claude Code hook not working?
 
-### Notification, UserPromptSubmit, SessionStart
+Start with `/hooks`, which lists every loaded hook with its source file. After that, the usual causes are:
 
-- **Notification** fires when Claude surfaces a message — including when it's idle and waiting for
-  input, or asking permission. The payload's text lets you tell "needs you" apart from "just done."
-- **UserPromptSubmit** fires when a prompt is submitted — a clean "the agent started working" signal.
-- **SessionStart** fires when a session begins — handy for setup or registration.
+- **Matcher case.** `bash` does not match the `Bash` tool.
+- **Not executable.** Run `chmod +x` on the script.
+- **Exit 1 instead of 2.** It logs an error and the action proceeds.
+- **Stray output before the JSON.** A shell profile that echoes on startup breaks parsing; exec form avoids the shell.
+- **Fields at the wrong level.** `permissionDecision` belongs inside `hookSpecificOutput`.
+- **"JSON validation failed".** Your stdout parsed but did not match the schema for that event.
 
-## How Munder Difflin uses hooks
-
-Munder Difflin runs many `claude` agents at once and needs two things from each: a live view of what
-it's doing, and a way to keep it working through a queue. Both come from hooks.
-
-### A hook shim over a Unix socket
-
-The harness can't run heavy logic inside each hook invocation — hooks fire constantly and must be fast.
-So each agent is launched with a **hook shim**: a tiny script wired to every relevant event. The shim
-does almost nothing. It reads the hook payload on stdin, tags it with the agent's id (from an
-environment variable), forwards it to the harness over a **Unix domain socket**, and relays the
-response back to Claude. All the real logic lives in the harness's main process, which listens on that
-socket.
-
-```text
-claude ──hook fires──▶ shim ──UDS──▶ harness (main process)
-                         ▲                     │
-                         └──── response ◀───────┘
-```
-
-The shim is deliberately dumb and crash-proof: if the socket isn't there or anything errors, it exits
-cleanly and never blocks the agent. Newline-delimited JSON over the socket keeps the protocol trivial.
-
-### Attached without touching your repo
-
-A key detail: the hooks are attached with Claude Code's `--settings` flag, pointing at a settings file
-the harness writes **outside** your project. Your repository is never modified to add hooks — no stray
-`.claude/settings.json` diff, nothing to gitignore. The agent is hive-aware purely through launch
-flags and environment variables.
-
-### PreToolUse/PostToolUse → live avatars
-
-Every tool event the harness receives is forwarded to the UI. That's what drives the office floor: when
-an agent calls a file tool, its avatar walks to the right station; when it runs a command, it moves to
-a terminal. Because the events are structured and come straight from Claude, the visualization reflects
-*real* activity rather than a scripted animation or fragile log-scraping — and it pairs with each
-agent's actual live terminal, [streamed without melting the CPU](/blog/rendering-many-live-terminals-performance/).
-
-### Stop → the autonomous loop
-
-This is where hooks earn their keep. When an agent's `Stop` hook fires, the harness checks that agent's
-inbox for unread messages. If there are any, it returns `{"decision":"block","reason": <the
-messages>}` — so instead of stopping, the agent reads its new messages and keeps working. If the inbox
-is empty, it returns nothing and the agent is allowed to finish.
-
-Two guards keep this safe:
-
-- **`stop_hook_active`** — if a previous Stop already blocked this turn, the harness lets it stop, so
-  it can never block twice back-to-back.
-- **A per-agent cursor** — the harness tracks the last message id it surfaced, so each message is fed
-  to the agent exactly once. No message is re-delivered, and the loop can't spin on stale mail.
-
-The result is an agent that drains its work queue on its own and only goes quiet when there's genuinely
-nothing left — the foundation of [letting agents build while you sleep](/blog/claude-code-automation-while-you-sleep/).
-It's also how the [GOD orchestrator](/blog/how-the-god-orchestrator-works/) keeps the whole floor
-moving: route a task into an agent's inbox, and its next Stop hook picks it up automatically.
+Test a script alone by piping it sample JSON and printing `$?`, then run `claude --debug` and read the log in `~/.claude/debug/`.
 
 {% img "note-2" %}
 
-## Writing your own hooks: practical tips
+## How does Munder Difflin use Claude Code hooks?
 
-If you're building with hooks directly, a few lessons that save pain:
+Munder Difflin launches each Claude Code agent with `--settings` pointing at a per agent `settings.json` in its own hive folder, so your repository never gets a hooks diff. Checked against tag v0.5.3 of the app repo:
 
-- **Keep them fast.** Hooks run synchronously in Claude's path. Do the minimum and offload anything
-  heavy (a socket forward, a queued job) rather than blocking.
-- **Fail open.** A hook that errors shouldn't wedge the agent. Catch everything and exit cleanly.
-- **Respect `stop_hook_active`.** Any Stop hook that can block must check this flag, or you'll build an
-  infinite loop.
-- **Use `--settings` for portability.** Attaching hooks via a settings file outside the repo keeps your
-  project clean and lets you apply the same hooks to many sessions.
+- **Nine events, one shim.** `hookSettings()` in `src/main/hive.ts` registers `Stop`, `SubagentStop`, `PreToolUse` and `PostToolUse` (matcher `*`), `UserPromptSubmit`, `Notification`, `SessionStart`, `PreCompact` and `PostCompact`, all pointing at one small Node shim. The shim forwards each payload over a Unix socket (a named pipe on Windows) and exits 0 on any error, so a dead app never wedges an agent. [The hook shim pattern](/blog/the-hook-shim-pattern/) covers the design.
+- **Pause and gate at `PreToolUse`.** `src/main/hooks.ts` returns `permissionDecision: "deny"` when you pause an agent or gate a tool, and `continue: false` when you halt one from the floor.
+- **Context through `additionalContext`.** At `SessionStart` and `UserPromptSubmit` the same file injects an agent's standing goal and hands Michael, the orchestrator, the live roster; guidance you queue rides in on the next `UserPromptSubmit` or `PostToolUse`. [How the orchestrator works](/blog/how-the-god-orchestrator-works/) explains the routing.
+- **Loop detection at `PostToolUse`.** Repeated identical tool calls feed a circuit breaker.
 
-## FAQ
-
-**Can a hook block a dangerous tool call?** Yes — PreToolUse can return a decision that prevents a tool
-from running, which is useful for guardrails. Munder Difflin leans on its orchestrator and approval
-queue for that judgment, but the hook-level gate is available.
-
-**Do hooks slow Claude down?** Only as much as your hook command does. A shim that just forwards a
-payload over a local socket adds negligible overhead, which is exactly why the heavy logic lives
-elsewhere.
-
----
-
-Munder Difflin turns Claude Code's hook lifecycle into [a live, autonomous office](https://munderdiffl.in/#how): real-time avatars
-from tool events and a self-draining work loop from the Stop hook — all without editing your repo.
-[Download Munder Difflin](https://munderdiffl.in/#install) to see hooks driving a hive of agents; it's
-free and open source.
+One correction to the first version of this post: Munder Difflin no longer uses `Stop` to force an agent to keep reading its inbox. In v0.5.3 the Stop handler returns an empty reply and respects `stop_hook_active`; new mail is delivered only once the agent sits idle at its prompt, so it never types over a question you are answering. To try it, follow the [install guide](/blog/how-to-install-and-use-munder-difflin/).

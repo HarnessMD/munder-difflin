@@ -18,8 +18,8 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>How to Add an MCP Server to Claude Code — Munder Difflin Blog</title>
-<meta name="description" content="The claude mcp add command, its scope flag, editing .mcp.json by hand, and how Munder Difflin&#39;s Capabilities screen grants an MCP server to one agent at a time." />
+<title>Claude Code MCP Servers: How to Add One, Scopes and .mcp.json — Munder Difflin Blog</title>
+<meta name="description" content="Add Claude Code MCP servers with claude mcp add: transports, scopes, --env and --header, .mcp.json, OAuth sign in and output limits. Checked 29 Sep 2026." />
 <link rel="canonical" href="https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/" />
 
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
@@ -29,8 +29,8 @@
 <!-- Open Graph -->
 <meta property="og:site_name" content="Munder Difflin Blog" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="How to Add an MCP Server to Claude Code — Munder Difflin Blog" />
-<meta property="og:description" content="The claude mcp add command, its scope flag, editing .mcp.json by hand, and how Munder Difflin&#39;s Capabilities screen grants an MCP server to one agent at a time." />
+<meta property="og:title" content="Claude Code MCP Servers: How to Add One, Scopes and .mcp.json — Munder Difflin Blog" />
+<meta property="og:description" content="Add Claude Code MCP servers with claude mcp add: transports, scopes, --env and --header, .mcp.json, OAuth sign in and output limits. Checked 29 Sep 2026." />
 <meta property="og:url" content="https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/" />
 <meta property="og:image" content="https://munderdiffl.in/blog/assets/media/how-to-add-an-mcp-server-to-claude-code/hero.png" />
 <meta property="og:image:width" content="1600" />
@@ -47,8 +47,8 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="How to Add an MCP Server to Claude Code — Munder Difflin Blog" />
-<meta name="twitter:description" content="The claude mcp add command, its scope flag, editing .mcp.json by hand, and how Munder Difflin&#39;s Capabilities screen grants an MCP server to one agent at a time." />
+<meta name="twitter:title" content="Claude Code MCP Servers: How to Add One, Scopes and .mcp.json — Munder Difflin Blog" />
+<meta name="twitter:description" content="Add Claude Code MCP servers with claude mcp add: transports, scopes, --env and --header, .mcp.json, OAuth sign in and output limits. Checked 29 Sep 2026." />
 <meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/how-to-add-an-mcp-server-to-claude-code/hero.png" />
 <meta name="twitter:image:alt" content="Illustration: How to Add an MCP Server to Claude Code" />
 
@@ -62,11 +62,11 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "How to Add an MCP Server to Claude Code",
-  "description": "The claude mcp add command, its scope flag, editing .mcp.json by hand, and how Munder Difflin's Capabilities screen grants an MCP server to one agent at a time.",
+  "headline": "Claude Code MCP Servers: How to Add One, Scopes and .mcp.json",
+  "description": "Add Claude Code MCP servers with claude mcp add: transports, scopes, --env and --header, .mcp.json, OAuth sign in and output limits. Checked 29 Sep 2026.",
   "image": ["https://munderdiffl.in/blog/assets/media/how-to-add-an-mcp-server-to-claude-code/hero.png"],
   "datePublished": "2026-09-10T00:00:00.000Z",
-  "dateModified": "2026-09-10T00:00:00.000Z",
+  "dateModified": "2026-09-29T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
   "publisher": {
     "@type": "Organization",
@@ -74,7 +74,7 @@
     "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
   },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/" },
-  "keywords": "how to add an mcp server to claude code, claude code mcp add, claude code mcp json, how to install mcp server claude code, add mcp server to claude code globally, claude code mcp add scope",
+  "keywords": "claude code mcp servers, claude code mcp, claude code mcp add, claude code mcp json, claude code mcp config file, claude mcp add transport, claude code mcp servers global",
   "articleSection": "Guides",
   "inLanguage": "en-US",
   "url": "https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/"
@@ -87,7 +87,7 @@
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
     { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
-    { "@type": "ListItem", "position": 3, "name": "How to Add an MCP Server to Claude Code", "item": "https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/" }
+    { "@type": "ListItem", "position": 3, "name": "Claude Code MCP Servers: How to Add One, Scopes and .mcp.json", "item": "https://munderdiffl.in/blog/how-to-add-an-mcp-server-to-claude-code/" }
   ]
 }
 </script>
@@ -97,11 +97,11 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "What is an MCP server?", "acceptedAnswer": { "@type": "Answer", "text": "A program that gives an agent tools or data it does not have built in, such as a database, an issue tracker or a browser, and exposes them over the Model Context Protocol. Claude Code is one of many MCP clients, so once a server is added, its tools sit alongside Claude Code's built in ones." } },
-    { "@type": "Question", "name": "How do I add an MCP server to Claude Code from the command line?", "acceptedAnswer": { "@type": "Answer", "text": "Run claude mcp add with a name you choose, then the command that starts the server after the separator Claude Code expects, or, for a hosted server, add a URL with the transport flag set to http. Run claude mcp list afterward to confirm it connected." } },
-    { "@type": "Question", "name": "What is the difference between local, project and user scope?", "acceptedAnswer": { "@type": "Answer", "text": "Local scope, the default, is private to you and only active in the project where you added the server. Project scope writes the entry to a .mcp.json file you commit, so teammates who clone the project get the same server. User scope registers the server once for every project you open, still private to you." } },
-    { "@type": "Question", "name": "How do I add an MCP server that needs an API key?", "acceptedAnswer": { "@type": "Answer", "text": "Pass it with the -e flag when you add the server, for example -e API_KEY=xxx. A server that signs in through a browser instead, such as ones that use OAuth, is added with just its URL and authenticated afterward from inside a session with the /mcp command." } },
-    { "@type": "Question", "name": "Does Munder Difflin let me control which agent gets which MCP server?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Since Munder Difflin 0.4.7, the Capabilities screen in the Pro workspace can turn a server on for one agent and off for another, and servers that can write or hold secrets still need an explicit yes. Each Claude Code agent still picks up the servers you added at user or project scope, the same as any other claude session." } }
+    { "@type": "Question", "name": "How do I add an MCP server to Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Run claude mcp add from your terminal, not inside a session. For a hosted server use --transport http, a name and the URL. For a local server give a name, then the double dash separator, then the command that starts it. Check the result with claude mcp list." } },
+    { "@type": "Question", "name": "Where is the Claude Code MCP config file?", "acceptedAnswer": { "@type": "Answer", "text": "Local and user scoped servers live in ~/.claude.json: local ones under the entry for the project, user ones under the top level mcpServers key. Project scoped servers live in .mcp.json at the project root, which you commit. Claude Code does not read ~/.claude/mcp.json or ~/.claude/.mcp.json." } },
+    { "@type": "Question", "name": "How do I add an MCP server to Claude Code globally?", "acceptedAnswer": { "@type": "Answer", "text": "Add it with --scope user. It is then active in every project you open and stays private to you. A server's scope is fixed when you add it, so to move one you remove it and add it again at the new scope." } },
+    { "@type": "Question", "name": "Is the SSE transport still supported in Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "It still works but is deprecated. The MCP specification replaced HTTP+SSE with Streamable HTTP in its 2025-03-26 revision, and Claude Code's docs say to use --transport http. Since Claude Code 2.1.265, an http entry falls back to SSE on its own when a server only speaks the old transport." } },
+    { "@type": "Question", "name": "Why does my MCP server show Pending approval?", "acceptedAnswer": { "@type": "Answer", "text": "It comes from a project's .mcp.json and you have not approved it yet. Claude Code asks before it starts a server a cloned repository defines, so run claude in that folder and accept the prompt, or approve it later from /mcp." } }
     
   ]
 }
@@ -170,15 +170,15 @@
       <span>/</span>
       <a href="/blog/topics/guides/">Guides</a>
     </nav>
-    <h1>How to Add an MCP Server to Claude Code</h1>
-    <p class="dek">The claude mcp add command, its scope flag, editing .mcp.json by hand, and how Munder Difflin&#39;s Capabilities screen grants an MCP server to one agent at a time.</p>
+    <h1>Claude Code MCP Servers: How to Add One, Scopes and .mcp.json</h1>
+    <p class="dek">Add Claude Code MCP servers with claude mcp add: transports, scopes, --env and --header, .mcp.json, OAuth sign in and output limits. Checked 29 Sep 2026.</p>
     <div class="byline">
       <span class="av" aria-hidden="true">MD</span>
       <strong>Chaitanya Giri</strong>
       <span class="dot" aria-hidden="true">·</span>
       <time datetime="2026-09-10">Sep 10, 2026</time>
       <span class="dot" aria-hidden="true">·</span>
-      <span>5 min read</span>
+      <span>8 min read</span>
       <span class="tag kind">Guides</span>
     </div>
   </header>
@@ -187,68 +187,215 @@
 
   <div class="post-wrap wrap">
     <div class="prose">
-      <div class="callout tldr"><span class="ic">TL;DR</span><p>Run <code>claude mcp add</code> with a name and the command that starts the server for a local tool, or add the transport flag set to <code>http</code> and a URL for a hosted one. The default scope is local to your project; add the scope flag set to <code>user</code> to use a server everywhere, or to <code>project</code> to share it with teammates through <code>.mcp.json</code>. Confirm the connection with <code>claude mcp list</code>, and edit <code>.mcp.json</code> directly if you would rather write the JSON yourself.</p></div>
-<p>You add an MCP server to Claude Code with one command: <code>claude mcp add</code>, a name you pick, and the command or URL that starts the server. Claude Code writes that entry to a config file, then loads the server’s tools the next time it reads it.</p>
-<p>That one command handles the common case. What’s worth understanding is the scope flag, which decides who else sees the server, and the other ways to add one: editing <code>.mcp.json</code> yourself, or connecting from VS Code or the desktop app instead of the CLI. If you’re already running more than one Claude Code session, each reads the same project scoped servers, which is one less thing to juggle when you <a href="/blog/manage-multiple-claude-code-sessions/">manage multiple Claude Code sessions</a>.</p>
-<h2 id="what-is-an-mcp-server" tabindex="-1">What is an MCP server? <a class="anchor" href="#what-is-an-mcp-server" aria-hidden="true">#</a></h2>
-<p>An MCP server is a program that gives an agent tools or data it doesn’t have built in: a way to search issues, query a database, or drive a browser. The Model Context Protocol is the open standard those servers speak, described on its own site as “a standardized way to connect AI applications to external systems” (checked 10 Sep 2026, <a href="https://modelcontextprotocol.io">modelcontextprotocol.io</a>). Anthropic open sourced MCP on 25 November 2024, with initial SDKs and a handful of reference servers (checked 10 Sep 2026, <a href="https://www.anthropic.com/news/model-context-protocol">Introducing the Model Context Protocol</a>). Claude Code is one client among several now; any compliant server works with it. For the longer answer, with the host, client and server roles and how discovery works, see <a href="/blog/what-is-an-mcp-server/">What Is an MCP Server?</a>.</p>
+      <div class="callout tldr"><span class="ic">TL;DR</span><p>Hosted server: <code>claude mcp add --transport http &lt;name&gt; &lt;url&gt;</code>. Local server: <code>claude mcp add &lt;name&gt;</code>, the double dash separator, then the launch command. Add <code>--scope user</code> for every project or <code>--scope project</code> to share through <code>.mcp.json</code>. SSE is deprecated; use <code>http</code>. Check with <code>claude mcp list</code>, sign in with <code>/mcp</code>. Checked on Claude Code 2.1.284, 29 Sep 2026.</p></div>
+<p>You add Claude Code MCP servers with <code>claude mcp add</code>: a name, then a URL for a hosted server or a launch command for a local one. The server lands in one of three scopes, and <code>claude mcp list</code> tells you whether it connected.</p>
+<p>You can do all of this by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, free and open source, which writes a default set of MCP servers into every Claude Code agent it starts (<a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a>). The rest of this guide is the by hand route, checked against <a href="https://code.claude.com/docs/en/mcp">Anthropic’s MCP docs</a> on 29 Sep 2026. If you want the concept first, read <a href="/blog/what-is-an-mcp-server/">what an MCP server is</a>.</p>
+<h2 id="claude-code-mcp-commands-at-a-glance" tabindex="-1">Claude Code MCP commands at a glance <a class="anchor" href="#claude-code-mcp-commands-at-a-glance" aria-hidden="true">#</a></h2>
+<p>These are the commands you will actually use on Claude Code 2.1.284, checked on 29 Sep 2026 against <code>claude mcp --help</code> and the docs.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add a hosted server</td>
+<td><code>claude mcp add --transport http &lt;name&gt; &lt;url&gt;</code></td>
+</tr>
+<tr>
+<td>Add a local server</td>
+<td><code>claude mcp add &lt;name&gt; -- &lt;command&gt; [args...]</code></td>
+</tr>
+<tr>
+<td>Pass an environment variable</td>
+<td><code>--env KEY=value</code> or <code>-e</code>, before the <code>--</code></td>
+</tr>
+<tr>
+<td>Pass a header</td>
+<td><code>--header &quot;Authorization: Bearer &lt;token&gt;&quot;</code> or <code>-H</code></td>
+</tr>
+<tr>
+<td>Pick a scope</td>
+<td><code>--scope local</code> (default), <code>project</code> or <code>user</code>, or <code>-s</code></td>
+</tr>
+<tr>
+<td>Add from a JSON blob</td>
+<td><code>claude mcp add-json &lt;name&gt; '&lt;json&gt;'</code></td>
+</tr>
+<tr>
+<td>Copy servers from Claude Desktop</td>
+<td><code>claude mcp add-from-claude-desktop</code> (macOS and WSL)</td>
+</tr>
+<tr>
+<td>Check status</td>
+<td><code>claude mcp list</code>, <code>claude mcp get &lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>Remove</td>
+<td><code>claude mcp remove &lt;name&gt; --scope &lt;scope&gt;</code></td>
+</tr>
+<tr>
+<td>Sign in from the shell</td>
+<td><code>claude mcp login &lt;name&gt;</code>, <code>claude mcp logout &lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>Manage inside a session</td>
+<td><code>/mcp</code>, <code>/mcp reconnect all</code></td>
+</tr>
+<tr>
+<td>Forget project approvals</td>
+<td><code>claude mcp reset-project-choices</code></td>
+</tr>
+</tbody>
+</table>
+</div>
 <h2 id="how-do-you-add-an-mcp-server-to-claude-code" tabindex="-1">How do you add an MCP server to Claude Code? <a class="anchor" href="#how-do-you-add-an-mcp-server-to-claude-code" aria-hidden="true">#</a></h2>
-<p>Run <code>claude mcp add</code>, pick a name, and tell it what starts the server: a local command, or a URL with the transport flag set to <code>http</code> for a hosted one. Here’s what that looked like in a scratch folder, checked on 10 Sep 2026:</p>
+<p>Run <code>claude mcp add</code> in your terminal, outside a session, and everything Claude Code needs to know goes before the <code>--</code>. Everything after it is passed to the server untouched. Here is a real run from a throwaway folder on 29 Sep 2026, using the MCP project’s reference test server:</p>
 <pre class="language-bash"><code class="language-bash">$ claude <span class="token parameter variable">--version</span>
-<span class="token number">2.1</span>.267 <span class="token punctuation">(</span>Claude Code<span class="token punctuation">)</span>
+<span class="token number">2.1</span>.284 <span class="token punctuation">(</span>Claude Code<span class="token punctuation">)</span>
 
-$ <span class="token function">mkdir</span> <span class="token parameter variable">-p</span> mcp-demo <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">cd</span> mcp-demo
-$ claude mcp <span class="token function">add</span> <span class="token parameter variable">--scope</span> project demo-docs -- npx <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything
-Added stdio MCP server demo-docs with command: npx <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything to project config
+$ claude mcp <span class="token function">add</span> <span class="token parameter variable">--scope</span> project everything -- npx <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything
+Added stdio MCP server everything with command: npx <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything to project config
 File modified: <span class="token operator">&lt;</span>your folder<span class="token operator">></span>/mcp-demo/.mcp.json
 
-$ <span class="token function">cat</span> .mcp.json
-<span class="token punctuation">{</span>
-  <span class="token string">"mcpServers"</span><span class="token builtin class-name">:</span> <span class="token punctuation">{</span>
-    <span class="token string">"demo-docs"</span><span class="token builtin class-name">:</span> <span class="token punctuation">{</span>
-      <span class="token string">"type"</span><span class="token builtin class-name">:</span> <span class="token string">"stdio"</span>,
-      <span class="token string">"command"</span><span class="token builtin class-name">:</span> <span class="token string">"npx"</span>,
-      <span class="token string">"args"</span><span class="token builtin class-name">:</span> <span class="token punctuation">[</span><span class="token string">"-y"</span>, <span class="token string">"@modelcontextprotocol/server-everything"</span><span class="token punctuation">]</span>,
-      <span class="token string">"env"</span><span class="token builtin class-name">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-  <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p><code>claude mcp add</code> wrote that block the moment the command ran; nothing else to save or restart beyond starting a fresh session in the folder. For a hosted server you swap the local command for the transport flag set to <code>http</code> and a URL, the same shape Anthropic’s own quickstart uses for its docs server (checked 10 Sep 2026, <a href="https://code.claude.com/docs/en/mcp-quickstart">Connect to MCP servers</a>).</p>
+$ claude mcp get everything
+everything:
+  Scope: Project config <span class="token punctuation">(</span>shared via .mcp.json<span class="token punctuation">)</span>
+  Status: ⏸ Pending approval <span class="token punctuation">(</span>run <span class="token variable"><span class="token variable">`</span>claude<span class="token variable">`</span></span> to approve<span class="token punctuation">)</span>
+  Type: stdio
+  Command: npx
+  Args: <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything
+  Environment:
+
+To remove this server, run: claude mcp remove everything <span class="token parameter variable">-s</span> project</code></pre>
+<p>Forget the <code>--</code> and the add fails at once with <code>error: unknown option '-y'</code>. The <code>Pending approval</code> status is correct for a project scoped server: Claude Code will not start a process a repository defines until you say yes in an interactive session.</p>
+<p>For a hosted server the shape is the same without the separator: <code>claude mcp add --transport http sentry https://mcp.sentry.dev/mcp</code>, the example <code>claude mcp --help</code> prints.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/how-to-add-an-mcp-server-to-claude-code/note-1.png" alt="Hand-drawn sketch from “How to Add an MCP Server to Claude Code”" loading="lazy" decoding="async" /></figure>
-<h2 id="whats-the-difference-between-local-project-and-user-scope" tabindex="-1">What’s the difference between local, project and user scope? <a class="anchor" href="#whats-the-difference-between-local-project-and-user-scope" aria-hidden="true">#</a></h2>
-<p>Local scope is the default: private to you, active only in the project where you ran the command. Project scope writes to the <code>.mcp.json</code> file you just saw above, which you commit so teammates get the same server; user scope registers a server once for every project you open, still private to you. Michael Scott would put everything in project scope and commit his API key for the whole office to read.</p>
-<p>Pick project scope for anything the team needs in the repo, like a shared database or issue tracker server. Pick user scope for tools you personally want everywhere, like a search server you reach for across projects. Leave local scope for anything you’re just trying out. The demo above used project scope on purpose, so you could see the <code>.mcp.json</code> file it writes.</p>
-<h2 id="how-do-you-add-a-server-that-needs-an-api-key" tabindex="-1">How do you add a server that needs an API key? <a class="anchor" href="#how-do-you-add-a-server-that-needs-an-api-key" aria-hidden="true">#</a></h2>
-<p>Pass it with the <code>-e</code> flag when you add the server, for example <code>-e API_KEY=xxx</code> after the server’s name and command. A server that authenticates through a browser instead, like the hosted examples in Anthropic’s own docs, is added with just its URL, then signed in afterward from inside a session with the <code>/mcp</code> command.</p>
-<figure class="fig fig-inline"><img src="/blog/assets/media/how-to-add-an-mcp-server-to-claude-code/note-2.png" alt="Hand-drawn sketch from “How to Add an MCP Server to Claude Code”" loading="lazy" decoding="async" /></figure>
-<h2 id="can-you-edit-mcpjson-directly-instead-of-using-the-cli" tabindex="-1">Can you edit .mcp.json directly instead of using the CLI? <a class="anchor" href="#can-you-edit-mcpjson-directly-instead-of-using-the-cli" aria-hidden="true">#</a></h2>
-<p>Yes. Every scope writes the same JSON shape, so you can hand write an entry instead of running the command, which helps when a server needs several environment variables you’d rather template in one file:</p>
+<h2 id="which-transport-should-you-use-stdio-http-or-sse" tabindex="-1">Which transport should you use: stdio, HTTP or SSE? <a class="anchor" href="#which-transport-should-you-use-stdio-http-or-sse" aria-hidden="true">#</a></h2>
+<p>Use <code>stdio</code> for a program on your machine and <code>http</code> for anything at a URL. The current MCP specification, revision 2026-07-28, defines exactly two standard transports: stdio and Streamable HTTP (<a href="https://modelcontextprotocol.io/specification/latest/basic/transports">MCP transports</a>, checked 29 Sep 2026).</p>
+<p>The old HTTP+SSE transport is deprecated. The spec’s <a href="https://modelcontextprotocol.io/specification/2026-07-28/deprecated">deprecated features registry</a> lists it as deprecated since 2025-03-26 and names Streamable HTTP as the replacement. Claude Code still accepts <code>--transport sse</code>, but its docs mark it deprecated, and since 2.1.265 (8 Sep 2026) an <code>http</code> entry falls back to SSE by itself when a server only speaks the old transport.</p>
+<p>Two details trip people up. In <code>.mcp.json</code>, <code>&quot;type&quot;: &quot;streamable-http&quot;</code> is accepted as an alias for <code>&quot;http&quot;</code>, so JSON copied from a server’s README works. And WebSocket (<code>&quot;type&quot;: &quot;ws&quot;</code>) can only be added through <code>.mcp.json</code> or <code>claude mcp add-json</code>, because <code>--transport</code> does not accept <code>ws</code>.</p>
+<h2 id="where-does-claude-code-store-mcp-servers" tabindex="-1">Where does Claude Code store MCP servers? <a class="anchor" href="#where-does-claude-code-store-mcp-servers" aria-hidden="true">#</a></h2>
+<p>In two files, split three ways by the <code>--scope</code> flag. The default is local.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>File</th>
+<th>Who gets it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>local</code> (default)</td>
+<td><code>~/.claude.json</code>, under this project’s path</td>
+<td>You, this project only</td>
+</tr>
+<tr>
+<td><code>project</code></td>
+<td><code>.mcp.json</code> in the project root</td>
+<td>Everyone who clones the repo</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td><code>~/.claude.json</code>, top level <code>mcpServers</code> key</td>
+<td>You, every project</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>That table is the answer to “how do I add an MCP server globally”: use <code>--scope user</code>. When the same name exists in more than one place, local wins over project, project over user, and the whole entry comes from the winner; fields are not merged. Scope is fixed at add time, so moving a server means <code>claude mcp remove &lt;name&gt; --scope local</code> and adding it again. Claude Code does not read <code>~/.claude/mcp.json</code>, <code>~/.claude/.mcp.json</code> or <code>~/.claude/config/mcp.json</code>, so a server written there never appears.</p>
+<h2 id="how-do-you-pass-an-api-key-or-a-header" tabindex="-1">How do you pass an API key or a header? <a class="anchor" href="#how-do-you-pass-an-api-key-or-a-header" aria-hidden="true">#</a></h2>
+<p>Use <code>--env KEY=value</code> for a local server and <code>--header &quot;Name: value&quot;</code> for a hosted one. Both accept several values. The catch with <code>--env</code> is order: it swallows every <code>KEY=value</code> that follows, so if the server name comes straight after it, the name gets read as a malformed pair. We hit exactly that on 29 Sep 2026:</p>
+<pre class="language-bash"><code class="language-bash">$ claude mcp <span class="token function">add</span> <span class="token parameter variable">--scope</span> project <span class="token parameter variable">--env</span> <span class="token assign-left variable">DEMO_KEY</span><span class="token operator">=</span>abc123 demo-env -- npx <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything
+Invalid environment variable format: demo-env, environment variables should be added as: <span class="token parameter variable">-e</span> <span class="token assign-left variable">KEY1</span><span class="token operator">=</span>value1 <span class="token parameter variable">-e</span> <span class="token assign-left variable">KEY2</span><span class="token operator">=</span>value2
+
+$ claude mcp <span class="token function">add</span> <span class="token parameter variable">--scope</span> project <span class="token parameter variable">--env</span> <span class="token assign-left variable">DEMO_KEY</span><span class="token operator">=</span>abc123 <span class="token parameter variable">--transport</span> stdio demo-env -- npx <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything
+Added stdio MCP server demo-env with command: npx <span class="token parameter variable">-y</span> @modelcontextprotocol/server-everything to project config
+File modified: <span class="token operator">&lt;</span>your folder<span class="token operator">></span>/mcp-demo/.mcp.json</code></pre>
+<p>Any other option between <code>--env</code> and the name fixes it, as the docs recommend. One more rule: in a remote server’s <code>url</code> and <code>headers</code>, Claude Code reads its own credential variables such as <code>ANTHROPIC_API_KEY</code> as empty, so a shared <code>.mcp.json</code> cannot ship your key to a stranger’s server.</p>
+<h2 id="how-do-you-edit-mcpjson-by-hand" tabindex="-1">How do you edit .mcp.json by hand? <a class="anchor" href="#how-do-you-edit-mcpjson-by-hand" aria-hidden="true">#</a></h2>
+<p>Write an <code>mcpServers</code> object where each key is a server name. This is the <code>demo-env</code> entry the second add wrote, and it is the format for all three scopes:</p>
 <pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
   <span class="token property">"mcpServers"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-    <span class="token property">"my-server"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"demo-env"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"stdio"</span><span class="token punctuation">,</span>
       <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"npx"</span><span class="token punctuation">,</span>
-      <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"-y"</span><span class="token punctuation">,</span> <span class="token string">"&lt;the server's npm package>"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
-      <span class="token property">"env"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-        <span class="token property">"API_KEY"</span><span class="token operator">:</span> <span class="token string">"your key here"</span>
-      <span class="token punctuation">}</span>
+      <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"-y"</span><span class="token punctuation">,</span> <span class="token string">"@modelcontextprotocol/server-everything"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token property">"env"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"DEMO_KEY"</span><span class="token operator">:</span> <span class="token string">"abc123"</span> <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></code></pre>
-<p>Claude Code reads <code>.mcp.json</code> at the start of a session, not while one is running. And a project scoped server needs a yes the first time Claude Code sees it: when we ran <code>claude mcp list</code> against the demo folder above, it showed <code>demo-docs</code> as pending approval rather than connected, which is the point. Approve a server because you’ve read what it does, not on reflex; a server’s own tool descriptions are text Claude reads, and a rogue change to them is exactly the kind of attack <a href="/blog/mcp-security-tool-poisoning/">this blog has covered before</a>.</p>
-<h2 id="do-mcp-servers-work-the-same-way-in-vs-code-or-the-desktop-app" tabindex="-1">Do MCP servers work the same way in VS Code or the desktop app? <a class="anchor" href="#do-mcp-servers-work-the-same-way-in-vs-code-or-the-desktop-app" aria-hidden="true">#</a></h2>
-<p>Mostly, with a different entry point. VS Code and the Claude Code desktop app each have their own place to add a server instead of a terminal command, and Claude Code on the web just reads whatever <code>.mcp.json</code> is already checked into the repository. The CLI steps above are for a terminal session. The desktop app and the CLI read the same <code>~/.claude.json</code> and <code>.mcp.json</code> files, although a server in the desktop app’s own <code>claude_desktop_config.json</code> wins when the names collide (checked 10 Sep 2026, <a href="https://code.claude.com/docs/en/desktop">Claude Code desktop docs</a>).</p>
-<h2 id="can-munder-difflin-grant-an-mcp-server-to-just-one-agent" tabindex="-1">Can Munder Difflin grant an MCP server to just one agent? <a class="anchor" href="#can-munder-difflin-grant-an-mcp-server-to-just-one-agent" aria-hidden="true">#</a></h2>
-<p>Yes. Since Munder Difflin 0.4.7, the Capabilities screen in the Pro workspace can turn a server on for one agent and
-off for another on the same floor, and servers that can write or hold secrets still need an explicit yes.</p>
-<p>That sits on top of Claude Code’s own setup, not instead of it. Each Claude Code agent in the office is a real
-<code>claude</code> session, so it still picks up the servers you added at user or project scope, as
-<a href="/blog/mcp-and-skills-in-a-hive/">an earlier post on MCP in a hive</a> explains. Capabilities is the extra dial for
-keeping a server away from one agent that could otherwise reach it.</p>
-<p>None of this needs Munder Difflin: <code>claude mcp add</code> is Claude Code’s own command and works the same in a bare
-terminal. A harness earns its place once several agents are running and only one of them should hold a given key.
-<a href="https://munderdiffl.in/download">Download Munder Difflin</a>; the classic office is free, and Capabilities comes with
-<a href="https://munderdiffl.in/#pricing">Pro</a>.</p>
+<p>For a hosted server use <code>&quot;type&quot;: &quot;http&quot;</code> and a <code>url</code>. Always set <code>type</code> on a URL entry: without it Claude Code treats the entry as stdio, skips it and says so. For secrets, commit <code>${API_KEY}</code> or <code>${API_KEY:-fallback}</code> rather than the key; expansion works in <code>command</code>, <code>args</code>, <code>env</code>, <code>url</code> and <code>headers</code>. Claude Code reads <code>.mcp.json</code> when a session starts, so restart after editing. Approve servers because you read what they do: tool descriptions are text Claude trusts, which is how <a href="/blog/mcp-security-tool-poisoning/">tool poisoning</a> works.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/how-to-add-an-mcp-server-to-claude-code/note-2.png" alt="Hand-drawn sketch from “How to Add an MCP Server to Claude Code”" loading="lazy" decoding="async" /></figure>
+<h2 id="how-do-you-sign-in-to-a-remote-mcp-server-with-oauth" tabindex="-1">How do you sign in to a remote MCP server with OAuth? <a class="anchor" href="#how-do-you-sign-in-to-a-remote-mcp-server-with-oauth" aria-hidden="true">#</a></h2>
+<p>Add the URL with no credentials, then authenticate from <code>/mcp</code> inside a session or <code>claude mcp login &lt;name&gt;</code> from the shell. Until then <code>claude mcp list</code> shows <code>! Needs authentication</code>, which is expected. <code>claude mcp login</code> arrived in 2.1.186 (22 Jun 2026) and has <code>--no-browser</code> for SSH sessions, where you paste the redirect URL back by hand.</p>
+<p>Servers without dynamic client registration take <code>--client-id</code>, <code>--client-secret</code> (it prompts with masked input, or reads <code>MCP_CLIENT_SECRET</code>) and <code>--callback-port</code>, which fixes the redirect to <code>http://localhost:PORT/callback</code>. These flags only apply to HTTP and SSE servers.</p>
+<h2 id="how-much-output-can-an-mcp-tool-return" tabindex="-1">How much output can an MCP tool return? <a class="anchor" href="#how-much-output-can-an-mcp-tool-return" aria-hidden="true">#</a></h2>
+<p>Claude Code warns when one tool result passes 10,000 tokens and cuts it at 25,000 by default. Raise the cap with <code>MAX_MCP_OUTPUT_TOKENS=50000 claude</code>; the warning threshold stays fixed. A server author can instead set <code>_meta[&quot;anthropic/maxResultSizeChars&quot;]</code> on a tool, up to 500,000 characters, for text results. Other variables worth knowing, all from the docs on 29 Sep 2026:</p>
+<ul>
+<li><code>MCP_TIMEOUT</code>: server startup timeout in milliseconds, default 30 seconds. Useful when <code>npx</code> is still downloading.</li>
+<li><code>ENABLE_TOOL_SEARCH</code>: tool search is on by default, so only tool names and server instructions load at start. <code>false</code> loads everything upfront.</li>
+<li><code>CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH</code>: tool descriptions and server instructions are cut at 2,048 characters unless you change this.</li>
+<li><code>&quot;alwaysLoad&quot;: true</code> on a server entry skips tool search for that server’s tools.</li>
+</ul>
+<h2 id="what-changed-for-mcp-in-claude-code-in-the-last-six-months" tabindex="-1">What changed for MCP in Claude Code in the last six months? <a class="anchor" href="#what-changed-for-mcp-in-claude-code-in-the-last-six-months" aria-hidden="true">#</a></h2>
+<p>Mostly connection status and sign in. From the <a href="https://code.claude.com/docs/en/changelog">Claude Code changelog</a>, checked 29 Sep 2026:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Version (date)</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1.284 (28 Sep 2026)</td>
+<td><code>/mcp reconnect all</code> retries every failed or unauthenticated server</td>
+</tr>
+<tr>
+<td>2.1.280 (22 Sep 2026)</td>
+<td><code>CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH</code></td>
+</tr>
+<tr>
+<td>2.1.274 (17 Sep 2026)</td>
+<td>v2 MCP client and 2026-07-28 protocol negotiation on Bedrock, Vertex and Foundry too</td>
+</tr>
+<tr>
+<td>2.1.265 (8 Sep 2026)</td>
+<td><code>http</code> servers that only speak HTTP+SSE now fall back to SSE</td>
+</tr>
+<tr>
+<td>2.1.259 (2 Sep 2026)</td>
+<td><code>managedMcpServers</code> lets an organisation provide servers to every user</td>
+</tr>
+<tr>
+<td>2.1.219 (24 Jul 2026)</td>
+<td><code>claude mcp list</code> shows the HTTP status and error text on a failure</td>
+</tr>
+<tr>
+<td>2.1.186 (22 Jun 2026)</td>
+<td><code>claude mcp login</code> and <code>claude mcp logout</code></td>
+</tr>
+<tr>
+<td>2.1.121 (28 Apr 2026)</td>
+<td><code>alwaysLoad</code> server option</td>
+</tr>
+<tr>
+<td>2.1.91 (2 Apr 2026)</td>
+<td><code>anthropic/maxResultSizeChars</code> per tool override</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="can-munder-difflin-set-up-mcp-servers-for-every-agent" tabindex="-1">Can Munder Difflin set up MCP servers for every agent? <a class="anchor" href="#can-munder-difflin-set-up-mcp-servers-for-every-agent" aria-hidden="true">#</a></h2>
+<p>Yes, for a default set. In the v0.5.3 release, Settings, Connections has a Default MCP servers list (<code>src/renderer/src/components/McpDefaultsSettings.tsx</code>). Six servers from the safe tier are on by default: Sequential Thinking, Time, Fetch, Context7, and Filesystem and Git limited to the agent’s own folder. GitHub, Database, Email &amp; Calendar and Web Search need a key and stay off until you turn them on (<code>src/shared/mcpCatalog.ts</code>).</p>
+<p>When an agent starts, <code>buildDefaultMcpServers</code> in <code>src/main/hive.ts</code> writes the enabled ones into that agent’s own session settings file as <code>munder-&lt;id&gt;</code> and passes it with <code>--settings</code>. It never edits your <code>~/.claude.json</code> or <code>.mcp.json</code>, and changes apply at the next spawn, not to running agents. The honest limit: in v0.5.3 that list is one switchboard for all agents, not a per-agent grant. Each agent is still a normal <code>claude</code> session, so your user and project servers load as usual. <a href="/blog/manage-multiple-claude-code-sessions/">Running several sessions at once</a> covers why the per session file matters.</p>
 
 
       
@@ -256,28 +403,28 @@ terminal. A harness earns its place once several agents are running and only one
         <h2 id="faq">FAQ</h2>
         
         <div class="qa">
-          <p class="q">What is an MCP server?</p>
-          <p class="a">A program that gives an agent tools or data it does not have built in, such as a database, an issue tracker or a browser, and exposes them over the Model Context Protocol. Claude Code is one of many MCP clients, so once a server is added, its tools sit alongside Claude Code&#39;s built in ones.</p>
+          <p class="q">How do I add an MCP server to Claude Code?</p>
+          <p class="a">Run claude mcp add from your terminal, not inside a session. For a hosted server use --transport http, a name and the URL. For a local server give a name, then the double dash separator, then the command that starts it. Check the result with claude mcp list.</p>
         </div>
         
         <div class="qa">
-          <p class="q">How do I add an MCP server to Claude Code from the command line?</p>
-          <p class="a">Run claude mcp add with a name you choose, then the command that starts the server after the separator Claude Code expects, or, for a hosted server, add a URL with the transport flag set to http. Run claude mcp list afterward to confirm it connected.</p>
+          <p class="q">Where is the Claude Code MCP config file?</p>
+          <p class="a">Local and user scoped servers live in ~/.claude.json: local ones under the entry for the project, user ones under the top level mcpServers key. Project scoped servers live in .mcp.json at the project root, which you commit. Claude Code does not read ~/.claude/mcp.json or ~/.claude/.mcp.json.</p>
         </div>
         
         <div class="qa">
-          <p class="q">What is the difference between local, project and user scope?</p>
-          <p class="a">Local scope, the default, is private to you and only active in the project where you added the server. Project scope writes the entry to a .mcp.json file you commit, so teammates who clone the project get the same server. User scope registers the server once for every project you open, still private to you.</p>
+          <p class="q">How do I add an MCP server to Claude Code globally?</p>
+          <p class="a">Add it with --scope user. It is then active in every project you open and stays private to you. A server&#39;s scope is fixed when you add it, so to move one you remove it and add it again at the new scope.</p>
         </div>
         
         <div class="qa">
-          <p class="q">How do I add an MCP server that needs an API key?</p>
-          <p class="a">Pass it with the -e flag when you add the server, for example -e API_KEY=xxx. A server that signs in through a browser instead, such as ones that use OAuth, is added with just its URL and authenticated afterward from inside a session with the /mcp command.</p>
+          <p class="q">Is the SSE transport still supported in Claude Code?</p>
+          <p class="a">It still works but is deprecated. The MCP specification replaced HTTP+SSE with Streamable HTTP in its 2025-03-26 revision, and Claude Code&#39;s docs say to use --transport http. Since Claude Code 2.1.265, an http entry falls back to SSE on its own when a server only speaks the old transport.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Does Munder Difflin let me control which agent gets which MCP server?</p>
-          <p class="a">Yes. Since Munder Difflin 0.4.7, the Capabilities screen in the Pro workspace can turn a server on for one agent and off for another, and servers that can write or hold secrets still need an explicit yes. Each Claude Code agent still picks up the servers you added at user or project scope, the same as any other claude session.</p>
+          <p class="q">Why does my MCP server show Pending approval?</p>
+          <p class="a">It comes from a project&#39;s .mcp.json and you have not approved it yet. Claude Code asks before it starts a server a cloned repository defines, so run claude in that folder and accept the prompt, or approve it later from /mcp.</p>
         </div>
         
       </section>
@@ -296,7 +443,7 @@ terminal. A harness earns its place once several agents are running and only one
     <aside class="toc-rail" aria-label="Table of contents">
       <div class="tt">On this page</div>
       <ol>
-        <li class="lvl-2"><a href="#what-is-an-mcp-server">What is an MCP server?</a></li><li class="lvl-2"><a href="#how-do-you-add-an-mcp-server-to-claude-code">How do you add an MCP server to Claude Code?</a></li><li class="lvl-2"><a href="#whats-the-difference-between-local-project-and-user-scope">What’s the difference between local, project and user scope?</a></li><li class="lvl-2"><a href="#how-do-you-add-a-server-that-needs-an-api-key">How do you add a server that needs an API key?</a></li><li class="lvl-2"><a href="#can-you-edit-mcpjson-directly-instead-of-using-the-cli">Can you edit .mcp.json directly instead of using the CLI?</a></li><li class="lvl-2"><a href="#do-mcp-servers-work-the-same-way-in-vs-code-or-the-desktop-app">Do MCP servers work the same way in VS Code or the desktop app?</a></li><li class="lvl-2"><a href="#can-munder-difflin-grant-an-mcp-server-to-just-one-agent">Can Munder Difflin grant an MCP server to just one agent?</a></li>
+        <li class="lvl-2"><a href="#claude-code-mcp-commands-at-a-glance">Claude Code MCP commands at a glance</a></li><li class="lvl-2"><a href="#how-do-you-add-an-mcp-server-to-claude-code">How do you add an MCP server to Claude Code?</a></li><li class="lvl-2"><a href="#which-transport-should-you-use-stdio-http-or-sse">Which transport should you use: stdio, HTTP or SSE?</a></li><li class="lvl-2"><a href="#where-does-claude-code-store-mcp-servers">Where does Claude Code store MCP servers?</a></li><li class="lvl-2"><a href="#how-do-you-pass-an-api-key-or-a-header">How do you pass an API key or a header?</a></li><li class="lvl-2"><a href="#how-do-you-edit-mcpjson-by-hand">How do you edit .mcp.json by hand?</a></li><li class="lvl-2"><a href="#how-do-you-sign-in-to-a-remote-mcp-server-with-oauth">How do you sign in to a remote MCP server with OAuth?</a></li><li class="lvl-2"><a href="#how-much-output-can-an-mcp-tool-return">How much output can an MCP tool return?</a></li><li class="lvl-2"><a href="#what-changed-for-mcp-in-claude-code-in-the-last-six-months">What changed for MCP in Claude Code in the last six months?</a></li><li class="lvl-2"><a href="#can-munder-difflin-set-up-mcp-servers-for-every-agent">Can Munder Difflin set up MCP servers for every agent?</a></li>
       </ol>
     </aside>
     
@@ -304,56 +451,56 @@ terminal. A harness earns its place once several agents are running and only one
 
   <footer class="post-foot wrap"><div class="prevnext">
       <a class="pn prev" href="/blog/launching-munder-difflin-v0-5-2/"><span class="k">← Older</span><span class="t">Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6</span></a>
-      <a class="pn next" href="/blog/how-much-does-claude-code-cost/"><span class="k">Newer →</span><span class="t">How Much Does Claude Code Cost?</span></a>
+      <a class="pn next" href="/blog/how-much-does-claude-code-cost/"><span class="k">Newer →</span><span class="t">Claude Code Pricing (Sep 2026): Every Plan, and Is It Free?</span></a>
     </div>
     <section class="related">
       <h2>Related in Guides</h2>
       <div class="post-grid">
         <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/build-your-personal-agi-on-your-computer/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/asd-ste100-prompting/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/asd-ste100-prompting/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-09-15">Sep 15, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>9 min</span>
-    </div>
-    <h3><a href="/blog/build-your-personal-agi-on-your-computer/">Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin</a></h3>
-    <p class="dek">Turn Claude Code into a personal AGI on your own computer: agents with memory, schedules, Gmail, Calendar, voice and Slack, set up in Munder Difflin 0.5.2.</p>
-    <div class="foot">
-      <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/build-your-personal-agi-on-your-computer/" aria-label="Read: Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/how-to-install-gemini-cli/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-install-gemini-cli/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-09-15">Sep 15, 2026</time>
+      <time datetime="2026-10-05">Oct 5, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/how-to-install-gemini-cli/">How to Install Gemini CLI, and Who Can Still Use It in 2026</a></h3>
-    <p class="dek">Install Google&#39;s Gemini CLI with npm on Mac, Windows or Linux, why Homebrew is stuck on 0.46.0, and which sign in still works after 18 Jun 2026.</p>
+    <h3><a href="/blog/asd-ste100-prompting/">ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers</a></h3>
+    <p class="dek">Ask your AI to answer in ASD-STE100, the aerospace manual standard, about 80% of the way. Plus Karpathy&#39;s three other tricks: diagrams, HTML and video.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-install-gemini-cli/" aria-label="Read: How to Install Gemini CLI, and Who Can Still Use It in 2026">Read →</a>
+      <a class="more" href="/blog/asd-ste100-prompting/" aria-label="Read: ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/claude-code-max-plan-tips/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-max-plan-tips/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/codex-pricing/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-pricing/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-09-14">Sep 14, 2026</time>
+      <time datetime="2026-10-05">Oct 5, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span><span class="pin">Pinned</span>
+      <span>5 min</span>
     </div>
-    <h3><a href="/blog/claude-code-max-plan-tips/">How to Get the Most Out of Your Claude Code Max Plan</a></h3>
-    <p class="dek">Stretch a Claude Code Max plan: model choice, context hygiene, prompt caching, subagents and unattended runs, checked against Anthropic&#39;s own pages.</p>
+    <h3><a href="/blog/codex-pricing/">Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)</a></h3>
+    <p class="dek">Codex pricing checked 5 Oct 2026: which ChatGPT plans include Codex, US prices from $0 to $500, how usage limits are counted, credits and API key rates.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/claude-code-max-plan-tips/" aria-label="Read: How to Get the Most Out of Your Claude Code Max Plan">Read →</a>
+      <a class="more" href="/blog/codex-pricing/" aria-label="Read: Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/how-to-use-claude-code/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-use-claude-code/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-05">Oct 5, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/how-to-use-claude-code/">How to Use Claude Code: Setup, First Task and the Commands That Matter</a></h3>
+    <p class="dek">How to use Claude Code, checked 5 Oct 2026: install it, sign in, run a first task, then the commands, shortcuts and habits a beginner needs.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/how-to-use-claude-code/" aria-label="Read: How to Use Claude Code: Setup, First Task and the Commands That Matter">Read →</a>
     </div>
   </div>
 </article>

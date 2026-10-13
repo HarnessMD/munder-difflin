@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hermes Agent: what it is, how to install it and what it costs — Munder Difflin Blog</title>
+<meta name="description" content="Hermes Agent is Nous Research&#39;s MIT licensed AI agent with memory, skills and chat channels. Install command, models, pricing and how it compares." />
+<link rel="canonical" href="https://munderdiffl.in/blog/what-is-hermes-agent/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Hermes Agent: what it is, how to install it and what it costs — Munder Difflin Blog" />
+<meta property="og:description" content="Hermes Agent is Nous Research&#39;s MIT licensed AI agent with memory, skills and chat channels. Install command, models, pricing and how it compares." />
+<meta property="og:url" content="https://munderdiffl.in/blog/what-is-hermes-agent/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/what-is-hermes-agent/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Hand drawn sketch: a yellow character asleep at a desk under a moon while two others keep working at terminals, labelled always on, remembers, and you sleep, it works" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-03T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="CLI Agents" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Hermes Agent: what it is, how to install it and what it costs — Munder Difflin Blog" />
+<meta name="twitter:description" content="Hermes Agent is Nous Research&#39;s MIT licensed AI agent with memory, skills and chat channels. Install command, models, pricing and how it compares." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/what-is-hermes-agent/hero.png" />
+<meta name="twitter:image:alt" content="Hand drawn sketch: a yellow character asleep at a desk under a moon while two others keep working at terminals, labelled always on, remembers, and you sleep, it works" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Hermes Agent: what it is, how to install it and what it costs",
+  "description": "Hermes Agent is Nous Research's MIT licensed AI agent with memory, skills and chat channels. Install command, models, pricing and how it compares.",
+  "image": ["https://munderdiffl.in/blog/assets/media/what-is-hermes-agent/hero.png"],
+  "datePublished": "2026-10-03T00:00:00.000Z",
+  "dateModified": "2026-10-03T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/what-is-hermes-agent/" },
+  "keywords": "hermes agent, what is hermes agent, hermes agent nous research, hermes agent vs openclaw, hermes agent install, is hermes agent free",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/what-is-hermes-agent/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Hermes Agent: what it is, how to install it and what it costs", "item": "https://munderdiffl.in/blog/what-is-hermes-agent/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Hermes Agent free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The code is MIT licensed and costs nothing to install. You pay for the model you connect: your own API key, a supported subscription, or a Nous Portal plan. Portal listed a Free tier limited to free models when we checked on 3 Oct 2026." } },
+    { "@type": "Question", "name": "Who makes Hermes Agent?", "acceptedAnswer": { "@type": "Answer", "text": "Nous Research. The repo is NousResearch/hermes-agent on GitHub and the README ends with the line Built by Nous Research. Docs live at hermes-agent.nousresearch.com." } },
+    { "@type": "Question", "name": "Does Hermes Agent support MCP?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The docs describe a catalog of MCP servers that Nous staff has reviewed, all disabled by default. Run `hermes mcp catalog` to list them and `hermes mcp install deepwiki` to add one by name, or pick from the interactive list with `hermes mcp`." } },
+    { "@type": "Question", "name": "Can I move from OpenClaw to Hermes Agent?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. `hermes claw migrate` imports your persona file, memories, skills, command allowlist, messaging settings and allowlisted API keys from `~/.openclaw`. Add `--dry-run` to preview the import first. The setup wizard also offers the migration when it finds that folder." } },
+    { "@type": "Question", "name": "Does Hermes Agent run on Windows?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The README says native Windows is fully supported through a PowerShell installer, with no WSL needed. A desktop package exists for Windows and for macOS, and the platform docs say the macOS builds cover both Apple Silicon and Intel." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>Hermes Agent: what it is, how to install it and what it costs</h1>
+    <p class="dek">Hermes Agent is Nous Research&#39;s MIT licensed AI agent with memory, skills and chat channels. Install command, models, pricing and how it compares.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-03">Oct 3, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/what-is-hermes-agent/hero.png" alt="Hand drawn sketch: a yellow character asleep at a desk under a moon while two others keep working at terminals, labelled always on, remembers, and you sleep, it works" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Hermes Agent is a free, MIT licensed AI agent from Nous Research. It runs on your computer or a server, keeps memory between sessions, writes its own skills, and answers from a terminal or from Telegram, Slack and Discord. Verdict: pick it for an always on personal agent, not as a replacement for your coding CLI. Checked 3 Oct 2026.</p>
+<p>Hermes is one agent that lives on a server. If you want a team of coding agents on your desk instead, that is <a href="https://harnessmd.com/download">Munder Difflin</a>, free and open source: a desktop office for coding CLIs such as Claude Code and Codex. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup. Our <a href="/blog/open-source-ai-agents/">open source AI agents</a> list covers the wider field.</p>
+<h2 id="what-is-hermes-agent" tabindex="-1">What is Hermes Agent? <a class="anchor" href="#what-is-hermes-agent" aria-hidden="true">#</a></h2>
+<p>Hermes Agent is a general purpose agent with a learning loop built in. The <a href="https://github.com/NousResearch/hermes-agent">README</a> says it “creates skills from experience, improves them during use, nudges itself to persist knowledge, searches its own past conversations”. In practice that is three pieces: a memory it edits itself, a skills folder it writes to, and a search index over old sessions.</p>
+<p>It has two entry points. <code>hermes</code> opens a terminal UI. <code>hermes gateway</code> starts one background process that connects your chat apps, so you can message the agent from your phone while it works on a cloud VM. There is also a desktop app: the install docs list a signed MSIX bundle for Windows and a DMG for macOS. The DMG installer is Apple Silicon only; on an Intel Mac, install the CLI and run <code>hermes desktop</code>.</p>
+<h2 id="how-do-i-install-hermes-agent" tabindex="-1">How do I install Hermes Agent? <a class="anchor" href="#how-do-i-install-hermes-agent" aria-hidden="true">#</a></h2>
+<p>Run one line, reload your shell, then type <code>hermes</code>. These are the commands from the README, checked 3 Oct 2026:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux, macOS, WSL2</td>
+<td><code>curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash</code></td>
+</tr>
+<tr>
+<td>Windows (PowerShell)</td>
+<td><code>iex (irm https://hermes-agent.nousresearch.com/install.ps1)</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>After that, <code>hermes model</code> picks a provider, <code>hermes setup</code> runs the full wizard and <code>hermes doctor</code> diagnoses a broken install. If you installed the command line version and want the app later, the <a href="https://hermes-agent.nousresearch.com/docs/getting-started/installation">install docs</a> say to run <code>hermes desktop</code>. Android has its own Termux package, so skip the script there.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/what-is-hermes-agent/note-1.png" alt="Hand drawn sketch: a yellow character asleep at a desk while a terminal window keeps running" loading="lazy" decoding="async" /></figure>
+<h2 id="which-models-does-hermes-agent-support" tabindex="-1">Which models does Hermes Agent support? <a class="anchor" href="#which-models-does-hermes-agent-support" aria-hidden="true">#</a></h2>
+<p>Almost any, hosted or local. The <a href="https://hermes-agent.nousresearch.com/docs/integrations/providers">providers page</a> lists Nous Portal, OpenRouter, Anthropic, OpenAI, Google Gemini, xAI, DeepSeek, GitHub Copilot, AWS Bedrock, Hugging Face, LM Studio, Ollama Cloud and a custom endpoint option for anything you host yourself, among many others. Switch with <code>hermes model</code> in the shell or <code>/model</code> inside a chat.</p>
+<p>One trap, from the same page: signing in with a Claude subscription only works on a Max plan with extra usage credits bought on top, and Hermes spends those credits, not your included allowance. Claude Pro cannot use that path at all. Use an <code>ANTHROPIC_API_KEY</code> instead.</p>
+<h2 id="what-does-hermes-agent-do-that-a-coding-cli-does-not" tabindex="-1">What does Hermes Agent do that a coding CLI does not? <a class="anchor" href="#what-does-hermes-agent-do-that-a-coding-cli-does-not" aria-hidden="true">#</a></h2>
+<p>It stays running and it remembers. A coding CLI starts when you open a terminal in a repo and stops when you close it. Going by the docs, Hermes adds:</p>
+<ul>
+<li><strong>Memory.</strong> Two files in <code>~/.hermes/memories/</code>: <code>MEMORY.md</code> for the agent’s notes (2,200 characters) and <code>USER.md</code> for your profile (1,375 characters). Both load at the start of every session. Your whole profile gets less room than most conference bios.</li>
+<li><strong>Skills.</strong> The agent writes new skills to <code>~/.hermes/skills/</code> after complex tasks and patches them as it uses them.</li>
+<li><strong>Channels.</strong> The gateway docs list Telegram, Discord, Slack, WhatsApp, Signal, SMS, email, Matrix, Microsoft Teams and more.</li>
+<li><strong>Schedules.</strong> A cron scheduler runs jobs unattended and delivers the result to any connected platform.</li>
+<li><strong>Places to run.</strong> Seven terminal backends: local, Docker, SSH, Singularity, Modal, Daytona and Vercel Sandbox.</li>
+<li><strong>MCP catalog.</strong> <code>hermes mcp install &lt;name&gt;</code> adds a reviewed server by name.</li>
+</ul>
+<figure class="fig fig-inline"><img src="/blog/assets/media/what-is-hermes-agent/note-2.png" alt="Hand drawn sketch: a moon and a clock" loading="lazy" decoding="async" /></figure>
+<h2 id="is-hermes-agent-free" tabindex="-1">Is Hermes Agent free? <a class="anchor" href="#is-hermes-agent-free" aria-hidden="true">#</a></h2>
+<p>Yes, the software is free and MIT licensed. What you pay for is the model. Bring your own key and you pay that provider. Or use Nous Portal, which puts 300+ models and hosted tools (web search, image generation, speech, a cloud browser) under one login. <a href="https://portal.nousresearch.com/">Portal</a> listed these plans on 3 Oct 2026:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Price</th>
+<th>Monthly credits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free</td>
+<td>$0</td>
+<td>$0, free models only</td>
+</tr>
+<tr>
+<td>Plus</td>
+<td>$20 per month</td>
+<td>$22</td>
+</tr>
+<tr>
+<td>Super</td>
+<td>$100 per month</td>
+<td>$110</td>
+</tr>
+<tr>
+<td>Ultra</td>
+<td>$200 per month</td>
+<td>$220</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The same page says tools and Hermes Cloud hosting are charged separately. None of it is required: <code>hermes setup --portal</code> is a shortcut, not a gate.</p>
+<h2 id="what-is-the-latest-hermes-agent-release" tabindex="-1">What is the latest Hermes Agent release? <a class="anchor" href="#what-is-the-latest-hermes-agent-release" aria-hidden="true">#</a></h2>
+<p>It is v0.21.5, tagged v2026.9.24 and published on 24 Sep 2026. We asked the GitHub API on 3 Oct 2026:</p>
+<pre><code>$ gh api repos/NousResearch/hermes-agent/releases/latest \
+    --jq '.tag_name + &quot; | &quot; + .name + &quot; | &quot; + .published_at + &quot; | &quot; + (.assets | length | tostring) + &quot; assets&quot;'
+v2026.9.24 | Hermes Agent v0.21.5 (v2026.9.24) | 2026-09-24T10:09:38Z | 0 assets
+
+$ gh api repos/NousResearch/hermes-agent \
+    --jq '.license.spdx_id + &quot; &quot; + (.stargazers_count | tostring) + &quot; stars&quot;'
+MIT 250874 stars
+</code></pre>
+<p>Zero assets is expected: the installer pulls from git, so the release is a tag and notes, with no binaries attached. Releases use a date tag and a version name, and the list shows five in September alone. The <a href="https://github.com/NousResearch/hermes-agent/releases/tag/v2026.9.24">v0.21.5 notes</a> call it a patch release rolling up about 460 merged pull requests since v0.21.4, and defer the full write up to v0.22.0.</p>
+<h2 id="hermes-agent-vs-openclaw-munder-difflin-claude-code-and-pi-which-should-you-use" tabindex="-1">Hermes Agent vs OpenClaw, Munder Difflin, Claude Code and Pi: which should you use? <a class="anchor" href="#hermes-agent-vs-openclaw-munder-difflin-claude-code-and-pi-which-should-you-use" aria-hidden="true">#</a></h2>
+<p>Hermes or OpenClaw if you want a personal assistant in your chat apps, the other three if the job is code. Our <a href="/blog/openclaw-alternatives/">OpenClaw alternatives</a> list has more picks. Head to head: <a href="/blog/hermes-agent-vs-openclaw/">Hermes Agent vs OpenClaw</a>. Licences and releases read from each repo through <code>gh api</code> on 3 Oct 2026, dates in UTC:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Licence</th>
+<th>Where it runs</th>
+<th>What it is for</th>
+<th>Latest release</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hermes Agent</td>
+<td>MIT</td>
+<td>Your computer, a VPS or serverless</td>
+<td>An always on agent that learns</td>
+<td>v0.21.5, 24 Sep 2026</td>
+</tr>
+<tr>
+<td>Munder Difflin</td>
+<td>MIT, free and open source</td>
+<td>Your desktop</td>
+<td>An office for a team of coding CLIs</td>
+<td>0.5.5, 1 Oct 2026</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>MIT</td>
+<td>Your own devices</td>
+<td>A personal assistant in your chats</td>
+<td>2026.9.8, 3 Oct 2026</td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td>Proprietary</td>
+<td>Your terminal</td>
+<td>Anthropic’s coding agent</td>
+<td>2.1.288, 2 Oct 2026</td>
+</tr>
+<tr>
+<td>Pi</td>
+<td>MIT</td>
+<td>Your terminal</td>
+<td>A minimal coding agent you extend</td>
+<td>1.0.0, 1 Oct 2026</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Pick Hermes Agent if</strong> you want memory and skills that grow, and a server to keep it on.</p>
+<p><strong>Pick Munder Difflin if</strong> the work is a codebase and you want several coding agents side by side on your own machine.</p>
+<p><strong>Pick OpenClaw if</strong> you want the larger project. It had 391,210 stars at the same check, and its README lists native apps for macOS, iOS, Android, Windows and Linux. Switching later is cheap, since <code>hermes claw migrate</code> imports an OpenClaw setup.</p>
+<p><strong>Pick Claude Code or Pi if</strong> you want one coding agent in one terminal. Our <a href="/blog/what-is-pi-agent/">what is Pi agent</a> explainer covers the second.</p>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is Hermes Agent free?</p>
+          <p class="a">Yes. The code is MIT licensed and costs nothing to install. You pay for the model you connect: your own API key, a supported subscription, or a Nous Portal plan. Portal listed a Free tier limited to free models when we checked on 3 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Who makes Hermes Agent?</p>
+          <p class="a">Nous Research. The repo is NousResearch/hermes-agent on GitHub and the README ends with the line Built by Nous Research. Docs live at hermes-agent.nousresearch.com.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does Hermes Agent support MCP?</p>
+          <p class="a">Yes. The docs describe a catalog of MCP servers that Nous staff has reviewed, all disabled by default. Run `hermes mcp catalog` to list them and `hermes mcp install deepwiki` to add one by name, or pick from the interactive list with `hermes mcp`.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can I move from OpenClaw to Hermes Agent?</p>
+          <p class="a">Yes. `hermes claw migrate` imports your persona file, memories, skills, command allowlist, messaging settings and allowlisted API keys from `~/.openclaw`. Add `--dry-run` to preview the import first. The setup wizard also offers the migration when it finds that folder.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does Hermes Agent run on Windows?</p>
+          <p class="a">Yes. The README says native Windows is fully supported through a PowerShell installer, with no WSL needed. A desktop package exists for Windows and for macOS, and the platform docs say the macOS builds cover both Apple Silicon and Intel.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/cli-agents/">CLI Agents</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-hermes-agent">What is Hermes Agent?</a></li><li class="lvl-2"><a href="#how-do-i-install-hermes-agent">How do I install Hermes Agent?</a></li><li class="lvl-2"><a href="#which-models-does-hermes-agent-support">Which models does Hermes Agent support?</a></li><li class="lvl-2"><a href="#what-does-hermes-agent-do-that-a-coding-cli-does-not">What does Hermes Agent do that a coding CLI does not?</a></li><li class="lvl-2"><a href="#is-hermes-agent-free">Is Hermes Agent free?</a></li><li class="lvl-2"><a href="#what-is-the-latest-hermes-agent-release">What is the latest Hermes Agent release?</a></li><li class="lvl-2"><a href="#hermes-agent-vs-openclaw-munder-difflin-claude-code-and-pi-which-should-you-use">Hermes Agent vs OpenClaw, Munder Difflin, Claude Code and Pi: which should you use?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/what-is-codex/"><span class="k">← Older</span><span class="t">What Is Codex? OpenAI&#39;s Coding Agent in the CLI, App and Cloud</span></a>
+      <a class="pn next" href="/blog/what-is-gemini-spark/"><span class="k">Newer →</span><span class="t">Gemini Spark: what it is, what it costs and who can get it</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/muse-wonder/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/muse-wonder/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/muse-wonder/">Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores</a></h3>
+    <p class="dek">Meta&#39;s Muse Wonder and Muse Wonder Full: API price, Muse Code plans, context window and Meta&#39;s own coding scores, checked 13 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/muse-wonder/" aria-label="Read: Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/claude-code-routines/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-routines/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-12">Oct 12, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-routines/">Claude routines: what they are, triggers, cost and limits</a></h3>
+    <p class="dek">Claude routines run a saved Claude Code prompt in the cloud on a schedule, an API call or a GitHub event. Plans, steps and limits, checked 12 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/claude-code-routines/" aria-label="Read: Claude routines: what they are, triggers, cost and limits">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/claude-code-projects/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-projects/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-11">Oct 11, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-projects/">Claude Code Projects: what they are and who can use them</a></h3>
+    <p class="dek">Claude Code Projects, checked 11 Oct 2026: a public beta on Pro and Max where Claude runs your tasks as parallel threads. Access, limits and plan use.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/claude-code-projects/" aria-label="Read: Claude Code Projects: what they are and who can use them">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      if (!id) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

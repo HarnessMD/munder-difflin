@@ -152,4 +152,11 @@ const SPEC = {
   "how-to-install-gemini-cli": { a: "terminal", blue: "npm install -g @google/gemini-cli", amber: "gemini --version", orange: "install, then check who google still serves" },
   "aider-vs-claude-code": { a: "versus", blue: "aider", blue2: "claude code", orange: "you pick the files or it does" },
   "is-ollama-good-for-coding": { a: "stack", blue: "model size vs memory", orange: "good enough for the small jobs" },
+  "what-is-opencode": { a: "wire", blue: "75+ providers, local too", orange: "one agent, any model" },
+  "what-is-hermes-agent": { a: "night", blue: "always on, remembers", orange: "you sleep, it works" },
+  "what-is-pi-agent": { a: "terminal", blue: "small core, your extensions", orange: "pi 1.0, MIT" },
+  "what-is-codex": { a: "stack", blue: "CLI, app, cloud", orange: "one agent, three places" },
+  "what-is-gemini-spark": { a: "spotlight", blue: "works from your google apps", orange: "an agent inside gemini" },
+  "what-is-claude-cowork": { a: "kanban", blue: "hand over the whole task", orange: "claude, beyond chat" },
+  "codex-pricing": { a: "ledger", blue: "plan, limits, API", orange: "what codex really costs" },
 };

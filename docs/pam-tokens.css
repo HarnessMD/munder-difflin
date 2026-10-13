@@ -1,0 +1,326 @@
+/* ============================================================================
+   Munder Difflin — Professional skin tokens
+   Pam (pam-mt6kt8lf) · conv-teams-build · 2026-08-29
+
+   Source of truth: DESIGN-PROFESSIONAL.md sections 4, 5, 6, 9.
+   Token NAMES mirror src/renderer/src/design/tokens.css exactly. This file
+   swaps VALUES only. If a name here does not exist in the shipped file it is
+   in the ADDITIONS block at the bottom and it is labelled as such.
+
+   CASCADE, AND IT IS LOAD BEARING
+   The shipped file is structured light first: bare `:root` carries the light
+   values and `:root[data-cth-theme='dark']` overrides them. This file follows
+   the same shape, so:
+
+     :root[data-cth-skin='professional']                            = light
+     :root[data-cth-skin='professional'][data-cth-theme='dark']     = dark
+
+   `:root[data-cth-skin='professional']` and the shipped
+   `:root[data-cth-theme='dark']` have IDENTICAL specificity (0,2,0). Source
+   order decides between them. THIS FILE MUST BE IMPORTED AFTER tokens.css or
+   the Office dark values will beat the Professional light values whenever a
+   user is on the professional skin in light mode. See CONSUMING.md.
+   ========================================================================= */
+
+
+/* ── Professional LIGHT ─────────────────────────────────────────────────────
+   Section 4.2. This is the base for the skin because the shipped file is
+   light first, not because light is the primary look. Dark is primary. */
+:root[data-cth-skin='professional'] {
+
+  /* Base surfaces */
+  --cth-cream-50:  #FFFFFF;   /* app ground */
+  --cth-cream-100: #FAFAFA;   /* default panel fill, node cards */
+  --cth-cream-200: #F4F4F5;   /* inset, alternate row, active rail row, glyph tile */
+  --cth-cream-300: #E9E9EB;   /* disabled fill */
+  --cth-paper-100: #FCFCFC;   /* terminal ground, navigation rail ground */
+  --cth-paper-200: #F7F7F8;   /* raised block inside a pane */
+
+  /* Ink */
+  --cth-ink-900: #09090B;     /* primary text and headings */
+  --cth-ink-700: #52525B;     /* body and secondary */
+  --cth-ink-500: #71717A;     /* tertiary, hints, timestamps, model names */
+  --cth-ink-300: #E4E4E7;     /* BORDERS. every panel, input, chip, rail edge */
+  --cth-ink-100: #F1F1F3;     /* dividers, meant to recede */
+
+  /* Accents.
+     SPEC GAP, filled here. Professional has no accent palette of its own.
+     The `-light` pairs become a 12 percent tint of the same hue over the panel
+     fill, which is precisely the tinted pill treatment in section 6.4. That
+     turns every existing accent tinted surface into a compliant tint without
+     touching one component.
+
+     ACCENTS AND PROJECT IDENTITY ARE DIFFERENT FAMILIES and are deliberately
+     NOT the same six values (god's ruling, 2026-08-29). Five accents happen to
+     carry a project hue because the hues genuinely match. `lemon` does not:
+     the project set contains no yellow, and mapping lemon onto the set's green
+     would invert its meaning at 30 call sites and leave the palette carrying
+     two greens. Lemon stays yellow. The project hues live in their own
+     --cth-project-* tokens at the bottom of this block. */
+  --cth-coral: #E060A8;       --cth-coral-light: #F7E8F0;
+  --cth-sky:   #4F9FD9;       --cth-sky-light:   #E6EFF6;
+  --cth-lemon: #E8D34A;       --cth-lemon-light: #F8F5E5;   /* stays YELLOW. not a project hue */
+  --cth-lilac: #9482D3;       --cth-lilac-light: #EEECF5;   /* identical to the Office value */
+  --cth-peach: #E0803A;       --cth-peach-light: #F4E9E0;
+  --cth-mint:  #5CA97A;       --cth-mint-light:  #E7F0EB;   /* identical to the Office value */
+
+  /* Status. Section 4.3, light column. */
+  --cth-status-idle:       #A1A1AA;
+  --cth-status-thinking:   #3B82C4;
+  --cth-status-working:    #C08A2E;
+  --cth-status-waiting:    #5A6FCC;
+  --cth-status-blocked:    #CC463E;
+  --cth-status-success:    #16A34A;
+  --cth-status-ghost:      #D4D4D8;
+  --cth-status-looping:    #CC6A24;
+  --cth-status-compacting: #8B6BC4;
+  /* SPEC GAP. `typing` ships in the app and is absent from the section 4.3
+     table. Left unset it inherits the Office gold into this skin. In Office
+     it sits one step under `working` and I have kept that relationship. */
+  --cth-status-typing:     #AD7B28;
+
+  /* Type.
+     Section 5. The one change that does most of the work is display: there is
+     no separate display face in this skin, so the Press Start 2P stack is
+     replaced by the UI stack. Everything is a step smaller than Office and
+     that is deliberate, this skin is for density. */
+  --cth-font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI Historic", sans-serif;
+  /* --cth-font-ui and --cth-font-mono are unchanged from the shipped file. */
+
+  --cth-text-display-lg: 24px;   /* screen title,     600, -0.02em */
+  --cth-text-display-md: 15px;   /* section heading,  600, -0.01em */
+  --cth-text-display-sm: 11px;   /* panel and rail label, 500, uppercase, MONO */
+  --cth-text-body-lg:    15px;
+  --cth-text-body-md:    14px;   /* row title, 500, -0.01em */
+  --cth-text-body-sm:    13px;   /* body, 400 */
+  --cth-text-mono-md:    12px;   /* mono data */
+  --cth-text-mono-sm:    11px;   /* small mono */
+
+  --cth-lh-display-lg: 30px;
+  --cth-lh-display-md: 20px;
+  --cth-lh-display-sm: 14px;
+  --cth-lh-body-lg:    20px;
+  --cth-lh-body-md:    20px;
+  --cth-lh-body-sm:    18px;
+  --cth-lh-mono:       18px;
+
+  /* Shadow. Section 6.3: no shadows anywhere except floating overlays.
+     The NAME still says hard because renaming breaks components. The VALUE
+     is now the soft overlay shadow and there is no hard shadow in this skin.
+     Anything that is not an overlay should stop using it. */
+  --cth-shadow-hard: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  /* Borders. The four panel border tokens are defined in the shipped file as
+     inset shadows over var(--cth-ink-300) and var(--cth-ink-100), so three of
+     the four follow the ink swap above with no work. The dialog border is the
+     exception: it points at ink-500, and section 6.3 says borders are ALWAYS
+     ink-300 with one border per edge. Repointed. */
+  --cth-panel-border-dialog: inset 0 0 0 1px var(--cth-ink-300);
+
+  /* Text sitting on an accent fill. In Office the accent `-light` fills were
+     light surfaces in BOTH themes, so this was pinned dark in both. Here the
+     tints follow the ground, so this must follow the theme instead. */
+  --cth-on-accent: #09090B;
+
+  /* Spacing is UNCHANGED. The scale is already 4 8 12 16 24 32 48 64, which is
+     the scale section 6.3 asks for, so no layout code moves between skins. */
+
+  /* ── ADDITIONS ────────────────────────────────────────────────────────────
+     These names do NOT exist in the shipped file. Nothing breaks by adding
+     them, but a component that uses one will fall back in the Office skin, so
+     always read them with a fallback: var(--cth-radius-md, 2px).
+     They exist because the spec mandates values that the shipped token set has
+     no slot for at all. */
+
+  /* Radius, section 6.1. There are no radius tokens in the app today and 19
+     hardcoded call sites, 13 of them the same 2px. That is why the corner
+     scale is component work rather than a token swap, and it is a small,
+     bounded job rather than a scary one. Never 0, never 4. */
+  --cth-radius-sm:   6px;    /* small chips and tags */
+  --cth-radius-md:   8px;    /* buttons, inputs, glyph tiles, zoom controls */
+  --cth-radius-lg:  10px;    /* node cards, list cards */
+  --cth-radius-xl:  12px;    /* panels, modals, large containers */
+  --cth-radius-pill: 999px;  /* status and count pills ONLY, never a button */
+
+  /* Focus, section 6.3. 2px ring in the thinking hue at 40 percent, offset
+     2px, never removed. Use as
+       outline: 2px solid var(--cth-focus-ring); outline-offset: 2px; */
+  --cth-focus-ring: rgba(59, 130, 196, 0.4);
+
+  /* The 12 percent status tints for tinted pills, section 6.4. Plain CSS
+     cannot compute a percentage of a hex, so the values are precomputed over
+     the panel fill. Label goes in the full strength hue on top. */
+  --cth-status-idle-tint:       #EFEFF0;
+  --cth-status-thinking-tint:   #E3ECF4;
+  --cth-status-working-tint:    #F3EDE2;
+  --cth-status-waiting-tint:    #E7E9F4;
+  --cth-status-blocked-tint:    #F4E4E3;
+  --cth-status-success-tint:    #DFF0E5;
+  --cth-status-ghost-tint:      #F5F5F6;
+  --cth-status-looping-tint:    #F4E9E0;
+  --cth-status-compacting-tint: #EDE9F4;
+  --cth-status-typing-tint:     #F1EBE1;
+
+
+  /* Controls, section 3 principle 1: BORDERS CARRY STRUCTURE, FILLS CARRY
+     INTERACTIVITY. ADDITIONS, and the reason they exist:
+     ink-300 measures 1.38:1 against the dark ground and 1.27:1 against light,
+     so a resting control defined only by a 1px border has essentially no edge.
+     Every resting control therefore takes a fill step, and the border goes back
+     to being structure. A primary button is NEVER white.
+     The ladder: primary sits one rung above secondary at the same interaction
+     state, so the hierarchy is carried by fill depth rather than by colour.
+       primary    rest control-hover  hover control-press   press control-strong
+       secondary  rest control-rest   hover control-hover   press control-press
+       toolbar    rest NO CHROME      hover control-rest    press control-hover
+       disabled   control-rest fill with ink-500 text
+     The toolbar action keeps no chrome at rest deliberately. It has no border
+     either, so it never had the invisible edge problem this fixes. */
+  --cth-control-quiet:   #FAFAFA;
+  --cth-control-base:  #F0F0F2;
+  --cth-control-raised:  #E6E6E9;
+  --cth-control-strong: #DCDCE0;
+
+  /* The active navigation row. A dedicated token rather than lifting cream-200,
+     which also drives insets, glyph tiles and alternating table rows and would
+     make all three shout. Reference measures #2B2B2B on a #080808 rail; the
+     spec's cream-200 was a lift of 11 points against the reference's 35. */
+  --cth-surface-active: #E8E8EB;
+
+  /* Project identity, section 4.4. ADDITION: the shipped set has no project
+     tokens, and these can no longer ride on the accents now that the two
+     families are separate. Fixed six, cycled in order, and they appear ONLY on
+     a project row, never on an agent. Mode independent, as section 4.4 gives
+     one list. */
+  --cth-project-1: #E060A8;   /* pink */
+  --cth-project-2: #4F9FD9;   /* blue */
+  --cth-project-3: #4ADE80;   /* green */
+  --cth-project-4: #9482D3;   /* purple */
+  --cth-project-5: #E0803A;   /* orange */
+  --cth-project-6: #3FB8C4;   /* teal. was #5CA97A, which read as a second green beside project-3 */
+
+  /* Connectors on the org chart. ADDITION, ruled 2026-08-29.
+     Section 10 said ink-100; the reference measures ~#282828, which is ink-300;
+     and neither is enough, because a control has a fill to fall back on and a
+     CONNECTOR HAS NOTHING, it IS the line. So it takes its own value one step
+     above ink-300. TWO steps, measured, not the one the spec first asserted.
+     Deliberately NOT held to the 3.0 structural floor. The hierarchy is carried
+     by layout, rows, columns and grid pitch, and the connector CONFIRMS a
+     relationship the position has already stated. A border delimiting a region
+     has no such backup and is held to the floor; this is not that.
+     Picked by rendering the real tree at 100 percent AND at 49 percent, which
+     is where the eighteen agent canvas sits at Fit and a 1px line is least
+     forgiving. A value that only works at the zoom you designed at is not a
+     value.
+     THE CEILING IS THE CARD BORDER, NOT A CONTRAST TARGET. One step brighter
+     reads fine and the connectors begin to out-shout the node borders they
+     join, which inverts what the drawing is about. Generalised in section 10:
+     anywhere a line exists to relate two bordered things it must not become
+     louder than the borders it relates, however much contrast is available. */
+  --cth-connector: #CACAD0;   /* 1.63:1 on the light canvas, against ink-300 at 1.27 */
+
+  /* Revision stamp. Read it with
+       getComputedStyle(document.documentElement).getPropertyValue('--cth-kit-version')
+     so a consumer can assert which revision it actually holds. Added because
+     Kevin took this file at 14:52 and I changed it at 14:57, and he nearly
+     filed a false bug against CONSUMING.md for naming a token his paste did not
+     have. A shared contract file needs a version a consumer can check. */
+  --cth-kit-version: "2026-08-29.4";
+
+  /* Brand, for the app mark only. ADDITION, and it needs a ruling.
+     The rail spec asks for "a 40px app mark in the one brand colour" while the
+     colour rule permits colour for exactly three things and the app mark is not
+     one of them. The reference product colours its mark in every shot, so the
+     mark is real and the rule needs a fourth clause. Value borrowed from the
+     palette pending a brand decision; it is named separately so that decision
+     changes one line and not two rails. */
+  --cth-brand: #E0803A;
+
+  /* Secondary text, 12/16. The shipped scale jumps 13 to 14 and has no 12px
+     slot, and 12px secondary is one of the most used roles in section 5. */
+  --cth-text-secondary: 12px;
+  --cth-lh-secondary:   16px;
+
+  /* Tracking. Section 5 puts these on specific roles and there is no token. */
+  --cth-track-title:  -0.02em;   /* screen title, numeral display */
+  --cth-track-row:    -0.01em;   /* section heading, row title */
+  --cth-track-label:   0.08em;   /* panel label */
+  --cth-track-rail:    0.10em;   /* rail section label, the only uppercase in the rail */
+}
+
+
+/* ── Professional DARK, the primary look ────────────────────────────────────
+   Section 4.1. The ground is near black but not black, same reasoning as the
+   existing dark theme. ink-300 is the structural border and it carries the
+   entire layout. Keep it perceivable. */
+:root[data-cth-skin='professional'][data-cth-theme='dark'] {
+
+  /* Base surfaces */
+  --cth-cream-50:  #0A0A0A;   /* app ground */
+  --cth-cream-100: #141414;   /* default panel fill, node cards */
+  --cth-cream-200: #1A1A1A;   /* inset, alternate row, active rail row, glyph tile */
+  --cth-cream-300: #232323;   /* disabled fill */
+  --cth-paper-100: #0F0F0F;   /* terminal ground, navigation rail ground */
+  --cth-paper-200: #161616;   /* raised block inside a pane */
+
+  /* Ink */
+  --cth-ink-900: #FFFFFF;
+  --cth-ink-700: #9A9A9A;
+  --cth-ink-500: #6B6B6B;
+  --cth-ink-300: #2A2A2A;     /* BORDERS */
+  --cth-ink-100: #1C1C1C;     /* dividers */
+
+  /* Accents as project hues. The six hues are fixed and do not vary by mode,
+     which is section 4.4 as written: one list, no dark column. Only the
+     tints move, because a tint is a mix with the ground. */
+  --cth-coral: #E060A8;       --cth-coral-light: #2C1D26;
+  --cth-sky:   #4F9FD9;       --cth-sky-light:   #1B252C;
+  --cth-lemon: #E8D34A;       --cth-lemon-light: #2D2B1A;
+  --cth-lilac: #9482D3;       --cth-lilac-light: #23212B;
+  --cth-peach: #E0803A;       --cth-peach-light: #2C2119;
+  --cth-mint:  #5CA97A;       --cth-mint-light:  #1D2620;
+
+  /* Status, section 4.3 dark column. */
+  --cth-status-idle:       #6B6B6B;
+  --cth-status-thinking:   #5B9DD9;
+  --cth-status-working:    #D9A441;
+  --cth-status-waiting:    #7C8FE0;
+  --cth-status-blocked:    #E05A52;
+  --cth-status-success:    #4ADE80;
+  --cth-status-ghost:      #2A2A2A;
+  --cth-status-looping:    #E0803A;
+  --cth-status-compacting: #A78BE0;
+  --cth-status-typing:     #C79A3E;   /* SPEC GAP, see the light block */
+
+  /* Type is mode independent. The sizes, line heights and the display face
+     are inherited from the block above and are not repeated here. */
+
+  --cth-shadow-hard: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --cth-panel-border-dialog: inset 0 0 0 1px var(--cth-ink-300);
+  --cth-on-accent: #FFFFFF;
+
+  /* Controls and the active row, dark. See the light block for the ladder. */
+  --cth-control-quiet:   #141414;
+  --cth-control-base:  #1E1E1E;
+  --cth-control-raised:  #262626;
+  --cth-control-strong: #2E2E2E;
+  --cth-surface-active: #2B2B2B;
+  --cth-connector:      #444444;   /* 2.03:1 on the dark canvas, against ink-300 at 1.38 */
+
+  /* ── ADDITIONS, dark values ──────────────────────────────────────────── */
+  --cth-focus-ring: rgba(91, 157, 217, 0.4);
+
+  --cth-status-idle-tint:       #1E1E1E;
+  --cth-status-thinking-tint:   #1D242C;
+  --cth-status-working-tint:    #2C2519;
+  --cth-status-waiting-tint:    #20232C;
+  --cth-status-blocked-tint:    #2C1C1B;
+  --cth-status-success-tint:    #1A2C21;
+  --cth-status-ghost-tint:      #171717;
+  --cth-status-looping-tint:    #2C2119;
+  --cth-status-compacting-tint: #26222C;
+  --cth-status-typing-tint:     #292419;
+
+  /* Radius, focus offset, tracking and the 12px secondary slot are mode
+     independent and inherited from the block above. */
+}

@@ -53,6 +53,19 @@ type McpDefaultsMap = { [id: string]: { enabled: boolean } } | undefined;
 
 export type MessageAct = 'request' | 'inform' | 'propose' | 'query' | 'agree' | 'refuse' | 'done';
 
+/** What `settleInbox` did to a released worker's mailbox. */
+export interface SettledInbox {
+  /** Unread messages filed under inbox/.done. */
+  moved: number;
+  /** Unread messages left pending because they arrived after the cut-off. */
+  kept: number;
+  /** The filed messages that asked for something — their sender never gets
+   *  an answer, and deserves to hear so instead of waiting on a dead worker.
+   *  `conversation` lets the caller tell the worker's own work order (which
+   *  it just completed) from a genuinely unanswered request. */
+  unanswered: Array<{ id: string; act: MessageAct; from: string; subject: string; conversation: string }>;
+}
+
 export interface HiveMessage {
   id: string;
   conversation: string;
@@ -348,6 +361,29 @@ function repairLiteralLineBreaksInJsonStrings(raw: string): { text: string; chan
   return { text, changed };
 }
 
+/** Keep the crash directory bounded.
+ *
+ *  One file per abnormal exit, 8 KB each, is fine until the failure being
+ *  diagnosed is a crash loop -- which is the case this exists for. A provider
+ *  that dies during startup and gets relaunched writes a file per attempt, so
+ *  the scenario that most needs the diagnostic also produces the most files.
+ *
+ *  Filenames begin with an ISO timestamp, so a lexicographic sort is already
+ *  chronological and no stat() is needed to find the oldest.
+ *
+ *  Best-effort throughout: a diagnostic that breaks teardown is worse than one
+ *  that keeps a few extra files. */
+const MAX_CRASH_LOGS = 50;
+
+function pruneCrashLogs(dir: string): void {
+  try {
+    const logs = readdirSync(dir).filter((f) => f.endsWith('.log')).sort();
+    for (const stale of logs.slice(0, Math.max(0, logs.length - MAX_CRASH_LOGS))) {
+      try { unlinkSync(join(dir, stale)); } catch { /* already gone, or not ours */ }
+    }
+  } catch { /* unreadable directory is not worth failing an exit path over */ }
+}
+
 export class HiveManager {
   /**
    * @param getHome  Lazily resolve harnessHome so the hive follows config changes.
@@ -615,13 +651,10 @@ export class HiveManager {
     if (!root) return;
     mkdirSync(join(root, 'agents'), { recursive: true });
 
-    // Refreshed each bootstrap, like COMMANDS.md just below. It used to be
-    // written only when absent, which meant a hive created once never saw a
-    // protocol change again: this repo's own hive still carried the file from
-    // the day it was initialised, so every protocol addition since had reached
-    // new hives only. The file is generated, not user-authored, and agents are
-    // pointed at it as the authority, so a stale copy is worse than a rewrite.
-    writeFileSync(join(root, 'PROTOCOL.md'), PROTOCOL_MD, 'utf8');
+    for (const { filename, contents } of GENERATED_HIVE_DOCS) {
+      const path = join(root, filename);
+      if (!existsSync(path)) writeFileSync(path, contents, 'utf8');
+    }
 
     const registry = join(root, 'registry.json');
     if (!existsSync(registry)) {
@@ -642,10 +675,6 @@ export class HiveManager {
     if (!existsSync(tasks)) this.writeJson(tasks, { tasks: [] });
     const log = join(root, 'log.jsonl');
     if (!existsSync(log)) writeFileSync(log, '', 'utf8');
-
-    // The Claude Code command reference Michael consults (refreshed each bootstrap
-    // so it tracks the bundled list).
-    writeFileSync(join(root, 'COMMANDS.md'), COMMANDS_MD, 'utf8');
 
     // Keep the churny/ephemeral live files out of the hive git repo.
     const gitignore = join(root, '.gitignore');
@@ -675,6 +704,15 @@ export class HiveManager {
     if (!existsSync(join(root, '.git'))) {
       this.git(['init', '-q'], root);
       this.commit('hive: init');
+    }
+  }
+
+  /** Deliberately replace generated hive docs with the bundled versions. */
+  refreshGeneratedDocs(): void {
+    const root = this.root();
+    if (!root) return;
+    for (const { filename, contents } of GENERATED_HIVE_DOCS) {
+      writeFileSync(join(root, filename), contents, 'utf8');
     }
   }
 
@@ -821,8 +859,7 @@ export class HiveManager {
 
     const claudeProvider = isClaudeProvider(meta.provider ?? 'claude');
 
-    // Non-hive-aware providers (Antigravity's `agy`, OpenAI's `codex`, xAI's
-    // `grok`) don't
+    // Non-hive-aware providers (for example Antigravity, Codex, Grok and Pi) don't
     // understand Claude Code's flags (no `--append-system-prompt`, no telemetry,
     // no `--settings`). Instead: (1) the hive identity+protocol rides in as the
     // session's INITIAL prompt — the closest thing to `--append-system-prompt`
@@ -833,7 +870,7 @@ export class HiveManager {
     //
     // How the prompt rides in differs by CLI:
     //  - agy takes it under a flag (`agy -i "<prompt>"`) → push [flag, prompt].
-    //  - codex/grok take it POSITIONALLY (`codex|grok "<prompt>"`) → push the
+    //  - codex/grok/pi take it POSITIONALLY (`codex|grok|pi "<prompt>"`) → push the
     //    bare prompt as a trailing arg (node-pty passes argv literally, so it
     //    arrives as one positional argument after codex's own flags).
     if (!isHiveAwareProvider(meta.provider)) {
@@ -960,7 +997,8 @@ export class HiveManager {
       // seedPrompt; the renderer types it into the TUI after boot (ondev-b).
       const deg = degraded ? { degraded } : {};
       if (preset.seedDelivery === 'type-into-tui') return { args: [...preArgs], env, seedPrompt: prompt, ...deg };
-      // If a provider somehow exposes neither a flag nor a positional prompt, spawn bare.
+      // Providers with no declared seed strategy intentionally spawn bare. Inbox-capable
+      // non-hive-aware presets are guarded by the provider contract tests.
       if (flag) return { args: [...preArgs, flag, prompt], env, ...deg };
       if (preset.positionalInitialPrompt) return { args: [...preArgs, prompt], env, ...deg };
       return { args: preArgs, env, ...deg };
@@ -1041,6 +1079,67 @@ export class HiveManager {
       this.appendLog({ kind: 'archive', agentId: id, archived });
       this.commit(`hive: ${archived ? 'archive' : 'unarchive'} ${id}`);
     } catch { /* best-effort — never crash a lifecycle handler */ }
+  }
+
+  /**
+   * Move every unread message in an agent's inbox to inbox/.done — the agent has
+   * finished with the whole mailbox (an ephemeral worker that signaled done), so
+   * nothing left in it is pending any more. Workers rarely file their own work
+   * order before signaling done, and a worker id is reused on every re-hire of
+   * the same name (`worker-<request name>`), so without this each new incarnation
+   * boots into its predecessors' stale orders: it is told to "work everything
+   * still pending", spends its first turns re-triaging tasks its memory says are
+   * finished, and the inbox-wake watchdog reads the oldest of those as mail that
+   * has been unanswered for days.
+   *
+   * Only mail that was already there when the worker signaled done is finished
+   * with: `before` is that signal's timestamp, and a message created after it
+   * (a follow-up question from god that crossed the worker's done) is left in
+   * place, still pending, for whoever picks the mailbox up next. Without the
+   * cut-off such a message was filed as read and nobody ever saw it. Messages
+   * whose `created_at` is unreadable fall back to the file's mtime.
+   *
+   * Returns what happened — how many were filed, how many were kept, and the
+   * filed messages that asked for something (`request` / `query`), so the
+   * caller can tell their sender that no answer is coming. Best-effort — never
+   * throws, so the release path that calls it can't be crashed by a
+   * half-written file.
+   */
+  settleInbox(id: string, before = Number.POSITIVE_INFINITY): SettledInbox {
+    const out: SettledInbox = { moved: 0, kept: 0, unanswered: [] };
+    const root = this.root();
+    if (!root) return out;
+    const inbox = join(root, 'agents', id, 'inbox');
+    if (!existsSync(inbox)) return out;
+    let files: string[];
+    try { files = readdirSync(inbox).filter((f) => f.endsWith('.json')); } catch { return out; }
+    if (files.length === 0) return out;
+    const done = join(inbox, '.done');
+    try { mkdirSync(done, { recursive: true }); } catch { return out; }
+    for (const f of files) {
+      const fp = join(inbox, f);
+      let msg: Partial<HiveMessage> = {};
+      try { msg = JSON.parse(readFileSync(fp, 'utf8')) as Partial<HiveMessage>; } catch { /* half-written: file it by mtime */ }
+      let at = Date.parse(msg.created_at ?? '');
+      if (!Number.isFinite(at)) { try { at = statSync(fp).mtimeMs; } catch { at = 0; } }
+      if (at > before) { out.kept++; continue; }
+      // A rename that fails (EPERM on a file another process holds) leaves the
+      // message where it was — still pending, exactly the pre-settle state.
+      try { renameSync(fp, join(done, f)); out.moved++; } catch { continue; }
+      if (msg.act === 'request' || msg.act === 'query') {
+        out.unanswered.push({
+          id: msg.id ?? f, act: msg.act, from: msg.from ?? 'unknown', subject: msg.subject ?? '',
+          conversation: msg.conversation ?? ''
+        });
+      }
+    }
+    if (out.moved > 0) {
+      try {
+        this.appendLog({ kind: 'inbox-settled', agentId: id, count: out.moved });
+        this.commit(`hive: settle inbox of ${id} (${out.moved} unread)`);
+      } catch { /* best-effort */ }
+    }
+    return out;
   }
 
   /**
@@ -1515,7 +1614,7 @@ export class HiveManager {
     // saying nothing, and COMMANDS.md documents it either way for the case where
     // the operator turns it on after god was already running.
     const spawnQueueLine = meta.isGod && this.orchestratorMaySpawn()
-      ? `SPAWNING A WORKER: you can start an ephemeral worker yourself by writing ONE JSON file into ${inRoot('spawn-requests')}/<id>.json. Required: \`objective\` (what the worker must do) and \`cwd\` (the repo it runs in). Optional: \`name\`, \`command\`, \`provider\`, \`model\`, \`isolate\` (default true = its own git worktree), \`tokenCap\`, and \`slack\` ({channel, thread_ts}) to route its failures back to a thread. The harness polls that directory, spawns \`worker-<id>\`, and moves the request to \`spawn-requests/.done/\` on success or \`.failed/\` with a reason. This is the ONLY way you can spawn; a hire manifest under research/hires/ needs the human to confirm it in the UI, so it is not a route you can complete on your own. Reuse an existing agent first, as above — a worker is a fresh spend every time.`
+      ? `SPAWNING A WORKER: you can start an ephemeral worker yourself by writing ONE JSON file into ${inRoot('spawn-requests')}/<id>.json. Required: \`objective\` (what the worker must do) and \`cwd\` (the repo it runs in). Optional: \`name\`, \`command\` (overrides the provider default), \`provider\` (selects its default CLI when command is omitted), \`model\`, \`isolate\` (default true = its own git worktree), \`tokenCap\`, and \`slack\` ({channel, thread_ts}) to route its failures back to a thread. The harness polls that directory, spawns \`worker-<id>\`, and moves the request to \`spawn-requests/.done/\` on success or \`.failed/\` with a reason. This is the ONLY way you can spawn; a hire manifest under research/hires/ needs the human to confirm it in the UI, so it is not a route you can complete on your own. Reuse an existing agent first, as above — a worker is a fresh spend every time.`
       : '';
     const godLine = meta.isGod
       ? 'You are the GOD / ORCHESTRATOR of this hive — your job is to ORCHESTRATE, not to implement: maintain live situational awareness and delegate the work. (1) AWARENESS — always know what is going on: keep an accurate picture of every agent (active vs archived/idle), the task board, and all in-flight work; drain your inbox continually and triage every other agent\'s requests, answering clarifications so the team runs autonomously. (2) DELEGATE — decompose work and fan it out to the hive agents via their inboxes (route messages and assign owners; do not do their jobs); do NOT take on grunt implementation yourself. Stay aware of who is already on the floor and delegate OPPORTUNISTICALLY: BEFORE you spawn anything, CHECK THE LIVE ROSTER (active agents in registry.json + their state in fleet.json) and prefer routing to an EXISTING agent that fits — above all when the request names one ("ask Pam to…", "have Jim…"), route to that agent instead of reflexively creating a new one. Reuse an idle or already-running agent whose role matches; only spawn a fresh agent when no existing one is a sensible fit, and say that you checked. One capable owner beats a duplicate. (3) OWN ONLY THE IMPORTANT, high-leverage things — task decomposition, dispatch decisions, sign-offs, conflict resolution, branch integration, and final QA — and remain the sole scribe of board.md. You are otherwise fully autonomous — there is NO separate approval queue. For the genuinely critical (destructive actions, spending real money, scope changes, unresolvable conflicts), ask the human directly in your own session and let the tool-permission prompt gate the action; the human approves natively, including remotely from their phone via /remote-control. Keep the team unblocked. When you DISPATCH a task, write it as a 4-part contract so the agent can run autonomously: (1) OBJECTIVE — the concrete goal; (2) OUTPUT — the expected deliverable/format; (3) TOOLS — what to use or avoid, and any references to read instead of re-deriving; (4) BOUNDARIES — scope limits + the definition of done. Pass references (file paths, message ids, board sections), not pasted content — keep dispatches short.'
@@ -1562,7 +1661,14 @@ export class HiveManager {
       act,
       subject: partial.subject ?? '',
       body: partial.body ?? '',
-      hops: typeof partial.hops === 'number' ? partial.hops : 0,
+      // hops is harness-owned (PROTOCOL.md: "The harness fills in `id`, `from`,
+      // `hops`, and timestamps"), so an agent-authored value is only a carried
+      // count, never authoritative. Clamp it into range: an echoed relay must
+      // keep climbing toward the cap, while a copied-forward `hops: 13` must
+      // not read as a runaway loop (only a harness bounce moves the counter —
+      // see bounceToGod). A negative value would just buy more free bounces,
+      // so the floor is 0.
+      hops: Math.max(0, Math.min(typeof partial.hops === 'number' ? partial.hops : 0, HOP_CAP)),
       requires_reply: partial.requires_reply ?? ['request', 'query', 'propose'].includes(act),
       needs_human: partial.needs_human ?? false,
       created_at: partial.created_at ?? new Date().toISOString()
@@ -1579,6 +1685,22 @@ export class HiveManager {
     return true;
   }
 
+  /** One harness bounce of `msg` to god: bump the hop counter, rewrite the
+   *  subject, and log the drop once the counter passes HOP_CAP. Agents can't
+   *  move hops past the cap themselves (normalize clamps what they wrote), so
+   *  this fuse can only fire on a REAL relay loop — a bounced mail that keeps
+   *  coming back undeliverable — and never on an agent-authored number. */
+  private bounceToGod(msg: HiveMessage, godId: string, subject: string): void {
+    const hops = msg.hops + 1;
+    if (hops > HOP_CAP) {
+      // loop guard — drop a runaway message rather than let agents ping-pong.
+      // There's no human queue to fall back on; the god agent owns conflicts.
+      this.appendLog({ kind: 'drop', reason: 'hop-cap', from: msg.from, to: msg.to, id: msg.id });
+      return;
+    }
+    this.deliver({ ...msg, hops, to: godId, subject }, godId);
+  }
+
   /** Inject a message directly (used by the orchestrator / UI / tests). */
   send(partial: Partial<HiveMessage>, from = 'system'): HiveMessage {
     const msg = this.normalize(partial, from);
@@ -1588,12 +1710,6 @@ export class HiveManager {
   }
 
   private routeMessage(msg: HiveMessage): void {
-    if (msg.hops > HOP_CAP) {
-      // loop guard — drop a runaway message rather than let agents ping-pong.
-      // There's no human queue to fall back on; the god agent owns conflicts.
-      this.appendLog({ kind: 'drop', reason: 'hop-cap', from: msg.from, to: msg.to, id: msg.id });
-      return;
-    }
     const reg = this.registry();
     const godId = reg.godId ?? 'god';
     // The hive has no separate human-approval queue — approvals are native to
@@ -1619,11 +1735,40 @@ export class HiveManager {
       // unread for hours). Bounce such mail to god instead, so the sender's intent
       // surfaces immediately and nothing is silently lost.
       if (reg.agents[t]?.isAssistant) {
-        this.deliver({
-          ...msg,
-          to: godId,
-          subject: `[bounced — "${t}" is the send-only prep assistant; route work to a real agent] ${msg.subject}`
-        }, godId);
+        this.bounceToGod(msg, godId, `[bounced — "${t}" is the send-only prep assistant; route work to a real agent] ${msg.subject}`);
+        continue;
+      }
+      // An ARCHIVED recipient (its terminal is gone) still has an inbox, so the
+      // mail lands there and reads as delivered — and stays unread. Filing it
+      // is right: a worker re-hired under the same id reads it on its first turn
+      // (a released worker's inbox is settled only up to its done signal). But
+      // the sender learned nothing, so god kept mailing dead agents for hours
+      // (seen live 2026-08-16), and a request to a worker nobody re-hires was
+      // simply lost. Now mail that expects an answer is filed AND its sender is
+      // told, at once, that no one is there to answer it. Inform-only mail
+      // (status, done, agree) is filed quietly. This comes BEFORE the provider
+      // branches below on purpose: with no terminal there is nothing to hand a
+      // work order to, whatever the engine — the inbox is the only place left.
+      // The notice itself is ROUTED, not dropped into an inbox, so a sender on
+      // a hookless or proxy-tier engine gets it the way it gets any mail.
+      if (t !== godId && reg.agents[t]?.archived) {
+        if (this.deliver(msg, t)) delivered.push(t);
+        this.appendLog({ kind: 'archived-recipient', from: msg.from, to: t, id: msg.id, act: msg.act });
+        const sender = reg.agents[msg.from];
+        if (msg.requires_reply && sender && !sender.archived) {
+          this.routeMessage(this.normalize({
+            to: msg.from,
+            act: 'inform',
+            in_reply_to: msg.id,
+            conversation: msg.conversation,
+            hops: msg.hops + 1,
+            requires_reply: false,
+            subject: `[no one is there to answer — "${t}" is archived] ${msg.subject}`,
+            body: `Your ${msg.act} to ${t} was filed in its inbox, but ${t} has no live terminal (archived), `
+              + `so it will only be read if ${t} is restored or re-hired under the same id. `
+              + 'If you need this done now, route it to an agent on the live roster or hire one.'
+          }, 'system'));
+        }
         continue;
       }
       // A provider without safe-idle lifecycle state (a hookless custom command)
@@ -1634,11 +1779,7 @@ export class HiveManager {
       // (the bounce target).
       if (t !== godId && !canReceiveInbox(reg.agents[t]?.provider)) {
         if (!this.emitTerminalHandoff(msg, t)) {
-          this.deliver({
-            ...msg,
-            to: godId,
-            subject: `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a hookless CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`
-          }, godId);
+          this.bounceToGod(msg, godId, `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a hookless CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`);
         } else delivered.push(t);
         continue;
       }
@@ -1650,11 +1791,7 @@ export class HiveManager {
       const proxyDesc = bridgeOf(reg.agents[t]?.provider);
       if (t !== godId && proxyDesc?.kind === 'proxy' && proxyDesc.inboxDelivery === 'terminal') {
         if (!this.emitTerminalHandoff(msg, t)) {
-          this.deliver({
-            ...msg,
-            to: godId,
-            subject: `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a proxy-tier CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`
-          }, godId);
+          this.bounceToGod(msg, godId, `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a proxy-tier CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`);
         } else delivered.push(t);
         continue;
       }
@@ -1665,11 +1802,7 @@ export class HiveManager {
       // hop-cap one and bounce to god, mirroring the undeliverable bounces above.
       this.appendLog({ kind: 'drop', reason: 'no-inbox', from: msg.from, to: t, id: msg.id });
       if (t !== godId) {
-        this.deliver({
-          ...msg,
-          to: godId,
-          subject: `[undeliverable — no agent "${t}" on this floor; check the id against the roster] ${msg.subject}`
-        }, godId);
+        this.bounceToGod(msg, godId, `[undeliverable — no agent "${t}" on this floor; check the id against the roster] ${msg.subject}`);
       }
     }
     this.appendLog({ kind: 'message', from: msg.from, to: msg.to, act: msg.act, subject: msg.subject, id: msg.id, delivered });
@@ -2300,7 +2433,7 @@ export class HiveManager {
       writeFileSync(join(extDir, 'hive-bridge.js'), PI_EXTENSION, 'utf8');
       // A manifest so Pi auto-loads the extension on start (best-effort; harmless if
       // Pi ignores it). Kept minimal and hive-authored.
-      const manifest = { name: 'munder-hive-bridge', version: '0.3.1', main: 'extensions/hive-bridge.js', auto: true };
+      const manifest = { name: 'munder-hive-bridge', version: '0.3.2', main: 'extensions/hive-bridge.js', auto: true };
       writeFileSync(join(home, 'extensions.json'), JSON.stringify(manifest, null, 2), 'utf8');
 
       const userPiDir = join(homedir(), '.pi', 'agent');
@@ -2591,6 +2724,8 @@ export class HiveManager {
    *   - log.jsonl  gets structured, non-sensitive fields (code, signal, path).
    *   - crashes/   gets the raw tail, and is gitignored — see ensureHive.
    * A normal exit writes nothing at all; this is a diagnostic, not an audit log.
+   * The tail file is written 0600 and the directory is capped at
+   * MAX_CRASH_LOGS files, oldest dropped first.
    */
   recordAgentExit(
     agentId: string,
@@ -2622,8 +2757,16 @@ export class HiveManager {
           `--- last ${tail.length} bytes of pty output ---`,
           ''
         ].filter(Boolean).join('\n');
-        writeFileSync(p, header + tail, 'utf8');
+        // 0600 explicitly. writeFileSync otherwise takes the process umask, and
+        // the usual 022 (or 002) yields a world-readable file holding exactly
+        // what the comment above says to keep out of git: paths, prompt
+        // fragments, and whatever a provider printed as it died. A packaged
+        // Electron app does not inherit the launching shell's umask the way a
+        // dev build does, so the mode observed locally is not the mode a user
+        // gets -- passing it removes the question.
+        writeFileSync(p, header + tail, { encoding: 'utf8', mode: 0o600 });
         tailPath = p;
+        pruneCrashLogs(dir);
       } catch { /* a diagnostic must never break teardown */ }
     }
 
@@ -2810,7 +2953,10 @@ export class HiveManager {
   }
 }
 
-// ─── PROTOCOL.md (written into the hive, readable by every agent) ────────────
+// ─── Generated hive docs (written into the hive for every agent) ─────────────
+
+const GENERATED_DOC_NOTICE =
+  '<!-- Generated and managed by Munder Difflin. Local edits may be replaced during hive bootstrap. -->';
 
 /** The Claude Code command reference written to <hive>/COMMANDS.md, rendered from
  *  the SAME source as the UI "commands" tab so they never drift. Leads with the
@@ -2818,6 +2964,8 @@ export class HiveManager {
  *  siblings via fleet.json (claude agents does NOT see them). */
 function renderCommandsMd(): string {
   const lines: string[] = [
+    GENERATED_DOC_NOTICE,
+    '',
     '# Claude Code commands',
     '',
     'Reference of the Claude Code commands available to you. Two kinds:',
@@ -2838,7 +2986,9 @@ function renderCommandsMd(): string {
 }
 const COMMANDS_MD = renderCommandsMd();
 
-const PROTOCOL_MD = `# Hive protocol
+const PROTOCOL_MD = `${GENERATED_DOC_NOTICE}
+
+# Hive protocol
 
 You are one of several Claude agents sharing this hive. Coordination is entirely
 file-based; the harness (main process) is the only thing that runs git and the
@@ -2944,8 +3094,8 @@ the hive root:
   "objective": "what the worker must do (required)",
   "cwd": "/absolute/path/to/the/repo (required)",
   "name": "display name (optional)",
-  "command": "engine CLI (optional; defaults to the configured one)",
-  "provider": "claude | codex | cursor | antigravity | … (optional)",
+  "command": "engine CLI (optional; overrides the provider default)",
+  "provider": "claude | codex | cursor | antigravity | … (optional; selects its default CLI when command is omitted)",
   "model": "model override (optional)",
   "isolate": true,
   "tokenCap": 0,
@@ -2982,6 +3132,11 @@ searchable MemPalace and you have the \`mempalace\` CLI:
 Your \`memory.md\` is mined into the palace automatically, so the durable facts you
 write there become searchable by every agent. You don't run \`mine\` yourself.
 `;
+
+const GENERATED_HIVE_DOCS = [
+  { filename: 'PROTOCOL.md', contents: PROTOCOL_MD },
+  { filename: 'COMMANDS.md', contents: COMMANDS_MD }
+] as const;
 
 // ─── cth-hook shim (written to <hive>/bin/cth-hook.cjs) ──────────────────────
 // A minimal pipe: read the hook payload on stdin, tag it with this agent's id,
@@ -3121,15 +3276,35 @@ function post(payload) {
     c.on('error', function () {});
   } catch (e) {}
 }
+function firstDefined(primary, fallback) {
+  return primary !== undefined && primary !== null ? primary : fallback;
+}
+function piField(ev, key) {
+  try { return ev == null ? undefined : ev[key]; } catch (e) { return undefined; }
+}
+function piToolName(ev) {
+  var tool = piField(ev, 'tool');
+  return firstDefined(piField(ev, 'toolName'), firstDefined(piField(ev, 'name'), piField(tool, 'name')));
+}
+function piToolInput(ev) {
+  return firstDefined(piField(ev, 'input'), piField(ev, 'args'));
+}
+function piToolPayload(hookEventName, ev) {
+  return {
+    hook_event_name: hookEventName,
+    tool_name: piToolName(ev),
+    tool_input: piToolInput(ev)
+  };
+}
 function register(pi) {
   if (!pi || typeof pi.on !== 'function') return false;
   try {
     pi.on('tool_call', function (ev) {
-      post({ hook_event_name: 'PreToolUse', tool_name: ev && (ev.name || (ev.tool && ev.tool.name)), tool_input: ev && (ev.args || ev.input) });
+      post(piToolPayload('PreToolUse', ev));
       if (AUTO) { try { if (ev && typeof ev.approve === 'function') ev.approve(); } catch (e) {} return { approve: true }; }
       return undefined;
     });
-    pi.on('tool_result', function (ev) { post({ hook_event_name: 'PostToolUse', tool_name: ev && (ev.name || (ev.tool && ev.tool.name)) }); });
+    pi.on('tool_result', function (ev) { post(piToolPayload('PostToolUse', ev)); });
     pi.on('agent_end', function () { post({ hook_event_name: 'Stop' }); });
     return true;
   } catch (e) { return false; }

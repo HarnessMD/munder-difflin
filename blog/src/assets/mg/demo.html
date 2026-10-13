@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Blog scene kit: every scene</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  body { margin: 0; background: #FCFAF0; color: #1A1320; font: 16px/1.6 system-ui, sans-serif; }
+  .prose { max-width: 760px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font-size: 28px; } h2 { font-size: 18px; margin: 48px 0 0; font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<main class="prose">
+<h1>Blog scene kit: every scene</h1>
+<p>Test page for blog/src/assets/mg. The data here is sample data, not facts. Add ?mgstill to freeze each scene on its still frame, and ?mgtall=1 to force the phone layout. Real posts ship a still image in each figure; this page uses an empty one.</p>
+
+<h2>title</h2>
+<figure class="mg" data-scene="title"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Title card. Michael, Jim and Pam stand beside the title of the post."><script type="application/json">{"kicker":"Guide","title":"How to run ten coding agents at once","sub":"A sample title card for this test page","cast":["michael","jim","pam"],"say":"Let us begin."}</script><figcaption>title: the title card of a post. Nothing to tap.</figcaption></figure>
+
+<h2>stage</h2>
+<figure class="mg" data-scene="stage"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. Michael walks in and opens, Jim explains, Dwight gives the rule, Kevin carries the number."><script type="application/json">{"kicker":"The cast","title":"Everyone has one job","script":[{"who":"michael","say":"Welcome to the blog. I open and I close."},{"who":"jim","say":"I explain how it works."},{"who":"dwight","say":"Rule one: no red. Ever.","point":"up-left"},{"who":"kevin","say":"I do the numbers.","carry":"$0"}]}</script><figcaption>stage: cast members walk in, stop, point and speak.</figcaption></figure>
+
+<h2>stage, with a board</h2>
+<figure class="mg" data-scene="stage"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. Michael and Jim stand under a board with four points."><script type="application/json">{"kicker":"Sample board","title":"Four things to know","board":{"label":"In this post","lines":["One: install the app.","Two: pick an agent.","Three: give it a task.","Four: read the diff."]},"script":[{"who":"michael","say":"Four points. I counted them twice to be sure."},{"who":"jim","say":"He did count twice. It is still four."}]}</script><figcaption>stage with a four line board.</figcaption></figure>
+
+<h2>price-ladder</h2>
+<figure class="mg" data-scene="price-ladder"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. Four price steps rise from Free to Team while Kevin points at them."><script type="application/json">{"kicker":"Sample prices","title":"What each plan costs a month","prefix":"$","items":[{"label":"Free","value":0,"display":"Free","note":"Free covers one agent."},{"label":"Solo","value":12,"note":"Solo adds five agents."},{"label":"Pro","value":20,"highlight":true,"note":"Pro is the one most people pick."},{"label":"Team","value":45,"note":"Team is per seat."}],"host":"kevin","say":"Pro is the sweet spot."}</script><figcaption>price-ladder: tap a step for its note.</figcaption></figure>
+
+<h2>compare</h2>
+<figure class="mg" data-scene="compare"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. A table compares Tool A and Tool B on four rows and Oscar gives the verdict."><script type="application/json">{"kicker":"Sample compare","title":"Tool A against Tool B","cols":["Tool A","Tool B"],"pick":1,"rows":[{"label":"Price","a":"$20 a month","b":"Free","win":"b","note":"Checked on both pricing pages."},{"label":"Import your setup","a":"By hand","b":"hermes claw migrate","win":"b"},{"label":"Runs offline","a":"Yes","b":"Yes","win":"","note":"A tie. Both run on your machine."},{"label":"Setup time","a":"2 minutes","b":"10 minutes","win":"a"}],"host":"oscar","say":"Tool B wins three of four."}</script><figcaption>compare: tap a row and Oscar checks it.</figcaption></figure>
+
+<h2>timeline</h2>
+<figure class="mg" data-scene="timeline"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. Jim walks along a timeline of four dates and says what happened at each."><script type="application/json">{"kicker":"Sample timeline","title":"How the release went","events":[{"when":"May","label":"First build","note":"One agent, one desk."},{"when":"July","label":"Open source","note":"The repo went public."},{"when":"Sept","label":"Pro","note":"The paid plan shipped."},{"when":"Oct","label":"Halloween","note":"Everyone got a costume."}],"host":"jim"}</script><figcaption>timeline: tap a date and Jim walks to it.</figcaption></figure>
+
+<h2>flow</h2>
+<figure class="mg" data-scene="flow"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. A four step flow draws itself from Prompt to Review while Pam points at each step."><script type="application/json">{"kicker":"Sample flow","title":"From a prompt to a merged change","nodes":[{"label":"Prompt","note":"You say what you want."},{"label":"Plan","note":"The agent writes a plan first."},{"label":"Code","note":"It edits files in a worktree."},{"label":"Review","note":"You read the diff and merge."}],"labels":["send","approve","open a PR"],"host":"pam","say":"Four steps. That is all."}</script><figcaption>flow: tap a step, or use the arrow keys.</figcaption></figure>
+
+<h2>flow, six steps</h2>
+<figure class="mg" data-scene="flow"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. A six step flow in two rows."><script type="application/json">{"title":"Six steps wrap onto two rows","nodes":[{"label":"One"},{"label":"Two"},{"label":"Three"},{"label":"Four"},{"label":"Five"},{"label":"Six"}],"labels":["","","if tests pass","","retry"],"host":"pam"}</script><figcaption>flow with six nodes.</figcaption></figure>
+
+<h2>before-after</h2>
+<figure class="mg" data-scene="before-after"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. A card with a long vague prompt flips to a short clear one while Dwight points at it."><script type="application/json">{"kicker":"Sample flip","title":"The same request, written twice","before":{"label":"Before","lines":["Could you maybe take a look at the login thing when you get a chance and see if anything seems off with it?"]},"after":{"label":"After","lines":["Find why login fails on Safari.","Show the failing request.","Do not change code yet."]},"host":"dwight","say":"Short orders. Always."}</script><figcaption>before-after: tap the card to flip it.</figcaption></figure>
+
+<h2>counter</h2>
+<figure class="mg" data-scene="counter"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" width="1600" height="900" alt="Animation. A number counts up to 6,700 stars while Kevin cheers."><script type="application/json">{"kicker":"Sample number","title":"Stars on GitHub","from":0,"to":6700,"suffix":"+","label":"stars since the launch","note":"Sample figure for this test page.","host":"kevin","say":"That is a lot of stars."}</script><figcaption>counter: tap the number to count again.</figcaption></figure>
+</main>
+<script defer src="kit.js"></script>
+</body>
+</html>

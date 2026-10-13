@@ -5,6 +5,9 @@ pagination:
   size: 1
   alias: tag
 permalink: "/tags/{{ tag.slug }}/index.html"
+# Tag pages are thin listings (87 of 137 under 150 words, site audit 2026-09-28).
+# Keep them for readers, keep their links followed, keep them out of the index.
+noindex: true
 eleventyComputed:
   title: "#{{ tag.name }}"
   description: "Munder Difflin blog posts tagged {{ tag.name }}."

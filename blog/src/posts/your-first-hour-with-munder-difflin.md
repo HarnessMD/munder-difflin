@@ -20,13 +20,15 @@ faq:
   - q: "Do I need an account to use Munder Difflin?"
     a: "Yes, in 0.5.2. The first launch asks you to sign in with an email address in your browser, on the free plan as well. Pro then needs a licence key on top of that account."
   - q: "What does Pro add over the free version?"
-    a: "The free version is the classic office. Pro adds a single window workspace with screens for the orchestrator, agents, agent rooms, tasks, inbox, automations, memory, capabilities and temps, plus the Stapler. It runs on one machine at a time and has a 14 day trial; the pricing page has the rest."
+    a: "The free version is the classic office. Pro adds a single window workspace with screens for the orchestrator, agents, agent rooms, tasks, inbox, automations, memory, capabilities and temps, plus the Stapler. It runs on one machine at a time; the pricing page has the rest."
   - q: "Can one Pro office mix Claude Code, Codex and OpenCode agents?"
     a: "Yes. Each agent picks its own provider and model when you add it, and can have its own token cap. Claude Code and Codex use their own logins; OpenCode can use a provider key you save under Settings."
   - q: "Does the office keep working when I close my laptop?"
     a: "No. Agents, automations, Slack and webhooks all run on your machine, so they stop when the app closes or the laptop sleeps. A schedule missed while the laptop slept runs once when the app wakes; a weekly one only if that is within six hours of its slot."
   - q: "Is the Stapler free?"
     a: "No. The Stapler is Pro only, and it is off until you turn on **Show the stapler** on the Stapler screen."
+startHere: true
+startOrder: 2
 ---
 
 Your first hour with [Munder Difflin](https://harnessmd.com/download) 0.5.2 goes like this. Download the app, install one coding CLI, sign in and name your orchestrator. Then activate Pro and set the office up to work without you: a mixed team of agents, a pull request reviewer, a Slack responder, a morning email brief and a content agent on a schedule.
@@ -47,7 +49,7 @@ On 14 Sep 2026 the page listed version 0.5.2, published 9 Sep 2026, in three bui
 
 {% img "a3-download" %}
 
-Open the file the usual way for your system: drag the app to Applications on a Mac, run the installer on Windows, or make the AppImage executable on Linux. [Every release](https://app.harnessmd.com/releases/) is listed with notes and checksums.
+Open the file the usual way for your system: drag the app to Applications on a Mac, run the installer on Windows, or make the AppImage executable on Linux. [What changed in this version](https://harnessmd.com/download#whats-new) is written out on the download page.
 
 ## What do you need installed before the first launch?
 
@@ -126,7 +128,7 @@ We call the orchestrator Michael in this guide. Call yours whatever you like.
 When you open the workspace without a licence, the app shows **Go PRO on this machine**. You have three choices:
 
 * **Continue with the free version** takes you to the classic office, free, with everything local.
-* **Get PRO** opens checkout in your browser. Pro has a 14 day trial and runs on one machine at a time. Plans and prices are on the [pricing page](https://munderdiffl.in/#pricing).
+* **Get PRO** opens checkout in your browser. Pro runs on one machine at a time. Plans and prices are on the [pricing page](https://munderdiffl.in/#pricing).
 * **I have a licence key** opens **Enter your license key**. Paste the key from your console at app.harnessmd.com, press **Activate**, and it is bound to this machine.
 
 {% img "c7-paywall" %}
