@@ -595,19 +595,7 @@ export class HiveManager {
   }
 
   /** Build a hook command string that runs `script` under the guaranteed node,
-   *  DOUBLE-QUOTED (safe for paths with spaces).
-   *
-   *  On Windows the whole command carries a SECOND pair of quotes. A harness
-   *  runs a `type: "command"` hook through `cmd.exe /d /s /c "<command>"`, and
-   *  `/s` strips the first and last quote of what it receives — so one layer
-   *  leaves the launcher unquoted and cmd splits it at the first space. A
-   *  profile path like `C:\\Users\\John Doe` then fails every hook with
-   *  `"C:\\Users\\John" is not recognized as an internal or external command`
-   *  (#549). The outer pair is what `/s` eats; the inner pair is what survives
-   *  to quote the paths.
-   *
-   *  Arguments must be passed here rather than appended to the result, or they
-   *  land outside the outer pair and are lost with it. */
+   *  DOUBLE-QUOTED (safe for paths with spaces). */
   private nodeRun(script: string, ...args: string[]): string {
     const launcher = this.nodeLauncher();
     return [launcher ? `"${launcher}"` : 'node', `"${script}"`, ...args].join(' ');
@@ -1304,8 +1292,8 @@ export class HiveManager {
       // the only clean programmatic source for the session's REAL context
       // window. The shim prints a compact in-terminal gauge and forwards the
       // payload to the harness (agent-card context gauge, exact limit).
-      // `--status` goes through nodeRun, not onto the end of `cmd`: on Windows
-      // nodeRun's result already carries the outer quote pair that `cmd.exe /s`
+      // `--status` goes through hookCommand, not onto the end of `cmd`: on
+      // Windows `cmd` already carries the outer quote pair that `cmd.exe /s`
       // strips, and an argument appended after it would sit outside that pair
       // and be stripped away with it (#549).
       statusLine: { type: 'command', command: this.hookCommand(shim, '--status'), padding: 0 },
