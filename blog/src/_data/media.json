@@ -4803,5 +4803,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gemini-4-argon": {
+    "title": "Gemini 4 Argon: Google's Flagship Model Shares a Name With a Gas That Barely Reacts",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-argon/hero.png",
+      "alt": "Title card on white. Gemini 4 Argon in large ink type over a yellow underline, with a kicker reading Release date, price, access and scores, a pill reading Checked 13 Oct 2026, and a paper pinwheel on a stick.",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-argon/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
