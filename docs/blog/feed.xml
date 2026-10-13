@@ -4,9 +4,25 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-12T00:00:00.000Z</updated>
+  <updated>2026-10-13T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 13 Oct 2026: Muse Wonder, GLM-Legal, the Codex Daemon Issue</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-13/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-13/</id>
+    <published>2026-10-13T00:00:00.000Z</published>
+    <updated>2026-10-13T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 13 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores</title>
+    <link href="https://munderdiffl.in/blog/muse-wonder/" />
+    <id>https://munderdiffl.in/blog/muse-wonder/</id>
+    <published>2026-10-13T00:00:00.000Z</published>
+    <updated>2026-10-13T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Meta&#39;s Muse Wonder and Muse Wonder Full: API price, Muse Code plans, context window and Meta&#39;s own coding scores, checked 13 Oct 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 12 Oct 2026: WordCraft 0.5.0, Genkit Dart 1.0, 500 Billion Tokens</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-12/" />
@@ -470,21 +486,5 @@
     <published>2026-09-14T00:00:00.000Z</published>
     <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
     <summary>There is no Codex Max plan. What ChatGPT Pro 5x and 20x give you in Codex, how the weekly limit works, and how to stretch it.</summary>
-  </entry>
-  <entry>
-    <title>How to Connect Slack to Munder Difflin 0.5.2</title>
-    <link href="https://munderdiffl.in/blog/connect-slack-to-munder-difflin/" />
-    <id>https://munderdiffl.in/blog/connect-slack-to-munder-difflin/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Connect Slack to Munder Difflin 0.5.2: create the Slack app, add the bot scopes, pick one of three connection modes, and get answers in the thread.</summary>
-  </entry>
-  <entry>
-    <title>Grok Bot Alternatives: 9 Picks, Hosted or on Your Computer</title>
-    <link href="https://munderdiffl.in/blog/grok-bot-alternatives/" />
-    <id>https://munderdiffl.in/blog/grok-bot-alternatives/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-30T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Grok Bot runs every Bot on one shared cloud computer in the US. Nine alternatives checked on 30 Sep 2026, from ChatGPT dots to open source agents you run.</summary>
   </entry>
 </feed>
