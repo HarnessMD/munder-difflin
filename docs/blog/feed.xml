@@ -16,12 +16,44 @@
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 13 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-argon-inside-google/" />
+    <id>https://munderdiffl.in/blog/gemini-4-argon-inside-google/</id>
+    <published>2026-10-13T00:00:00.000Z</published>
+    <updated>2026-10-13T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Google&#39;s own numbers for Gemini 4 Argon on real code: 134 bugs triaged in under 3 hours, 30% fewer rollbacks, a framework tuned overnight. Checked 13 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-argon-pricing/" />
+    <id>https://munderdiffl.in/blog/gemini-4-argon-pricing/</id>
+    <published>2026-10-13T00:00:00.000Z</published>
+    <updated>2026-10-13T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside.</summary>
+  </entry>
+  <entry>
+    <title>Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra: Google Published a Table It Does Not Fully Win</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-argon-vs-claude-opus-5-5/" />
+    <id>https://munderdiffl.in/blog/gemini-4-argon-vs-claude-opus-5-5/</id>
+    <published>2026-10-13T00:00:00.000Z</published>
+    <updated>2026-10-13T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Google&#39;s own table: Gemini 4 Argon tops 13 of 19 rows, GPT-6 Astra 3 and Claude Opus 5.5 2. The coding rows split. List prices compared.</summary>
+  </entry>
+  <entry>
     <title>Gemini 4 Argon: Google&#39;s Flagship Model Shares a Name With a Gas That Barely Reacts</title>
     <link href="https://munderdiffl.in/blog/gemini-4-argon/" />
     <id>https://munderdiffl.in/blog/gemini-4-argon/</id>
     <published>2026-10-13T00:00:00.000Z</published>
     <updated>2026-10-13T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Gemini 4 Argon went on general release on 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, a 1M token window, and where you can use it.</summary>
+  </entry>
+  <entry>
+    <title>How to Use Gemini 4 Argon: Five Ways In, and Free Is Not One of Them</title>
+    <link href="https://munderdiffl.in/blog/how-to-use-gemini-4-argon/" />
+    <id>https://munderdiffl.in/blog/how-to-use-gemini-4-argon/</id>
+    <published>2026-10-13T00:00:00.000Z</published>
+    <updated>2026-10-13T00:00:00.000Z</updated><category term="Guides" />
+    <summary>How to use Gemini 4 Argon on 13 Oct 2026: the Gemini app, AI Mode, AI Studio, the API with model ID gemini-4-argon, and Antigravity. What each route needs.</summary>
   </entry>
   <entry>
     <title>Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores</title>
@@ -454,37 +486,5 @@
     <published>2026-09-15T00:00:00.000Z</published>
     <updated>2026-10-02T00:00:00.000Z</updated><category term="Guides" />
     <summary>Install Gemini CLI 0.62.0 with one npm command, see which sign ins still work after 18 Jun 2026, and why Gemini 4 Argon isn&#39;t in it yet.</summary>
-  </entry>
-  <entry>
-    <title>Is Ollama Good for Coding? Yes, for Scoped Work on the Right Model</title>
-    <link href="https://munderdiffl.in/blog/is-ollama-good-for-coding/" />
-    <id>https://munderdiffl.in/blog/is-ollama-good-for-coding/</id>
-    <published>2026-09-15T00:00:00.000Z</published>
-    <updated>2026-09-15T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Ollama is good for coding on scoped, private work if the model fits your memory. Which models to pull, how much RAM, and where Claude still wins.</summary>
-  </entry>
-  <entry>
-    <title>How to Get the Most Out of Your Claude Code Max Plan</title>
-    <link href="https://munderdiffl.in/blog/claude-code-max-plan-tips/" />
-    <id>https://munderdiffl.in/blog/claude-code-max-plan-tips/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Stretch a Claude Code Max plan: model choice, context hygiene, prompt caching, subagents and unattended runs, checked against Anthropic&#39;s own pages.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code vs Antigravity: Which One Fits Your Work?</title>
-    <link href="https://munderdiffl.in/blog/claude-code-vs-antigravity/" />
-    <id>https://munderdiffl.in/blog/claude-code-vs-antigravity/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-14T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Claude Code vs Google Antigravity, checked 14 Sep 2026: terminal agent or desktop agent app, Claude inside Antigravity, plans, limits and a verdict.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code vs Cursor: Which Is Better in 2026?</title>
-    <link href="https://munderdiffl.in/blog/claude-code-vs-cursor/" />
-    <id>https://munderdiffl.in/blog/claude-code-vs-cursor/</id>
-    <published>2026-09-14T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Claude Code vs Cursor, checked 29 Sep 2026: a dated table of models, plans, background agents, MCP and licences, then when to pick each or run both.</summary>
   </entry>
 </feed>

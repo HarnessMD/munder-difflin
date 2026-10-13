@@ -4814,5 +4814,49 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gemini-4-argon-vs-claude-opus-5-5": {
+    "title": "Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra: Google Published a Table It Does Not Fully Win",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-4-argon-vs-claude-opus-5-5/hero.png",
+      "alt": "Title card on white. Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra in large ink type, Checked 13 Oct 2026, and a telescope on a tripod pointed at three stars.",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-argon-vs-claude-opus-5-5/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-4-argon-pricing": {
+    "title": "Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gemini-4-argon-pricing/hero.png",
+      "alt": "Title card on white. The words Gemini 4 Argon Pricing in large ink type above a Checked 13 Oct 2026 pill, beside a wind chime with four coloured tubes.",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-argon-pricing/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "how-to-use-gemini-4-argon": {
+    "title": "How to Use Gemini 4 Argon: Five Ways In, and Free Is Not One of Them",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/how-to-use-gemini-4-argon/hero.png",
+      "alt": "Title card on white. The title How to Use Gemini 4 Argon in large ink type, with the kicker Five ways in, and free is not one of them, a Checked 13 Oct 2026 pill and a striped spinning top.",
+      "prompt": "Still of the hero scene in assets/media/how-to-use-gemini-4-argon/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-4-argon-inside-google": {
+    "title": "Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-argon-inside-google/hero.png",
+      "alt": "Title card on white. Gemini 4 Argon Inside Google in large ink type with a kicker, a line reading Checked 13 Oct 2026 and a folded paper boat riding three wavy lines of water.",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-argon-inside-google/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
