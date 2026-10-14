@@ -1927,6 +1927,35 @@ export class HiveManager {
     this.ensureHive();
     const path = join(root, 'tasks.json');
     const current = this.readJson<{ tasks?: unknown }>(path, { tasks: [] });
+    // >>> DIAGNOSTICO TEMPORARIO (TSF-17) - REMOVER <<<
+    // mergeTaskLedger protects fields, never card membership: whoever builds
+    // the INCOMING array decides what survives. Reading that code shows
+    // INTENTION; it cannot show what actually arrived. So capture the array,
+    // every write, with the ids it held and the ids the file already had. If
+    // the incoming set is missing a card the file has, the omission happened
+    // UPSTREAM of the merge, and this line is where it becomes visible
+    // instead of inferred.
+    try {
+      const diagDir = join(root, 'diagnostics');
+      mkdirSync(diagDir, { recursive: true });
+      const incoming = (Array.isArray(tasks) ? tasks : []) as HiveTask[];
+      const onDisk = ((current?.tasks as HiveTask[]) || []).filter((t) => t && t.id);
+      const incIds = incoming.map((t) => String(t?.id ?? '?')).sort();
+      const line = JSON.stringify({
+        at: new Date().toISOString(),
+        incomingCount: incoming.length,
+        incomingIds: incIds,
+        incomingStatus: incoming.reduce((a, t) => {
+          const s = String((t as { status?: unknown })?.status ?? '?');
+          a[s] = (a[s] || 0) + 1;
+          return a;
+        }, {} as Record<string, number>),
+        onDiskCount: onDisk.length,
+        missingFromIncoming: onDisk.map((t) => String(t.id)).filter((id) => !incIds.includes(id)).sort()
+      });
+      appendFileSync(join(diagDir, 'writeTasks.array.jsonl'), line + '\n', 'utf8');
+    } catch { /* diagnostics must never break a write */ }
+    // >>> FIM DO DIAGNOSTICO <<<
     const merged = mergeTaskLedger(current?.tasks, tasks);
     this.writeJson(path, { tasks: merged });
     this.appendLog({ kind: 'tasks', count: merged.length });

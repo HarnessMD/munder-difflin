@@ -18,8 +18,13 @@ const src = fs.readFileSync(path.join(ROOT, 'src', 'main', 'index.ts'), 'utf8');
 test('opencode spawns get a hive-scoped XDG_DATA_HOME', () => {
   const assigns = src.match(/extra\.XDG_DATA_HOME\s*=/g) ?? [];
   assert.equal(assigns.length, 1, `exactly one XDG_DATA_HOME assignment, found ${assigns.length}`);
-  assert.match(src, /extra\.XDG_DATA_HOME = join\(home, '\.opencode-data'\)/,
-    'the dir must be home-anchored and dot-prefixed (out of git and mining paths)');
+  // TSF-11: the spawn derives the dir from `opencodeDbPath` — the same helper
+  // the telemetry reader opens the database with. The previous expression
+  // (`join(home, '.opencode-data')`) was a SECOND, independent computation, so
+  // the reader could point at a database the agent never wrote to. Assert the
+  // single shared helper, not the literal.
+  assert.match(src, /extra\.XDG_DATA_HOME = dirname\(opencodeDbPath\(cfg\.harnessHome\)\)/,
+    'XDG_DATA_HOME must come from opencodeDbPath, shared with the reader');
 });
 
 test('the isolation lives in the opencode-only branch', () => {

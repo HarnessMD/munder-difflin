@@ -33,7 +33,7 @@ import { MemoryManager } from './memory';
 import { KnowledgeManager } from './knowledge';
 import { MemoryReflector, type ReflectSettings } from './reflect';
 import { PersistStore } from './db';
-import { readAgentUsage, readContextTokens, seedSessionTranscript, resolveSessionCwd } from './transcript';
+import { readAgentUsage, readContextTokens, seedSessionTranscript, resolveSessionCwd, opencodeDbPath } from './transcript';
 import { listIssues, listCIRuns } from './github';
 import { SlackWebhookServer, SlackReplyServer, postSlackReply, type SlackEventFile } from './slack';
 import {
@@ -252,7 +252,10 @@ const telemetry = new TelemetryCollector({
   resolveCwd: (agentId) => hive.registry().agents[agentId]?.cwd ?? null,
   // D11: scopes the transcript fallback to this agent's own session instead of
   // summing every transcript in a (routinely shared) cwd.
-  resolveSessionId: (agentId) => hive.lastSession(agentId)
+  resolveSessionId: (agentId) => hive.lastSession(agentId),
+  // TSF-11: same DB the spawn writes to. Without this the fallback reads the
+  // operator's global opencode database and reports zeros for every agent.
+  resolveOpencodeDb: () => opencodeDbPath(readConfig().harnessHome)
 });
 // Usage provider (Seam 1) — the INTEGRATION swap: Oscar's telemetry collector (#7)
 // IS the provider, replacing Lane A's interim StubUsageProvider. Same
@@ -3055,9 +3058,14 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
       //    the global one. Auth (~/.config) and the global install are
       //    untouched; opencode creates the dir on first launch. opencode-only:
       //    other CLIs must keep resolving their own XDG paths.
+      //
+      //    TSF-11: `opencodeDbPath` is the SAME helper the telemetry fallback
+      //    reads with. They used to be computed independently — the spawn
+      //    pointed at <hive>/.opencode-data while the reader opened
+      //    ~/.local/share/opencode — so the numbers stayed zero even after the
+      //    reader was fixed. One function, two callers, no second chance.
       try {
-        const home = cfg.harnessHome ? resolve(expandTilde(cfg.harnessHome)) : '';
-        if (home) extra.XDG_DATA_HOME = join(home, '.opencode-data');
+        extra.XDG_DATA_HOME = dirname(opencodeDbPath(cfg.harnessHome));
       } catch { /* fall back to the shared global dir */ }
     }
     opts.env = { ...(opts.env ?? {}), ...extra };
