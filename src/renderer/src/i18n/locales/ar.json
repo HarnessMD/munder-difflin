@@ -472,7 +472,11 @@
     "openIssue": "مشكلة GitHub رقم {{num}}: {{title}}",
     "deliveryResumeAria": "استأنف التسليم التلقائي للأرضية كلها",
     "deliveryHoldAria": "احتجز التسليم التلقائي للأرضية كلها",
-    "openIdeAria": "افتح بيئة التطوير"
+    "openIdeAria": "افتح بيئة التطوير",
+    "logRestored": "{{name}} restored",
+    "logKilled": "stopped {{name}}",
+    "logReset": "reset {{name}}",
+    "logOpFailed": "{{op}} {{name}} refused: {{reason}}"
   },
   "addAgent": {
     "title": "إضافة وكيل",

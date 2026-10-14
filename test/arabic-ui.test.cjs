@@ -211,7 +211,13 @@ test('no Arabic string is left as its English source', () => {
     'addAgent.projectPlaceholder',           // /path/to/your/project — a filesystem path
     'onboarding.home.placeholder',           // /path/to/HarnessAgents — same
     'mcpDefaults.toggleNote',                // "{{id}}: {{state}}" — pure interpolation
-    'webhooksSection.summary'                // "{{count}} · {{state}}" — same
+    'webhooksSection.summary',               // "{{count}} · {{state}}" — same
+    // FORK agent-ops (pending translator): activity lines for god-driven
+    // lifecycle ops. Same rule as above — English here equals the fallback.
+    'commandCenter.logRestored',
+    'commandCenter.logKilled',
+    'commandCenter.logReset',
+    'commandCenter.logOpFailed'
   ]);
   const e = pathsOf(en), a = pathsOf(ar);
   const untranslated = [];

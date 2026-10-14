@@ -472,7 +472,11 @@
     "openIssue": "GitHub Issue #{{num}}: {{title}}",
     "deliveryResumeAria": "Resume automatic delivery for the whole floor",
     "deliveryHoldAria": "Hold automatic delivery for the whole floor",
-    "openIdeAria": "Open the IDE"
+    "openIdeAria": "Open the IDE",
+    "logRestored": "{{name}} restored",
+    "logKilled": "stopped {{name}}",
+    "logReset": "reset {{name}}",
+    "logOpFailed": "{{op}} {{name}} refused: {{reason}}"
   },
   "addAgent": {
     "title": "ADD AGENT",
