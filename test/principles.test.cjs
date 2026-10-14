@@ -12,6 +12,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+
+/** The operator approved guardrail.json as it is now: what the Rules screen records
+ *  after a save (guardrailEditor.ts). The approval check itself is tested in
+ *  guardrail-editor.test.cjs. */
+const approvedNow = (file) => {
+  try { return require('node:crypto').createHash('sha256').update(fs.readFileSync(file, 'utf8')).digest('hex'); } catch { return undefined; }
+};
 const loadTs = require('./load-ts.cjs');
 
 const electron = require.resolve('electron');
@@ -48,7 +55,7 @@ async function floor(t, rules = RULES) {
   if (rules) write(rules);
   // The operator's switch, in the app config. Mutable so a test can turn it off.
   const config = { harnessHome: home, guardrail: true };
-  const server = new HookServer(hive, () => null, () => config, undefined, undefined);
+  const server = new HookServer(hive, () => null, () => ({ ...config, guardrailApproved: approvedNow(file) }), undefined, undefined);
   const ctx = async (event, extra = {}) => {
     const reply = await server.handle({ hook_event_name: event, agent_id: 'jim-1', session_id: 's1', tool_name: 'Bash', tool_input: { command: 'ls' }, ...extra });
     // Upstream adds its response-style brief to every SessionStart and prompt, ahead of
@@ -157,7 +164,7 @@ test('rides along with the standing goal in one block', async (t) => {
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
   fs.mkdirSync(path.join(hive.root(), 'policy'), { recursive: true });
   fs.writeFileSync(path.join(hive.root(), 'policy', 'guardrail.json'), JSON.stringify({ version: 1, rev: 1, rules: RULES }));
-  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true }), undefined, undefined, () => 'Ship the report.');
+  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true, guardrailApproved: approvedNow(path.join(hive.root(), 'policy', 'guardrail.json')) }), undefined, undefined, () => 'Ship the report.');
   const reply = await server.handle({ hook_event_name: 'SessionStart', agent_id: 'jim-1', session_id: 's1' });
   const text = reply.hookSpecificOutput.additionalContext;
   assert.match(text, /<goal>\nShip the report\.\n<\/goal>\n\n<rules rev="1">/);

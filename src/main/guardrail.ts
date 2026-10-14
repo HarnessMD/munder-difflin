@@ -9,7 +9,9 @@
  * The engine reads the backstops through `toEngineRules`. This module only reads and
  * validates; nothing here writes the file.
  */
-import { readFileSync } from 'node:fs';
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { createHash } from 'node:crypto';
 import type { PolicyRule } from './policy';
 import type { BackstopDoes, Backstop, GuardrailRule, GuardrailFile } from '../shared/guardrail';
 
@@ -88,12 +90,64 @@ export function toEngineRules(g: GuardrailFile): PolicyRule[] {
   return out;
 }
 
+export type GuardrailRead = { ok: true; file: GuardrailFile } | { ok: false; error: string };
+
 /** Read guardrail.json: the file, or why it cannot be used. Never throws. */
-export function readGuardrail(path: string): { ok: true; file: GuardrailFile } | { ok: false; error: string } {
+export function readGuardrail(path: string): GuardrailRead {
+  let text: string;
+  try { text = readFileSync(path, 'utf8'); } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+  return parseGuardrail(text);
+}
+
+/**
+ * The exact bytes of guardrail.json, never through a symbolic link. While the guardrail
+ * is not loaded the policy folder is writable by every agent, so the folder or the file
+ * may be a link an agent planted to a file of its choosing. `text: null` with no error
+ * means there is no file. Never throws.
+ */
+export function readGuardrailBytes(path: string): { text: string | null; error: string | null } {
+  try {
+    if (lstatSync(dirname(path)).isSymbolicLink()) return { text: null, error: 'the policy folder is a symbolic link' };
+  } catch { return { text: null, error: null }; }
+  let st;
+  try { st = lstatSync(path); } catch { return { text: null, error: null }; }
+  if (st.isSymbolicLink()) return { text: null, error: `${GUARDRAIL_FILE} is a symbolic link` };
+  if (!st.isFile()) return { text: null, error: `${GUARDRAIL_FILE} is not a regular file` };
+  let fd: number | null = null;
+  try {
+    // O_NOFOLLOW: a link swapped in after the lstat is refused, not followed.
+    fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    // A hard link is a regular file to lstat, but another name for it may sit in an
+    // agent's own folder, where the agent can write it after the operator approves.
+    const opened = fstatSync(fd);
+    if (!opened.isFile()) return { text: null, error: `${GUARDRAIL_FILE} is not a regular file` };
+    if (opened.nlink !== 1) return { text: null, error: `${GUARDRAIL_FILE} has other names (hard links)` };
+    return { text: readFileSync(fd, 'utf8'), error: null };
+  } catch (e) {
+    return { text: null, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    if (fd !== null) closeSync(fd);
+  }
+}
+
+/** Parse and validate the text of a guardrail.json. Never throws. */
+export function parseGuardrail(text: string): GuardrailRead {
   let parsed: unknown;
-  try { parsed = JSON.parse(readFileSync(path, 'utf8')); } catch (e) {
+  try { parsed = JSON.parse(text); } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
   const problems = validateGuardrail(parsed);
   return problems.length ? { ok: false, error: problems.join('; ') } : { ok: true, file: parsed as GuardrailFile };
+}
+
+/**
+ * The fingerprint the app config keeps of the guardrail.json the operator last saved or
+ * accepted (`guardrailApproved`): a SHA-256 of the exact bytes. The hive is writable by
+ * every agent while the guardrail is not loaded, so the engine loads the file only when
+ * it is byte for byte the one the operator approved.
+ */
+export function guardrailHash(text: string): string {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
 }

@@ -227,6 +227,10 @@ export interface HarnessConfig {
    *  app's own config, which no agent's sandbox can reach. Otherwise a file an agent
    *  wrote would be loaded at the next start as the operator's rules. */
   guardrail?: boolean;
+  /** The SHA-256 of the guardrail.json the operator last saved or accepted in the
+   *  Rules screen. With the guardrail on, a file that does not match is not loaded:
+   *  whoever changed it, it was not the operator through the app. */
+  guardrailApproved?: string;
   /** The command we run when spawning a new agent. */
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */

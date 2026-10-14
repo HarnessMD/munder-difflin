@@ -10,6 +10,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+
+/** The operator approved guardrail.json as it is now: what the Rules screen records
+ *  after a save (guardrailEditor.ts). The approval check itself is tested in
+ *  guardrail-editor.test.cjs. */
+const approvedNow = (file) => {
+  try { return require('node:crypto').createHash('sha256').update(fs.readFileSync(file, 'utf8')).digest('hex'); } catch { return undefined; }
+};
 const loadTs = require('./load-ts.cjs');
 
 const electron = require.resolve('electron');
@@ -37,7 +44,7 @@ async function floor(t, file, cfg = {}) {
   const dir = path.join(hive.root(), 'policy');
   fs.mkdirSync(dir, { recursive: true });
   if (file !== undefined) fs.writeFileSync(path.join(dir, 'guardrail.json'), file);
-  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true, ...cfg }), undefined, undefined);
+  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true, guardrailApproved: approvedNow(path.join(dir, 'guardrail.json')), ...cfg }), undefined, undefined);
   const logRows = () => {
     const f = path.join(hive.root(), 'log.jsonl');
     return fs.existsSync(f) ? fs.readFileSync(f, 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];

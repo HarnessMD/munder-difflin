@@ -12,6 +12,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+
+/** The operator approved guardrail.json as it is now: what the Rules screen records
+ *  after a save (guardrailEditor.ts). The approval check itself is tested in
+ *  guardrail-editor.test.cjs. */
+const approvedNow = (file) => {
+  try { return require('node:crypto').createHash('sha256').update(fs.readFileSync(file, 'utf8')).digest('hex'); } catch { return undefined; }
+};
 const loadTs = require('./load-ts.cjs');
 
 const electron = require.resolve('electron');
@@ -423,7 +430,7 @@ async function floor(t, rules) {
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
   fs.mkdirSync(path.join(hive.root(), 'policy'), { recursive: true });
   fs.writeFileSync(path.join(hive.root(), 'policy', 'guardrail.json'), JSON.stringify({ version: 1, rev: 1, rules }));
-  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true }), undefined, undefined);
+  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true, guardrailApproved: approvedNow(path.join(hive.root(), 'policy', 'guardrail.json')) }), undefined, undefined);
   const logRows = () => fs.readFileSync(path.join(hive.root(), 'log.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
   const send = (command, tool = 'Bash', input = { command }) => server.handle({
     hook_event_name: 'PreToolUse', agent_id: 'jim-1', session_id: 's', tool_name: tool, tool_input: input, cwd: home,
@@ -681,7 +688,7 @@ test('hook: pausing or halting an agent stops its subagents too', async (t) => {
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
   const control = new ControlRegistry();
-  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true }), control, undefined);
+  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true, guardrailApproved: approvedNow(path.join(hive.root(), 'policy', 'guardrail.json')) }), control, undefined);
   const sub = (event) => server.handle({ hook_event_name: event, agent_id: 'sub-9', hive_agent: 'jim-1', agent_type: 'general-purpose', session_id: 's', tool_name: 'Bash', tool_input: { command: 'ls' } });
   assert.deepEqual(await sub('PreToolUse'), {});
   control.pause('jim-1', true);

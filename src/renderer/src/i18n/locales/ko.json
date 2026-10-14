@@ -218,6 +218,7 @@
       "prerequisites": "사전 요구 사항",
       "agentsModels": "에이전트 및 모델",
       "autonomyBudgets": "자율성 및 예산",
+      "rules": "규칙",
       "voice": "오케스트레이터 음성",
       "memoryKnowledge": "메모리 및 지식"
     },

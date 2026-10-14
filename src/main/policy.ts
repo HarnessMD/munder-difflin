@@ -50,7 +50,7 @@ import {
   effectiveCommands, realAbsolute, inlineScript, scriptLiterals, scriptWrites, operandsOf, verbOf,
   STRUCTURAL_UNRESOLVED, type EffectiveCommand, type Unresolved,
 } from './shell';
-import { GUARDRAIL_FILE, MATCHERS, readGuardrail, toEngineRules } from './guardrail';
+import { GUARDRAIL_FILE, MATCHERS, guardrailHash, parseGuardrail, readGuardrailBytes, toEngineRules } from './guardrail';
 import { principlesFor, type AgentPrinciples } from './principles';
 
 /** Where a rule's path matcher reads its subject from, per tool. */
@@ -79,9 +79,11 @@ export interface PolicyStatus {
   /** Why no rules are loaded when a policy is configured. Null when all is well. */
   error: string | null;
   loadedAt: string | null;
-  /** A guardrail.json that was NOT loaded because the guardrail is not turned on in
-   *  the app config, or null. Anyone could have written it. */
+  /** A guardrail.json that was NOT loaded, or null. Anyone could have written it. */
   ignored: string | null;
+  /** Why: the guardrail is not turned on in the app config ('off'), or the file is not
+   *  the one the operator last saved or accepted ('unapproved'). */
+  ignoredWhy: 'off' | 'unapproved' | null;
 }
 
 /**
@@ -368,6 +370,7 @@ export class PolicyEngine {
   private defaults: { mode: PolicyMode; on_error: 'allow' | 'deny' } = { mode: 'dry_run', on_error: 'allow' };
   private loadedAt: string | null = null;
   private ignoredFile: string | null = null;
+  private ignoredWhy: 'off' | 'unapproved' | null = null;
   /** The principles of the file `load` read, kept beside its backstops. An agent is
    *  only told rules the engine is holding, from a file that has been protected since
    *  it loaded. Null with no file, a file that failed, or rules loaded another way. */
@@ -391,7 +394,11 @@ export class PolicyEngine {
     /** Has the operator turned the guardrail on? Read from the app config, which
      *  agents cannot write, because the policy folder is theirs to write until a
      *  policy is loaded. Off: guardrail.json is not loaded. */
-    private turnedOn: () => boolean = () => false
+    private turnedOn: () => boolean = () => false,
+    /** The fingerprint (guardrailHash) of the file the operator last saved or accepted,
+     *  from the app config. Given, a file that does not match is not loaded. Not given
+     *  (tests that drive the engine directly), the file is not checked against one. */
+    private approvedHash: (() => string | null) | null = null
   ) {
     this.policyDir = hiveRoot ? join(hiveRoot, 'policy') : '';
     this.hookBinDir = hiveRoot ? join(hiveRoot, 'bin') : '';
@@ -412,6 +419,7 @@ export class PolicyEngine {
     this.configured = false;
     this.loadedAt = null;
     this.ignoredFile = null;
+    this.ignoredWhy = null;
     // A reload starts from the built-in defaults, so a removed on_error does not
     // stick until the next start.
     this.defaults = { mode: 'dry_run', on_error: 'allow' };
@@ -430,12 +438,32 @@ export class PolicyEngine {
       // who meant to turn it on finds out, and one who did not learns a file is there.
       // Turning the guardrail off takes back the principles, as deleting the file does.
       this.ignoredFile = this.policyPath;
+      this.ignoredWhy = 'off';
       this.log({ kind: 'policy-ignored', path: this.policyPath, reason: 'the guardrail is not turned on in the app config' });
       if (before) this.principleSet = { rev: before.rev, rules: [] };
       return;
     }
+    // Read once: the bytes that are checked against the approval are the bytes parsed.
+    // Never through a symbolic link: an agent could have planted one while the folder
+    // was not protected. A link fails the load, which keeps the folder protected.
+    const raw = readGuardrailBytes(this.policyPath);
+    if (raw.text === null) {
+      this.configured = true;
+      this.fail(raw.error ?? `${GUARDRAIL_FILE} could not be read`);
+      return;
+    }
+    const text = raw.text;
+    if (this.approvedHash && guardrailHash(text) !== this.approvedHash()) {
+      // Changed since the operator last saved or accepted it, by someone other than
+      // the operator through the app. Not loaded until the operator looks at it.
+      this.ignoredFile = this.policyPath;
+      this.ignoredWhy = 'unapproved';
+      this.log({ kind: 'policy-ignored', path: this.policyPath, reason: 'the file is not the one the operator last saved or accepted' });
+      if (before) this.principleSet = { rev: before.rev, rules: [] };
+      return;
+    }
     this.configured = true;
-    const g = readGuardrail(this.policyPath);
+    const g = parseGuardrail(text);
     if (!g.ok) {
       // Refuse a half-read policy. Partial enforcement is worse than none, because it
       // is believed.
@@ -541,6 +569,7 @@ export class PolicyEngine {
       error: this.loadError,
       loadedAt: this.loadedAt,
       ignored: this.ignoredFile,
+      ignoredWhy: this.ignoredWhy,
     };
   }
 

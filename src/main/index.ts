@@ -54,6 +54,8 @@ import { parseFloorArgs, floorDataDirFor, floorSpawnPlan, floorSpawnEnv, seedFlo
 import { setSharedDataDir, sharedDataDir, isFloorProcess } from './sharedData';
 import { claimFloorNumber, releaseFloorNumber, liveOfficeCount, officeLabel, windowTitle } from './floorNumber';
 import { pidAlive } from './floorLock';
+import { GuardrailEditor } from './guardrailEditor';
+import type { GuardrailFile } from '../shared/guardrail';
 import { CircuitBreaker, type BreakerInput } from './breaker';
 import { CumulativeSampleGate, type AgentUsageSample, type UsageProvider } from './usage';
 import { MemoryManager } from './memory';
@@ -5389,6 +5391,30 @@ ipcMain.handle('config:skillsOffAtLaunch', () => Object.fromEntries(skillsOffAtL
 // in main against the config on disk, like the two handlers above.
 ipcMain.handle('config:saveAvatar', (_evt, input: unknown) => saveAvatar(input));
 ipcMain.handle('config:deleteAvatar', (_evt, id: unknown) => deleteAvatar(id));
+
+// ─── Guardrail (Settings > Rules) ───────────────────────────────────────────────
+// Only the operator's window reaches these: an agent has no IPC, so every write here
+// is the operator's, and each records the file's fingerprint where agents cannot write.
+const guardrailEditor = new GuardrailEditor({
+  policyDir: () => { const root = hive.root(); return root ? join(root, 'policy') : null; },
+  config: () => readConfig(),
+  setConfig: (patch) => { writeConfig(patch); },
+  reload: () => hookServer.reloadPolicy(),
+  status: () => hookServer.policyStatus(),
+  log: (row) => hive.appendLog(row as Parameters<HiveManager['appendLog']>[0]),
+});
+const stampArg = (v: unknown): string | null => (typeof v === 'string' && /^[0-9a-f]{64}$/.test(v) ? v : null);
+ipcMain.handle('guardrail:read', () => guardrailEditor.read());
+ipcMain.handle('guardrail:save', (_evt, file: unknown, stamp: unknown) => {
+  if (!file || typeof file !== 'object' || Array.isArray(file)) return { ok: false, errors: ['not a rules file'] };
+  return guardrailEditor.save(file as GuardrailFile, stampArg(stamp));
+});
+ipcMain.handle('guardrail:turnOn', (_evt, stamp: unknown) => guardrailEditor.turnOn(stampArg(stamp)));
+ipcMain.handle('guardrail:turnOff', () => guardrailEditor.turnOff());
+ipcMain.handle('guardrail:accept', (_evt, stamp: unknown) => {
+  const s = stampArg(stamp);
+  return s ? guardrailEditor.accept(s) : { ok: false, errors: ['no file to accept'] };
+});
 ipcMain.handle('config:ensureHome', (_evt, path: unknown) => {
   if (typeof path !== 'string' || path.length === 0) return { ok: false, error: 'invalid path' };
   return ensureHarnessHome(path);

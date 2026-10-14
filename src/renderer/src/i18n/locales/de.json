@@ -218,6 +218,7 @@
       "prerequisites": "Voraussetzungen",
       "agentsModels": "Agenten & Modelle",
       "autonomyBudgets": "Autonomie & Budgets",
+      "rules": "Regeln",
       "voice": "Stimme des Orchestrators",
       "memoryKnowledge": "Gedächtnis & Wissen"
     },

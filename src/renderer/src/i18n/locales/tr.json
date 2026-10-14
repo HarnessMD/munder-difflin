@@ -218,6 +218,7 @@
       "prerequisites": "Ön koşullar",
       "agentsModels": "Ajanlar ve modeller",
       "autonomyBudgets": "Özerklik ve bütçeler",
+      "rules": "Kurallar",
       "voice": "Orkestratörün sesi",
       "memoryKnowledge": "Hafıza ve bilgi"
     },

@@ -1,6 +1,6 @@
 /**
- * The shape of hive/policy/guardrail.json, shared by main and (later) the renderer.
- * Logic lives in src/main/guardrail.ts.
+ * The shape of hive/policy/guardrail.json, shared by main and the Rules screen.
+ * Logic lives in src/main/guardrail.ts and src/main/guardrailEditor.ts.
  */
 
 /** What a backstop does when it fires. `block` denies the call, `ask` puts the call to
@@ -45,3 +45,26 @@ export interface GuardrailFile {
   defaults?: { on_error?: 'allow' | 'deny' };
   rules: GuardrailRule[];
 }
+
+/** What the Rules screen shows: the switch, the file, and what the engine loaded. */
+export interface GuardrailView {
+  /** The operator's switch in the app config. */
+  on: boolean;
+  exists: boolean;
+  /** The file, or null when there is none or it does not validate. */
+  file: GuardrailFile | null;
+  /** The file's exact text, shown in full before the operator turns it on or accepts
+   *  it: the rule list does not show every field. Null when there is no file. */
+  text: string | null;
+  /** Why the file cannot be used, when it exists but does not validate. */
+  error: string | null;
+  /** The fingerprint of the bytes shown. A save, turn-on or accept sends it back, so a
+   *  file changed in between is never overwritten or approved unseen. */
+  stamp: string | null;
+  /** Is this file the one the operator last saved or accepted? */
+  approved: boolean;
+  /** What the engine has loaded right now. */
+  engine: { loaded: boolean; rulesLoaded: number; error: string | null };
+}
+
+export type GuardrailResult = { ok: true; view: GuardrailView } | { ok: false; errors: string[] };

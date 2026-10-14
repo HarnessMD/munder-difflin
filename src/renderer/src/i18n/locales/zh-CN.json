@@ -218,6 +218,7 @@
       "prerequisites": "前置条件",
       "agentsModels": "智能体与模型",
       "autonomyBudgets": "自主权与预算",
+      "rules": "规则",
       "voice": "调度者的语音",
       "memoryKnowledge": "记忆与知识"
     },

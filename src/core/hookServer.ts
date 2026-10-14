@@ -629,16 +629,24 @@ export class HookServer {
       return;
     }
     if (status.ignored) {
-      console.log(`[policy] not turned on; ignoring ${status.ignored}`);
+      const off = status.ignoredWhy === 'off';
+      console.log(`[policy] ${off ? 'not turned on' : 'not the approved file'}; ignoring ${status.ignored}`);
       try {
         this.hive.send({
           to: 'god',
           act: 'inform',
-          subject: 'A guardrail.json exists but the guardrail is not turned on',
-          body: `${status.ignored} exists, but the guardrail is not turned on in the app config, `
-            + 'so the file was not loaded and nothing in it is checked or delivered. '
-            + 'If the operator wrote it, they can turn the guardrail on and restart the app. '
-            + 'If nobody did, an agent wrote it: tell the operator.',
+          subject: off
+            ? 'A guardrail.json exists but the guardrail is not turned on'
+            : 'The guardrail is on but guardrail.json was changed outside the Rules screen',
+          body: off
+            ? `${status.ignored} exists, but the guardrail is not turned on in the app config, `
+              + 'so the file was not loaded and nothing in it is checked or delivered. '
+              + 'If the operator wrote it, they can turn the guardrail on in Settings > Rules. '
+              + 'If nobody did, an agent wrote it: tell the operator.'
+            : `${status.ignored} is not the file the operator last saved in Settings > Rules, `
+              + 'so it was not loaded and nothing in it is checked or delivered. '
+              + 'The operator can review it there and accept it. '
+              + 'If nobody changed it by hand, an agent did: tell the operator.',
           requires_reply: false,
         }, 'guardrail');
       } catch (e) { console.error('[policy] could not notify god:', e); }
@@ -668,6 +676,20 @@ export class HookServer {
     }
   }
 
+  /** Load guardrail.json again: the explicit operator action (the Rules screen after a
+   *  save, turning the guardrail on or off). Nothing watches the file. Principles that
+   *  changed go to each agent on its next prompt. */
+  reloadPolicy(): PolicyStatus {
+    const policy = this.policyEngine();
+    policy.load();
+    return policy.status;
+  }
+
+  /** The guardrail's status, for the Rules screen. */
+  policyStatus(): PolicyStatus {
+    return this.policyEngine().status;
+  }
+
   /** Build the guardrail engine once. */
   private policyEngine(): PolicyEngine {
     if (!this.policy) {
@@ -679,7 +701,8 @@ export class HookServer {
         // qwen proxy synthesizes PostToolUse only.
         () => ['pi', 'opencode', 'qwen'],
         // config.json is outside every agent's writable folders; the hive is not.
-        () => this.getConfig().guardrail === true
+        () => this.getConfig().guardrail === true,
+        () => this.getConfig().guardrailApproved ?? null
       );
       this.policy.load();
     }

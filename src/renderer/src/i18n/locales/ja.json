@@ -218,6 +218,7 @@
       "prerequisites": "前提条件",
       "agentsModels": "エージェントとモデル",
       "autonomyBudgets": "自律性と予算",
+      "rules": "ルール",
       "voice": "オーケストレーターの音声",
       "memoryKnowledge": "メモリとナレッジ"
     },
