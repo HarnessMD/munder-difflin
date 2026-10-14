@@ -37,6 +37,7 @@ import type { HookFacts } from '../shared/switchClear';
 import { renderResponseStyle } from '../shared/responseStyle';
 import type { HookHttpEndpoint } from '../main/hookTransport';
 import { PolicyEngine, type PolicyStatus } from '../main/policy';
+import { renderPrinciples } from '../main/principles';
 
 /** Maximum JSON payload bytes in one newline-delimited hook frame. */
 const MAX_HOOK_FRAME_BYTES = 256 * 1024;
@@ -187,6 +188,10 @@ export class HookServer {
   private deliveredIdentityByAgent = new Map<string, string | null>();
   /** The steer a hook's reply carries, until that reply is written. */
   private steersOut = new WeakMap<HookPayload, { agentId: string; event: string; text: string }>();
+  /** The guardrail principles last delivered to each agent's current session, and the
+   *  agents owed them again after a compaction or a resume. */
+  private deliveredRulesByAgent = new Map<string, { sessionId: string | null; key: string; count: number }>();
+  private rulesDue = new Set<string>();
 
   constructor(
     private hive: HiveManager,
@@ -679,6 +684,33 @@ export class HookServer {
   }
 
   /**
+   * The agent's guardrail principles, when this hook should carry them: at the start of
+   * a session, on the first prompt of a new session, on the first hook that can carry
+   * context after a compaction or resume (a PostToolUse counts: an agent that compacts
+   * mid-task may not see another prompt for a long time), and when a reload changed
+   * them. Otherwise null, so an unchanged set is not repeated on every prompt. The
+   * principles come from the engine, which read guardrail.json at start; with no file
+   * then, always null.
+   */
+  private rulesToDeliver(agentId: string, event: string, sessionId: string | null): string | null {
+    const due = this.rulesDue.has(agentId);
+    if (!(event === 'SessionStart' || event === 'UserPromptSubmit' || (event === 'PostToolUse' && due))) return null;
+    let mine;
+    try { mine = this.policyEngine().principles(agentId); } catch { return null; }
+    if (!mine) return null; // nothing loaded: deliver nothing, keep any mark for later
+    const key = `${mine.rev}\n${mine.texts.join('\n')}`;
+    const delivered = this.deliveredRulesByAgent.get(agentId);
+    const newSession = !delivered || delivered.sessionId !== sessionId;
+    const changed = !!delivered && delivered.key !== key;
+    if (!(event === 'SessionStart' || newSession || due || changed)) return null;
+    this.rulesDue.delete(agentId);
+    this.deliveredRulesByAgent.set(agentId, { sessionId, key, count: mine.texts.length });
+    if (mine.texts.length) return renderPrinciples(mine);
+    // An empty set is only worth saying when it takes back rules this session was given.
+    return changed && !newSession && delivered.count > 0 ? renderPrinciples(mine) : null;
+  }
+
+  /**
    * Only the gates, answered for `agentId`: the operator's HALT, the pause/gated-tool
    * deny, and the guardrail. Nothing reaches the floor, the breaker or the registry.
    */
@@ -914,6 +946,13 @@ export class HookServer {
     if ((event === 'PostCompact' || event === 'SessionStart') && agentId) {
       this.breaker?.recordCompactEnd(agentId);
     }
+    // A compaction summarises the context the principles were delivered into, and a
+    // resume rebuilds it from a transcript that may have been compacted: either way the
+    // principles go back in on the next hook that can carry context.
+    if (agentId && (event === 'PreCompact' || event === 'PostCompact'
+      || (event === 'SessionStart' && (p.source === 'compact' || p.source === 'resume')))) {
+      this.rulesDue.add(agentId);
+    }
 
     if ((event === 'Stop' || event === 'SubagentStop') && agentId) {
       // Respect any upstream Stop hook that already re-entered this boundary.
@@ -1042,12 +1081,16 @@ export class HookServer {
       }
     }
 
-    if (steer || roster || goal || style || identity) {
+    // The guardrail's principles (rulesToDeliver): with the goal, at the start of a
+    // session and again after a compaction or a change.
+    const rules = agentId ? this.rulesToDeliver(agentId, event, p.session_id ?? null) : null;
+
+    if (steer || roster || goal || style || identity || rules) {
       this.emit(agentId, event, p);
       return {
         hookSpecificOutput: {
           hookEventName: event,
-          // ORDER, deliberately: style, stable identity, roster, goal, steer.
+          // ORDER, deliberately: style, stable identity, roster, goal, rules, steer.
           //  - The style leads because it is the only invariant piece. It is the
           //    same text on every turn for every agent, so putting it ahead of the
           //    roster (whose token/cost/ctx numbers move every turn) keeps the
@@ -1055,10 +1098,12 @@ export class HookServer {
           //  - The style is HOW to answer and the goal is WHAT to do, so the goal
           //    sits closer to the work: a standing tone brief must never read as
           //    if it outranks the mission.
+          //  - The guardrail's principles follow the goal: standing rules for how the
+          //    work is done, read before this turn's steer.
           //  - The steer stays last, where it already was. It is the operator
           //    speaking about THIS turn, and the most immediate instruction is
           //    the one that should be read last.
-          additionalContext: [style, identity, roster, goal, steer].filter(Boolean).join('\n\n')
+          additionalContext: [style, identity, roster, goal, rules, steer].filter(Boolean).join('\n\n')
         }
       };
     }

@@ -51,6 +51,7 @@ import {
   STRUCTURAL_UNRESOLVED, type EffectiveCommand, type Unresolved,
 } from './shell';
 import { GUARDRAIL_FILE, MATCHERS, readGuardrail, toEngineRules } from './guardrail';
+import { principlesFor, type AgentPrinciples } from './principles';
 
 /** Where a rule's path matcher reads its subject from, per tool. */
 const PATH_FIELDS = ['file_path', 'notebook_path', 'path'] as const;
@@ -367,6 +368,10 @@ export class PolicyEngine {
   private defaults: { mode: PolicyMode; on_error: 'allow' | 'deny' } = { mode: 'dry_run', on_error: 'allow' };
   private loadedAt: string | null = null;
   private ignoredFile: string | null = null;
+  /** The principles of the file `load` read, kept beside its backstops. An agent is
+   *  only told rules the engine is holding, from a file that has been protected since
+   *  it loaded. Null with no file, a file that failed, or rules loaded another way. */
+  private principleSet: { rev: number; rules: Array<{ principle: string; agents: 'all' | string[] }> } | null = null;
 
   /** Denominator for the false-positive rate. Counted in memory, never logged
    *  per action: calls that match nothing are the overwhelming majority and
@@ -410,14 +415,23 @@ export class PolicyEngine {
     // A reload starts from the built-in defaults, so a removed on_error does not
     // stick until the next start.
     this.defaults = { mode: 'dry_run', on_error: 'allow' };
+    const before = this.principleSet;
+    this.principleSet = null;
     if (!this.policyDir) return;
     this.policyPath = join(this.policyDir, GUARDRAIL_FILE);
-    if (!existsSync(this.policyPath)) return; // unconfigured → inert
+    if (!existsSync(this.policyPath)) {
+      // unconfigured → inert. A reload after the file was deleted takes back the
+      // principles agents were given, with an empty set at the same revision.
+      if (before) this.principleSet = { rev: before.rev, rules: [] };
+      return;
+    }
     if (!this.turnedOn()) {
       // Not loaded, and so not protected either: still inert. Said once, so an operator
       // who meant to turn it on finds out, and one who did not learns a file is there.
+      // Turning the guardrail off takes back the principles, as deleting the file does.
       this.ignoredFile = this.policyPath;
       this.log({ kind: 'policy-ignored', path: this.policyPath, reason: 'the guardrail is not turned on in the app config' });
+      if (before) this.principleSet = { rev: before.rev, rules: [] };
       return;
     }
     this.configured = true;
@@ -433,6 +447,7 @@ export class PolicyEngine {
       ...(g.file.defaults?.on_error ? { defaults: { on_error: g.file.defaults.on_error } } : {}),
       rules: toEngineRules(g.file),
     }, this.policyPath);
+    if (!this.loadError) this.principleSet = { rev: g.file.rev, rules: g.file.rules };
   }
 
   /**
@@ -442,6 +457,7 @@ export class PolicyEngine {
    */
   loadRules(parsed: PolicyFile, source = '(in memory)'): void {
     this.rules = [];
+    this.principleSet = null;
     this.loadError = null;
     this.loadedAt = null;
     this.defaults = { mode: 'dry_run', on_error: 'allow' };
@@ -505,6 +521,14 @@ export class PolicyEngine {
   private fail(error: string, invalid?: Array<{ id: string; why: string }>): void {
     this.loadError = error;
     this.log({ kind: 'policy-load-failed', path: this.policyPath, rules_loaded: 0, error, ...(invalid ? { invalid } : {}) });
+  }
+
+  /** This agent's principles from the file loaded at start (or at the last explicit
+   *  reload), or null when none was loaded. Never read from disk here: a file an agent
+   *  wrote after start must not reach other agents as the operator's words. */
+  principles(agentId: string): AgentPrinciples | null {
+    if (!this.principleSet) return null;
+    return { rev: this.principleSet.rev, texts: principlesFor(this.principleSet.rules, agentId) };
   }
 
   /** The single answer to "is the guardrail enforcing anything?". */
