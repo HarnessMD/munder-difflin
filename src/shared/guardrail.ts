@@ -3,9 +3,10 @@
  * Logic lives in src/main/guardrail.ts.
  */
 
-/** What a backstop does when it fires. `log` records what it would have done and lets
- *  the call run. */
-export type BackstopDoes = 'log';
+/** What a backstop does when it fires. `block` denies the call, `ask` puts the call to
+ *  the operator (Claude Code's permission prompt), `log` records what it would have done
+ *  and lets the call run. */
+export type BackstopDoes = 'block' | 'ask' | 'log';
 
 /** What a backstop fires on. Every present key must match (AND). */
 export interface BackstopMatch {
@@ -20,7 +21,7 @@ export interface Backstop {
   on: boolean;
   does: BackstopDoes;
   match: BackstopMatch;
-  /** What the log row gives as the reason. Defaults to the principle. */
+  /** What the agent is told when the backstop stops it. Defaults to the principle. */
   message?: string;
   /** If the backstop cannot be evaluated: let the call run (allow) or count it as a
    *  match (deny). */

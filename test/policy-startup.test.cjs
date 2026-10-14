@@ -2,8 +2,8 @@
 /**
  * The guardrail as the hook server wires it. The rules load when the hook server
  * starts, "rules loaded: N" is a log row and a status object, a guardrail.json that
- * cannot be loaded reaches god as a message, and in this version a backstop only
- * LOGS: the reply to the agent never changes.
+ * cannot be loaded reaches god as a message, and a `log` backstop never changes the
+ * reply to the agent.
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -37,7 +37,7 @@ async function floor(t, file, cfg = {}) {
   const dir = path.join(hive.root(), 'policy');
   fs.mkdirSync(dir, { recursive: true });
   if (file !== undefined) fs.writeFileSync(path.join(dir, 'guardrail.json'), file);
-  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, ...cfg }), undefined, undefined);
+  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true, ...cfg }), undefined, undefined);
   const logRows = () => {
     const f = path.join(hive.root(), 'log.jsonl');
     return fs.existsSync(f) ? fs.readFileSync(f, 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
@@ -49,7 +49,7 @@ async function floor(t, file, cfg = {}) {
 
 test('a guardrail.json that cannot be loaded: 0 rules, a status row, and god is told', async (t) => {
   for (const body of ['{ not json', '{"version":1,"rev":0,"rules":[{"id":"x"}]}',
-    '{"version":1,"rev":0,"rules":[{"id":"x","principle":"p","agents":"all","backstop":{"on":true,"does":"block","match":{"tool":"Bash"}}}]}']) {
+    '{"version":1,"rev":0,"rules":[{"id":"x","principle":"p","agents":"all","backstop":{"on":true,"does":"nuke","match":{"tool":"Bash"}}}]}']) {
     const { server, logRows, godInbox } = await floor(t, body);
     server.announcePolicy();
     const status = logRows().find((r) => r.kind === 'policy-status');
@@ -99,14 +99,62 @@ test('no guardrail.json: silent, as before', async (t) => {
   assert.equal(server.policyEngine().status.configured, false);
 });
 
-// --- Log only: a backstop that fires changes nothing the agent sees -------------
+// --- The operator turns the guardrail on in the app config, not in the hive -------
+
+const writePolicy = (home, hive) => ({
+  hook_event_name: 'PreToolUse', agent_id: 'jim-1', session_id: 's', tool_name: 'Write',
+  tool_input: { file_path: path.join(hive.root(), 'policy', 'guardrail.json'), content: '{}' }, cwd: path.join(home, 'repo'),
+});
+const denied = (reply) => reply?.hookSpecificOutput?.permissionDecision === 'deny';
+
+test('a guardrail.json the operator has not turned on is not loaded: one row, god told once, nothing enforced', async (t) => {
+  for (const cfg of [{ guardrail: false }, { guardrail: undefined }]) {
+    // An agent can write the hive, so the file alone proves nothing about who wrote it.
+    const { home, hive, server, logRows, godInbox } = await floor(t, EXAMPLE(), cfg);
+    server.announceOnce();
+    server.announceOnce();
+    const status = server.policyEngine().status;
+    assert.equal(status.configured, false);
+    assert.equal(status.rulesLoaded, 0);
+    assert.equal(status.ignored, path.join(hive.root(), 'policy', 'guardrail.json'));
+    assert.equal(logRows().filter((r) => r.kind === 'policy-ignored').length, 1);
+    assert.equal(logRows().filter((r) => r.kind === 'policy-loaded' || r.kind === 'policy-status').length, 0);
+    const told = godInbox().filter((m) => /not turned on/.test(m.subject));
+    assert.equal(told.length, 1, 'god is told once');
+    assert.equal(told[0].from, 'guardrail');
+    assert.doesNotMatch(told[0].subject + told[0].body, /[\u2013\u2014]/);
+    // Inert: no backstop, and no self-protection either.
+    assert.equal(denied(await server.handle(writePolicy(home, hive))), false);
+    assert.equal((await server.handle(pushPayload(home)))?.hookSpecificOutput, undefined);
+  }
+});
+
+test('turned on, the same file loads and protects itself', async (t) => {
+  const { home, hive, server, logRows, godInbox } = await floor(t, EXAMPLE(), { guardrail: true });
+  server.announceOnce();
+  assert.equal(server.policyEngine().status.rulesLoaded, 3);
+  assert.equal(server.policyEngine().status.ignored, null);
+  assert.equal(logRows().filter((r) => r.kind === 'policy-ignored').length, 0);
+  assert.equal(godInbox().filter((m) => /not turned on/.test(m.subject)).length, 0);
+  assert.equal(denied(await server.handle(writePolicy(home, hive))), true);
+});
+
+test('turned on with no file: silent, as before', async (t) => {
+  const { server, hive, logRows, godInbox } = await floor(t, undefined, { guardrail: true });
+  fs.rmSync(path.join(hive.root(), 'policy'), { recursive: true, force: true });
+  server.announceOnce();
+  assert.equal(logRows().filter((r) => /^policy-/.test(r.kind)).length, 0);
+  assert.equal(godInbox().length, 0);
+});
+
+// --- A log backstop that fires changes nothing the agent sees -------------------
 
 const pushPayload = (home, extra = {}) => ({
   hook_event_name: 'PreToolUse', agent_id: 'jim-1', session_id: 's', tool_name: 'Bash',
   tool_input: { command: 'git push origin main' }, cwd: path.join(home, 'repo'), ...extra,
 });
 
-test('log only: a backstop that fires is recorded, and the reply is exactly the reply without it', async (t) => {
+test('a log backstop that fires is recorded, and the reply is exactly the reply without it', async (t) => {
   const on = await floor(t, EXAMPLE());
   const off = await floor(t);
   const withRule = await on.server.handle(pushPayload(on.home));
@@ -121,7 +169,7 @@ test('log only: a backstop that fires is recorded, and the reply is exactly the 
   assert.equal(off.logRows().filter((r) => /^policy-/.test(r.kind)).length, 0, 'no file: nothing evaluated, nothing logged');
 });
 
-test('log only: on_error deny on a log backstop still only logs', async (t) => {
+test('on_error deny on a log backstop still only logs', async (t) => {
   const file = JSON.stringify({
     version: 1, rev: 0, rules: [{
       id: 'bad-regex-at-runtime', principle: 'p', agents: 'all',

@@ -2,8 +2,7 @@
 
 /*
  * hive/policy/guardrail.json, as the engine reads it. A rule is a principle with an
- * optional backstop; in this version a backstop can only log: it is evaluated and a
- * match is recorded, never applied.
+ * optional backstop that blocks, asks, or only logs.
  */
 
 const test = require('node:test');
@@ -25,7 +24,7 @@ function home(t) {
 const put = (h, v) => fs.writeFileSync(path.join(h, 'hive', 'policy', GUARDRAIL_FILE), typeof v === 'string' ? v : JSON.stringify(v));
 const pre = (command, agent_id = 'jim') => ({ hook_event_name: 'PreToolUse', agent_id, tool_name: 'Bash', tool_input: { command }, cwd: '/r' });
 function engine(h, rows = []) {
-  const e = new PolicyEngine(path.join(h, 'hive'), (r) => rows.push(r));
+  const e = new PolicyEngine(path.join(h, 'hive'), (r) => rows.push(r), () => [], () => true);
   e.load();
   return e;
 }
@@ -44,14 +43,18 @@ test('a log backstop records a match and lets the call run; the row names the ru
   assert.equal(e.evaluate(pre('pwd')).ruleId, undefined);
 });
 
-test('block and ask are not available yet: the file is refused, and says why', (t) => {
-  for (const does of ['block', 'ask']) {
-    const h = home(t);
-    put(h, { version: 1, rev: 1, rules: [{ id: 'x', principle: 'p', agents: 'all', backstop: { on: true, does, match: { tool: 'Bash' } } }] });
-    const e = engine(h);
-    assert.equal(e.status.rulesLoaded, 0, does);
-    assert.match(e.status.error, /x: backstop\.does must be log/);
-  }
+test('block denies and ask asks; an unknown does refuses the file, and says why', (t) => {
+  const h = home(t);
+  put(h, { version: 1, rev: 1, rules: [
+    { id: 'no-ls', principle: 'p', agents: 'all', backstop: { on: true, does: 'block', match: { tool: 'Bash', command_matches: '^ls' } } },
+    { id: 'ask-cat', principle: 'q', agents: 'all', backstop: { on: true, does: 'ask', match: { tool: 'Bash', command_matches: '^cat' } } },
+  ] });
+  const e = engine(h);
+  assert.deepEqual([e.evaluate(pre('ls')).decision, e.evaluate(pre('cat f')).decision, e.evaluate(pre('pwd')).decision], ['deny', 'ask', 'allow']);
+  put(h, { version: 1, rev: 2, rules: [{ id: 'x', principle: 'p', agents: 'all', backstop: { on: true, does: 'nuke', match: { tool: 'Bash' } } }] });
+  e.load();
+  assert.equal(e.status.rulesLoaded, 0);
+  assert.match(e.status.error, /x: backstop\.does must be block, ask or log/);
 });
 
 test('a backstop that is off, or for other agents, does not fire; principle-only rules never do', (t) => {
@@ -98,10 +101,15 @@ test('toEngineRules: the backstops that are on, the message as the reason, agent
     { id: 'l', principle: 'P', agents: 'all', backstop: { on: true, does: 'log', match: { tool: 'Bash' }, message: 'M', on_error: 'deny' } },
     { id: 'off', principle: 'P', agents: 'all', backstop: { on: false, does: 'log', match: { tool: 'Bash' } } },
   ] });
-  assert.deepEqual(r.map((x) => [x.id, x.reason, x.agents, x.on_error]), [
-    ['b', 'P', ['pam'], undefined],
-    ['l', 'M', undefined, 'deny'],
+  assert.deepEqual(r.map((x) => [x.id, x.decision, x.mode, x.reason, x.agents, x.on_error]), [
+    ['b', 'deny', 'dry_run', 'P', ['pam'], undefined],
+    ['l', 'deny', 'dry_run', 'M', undefined, 'deny'],
   ]);
+  const live = toEngineRules({ version: 1, rev: 1, rules: [
+    { id: 'k', principle: 'P', agents: 'all', backstop: { on: true, does: 'block', match: { tool: 'Bash' } } },
+    { id: 'a', principle: 'P', agents: 'all', backstop: { on: true, does: 'ask', match: { tool: 'Bash' } } },
+  ] });
+  assert.deepEqual(live.map((x) => [x.id, x.decision, x.mode]), [['k', 'deny', 'live'], ['a', 'ask', 'live']]);
 });
 
 test('readGuardrail never throws: a broken file is an error string', (t) => {

@@ -28,7 +28,7 @@ function shipped() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'md-heldout-'));
   fs.mkdirSync(path.join(root, 'policy'));
   const rows = [];
-  const e = new PolicyEngine(root, (row) => rows.push(row), () => ['agent-a']);
+  const e = new PolicyEngine(root, (row) => rows.push(row), () => ['agent-a'], () => true);
   e.loadRules({ version: 1, rules });
   rows.length = 0; // keep the policy-loaded row out of what the cases assert on
   return { e, rows, root };

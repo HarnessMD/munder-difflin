@@ -4982,7 +4982,7 @@ process.stdin.on('end', () => {
     }
     if (sock) {
       try {
-        const c = net.createConnection(sock, () => { c.end(JSON.stringify(payload) + '\\n'); });
+        const c = net.createConnection(sock, () => { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); });
         c.on('error', () => {});
         c.on('close', () => process.exit(0));
       } catch (_) { process.exit(0); }
@@ -4995,7 +4995,7 @@ process.stdin.on('end', () => {
   if (!sock) { process.exit(0); }
   let resp = '';
   const done = (code) => { if (resp) process.stdout.write(resp); process.exit(code); };
-  const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+  const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
   c.setEncoding('utf8');
   c.on('data', (d) => { resp += d; });
   c.on('end', () => done(0));
@@ -5116,7 +5116,7 @@ process.stdin.on('end', () => {
     process.exit(0);
   };
   try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
     c.setEncoding('utf8');
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
@@ -5145,7 +5145,7 @@ function post(payload) {
     if (!SOCK) return;
     payload.agent_id = payload.agent_id || AGENT;
     fitFrame(payload);
-    var c = net.createConnection(SOCK, function () { try { c.end(JSON.stringify(payload) + '\\n'); } catch (e) {} });
+    var c = net.createConnection(SOCK, function () { try { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); } catch (e) {} });
     c.on('error', function () {});
   } catch (e) {}
 }
@@ -5203,7 +5203,7 @@ function post(payload) {
   try {
     if (!SOCK) return;
     payload.agent_id = payload.agent_id || AGENT;
-    const c = createConnection(SOCK, () => { try { c.end(JSON.stringify(payload) + '\\n'); } catch (e) {} });
+    const c = createConnection(SOCK, () => { try { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); } catch (e) {} });
     c.on('error', () => {});
   } catch (e) {}
 }
@@ -5274,7 +5274,7 @@ function emit(payload) {
   fitFrame(payload);
   if (!SOCK) return;
   try {
-    const c = net.createConnection(SOCK, function () { c.end(JSON.stringify(payload) + '\\n'); });
+    const c = net.createConnection(SOCK, function () { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); });
     c.on('error', function () {});
   } catch (e) {}
 }
@@ -5507,7 +5507,7 @@ process.stdin.on('end', () => {
     process.exit(0);
   };
   try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
     c.setEncoding('utf8');
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
@@ -5583,7 +5583,7 @@ process.stdin.on('end', () => {
     process.exit(0);
   };
   try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
     c.setEncoding('utf8');
     c.on('data', (d) => { resp += d; });
     c.on('end', done);

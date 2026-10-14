@@ -2,9 +2,9 @@
  * guardrail.json: the rules file, at `<hive>/policy/guardrail.json`.
  *
  * A rule is a principle (a sentence) with an optional BACKSTOP: the check the hook
- * server runs on every tool call. In this version a backstop can only `log`: the
- * engine records the match and the call runs. With no file, nothing is
- * evaluated and nothing is logged.
+ * server runs on every tool call. A backstop can `block` the call, `ask` the operator,
+ * or only `log` what it would have done. With no file, nothing is evaluated and
+ * nothing is logged.
  *
  * The engine reads the backstops through `toEngineRules`. This module only reads and
  * validates; nothing here writes the file.
@@ -26,7 +26,7 @@ export const MATCHERS = [
 
 export type { BackstopDoes, Backstop, GuardrailRule, GuardrailFile } from '../shared/guardrail';
 
-const DOES: readonly BackstopDoes[] = ['log'];
+const DOES: readonly BackstopDoes[] = ['block', 'ask', 'log'];
 
 /** Every problem with the file's shape, as "<rule id>: <what>". Empty when valid.
  *  The engine's own checks (regexes, matcher values) still run when it loads. */
@@ -56,7 +56,7 @@ export function validateGuardrail(g: unknown): string[] {
     const b = rule.backstop as Partial<Backstop>;
     if (!b || typeof b !== 'object') { bad('backstop must be an object'); continue; }
     if (typeof b.on !== 'boolean') bad('backstop.on must be true or false');
-    if (!DOES.includes(b.does as BackstopDoes)) bad(`backstop.does must be log, got ${JSON.stringify(b.does)}`);
+    if (!DOES.includes(b.does as BackstopDoes)) bad(`backstop.does must be block, ask or log, got ${JSON.stringify(b.does)}`);
     if (b.on_error !== undefined && b.on_error !== 'allow' && b.on_error !== 'deny') bad('backstop.on_error must be allow or deny');
     if (b.message !== undefined && typeof b.message !== 'string') bad('backstop.message must be text');
     if (!b.match || typeof b.match !== 'object' || Array.isArray(b.match)) { bad('backstop.match must be an object'); continue; }
@@ -68,8 +68,8 @@ export function validateGuardrail(g: unknown): string[] {
   return out;
 }
 
-/** The backstops that are on, as the engine's rules, in file order. A `log`
- *  backstop is evaluated and its matches recorded; nothing is applied. */
+/** The backstops that are on, as the engine's rules, in file order. `block` is a live
+ *  deny, `ask` a live ask, `log` a dry_run rule (recorded, never applied). */
 export function toEngineRules(g: GuardrailFile): PolicyRule[] {
   const out: PolicyRule[] = [];
   for (const r of g.rules) {
@@ -77,6 +77,8 @@ export function toEngineRules(g: GuardrailFile): PolicyRule[] {
     if (!b || !b.on) continue;
     out.push({
       id: r.id,
+      decision: b.does === 'ask' ? 'ask' : 'deny',
+      mode: b.does === 'log' ? 'dry_run' : 'live',
       reason: b.message?.trim() ? b.message : r.principle,
       match: b.match,
       ...(b.on_error ? { on_error: b.on_error } : {}),

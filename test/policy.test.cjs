@@ -25,7 +25,7 @@ function hive(file) {
 function engine(rules, defaults) {
   const root = hive(typeof rules === 'string' ? rules : undefined);
   const rows = [];
-  const e = new PolicyEngine(root, (row) => rows.push(row), () => ['pi', 'opencode', 'qwen']);
+  const e = new PolicyEngine(root, (row) => rows.push(row), () => ['pi', 'opencode', 'qwen'], () => true);
   if (rules === null || typeof rules === 'string') e.load();
   else e.loadRules({ version: 1, ...(defaults ? { defaults } : {}), rules });
   return { e, rows, root };
@@ -306,7 +306,7 @@ test('load NAMES the providers it cannot enforce against', () => {
   const { rows } = engine([MEMPALACE_RULE]);
   const loaded = rows.find((r) => r.kind === 'policy-loaded');
   assert.deepEqual(loaded.unenforceable_providers, ['pi', 'opencode', 'qwen']);
-  assert.deepEqual(loaded.rule_ids, ['destructive-shared-state']);
+  assert.deepEqual(loaded.rules, [{ id: 'destructive-shared-state', decision: 'deny', mode: 'dry_run' }]);
 });
 
 test('non-PreToolUse events are never evaluated', () => {
