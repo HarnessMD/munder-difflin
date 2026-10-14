@@ -7,7 +7,7 @@ category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
 pinned: true
-pinOrder: 5
+pinOrder: 6
 primaryKeyword: "grok bot alternatives"
 secondaryKeywords: ["grok bot alternative", "grok bot competitors", "gemini spark vs grok bot", "grok bot open source alternative", "grok bot vs chatgpt dots", "grok bot vs claude cowork", "is grok bot free"]
 tags: ["Comparisons", "Local-First", "Security", "Open Source", "Memory"]

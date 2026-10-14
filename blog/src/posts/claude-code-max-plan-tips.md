@@ -6,7 +6,7 @@ category: guides
 categoryLabel: Guides
 type: Technical
 pinned: true
-pinOrder: 3
+pinOrder: 4
 primaryKeyword: "how to get the most out of claude max"
 secondaryKeywords: ["how to make the most of claude max", "claude code max plan tips", "how to maximize claude code usage", "how to reduce claude code token usage", "claude code usage limit reset", "does claude code max have weekly limits"]
 tags: ["Guides", "Claude Code", "Cost", "Workflow"]

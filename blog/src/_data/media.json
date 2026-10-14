@@ -1501,11 +1501,11 @@
     "youtube": []
   },
   "how-to-install-and-use-munder-difflin": {
-    "title": "How to Install and Use Munder Difflin: A Beginner's Guide",
+    "title": "How to Install Munder Difflin 0.5.6: A Beginner's Guide From Zero to a Working Office",
     "category": "guides",
     "hero": {
       "file": "assets/media/how-to-install-and-use-munder-difflin/hero.png",
-      "alt": "The first Munder Difflin onboarding screen, asking whether you are technical or non-technical",
+      "alt": "Title card on white. Large ink type reads Install Munder Difflin 0.5.6 under the line From zero to a working office, with a Beginner's guide pill, beside a shelf going up on two brackets with a spirit level on it, a screwdriver, a hex key and two spare screws.",
       "prompt": "",
       "status": "ready"
     },
@@ -1603,6 +1603,18 @@
       "shot-focus": {
         "file": "assets/media/how-to-install-and-use-munder-difflin/shot-focus.png",
         "alt": "Munder Difflin in focus mode, showing a single agent's terminal at full width with the agent list on the left",
+        "prompt": "",
+        "status": "ready"
+      },
+      "autonomy-056": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/autonomy-056.png",
+        "alt": "Screenshot of Munder Difflin Settings, Autonomy & Budgets, in light mode: Autonomous set to autonomous, Who can add agents set to me and the orchestrator, the circuit breaker switched on with fields for a floor token budget and token velocity, and archiving settings.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "prerequisites-056": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/prerequisites-056.png",
+        "alt": "Screenshot of Munder Difflin Settings, Prerequisites, in light mode: uv, git and Node.js marked Found with their paths, and MemPalace marked Not found with its install command and a copy button.",
         "prompt": "",
         "status": "ready"
       }
@@ -3822,11 +3834,11 @@
     "youtube": []
   },
   "your-first-hour-with-munder-difflin": {
-    "title": "Your First Hour With Munder Difflin: Onboarding to a Pro Office",
+    "title": "Your First Hour With Munder Difflin 0.5.6: Onboarding From First Sign In to a Working Office",
     "category": "guides",
     "hero": {
       "file": "assets/media/your-first-hour-with-munder-difflin/hero.png",
-      "alt": "Michael, the orchestrator, in the Pro app after dispatching four tasks to his agents",
+      "alt": "Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.6, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings.",
       "prompt": "",
       "status": "ready"
     },
@@ -3984,6 +3996,18 @@
       "g3-ring": {
         "file": "assets/media/your-first-hour-with-munder-difflin/g3-ring.png",
         "alt": "The floating Stapler with its action ring open",
+        "prompt": "",
+        "status": "ready"
+      },
+      "pro-sidebar-056": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/pro-sidebar-056.png",
+        "alt": "Screenshot of the Munder Difflin Pro sidebar in light mode: the app name and PRO plan, then rows for Tasks, Inbox, Automations, Memory, Capabilities and Stapler.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "ask-me-056": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/ask-me-056.png",
+        "alt": "Screenshot of an agent's Inbox in Munder Difflin, light mode: an Ask me list with three questions, each with a task key, a time and an Answer button, above the message box with Send and Steer.",
         "prompt": "",
         "status": "ready"
       }
@@ -4858,5 +4882,23 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "ai-agent-use-cases-our-office": {
+    "title": "AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/ai-agent-use-cases-our-office/hero.png",
+      "alt": "Title card on white. Every Agent on Our Floor in large ink type, a Checked 14 Oct 2026 pill and a yellow desk bell ringing.",
+      "prompt": "Still of the hero scene in assets/media/ai-agent-use-cases-our-office/motion.js.",
+      "status": "ready"
+    },
+    "inline": {
+      "busy-office": {
+        "file": "assets/media/ai-agent-use-cases-our-office/busy-office.png",
+        "alt": "Screenshot of the middle of our real Munder Difflin office floor in the Classic view: seven agents on a green tiled floor among desks, each with a name label, Jim, Angela, Ryan, Stanley, Creed, Dwight and Kevin. Thought bubbles above them read idle and starting up.",
+        "prompt": "",
+        "status": "ready"
+      }
+    }
   }
 }
