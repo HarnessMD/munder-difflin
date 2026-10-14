@@ -482,7 +482,11 @@
     "openIssue": "GitHub Issue #{{num}}：{{title}}",
     "deliveryResumeAria": "恢复整个楼层的自动投递",
     "deliveryHoldAria": "暂停整个楼层的自动投递",
-    "openIdeAria": "打开 IDE"
+    "openIdeAria": "打开 IDE",
+    "logRestored": "{{name}} restored",
+    "logKilled": "stopped {{name}}",
+    "logReset": "reset {{name}}",
+    "logOpFailed": "{{op}} {{name}} refused: {{reason}}"
   },
   "addAgent": {
     "title": "添加智能体",

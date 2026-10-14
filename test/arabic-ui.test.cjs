@@ -301,7 +301,13 @@ test('no Arabic string is left as its English source', () => {
     'nativeMenu.paste',
     'nativeMenu.selectAll',
     'nativeMenu.quit',
-    'nativeMenu.close'
+    'nativeMenu.close',
+    // FORK agent-ops (pending translator): activity lines for god-driven
+    // lifecycle ops. Same rule as above — English here equals the fallback.
+    'commandCenter.logRestored',
+    'commandCenter.logKilled',
+    'commandCenter.logReset',
+    'commandCenter.logOpFailed'
   ]);
   const e = pathsOf(en), a = pathsOf(ar);
   const untranslated = [];

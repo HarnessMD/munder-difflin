@@ -482,7 +482,11 @@
     "openIssue": "GitHub Issue #{{num}}: {{title}}",
     "deliveryResumeAria": "Retomar entrega automática para o escritório todo",
     "deliveryHoldAria": "Reter entrega automática para o escritório todo",
-    "openIdeAria": "Abrir a IDE"
+    "openIdeAria": "Abrir a IDE",
+    "logRestored": "{{name}} restaurado",
+    "logKilled": "{{name}} parado",
+    "logReset": "{{name}} reiniciado",
+    "logOpFailed": "{{op}} recusado para {{name}}: {{reason}}"
   },
   "addAgent": {
     "title": "ADICIONAR AGENTE",

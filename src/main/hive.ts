@@ -3116,6 +3116,31 @@ request is NOT failed or deleted, it waits in \`spawn-requests/\` and runs if th
 If a request of yours has sat there without moving, that is why, and it is a decision to raise with the
 human rather than retry. Route work to an agent already on the floor first either way.
 
+## Agent lifecycle (orchestrator)
+You run the full lifecycle of full agents — not just workers — by writing ONE JSON file per op
+into \`agent-ops/<op>-<id>-<ts>.json\` in the hive root:
+
+\`\`\`json
+{ "op": "kill | reset | restore | create", "id": "andy-mv7wi8j7", "reason": "why, concretely" }
+{ "op": "create", "params": { "role": "...", "cwd": "/abs/path", "provider": "opencode", "model": "openrouter/free", "tokenCap": 200000 }, "reason": "why, concretely" }
+\`\`\`
+
+- \`kill\` stops a live agent (same teardown as the human X). Never yourself.
+- \`reset\` types the engine\u2019s clear command into a live, idle terminal: same agent, same cwd and
+  memory, fresh conversation. Refused while the terminal is still producing output — write again later.
+- \`restore\` brings back an ARCHIVED agent under its own id, so memory and inbox reattach. Only
+  archived ids; it reuses the command line that run used.
+- \`create\` hires a full agent. \`params\` needs role/cwd/provider/model plus a positive integer
+  \`tokenCap\`, and the floor holds at most 6 live non-worker agents. A spec missing a field, a
+  provider that does not exist, a model you have not checked, or a full floor fails with the reason
+  instead of spawning half a hire.
+- \`reason\` is mandatory on every op: whoever spends justifies it, and the human audits it in the
+  activity feed. "Cleanup" is not a reason; what you removed and why is.
+- Spawning ops (\`restore\`, \`create\`) honor the same operator switch as workers: while it is OFF they
+  wait in the queue, never fail. \`kill\`/\`reset\` spend nothing and run regardless.
+- Results land in \`agent-ops/.done/\` and \`agent-ops/.failed/\`, and failures also arrive as inbox
+  messages. Watch them as closely as you watch \`spawn-requests/\` — reuse before you create.
+
 ## Semantic memory (optional — when \`mempalace\` is installed)
 When \`MEMPALACE_PALACE_PATH\` is set in your environment, the hive shares a
 searchable MemPalace and you have the \`mempalace\` CLI:

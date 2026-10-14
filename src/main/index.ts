@@ -63,6 +63,9 @@ import * as integrations from './integrations';
 import { validateBaseUrl, buildAuthHeaders, resolveUpstreamUrl, secretRefFor, INTEGRATION_TEMPLATES } from '../shared/integrations';
 import { RosterStore } from './roster';
 import { buildWorkerLaunch } from './workerLaunch';
+import { validateAgentOp, MAX_LIVE_NON_WORKERS } from './agentOps';
+import { tokenizeCommand } from '../shared/commandLine';
+import { clearCommandForProvider } from '../shared/providerAutomation';
 import { ControlRegistry } from './control';
 import { WorkerWakeWatchdog, WORKER_WAKE_REPORT_MS, activityEvidenceAt, type WorkerWakeFacts } from './workerWake';
 import { inboxNudgeText } from '../shared/hiveNudge';
@@ -75,6 +78,7 @@ import {
   inferAgentProvider,
   isClaudeProvider,
   nonInteractiveEnvForProvider,
+  normalizeAgentProvider,
   providerPreset,
   installInfoForProvider,
   type AgentProvider
@@ -3338,7 +3342,7 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   try { clearMissionTimers(); } catch (e) { console.error('[changeHome] clearMissionTimers:', e); }
   try { clearContextTimers(); } catch (e) { console.error('[changeHome] clearContextTimers:', e); }
   try { stopWebhookDoneObserver(); } catch (e) { console.error('[changeHome] stopWebhookDoneObserver:', e); }
-  try { stopEphemeralWorkerWatcher(); } catch (e) { console.error('[changeHome] stopWorkerWatcher:', e); }
+  try { stopEphemeralWorkerWatcher(); stopAgentOpsWatcher(); } catch (e) { console.error('[changeHome] stopWorkerWatcher:', e); }
   try { integrationBroker.stop(); } catch (e) { console.error('[changeHome] broker.stop:', e); }
   try { hive.stopRouter(); } catch (e) { console.error('[changeHome] stopRouter:', e); }
   try { hookServer.stop(); } catch (e) { console.error('[changeHome] hookServer.stop:', e); }
@@ -3838,7 +3842,7 @@ function teardownAndQuit(): void {
   try { clearMissionTimers(); } catch (e) { console.error('[quit] clearMissionTimers:', e); }
   try { clearContextTimers(); } catch (e) { console.error('[quit] clearContextTimers:', e); }
   try { stopWebhookDoneObserver(); } catch (e) { console.error('[quit] stopWebhookDoneObserver:', e); }
-  try { stopEphemeralWorkerWatcher(); } catch (e) { console.error('[quit] stopWorkerWatcher:', e); }
+  try { stopEphemeralWorkerWatcher(); stopAgentOpsWatcher(); } catch (e) { console.error('[quit] stopWorkerWatcher:', e); }
   try { integrationBroker.stop(); } catch (e) { console.error('[quit] broker.stop:', e); }
   try { hive.stopRouter(); } catch (e) { console.error('[quit] stopRouter:', e); }
   try { hookServer.stop(); } catch (e) { console.error('[quit] hookServer.stop:', e); }
@@ -3899,7 +3903,7 @@ ipcMain.handle('app:resetAll', () => {
   try { clearMissionTimers(); } catch (e) { console.error('[reset] clearMissionTimers:', e); }
   try { clearContextTimers(); } catch (e) { console.error('[reset] clearContextTimers:', e); }
   try { stopWebhookDoneObserver(); } catch (e) { console.error('[reset] stopWebhookDoneObserver:', e); }
-  try { stopEphemeralWorkerWatcher(); } catch (e) { console.error('[reset] stopWorkerWatcher:', e); }
+  try { stopEphemeralWorkerWatcher(); stopAgentOpsWatcher(); } catch (e) { console.error('[reset] stopWorkerWatcher:', e); }
   try { integrationBroker.stop(); } catch (e) { console.error('[reset] broker.stop:', e); }
   try { hive.stopRouter(); } catch (e) { console.error('[reset] stopRouter:', e); }
   try { hookServer.stop(); } catch (e) { console.error('[reset] hookServer.stop:', e); }
@@ -5087,6 +5091,282 @@ function stopEphemeralWorkerWatcher(): void {
   if (workerWatchTimer) { clearInterval(workerWatchTimer); workerWatchTimer = null; }
 }
 
+
+// ─── Agent lifecycle ops from god (agent-ops/) ─────────────────────────────
+// Mirror of the worker spawn-request machinery, extended to full agents: god
+// writes HIVE_ROOT/agent-ops/<op>-<id>-<ts>.json {op,id?,params?,reason} and
+// main validates (validateAgentOp: fail-closed, reason mandatory), executes,
+// and archives .done/.failed + informs god. Outcomes surface through the
+// channels hires already use (hive:agentSpawned broadcast, onExit teardown,
+// kind:'restore'|'kill'|'reset' activity lines) — no new IPC, no writes into
+// the renderer's roster mirror.
+const AGENT_OPS_TICK_MS = 1500;
+/** Reset refuses when the terminal produced output recently: typing a slash
+ *  command mid-stream corrupts the run. God re-requests; the file never lingers. */
+const AGENT_OPS_RESET_QUIET_MS = 30_000;
+let agentOpsWatchTimer: ReturnType<typeof setInterval> | null = null;
+let agentOpsTickRunning = false;
+
+function agentOpsDir(): string | null {
+  const root = hive.root();
+  return root ? join(root, 'agent-ops') : null;
+}
+
+function archiveAgentOpRequest(filePath: string, sub: '.done' | '.failed'): void {
+  const queue = agentOpsDir();
+  try {
+    if (!queue) throw new Error('no hive root');
+    const dir = join(queue, sub);
+    mkdirSync(dir, { recursive: true });
+    renameSync(filePath, join(dir, basename(filePath)));
+  } catch (e) {
+    // Last resort: delete it so a poison file can't loop forever.
+    try { unlinkSync(filePath); } catch { /* noop */ }
+    console.error('[agent-ops] archiveRequest failed:', e);
+  }
+}
+
+function startAgentOpsWatcher(): void {
+  if (agentOpsWatchTimer || !hive.enabled()) return;
+  const dir = agentOpsDir();
+  if (dir) { try { mkdirSync(dir, { recursive: true }); } catch { /* noop */ } }
+  agentOpsWatchTimer = setInterval(() => { void agentOpsTick(); }, AGENT_OPS_TICK_MS);
+}
+
+function stopAgentOpsWatcher(): void {
+  if (agentOpsWatchTimer) { clearInterval(agentOpsWatchTimer); agentOpsWatchTimer = null; }
+}
+
+function agentOpsDisplayName(id: string): string {
+  try {
+    const rec = (hive.registry()?.agents ?? {})[id] as { name?: unknown } | undefined;
+    return typeof rec?.name === 'string' && rec.name ? rec.name : id;
+  } catch { return id; }
+}
+
+async function agentOpsTick(): Promise<void> {
+  if (agentOpsTickRunning) return;
+  agentOpsTickRunning = true;
+  try {
+    const dir = agentOpsDir();
+    if (!dir || !hive.enabled()) return;
+    // Spawning ops honor the operator's orchestratorMaySpawn gate, exactly
+    // like spawn-requests: letting the orchestrator spin up agents unprompted
+    // is a SPEND decision. kill/reset spend nothing and run regardless. Files
+    // that cannot run stay queued — never failed for a reason god never asked
+    // about. (Kill/reset are filtered per-file below, so one op kind never
+    // blocks files of the other kinds behind it.)
+    const maySpawn = readConfig().orchestratorMaySpawn === true;
+    let files: string[];
+    try { files = readdirSync(dir).filter((f) => f.endsWith('.json')); } catch { return; }
+    for (const f of files) await processAgentOpRequest(join(dir, f), maySpawn);
+  } finally { agentOpsTickRunning = false; }
+}
+
+async function processAgentOpRequest(filePath: string, maySpawn: boolean): Promise<void> {
+  let raw: unknown;
+  try { raw = JSON.parse(readFileSync(filePath, 'utf8')); } catch (e) {
+    informGod('[agent-op rejected] unparseable request', `Could not parse agent-ops ${basename(filePath)} — ${String(e)}`);
+    archiveAgentOpRequest(filePath, '.failed');
+    return;
+  }
+  const reg = hive.registry();
+  const agents = (reg?.agents ?? {}) as Record<string, { archived?: unknown }>;
+  const ids = Object.keys(agents);
+  const liveIds = ids.filter((id) => ptyForAgent(id));
+  const archivedIds = ids.filter((id) => agents[id]?.archived === true);
+  const v = validateAgentOp(raw, {
+    godId: typeof reg?.godId === 'string' ? reg.godId : null,
+    liveIds,
+    archivedIds,
+    liveNonWorkers: liveIds.filter((id) => !liveWorkers.has(id)).length,
+    maxLiveNonWorkers: MAX_LIVE_NON_WORKERS
+  });
+  if (!v.ok) {
+    informGod(`[agent-op rejected] ${v.error}`, `Agent-ops ${basename(filePath)} rejected: ${v.error}.`);
+    try {
+      // The op may be missing/garbage too; render whatever was actually there.
+      const rawOp = typeof (raw as { op?: unknown } | null)?.op === 'string' ? (raw as { op: string }).op : 'op';
+      hive.appendLog({ kind: 'agent-op-failed', op: rawOp, reason: v.error });
+    } catch { /* noop */ }
+    archiveAgentOpRequest(filePath, '.failed');
+    return;
+  }
+  const req = v.value;
+  // Spawning ops wait out the orchestratorMaySpawn gate (letting the
+  // orchestrator spin up agents unprompted is a SPEND decision, same as
+  // spawn-requests); kill/reset spend nothing and run regardless. Skipped
+  // files stay queued — never failed for a reason god never asked about.
+  if (!maySpawn && (req.op === 'restore' || req.op === 'create')) return;
+  const fail = (reason: string): void => {
+    informGod(
+      `[agent-op ${req.op} rejected] ${reason}`,
+      `Agent-ops ${basename(filePath)} (${req.op}${req.id ? ` ${req.id}` : ''}) rejected: ${reason}.`
+    );
+    // god hears about it in his inbox; the HUMAN reads the activity feed. A
+    // refusal that only lands in an agent's inbox is invisible to the operator
+    // who has to decide whether to re-ask — the same gap bug #113 left behind.
+    try {
+      hive.appendLog({
+        kind: 'agent-op-failed', op: req.op, agentId: req.id,
+        name: req.id ? agentOpsDisplayName(req.id) : undefined, reason
+      });
+    } catch { /* noop */ }
+    archiveAgentOpRequest(filePath, '.failed');
+  };
+
+  // ── kill: same teardown as the human X (renderer learns via onExit) ──
+  if (req.op === 'kill') {
+    const id = req.id!;
+    const ptyId = ptyForAgent(id);
+    if (!ptyId) { fail(`"${id}" has no live pty`); return; }
+    try { ptyManager.kill(ptyId); } catch (e) { fail(`kill failed: ${String(e)}`); return; }
+    try { teardownPty(ptyId); } catch (e) { console.error('[agent-ops] teardownPty failed:', e); }
+    try { hive.setArchived(id, true); } catch (e) { console.error('[agent-ops] setArchived failed:', e); }
+    try { liveWebContents()?.send('hive:agentArchived', { id }); } catch { /* window torn down */ }
+    try { hive.appendLog({ kind: 'kill', agentId: id, name: agentOpsDisplayName(id) }); } catch { /* noop */ }
+    archiveAgentOpRequest(filePath, '.done');
+    return;
+  }
+
+  // ── reset: type the provider's clear verb into the live PTY. No roster or
+  // PTY change — the conversation restarts in place, id/cwd/memory intact.
+  if (req.op === 'reset') {
+    const id = req.id!;
+    const rec = agents[id] as { provider?: unknown } | undefined;
+    const provider = normalizeAgentProvider(rec?.provider);
+    const cmd = provider ? clearCommandForProvider(provider) : null;
+    if (!cmd) { fail('no clear command for this agent\'s engine — kill and respawn instead'); return; }
+    const ptyId = ptyForAgent(id);
+    if (!ptyId) { fail(`"${id}" has no live pty`); return; }
+    const idle = ptyManager.idleFor(ptyId) ?? Infinity;
+    if (idle < AGENT_OPS_RESET_QUIET_MS) {
+      fail(`agent busy (${Math.round(idle / 1000)}s since output) — write the request again later`);
+      return;
+    }
+    const wrote = ptyManager.write(ptyId, cmd + '\r');
+    if (!wrote || (typeof wrote === 'object' && !wrote.ok)) { fail('pty write failed'); return; }
+    try { hive.appendLog({ kind: 'reset', agentId: id, name: agentOpsDisplayName(id) }); } catch { /* noop */ }
+    archiveAgentOpRequest(filePath, '.done');
+    return;
+  }
+
+  // ── restore: respawn an archived agent under its own id. Reuses the stored
+  // command verbatim (same flags/model as the run that worked); memory and
+  // inbox reattach by id on disk. ensureAgent (inside spawnAgentCore)
+  // un-archives the registry entry and preserves the recorded session id.
+  if (req.op === 'restore') {
+    const id = req.id!;
+    const rec = readArchivedRecord(id);
+    if (!rec) { fail(`no archived record for "${id}"`); return; }
+    if (!existsSync(rec.cwd)) { fail(`cwd gone (${rec.cwd})`); return; }
+    const tokens = tokenizeCommand(rec.command);
+    const bin = tokens[0] ?? '';
+    if (!bin) { fail('empty stored command'); return; }
+    if (!isSafeCommandName(bin) && !isAbsolute(bin)) {
+      fail(`refusing spawn: engine command "${bin}" is not a plain command name or an absolute path`);
+      return;
+    }
+    if (!ptyManager.isCommandAvailable(bin)) { fail(`engine CLI "${bin}" is not installed`); return; }
+    const provider = normalizeAgentProvider(rec.provider) ?? inferAgentProvider(tokens.join(' '), undefined);
+    if (!provider) { fail('unknown provider in archived record'); return; }
+    let res: { ok: boolean; error?: string };
+    try {
+      res = await spawnAgentCore({
+        id, cwd: rec.cwd, command: bin, args: tokens.slice(1),
+        cols: 100, rows: 30,
+        hive: { id, name: rec.name, provider, cwd: rec.cwd, role: rec.role },
+        isolate: false, resume: true, provider
+      }, null);
+    } catch (e) { res = { ok: false, error: String(e) }; }
+    if (!res.ok) { fail(`spawn failed — ${res.error ?? 'unknown error'}`); return; }
+    try {
+      liveWebContents()?.send('hive:agentSpawned', {
+        id, name: rec.name, provider, cwd: rec.cwd, command: rec.command,
+        role: rec.role, character: rec.character, accent: rec.accent
+      });
+    } catch { /* window torn down */ }
+    try { hive.appendLog({ kind: 'restore', agentId: id, name: rec.name }); } catch { /* noop */ }
+    archiveAgentOpRequest(filePath, '.done');
+    return;
+  }
+
+  // ── create: a full agent from an explicit spec. Fleet cap rechecked here
+  // (the fleet moved since validation seconds ago). Mirrors the worker launch
+  // translation (provider default command + model flag + auto stance).
+  const spec = req.params!;
+  const provider = normalizeAgentProvider(spec.provider);
+  if (!provider) { fail(`unknown provider "${spec.provider}"`); return; }
+  if (!existsSync(spec.cwd)) { fail(`cwd missing (${spec.cwd})`); return; }
+  const freshLive = Object.keys((hive.registry()?.agents ?? {})).filter((x) => ptyForAgent(x));
+  const freshNonWorkers = freshLive.filter((x) => !liveWorkers.has(x)).length;
+  if (freshNonWorkers >= MAX_LIVE_NON_WORKERS) {
+    fail(`fleet cap reached (${freshNonWorkers}/${MAX_LIVE_NON_WORKERS} live non-workers)`);
+    return;
+  }
+  const slug = (spec.name ?? 'agent').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'agent';
+  const id = `${slug}-${Date.now().toString(36)}`;
+  if (freshLive.includes(id)) { fail('id collision — write the request again'); return; }
+  const cfg = readConfig();
+  const launch = buildWorkerLaunch({
+    requestProvider: provider, requestModel: spec.model,
+    defaultCommand: cfg.defaultCommand, autoMode: !!cfg.autoMode
+  });
+  const name = spec.name?.trim() ? spec.name.trim() : id;
+  let res: { ok: boolean; error?: string };
+  try {
+    res = await spawnAgentCore({
+      id, cwd: spec.cwd, command: launch.bin, args: launch.args,
+      cols: 120, rows: 32,
+      hive: { id, name, provider, cwd: spec.cwd, role: spec.role },
+      isolate: true, resume: false, provider
+    }, null);
+  } catch (e) { res = { ok: false, error: String(e) }; }
+  if (!res.ok) { fail(`spawn failed — ${res.error ?? 'unknown error'}`); return; }
+  // The cap is the gate: a spawn the cap rejects must not survive uncapped.
+  try { setAgentTokenCap(id, spec.tokenCap); } catch (e) {
+    try { const p = ptyForAgent(id); if (p) { ptyManager.kill(p); teardownPty(p); } } catch { /* best-effort */ }
+    fail(`spawned but token cap rejected (${String(e)}) — agent removed`);
+    return;
+  }
+  try {
+    liveWebContents()?.send('hive:agentSpawned', {
+      id, name, provider, cwd: spec.cwd, command: launch.command, role: spec.role
+    });
+  } catch { /* window torn down */ }
+  // ensureAgent already logged kind:'spawn' ("spawned X") — reuse it, no new line.
+  archiveAgentOpRequest(filePath, '.done');
+}
+
+/** Archived UI-mirror record with the fields a respawn needs. The roster file
+ *  is read-only here: the renderer owns its writes, main only looks. */
+function readArchivedRecord(id: string): {
+  command: string; provider: unknown; cwd: string; name: string;
+  role: string; character?: string; accent?: string;
+} | null {
+  try {
+    const snap = roster.read();
+    const list = snap?.archived;
+    if (!Array.isArray(list)) return null;
+    const rec = list.find((e) => (e as { id?: unknown })?.id === id) as Record<string, unknown> | undefined;
+    if (!rec) return null;
+    const str = (v: unknown): string | null => typeof v === 'string' && v.trim() ? v : null;
+    const command = str(rec.command);
+    const cwd = str(rec.cwd);
+    const name = str(rec.name) ?? id;
+    if (!command || !cwd) return null;
+    const goal = str((rec as { goal?: unknown }).goal);
+    return {
+      command, cwd, name,
+      provider: rec.provider,
+      role: str(rec.description) ?? goal ?? name,
+      character: typeof rec.character === 'string' ? rec.character : undefined,
+      accent: typeof rec.accent === 'string' ? rec.accent : undefined
+    };
+  } catch { return null; }
+}
+
+
 /** Snapshot of one live ephemeral worker for the renderer Workers tab. */
 interface WorkerSnapshot {
   workerId: string;
@@ -5195,6 +5475,7 @@ function bootstrapHiveServices(): void {
   archiveOrphanedAgents(); // #57/#58: archive stale archived:false entries with no live PTY
   hive.startRouter();
   startEphemeralWorkerWatcher(); // poll HIVE_ROOT/spawn-requests → ephemeral workers
+  startAgentOpsWatcher(); // poll HIVE_ROOT/agent-ops → lifecycle ops (kill/reset/restore/create)
   // Phase 2: the loopback secret broker. Bind it BEFORE workers spawn so each spawn can
   // be granted a capability token + the broker URL in its env. Loopback-only, idempotent.
   void integrationBroker.start().then((r) => {
