@@ -1407,6 +1407,12 @@ const api = {
   /** Open the project's releases page for a notify-only update. */
   updateOpenRelease: (url?: string): Promise<{ ok: boolean }> =>
     ipcRenderer.invoke('update:openRelease', url),
+  /** Push translated native-menu labels; main rebuilds the app menu.
+   *  The renderer owns i18n — main keeps no locale files — so labels travel
+   *  over IPC (menu:setLabels) on boot and every language switch. English
+   *  until the first push. */
+  setMenuLabels: (labels: Record<string, string>): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('menu:setLabels', labels),
   /** Which OS this window runs on, for platform-specific copy. */
   platform: process.platform as string,
   arch: process.arch as string,

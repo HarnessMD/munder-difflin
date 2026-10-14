@@ -1495,5 +1495,20 @@
   "releaseDrop": {
     "closeAria": "Close release notes",
     "closeTitle": "Close (Esc)"
+  },
+  "nativeMenu": {
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "window": "Window",
+    "newFloor": "New Floor",
+    "undo": "Undo",
+    "redo": "Redo",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "selectAll": "Select All",
+    "quit": "Quit",
+    "close": "Close"
   }
 }

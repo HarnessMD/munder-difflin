@@ -2483,21 +2483,58 @@ function openFloor(): BrowserWindow | null {
 /** Build + install the application menu. Only called when multiWindow is on, so
  *  flag-off keeps Electron's default menu (zero behavior change). Uses standard
  *  role-based items so copy/paste/quit/etc. work per-platform, and adds the
- *  "New Floor" item (Cmd/Ctrl+Shift+N). */
+ *  "New Floor" item (Cmd/Ctrl+Shift+N).
+ *
+ *  Labels come from the renderer over menu:setLabels (nativeMenu.* locale
+ *  section) — main owns no i18n. English until the first push. Role-generated
+ *  submenus (View/Window) stay in Electron's default language: translating
+ *  those would mean spelling out every Reload/DevTools item by hand. */
+const MENU_LABEL_KEYS = [
+  'file', 'edit', 'view', 'window', 'newFloor',
+  'undo', 'redo', 'cut', 'copy', 'paste', 'selectAll', 'quit', 'close'
+] as const;
+
+/** Last labels pushed by the renderer; English until the first push. */
+let menuLabels: Record<string, string> = {
+  file: 'File', edit: 'Edit', view: 'View', window: 'Window',
+  newFloor: 'New Floor', undo: 'Undo', redo: 'Redo', cut: 'Cut',
+  copy: 'Copy', paste: 'Paste', selectAll: 'Select All',
+  quit: 'Quit', close: 'Close'
+};
+
+function isMenuLabels(payload: unknown): payload is Record<string, string> {
+  if (!payload || typeof payload !== 'object') return false;
+  const p = payload as Record<string, unknown>;
+  return MENU_LABEL_KEYS.every(
+    (k) => typeof p[k] === 'string' && (p[k] as string).length > 0 && (p[k] as string).length <= 60
+  );
+}
+
+ipcMain.handle('menu:setLabels', (_evt, payload: unknown) => {
+  if (!isMenuLabels(payload)) return { ok: false, error: 'invalid labels' };
+  menuLabels = { ...payload };
+  try {
+    // Mirror the boot path: no custom menu unless multiWindow opted in.
+    if (readConfig().multiWindow) installAppMenu();
+  } catch (e) { console.error('[menu] rebuild failed:', e); }
+  return { ok: true };
+});
+
 function installAppMenu(): void {
   const isMac = process.platform === 'darwin';
+  const L = menuLabels;
   const newFloorItem = {
-    label: 'New Floor',
+    label: L.newFloor,
     accelerator: 'CmdOrCtrl+Shift+N',
     click: () => { openFloor(); }
   };
   const template: Electron.MenuItemConstructorOptions[] = [
     ...(isMac ? [{ role: 'appMenu' as const }] : []),
     {
-      label: 'File',
+      label: L.file,
       submenu: isMac
-        ? [newFloorItem, { type: 'separator' as const }, { role: 'close' as const }]
-        : [newFloorItem, { type: 'separator' as const }, { role: 'quit' as const }]
+        ? [newFloorItem, { type: 'separator' as const }, { role: 'close' as const, label: L.close }]
+        : [newFloorItem, { type: 'separator' as const }, { role: 'quit' as const, label: L.quit }]
     },
     // The Edit menu is spelled out rather than `{ role: 'editMenu' }` for one
     // reason: `registerAccelerator: false` on the clipboard items.
@@ -2516,19 +2553,19 @@ function installAppMenu(): void {
     // handler and the textarea's native paste event both read the clipboard
     // synchronously, inside the keystroke, before any restore can land.
     {
-      label: 'Edit',
+      label: L.edit,
       submenu: [
-        { role: 'undo' as const, registerAccelerator: false },
-        { role: 'redo' as const, registerAccelerator: false },
+        { role: 'undo' as const, label: L.undo, registerAccelerator: false },
+        { role: 'redo' as const, label: L.redo, registerAccelerator: false },
         { type: 'separator' as const },
-        { role: 'cut' as const, registerAccelerator: false },
-        { role: 'copy' as const, registerAccelerator: false },
-        { role: 'paste' as const, registerAccelerator: false },
-        { role: 'selectAll' as const, registerAccelerator: false }
+        { role: 'cut' as const, label: L.cut, registerAccelerator: false },
+        { role: 'copy' as const, label: L.copy, registerAccelerator: false },
+        { role: 'paste' as const, label: L.paste, registerAccelerator: false },
+        { role: 'selectAll' as const, label: L.selectAll, registerAccelerator: false }
       ]
     },
-    { role: 'viewMenu' },
-    { role: 'windowMenu' }
+    { role: 'viewMenu', label: L.view },
+    { role: 'windowMenu', label: L.window }
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }

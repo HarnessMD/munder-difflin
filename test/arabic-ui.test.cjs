@@ -288,7 +288,20 @@ test('no Arabic string is left as its English source', () => {
     'sidebar.resizeTitle',
     'updatesSection.readMore',
     'updatesSection.installAria',
-    'memoryGraph.emptyHint'
+    'memoryGraph.emptyHint',
+    // ...Task 10: native menu labels (main rebuilds from the IPC push).
+    'nativeMenu.file',
+    'nativeMenu.edit',
+    'nativeMenu.view',
+    'nativeMenu.window',
+    'nativeMenu.newFloor',
+    'nativeMenu.undo',
+    'nativeMenu.redo',
+    'nativeMenu.copy',
+    'nativeMenu.paste',
+    'nativeMenu.selectAll',
+    'nativeMenu.quit',
+    'nativeMenu.close'
   ]);
   const e = pathsOf(en), a = pathsOf(ar);
   const untranslated = [];

@@ -1495,5 +1495,20 @@
   "releaseDrop": {
     "closeAria": "Fechar notas da versão",
     "closeTitle": "Fechar (Esc)"
+  },
+  "nativeMenu": {
+    "file": "Arquivo",
+    "edit": "Editar",
+    "view": "Exibir",
+    "window": "Janela",
+    "newFloor": "Novo Escritório",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "cut": "Recortar",
+    "copy": "Copiar",
+    "paste": "Colar",
+    "selectAll": "Selecionar tudo",
+    "quit": "Sair",
+    "close": "Fechar"
   }
 }
