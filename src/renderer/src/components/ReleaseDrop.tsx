@@ -34,6 +34,7 @@
  * out here even though the drop itself holds none.
  */
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { buildDropSrcDoc } from '../../../shared/releaseDrop';
 
 export interface ReleaseDropProps {
@@ -67,6 +68,7 @@ const MONO = '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monosp
 const REVEAL_TIMEOUT_MS = 2500;
 
 export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
+  const { t } = useTranslation();
   const srcDoc = useMemo(() => buildDropSrcDoc(html), [html]);
 
   // The loader covers the frame until it is ready to be seen. `revealed` latches
@@ -161,8 +163,8 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
           </span>
           <button
             onClick={onDismiss}
-            aria-label="Close release notes"
-            title="Close (Esc)"
+            aria-label={t('releaseDrop.closeAria')}
+            title={t('releaseDrop.closeTitle')}
             style={{
               flexShrink: 0, width: 26, height: 26, padding: 0,
               background: PAPER, color: INK, border: `2px solid ${PAPER}`,

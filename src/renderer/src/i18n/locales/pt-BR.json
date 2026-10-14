@@ -129,7 +129,8 @@
     "terminal": "terminal",
     "git": "git",
     "messages": "mensagens",
-    "traces": "traces"
+    "traces": "traces",
+    "resizeTitle": "Arrastar para redimensionar · clique duplo para redefinir"
   },
   "toolWaterfall": {
     "fresh": "{{tokens}}t novos",
@@ -154,7 +155,8 @@
     "terminalTip": "Abra o terminal do sistema em {{cwd}} — um shell normal na pasta deste agente, separado do próprio terminal do agente.",
     "openIde": "Abrir a IDE",
     "ide": "IDE",
-    "openTerminalAria": "Abrir um terminal do sistema na pasta deste agente"
+    "openTerminalAria": "Abrir um terminal do sistema na pasta deste agente",
+    "editAria": "Editar este agente"
   },
   "settingsHero": {
     "sponsoredBy": "Patrocinado por",
@@ -171,7 +173,10 @@
     "foundersWallTitle": "No Mural dos Fundadores?",
     "foundersWallBody": "Um mês de Munder Difflin Pro grátis, depois 50% de desconto no plano anual. Para as primeiras 100 pessoas no mural.",
     "seeTheWall": "ver o mural",
-    "joinDiscord": "entrar no Discord"
+    "joinDiscord": "entrar no Discord",
+    "downloadTitle": "Baixe o instalador e substitua o app você mesmo. A atualização automática está em Atualizações abaixo.",
+    "versionOut": "v{{v}} saiu",
+    "downloadVersion": "baixar v{{pending}}"
   },
   "officeTheme": {
     "title": "Tema do Escritório",
@@ -266,8 +271,8 @@
       "autoDesc": "Vale para agentes recém-criados (o comando de cada agente ainda pode sobrescrever).",
       "autonomous": "autônomo",
       "askFirst": "perguntar primeiro",
-      "breaker": "Circuit breaker",
-      "breakerDesc": "Proteção contra agentes descontrolados e gastos. O breaker conduz, depois restringe e depois para um agente que cruzar estes limites.",
+      "breaker": "Disjuntor",
+      "breakerDesc": "Proteção contra agentes descontrolados e gastos. O disjuntor conduz, depois restringe e depois para um agente que cruzar estes limites.",
       "floorBudget": "orçamento de tokens do escritório",
       "budgetPlaceholder": "ex. 1000000",
       "budgetEquals": "= {{value}} tokens",
@@ -281,7 +286,12 @@
       "hardStopDesc": "Quando disparado, MATA o agente em vez de só restringi-lo. Desligado = conduzir primeiro (recomendado).",
       "killOnTrip": "matar ao disparar",
       "steerFirst": "conduzir primeiro",
-      "saved": "salvo"
+      "saved": "salvo",
+      "whoCanAdd": "Quem pode adicionar agentes",
+      "orchSpawnOn": "{{godName}} pode contratar por conta própria. Todo agente iniciado gasta tokens que você não aprovou.",
+      "orchSpawnOff": "Só você. {{godName}} ainda pode pedir, e o pedido aguarda na fila em vez de falhar.",
+      "spawnBoth": "eu e {{godName}}",
+      "spawnOnlyMe": "só eu"
     },
     "memory": {
       "semanticMemory": "Memória semântica",
@@ -396,8 +406,8 @@
       "memory": "memória",
       "graph": "grafo",
       "activity": "atividade",
-      "skills": "skills",
-      "workers": "workers"
+      "skills": "habilidades",
+      "workers": "trabalhadores"
     },
     "terminalFullscreen": "O terminal está aberto em tela cheia. Pressione Esc para trazê-lo de volta.",
     "noTerminal": "{{name}} não tem terminal ao vivo.",
@@ -480,7 +490,7 @@
     "byAuthor": " · por {{author}}",
     "reviewFields": "revise cada campo — especialmente o comando — antes de criar.",
     "hireFlags": "⚠️ flags que esta contratação anexa ao comando:",
-    "hireSkills": "skills que esta contratação ativa:",
+    "hireSkills": "habilidades que esta contratação ativa:",
     "mcpSafe": "Servidores MCP (seguros, pré-ativados):",
     "mcpConsent": "⚠️ MCP (precisa do seu consentimento — NÃO auto-ativado):",
     "mcpEnableInSettings": "— ative em Configurações → MCP após revisar",
@@ -659,8 +669,8 @@
       "cliAgentPlain": "Um <strong>agente CLI</strong> é um assistente de código de IA que roda no seu computador — os populares são Claude Code (Anthropic), Codex (OpenAI) e Antigravity (Google Gemini). <strong>Seu clone</strong> é aquele sempre ligado que comanda seu escritório inteiro. Recomendamos Claude Code com Opus 4.8 (1M). Você pode adicionar ou trocar os outros depois.",
       "cliAgent": "Cada opção é um <strong>engine CLI</strong> (Claude Code, Codex, Antigravity/Gemini ou um proxy local como Qwen). Engines marcados INSTALLED já estão nesta máquina; INSTALLS ON FIRST RUN significa que o app configura quando {{godName}} inicia pela primeira vez. <strong>Seu clone</strong> ({{godName}}) é o engine que orquestra a colmeia inteira. Recomendado: Claude Code · Opus 4.8 · 1M. Outros provedores podem ser ligados por agente depois.",
       "recommended": "RECOMENDADO",
-      "workersOnly": "SÓ WORKERS",
-      "workersOnlyHint": "Ainda não drena o correio da colmeia, então não pode rodar seu clone — segue disponível ao contratar workers.",
+      "workersOnly": "SÓ TRABALHADORES",
+      "workersOnlyHint": "Ainda não drena o correio da colmeia, então não pode rodar seu clone — segue disponível ao contratar trabalhadores.",
       "model": "Modelo",
       "modelNote": "Isso só define o engine do {{godName}}. Você pode rodar outros provedores por agente depois."
     },
@@ -782,7 +792,7 @@
       "waiting": "aguardando",
       "needsYou": "precisa de você",
       "compacting": "compactando contexto",
-      "looping": "em loop — breaker armado",
+      "looping": "em loop — disjuntor armado",
       "runningFloor": "comandando o escritório",
       "idle": "ocioso"
     }
@@ -897,7 +907,9 @@
     "downloadManually": "baixar manualmente",
     "downloadManuallyTitle": "Baixe o instalador da v{{version}} e substitua o app você mesmo",
     "manualDownloadingTitle": "<b>v{{version}} baixando no seu navegador.</b>",
-    "manualDownloadingBody": "Quando chegar, saia deste app, instale a versão nova por cima da atual, abra e escolha o mesmo projeto. Em {{os}}:"
+    "manualDownloadingBody": "Quando chegar, saia deste app, instale a versão nova por cima da atual, abra e escolha o mesmo projeto. Em {{os}}:",
+    "readMore": "Leia mais",
+    "installAria": "Instalar a atualização"
   },
   "triggersTab": {
     "intro": "Tudo que pode iniciar trabalho sem você digitar.",
@@ -1107,7 +1119,9 @@
     "ideTip": "Abra a IDE: navegue e edite arquivos no workspace de {{name}} e veja alterações não commitadas como diff.",
     "openIdeAria": "Abrir a IDE",
     "openTerminalTip": "Abra o terminal do sistema em {{cwd}} — um shell normal na pasta deste agente, separado do próprio terminal do agente.",
-    "openTerminalAria": "Abrir um terminal do sistema na pasta deste agente"
+    "openTerminalAria": "Abrir um terminal do sistema na pasta deste agente",
+    "settingsLabel": "Configurações",
+    "privateNote": "NOTA PRIVADA"
   },
   "memoryPanel": {
     "pill": "🧠 memória",
@@ -1143,15 +1157,15 @@
   "skillsTab": {
     "installed": "Instaladas",
     "browse": "explorar",
-    "searchInstalled": "Pesquisar skills instaladas…",
-    "searchCatalog": "Pesquisar o catálogo de skills…",
+    "searchInstalled": "Pesquisar habilidades instaladas…",
+    "searchCatalog": "Pesquisar o catálogo de habilidades…",
     "categoryTitle": "Categorias como publicadas pelo catálogo",
     "allCategories": "todas as categorias",
     "allPublishers": "todos os publicadores",
     "loading": "carregando…",
     "refresh": "atualizar",
     "scanning": "Varrendo…",
-    "noSkillsInstalled": "Sem skills instaladas ainda. Abra Explorar para ver o disponível.",
+    "noSkillsInstalled": "Sem habilidades instaladas ainda. Abra Explorar para ver o disponível.",
     "nothingMatches": "Nada corresponde a essa pesquisa.",
     "openFolder": "abrir pasta",
     "shipsWithApp": "vem com o app",
@@ -1174,13 +1188,13 @@
   "workersTab": {
     "stopping": "parando",
     "working": "trabalhando",
-    "liveWorkers": "Workers ao vivo",
-    "liveIntro": "Workers isolados que {{godName}} cria para tratar mensagens do Slack — rodam até concluir, respondem na thread e desmontam.",
-    "noneRunning": "Sem workers rodando agora.",
+    "liveWorkers": "Trabalhadores ao vivo",
+    "liveIntro": "Trabalhadores isolados que {{godName}} cria para tratar mensagens do Slack — rodam até concluir, respondem na thread e desmontam.",
+    "noneRunning": "Sem trabalhadores rodando agora.",
     "repliesToSlack": "responde numa thread do Slack",
     "stoppingEllipsis": "parando…",
     "stop": "parar",
-    "workerIdTitle": "id do worker / PTY",
+    "workerIdTitle": "id do trabalhador / PTY",
     "baseBranchTitle": "branch base de onde o worktree foi cortado",
     "base": "base: {{branch}}",
     "upSinceTitle": "tempo desde a criação",
@@ -1192,7 +1206,7 @@
     "tokens": "tokens {{value}}",
     "uncapped": "sem teto",
     "preserved": "Worktrees preservados ({{count}})",
-    "preservedIntro": "Workers terminados cujo worktree tinha trabalho não integrado — mantidos (nunca auto-descartados) e auto-recuperados quando o trabalho cai na branch base.",
+    "preservedIntro": "Trabalhadores terminados cujo worktree tinha trabalho não integrado — mantidos (nunca auto-descartados) e auto-recuperados quando o trabalho cai na branch base.",
     "keptAgo": "mantido há {{age}}"
   },
   "memoryGraph": {
@@ -1254,12 +1268,12 @@
     "availability": "Disponibilidade",
     "enabled": "ativado",
     "disabled": "desativado",
-    "availableToAll": "✓ Disponível para todos os workers",
-    "notAvailableYet": "Ainda indisponível para workers",
+    "availableToAll": "✓ Disponível para todos os trabalhadores",
+    "notAvailableYet": "Ainda indisponível para trabalhadores",
     "addSecretToEnable": "Adicione um segredo e ative para disponibilizar.",
     "readyOnceSaved": "Pronto ao salvar.",
-    "disabledNoUse": "Desativado — nenhum worker pode usar.",
-    "v1Note": "v1 dá toda integração ativada a todos os workers. Escopo por worker vem aí.",
+    "disabledNoUse": "Desativado — nenhum trabalhador pode usar.",
+    "v1Note": "v1 dá toda integração ativada a todos os trabalhadores. Escopo por trabalhador vem aí.",
     "testConnection": "Testar conexão",
     "testing": "testando…",
     "testAfterSave": "Salve a integração antes, depois teste a conexão ao vivo.",
@@ -1271,7 +1285,7 @@
     "addIntegration": "adicionar integração",
     "empty": "Sem integrações ainda. Conecte GitHub ou uma API REST personalizada para seus agentes usarem.",
     "addFirst": "adicione sua primeira integração",
-    "count": "{{count}} integrações · {{usable}} disponíveis para workers",
+    "count": "{{count}} integrações · {{usable}} disponíveis para trabalhadores",
     "needsSecretShort": "Precisa de segredo",
     "test": "testar",
     "edit": "editar"
@@ -1404,6 +1418,81 @@
     "viewSourceTitle": "Abrir o markup SVG no editor",
     "viewSource": "ver fonte",
     "loading": "carregando imagem…",
-    "decodeFailed": "não foi possível decodificar esta imagem — o arquivo pode estar corrupto ou mal nomeado"
+    "decodeFailed": "não foi possível decodificar esta imagem — o arquivo pode estar corrupto ou mal nomeado",
+    "copyAbsoluteTitle": "Copiar caminho absoluto",
+    "copyPathBtn": "copiar caminho"
+  },
+  "hivePicker": {
+    "title": "SELECIONE UMA CONFIG DO HARNESS",
+    "body": "Uma <strong>config do harness</strong> é a pasta onde o app guarda tudo de um workspace — configurações, seus agentes e a memória deles, tarefas, gatilhos e histórico. Cada config é separada e autocontida, então dá para rodar setups diferentes lado a lado. Abra aquela em que estava trabalhando, troque para outra ou comece uma nova.",
+    "current": "ATUAL",
+    "open": "abrir",
+    "recent": "RECENTES",
+    "switchTitle": "Trocar para {{path}} (recarrega o app)",
+    "switching": "trocar →",
+    "opening": "abrindo…",
+    "openingBusy": "Abrindo {{name}} — o app vai recarregar…",
+    "openExisting": "abrir config existente…",
+    "createNew": "criar nova config…",
+    "openFailed": "Não foi possível abrir essa pasta."
+  },
+  "app": {
+    "autoModeOn": "modo auto ligado",
+    "autoModeOff": "modo auto desligado",
+    "darkModeAria": "Alternar modo escuro",
+    "settingsAria": "Configurações",
+    "focusModeAria": "Alternar modo foco",
+    "emptyFloor": "ESCRITÓRIO VAZIO",
+    "wakingFloor": "ACORDANDO O ESCRITÓRIO",
+    "noAgent": "NENHUM AGENTE SELECIONADO"
+  },
+  "agentAction": {
+    "reconnecting": "reconectando…",
+    "archived": "arquivado",
+    "runningFloor": "comandando o escritório",
+    "compacting": "compactando contexto",
+    "resumed": "retomado",
+    "thinking": "pensando",
+    "idle": "ocioso",
+    "readingInbox": "lendo caixa de entrada",
+    "startingUp": "iniciando",
+    "revived": "reanimado após repouso",
+    "awaiting": "aguardando",
+    "waitingYou": "aguardando você",
+    "waitingGod": "aguardando o orquestrador",
+    "headingBack": "voltando à mesa",
+    "recreating": "recriando terminal…",
+    "continuing": "continuando…"
+  },
+  "ptyView": {
+    "livePty": "ao vivo · pty {{ptyId}}",
+    "zoomOut": "Reduzir zoom (Cmd -)",
+    "resetZoom": "Zerar zoom (Cmd 0)",
+    "zoomIn": "Aumentar zoom (Cmd +)",
+    "exitFocus": "Sair do modo foco (Esc)"
+  },
+  "codeEditor": {
+    "copyAbsoluteTitle": "Copiar caminho absoluto",
+    "saveTitle": "Salvar (Cmd-S)",
+    "openIdeTitle": "Abrir na IDE",
+    "openIdeAria": "Abrir na IDE",
+    "copyPathBtn": "copiar caminho",
+    "saveIdle": "salvar",
+    "saveSaved": "salvo",
+    "saveError": "erro"
+  },
+  "editAgent": {
+    "title": "EDITAR AGENTE"
+  },
+  "completionToast": {
+    "dismiss": "Dispensar",
+    "completed": "{{godName}} · concluído"
+  },
+  "booting": {
+    "title": "BATENDO O PONTO"
+  },
+  "releaseDrop": {
+    "closeAria": "Fechar notas da versão",
+    "closeTitle": "Fechar (Esc)"
   }
 }

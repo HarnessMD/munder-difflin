@@ -211,7 +211,83 @@ test('no Arabic string is left as its English source', () => {
     'addAgent.projectPlaceholder',           // /path/to/your/project — a filesystem path
     'onboarding.home.placeholder',           // /path/to/HarnessAgents — same
     'mcpDefaults.toggleNote',                // "{{id}}: {{state}}" — pure interpolation
-    'webhooksSection.summary'                // "{{count}} · {{state}}" — same
+    'webhooksSection.summary',               // "{{count}} · {{state}}" — same
+    // FORK pt-BR Task 9/10 (pending translator): new keys below exist in
+    // ar/zh-CN as English source text — runtime-identical to the i18next
+    // fallback, but listed here so the gap is explicit instead of hidden.
+    // Translate one and drop its line (the stale check below enforces it).
+    'hivePicker.title',
+    'hivePicker.body',
+    'hivePicker.current',
+    'hivePicker.open',
+    'hivePicker.recent',
+    'hivePicker.switchTitle',
+    'hivePicker.switching',
+    'hivePicker.opening',
+    'hivePicker.openingBusy',
+    'hivePicker.openExisting',
+    'hivePicker.createNew',
+    'hivePicker.openFailed',
+    // ...Task 9b: title-bar auto-mode, autonomy spawn gate, agent live actions.
+    'app.autoModeOn',
+    'app.autoModeOff',
+    'settings.autonomy.whoCanAdd',
+    'settings.autonomy.orchSpawnOn',
+    'settings.autonomy.orchSpawnOff',
+    'settings.autonomy.spawnOnlyMe',
+    'settings.autonomy.spawnBoth', // no 4-letter run outside {{godName}} — same rule, listed anyway
+    'agentAction.reconnecting',
+    'agentAction.archived',
+    'agentAction.runningFloor',
+    'agentAction.compacting',
+    'agentAction.resumed',
+    'agentAction.thinking',
+    'agentAction.idle',
+    'agentAction.readingInbox',
+    'agentAction.startingUp',
+    'agentAction.revived',
+    'agentAction.awaiting',
+    'agentAction.waitingYou',
+    'agentAction.waitingGod',
+    'agentAction.headingBack',
+    'agentAction.recreating',
+    'agentAction.continuing',
+    // ...Task 9c: leftover hardcoded chrome (terminal header, empty floor,
+    // editor/IDE titles, toasts, splitter, release drop, hero, booting).
+    'ptyView.livePty',
+    'ptyView.zoomOut',
+    'ptyView.resetZoom',
+    'ptyView.zoomIn',
+    'ptyView.exitFocus',
+    'app.darkModeAria',
+    'app.settingsAria',
+    'app.focusModeAria',
+    'app.emptyFloor',
+    'app.wakingFloor',
+    'app.noAgent',
+    'agentDetail.editAria',
+    'imagePreview.copyAbsoluteTitle',
+    'imagePreview.copyPathBtn',
+    'codeEditor.copyAbsoluteTitle',
+    'codeEditor.saveTitle',
+    'codeEditor.openIdeTitle',
+    'codeEditor.openIdeAria',
+    'codeEditor.copyPathBtn',
+    'codeEditor.saveIdle',
+    'codeEditor.saveSaved',
+    'editAgent.title',
+    'fullscreenTerminal.settingsLabel',
+    'fullscreenTerminal.privateNote',
+    'completionToast.dismiss',
+    'completionToast.completed',
+    'booting.title',
+    'releaseDrop.closeAria',
+    'releaseDrop.closeTitle',
+    'settingsHero.downloadTitle',
+    'settingsHero.downloadVersion',
+    'sidebar.resizeTitle',
+    'updatesSection.readMore',
+    'updatesSection.installAria'
   ]);
   const e = pathsOf(en), a = pathsOf(ar);
   const untranslated = [];

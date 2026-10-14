@@ -129,7 +129,8 @@
     "terminal": "الطرفية",
     "git": "git",
     "messages": "الرسائل",
-    "traces": "التتبّع"
+    "traces": "التتبّع",
+    "resizeTitle": "Drag to resize · double-click to reset"
   },
   "toolWaterfall": {
     "fresh": "جديد {{tokens}}ر",
@@ -154,7 +155,8 @@
     "terminalTip": "افتح تطبيق الطرفية في نظامك عند {{cwd}} — صدفة عادية داخل مجلد هذا الوكيل، منفصلة عن طرفيته الخاصة.",
     "openIde": "افتح بيئة التطوير",
     "ide": "بيئة التطوير",
-    "openTerminalAria": "افتح طرفية نظام في مجلد هذا الوكيل"
+    "openTerminalAria": "افتح طرفية نظام في مجلد هذا الوكيل",
+    "editAria": "Edit this agent"
   },
   "settingsHero": {
     "sponsoredBy": "برعاية",
@@ -171,7 +173,10 @@
     "foundersWallTitle": "على حائط المؤسِّسين؟",
     "foundersWallBody": "شهر مجاني من Munder Difflin Pro، ثم خصم 50% على الخطة السنوية. لأول 100 شخص على الحائط.",
     "seeTheWall": "شاهد الحائط",
-    "joinDiscord": "انضم إلى Discord"
+    "joinDiscord": "انضم إلى Discord",
+    "downloadTitle": "Download the installer and replace the app yourself. Auto-update is in Updates below.",
+    "versionOut": "v{{v}} is out",
+    "downloadVersion": "download v{{pending}}"
   },
   "officeTheme": {
     "title": "سِمة المكتب",
@@ -281,7 +286,12 @@
       "hardStopDesc": "عند التجاوز، أنهِ الوكيل بدل تقييده فقط. الإيقاف = التوجيه أولًا (موصى به).",
       "killOnTrip": "أنهِه عند التجاوز",
       "steerFirst": "وجِّه أولًا",
-      "saved": "حُفِظ"
+      "saved": "حُفِظ",
+      "whoCanAdd": "Who can add agents",
+      "orchSpawnOn": "{{godName}} can hire on his own. Every agent he starts spends tokens you did not approve.",
+      "orchSpawnOff": "Only you. {{godName}} can still ask, and his request waits in the queue instead of failing.",
+      "spawnBoth": "me and {{godName}}",
+      "spawnOnlyMe": "only me"
     },
     "memory": {
       "semanticMemory": "الذاكرة الدلالية",
@@ -897,7 +907,9 @@
     "downloadManually": "نزّل يدويًا",
     "downloadManuallyTitle": "نزّل مثبّت v{{version}} واستبدل التطبيق بنفسك",
     "manualDownloadingTitle": "<b>يجري تنزيل v{{version}} في متصفّحك.</b>",
-    "manualDownloadingBody": "عند اكتماله، أغلق هذا التطبيق، وثبّت الإصدار الجديد فوق الحالي، ثم افتحه واختر المشروع نفسه. على {{os}}:"
+    "manualDownloadingBody": "عند اكتماله، أغلق هذا التطبيق، وثبّت الإصدار الجديد فوق الحالي، ثم افتحه واختر المشروع نفسه. على {{os}}:",
+    "readMore": "Read more",
+    "installAria": "Install the update"
   },
   "triggersTab": {
     "intro": "كل ما يمكنه بدء العمل دون أن تكتب أنت شيئًا.",
@@ -1107,7 +1119,9 @@
     "ideTip": "افتح بيئة التطوير: تصفّح وحرّر الملفات في مساحة عمل {{name}}، واعرض تغييراته غير المودعة كفروقات.",
     "openIdeAria": "افتح بيئة التطوير",
     "openTerminalTip": "افتح تطبيق الطرفية في نظامك عند {{cwd}} — صدفة عادية داخل مجلد هذا الوكيل، منفصلة عن طرفيته الخاصة.",
-    "openTerminalAria": "افتح طرفية نظام في مجلد هذا الوكيل"
+    "openTerminalAria": "افتح طرفية نظام في مجلد هذا الوكيل",
+    "settingsLabel": "Settings",
+    "privateNote": "PRIVATE NOTE"
   },
   "memoryPanel": {
     "pill": "🧠 الذاكرة",
@@ -1404,6 +1418,81 @@
     "viewSourceTitle": "فتح شيفرة SVG في المحرّر",
     "viewSource": "عرض المصدر",
     "loading": "جارٍ تحميل الصورة…",
-    "decodeFailed": "تعذّر فك ترميز هذه الصورة — قد يكون الملف تالفًا أو امتداده خاطئًا"
+    "decodeFailed": "تعذّر فك ترميز هذه الصورة — قد يكون الملف تالفًا أو امتداده خاطئًا",
+    "copyAbsoluteTitle": "Copy absolute path",
+    "copyPathBtn": "copy path"
+  },
+  "hivePicker": {
+    "title": "SELECT A HARNESS CONFIG",
+    "body": "A <strong>harness config</strong> is the folder where the app keeps everything for one workspace — its settings, your agents and their memory, tasks, triggers, and history. Each config is separate and self-contained, so you can run different setups side by side. Open the one you were working in, switch to another, or start a new one.",
+    "current": "CURRENT",
+    "open": "open",
+    "recent": "RECENT",
+    "switchTitle": "Switch to {{path}} (reloads the app)",
+    "switching": "switch →",
+    "opening": "opening…",
+    "openingBusy": "Opening {{name}} — the app will reload…",
+    "openExisting": "open existing config…",
+    "createNew": "create new config…",
+    "openFailed": "Could not open that folder."
+  },
+  "app": {
+    "autoModeOn": "auto mode on",
+    "autoModeOff": "auto mode off",
+    "darkModeAria": "Toggle dark mode",
+    "settingsAria": "Settings",
+    "focusModeAria": "Toggle focus mode",
+    "emptyFloor": "EMPTY FLOOR",
+    "wakingFloor": "WAKING THE FLOOR",
+    "noAgent": "NO AGENT SELECTED"
+  },
+  "agentAction": {
+    "reconnecting": "reconnecting…",
+    "archived": "archived",
+    "runningFloor": "running the floor",
+    "compacting": "compacting context",
+    "resumed": "resumed",
+    "thinking": "thinking",
+    "idle": "idle",
+    "readingInbox": "reading inbox",
+    "startingUp": "starting up",
+    "revived": "revived after sleep",
+    "awaiting": "awaiting",
+    "waitingYou": "waiting on you",
+    "waitingGod": "waiting on god",
+    "headingBack": "heading back to desk",
+    "recreating": "recreating terminal…",
+    "continuing": "continuing…"
+  },
+  "ptyView": {
+    "livePty": "live · pty {{ptyId}}",
+    "zoomOut": "Zoom out (Cmd -)",
+    "resetZoom": "Reset zoom (Cmd 0)",
+    "zoomIn": "Zoom in (Cmd +)",
+    "exitFocus": "Exit focus mode (Esc)"
+  },
+  "codeEditor": {
+    "copyAbsoluteTitle": "Copy absolute path",
+    "saveTitle": "Save (Cmd-S)",
+    "openIdeTitle": "Open in the IDE",
+    "openIdeAria": "Open in the IDE",
+    "copyPathBtn": "copy path",
+    "saveIdle": "save",
+    "saveSaved": "saved",
+    "saveError": "err"
+  },
+  "editAgent": {
+    "title": "EDIT AGENT"
+  },
+  "completionToast": {
+    "dismiss": "Dismiss",
+    "completed": "{{godName}} · completed"
+  },
+  "booting": {
+    "title": "CLOCKING IN"
+  },
+  "releaseDrop": {
+    "closeAria": "Close release notes",
+    "closeTitle": "Close (Esc)"
   }
 }
