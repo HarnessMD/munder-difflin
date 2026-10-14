@@ -3046,6 +3046,19 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
         };
       }
       extra.OPENCODE_CONFIG_CONTENT = JSON.stringify(oc);
+      // 4) Hive-scoped opencode data dir (XDG base). Desktop OpenCode 2.x
+      //    migrates the shared ~/.local/share/opencode database to a schema
+      //    the bundled CLI 1.x cannot open ("Database is not empty and has no
+      //    session table"), hanging every harness spawn at startup with a
+      //    blank terminal. Pointing XDG_DATA_HOME at a per-hive dir keeps
+      //    agent sessions working no matter what the desktop app does with
+      //    the global one. Auth (~/.config) and the global install are
+      //    untouched; opencode creates the dir on first launch. opencode-only:
+      //    other CLIs must keep resolving their own XDG paths.
+      try {
+        const home = cfg.harnessHome ? resolve(expandTilde(cfg.harnessHome)) : '';
+        if (home) extra.XDG_DATA_HOME = join(home, '.opencode-data');
+      } catch { /* fall back to the shared global dir */ }
     }
     opts.env = { ...(opts.env ?? {}), ...extra };
   }
