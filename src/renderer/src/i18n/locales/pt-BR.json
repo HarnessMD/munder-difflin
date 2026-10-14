@@ -1224,7 +1224,8 @@
     "legendPropose": "proposta",
     "legendAgreeDone": "concordado/concluído",
     "legendRefuse": "recusa",
-    "legendInformTopic": "informe/tópico"
+    "legendInformTopic": "informe/tópico",
+    "emptyHint": "Sem mensagens registradas ainda — a colmeia está quieta. Agentes mostrados como elenco."
   },
   "integrations": {
     "errLabel": "Dê um rótulo.",

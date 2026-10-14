@@ -287,7 +287,8 @@ test('no Arabic string is left as its English source', () => {
     'settingsHero.downloadVersion',
     'sidebar.resizeTitle',
     'updatesSection.readMore',
-    'updatesSection.installAria'
+    'updatesSection.installAria',
+    'memoryGraph.emptyHint'
   ]);
   const e = pathsOf(en), a = pathsOf(ar);
   const untranslated = [];

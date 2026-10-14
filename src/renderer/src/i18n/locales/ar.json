@@ -1224,7 +1224,8 @@
     "legendPropose": "اقتراح",
     "legendAgreeDone": "موافقة/إنجاز",
     "legendRefuse": "رفض",
-    "legendInformTopic": "إخبار/موضوع"
+    "legendInformTopic": "إخبار/موضوع",
+    "emptyHint": "No messages logged yet — the hive is quiet. Agents shown as roster."
   },
   "integrations": {
     "errLabel": "أعطِه تسمية.",

@@ -1224,7 +1224,8 @@
     "legendPropose": "提议",
     "legendAgreeDone": "同意/完成",
     "legendRefuse": "拒绝",
-    "legendInformTopic": "告知/主题"
+    "legendInformTopic": "告知/主题",
+    "emptyHint": "No messages logged yet — the hive is quiet. Agents shown as roster."
   },
   "integrations": {
     "errLabel": "请给它一个名称。",
