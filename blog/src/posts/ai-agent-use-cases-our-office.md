@@ -42,7 +42,7 @@ Fourteen agents, and each seat has one job. Most names come from the cast the ap
 | Growth | Jim | Researches and writes this blog | Schedules at 09:30 and 21:30 |
 | Motion graphics | BOB | Launch videos and animation loops from real app screens | A request |
 | Research | AgentG | A daily scout report, a link for every claim | One message from Jim |
-| Founder's office | Andy | A morning briefing, Slack replies, first drafts | A schedule at 09:00, and Slack |
+| Founder's office | Andy | Assists the founder: a morning briefing, Slack answers, email drafts | A schedule at 09:00, and Slack |
 | Scrum master | Meredith | Keeps the task board readable | A schedule, every 12 hours |
 | Engineering lead | Kevin | Plans the work and gates every piece | A builder saying "done" |
 | Engineers | Darryl, Stanley, Creed, Dwight | Build the pieces | Kevin's orders (Dwight: the founder's) |
@@ -68,7 +68,7 @@ It also guards your attention. When only a person can move a job forward, it wri
 
 Four of ours do their main job on a schedule, with no person typing anything.
 
-* **Andy, 09:00.** Reads the company mailbox and calendar and writes one briefing as a draft. It never sends it.
+* **Andy, 09:00.** Sends the founder a morning briefing.
 * **Jim, 09:30 and 21:30.** Checks search data, reads the scout's report, writes pages and opens one pull request per run. Three shorter checks a day look for new launches.
 * **Ryan, every 6 hours.** Wakes on a schedule and, twice a day, runs the scripts that refresh the company dashboard. Asked for a number, it marks each one measured or inferred.
 * **Meredith, every 12 hours.** Rewrites each workstream card in one shape: where it stands, who has it, what changed, what is next, what waits on you.
@@ -100,7 +100,7 @@ On our floor the gate writes the tests, not the builder. Nobody grades their own
 Four agents read what is outside the office, and none of them takes the final step alone.
 
 * **Angela** runs the community queues: GitHub issues, pull requests and discussions, Discord and forums. She writes a digest and a demand list ranked by how many different people asked. On GitHub she can add labels. She cannot close or merge.
-* **Andy** answers Slack messages sent to the office, and watches the support mailbox. Replies to email are drafts.
+* **Andy** answers the founder on Slack and drafts his email. A person sends it.
 * **AgentG** reads the open web for the daily scout report: signed out, read only, and with a rule to leave a source out when it cannot open it.
 * **Jim** opens pull requests to this website. A person merges them.
 

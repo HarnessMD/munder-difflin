@@ -129,7 +129,7 @@
       const hourAt = (t) => { const p = seg(t, 1, 9.4); return 24 * p * p * (3 - 2 * p); };
       const timeOf = (H) => { let a = 1, b = 9.4; for (let i = 0; i < 28; i++) { const m = (a + b) / 2; if (hourAt(m) < H) a = m; else b = m; } return b; };
       const C = [
-        [152, 154, "09:00", "briefing", YEL, [9], 0, "Andy, 09:00: one briefing as a draft"],
+        [152, 154, "09:00", "briefing", YEL, [9], 0, "Andy, 09:00: a morning briefing"],
         [152, 420, "09:30 and 21:30", "blog runs", MINT, [9.5, 21.5], 0.3, "Jim, 09:30 and 21:30: one pull request per run"],
         [648, 420, "every 6 hours", "dashboard", SKY, [6, 12, 18, 24], 0, "Ryan, every 6 hours: the company dashboard"],
         [648, 154, "every 12 hours", "task board", LIL, [12, 24], 0, "Meredith, every 12 hours: keeps the task board readable"],
