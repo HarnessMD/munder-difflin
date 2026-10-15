@@ -2,9 +2,10 @@
 
 > Munder Difflin is free and open source: a desktop app that runs a team of coding agents
 > such as Claude Code, Codex and Gemini CLI on your own computer. It is presented as a
-> virtual office (an affectionate parody of The Office; not affiliated with NBC). MIT
-> licensed. Latest release: 0.5.5 (1 October 2026), for macOS (signed and notarized),
-> Windows and Linux. Website: https://munderdiffl.in . Download:
+> virtual office (an affectionate parody of The Office; not affiliated with NBC). The
+> source in the GitHub repository is MIT licensed, at version 0.4.6. Latest app release:
+> 0.5.5 (1 October 2026), installers for macOS (signed and notarized), Windows and Linux.
+> Website: https://munderdiffl.in . Download:
 > https://harnessmd.com/download . Source: https://github.com/HarnessMD/munder-difflin .
 > Author: Chaitanya Giri.
 
@@ -47,7 +48,7 @@ that coordinates itself on your own machine.
 
 ## Free and Pro
 
-The app is free and open source. Pro is an optional paid plan that adds the Pro sidebar
+The app is free. Pro is an optional paid plan that adds the Pro sidebar
 (Tasks, Inbox, Automations, Memory, Capabilities) and the Stapler, which records meetings
 with both sides of the call and sends messages, screenshots and files to any agent.
 Plans: https://app.harnessmd.com/console/license
@@ -125,5 +126,5 @@ Concepts and engineering:
 
 ## License
 
-MIT for the app's source: https://github.com/HarnessMD/munder-difflin . Pro is an optional
-paid plan on top.
+MIT for the source in https://github.com/HarnessMD/munder-difflin (version 0.4.6). The
+0.5.5 release on GitHub carries installers only. Pro is an optional paid plan on top.

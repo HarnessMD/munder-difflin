@@ -6,8 +6,10 @@
 > Your clone, Michael, is the one agent you brief: he assigns the work, routes messages
 > between agents and brings back only what needs you (spend, scope and destructive steps).
 > Agents keep markdown memory in a shared, searchable palace, message each other through
-> mailboxes, and can run on a schedule, from Slack or from a webhook. MIT licensed. Latest
-> release: 0.5.5 (1 October 2026), for macOS (signed and notarized), Windows and Linux.
+> mailboxes, and can run on a schedule, from Slack or from a webhook. The source in the
+> GitHub repository is MIT licensed. Current version: 0.4.6 (the source in the repository).
+> Latest app release: 0.5.5 (1 October 2026), installers for macOS (signed and notarized),
+> Windows and Linux.
 
 Engines it runs: Claude Code, OpenAI Codex, Gemini CLI, Antigravity (Gemini), xAI Grok,
 Kimi Code, Qwen, OpenCode, Crush, pi.dev, GitHub Copilot CLI, Cursor, or any custom command.
