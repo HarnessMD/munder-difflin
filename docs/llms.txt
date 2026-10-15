@@ -1,44 +1,59 @@
 # Munder Difflin
 
-> Munder Difflin gives you clones for you and your team, working 24/7. It is a free,
-> MIT-licensed, local-first multi-agent harness for CLI coding agents that turns Claude Code,
-> OpenAI Codex, Antigravity (Gemini), GitHub Copilot CLI, xAI Grok, Kimi Code, Qwen, OpenCode,
-> Crush, Gemini CLI, Cursor Agent, and pi.dev into a coordinated "office" of agents on
-> your own computer — each agent a real CLI process in a real terminal, with shared
-> long-term memory, inter-agent messaging, your clone ("Michael") orchestrating, scheduled missions, Slack
-> and webhook triggers, realtime voice orchestration, a built-in Monaco IDE with git
-> history and branch compare, markdown previews, and auto-update. The interface runs in
-> English, Simplified Chinese and Arabic, with right to left layout when Arabic is chosen,
-> and its fonts are bundled rather than fetched from a font host. Current version: 0.4.6
-> (August 2026). Desktop app for macOS, Windows, and Linux. No vendor cloud; code never
-> leaves your machine. It covers the same jobs as YC's qm (security postures, background
-> crons/watches, Slack, shared skills) as a simpler local-first desktop app, and adds what
-> a headless harness doesn't have: watchable terminals, voice, an IDE, auto-update.
+> Munder Difflin is free and open source: a desktop app that runs a team of coding agents
+> such as Claude Code, Codex and Gemini CLI on your own computer. Each agent is the real
+> CLI in its own terminal, signed in with the subscription or API key you already have.
+> Your clone, Michael, is the one agent you brief: he assigns the work, routes messages
+> between agents and brings back only what needs you (spend, scope and destructive steps).
+> Agents keep markdown memory in a shared, searchable palace, message each other through
+> mailboxes, and can run on a schedule, from Slack or from a webhook. MIT licensed. Latest
+> release: 0.5.5 (1 October 2026), for macOS (signed and notarized), Windows and Linux.
+
+Engines it runs: Claude Code, OpenAI Codex, Gemini CLI, Antigravity (Gemini), xAI Grok,
+Kimi Code, Qwen, OpenCode, Crush, pi.dev, GitHub Copilot CLI, Cursor, or any custom command.
+Your own API keys and local models work too, through Ollama, LM Studio or vLLM.
+
+Free and Pro: the app is free. Pro is an optional paid plan that adds the Pro sidebar
+(Tasks, Inbox, Automations, Memory, Capabilities) and the Stapler, which records meetings
+and sends messages, screenshots and files to any agent.
 
 ## Product
 
-- [Homepage](https://munderdiffl.in/): features, download links, FAQ
-- [GitHub repository](https://github.com/chaitanyagiri/munder-difflin): source, issues, releases
-- [Latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest): macOS dmg, Windows setup, Linux AppImage
-- [Changelog](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md)
+- [Download](https://harnessmd.com/download): macOS, Windows and Linux builds
+- [Homepage](https://munderdiffl.in/): features and FAQ
+- [GitHub repository](https://github.com/HarnessMD/munder-difflin): source, issues and releases
+- [Releases](https://github.com/HarnessMD/munder-difflin/releases): every build with its notes
+- [Agent Gallery](https://munderdiffl.in/hires/): ready made agent roles to import
+- [Telemetry](https://github.com/HarnessMD/munder-difflin/blob/main/TELEMETRY.md): the anonymous usage events official builds send, and how to turn them off
 
 ## Key guides
 
-- [What's up with Munder Difflin](https://munderdiffl.in/blog/whats-up-with-munder-difflin/): everything shipped from v0.3.3 to v0.3.7
-- [Why our auto-update never ran](https://munderdiffl.in/blog/why-our-auto-update-never-ran/): the v0.3.7 fix — a CommonJS export that vanished into an ESM namespace
-- [What's new in v0.3.5](https://munderdiffl.in/blog/launching-munder-difflin-v0-3-5/): the v0.3.4+v0.3.5 release wave
 - [How to install and use Munder Difflin](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/)
 - [Your first hour with Munder Difflin](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/)
 - [Frequently asked questions](https://munderdiffl.in/blog/munder-difflin-faq/)
+- [How to hire from the Agent Gallery](https://munderdiffl.in/blog/how-to-hire-from-the-agent-gallery/)
 - [How the GOD orchestrator works](https://munderdiffl.in/blog/how-the-god-orchestrator-works/)
 - [How to talk to your orchestrator (voice)](https://munderdiffl.in/blog/how-to-talk-to-your-orchestrator/)
+- [Command Center guide](https://munderdiffl.in/blog/command-center-guide/): tasks, schedules, fleet and budgets
+- [Scheduling autonomous agent missions](https://munderdiffl.in/blog/scheduling-autonomous-agent-missions/)
+- [Trigger AI agents from Slack](https://munderdiffl.in/blog/trigger-ai-agents-from-slack/)
 - [How to use the built-in Monaco IDE](https://munderdiffl.in/blog/how-to-use-the-built-in-monaco-ide/)
+- [Give Claude Code long-term memory](https://munderdiffl.in/blog/give-claude-code-long-term-memory/)
+- [Run a mixed engine office](https://munderdiffl.in/blog/run-a-mixed-engine-office/)
+- [Run Munder Difflin on open models](https://munderdiffl.in/blog/run-munder-difflin-on-open-models/)
+- [Run Munder Difflin on a Mac Mini](https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/)
+- [What's new in v0.5.2](https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/)
 
 ## Comparisons
 
-- [qm vs Munder Difflin](https://munderdiffl.in/blog/qm-vs-munder-difflin/): YC's multiplayer harness vs a local-first agent office
-- [Claude Squad vs Munder Difflin](https://munderdiffl.in/blog/claude-squad-vs-munder-difflin/)
 - [Best Claude Code multi-agent tools](https://munderdiffl.in/blog/best-claude-code-multi-agent-tools/)
+- [Claude Code orchestration tools compared](https://munderdiffl.in/blog/claude-code-orchestration-tools-compared/)
+- [Claude Code alternatives](https://munderdiffl.in/blog/claude-code-alternatives/)
+- [qm vs Munder Difflin](https://munderdiffl.in/blog/qm-vs-munder-difflin/)
+- [Claude Squad vs Munder Difflin](https://munderdiffl.in/blog/claude-squad-vs-munder-difflin/)
+- [Orca vs Munder Difflin](https://munderdiffl.in/blog/orca-vs-munder-difflin/)
+- [Cline vs Munder Difflin](https://munderdiffl.in/blog/cline-vs-munder-difflin/)
+- [Claude Code git worktrees vs a hive](https://munderdiffl.in/blog/claude-code-git-worktrees-vs-hive/)
 
 <!-- BLOG:START generated by blog/scripts/postbuild.mjs -->
 ## Blog
