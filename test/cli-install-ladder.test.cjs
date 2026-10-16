@@ -47,6 +47,15 @@ test('cursor prefers its native curl installer (no npm package)', () => {
   assert.match(withoutNpm.command, /cursor\.com\/install/);
 });
 
+test('Devin uses its official native installer on both platforms', () => {
+  const mac = installInfoForProvider('devin', 'darwin');
+  const windows = installInfoForProvider('devin', 'win32');
+  assert.equal(mac.command, undefined);
+  assert.match(mac.nativeCommand, /cli\.devin\.ai\/install\.sh/);
+  assert.match(windows.nativeCommand, /static\.devin\.ai\/cli\/setup\.ps1/);
+  assert.equal(chooseInstallRung(mac, true).kind, 'native');
+});
+
 test('with npm absent and no native installer, NOTHING is run', () => {
   const info = installInfoForProvider('codex');
   assert.equal(info.nativeCommand, undefined, 'fixture assumes codex has no native installer');
