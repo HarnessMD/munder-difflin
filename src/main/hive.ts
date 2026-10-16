@@ -1927,6 +1927,35 @@ export class HiveManager {
     this.ensureHive();
     const path = join(root, 'tasks.json');
     const current = this.readJson<{ tasks?: unknown }>(path, { tasks: [] });
+    // >>> DIAGNOSTICO TEMPORARIO (TSF-17) - REMOVER <<<
+    // mergeTaskLedger protects fields, never card membership: whoever builds
+    // the INCOMING array decides what survives. Reading that code shows
+    // INTENTION; it cannot show what actually arrived. So capture the array,
+    // every write, with the ids it held and the ids the file already had. If
+    // the incoming set is missing a card the file has, the omission happened
+    // UPSTREAM of the merge, and this line is where it becomes visible
+    // instead of inferred.
+    try {
+      const diagDir = join(root, 'diagnostics');
+      mkdirSync(diagDir, { recursive: true });
+      const incoming = (Array.isArray(tasks) ? tasks : []) as HiveTask[];
+      const onDisk = ((current?.tasks as HiveTask[]) || []).filter((t) => t && t.id);
+      const incIds = incoming.map((t) => String(t?.id ?? '?')).sort();
+      const line = JSON.stringify({
+        at: new Date().toISOString(),
+        incomingCount: incoming.length,
+        incomingIds: incIds,
+        incomingStatus: incoming.reduce((a, t) => {
+          const s = String((t as { status?: unknown })?.status ?? '?');
+          a[s] = (a[s] || 0) + 1;
+          return a;
+        }, {} as Record<string, number>),
+        onDiskCount: onDisk.length,
+        missingFromIncoming: onDisk.map((t) => String(t.id)).filter((id) => !incIds.includes(id)).sort()
+      });
+      appendFileSync(join(diagDir, 'writeTasks.array.jsonl'), line + '\n', 'utf8');
+    } catch { /* diagnostics must never break a write */ }
+    // >>> FIM DO DIAGNOSTICO <<<
     const merged = mergeTaskLedger(current?.tasks, tasks);
     this.writeJson(path, { tasks: merged });
     this.appendLog({ kind: 'tasks', count: merged.length });
@@ -3086,6 +3115,31 @@ OFF by default, because every worker you start spends tokens nobody approved. Wh
 request is NOT failed or deleted, it waits in \`spawn-requests/\` and runs if the operator turns it on.
 If a request of yours has sat there without moving, that is why, and it is a decision to raise with the
 human rather than retry. Route work to an agent already on the floor first either way.
+
+## Agent lifecycle (orchestrator)
+You run the full lifecycle of full agents — not just workers — by writing ONE JSON file per op
+into \`agent-ops/<op>-<id>-<ts>.json\` in the hive root:
+
+\`\`\`json
+{ "op": "kill | reset | restore | create", "id": "andy-mv7wi8j7", "reason": "why, concretely" }
+{ "op": "create", "params": { "role": "...", "cwd": "/abs/path", "provider": "opencode", "model": "openrouter/free", "tokenCap": 200000 }, "reason": "why, concretely" }
+\`\`\`
+
+- \`kill\` stops a live agent (same teardown as the human X). Never yourself.
+- \`reset\` types the engine\u2019s clear command into a live, idle terminal: same agent, same cwd and
+  memory, fresh conversation. Refused while the terminal is still producing output — write again later.
+- \`restore\` brings back an ARCHIVED agent under its own id, so memory and inbox reattach. Only
+  archived ids; it reuses the command line that run used.
+- \`create\` hires a full agent. \`params\` needs role/cwd/provider/model plus a positive integer
+  \`tokenCap\`, and the floor holds at most 6 live non-worker agents. A spec missing a field, a
+  provider that does not exist, a model you have not checked, or a full floor fails with the reason
+  instead of spawning half a hire.
+- \`reason\` is mandatory on every op: whoever spends justifies it, and the human audits it in the
+  activity feed. "Cleanup" is not a reason; what you removed and why is.
+- Spawning ops (\`restore\`, \`create\`) honor the same operator switch as workers: while it is OFF they
+  wait in the queue, never fail. \`kill\`/\`reset\` spend nothing and run regardless.
+- Results land in \`agent-ops/.done/\` and \`agent-ops/.failed/\`, and failures also arrive as inbox
+  messages. Watch them as closely as you watch \`spawn-requests/\` — reuse before you create.
 
 ## Semantic memory (optional — when \`mempalace\` is installed)
 When \`MEMPALACE_PALACE_PATH\` is set in your environment, the hive shares a

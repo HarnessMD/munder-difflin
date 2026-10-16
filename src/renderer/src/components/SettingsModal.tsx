@@ -1274,16 +1274,16 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>
-                              Who can add agents
+                              {t('settings.autonomy.whoCanAdd')}
                             </span>
                             <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
                               {orchSpawnOn
-                                ? `${godName} can hire on his own. Every agent he starts spends tokens you did not approve.`
-                                : `Only you. ${godName} can still ask, and his request waits in the queue instead of failing.`}
+                                ? t('settings.autonomy.orchSpawnOn', { godName })
+                                : t('settings.autonomy.orchSpawnOff', { godName })}
                             </span>
                           </div>
                           <PixelButton variant={orchSpawnOn ? 'primary' : 'secondary'} size="sm" onClick={toggleOrchSpawn}>
-                            {orchSpawnOn ? `me and ${godName}` : 'only me'}
+                            {orchSpawnOn ? t('settings.autonomy.spawnBoth', { godName }) : t('settings.autonomy.spawnOnlyMe')}
                           </PixelButton>
                         </div>
                       </div>

@@ -25,14 +25,28 @@ process.env.HOME = FAKE_HOME;
 process.env.USERPROFILE = FAKE_HOME;
 
 const SRC = path.join(__dirname, '..', 'src', 'main');
+const SHARED = path.join(__dirname, '..', 'src', 'shared');
 const out = fs.mkdtempSync(path.join(os.tmpdir(), 'transcript-'));
-for (const name of ['pricing', 'transcript']) {
-  const js = ts.transpileModule(fs.readFileSync(path.join(SRC, `${name}.ts`), 'utf8'), {
+// Mirror the real directory layout: transcript.ts imports ./pricing AND ./fs
+// (expandTilde — TSF-11), and fs.ts imports ../shared/imageTypes. Transpiling
+// flat into one dir made those relative requires unresolvable, so the module
+// failed to load at require() time rather than at the assertion.
+const mainOut = path.join(out, 'main');
+const sharedOut = path.join(out, 'shared');
+fs.mkdirSync(mainOut);
+fs.mkdirSync(sharedOut);
+const transpile = (from, to) => fs.writeFileSync(
+  to,
+  ts.transpileModule(fs.readFileSync(from, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true }
-  }).outputText;
-  fs.writeFileSync(path.join(out, `${name}.js`), js, 'utf8');
-}
-const { readAgentUsage, projectDir } = require(path.join(out, 'transcript.js'));
+  }).outputText,
+  'utf8'
+);
+transpile(path.join(SRC, 'pricing.ts'), path.join(mainOut, 'pricing.js'));
+transpile(path.join(SRC, 'fs.ts'), path.join(mainOut, 'fs.js'));
+transpile(path.join(SRC, 'transcript.ts'), path.join(mainOut, 'transcript.js'));
+transpile(path.join(SHARED, 'imageTypes.ts'), path.join(sharedOut, 'imageTypes.js'));
+const { readAgentUsage, projectDir } = require(path.join(mainOut, 'transcript.js'));
 
 /** A fake cwd whose projectDir we can write transcripts into. */
 function makeProject() {

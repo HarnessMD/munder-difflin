@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { SpritePortrait } from './SpritePortrait';
@@ -30,6 +31,7 @@ export interface EditAgentModalProps {
  * via updateAgent (engine changes apply on the next restart).
  */
 export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
+  const { t } = useTranslation();
   const updateAgent = useStore((s) => s.updateAgent);
   const [config, setConfig] = useState<HarnessConfig | null>(null);
 
@@ -105,7 +107,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
           one job — describe an agent — and a tall narrow dialog next to a wide
           one reads as two unrelated screens. */}
       <div onClick={(e) => e.stopPropagation()} style={{ width: 940, maxWidth: '95vw' }}>
-        <PixelPanel variant="dialog" title="EDIT AGENT" style={{ padding: 16 }} noPadding>
+        <PixelPanel variant="dialog" title={t('editAgent.title')} style={{ padding: 16 }} noPadding>
           <div style={{
             display: 'flex', flexDirection: 'column', gap: 14,
             padding: 16, maxHeight: '86vh', overflowY: 'auto'

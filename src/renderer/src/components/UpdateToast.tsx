@@ -35,6 +35,7 @@
  * goes through the existing `openExternal` opener.
  */
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/Icon';
 import { summarizeReleaseNotes } from '@shared/releaseNotes';
 import { extractDropHtml } from '@shared/releaseDrop';
@@ -79,6 +80,7 @@ function markStarAsked(): void {
 }
 
 export function UpdateToast() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<ToastStatus | null>(null);
   const [busy, setBusy] = useState(false);
   // Read once per window, so persisting the flag below cannot make the link
@@ -271,7 +273,7 @@ export function UpdateToast() {
               href={status.state === 'available-manual' ? status.url : GITHUB_RELEASES_URL}
               onClick={(e) => { e.preventDefault(); openRelease(); }}
               style={linkStyle}
-            >Read more</a>
+            >{t('updatesSection.readMore')}</a>
             {showStar && (
               <a
                 href={GITHUB_REPO_URL}
