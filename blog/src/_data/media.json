@@ -4284,7 +4284,7 @@
     }
   },
   "what-is-codex": {
-    "title": "What Is Codex? OpenAI's Coding Agent in the CLI, App and Cloud",
+    "title": "What Is Codex? OpenAI's Coding Agent, Its Free Plan and Models",
     "category": "concepts",
     "hero": {
       "file": "assets/media/what-is-codex/hero.png",
@@ -4978,5 +4978,17 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-10-16": {
+    "title": "Agent Tools Today, 16 Oct 2026: Muse Spark Open, Tiny Little Office, OpenCode Ends Sharing",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
   }
 }
