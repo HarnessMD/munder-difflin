@@ -24,7 +24,7 @@ faq:
 
 Pick OpenCode if you want an open source agent that runs almost any model, and Claude Code if you want Anthropic's own agent on a Claude plan you already pay for. Checked 6 Oct 2026.
 
-Both read your repo, edit files and run commands. The differences are licence, price, models and login. New to one of them? Read [what is OpenCode](/blog/what-is-opencode/) first. More head to heads sit in our [Comparisons hub](/blog/topics/comparisons/).
+Both read your repo, edit files and run commands. The differences are licence, price, models and login. New to one of them? Read [what is OpenCode](/blog/what-is-opencode/) first. See [what changed in OpenCode 2.0](/blog/opencode-2-0/) before upgrading. More head to heads sit in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## OpenCode vs Claude Code at a glance, checked 6 Oct 2026
 

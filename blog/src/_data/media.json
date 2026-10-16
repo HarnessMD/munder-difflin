@@ -4922,5 +4922,39 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-10-15": {
+    "title": "Agent Tools Today, 15 Oct 2026: OpenCode 2.0, Hermes Agent v0.22.0, a Lost TV Season",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "muse-code-vs-claude-code": {
+    "title": "Muse Code vs Claude Code",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/muse-code-vs-claude-code/hero.png",
+      "alt": "Title card on white. The words Muse Code vs Claude Code in large ink type above a Checked 14 Oct 2026 pill, with two spinning tops facing each other.",
+      "prompt": "Still of the hero scene in assets/media/muse-code-vs-claude-code/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-2-0": {
+    "title": "OpenCode 2.0: what changed and how to upgrade",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/opencode-2-0/hero.png",
+      "alt": "Title card on white. OpenCode 2.0 in large ink type under the kicker What changed, a Checked 15 Oct 2026 pill, and a weathervane turning in the wind.",
+      "prompt": "Still of the hero scene in assets/media/opencode-2-0/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
