@@ -53,6 +53,22 @@ test('copilot preset builds the documented non-interactive print-mode shape', ()
   assert.strictEqual(p.autoFlag, '-s --allow-all-tools --no-ask-user', 'autoFlag mirrors autoModeFlag');
 });
 
+test('copilot declares scoped directory access and preserves a spaced path as one argv token', () => {
+  assert.deepStrictEqual(ap.directoryAccessOf('copilot'), {
+    flag: '--add-dir',
+    valueStyle: 'equals',
+    requiresExisting: true
+  });
+  const dir = 'C:\\Users\\Foo Bar\\Munder Difflin\\hive';
+  assert.deepStrictEqual(ap.directoryArgsForProvider('copilot', [dir]), [`--add-dir=${dir}`]);
+});
+
+test('providers without directory-access capability do not gain arguments', () => {
+  for (const provider of ['claude', 'qwen', 'grok', 'pi', 'cursor', 'custom']) {
+    assert.deepStrictEqual(ap.directoryArgsForProvider(provider, ['/outside/cwd']), [], provider);
+  }
+});
+
 test('copilot passes model + resume through, non-hiveAware, never auto-receives inbox', () => {
   const p = ap.providerPreset('copilot');
   assert.ok(p.supportsModel && p.modelFlag === '--model', 'model picker + --model');
