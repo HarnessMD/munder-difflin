@@ -16,12 +16,28 @@
     <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 15 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs</title>
+    <link href="https://munderdiffl.in/blog/claude-code-best-practices/" />
+    <id>https://munderdiffl.in/blog/claude-code-best-practices/</id>
+    <published>2026-10-15T00:00:00.000Z</published>
+    <updated>2026-10-15T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Nine Claude Code best practices from Anthropic&#39;s docs, checked 15 Oct 2026: give Claude a check, plan first, keep memory short, clear context, run in parallel.</summary>
+  </entry>
+  <entry>
     <title>OpenCode 2.0: what changed and how to upgrade</title>
     <link href="https://munderdiffl.in/blog/opencode-2-0/" />
     <id>https://munderdiffl.in/blog/opencode-2-0/</id>
     <published>2026-10-15T00:00:00.000Z</published>
     <updated>2026-10-15T00:00:00.000Z</updated><category term="Concepts" />
     <summary>OpenCode 2.0 from Anomaly: the background service, Code Mode, background subagents, the new plugin API and SDK, and how to upgrade. Checked 15 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>OpenCode Alternatives: 7 Coding Agents to Switch To</title>
+    <link href="https://munderdiffl.in/blog/opencode-alternatives/" />
+    <id>https://munderdiffl.in/blog/opencode-alternatives/</id>
+    <published>2026-10-15T00:00:00.000Z</published>
+    <updated>2026-10-15T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Seven OpenCode alternatives checked on 15 Oct 2026: Claude Code, Codex CLI, Gemini CLI, Kilo Code, Crush, Pi and Goose, by licence, models and release.</summary>
   </entry>
   <entry>
     <title>AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does</title>
@@ -470,21 +486,5 @@
     <published>2026-09-26T00:00:00.000Z</published>
     <updated>2026-09-26T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Grok Bot has no plan of its own. The cheapest way in is a $20 a month Cursor plan, SuperGrok is $30, and there is a seven day trial, not a free plan.</summary>
-  </entry>
-  <entry>
-    <title>Meta Muse Alternatives: 7 Picks for People Who Can&#39;t (or Won&#39;t) Use Muse</title>
-    <link href="https://munderdiffl.in/blog/meta-muse-alternatives/" />
-    <id>https://munderdiffl.in/blog/meta-muse-alternatives/</id>
-    <published>2026-09-26T00:00:00.000Z</published>
-    <updated>2026-09-26T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Meta Muse is US only and trains on your chats by default. Seven alternatives, from open source agents that run on your own computer to hosted ones from OpenAI, Google and SpaceXAI.</summary>
-  </entry>
-  <entry>
-    <title>Muse and Grok Bot Want Your Passwords. Here Is Who Can See Them</title>
-    <link href="https://munderdiffl.in/blog/meta-muse-grok-bot-privacy/" />
-    <id>https://munderdiffl.in/blog/meta-muse-grok-bot-privacy/</id>
-    <published>2026-09-26T00:00:00.000Z</published>
-    <updated>2026-09-26T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Meta Muse and Grok Bot both ask for your logins. We read both companies&#39; security docs: who sees your passwords, what trains on your chats, and how to keep AI agents on your own computer instead.</summary>
   </entry>
 </feed>

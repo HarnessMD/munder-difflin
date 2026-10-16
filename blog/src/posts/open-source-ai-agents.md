@@ -42,7 +42,7 @@ It is a program that calls a language model in a loop and uses tools to finish a
 
 ### Coding agents
 
-**5. OpenCode.** OpenCode is an MIT terminal coding agent that works with many model providers, local models included. Our [what is OpenCode](/blog/what-is-opencode/) explainer walks through it. Best for: a Claude Code style agent you can fork.
+**5. OpenCode.** OpenCode is an MIT terminal coding agent that works with many model providers, local models included. Our [what is OpenCode](/blog/what-is-opencode/) explainer walks through it. Leaving it? See our [OpenCode alternatives](/blog/opencode-alternatives/). Best for: a Claude Code style agent you can fork.
 
 **6. Cline.** Cline (Apache 2.0) calls itself the open source coding agent in your IDE, terminal and desktop. Best for: working inside your editor.
 

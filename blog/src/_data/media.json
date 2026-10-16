@@ -4956,5 +4956,27 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "opencode-alternatives": {
+    "title": "OpenCode Alternatives: 7 Coding Agents to Switch To",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/opencode-alternatives/hero.png",
+      "alt": "Title card on white. \"OpenCode Alternatives\" in large ink type under the kicker \"7 coding agents to switch to\", a \"Checked 15 Oct 2026\" pill, and a snow globe holding a tiny terminal window and two pine trees while snow falls.",
+      "prompt": "Code drawn title card, motion standard (15 Oct 2026).",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-code-best-practices": {
+    "title": "Claude Code Best Practices: 9 Habits From Anthropic's Docs",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-code-best-practices/hero.png",
+      "alt": "Title card on white. 'Claude Code Best Practices' in large ink type, the kicker '9 Habits From Anthropic's Docs', a 'Checked 15 Oct 2026' pill, and a small bonsai tree in a blue pot.",
+      "prompt": "Code drawn title card, motion standard (15 Oct 2026).",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
