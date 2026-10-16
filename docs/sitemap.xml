@@ -28,7 +28,19 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://munderdiffl.in/blog/claude-code-best-practices/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://munderdiffl.in/blog/opencode-2-0/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://munderdiffl.in/blog/opencode-alternatives/</loc>
     <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -1329,8 +1341,8 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url><loc>https://munderdiffl.in/blog/topics/concepts/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://munderdiffl.in/blog/topics/guides/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://munderdiffl.in/blog/topics/concepts/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://munderdiffl.in/blog/topics/comparisons/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://munderdiffl.in/blog/topics/internals/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://munderdiffl.in/blog/topics/story/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>

@@ -135,6 +135,8 @@ In our experience, most beginner trouble is a full context window. Everything Cl
 * **Shipping what you can't verify.** Give it tests, scripts or screenshots.
 * **Treating rewind as version control.** Checkpoints only track edits made through Claude's file editing tools. Commit first.
 
+The fuller list is in [Claude Code best practices](/blog/claude-code-best-practices/).
+
 ## Where to go next
 
 Once the basics feel boring, pick one:
