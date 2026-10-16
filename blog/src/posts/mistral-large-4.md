@@ -23,7 +23,7 @@ faq:
 
 Our view: Mistral Large 4, nicknamed Le Chonk, is a serious open weight coding model that you can only rent for now. Mistral launched it as a public preview on 6 October 2026, with about 1 trillion parameters, a 1M token context window, an API you can call today and weights promised this month. Checked 6 Oct 2026.
 
-Open models can drive coding agents, which is why we care. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried Mistral Large 4 with it. Our guide to [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/) covers the models you can use now, the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+Open models can drive coding agents, which is why we care. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our guide to [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/) covers the models you can use now, the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Mistral Large 4?
 
@@ -65,7 +65,7 @@ Source: [Mistral's model page](https://docs.mistral.ai/models/mistral-large-4-0)
 
 ## How does Mistral Large 4 score on benchmarks?
 
-On the vendor's own figures, it is second among the five models in both charts below, and leads neither. The two rows below are our selection from the charts in Mistral's [launch post](https://mistral.ai/news/mistral-large-4/). We did not run them. The charts round to whole numbers.
+On the vendor's own figures, it is second among the five models in both charts below, and leads neither. The two rows below are our selection from the charts in Mistral's [launch post](https://mistral.ai/news/mistral-large-4/). The charts round to whole numbers.
 
 | Benchmark (Mistral's charts) | Mistral Large 4 | Kimi K3 | GLM-5.3 | DeepSeek V4 Pro 0813 | Qwen3.8 Max |
 | --- | --- | --- | --- | --- | --- |
@@ -76,7 +76,7 @@ In its text, Mistral gives 61.7% on DeepSWE v1.1, 28.3% on Terminal-Bench 4 and 
 
 VentureBeat noted that the model did not yet appear in Artificial Analysis' public evaluations or on the DeepSWE leaderboard, so the ranking claim "remains provisional". Mistral's charts say the scores were evaluated privately by Artificial Analysis. For another launch this week, see our [Reflection Beam explainer](/blog/reflection-beam/).
 
-<figure class="mg" data-scene="flags"><img src="/blog/assets/media/mistral-large-4/flags.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Five flags for Mistral Large 4, Kimi K3, GLM-5.3, DeepSeek V4 Pro 0813 and Qwen3.8 Max slide up their poles to heights set by their scores, first for DeepSWE 1.1 and then for Terminal-Bench 4, and the order changes between the two."><figcaption>Mistral's own figures from its launch post of 6 October 2026, two rows we selected. We did not run them.</figcaption></figure>
+<figure class="mg" data-scene="flags"><img src="/blog/assets/media/mistral-large-4/flags.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Five flags for Mistral Large 4, Kimi K3, GLM-5.3, DeepSeek V4 Pro 0813 and Qwen3.8 Max slide up their poles to heights set by their scores, first for DeepSWE 1.1 and then for Terminal-Bench 4, and the order changes between the two."><figcaption>Mistral's own figures from its launch post of 6 October 2026, two rows we selected.</figcaption></figure>
 
 ## What hardware do you need to run it?
 
@@ -90,7 +90,7 @@ Through the API, probably, but no source we opened names a coding CLI that ships
 
 One detail is telling. Mistral's DeepSWE chart labels rivals by harness, such as Qwen3.8 Max with Claude Code and GLM-5.3 with Opencode. Its own bar names none, and the footnote mentions a harness that has not launched publicly.
 
-We think any agent that accepts a custom API endpoint could be pointed at it, but we have not tested that. For what works now, see our [best AI coding agents](/blog/best-ai-coding-agents/) roundup.
+We think any agent that accepts a custom API endpoint could be pointed at it. For what works now, see our [best AI coding agents](/blog/best-ai-coding-agents/) roundup.
 
 ## What should you do now?
 

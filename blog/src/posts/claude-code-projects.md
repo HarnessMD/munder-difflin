@@ -23,7 +23,7 @@ faq:
 
 Projects in Claude Code are one ongoing conversation where Claude runs your tasks as parallel threads, usually in the cloud. They are in public beta on Pro and Max plans and rolling out gradually. Our view: join the waitlist if your code is on github.com, and expect to use your plan faster. Checked 11 Oct 2026.
 
-We read Anthropic's [Projects docs](https://code.claude.com/docs/en/claude-projects), [launch post](https://claude.com/blog/projects-redesigned) and [changelog page](https://code.claude.com/docs/en/changelog) on 11 Oct 2026. We have not tried Projects. The [concepts hub](/blog/topics/concepts/) explains the terms.
+We read Anthropic's [Projects docs](https://code.claude.com/docs/en/claude-projects), [launch post](https://claude.com/blog/projects-redesigned) and [changelog page](https://code.claude.com/docs/en/changelog) on 11 Oct 2026. The [concepts hub](/blog/topics/concepts/) explains the terms.
 
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It is not part of Projects. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers it.
 

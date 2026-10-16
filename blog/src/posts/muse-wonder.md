@@ -23,7 +23,7 @@ faq:
 
 Our view: Muse Wonder is a real contender for coding agents, not a clear winner. Meta announced Muse Wonder and Muse Wonder Full on 12 October 2026. In Meta's own coding table, Muse Wonder Full tops two of four rows and Claude Opus 5.5 tops the other two. Checked 13 Oct 2026.
 
-New coding models drive coding agents. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried Muse Wonder. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+New coding models drive coding agents. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Muse Wonder?
 
@@ -56,7 +56,7 @@ Muse Code is Meta's coding agent that runs in your terminal. Meta's [Muse Code p
 
 The Muse Code page prints its install command with and without flags, the fuller being `curl -fsSL https://dev.meta.ai/install.sh | bash`, and says "Available for MacOS and Windows". The Muse Code page does not mention Linux.
 
-Meta's [developer home page](https://dev.meta.ai/) says "Multi-agent coding in your terminal". On 13 Oct 2026 the Muse Code page still said "powered by Muse Spark", and its model table had no Muse Wonder row.
+Meta's [developer home page](https://dev.meta.ai/) says "Multi-agent coding in your terminal". On 14 Oct 2026 the Muse Code page said "powered by Muse models", and its plans listed Muse Wonder.
 
 <figure class="mg" data-scene="toolbox"><img src="/blog/assets/media/muse-wonder/toolbox.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A toolbox labelled Muse Code opens. A hammer, a saw and a screwdriver lift out and work side by side on one plank, while a spirit level slides along behind them checking the work."><figcaption>Meta's Muse Code page, read 13 Oct 2026, says "Workers in parallel, reviewers in the background". The drawing shows tools.</figcaption></figure>
 
@@ -85,7 +85,7 @@ Meta's launch post names no setting that turns either one on. Our view: wait for
 
 ## How good is Muse Wonder at coding?
 
-On Meta's own figures, Muse Wonder Full leads two of the four coding rows and Claude Opus 5.5 leads the other two. The table holds the four coding rows from Meta's model card, our selection from its 14 rows. Each number is Meta's own figure, and Meta's model page labels every column "(max)". We did not run them.
+On Meta's own figures, Muse Wonder Full leads two of the four coding rows and Claude Opus 5.5 leads the other two. The table holds the four coding rows from Meta's model card, our selection from its 14 rows. Each number is Meta's own figure, and Meta's model page labels every column "(max)".
 
 | Benchmark | Muse Wonder Full | Muse Wonder | Claude Fable 5.1 | GPT-6 Astra | Claude Opus 5.5 |
 | --- | --- | --- | --- | --- | --- |

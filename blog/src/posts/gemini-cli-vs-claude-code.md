@@ -85,7 +85,7 @@ The differences we could source:
 - **Where it runs.** Claude Code's docs list the terminal, IDE extensions, a desktop app and the web. Gemini CLI's README describes a terminal tool and a GitHub Action.
 - **Built in extras.** Gemini CLI's README lists Google Search grounding, conversation checkpointing and sandboxing. Claude Code's overview lists skills, auto memory and scheduled tasks.
 
-We have not run a benchmark between them, so we are not ranking quality or speed.
+This page compares features and setup; it does not rank quality or speed.
 
 ## Who should pick which?
 

@@ -187,7 +187,7 @@
   <div class="post-wrap wrap">
     <div class="prose">
       <p>Reflection AI Beam is a 501 billion parameter open weight AI model for coding, reasoning and agent work, announced on 5 October 2026. You cannot download it yet. Our view: promising on efficiency, unproven until the weights ship, and behind Qwen 3.8 Max on every row in Reflection’s own tables where both have a score. Checked 6 Oct 2026.</p>
-<p>Open models can drive coding agents, which is why we care. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried Beam with it, because there are no weights to try. Our guide to <a href="/blog/run-munder-difflin-on-open-models/">running Munder Difflin on open models</a> covers the models you can use now, the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup, and the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms.</p>
+<p>Open models can drive coding agents, which is why we care. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our guide to <a href="/blog/run-munder-difflin-on-open-models/">running Munder Difflin on open models</a> covers the models you can use now, the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup, and the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms.</p>
 <h2 id="what-is-reflection-ai-beam" tabindex="-1">What is Reflection AI Beam? <a class="anchor" href="#what-is-reflection-ai-beam" aria-hidden="true">#</a></h2>
 <p>Beam is Reflection AI’s first open weight model, by the company’s own description. Its <a href="https://reflection.ai/blog/introducing-beam">launch post</a> calls Beam a sparse Mixture-of-Experts model with 501 billion total parameters, 23 billion active, built for coding, reasoning and agentic workloads. The post also says Beam is text-only.</p>
 <p>Reflection’s <a href="https://reflection.ai/">website</a> says it builds open models for everyone to access, use and build on. <a href="https://techcrunch.com/2026/10/05/reflection-debuts-beam-a-open-weight-ai-model-to-rival-chinese-models-at-lower-compute-cost">TechCrunch</a> reported on 5 October 2026 that the company was founded in 2024 by two former Google DeepMind researchers.</p>
@@ -209,7 +209,7 @@
 </ul>
 <figure class="mg" data-scene="lamps"><img src="/blog/assets/media/reflection-beam/lamps.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A wall of 501 small lamps, each standing for 1 billion parameters. As five tokens arrive one by one, a different patch of 23 lamps lights up for each of them."><figcaption>Reflection says 501 billion parameters in total, with 23 billion active. Which lamps light is illustrative.</figcaption></figure>
 <h2 id="how-does-beam-score-on-benchmarks" tabindex="-1">How does Beam score on benchmarks? <a class="anchor" href="#how-does-beam-score-on-benchmarks" aria-hidden="true">#</a></h2>
-<p>On Reflection’s own figures, Beam is close to GLM 5.2 and behind Qwen 3.8 Max and Kimi K3. The six rows below are our selection from the 21 rows in the four tables in Reflection’s <a href="https://reflection.ai/blog/introducing-beam">launch post</a>. We did not run them. NR means not reported.</p>
+<p>On Reflection’s own figures, Beam is close to GLM 5.2 and behind Qwen 3.8 Max and Kimi K3. The six rows below are our selection from the 21 rows in the four tables in Reflection’s <a href="https://reflection.ai/blog/introducing-beam">launch post</a>. NR means not reported.</p>
 <div class="table-scroll">
 <table>
 <thead>
@@ -269,7 +269,7 @@
 </div>
 <p>On these six rows Beam is ahead of GLM 5.2 on three and behind on three. Across all 13 rows where Reflection reports both, Beam is ahead on eight. Qwen 3.8 Max is ahead of Beam on all six. Kimi K3 is ahead on all five rows where it has a score. Reflection also lists DeepSeek V4.1 Flash at 90.6 on Terminal Bench v2.1.</p>
 <p>Reflection says as much. The post calls Beam “competitive with larger open models like GLM 5.2 and approaching Qwen 3.8-Max”, and adds that frontier open models like Kimi K3 “remain ahead on raw capability”. TechCrunch noted on 5 October 2026 that the performance claims haven’t been independently verified.</p>
-<figure class="mg" data-scene="balloons"><img src="/blog/assets/media/reflection-beam/balloons.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four balloons for Beam, GLM 5.2, Qwen 3.8 Max and Kimi K3 float at heights set by their scores on one benchmark at a time, with a tag on the one that is ahead. Arrow buttons step through the six benchmarks."><figcaption>Reflection's own figures, six rows we selected from its tables. We did not run them. Use the arrows to change benchmark.</figcaption></figure>
+<figure class="mg" data-scene="balloons"><img src="/blog/assets/media/reflection-beam/balloons.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four balloons for Beam, GLM 5.2, Qwen 3.8 Max and Kimi K3 float at heights set by their scores on one benchmark at a time, with a tag on the one that is ahead. Arrow buttons step through the six benchmarks."><figcaption>Reflection's own figures, six rows we selected from its tables. Use the arrows to change benchmark.</figcaption></figure>
 <h2 id="what-makes-beam-efficient" tabindex="-1">What makes Beam efficient? <a class="anchor" href="#what-makes-beam-efficient" aria-hidden="true">#</a></h2>
 <p>Reflection’s claim is that Beam scores comparably to the larger GLM 5.2 on reasoning while spending less compute. The <a href="https://reflection.ai/blog/introducing-beam">launch post</a> says that on advanced reasoning benchmarks Beam scores comparably to GLM-5.2 while using 3 to 4 times less inference compute.</p>
 <p>By Reflection’s method, part of that is the small active count. Part is training: Reflection says it used a length penalty that rewards successful solutions while discouraging unnecessary tokens. It also says users can set a reasoning effort parameter, where lower settings favour shorter responses.</p>
@@ -351,6 +351,22 @@
       <h2>Related in Concepts</h2>
       <div class="post-grid">
         <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/claude-code-router/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-router/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-router/">Claude Code Router: What It Is, How It Works and How to Install It</a></h3>
+    <p class="dek">Claude Code Router, checked 14 Oct 2026: what the local gateway does, how to install it, which providers it lists, and what Anthropic says about it.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/claude-code-router/" aria-label="Read: Claude Code Router: What It Is, How It Works and How to Install It">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
   <a class="thumb t-concepts" href="/blog/gemini-4-argon-inside-google/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon-inside-google/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -379,22 +395,6 @@
     <div class="foot">
       <span class="tag kind">Concepts</span>
       <a class="more" href="/blog/gemini-4-argon/" aria-label="Read: Gemini 4 Argon: Google&#39;s Flagship Model Shares a Name With a Gas That Barely Reacts">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/muse-wonder/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/muse-wonder/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-10-13">Oct 13, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/muse-wonder/">Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores</a></h3>
-    <p class="dek">Meta&#39;s Muse Wonder and Muse Wonder Full: API price, Muse Code plans, context window and Meta&#39;s own coding scores, checked 13 Oct 2026.</p>
-    <div class="foot">
-      <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/muse-wonder/" aria-label="Read: Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores">Read →</a>
     </div>
   </div>
 </article>

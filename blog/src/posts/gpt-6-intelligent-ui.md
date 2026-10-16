@@ -23,7 +23,7 @@ faq:
 
 GPT-6 in ChatGPT is a wider rollout of a model family paid customers already had, now with Intelligent UI, which lets answers include charts, forms and buttons. OpenAI says Plus, Pro, Business and Enterprise started getting it on 7 Oct 2026, with Free and Go from 8 Oct. Codex models are not changing in this release. Checked 8 Oct 2026.
 
-[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Codex is one of those agents, so we read the announcement for what it says about Codex. We have not tested GPT-6 or Intelligent UI, so nothing here is a test result. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Codex is one of those agents, so we read the announcement for what it says about Codex. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What did OpenAI announce?
 
