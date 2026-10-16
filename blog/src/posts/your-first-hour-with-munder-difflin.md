@@ -19,11 +19,11 @@ faq:
   - q: "How long does it take to get Munder Difflin running?"
     a: "Setup is four short steps when an AI engine is already installed and signed in: download, sign in, name your workspace and your orchestrator. The rest of the hour goes on a first job, a small team and the first work that starts without you."
   - q: "Do I need Pro for this first hour?"
-    a: "No. Agents, schedules, the context rules, webhooks, Slack and temps are in both views. The Pro view adds one window with screens for Tasks, Inbox, Automations, Memory and Capabilities, plus the Stapler, a small window above every app."
+    a: "No. Agents, schedules, the context rules, webhooks, Slack and temps are in both views. The Pro view adds one window with screens for Tasks, Inbox, Automations, Memory and Capabilities, plus the Stapler, a small window above every app. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch."
   - q: "What is a temp?"
     a: "A temp is a short lived agent started for one job. The orchestrator or any lasting agent can start one, and the app can start one to answer an inbound message. It does the job, reports done and leaves."
   - q: "Can one office mix Claude Code, Codex and other engines?"
-    a: "Yes. Each agent picks its own engine and model when you add it, and can have its own token cap. Claude Code and Codex use their own sign in; OpenCode, Crush, Pi and Qwen take a key."
+    a: "Yes. Each agent picks its own engine and model when you add it, and can have its own token limit per period. Claude Code and Codex use their own sign in; OpenCode, Crush, Pi and Qwen take a key."
   - q: "Does the office keep working when I close my laptop?"
     a: "No. Agents, schedules, Slack and webhooks all run on your own computer, so they stop when the app closes or the laptop sleeps."
   - q: "Why did my agent's session clear itself?"
@@ -48,7 +48,7 @@ The first launch asks **How are you using Munder Difflin?** Pick **On my own**, 
 2. Sign in in the browser. The screen moves on by itself; if it does not, paste the code into **Code from the browser** and press **Use this code**.
 3. **Name your workspace**, **Meet your orchestrator**, then **Open the workspace**.
 
-Next comes the Pro sales screen, **Run your agents like a company**. Press **Continue with the free version** to reach the Classic view, or **I have a licence key** to turn on Pro. The steps through minute 45 work in both views; a few labels below are the Pro view's.
+Next comes the Pro sales screen, **Run your agents like a company**. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch: once you sign in, the app opens the Pro view with no licence and skips this screen. From Sunday 25 October, press **Continue with the free version** to reach the Classic view, or **I have a licence key** to turn on Pro. The steps through minute 45 work in both views; a few labels below are the Pro view's.
 
 ## Minute 10: how do you give your orchestrator a first job?
 
@@ -73,7 +73,7 @@ One split to try on day one:
 * a reviewer on **Codex**, reading every change the builder makes
 * a helper on a free engine such as Antigravity, for docs and tidying
 
-In the Pro view, each agent also has a **Token cap: the session budget before a restart**. Leave it on **Workspace budget** unless one agent needs its own. Sign every engine in before you hire on it, or the new agent cannot start; a Claude Code, Codex or Cursor agent stops at **Sign in needed**.
+Each agent can also have its own **token limit per period**: **Every 5 hours**, **Daily**, **Weekly** or **Monthly**, with a cap, in the agent's side panel under **Budget**. Leave it empty unless one agent needs its own. Sign every engine in before you hire on it, or the new agent cannot start; a Claude Code, Codex or Cursor agent stops at **Sign in needed**.
 
 Our own floor has eleven kinds of seat: an orchestrator, mission control, a community lead, growth, motion graphics, research, a founder's office, a scrum master, an engineering lead, builders, and a designer. You do not need eleven. You need a reviewer.
 
@@ -83,13 +83,13 @@ Our own floor has eleven kinds of seat: an orchestrator, mission control, a comm
 
 With an automation. In the Pro view open **Automations** and press **New automation**; in the Classic view the same things live under Triggers. Two kinds start there, a schedule and a webhook, and Slack is a third way in.
 
-**A schedule** sends a message to an agent on a clock. Choose **Schedule**, then fill in four things: a **Label**, **When** (an **Interval** or **Weekly**), **Sends to**, and the **Message**. The message is what the agent should do when it fires. A good first one: every weekday morning, ask an agent to check something and write you three lines.
+**A schedule** sends a message to an agent on a clock. Choose **Schedule**, then fill in four things: a **Label**, **When** (an **Interval** or **Weekly**), **Sends to**, and the **Message**, then press **Save**. The message is what the agent should do when it fires. A good first one: every weekday morning, ask an agent to check something and write you three lines.
 
 <figure class="mg" data-scene="schedule"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/schedule.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A card on white titled Automations with a yellow New automation button; on the right, a horizon with an empty sky and an office chair. A pointer presses New automation, picks Schedule over Webhook endpoint, and four fields fill in: Label, morning check; When, Weekly rather than Interval; Sends to, an agent; Message, check something and write you three lines. The pointer leaves. A sun climbs over the horizon, the card fires by itself, and a paper slip flies to the chair and gets a tick. The pointer peeks back in to check, then leaves again."><figcaption>A schedule has four parts: a Label, When (an Interval or Weekly), Sends to, and the Message the agent gets every time it fires. Tap the card to fire it again.</figcaption></figure>
 
-**A webhook** lets any tool that can send a web request start work. Choose **Webhook endpoint**. A new endpoint starts switched off: choose how much you trust the caller, copy its address and its secret into the tool that will send, then turn it on. The sender must hold the secret.
+**A webhook** lets any tool that can send a web request start work. Choose **Webhook endpoint**. A new endpoint starts switched off: choose how much you trust the caller, copy its address and its secret into the tool that will send, then turn it on and press **Save**. The sender must hold the secret.
 
-**Slack** lets people send work from a channel and read the answer in the same thread. It is under **Settings**, then **Connections**. In 0.5.6 one bot can listen to **Every channel the bot is in**, and a direct message to the bot is always answered. For direct messages, add `im:history`, `im:read`, `mpim:history` and `mpim:read` on your Slack app's **OAuth & Permissions** page at api.slack.com, then follow the app's own **How to get these** steps for the events. You choose the agent under **Who answers inbound messages**. If Slack fails to start, it now comes back by itself. The [Slack guide](/blog/connect-slack-to-munder-difflin/) has the full setup.
+**Slack** lets people send work from a channel or a direct message and read the answer in the same thread. In the Pro view it is under **Integrations**; in Classic, under **Settings**, then **Connections**. Create the Slack app from a manifest: press **Copy manifest** under **How to get these**, then in Slack choose **Create New App**, **From a manifest**. The channel list opens on **All channels**, every channel the bot is in, and direct messages to the bot are answered too. Tick channels only to narrow it. You choose the agent under **Who answers inbound messages**. If Slack fails to start, it now comes back by itself. The [Slack guide](/blog/connect-slack-to-munder-difflin/) has the full setup.
 
 <figure class="mg" data-scene="slack"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/slack.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a Connections card under Settings with a Slack switch and a box for Every channel the bot is in; below it, three chat cards labelled a channel, another channel and a direct message. A pointer switches Slack on and ticks the box, and an office chair rolls into the empty seat under Who answers inbound messages. A string runs from each card to the chair. Each card posts a message, a note travels down its string to the chair, and a reply comes back and lands under that message as a thread. Then Slack switches itself off, the strings go slack, and it switches itself back on."><figcaption>In 0.5.6 one bot can hear every channel it is in, a direct message is always answered, and the reply comes back in the same thread. Tap a card to send a message.</figcaption></figure>
 
@@ -100,7 +100,7 @@ A temp is an agent for one job. It gets an objective, does the work, reports don
 Three things changed in 0.5.6:
 
 * **Any lasting agent can start a temp**, not only the orchestrator. A temp cannot start a temp.
-* **A temp can answer inbound messages.** Wherever you pick who answers (Slack, a webhook, a schedule's **Sends to**, the Stapler's **Send captures to**), the list now offers **A temp** and a temp that is a clone of one of your agents.
+* **A temp can answer inbound messages.** Wherever you pick who answers (Slack, a teammate, a webhook, a schedule's **Sends to**, the Stapler's **Send captures to**), the list now offers **A temp** and **A temp, clone of** one of your agents.
 * **You set the limits.** In the Pro view, on the orchestrator's **Budget & breaker** tab, **Temps per agent** runs from 0 to 4 and **Max temps at once** caps how many temps run in the whole office at the same time. At 0, agents cannot start temps.
 
 <figure class="mg" data-scene="temp"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/temp.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three office chairs stand on white over the words your lasting agents, beside the dotted outline of a folding chair. A message card reading one job waits at the top left, then flies across while a yellow folding chair slides in folded, half opens, snaps shut, then opens properly and gets a tag reading A temp. The message lands on its seat, a done card pops up and flies to the first office chair, and the folding chair folds flat and slides away. The three office chairs never move."><figcaption>A temp answers one message or does one job, reports done and leaves; your lasting agents keep their seats. Tap the message to send another.</figcaption></figure>
@@ -135,7 +135,7 @@ One window with a sidebar, and a screen for each part of the office. The switch 
 
 **Memory** lets you **Search every agent's memory** at once and see the result as a **Graph** or a **List**. Use it before you brief: if an agent already solved this last week, the note is here. Narrow a search with **Whose memory** and **Kind**.
 
-**Capabilities** shows what each agent can reach: MCP servers, skills and tools.
+**Capabilities** is a marketplace of 2,347 MCP servers, skills, plugins and tools from the public list [HarnessMD/awesome-agent-capabilities](https://github.com/HarnessMD/awesome-agent-capabilities). We reviewed 622 of them; the rest read **Listed, not reviewed by us** and have no **Install** button. A merged change to the list reaches the app with no new release.
 
 **The Stapler** is a small window that floats above every app. On the **Stapler** screen, turn on **Show the stapler**, then click it for its ring:
 
@@ -152,7 +152,7 @@ The habit: when you see a bug in any app, do not describe it. Staple it.
 
 ## Minute 58: what about accounts and teams?
 
-Your account sits in the profile menu. **Sign out** asks you to press again, so you cannot do it by accident. **Switch to Teams** opens one sheet for joining a team with an invite code or generating one.
+Your account sits in the profile menu. **Sign out** asks you to press again, so you cannot do it by accident. **Switch to Teams** opens one sheet for joining a team with an invite code or generating one. In 0.5.6 your office talks to your teammates' offices: one plain chat per teammate, you choose who answers each one, and files and folders go as a link with a password, for one download.
 
 ## What trips people up in the first hour?
 

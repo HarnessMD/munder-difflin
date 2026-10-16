@@ -126,7 +126,7 @@ Not every job deserves a desk.
 
 Through files, on purpose. Every agent has its own folder with an inbox, an outbox and a memory file, and no agent writes in another agent's folder.
 
-* **Messages.** An agent drops a small file in its outbox and the app delivers it. Two kinds of message, inform and done, end a thread, so two agents cannot reply to each other forever.
+* **Messages.** An agent drops a small file in its outbox and the app delivers it. Two kinds of message, inform and done, end a thread, so two agents cannot reply to each other forever. A third kind, note, is information only and wakes nobody.
 * **The plan.** One written plan that only the orchestrator edits, and one task board of cards: todo, doing, blocked, done.
 * **The circuit breaker.** It watches every agent for loops, error storms and overspending. It steers first, then limits the agent to reading, then stops it.
 * **Secrets.** Keys never reach an agent. A local broker makes the outside call for it.
