@@ -4,9 +4,17 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-15T00:00:00.000Z</updated>
+  <updated>2026-10-16T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 16 Oct 2026: Muse Spark Open, Tiny Little Office, OpenCode Ends Sharing</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-16/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-16/</id>
+    <published>2026-10-16T00:00:00.000Z</published>
+    <updated>2026-10-16T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 16 Oct 2026, each with its source.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 15 Oct 2026: OpenCode 2.0, Hermes Agent v0.22.0, a Lost TV Season</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-15/" />
@@ -424,12 +432,12 @@
     <summary>Hermes Agent is Nous Research&#39;s MIT licensed AI agent with memory, skills and chat channels. Install command, models, pricing and how it compares.</summary>
   </entry>
   <entry>
-    <title>What Is Codex? OpenAI&#39;s Coding Agent in the CLI, App and Cloud</title>
+    <title>What Is Codex? OpenAI&#39;s Coding Agent, Its Free Plan and Models</title>
     <link href="https://munderdiffl.in/blog/what-is-codex/" />
     <id>https://munderdiffl.in/blog/what-is-codex/</id>
     <published>2026-10-02T00:00:00.000Z</published>
-    <updated>2026-10-02T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>What is Codex? OpenAI&#39;s coding agent runs in your terminal, the ChatGPT desktop app, your IDE and the cloud. Which plans include it, checked 2 Oct 2026.</summary>
+    <updated>2026-10-15T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Codex is OpenAI&#39;s coding agent for your terminal, editor, desktop app and cloud. ChatGPT Free, Go, Plus and Pro include it. Plans and models, 15 Oct 2026.</summary>
   </entry>
   <entry>
     <title>What is Pi agent? The open source coding agent harness, explained</title>
@@ -478,13 +486,5 @@
     <published>2026-09-29T00:00:00.000Z</published>
     <updated>2026-09-29T00:00:00.000Z</updated><category term="Concepts" />
     <summary>OpenCode is a free, MIT licensed coding agent from Anomaly. The tool costs nothing; you pay for the model you connect, unless it is local or free.</summary>
-  </entry>
-  <entry>
-    <title>Grok Bot Pricing: What $20, $30, $100 and $300 a Month Actually Buy</title>
-    <link href="https://munderdiffl.in/blog/grok-bot-pricing/" />
-    <id>https://munderdiffl.in/blog/grok-bot-pricing/</id>
-    <published>2026-09-26T00:00:00.000Z</published>
-    <updated>2026-09-26T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Grok Bot has no plan of its own. The cheapest way in is a $20 a month Cursor plan, SuperGrok is $30, and there is a seven day trial, not a free plan.</summary>
   </entry>
 </feed>
