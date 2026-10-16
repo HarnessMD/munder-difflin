@@ -27,12 +27,12 @@ faq:
   - q: "Can these agents really change files on my computer?"
     a: "Yes, and that is the point, so understand it before you start. An agent starts in the folder you give it and can read files, write files and run commands. It is not locked in there: it can reach anything your account can. Start with a new empty folder and watch what the agents do before you point one at anything you care about."
   - q: "Is the free version a separate download from Pro?"
-    a: "No. There is one installer. The free version is the Classic view, and a licence unlocks the Pro view in the same app. On first launch, press Continue with the free version to reach Classic."
+    a: "No. There is one installer. The free version is the Classic view, and a licence unlocks the Pro view in the same app. On first launch, press Continue with the free version to reach Classic. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch: sign in and the app opens Pro with no licence."
 startHere: true
 startOrder: 1
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>Pick one AI engine, by what you already pay for. Download Munder Difflin 0.5.6 and open it. Press <strong>Open browser to sign in</strong> and sign in, name your workspace and your orchestrator, then press <strong>Continue with the free version</strong>. If the engine is missing, the app offers to install it. About twenty minutes.</p></div>
+<div class="callout tldr"><span class="ic">TL;DR</span><p>Pick one AI engine, by what you already pay for. Download Munder Difflin 0.5.6 and open it. Press <strong>Open browser to sign in</strong> and sign in, name your workspace and your orchestrator, then press <strong>Continue with the free version</strong>. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch, so you go straight to Pro. If the engine is missing, the app offers to install it. About twenty minutes.</p></div>
 
 This is how to install Munder Difflin 0.5.6 when you have never used an AI coding tool. Most guides start three steps ahead of you. This one starts with what the thing is, and ends with a working office and a fix for every way setup can fail.
 
@@ -190,6 +190,8 @@ Setup has four steps. The words in bold are the words on the screen.
 
 <figure class="mg" data-scene="signin"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/signin.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Two windows on white. An app window on the left holds a button reading Open browser to sign in, an empty field labelled Code from the browser and a pale button reading Use this code. A dotted outline on the right marks the browser, which is not open yet. The first button is pressed and a browser window opens in the outline, with a crowded row of tabs, a tick, the words copy the code and a code drawn as a row of boxes with a dot in each. A copy of the code lifts out of the browser, travels across and drops into the field. Use this code turns yellow and is pressed, and the app window shows You are signed in."><figcaption>Sign in takes two windows: press Open browser to sign in and sign in there. If the screen does not move on by itself, copy the code from the browser, paste it into Code from the browser and press Use this code. Tap the app window to watch it again.</figcaption></figure>
 
+Until Saturday 24 October 2026, Pro is free for everyone as part of the launch. Once you sign in, the app opens the Pro view with no licence and skips the screen below. From Sunday 25 October it is back.
+
 Then comes the screen that stops people: the Pro sales screen, **Run your agents like a company**, with three buttons.
 
 * **Continue with the free version** opens the Classic view. This is the one you want if you have no licence.
@@ -235,6 +237,8 @@ Almost everything. Setup asks for the minimum, and the rest lives in **Settings*
 * **Connections** is Slack and the other ways work arrives from outside. The [Slack guide](/blog/connect-slack-to-munder-difflin/) walks through it.
 * **Memory & Knowledge** covers what agents remember. Search by meaning needs `uv` and MemPalace.
 * **Keys & Secrets** is where saved keys live. OpenCode, Crush, Pi and Qwen take a key; Claude Code and Codex use their own sign in.
+
+In Pro, the **Integrations** row in the sidebar puts Slack, webhooks, the apps your agents use and your keys in one place, each with a plain status and the last 50 things that happened. Nothing saves until you press **Save**.
 
 ## What do you do when an install fails?
 

@@ -322,7 +322,7 @@
 <h2 id="how-does-work-move-between-them" tabindex="-1">How does work move between them? <a class="anchor" href="#how-does-work-move-between-them" aria-hidden="true">#</a></h2>
 <p>Through files, on purpose. Every agent has its own folder with an inbox, an outbox and a memory file, and no agent writes in another agent’s folder.</p>
 <ul>
-<li><strong>Messages.</strong> An agent drops a small file in its outbox and the app delivers it. Two kinds of message, inform and done, end a thread, so two agents cannot reply to each other forever.</li>
+<li><strong>Messages.</strong> An agent drops a small file in its outbox and the app delivers it. Two kinds of message, inform and done, end a thread, so two agents cannot reply to each other forever. A third kind, note, is information only and wakes nobody.</li>
 <li><strong>The plan.</strong> One written plan that only the orchestrator edits, and one task board of cards: todo, doing, blocked, done.</li>
 <li><strong>The circuit breaker.</strong> It watches every agent for loops, error storms and overspending. It steers first, then limits the agent to reading, then stops it.</li>
 <li><strong>Secrets.</strong> Keys never reach an agent. A local broker makes the outside call for it.</li>
