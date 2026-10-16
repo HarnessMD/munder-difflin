@@ -8,23 +8,31 @@
 > Agents keep markdown memory in a shared, searchable palace, message each other through
 > mailboxes, and can run on a schedule, from Slack or from a webhook. The source in the
 > GitHub repository is MIT licensed. Current version: 0.4.6 (the source in the repository).
-> Latest app release: 0.5.5 (1 October 2026), installers for macOS (signed and notarized),
+> Latest app release: 0.5.6 (17 October 2026), installers for macOS (signed and notarized),
 > Windows and Linux.
 
 Engines it runs: Claude Code, OpenAI Codex, Gemini CLI, Antigravity (Gemini), xAI Grok,
 Kimi Code, Qwen, OpenCode, Crush, pi.dev, GitHub Copilot CLI, Cursor, or any custom command.
 Your own API keys and local models work too, through Ollama, LM Studio or vLLM.
 
-Free and Pro: the app is free. Pro is an optional paid plan that adds the Pro sidebar
-(Tasks, Inbox, Automations, Memory, Capabilities) and the Stapler, which records meetings
-and sends messages, screenshots and files to any agent.
+New in 0.5.6: Capabilities (Pro), a marketplace of 2,347 MCP servers, skills, plugins and tools
+from the public list HarnessMD/awesome-agent-capabilities, 622 of them reviewed by us; Integrations,
+one place for Slack, webhooks, the apps your agents use and your keys; and Teams, so your office
+talks to your teammates' offices. Agents also use fewer tokens by default, and a temp, a short lived
+agent for one job, can answer Slack, a teammate, a webhook or a schedule.
+
+Free and Pro: the app is free. Pro is a paid plan, $150 USD a year adjusted for purchasing power,
+that adds Capabilities, agent files, the Pro sidebar (Tasks, Inbox, Automations, Memory,
+Capabilities, Integrations) and the Stapler, which records meetings and sends messages, screenshots
+and files to any agent. As part of the 0.5.6 launch, Pro is free for everyone who signs in until
+Saturday 24 October 2026.
 
 ## Product
 
 - [Download](https://harnessmd.com/download): macOS, Windows and Linux builds
 - [Homepage](https://munderdiffl.in/): features and FAQ
 - [GitHub repository](https://github.com/HarnessMD/munder-difflin): source, issues and releases
-- [Releases](https://github.com/HarnessMD/munder-difflin/releases): every build with its notes
+- [Release notes](https://harnessmd.com/download#whats-new): what changed in each release from 0.5.2 to 0.5.6
 - [Agent Gallery](https://munderdiffl.in/hires/): ready made agent roles to import
 - [Telemetry](https://github.com/HarnessMD/munder-difflin/blob/main/TELEMETRY.md): the anonymous usage events official builds send, and how to turn them off
 
@@ -44,7 +52,7 @@ and sends messages, screenshots and files to any agent.
 - [Run a mixed engine office](https://munderdiffl.in/blog/run-a-mixed-engine-office/)
 - [Run Munder Difflin on open models](https://munderdiffl.in/blog/run-munder-difflin-on-open-models/)
 - [Run Munder Difflin on a Mac Mini](https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/)
-- [What's new in v0.5.2](https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/)
+- [What's new in 0.5.6](https://harnessmd.com/download#whats-new)
 
 ## Comparisons
 

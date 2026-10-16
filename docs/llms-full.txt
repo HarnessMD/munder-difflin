@@ -4,12 +4,18 @@
 > such as Claude Code, Codex and Gemini CLI on your own computer. It is presented as a
 > virtual office (an affectionate parody of The Office; not affiliated with NBC). The
 > source in the GitHub repository is MIT licensed, at version 0.4.6. Latest app release:
-> 0.5.5 (1 October 2026), installers for macOS (signed and notarized), Windows and Linux.
+> 0.5.6 (17 October 2026), installers for macOS (signed and notarized), Windows and Linux.
 > Website: https://munderdiffl.in . Download:
 > https://harnessmd.com/download . Source: https://github.com/HarnessMD/munder-difflin .
 > Author: Chaitanya Giri.
 
 ## What it does
+
+New in 0.5.6: Capabilities (Pro), a marketplace of 2,347 MCP servers, skills, plugins and tools
+from the public list HarnessMD/awesome-agent-capabilities, 622 of them reviewed by us; Integrations,
+one place for Slack, webhooks, the apps your agents use and your keys; and Teams, so your office
+talks to your teammates' offices. Agents also use fewer tokens by default, and a temp, a short lived
+agent for one job, can answer Slack, a teammate, a webhook or a schedule.
 
 Munder Difflin wraps the terminal coding agents you already use and turns them into a team
 that coordinates itself on your own machine.
@@ -48,9 +54,11 @@ that coordinates itself on your own machine.
 
 ## Free and Pro
 
-The app is free. Pro is an optional paid plan that adds the Pro sidebar
-(Tasks, Inbox, Automations, Memory, Capabilities) and the Stapler, which records meetings
-with both sides of the call and sends messages, screenshots and files to any agent.
+The app is free. Pro is a paid plan, $150 USD a year adjusted for purchasing power, that adds
+Capabilities, agent files, the Pro sidebar (Tasks, Inbox, Automations, Memory, Capabilities,
+Integrations) and the Stapler, which records meetings with both sides of the call and sends
+messages, screenshots and files to any agent. As part of the 0.5.6 launch, Pro is free for
+everyone who signs in until Saturday 24 October 2026.
 Plans: https://app.harnessmd.com/console/license
 
 ## Install
@@ -78,7 +86,7 @@ https://github.com/HarnessMD/munder-difflin/blob/main/TELEMETRY.md .
 - Homepage and FAQ: https://munderdiffl.in/
 - Blog: https://munderdiffl.in/blog/
 - Agent Gallery: https://munderdiffl.in/hires/
-- Releases: https://github.com/HarnessMD/munder-difflin/releases
+- Release notes: https://harnessmd.com/download#whats-new
 - Short index of every blog post: https://munderdiffl.in/llms.txt
 
 ## Guides by topic
@@ -127,4 +135,5 @@ Concepts and engineering:
 ## License
 
 MIT for the source in https://github.com/HarnessMD/munder-difflin (version 0.4.6). The
-0.5.5 release on GitHub carries installers only. Pro is an optional paid plan on top.
+app's installers are on https://harnessmd.com/download . Pro is a paid plan on top, free for
+everyone who signs in until Saturday 24 October 2026.
