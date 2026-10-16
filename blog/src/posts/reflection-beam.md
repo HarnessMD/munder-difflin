@@ -23,7 +23,7 @@ faq:
 
 Reflection AI Beam is a 501 billion parameter open weight AI model for coding, reasoning and agent work, announced on 5 October 2026. You cannot download it yet. Our view: promising on efficiency, unproven until the weights ship, and behind Qwen 3.8 Max on every row in Reflection's own tables where both have a score. Checked 6 Oct 2026.
 
-Open models can drive coding agents, which is why we care. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried Beam with it, because there are no weights to try. Our guide to [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/) covers the models you can use now, the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+Open models can drive coding agents, which is why we care. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our guide to [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/) covers the models you can use now, the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Reflection AI Beam?
 
@@ -60,7 +60,7 @@ The post gives these training figures:
 
 ## How does Beam score on benchmarks?
 
-On Reflection's own figures, Beam is close to GLM 5.2 and behind Qwen 3.8 Max and Kimi K3. The six rows below are our selection from the 21 rows in the four tables in Reflection's [launch post](https://reflection.ai/blog/introducing-beam). We did not run them. NR means not reported.
+On Reflection's own figures, Beam is close to GLM 5.2 and behind Qwen 3.8 Max and Kimi K3. The six rows below are our selection from the 21 rows in the four tables in Reflection's [launch post](https://reflection.ai/blog/introducing-beam). NR means not reported.
 
 | Benchmark (as named by Reflection) | Beam | GLM 5.2 | Qwen 3.8 Max | Kimi K3 |
 | --- | --- | --- | --- | --- |
@@ -75,7 +75,7 @@ On these six rows Beam is ahead of GLM 5.2 on three and behind on three. Across 
 
 Reflection says as much. The post calls Beam "competitive with larger open models like GLM 5.2 and approaching Qwen 3.8-Max", and adds that frontier open models like Kimi K3 "remain ahead on raw capability". TechCrunch noted on 5 October 2026 that the performance claims haven't been independently verified.
 
-<figure class="mg" data-scene="balloons"><img src="/blog/assets/media/reflection-beam/balloons.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four balloons for Beam, GLM 5.2, Qwen 3.8 Max and Kimi K3 float at heights set by their scores on one benchmark at a time, with a tag on the one that is ahead. Arrow buttons step through the six benchmarks."><figcaption>Reflection's own figures, six rows we selected from its tables. We did not run them. Use the arrows to change benchmark.</figcaption></figure>
+<figure class="mg" data-scene="balloons"><img src="/blog/assets/media/reflection-beam/balloons.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four balloons for Beam, GLM 5.2, Qwen 3.8 Max and Kimi K3 float at heights set by their scores on one benchmark at a time, with a tag on the one that is ahead. Arrow buttons step through the six benchmarks."><figcaption>Reflection's own figures, six rows we selected from its tables. Use the arrows to change benchmark.</figcaption></figure>
 
 ## What makes Beam efficient?
 

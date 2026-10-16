@@ -4900,5 +4900,27 @@
         "status": "ready"
       }
     }
+  },
+  "claude-code-skills": {
+    "title": "Claude Code skills",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-code-skills/hero.png",
+      "alt": "Title card on white. Claude Code skills in large ink type, a kicker reading What they are, where they live, how to write one, a Checked 14 Oct 2026 pill and a yellow folder with a SKILL.md sheet sticking out.",
+      "prompt": "Still of the hero scene in assets/media/claude-code-skills/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-code-router": {
+    "title": "Claude Code Router",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-code-router/hero.png",
+      "alt": "Title card on white. Claude Code Router in large ink type, with a kicker and a Checked 14 Oct 2026 chip, beside a paper plane trailing a dotted loop.",
+      "prompt": "Still of the hero scene in assets/media/claude-code-router/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

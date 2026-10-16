@@ -192,11 +192,11 @@
 <h2 id="how-do-you-create-a-claude-code-subagent" tabindex="-1">How do you create a Claude Code subagent? <a class="anchor" href="#how-do-you-create-a-claude-code-subagent" aria-hidden="true">#</a></h2>
 <p>You save a Markdown file with YAML front matter in <code>.claude/agents/</code> for one project, or in <code>~/.claude/agents/</code> for every project on your machine. Only <code>name</code> and <code>description</code> are required, and the body under the front matter becomes the subagent’s system prompt. This one runs tests on Haiku and has no Edit or Write tool:</p>
 <pre class="language-markdown"><code class="language-markdown"><span class="token front-matter-block"><span class="token punctuation">---</span>
-<span class="token front-matter yaml language-yaml">name: test-runner
-description: Runs the test suite and reports only failing tests with their error messages. Use proactively after code changes.
-tools: Read, Grep, Glob, Bash
-model: haiku
-maxTurns: 20</span>
+<span class="token front-matter yaml language-yaml"><span class="token key atrule">name</span><span class="token punctuation">:</span> test<span class="token punctuation">-</span>runner
+<span class="token key atrule">description</span><span class="token punctuation">:</span> Runs the test suite and reports only failing tests with their error messages. Use proactively after code changes.
+<span class="token key atrule">tools</span><span class="token punctuation">:</span> Read<span class="token punctuation">,</span> Grep<span class="token punctuation">,</span> Glob<span class="token punctuation">,</span> Bash
+<span class="token key atrule">model</span><span class="token punctuation">:</span> haiku
+<span class="token key atrule">maxTurns</span><span class="token punctuation">:</span> <span class="token number">20</span></span>
 <span class="token punctuation">---</span></span>
 
 Run the project's test command. For each failing test, report the file,
@@ -358,6 +358,22 @@ reports only failures. No Edit or Write tools, and use Haiku.</code></pre>
   </div>
 </article>
 <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-code-skills/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-skills/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-skills/">Claude Code Skills: What They Are, Where They Live and How to Write One</a></h3>
+    <p class="dek">Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-code-skills/" aria-label="Read: Claude Code Skills: What They Are, Where They Live and How to Write One">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
   <a class="thumb t-guides" href="/blog/gemini-4-argon-pricing/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon-pricing/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -370,22 +386,6 @@ reports only failures. No Edit or Write tools, and use Haiku.</code></pre>
     <div class="foot">
       <span class="tag kind">Guides</span>
       <a class="more" href="/blog/gemini-4-argon-pricing/" aria-label="Read: Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/how-to-use-gemini-4-argon/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-use-gemini-4-argon/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-10-13">Oct 13, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>4 min</span>
-    </div>
-    <h3><a href="/blog/how-to-use-gemini-4-argon/">How to Use Gemini 4 Argon: Five Ways In, and Free Is Not One of Them</a></h3>
-    <p class="dek">How to use Gemini 4 Argon on 13 Oct 2026: the Gemini app, AI Mode, AI Studio, the API with model ID gemini-4-argon, and Antigravity. What each route needs.</p>
-    <div class="foot">
-      <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-use-gemini-4-argon/" aria-label="Read: How to Use Gemini 4 Argon: Five Ways In, and Free Is Not One of Them">Read →</a>
     </div>
   </div>
 </article>

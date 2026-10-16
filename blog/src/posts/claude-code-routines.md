@@ -24,7 +24,7 @@ faq:
 
 Our view: Claude routines are worth one small, low risk job if you want Claude Code to work while your laptop is closed, but they are a research preview with hourly limits. A routine is a saved prompt that runs in the cloud on a schedule, an API call or a GitHub event. Checked 12 Oct 2026.
 
-We have not tried routines. This page reports what Anthropic's documentation says. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It sits at the local end of this choice, and routines sit at the cloud end. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+This page reports what Anthropic's documentation says. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It sits at the local end of this choice, and routines sit at the cloud end. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What are Claude routines?
 

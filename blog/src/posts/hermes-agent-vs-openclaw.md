@@ -97,7 +97,7 @@ The [Hermes memory docs](https://hermes-agent.nousresearch.com/docs/user-guide/f
 
 ## What do their docs say about security?
 
-Both docs describe a pairing code for unknown senders, and each lists its own controls. We did not test either tool, so this is each project's own wording.
+Both docs describe a pairing code for unknown senders, and each lists its own controls in its own words.
 
 The [Hermes security page](https://hermes-agent.nousresearch.com/docs/user-guide/security) lists eight layers, including dangerous command approval and container isolation. The default approval mode is `smart`, which uses a second model to judge risk. Hub skills go through a security scanner.
 

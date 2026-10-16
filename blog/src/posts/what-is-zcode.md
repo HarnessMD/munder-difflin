@@ -21,7 +21,7 @@ faq:
     a: "No. Other products use the name. This page covers only the ZCode made by Z.ai, at zcode.z.ai and zai-org/ZCode."
 ---
 
-ZCode is Z.ai's open source coding workspace: a desktop app, a browser interface and a terminal agent in one Apache-2.0 repo, tuned for Z.ai's GLM models but shipped with templates for other providers. We have not tested it. This page reports what its own pages say. Checked 8 Oct 2026.
+ZCode is Z.ai's open source coding workspace: a desktop app, a browser interface and a terminal agent in one Apache-2.0 repo, tuned for Z.ai's GLM models but shipped with templates for other providers. This page reports what its own pages say. Checked 8 Oct 2026.
 
 Other products are also called zcode. This page is about Z.ai's ZCode only. It is one vendor's workspace. If you want several agent CLIs working side by side, that is the layer [Munder Difflin](https://harnessmd.com/download) works at: free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and more explainers sit in the [concepts hub](/blog/topics/concepts/).
 
@@ -111,6 +111,6 @@ Versions differ too. GitHub's one release is v3.14.3, with a macOS arm64 and a W
 
 ## Who does ZCode suit?
 
-Our view: ZCode suits people who already pay for a GLM Coding Plan and want Z.ai's own desktop workspace with the source open to read. The repo is under three weeks old, so for a longer public record we think OpenCode or Codex CLI is the safer first pick. We have not run ZCode: this is a reading of its documents, not a review. Our [best AI coding agents](/blog/best-ai-coding-agents/) page compares more tools.
+Our view: ZCode suits people who already pay for a GLM Coding Plan and want Z.ai's own desktop workspace with the source open to read. The repo is under three weeks old, so for a longer public record we think OpenCode or Codex CLI is the safer first pick. Our [best AI coding agents](/blog/best-ai-coding-agents/) page compares more tools.
 
 <link rel="stylesheet" href="/blog/assets/media/what-is-zcode/motion.css"><script defer src="/blog/assets/media/what-is-zcode/motion.js"></script>
