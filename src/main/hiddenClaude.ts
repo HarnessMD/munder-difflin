@@ -5,6 +5,8 @@ import { resolveCommand, userShellPath } from './shellEnv';
 import { expandTilde } from './fs';
 import { projectDir } from './transcript';
 import { ensureKilled } from './procKill';
+import { tokenizeCommand } from '../shared/commandLine';
+import { limitResponse } from './reflectLimit';
 
 /**
  * Shared helper: run a HIDDEN interactive claude session (ephemeral PTY) and
@@ -45,6 +47,8 @@ export interface HiddenClaudeOptions {
   timeoutMs?: number;
   /** Extra env merged over the resolved shell env (e.g. the shared MemPalace). */
   env?: Record<string, string>;
+  /** Preserve a quota banner even when Claude writes no assistant transcript. */
+  captureLimits?: boolean;
 }
 
 export interface HiddenClaudeResult {
@@ -107,7 +111,7 @@ export function runHiddenClaude(prompt: string, opts: HiddenClaudeOptions): Prom
     }
     opts = { ...opts, cwd };
 
-    const binary = (opts.command || 'claude').trim().split(/\s+/)[0] || 'claude';
+    const binary = tokenizeCommand(opts.command || 'claude')[0] || 'claude';
     const exe = resolveCommand(binary);
     const disallowed = opts.disallowedTools ?? ['Edit', 'Write', 'NotebookEdit'];
     const addDirs = (opts.addDirs ?? []).filter((d) => d && existsSync(d));
@@ -149,6 +153,7 @@ export function runHiddenClaude(prompt: string, opts: HiddenClaudeOptions): Prom
     }
 
     let settled = false;
+    let tail = '';
     let promptSent = false;
     let bootTimer: NodeJS.Timeout | null = null;
     let idleTimer: NodeJS.Timeout | null = null;
@@ -179,7 +184,7 @@ export function runHiddenClaude(prompt: string, opts: HiddenClaudeOptions): Prom
       const text = extractLastAssistantText(opts.cwd, spawnedAt);
       finish(text
         ? { ok: true, text }
-        : { ok: false, error: 'no assistant response found in transcript' });
+        : { ok: false, error: (opts.captureLimits && limitResponse(tail)) || 'no assistant response found in transcript' });
     };
 
     const sendPrompt = () => {
@@ -197,7 +202,8 @@ export function runHiddenClaude(prompt: string, opts: HiddenClaudeOptions): Prom
       timeoutMs,
     );
 
-    ptyProc.onData(() => {
+    ptyProc.onData(data => {
+      if (opts.captureLimits) tail = (tail + data).slice(-16_384);
       if (!promptSent) {
         // Boot phase: reset quiet timer; send prompt once output goes quiet.
         if (bootTimer) clearTimeout(bootTimer);
