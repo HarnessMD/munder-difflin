@@ -15,7 +15,7 @@ import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
 import {
   readConfig, writeConfig, setAgentTokenCap, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
-  modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
+  modelForHiveSpawn, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
 import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
@@ -2959,14 +2959,12 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
     // cross-session message to it came back "held for the recipient user's
     // approval" with no surface for anyone to ever grant that approval.
     const args = argsWithAutoModeFlag(opts.args ?? [], cfg.autoMode, provider);
-    // Model precedence: an explicit per-agent --model (from the renderer) wins;
-    // else the user's global defaultModel; else the role-based default tier. The
-    // ORCHESTRATOR is special-cased: it has its own engine config (orchestratorProvider/orchestratorModel), so
-    // modelForRole resolves it and that wins over the worker-oriented defaultModel.
+    // Model precedence: an explicit renderer --model wins; otherwise the model
+    // recorded from this agent's Claude status line wins over app-wide defaults.
+    // This keeps separate agents' `/model` choices out of Claude's shared global
+    // settings file while retaining the existing orchestrator/worker fallback behavior.
     if (!args.includes('--model')) {
-      const m = opts.hive.isOrchestrator
-        ? modelForRole(opts.hive, cfg)
-        : cfg.defaultModel ?? modelForRole(opts.hive, cfg);
+      const m = modelForHiveSpawn(opts.hive, cfg, hive.lastModel(opts.hive.id));
       if (m) args.push('--model', m);
     }
     // Name the Remote Control session after the agent (the orchestrator, Jim, Dev1…) so it

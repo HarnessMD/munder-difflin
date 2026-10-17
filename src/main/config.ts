@@ -807,6 +807,21 @@ export function modelForRole(
   return MODEL_WORKER;
 }
 
+/** Resolve a hive Claude spawn model. A saved per-agent `/model` choice is
+ * authoritative over app-wide defaults; an explicit argv `--model` is handled
+ * by the caller before it calls this helper. */
+export function modelForHiveSpawn(
+  meta: RoleHint,
+  config: Pick<HarnessConfig, 'defaultModel' | 'orchestratorProvider' | 'orchestratorModel'>,
+  persistedModel?: string
+): string | undefined {
+  const saved = persistedModel?.trim();
+  if (saved) return saved;
+  return meta.isOrchestrator
+    ? modelForRole(meta, config)
+    : config.defaultModel ?? modelForRole(meta, config);
+}
+
 /** Ensure harnessHome exists on disk. Expands `~` first — the onboarding wizard
  *  lets the user type the path, and mkdir treats a literal `~` as a plain
  *  directory name (issue #140's `ENOENT: mkdir '~/HarnessAgents'`). */
