@@ -110,6 +110,10 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
           ? (loadedTheme.orchestratorName ?? member?.displayName ?? 'Orchestrator')
           : (member?.displayName ?? agent.name);
         st.updateAgent(agent.id, { character: character as any, name });
+        // Also persist to hive registry so theme names survive an app restart
+        if (agent.name !== name && window.cth?.hiveRenameAgent) {
+          void window.cth.hiveRenameAgent(agent.id, name);
+        }
       }
 
       const meta = themes.find((item) => item.id === id);
