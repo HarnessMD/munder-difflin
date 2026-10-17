@@ -42,12 +42,16 @@
     "gemini": [
       { "label": "CLI default", "minAppVersion": null, "maxAppVersion": null },
       { "id": "auto", "label": "Auto", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "gemini-4-argon", "label": "Gemini 4 Argon", "minAppVersion": null, "maxAppVersion": null },
       { "id": "pro", "label": "Pro", "minAppVersion": null, "maxAppVersion": null },
       { "id": "flash", "label": "Flash", "minAppVersion": null, "maxAppVersion": null },
       { "id": "flash-lite", "label": "Flash Lite", "minAppVersion": null, "maxAppVersion": null }
     ],
     "antigravity": [
       { "label": "CLI default", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "Gemini 4 Argon (High)", "label": "Gemini 4 Argon · High", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "Gemini 4 Argon (Medium)", "label": "Gemini 4 Argon · Med", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "Gemini 4 Argon (Low)", "label": "Gemini 4 Argon · Low", "minAppVersion": null, "maxAppVersion": null },
       { "id": "Gemini 3.1 Pro (High)", "label": "Gemini 3.1 Pro · High", "minAppVersion": null, "maxAppVersion": null },
       { "id": "Gemini 3.1 Pro (Low)", "label": "Gemini 3.1 Pro · Low", "minAppVersion": null, "maxAppVersion": null },
       { "id": "Gemini 3.8 Flash (High)", "label": "Gemini 3.8 Flash · High", "minAppVersion": null, "maxAppVersion": null },

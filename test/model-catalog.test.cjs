@@ -40,6 +40,9 @@ const SHIPPED = {
   ],
   antigravity: [
     [undefined, "CLI default"],
+    ["Gemini 4 Argon (High)", "Gemini 4 Argon · High"],
+    ["Gemini 4 Argon (Medium)", "Gemini 4 Argon · Med"],
+    ["Gemini 4 Argon (Low)", "Gemini 4 Argon · Low"],
     ["Gemini 3.1 Pro (High)", "Gemini 3.1 Pro · High"],
     ["Gemini 3.1 Pro (Low)", "Gemini 3.1 Pro · Low"],
     ["Gemini 3.8 Flash (High)", "Gemini 3.8 Flash · High"],
