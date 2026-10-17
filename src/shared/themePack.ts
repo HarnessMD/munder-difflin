@@ -1,3 +1,4 @@
+import { sanitizeDisplayName } from './orchestratorIdentity';
 // Theme pack contract + PURE validator (docs/theming/THEME-PACK-INVENTORY.md §2).
 //
 // No fs, no Pixi, no Electron, no DOM: runs in main at scan time AND in the
@@ -527,6 +528,15 @@ export function validatePack(input: ValidateInput): ValidateResult {
     const ok = !!b && b.byteLength <= PACK_LIMITS.tokensBytes && !/url\s*\(/i.test(css) && !/@import/i.test(css);
     if (!ok) { warn('bad-tokens', 'chrome.tokens', 'tokens.css ignored (missing, > 16 KB, url() or @import)'); out.chrome = { ...out.chrome, tokens: undefined }; }
     else tokensCss = css;
+  }
+  if (manifest.copy !== undefined) {
+    const raw = isObj(manifest.copy) ? manifest.copy : {};
+    const orchestratorName = sanitizeDisplayName(raw.orchestratorName);
+    const appName = isStr(raw.appName) && raw.appName.trim().length > 0 && raw.appName.length <= 60 ? raw.appName.trim() : undefined;
+    if (raw.orchestratorName !== undefined && !orchestratorName) {
+      warn('bad-copy', 'copy.orchestratorName', 'orchestratorName ignored (a plain string of 1-40 characters)');
+    }
+    out.copy = { ...(orchestratorName ? { orchestratorName } : {}), ...(appName ? { appName } : {}) };
   }
   if (manifest.cast !== undefined) {
     warn('cast-unsupported', 'cast', 'disk casts are not loaded in this build; the default roster is used');

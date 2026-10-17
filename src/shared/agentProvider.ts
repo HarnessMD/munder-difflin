@@ -105,8 +105,8 @@ export interface AgentProviderPreset {
    *  derives `{kind:'hooks'}` from their `hookBridge`. claude/custom leave it
    *  undefined (no bridge). Prefer `bridgeOf(provider)` over reading this directly. */
   bridge?: BridgeDescriptor;
-  /** The model the ORCHESTRATOR orchestrator ("Michael") defaults to when this provider
-   *  powers it — surfaced as the picker default and the advisory "give Michael a
+  /** The model the ORCHESTRATOR orchestrator (the orchestrator) defaults to when this provider
+   *  powers it — surfaced as the picker default and the advisory "give the orchestrator a
    *  longer-context, higher-capability model". `modelForRole` resolves the ORCHESTRATOR
    *  model as `config.orchestratorModel ?? preset.recommendedOrchestratorModel ?? MODEL_ORCHESTRATOR`.
    *  Advisory + user-overridable. */
@@ -179,7 +179,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     autoFlag: '--permission-mode bypassPermissions',
     hiveAware: true,
     canReceiveInbox: true,
-    // Longest-context Claude variant — matches the "give Michael a bigger model"
+    // Longest-context Claude variant — matches the "give the orchestrator a bigger model"
     // advisory and the Recommended tag on the orchestrator picker.
     recommendedOrchestratorModel: 'claude-opus-4-8[1m]',
     resumeFlag: '--resume',
@@ -534,7 +534,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // TUI by default (no `-p`), so the session stays alive for hive mail via the
     // renderer idle / work-order path — same class as Crush. Print mode (`-p`) is
     // available for scripts but exits per turn; this preset intentionally does
-    // NOT use `-p` so Michael and workers remain orchestrator-eligible / inbox-capable.
+    // NOT use `-p` so the orchestrator and workers remain orchestrator-eligible / inbox-capable.
     // Models (including cheap gpt-5.6-luna-*) bill against Cursor credits via the
     // logged-in CLI — there is no separate "plain OpenAI API" path for Luna.
     id: 'cursor',

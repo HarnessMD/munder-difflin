@@ -21,7 +21,7 @@ async function floor(t) {
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
 
   const hive = new HiveManager(() => home);
-  await hive.ensureAgent({ id: 'orchestrator-1', name: 'Michael', provider: 'claude', cwd: home, isOrchestrator: true });
+  await hive.ensureAgent({ id: 'orchestrator-1', name: 'the orchestrator', provider: 'claude', cwd: home, isOrchestrator: true });
   await hive.ensureAgent({ id: 'worker-1', name: 'Creed', provider: 'claude', cwd: home });
 
   const outbox = path.join(home, 'hive', 'agents', 'worker-1', 'outbox');

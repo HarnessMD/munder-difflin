@@ -279,3 +279,20 @@ describe('helpers', () => {
     expect(numberToHex(0x1a1320)).toBe('#1a1320');
   });
 });
+
+describe('validatePack: copy.orchestratorName', () => {
+  it('carries a good display name through', () => {
+    const r = validatePack(pack(baseManifest({ copy: { orchestratorName: ' Captain ' } })));
+    expect(codes(r, 'error')).toEqual([]);
+    expect(r.pack!.manifest.copy).toEqual({ orchestratorName: 'Captain' });
+  });
+
+  it('drops a bad one with a warning instead of rejecting the pack', () => {
+    for (const bad of ['', '   ', 'x'.repeat(41), 'line\nbreak', 42]) {
+      const r = validatePack(pack(baseManifest({ copy: { orchestratorName: bad as unknown as string } })));
+      expect(codes(r, 'error')).toEqual([]);
+      expect(codes(r, 'warn')).toContain('bad-copy');
+      expect(r.pack!.manifest.copy?.orchestratorName).toBeUndefined();
+    }
+  });
+});

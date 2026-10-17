@@ -169,7 +169,7 @@ test('onboarding lists every engine — orchestrator-capable first, workers-only
   // supported at all". The step now SHOWS inbox-less engines as disabled
   // workers-only rows instead of omitting them, so the split must be exact:
   // selectable = the orchestrator-eligible set, workersOnly = everything a worker can
-  // run but Michael cannot (custom stays hidden — it is not a preset engine).
+  // run but the orchestrator cannot (custom stays hidden — it is not a preset engine).
   const { eligible, workersOnly } = onboardingEngineChoices();
   assert.deepEqual(
     eligible.map((preset) => preset.id),

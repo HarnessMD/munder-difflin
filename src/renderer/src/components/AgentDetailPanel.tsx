@@ -92,7 +92,7 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
 
   const onPtyStream = usePtyParser(agent.id);
 
-  // Michael gets the full command-center dashboard instead of the plain panel.
+  // the orchestrator gets the full command-center dashboard instead of the plain panel.
   if (agent.isOrchestrator) return <CommandCenterPanel agent={agent} />;
 
   const openTerminal = async () => {

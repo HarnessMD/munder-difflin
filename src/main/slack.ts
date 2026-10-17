@@ -2,7 +2,7 @@
  * SlackWebhookServer — receive Slack messages and hand them to the harness.
  *
  * A bare `node:http` server (no @slack/bolt) that implements just enough of the
- * Slack Events API to let the user pipe a channel's messages into Michael's
+ * Slack Events API to let the user pipe a channel's messages into the orchestrator's
  * message queue:
  *   - verifies EVERY request with Slack's signing-secret HMAC over the RAW body
  *     plus a 5-minute replay-timestamp guard (403 on any failure),

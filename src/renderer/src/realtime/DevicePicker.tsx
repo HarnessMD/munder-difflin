@@ -1,8 +1,8 @@
 /**
- * Realtime Michael — microphone & speaker device picker (card rt-8, Phase 1).
+ * Realtime voice — microphone & speaker device picker (card rt-8, Phase 1).
  *
  * Lets the user choose WHICH microphone the voice loop captures and WHICH speaker
- * it plays Michael's voice through. Selections are held in the realtime session
+ * it plays the orchestrator's voice through. Selections are held in the realtime session
  * store via `setDeviceId()` / `setOutputDeviceId()` (see session.ts): the mic is
  * applied on the next connect() (getUserMedia `{ deviceId: { exact } }`), the
  * speaker is applied immediately to the live `<audio>` sink via `setSinkId()` (and
@@ -14,11 +14,11 @@
  * Free Flow is live — see src/main/index.ts). Before that we show generic
  * "Microphone N" / "Speaker N" names and a hint, so the picker is usable cold.
  *
- * Branch feat/realtime-michael. See board.md "🎙 REALTIME MICHAEL".
+ * Branch feat/realtime-voice. See board.md "🎙 REALTIME VOICE".
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRealtimeMichael } from './session';
+import { useRealtimeVoice } from './session';
 import { useStore } from '@/store/store';
 
 interface AudioDevice {
@@ -61,7 +61,7 @@ const selectStyle: React.CSSProperties = {
 
 export function RealtimeDevicePicker(): React.ReactElement {
   const { t } = useTranslation();
-  const { deviceId, setDeviceId, outputDeviceId, setOutputDeviceId } = useRealtimeMichael();
+  const { deviceId, setDeviceId, outputDeviceId, setOutputDeviceId } = useRealtimeVoice();
   const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const [mics, setMics] = useState<AudioDevice[]>([]);
   const [speakers, setSpeakers] = useState<AudioDevice[]>([]);

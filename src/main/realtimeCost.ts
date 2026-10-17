@@ -1,5 +1,5 @@
 /**
- * Realtime Michael — main-process cost helpers (card rt-9, cost-guard).
+ * Realtime voice — main-process cost helpers (card rt-9, cost-guard).
  *
  * Re-exports the shared realtime audio cost helpers so a main-side caller can price
  * a realtime usage delta without reaching into ../shared directly. These feed the

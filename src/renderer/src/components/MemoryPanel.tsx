@@ -134,7 +134,7 @@ export function MemoryPanel() {
                     (`curl … | sh`, `source ~/.zshrc`) — dead text under cmd.exe or
                     PowerShell, on the platform most likely to be missing the tool.
                     Setup owns the platform-correct commands now, plus the uv
-                    dependency, the live detected state, and the delegate-to-Michael
+                    dependency, the live detected state, and the delegate-to-the orchestrator
                     path. One source of truth beats two that disagree by OS. */}
                 <div style={{ marginTop: 8 }}>
                   <PixelButton

@@ -1,9 +1,9 @@
 'use strict';
 
 // PR #205 shipped en/zh-CN locales in which the orchestrator is always called
-// "Michael". The user can rename it, and this codebase has already fixed that
+// "the orchestrator". The user can rename it, and this codebase has already fixed that
 // exact revert three times in the spawn path. It also replaced several
-// per-agent runtime names with the literal "Michael", so the UI named the wrong
+// per-agent runtime names with the literal "the orchestrator", so the UI named the wrong
 // agent — including a confirmation dialog for a destructive restart.
 //
 // These tests hold both fixes, plus the founder's rule that nothing changes for
@@ -32,16 +32,16 @@ const text = (v) => (Array.isArray(v) ? v.join(' ') : String(v));
 test('no locale hardcodes the orchestrator name', () => {
   for (const l of LOCALES) {
     const bad = Object.entries(flatten(locale(l)))
-      .filter(([, v]) => /Michael/i.test(text(v)))
+      .filter(([, v]) => /Orchestrator/.test(text(v)))
       .map(([k]) => k);
-    assert.deepEqual(bad, [], `${l}.json hardcodes Michael in: ${bad.join(', ')}`);
+    assert.deepEqual(bad, [], `${l}.json hardcodes the default orchestrator name in: ${bad.join(', ')}`);
   }
 });
 
 test('the strings that talk about the orchestrator interpolate {{orchestratorName}}', () => {
   const en = flatten(locale('en'));
   // A representative spread: settings, command centre, onboarding, triggers.
-  for (const k of ['settings.connections.slackDesc', 'commandCenter.michaelDecides',
+  for (const k of ['settings.connections.slackDesc', 'commandCenter.orchestratorDecides',
                    'onboarding.orchestrator.modelNote', 'triggerHistory.approveTitle',
                    'workersTab.liveIntro', 'kanban.newWorkHint']) {
     assert.ok(k in en, `${k} vanished from en.json`);
@@ -51,7 +51,7 @@ test('the strings that talk about the orchestrator interpolate {{orchestratorNam
 
 test('strings about ONE agent interpolate {{name}}, not the orchestrator', () => {
   // These describe whichever agent is on screen. Naming orchestrator here is not a
-  // translation nit: "This restarts Michael" on a dialog that restarts Kevin is
+  // translation nit: "This restarts the orchestrator" on a dialog that restarts Kevin is
   // a destructive action describing the wrong target.
   const perAgent = ['commandCenter.runsTheFloor', 'commandCenter.noTerminal',
                     'commandCenter.confirmRestartEngine', 'commandCenter.restartContinueTitle'];

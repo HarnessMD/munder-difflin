@@ -1,7 +1,7 @@
 /**
  * Can the engine a user is about to pick actually boot on this machine?
  *
- * The onboarding wizard records Michael's engine and nothing checks it until the
+ * The onboarding wizard records the orchestrator's engine and nothing checks it until the
  * first spawn. spawnAgentCore then runs the install ladder (cliInstall.ts), and
  * for a provider with no `installCommand` and no `nativeInstallCommand` that
  * ladder ends at the `manual` rung: a hint is printed in a terminal and the

@@ -108,7 +108,7 @@ test("the 'What's new' section wins over the release template's preamble", () =>
     '',
     '---',
     '',
-    '## Still new in 0.4.3 — *Michael is the logo*',
+    '## Still new in 0.4.3 — *the orchestrator is the logo*',
     '',
     '- The mark is a face now.'
   ].join('\n');

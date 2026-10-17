@@ -1,8 +1,8 @@
 /**
- * Realtime Michael — voice toggle + live state indicator (card rt-3, Phase 1).
+ * Realtime voice — voice toggle + live state indicator (card rt-3, Phase 1).
  *
- * A reusable mic button for the orchestrator agent ("Michael"). It consumes the
- * already-built `useRealtimeMichael()` voice-loop hook (a shared module-level singleton —
+ * A reusable mic button for the orchestrator agent (the orchestrator). It consumes the
+ * already-built `useRealtimeVoice()` voice-loop hook (a shared module-level singleton —
  * see realtime/session.ts) and exposes a single start/stop control plus a live indicator
  * of the loop's status.
  *
@@ -14,7 +14,7 @@
  * Click behaviour: status==='off' → connect(); anything else → disconnect().
  *
  * Rendered in two places (AgentCard for the orchestrator card, FullscreenTerminal header when
- * Michael is fullscreen). It is intentionally state-only / hook-only so both can mount it.
+ * the orchestrator is fullscreen). It is intentionally state-only / hook-only so both can mount it.
  */
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import { useStore } from '@/store/store';
-import { useRealtimeMichael, type RealtimeStatus } from '@/realtime/session';
+import { useRealtimeVoice, type RealtimeStatus } from '@/realtime/session';
 
 /** Per-status presentation: button variant, SHORT label, dot color, and (optional)
  *  animation for the live-state indicator dot. Maps hook.status → visuals.
@@ -80,15 +80,15 @@ const STATE_VIEW: Record<
   }
 };
 
-export interface RealtimeMichaelToggleProps {
+export interface RealtimeVoiceToggleProps {
   /** Compact form for the fullscreen header / tight rows — hides the text label. */
   compact?: boolean;
 }
 
-export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggleProps) {
+export function RealtimeVoiceToggle({ compact = false }: RealtimeVoiceToggleProps) {
   const { t } = useTranslation();
   const hasOpenAiKey = useStore((s) => s.hasOpenAiKey);
-  const { status, error, connect, disconnect } = useRealtimeMichael();
+  const { status, error, connect, disconnect } = useRealtimeVoice();
   // Measured viewport coords, not a CSS offset. The agent dock clips its
   // children, so a popover positioned inside the card gets sliced at the card's
   // edge no matter how it is anchored — which is exactly what happened. A portal

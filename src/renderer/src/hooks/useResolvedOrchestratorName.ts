@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { resolveOrchestratorName, DEFAULT_ORCHESTRATOR_NAME } from '@shared/orchestratorIdentity';
+import { resolveOrchestratorName, setThemeOrchestratorName, DEFAULT_ORCHESTRATOR_NAME } from '@shared/orchestratorIdentity';
 
 const ORCHESTRATOR_ID = 'orchestrator';
 
@@ -14,7 +14,11 @@ export function useResolvedOrchestratorName(): string {
   const [orchestratorName, setOrchestratorName] = useState(DEFAULT_ORCHESTRATOR_NAME);
   useEffect(() => {
     let cancelled = false;
-    void window.cth.hiveRegistry().then((reg) => {
+    void Promise.all([
+      window.cth.hiveRegistry(),
+      window.cth.themeOrchestratorName().catch(() => null)
+    ]).then(([reg, themeName]) => {
+      setThemeOrchestratorName(themeName);
       if (!cancelled) setOrchestratorName(resolveOrchestratorName(reg?.agents?.[ORCHESTRATOR_ID]?.name));
     }).catch(() => { /* keep the default while unknown */ });
     return () => { cancelled = true; };

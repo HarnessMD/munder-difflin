@@ -43,7 +43,7 @@ export function roleForHiveSpawn(agent: {
 }): string | undefined {
   if (agent.isOrchestrator) return preferredAgentRole(agent.description, 'orchestrator', true);
   if (agent.isAssistant) {
-    return preferredAgentRole(agent.description, "Michael's prep assistant");
+    return preferredAgentRole(agent.description, "the orchestrator prep assistant");
   }
   const role = agent.description?.trim();
   return role && isDurableRole(role) ? role : undefined;

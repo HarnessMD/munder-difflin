@@ -1,4 +1,4 @@
-// The Office cast — roster metadata + sprite frames.
+// The built-in cast — roster metadata + sprite frames.
 //
 // Both the static portraits (cards / picker) and the in-scene walking sprites are
 // now fully custom-drawn from the same per-character recipes in portraitArt.ts:
@@ -8,14 +8,15 @@
 
 import { Texture } from 'pixi.js';
 import { paintPortrait, sceneFrameBufs, SCENE_W, SCENE_H } from './portraitArt';
+import {
+  normalizeCharacter, LEGACY_CHARACTER_ALIASES, DEFAULT_CHARACTER, ORCHESTRATOR_CHARACTER,
+  type CharacterName
+} from './characters';
 
-export type OfficeCharacterName =
-  | 'michael' | 'jim' | 'pam' | 'dwight' | 'kevin' | 'angela'
-  | 'oscar' | 'stanley' | 'phyllis' | 'andy' | 'kelly' | 'ryan'
-  | 'toby' | 'creed' | 'meredith';
+export { DEFAULT_CHARACTER, ORCHESTRATOR_CHARACTER, normalizeCharacter, type CharacterName };
 
 export interface CastMember {
-  name: OfficeCharacterName;
+  name: CharacterName;
   displayName: string;
   /** Signature accent color (hex) — used for the in-scene selection glow. */
   shirt: string;
@@ -24,35 +25,38 @@ export interface CastMember {
 }
 
 /** Selectable roster, in display order. */
-export const OFFICE_CAST: CastMember[] = [
-  { name: 'michael',  displayName: 'Michael',  shirt: '#5a6b8c', blurb: "World's best boss" },
-  { name: 'jim',      displayName: 'Jim',      shirt: '#6fa8dc', blurb: 'Salesman, prankster' },
-  { name: 'pam',      displayName: 'Pam',      shirt: '#9caf88', blurb: 'Receptionist, artist' },
-  { name: 'dwight',   displayName: 'Dwight',   shirt: '#b89b3e', blurb: 'Assistant (to the) RM' },
-  { name: 'kevin',    displayName: 'Kevin',    shirt: '#4a7ab5', blurb: 'Accounting' },
-  { name: 'angela',   displayName: 'Angela',   shirt: '#8a86a6', blurb: 'Head of accounting' },
-  { name: 'oscar',    displayName: 'Oscar',    shirt: '#7a4b6b', blurb: 'Accountant' },
-  { name: 'stanley',  displayName: 'Stanley',  shirt: '#8c5a4b', blurb: 'Sales, crossword' },
-  { name: 'phyllis',  displayName: 'Phyllis',  shirt: '#b08bbf', blurb: 'Sales' },
-  { name: 'andy',     displayName: 'Andy',     shirt: '#6fae6f', blurb: 'Cornell, a cappella' },
-  { name: 'kelly',    displayName: 'Kelly',    shirt: '#d16ba5', blurb: 'Customer service' },
-  { name: 'ryan',     displayName: 'Ryan',     shirt: '#3a3a44', blurb: 'The temp' },
-  { name: 'toby',     displayName: 'Toby',     shirt: '#9a8c5a', blurb: 'Human resources' },
-  { name: 'creed',    displayName: 'Creed',    shirt: '#6b7a4b', blurb: 'Quality assurance' },
-  { name: 'meredith', displayName: 'Meredith', shirt: '#b5544a', blurb: 'Supplier relations' },
+export const CAST: CastMember[] = [
+  { name: 'ada',   displayName: 'Ada',   shirt: '#46707a', blurb: 'Systems, quietly thorough' },
+  { name: 'ben',   displayName: 'Ben',   shirt: '#3c785a', blurb: 'Backend, ships on Fridays' },
+  { name: 'cleo',  displayName: 'Cleo',  shirt: '#e6aa3c', blurb: 'Design, strong opinions' },
+  { name: 'dax',   displayName: 'Dax',   shirt: '#78408c', blurb: 'Frontend, loves a spinner' },
+  { name: 'eli',   displayName: 'Eli',   shirt: '#c85a3c', blurb: 'Tests everything twice' },
+  { name: 'fern',  displayName: 'Fern',  shirt: '#5a8c64', blurb: 'Docs and developer experience' },
+  { name: 'gus',   displayName: 'Gus',   shirt: '#3c466e', blurb: 'Infra, owns the pager' },
+  { name: 'hana',  displayName: 'Hana',  shirt: '#c85060', blurb: 'Data, plots first' },
+  { name: 'ivo',   displayName: 'Ivo',   shirt: '#28463c', blurb: 'Runs the floor' },
+  { name: 'jules', displayName: 'Jules', shirt: '#3c3c5a', blurb: 'Security, reads the diff' },
+  { name: 'kira',  displayName: 'Kira',  shirt: '#3c3c46', blurb: 'Release manager' },
+  { name: 'leo',   displayName: 'Leo',   shirt: '#dcdce6', blurb: 'Support, calm under fire' },
+  { name: 'maya',  displayName: 'Maya',  shirt: '#c87832', blurb: 'Product, asks why' },
+  { name: 'nico',  displayName: 'Nico',  shirt: '#5a5a64', blurb: 'Performance, counts milliseconds' },
+  { name: 'otto',  displayName: 'Otto',  shirt: '#786450', blurb: 'Reviewer, never in a hurry' },
 ];
 
-export const CAST_BY_NAME: Record<OfficeCharacterName, CastMember> =
-  Object.fromEntries(OFFICE_CAST.map((c) => [c.name, c])) as Record<OfficeCharacterName, CastMember>;
-
-export const DEFAULT_CHARACTER: OfficeCharacterName = 'jim';
+/** Lookup by name. Older saved names resolve to their replacement figure. */
+export const CAST_BY_NAME: Record<string, CastMember> = {
+  ...Object.fromEntries(CAST.map((c) => [c.name, c])),
+  ...Object.fromEntries(
+    Object.entries(LEGACY_CHARACTER_ALIASES).map(([old, now]) => [old, CAST.find((c) => c.name === now)!])
+  ),
+};
 
 export function hexToNumber(hex: string): number {
   return parseInt(hex.replace('#', ''), 16);
 }
 
 // ─── scene frames ────────────────────────────────────────────────────────────
-const frameCache = new Map<OfficeCharacterName, Texture[][]>();
+const frameCache = new Map<CharacterName, Texture[][]>();
 
 function bufToTexture(buf: Uint8ClampedArray): Texture {
   const canvas = document.createElement('canvas');
@@ -73,7 +77,8 @@ function bufToTexture(buf: Uint8ClampedArray): Texture {
  * and a back view (up — agents seated facing their desk show their back). The
  * three walk frames are stand / step-left / step-right.
  */
-export async function getCastFrames(name: OfficeCharacterName): Promise<Texture[][]> {
+export async function getCastFrames(rawName: string): Promise<Texture[][]> {
+  const name = normalizeCharacter(rawName);
   const cached = frameCache.get(name);
   if (cached) return cached;
   const { front, back } = sceneFrameBufs(name);
@@ -93,15 +98,15 @@ export async function getCastFrames(name: OfficeCharacterName): Promise<Texture[
  */
 export async function paintCastPortrait(
   ctx: CanvasRenderingContext2D,
-  name: OfficeCharacterName,
+  name: string,
   scale = 2,
 ): Promise<void> {
-  paintPortrait(ctx, name, scale);
+  paintPortrait(ctx, normalizeCharacter(name), scale);
 }
 
 /** Built-in procedural cast satisfying ThemeCast for packs without cast/ directory. */
 export const PROCEDURAL_THEME_CAST = {
-  byName: CAST_BY_NAME as Record<string, CastMember>,
-  getFrames: (name: string) => getCastFrames(name as OfficeCharacterName),
+  byName: CAST_BY_NAME,
+  getFrames: (name: string) => getCastFrames(name),
   defaultCharacter: DEFAULT_CHARACTER,
 };

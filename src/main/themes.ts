@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import { existsSync, readdirSync, statSync, readFileSync } from 'node:fs';
 import { join, isAbsolute } from 'node:path';
+import { sanitizeDisplayName } from '../shared/orchestratorIdentity';
 import {
   type ThemeId,
   type PackSummary,
@@ -378,4 +379,16 @@ export function validateThemePack(id: string): { valid: boolean; issues: Issue[]
     valid: !pack.issues.some((i) => i.level === 'error'),
     issues: pack.issues
   };
+}
+
+/** The orchestrator display name a theme suggests (`copy.orchestratorName`), or null.
+ *  Reads only theme.json, so it is cheap enough for boot and for every config change. */
+export function readThemeOrchestratorName(id: string | undefined): string | null {
+  if (!id) return null;
+  try {
+    const entry = scanThemes().byPath.get(id);
+    if (!entry) return null;
+    const manifest = JSON.parse(readFileSync(join(entry.dir, 'theme.json'), 'utf8'));
+    return sanitizeDisplayName(manifest?.copy?.orchestratorName);
+  } catch { return null; }
 }

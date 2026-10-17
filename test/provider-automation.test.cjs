@@ -120,7 +120,7 @@ test('every provider preset has a considered context-command entry', () => {
 });
 
 test('Claude alone receives a remote-control slash command', () => {
-  assert.equal(remoteControlCommandForProvider('claude', 'Michael'), '/remote-control Michael');
+  assert.equal(remoteControlCommandForProvider('claude', 'the orchestrator'), '/remote-control the orchestrator');
   assert.equal(remoteControlCommandForProvider('codex', 'Jim'), null);
   assert.equal(remoteControlCommandForProvider('grok', 'Grok'), null);
   assert.equal(remoteControlCommandForProvider('kimi', 'Pam'), null);

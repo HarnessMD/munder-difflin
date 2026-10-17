@@ -1,7 +1,7 @@
 /**
- * Realtime Michael — voice ACTION spine (card rt-5, Phase 2).
+ * Realtime voice — voice ACTION spine (card rt-5, Phase 2).
  *
- * Phase 1 gave voice-Michael READ tools. Phase 2 gives him WRITE access: he can
+ * Phase 1 gave the voice orchestrator READ tools. Phase 2 gives him WRITE access: he can
  * ping/dispatch agents, edit the task board, steer/pause/halt/kill workers, hire
  * new ones, and edit schedules — entirely by voice. Because the confirm surface is
  * VOICE-ONLY (the human declined on-screen confirm cards), the echo-back spine in
@@ -25,8 +25,8 @@
  *     all-agent op, are VOICE-FORBIDDEN even with a valid confirm — rejected
  *     outright, no pending created.
  *
- * Every committed action is attributed to actor `michael-voice` (a log stamp on
- * every verb + `from: michael-voice` on messages). rt-7 deepens this into a live
+ * Every committed action is attributed to actor `orchestrator-voice` (a log stamp on
+ * every verb + `from: orchestrator-voice` on messages). rt-7 deepens this into a live
  * orchestrator-PTY cross-notify; rt-5 just needs the attribution present.
  *
  * Thin wrappers ONLY — no new orchestration logic. Each verb maps onto a main fn
@@ -42,7 +42,7 @@ import { clearCommandForProvider } from '../shared/providerAutomation';
 import { resolveOrchestratorName } from '../shared/orchestratorIdentity';
 import { scanThemes } from './themes';
 
-export const VOICE_ACTOR = 'michael-voice';
+export const VOICE_ACTOR = 'orchestrator-voice';
 
 /** A minimal spawn spec — index.ts adapts it to its AgentSpawnOptions + spawnAgentCore. */
 export interface RealtimeSpawnSpec {
@@ -219,8 +219,8 @@ function resolveAgent(target: string, reg: Registry): ResolvedAgent | { error: s
   // exact id
   const byId = entries.find(([id]) => id.toLowerCase() === t);
   if (byId) return mk(byId[0], byId[1]);
-  // 'orchestrator' / 'michael' alias for the orchestrator
-  if ((t === 'orchestrator' || t === 'god' || t === 'michael' || t === 'the orchestrator') && reg.orchestratorId)
+  // 'orchestrator' alias for the orchestrator
+  if ((t === 'orchestrator' || t === 'god' || t === 'the orchestrator') && reg.orchestratorId)
     return mk(reg.orchestratorId, reg.agents[reg.orchestratorId] ?? {});
   // exact name, prefer live
   const byName = entries.filter(([, m]) => (m.name || '').toLowerCase() === t);
@@ -273,7 +273,7 @@ function attribute(deps: RealtimeActionDeps, verb: string, target: string, extra
   } catch {
     /* attribution is best-effort — never block the action */
   }
-  // rt-7 dual-orchestrator coord: tell the orchestrator PTY what voice-Michael just COMMITTED, so
+  // rt-7 dual-orchestrator coord: tell the orchestrator PTY what the voice orchestrator just COMMITTED, so
   // the two autonomous orchestrators stay aware and don't make duplicate/contradictory
   // moves. attribute() only runs on committed writes (soft execs + post-confirm commits),
   // so orchestrator is never notified for a merely-proposed/uncommitted destructive action.
@@ -618,7 +618,7 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
     if ('error' in r) return { ok: false, spoken: r.error };
     // Orchestrator policy per verb: kill/pause/halt/archive on orchestrator stay voice-forbidden.
     // clear_context on orchestrator is ALLOWED behind confirm — it's recoverable
-    // (sessions resume) and "clear Michael's context" is a real operator need.
+    // (sessions resume) and "clear the orchestrator's context" is a real operator need.
     if (r.isOrchestrator && verb !== 'clear_context')
       return { ok: false, spoken: `${verb} on the orchestrator is voice-forbidden. That has to be done in the UI.` };
 

@@ -153,7 +153,7 @@ export interface AgentMeta {
   capabilities?: string[];
   cwd: string;
   isOrchestrator?: boolean;
-  /** Michael's prep assistant — enriches prompts and forwards them to Michael.
+  /** the orchestrator prep assistant — enriches prompts and forwards them to the orchestrator.
    *  Send-only: excluded from broadcast fan-out so it never drains an inbox. */
   isAssistant?: boolean;
 }
@@ -165,7 +165,7 @@ export interface RegistryAgent extends AgentMeta {
    *  (not deleted) so its history/memory survive; only agents with a live PTY
    *  are 'active'. Broadcast fan-out + roster reads skip archived agents. */
   archived?: boolean;
-  /** The human has this agent 1:1 and Michael must leave it alone until they
+  /** The human has this agent 1:1 and the orchestrator must leave it alone until they
    *  flip it back. Held agents stay ACTIVE and keep their terminal — this is
    *  "do not dispatch to them", not "they are gone", which is why it is its own
    *  flag rather than a reuse of `archived` or a breaker level. */
@@ -1145,7 +1145,7 @@ export class HiveManager {
    * the new name immediately rather than waiting for the periodic fleet refresh.
    */
   /**
-   * Put an agent on hold, or take it off, and tell Michael immediately.
+   * Put an agent on hold, or take it off, and tell the orchestrator immediately.
    *
    * `fleet.json` is patched in the same operation for the same reason
    * `renameAgent` does it: orchestrator's roster is injected from that file on its next
@@ -2570,7 +2570,7 @@ export class HiveManager {
     } catch (e) { console.error('[hive] installGrokHooks failed:', e); }
   }
 
-  /** Write the live fleet snapshot Michael reads (`fleet.json`, gitignored).
+  /** Write the live fleet snapshot the orchestrator reads (`fleet.json`, gitignored).
    *  Best-effort — called from a timer, must never throw. */
   writeFleetSnapshot(snapshot: unknown): void {
     const root = this.root();
@@ -2715,7 +2715,7 @@ export class HiveManager {
    * `{kind:'archive', agentId, archived:true}` and NOTHING else — no exit code,
    * no signal, no output. A two-second SIGILL death and a completed agent were
    * indistinguishable in the only record the hive keeps, and the crash banner
-   * lived solely in a UI terminal pane. Observed live 2026-08-24: Michael's
+   * lived solely in a UI terminal pane. Observed live 2026-08-24: the orchestrator's
    * `claude` CLI panicked 923ms into startup and left no trace on disk.
    *
    * Split by design:
@@ -3106,7 +3106,7 @@ the hive root:
   "isolate": true,
   "tokenCap": 0,
   "slack": { "channel": "C…", "thread_ts": "…" },
-  "character": "meredith",
+  "character": "cleo",
   "accent": "coral"
 }
 \`\`\`

@@ -1,10 +1,10 @@
 /**
- * Realtime Michael — completion watcher (card rt-12, Phase 2, "respond when done").
+ * Realtime voice — completion watcher (card rt-12, Phase 2, "respond when done").
  *
- * When voice-Michael DISPATCHES work (fire-and-notify, the default pattern), he does
+ * When the voice orchestrator DISPATCHES work (fire-and-notify, the default pattern), he does
  * NOT block on it. This module is the main-process engine that watches each dispatched
  * task for completion and EMITS a completion event so the rest of the realtime stack can
- * make Michael speak it unprompted ("Oscar finished — want details?").
+ * make the orchestrator speak it unprompted ("Oscar finished — want details?").
  *
  * OWNERSHIP / SEAM (rt-12 split, orchestrator-ruled 2026-06-25): this module is OWNED by Jim and
  * is deliberately DISJOINT from Kevin's realtime CORE files. It NEVER imports session.ts
@@ -19,10 +19,10 @@
  *   (a) the dispatched task's card flips to `done` in tasks.json, OR
  *   (b) an inbox done-msg arrives from the assignee (a reply to the dispatch, after it).
  *
- * Branch feat/realtime-michael. See board.md "🎙 REALTIME MICHAEL".
+ * Branch feat/realtime-voice. See board.md "🎙 REALTIME VOICE".
  */
 
-/** A unit of work voice-Michael dispatched and is now awaiting completion of. */
+/** A unit of work the voice orchestrator dispatched and is now awaiting completion of. */
 export interface PendingDispatch {
   /** Stable id for this dispatch (the watcher key). e.g. the dispatch message id. */
   correlationId: string;
@@ -84,7 +84,7 @@ export interface CompletionResult {
  * The completion object the watcher emits via `onCompletion` AND returns from
  * `drainQueuedCompletions()` — the SAME shape (rt-12 contract lock with Kevin). Kevin
  * forwards it verbatim over the main→renderer push channel and into warm-start, so every
- * field here reaches Michael. `summary` is the human-speakable line; `completedAt` is
+ * field here reaches the orchestrator. `summary` is the human-speakable line; `completedAt` is
  * epoch-ms. The trailing fields are extra context (safe to ignore on the wire).
  */
 export interface RealtimeCompletion {
@@ -136,7 +136,7 @@ const INJECTION_PATTERNS: RegExp[] = [
 /**
  * N3 defense-in-depth: the spoken summary embeds `objective`, which comes from a
  * possibly-crafted task. Strip control chars, neutralize prompt-injection lead-ins, collapse
- * whitespace, and cap length so a malicious objective can't steer what Michael says or does.
+ * whitespace, and cap length so a malicious objective can't steer what the orchestrator says or does.
  * (Kevin also neutralizes at the session.ts injection seam — this is the watcher-half belt.)
  */
 function neutralizeForVoice(text: string): string {

@@ -59,7 +59,7 @@ export class ThoughtBubble {
   // never renders below its designed 1:1 screen size; at zoom ≥ 1 it keeps
   // scaling with the world as before.
   private zoom = 1;
-  // World bounds (map size in px). An avatar near the map edge — Michael's CEO
+  // World bounds (map size in px). An avatar near the map edge — the orchestrator's CEO
   // room sits in the top-left corner — would otherwise push its cloud out of
   // the visible world. setPosition clamps the rect back inside, tooltip-style.
   private boundsW = 0;

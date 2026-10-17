@@ -7,7 +7,7 @@
 
 /** The subset of a registry agent that fan-out actually looks at. */
 export interface BroadcastCandidate {
-  /** Michael's prep assistant — send-only, drains no inbox. */
+  /** the orchestrator prep assistant — send-only, drains no inbox. */
   isAssistant?: boolean;
   /** PTY tab closed; the record is retained but the agent is not live. */
   archived?: boolean;

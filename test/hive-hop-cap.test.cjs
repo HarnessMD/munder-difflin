@@ -39,7 +39,7 @@ async function floor(t) {
   // direct mail to it bounces to orchestrator (the hookless path). No PTY, no sidecar,
   // no net: routing exercises the bounce ladder with nothing running but the
   // router itself.
-  await hive.ensureAgent({ id: 'orchestrator-1', name: 'Michael', provider: 'claude', cwd: home, isOrchestrator: true });
+  await hive.ensureAgent({ id: 'orchestrator-1', name: 'the orchestrator', provider: 'claude', cwd: home, isOrchestrator: true });
   await hive.ensureAgent({ id: 'worker-1', name: 'Dwight', provider: 'claude', cwd: home });
   await hive.ensureAgent({ id: 'hopless-1', name: 'Kimi', provider: 'kimi', cwd: home });
   const outbox = (id) => path.join(home, 'hive', 'agents', id, 'outbox');

@@ -32,7 +32,7 @@ async function floor(t, opts = {}) {
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home);
   const inj = await hive.ensureAgent(
-    { id: 'orchestrator-1', name: 'Michael', provider: opts.provider ?? 'claude', cwd: home, isOrchestrator: true },
+    { id: 'orchestrator-1', name: 'the orchestrator', provider: opts.provider ?? 'claude', cwd: home, isOrchestrator: true },
     { semanticMemory: true, knowledgeGraph: true, kgCliPath: KG_CLI, ...(opts.injectOpts ?? {}) }
   );
   return { home, hive, inj, dir: path.join(home, 'hive', 'agents', 'orchestrator-1'), root: path.join(home, 'hive') };

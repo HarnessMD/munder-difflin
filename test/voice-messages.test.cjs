@@ -114,7 +114,7 @@ const LOG = [
   { ts: 2, kind: 'message', from: 'kevin', agentId: 'kevin' },
   { ts: 3, kind: 'tasks', count: 12 },
   { ts: 4, kind: 'archive', agentId: 'creed' },
-  { ts: 5, kind: 'voice_action', actor: 'michael-voice' }
+  { ts: 5, kind: 'voice_action', actor: 'orchestrator-voice' }
 ];
 
 test('activity: last-N selection returns the N most recent', () => {

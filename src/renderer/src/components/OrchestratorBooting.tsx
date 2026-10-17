@@ -11,7 +11,7 @@ import { useResolvedOrchestratorName } from '@/hooks/useResolvedOrchestratorName
  * the persisted name directly, the same way useHive.ts's spawn effect does,
  * rather than assuming the default.
  */
-export function MichaelBooting() {
+export function OrchestratorBooting() {
   const orchestratorName = useResolvedOrchestratorName();
   return (
     <div style={{

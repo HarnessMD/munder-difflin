@@ -1,5 +1,5 @@
 /**
- * Realtime Michael — renderer cost store (card rt-9, cost-guard).
+ * Realtime voice — renderer cost store (card rt-9, cost-guard).
  *
  * A tiny external store (same useSyncExternalStore shape as session.ts) that
  * tracks the LIVE cost of the current voice session: it accumulates usage deltas,

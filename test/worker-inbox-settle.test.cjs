@@ -29,7 +29,7 @@ async function floor(t) {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'md-inbox-settle-'));
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home, () => true);
-  await hive.ensureAgent({ id: 'orchestrator-1', name: 'Michael', provider: 'claude', cwd: home, isOrchestrator: true });
+  await hive.ensureAgent({ id: 'orchestrator-1', name: 'the orchestrator', provider: 'claude', cwd: home, isOrchestrator: true });
   await hive.ensureAgent({ id: 'worker-phyllis', name: 'Phyllis', provider: 'claude', cwd: home });
   return { home, hive };
 }

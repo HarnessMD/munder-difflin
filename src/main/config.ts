@@ -193,7 +193,7 @@ export interface HarnessConfig {
   registeredRepos: string[];
   /** When true, new agents are spawned with --permission-mode bypassPermissions. */
   autoMode: boolean;
-  /** May the orchestrator ("Michael") spin up agents on its own?
+  /** May the orchestrator (the orchestrator) spin up agents on its own?
    *
    *  Default FALSE. Spawning an agent is a SPEND decision, so it should not
    *  happen unprompted. The ability itself shipped in v0.4.4 with no gate at all,
@@ -209,7 +209,7 @@ export interface HarnessConfig {
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;
-  /** Which provider powers the orchestrator ("Michael"). The persona is
+  /** Which provider powers the orchestrator (the orchestrator). The persona is
    *  constant; only its engine is selectable. Default 'claude'. Eligible providers
    *  are those that can receive inbox (claude/codex/antigravity/qwen). */
   orchestratorProvider?: AgentProvider;
@@ -330,7 +330,7 @@ export interface HarnessConfig {
   providerBaseUrls?: Partial<Record<AgentProvider, string>>;
   /** Per-CLI-provider default model slug, used to pre-fill the model picker. */
   providerDefaultModels?: Partial<Record<AgentProvider, string>>;
-  /** Master toggle for the Slack → Michael's-queue integration. */
+  /** Master toggle for the Slack → the orchestrator's-queue integration. */
   slackEnabled?: boolean;
   /** Slack app signing secret (Basic Information → Signing Secret). Never logged. */
   slackSigningSecret?: string;
@@ -359,8 +359,8 @@ export interface HarnessConfig {
   /** Groq Whisper model id. Default 'whisper-large-v3-turbo' (fast, multilingual). */
   freeflowModel?: string;
 
-  // ─── Realtime Michael (premium speech-to-speech voice orchestrator) ─────────
-  /** True ONLY while a Realtime Michael voice session is live: the renderer
+  // ─── Realtime voice (premium speech-to-speech voice orchestrator) ─────────
+  /** True ONLY while a Realtime voice voice session is live: the renderer
    *  session flips this on at start() (before getUserMedia) and off at stop().
    *  The main-process mic permission gate reads it so the Electron media
    *  permission is open EXACTLY while the voice loop holds the mic — never just
@@ -370,7 +370,7 @@ export interface HarnessConfig {
   /** How long (ms) a realtime voice session may sit with no voice activity before
    *  it auto-disconnects (the rt-9 idle guard). Default 180000 (3 min). 0 = never
    *  auto-disconnect on idle — the spend cap remains the runaway guard. The user
-   *  tunes this in Settings → Realtime Michael. */
+   *  tunes this in Settings → Realtime voice. */
   realtimeIdleDisconnectMs?: number;
 
   // ─── Generic inbound webhook + status API (LEGACY, single-endpoint) ─────────

@@ -1,5 +1,5 @@
 /**
- * Realtime Michael — floor delta watcher (v0.3.4).
+ * Realtime voice — floor delta watcher (v0.3.4).
  *
  * The voice session's context strategy is "snapshot at connect + APPEND-ONLY
  * deltas" (never session.update on instructions — that busts the prompt cache).
