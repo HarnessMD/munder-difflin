@@ -1,5 +1,5 @@
 /**
- * TRIGGERS — every way the God orchestrator gets woken up without a human typing.
+ * TRIGGERS — every way the orchestrator gets woken up without a human typing.
  *
  * This module is the single contract shared by main, preload and renderer. Four
  * trigger types live under one roof:

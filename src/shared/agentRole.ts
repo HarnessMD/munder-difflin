@@ -23,7 +23,7 @@ export function isDurableRole(text: string | undefined | null): boolean {
 export function preferredAgentRole(
   candidate: string | undefined | null,
   fallback: string | undefined | null,
-  isGod = false
+  isOrchestrator = false
 ): string {
   const incoming = (candidate ?? '').trim();
   const existing = (fallback ?? '').trim();
@@ -31,17 +31,17 @@ export function preferredAgentRole(
   if (isDurableRole(existing)) return existing;
   if (incoming) return incoming;
   if (existing) return existing;
-  return isGod ? 'orchestrator (god)' : 'agent';
+  return isOrchestrator ? 'orchestrator' : 'agent';
 }
 
 /** Role to send on spawn/restart. Omit a transient roster caption so the hive
  *  registry can keep the last real hire role. */
 export function roleForHiveSpawn(agent: {
   description?: string;
-  isGod?: boolean;
+  isOrchestrator?: boolean;
   isAssistant?: boolean;
 }): string | undefined {
-  if (agent.isGod) return preferredAgentRole(agent.description, 'orchestrator (god)', true);
+  if (agent.isOrchestrator) return preferredAgentRole(agent.description, 'orchestrator', true);
   if (agent.isAssistant) {
     return preferredAgentRole(agent.description, "Michael's prep assistant");
   }

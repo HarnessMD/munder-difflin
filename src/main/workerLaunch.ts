@@ -1,5 +1,5 @@
 /**
- * How a god-hired worker's spawn request becomes an executable + argv, as a
+ * How a orchestrator-hired worker's spawn request becomes an executable + argv, as a
  * pure function: this exact translation silently killed real workers for days
  * while reporting success, which is what earned it a unit test.
  */
@@ -22,7 +22,7 @@ export interface WorkerLaunch {
 }
 
 export function buildWorkerLaunch(opts: {
-  /** `command` from the spawn request — god authors a full command LINE. */
+  /** `command` from the spawn request — orchestrator authors a full command LINE. */
   requestCommand?: unknown;
   requestProvider?: unknown;
   /** Separate `model` field from the request, if any. */
@@ -57,7 +57,7 @@ export function buildWorkerLaunch(opts: {
   if (autoFlag && !hasAutoModeStance(tokenizeCommand(command), provider)) {
     command += ` ${autoFlag}`;
   }
-  // god authors `command` as a full command LINE ("claude --model … --permission-mode …"),
+  // orchestrator authors `command` as a full command LINE ("claude --model … --permission-mode …"),
   // but the PTY layer takes ONE executable name (resolveCommand) plus argv — the
   // unsplit line made node-pty exec a binary literally named like the whole
   // string → ENOENT → the worker died within ~1s of spawning while its request

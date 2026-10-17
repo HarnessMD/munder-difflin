@@ -15,7 +15,7 @@
 // DONE. Only the DONE path does — an idle or token-cap reap never signaled
 // completion, so its mail stays pending — and only mail from before the signal:
 // a follow-up that crossed the worker's done was never seen by anyone, so it
-// stays pending too. Requests and queries filed unread are reported back to god.
+// stays pending too. Requests and queries filed unread are reported back to orchestrator.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -29,7 +29,7 @@ async function floor(t) {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'md-inbox-settle-'));
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home, () => true);
-  await hive.ensureAgent({ id: 'god-1', name: 'Michael', provider: 'claude', cwd: home, isGod: true });
+  await hive.ensureAgent({ id: 'orchestrator-1', name: 'Michael', provider: 'claude', cwd: home, isOrchestrator: true });
   await hive.ensureAgent({ id: 'worker-phyllis', name: 'Phyllis', provider: 'claude', cwd: home });
   return { home, hive };
 }
@@ -46,17 +46,17 @@ function later() {
 
 test('settling files every unread message under inbox/.done and names the requests that got no answer', async (t) => {
   const { hive } = await floor(t);
-  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'yesterday\'s work order' }, 'god-1');
-  hive.send({ to: 'worker-phyllis', act: 'inform', subject: 'IOCs', body: 'anchors from Ryan' }, 'god-1');
+  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'yesterday\'s work order' }, 'orchestrator-1');
+  hive.send({ to: 'worker-phyllis', act: 'inform', subject: 'IOCs', body: 'anchors from Ryan' }, 'orchestrator-1');
   const before = jsonFiles(inboxDir(hive, 'worker-phyllis'));
   assert.equal(before.length, 2, 'both messages are pending before the worker is released');
 
   const settled = hive.settleInbox('worker-phyllis');
   assert.equal(settled.moved, 2);
   assert.equal(settled.kept, 0);
-  assert.deepEqual(settled.unanswered.map((m) => [m.act, m.from, m.subject]), [['request', 'god-1', 'Phyllis']],
+  assert.deepEqual(settled.unanswered.map((m) => [m.act, m.from, m.subject]), [['request', 'orchestrator-1', 'Phyllis']],
     'the request is reported (its sender is owed an answer); the inform is not');
-  assert.ok(settled.unanswered[0].id, 'the report carries the message id so god can find it');
+  assert.ok(settled.unanswered[0].id, 'the report carries the message id so orchestrator can find it');
   assert.equal(typeof settled.unanswered[0].conversation, 'string',
     'and the conversation, so the release path can leave the worker\'s own work order out of the report');
 
@@ -70,10 +70,10 @@ test('settling files every unread message under inbox/.done and names the reques
 
 test('mail that arrived after the done signal stays pending (a follow-up that crossed the done)', async (t) => {
   const { hive } = await floor(t);
-  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'the order she completed' }, 'god-1');
+  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'the order she completed' }, 'orchestrator-1');
   const doneAt = later();
   later();
-  hive.send({ to: 'worker-phyllis', act: 'query', subject: 'One more thing', body: 'did you also check the DNS logs?' }, 'god-1');
+  hive.send({ to: 'worker-phyllis', act: 'query', subject: 'One more thing', body: 'did you also check the DNS logs?' }, 'orchestrator-1');
 
   const settled = hive.settleInbox('worker-phyllis', doneAt);
   assert.deepEqual({ moved: settled.moved, kept: settled.kept }, { moved: 1, kept: 1 });
@@ -101,14 +101,14 @@ test('a clean inbox settles to zero without touching the ledger; an unknown agen
   assert.deepEqual(hive.settleInbox('worker-nobody'), { moved: 0, kept: 0, unanswered: [] });
   assert.equal(entries(hive, 'inbox-settled').length, 0);
   // Idempotent: a second settle after a real one finds nothing left.
-  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'order' }, 'god-1');
+  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'order' }, 'orchestrator-1');
   assert.equal(hive.settleInbox('worker-phyllis').moved, 1);
   assert.equal(hive.settleInbox('worker-phyllis').moved, 0);
 });
 
 test('a message already filed under .done is left alone (never re-filed or duplicated)', async (t) => {
   const { hive } = await floor(t);
-  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'order' }, 'god-1');
+  hive.send({ to: 'worker-phyllis', act: 'request', subject: 'Phyllis', body: 'order' }, 'orchestrator-1');
   const dir = inboxDir(hive, 'worker-phyllis');
   const [f] = jsonFiles(dir);
   fs.renameSync(path.join(dir, f), path.join(dir, '.done', f));
@@ -118,7 +118,7 @@ test('a message already filed under .done is left alone (never re-filed or dupli
 
 // The release path is the only caller, and it must be the DONE branch — pinned
 // by reading index.ts as text, since the tick is not importable on its own.
-test('the ephemeral-worker tick settles the inbox on the done path, up to the done signal, tells god, and only there', () => {
+test('the ephemeral-worker tick settles the inbox on the done path, up to the done signal, tells orchestrator, and only there', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'src/main/index.ts'), 'utf8');
   const done = source.indexOf('signaled done — releasing');
   assert.ok(done > 0, 'the done branch exists');
@@ -127,10 +127,10 @@ test('the ephemeral-worker tick settles the inbox on the done path, up to the do
   const kill = source.indexOf('ptyManager.kill(workerId)', done);
   assert.ok(settle < kill, 'the settle happens before the PTY is killed (the worker dir still exists either way, but the order keeps the log readable)');
   const report = source.indexOf('settled.unanswered', settle);
-  assert.ok(report > 0 && report < kill, 'the filed requests/queries are reported to god before the kill');
+  assert.ok(report > 0 && report < kill, 'the filed requests/queries are reported to orchestrator before the kill');
   const ownOrder = source.indexOf('m.conversation !== `worker-${rec.reqId}`', settle);
   assert.ok(ownOrder > 0 && ownOrder < kill,
     'the worker\'s own work order (dispatched in conversation worker-<reqId>) is left out of the report — it is what the worker just completed');
-  assert.ok(source.indexOf('informGod(', report) < kill, 'the report goes through informGod');
+  assert.ok(source.indexOf('informOrchestrator(', report) < kill, 'the report goes through informOrchestrator');
   assert.equal(source.indexOf('hive.settleInbox', kill), -1, 'neither the token-cap nor the idle reap settles — they never signaled completion');
 });

@@ -9,7 +9,7 @@
 > pastel color-blocks accent the feature cards; one warm **yellow** drives every CTA.
 >
 > We keep Munder Difflin's own identity inside this system: the **maroon brand mark**, the
-> name, the *Office* parody, the **GOD / hive / MemPalace** story, and the real captured
+> name, the *Office* parody, the **ORCHESTRATOR / hive / MemPalace** story, and the real captured
 > product footage. "Munder Difflin is a paper company," so the cream-paper canvas is on-theme.
 >
 > **History:** this replaces the previous *dark, flat, rounded* system. That direction
@@ -30,7 +30,7 @@
 5. **Product-led, static.** The hero *shows the product* through a real captured still
    (`media/og.png`), seated inside a flat, hairline-bordered window. The "How" section uses
    hand-built **static** HTML/CSS/SVG illustrations (the floor graph, MemPalace radial recall,
-   GOD + hive graph) drawn in the warm-paper / neo-brutalist theme — ink-bordered node chips,
+   ORCHESTRATOR + hive graph) drawn in the warm-paper / neo-brutalist theme — ink-bordered node chips,
    pastel blocks, mono labels. No video, no looping illustration motion — every illustration
    reads as a finished, frozen still.
 6. **Restraint in motion.** Reveal-on-scroll + a neo-brutalist press on hover (translate +
@@ -80,7 +80,7 @@ small playful pastel set for feature blocks.
 | `--ink` | All text on light, **and all borders**, and dark-band/title-bar fills. |
 | `--yellow` | Primary CTA fill only. Never a large flat background. |
 | `--sky` | Exactly one highlighted phrase per headline; alt CTA on the dark band. **Large text only** (low contrast at body size). |
-| `--maroon` | Brand mark, link hover, one emphasized noun (e.g. "GOD orchestrator"). |
+| `--maroon` | Brand mark, link hover, one emphasized noun (e.g. "ORCHESTRATOR orchestrator"). |
 | pastels | Feature-card / problem-card / how-panel blocks — one tint each, rotated. |
 
 ### Ambient texture
@@ -118,7 +118,7 @@ Inter is fallback only.
 | Wordmark | mono | 13px | 700 | 0.02em | "MUNDER DIFFLIN" |
 
 **Emphasis:** in the big "What" statement, key nouns use `--ink` (bold), `--sky` (hive mind,
-long-term memory) and `--maroon` (GOD orchestrator).
+long-term memory) and `--maroon` (ORCHESTRATOR orchestrator).
 
 ---
 
@@ -185,27 +185,27 @@ The **hero** uses a captured product **still** (`media/og.png`) inside a flat `.
 video element, nothing to autoplay. The **three "How" feature cards likewise use no video** —
 each holds a hand-built static HTML/CSS/SVG illustration (`.ill`, `16/11`) inside a flat `.win`,
 drawn in the warm-paper / neo-brutalist theme so it reads as finished product art. The whole page
-is now still: the envelope and GOD packets are placed at fixed `offset-distance` points, not animated.
+is now still: the envelope and ORCHESTRATOR packets are placed at fixed `offset-distance` points, not animated.
 
 | Slot | Illustration | Panel tint | Accent |
 |---|---|---|---|
 | Hero — the floor | static product still `media/og.png` | — | — |
 | 01 The Simulation | desk-grid floor: ink-bordered agent node chips (`.nodet`), SVG `.edge` links, a static `✉️` placed mid-route desk→desk | `--sky-soft` | `--sky` status dots |
 | 02 The Memory — MemPalace | radial recall: central maroon `.mem-core`, six `.mem-chip` memories on SVG `.mem-edge` spokes, matched ones highlighted (`.hit`, `--lilac` + maroon edge) | `--lilac` | `--maroon` |
-| 03 The Orchestration — GOD + hive | node graph: a `GOD · you` node routing to research/build/review along edges with static maroon `.flow-dot` packets frozen mid-route, plus an `.ap` approvals card (`approve`/`hold`) | `--peach` | `--yellow` GOD, `--mint` approve |
+| 03 The Orchestration — ORCHESTRATOR + hive | node graph: a `ORCHESTRATOR · you` node routing to research/build/review along edges with static maroon `.flow-dot` packets frozen mid-route, plus an `.ap` approvals card (`approve`/`hold`) | `--peach` | `--yellow` ORCHESTRATOR, `--mint` approve |
 
 **One shared primitive set across all three illustrations** (this is what makes them read as a
 family): a faint dotted-paper grid behind every `.ill`; a single white, ink-bordered, offset-
 shadowed node chip `.node` (with a `.av` color swatch + optional status `.dot`); a larger `.node.hub`
-variant for the center (GOD / MemPalace — identical form, themed swatch); SVG `.edge` connectors
+variant for the center (ORCHESTRATOR / MemPalace — identical form, themed swatch); SVG `.edge` connectors
 (`.edge.on` = maroon "active flow"); plus `.ap` (approvals card) and `.lbl` (caption tag) drawn in
-the same ink-bordered, offset-shadowed idiom. Nothing animates — the envelope and GOD packets sit
+the same ink-bordered, offset-shadowed idiom. Nothing animates — the envelope and ORCHESTRATOR packets sit
 at fixed `offset-distance` points. No external images, no video weight — pure markup.
 
 The three illustrations stay **distinct in layout** so 01 and 03 don't collide: 01 is a flat
 **peer floor** (scattered desks, criss-cross messages, an envelope in transit, status dots), 02 is
 a **radial recall** (central MemPalace hub, six memory chips on spokes, recalled ones highlighted),
-03 is a **top-down hub** (GOD routing down to research/build/review with packets + an approvals card).
+03 is a **top-down hub** (ORCHESTRATOR routing down to research/build/review with packets + an approvals card).
 
 The retired `media/how-*.{webm,mp4}` footage stays on disk but is no longer referenced.
 
@@ -273,7 +273,7 @@ CNAME → `munderdiffl.in`.
 ## 12. Lineage note
 
 The visual language is intentionally close to **cubicle.run** (a product in the same space).
-Differentiation is carried by: the **maroon** brand tone + `MD` mark, the **GOD / hive /
+Differentiation is carried by: the **maroon** brand tone + `MD` mark, the **ORCHESTRATOR / hive /
 MemPalace** narrative, MD's own copy, the real pixel-office hero footage, and the hand-built
 "How" illustrations. Do not copy cubicle's section wording or exact palette values verbatim.
 

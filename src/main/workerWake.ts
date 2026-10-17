@@ -5,7 +5,7 @@
  * path for a worker that has gone quiet at its prompt: it polls on a setInterval
  * in the renderer, so a throttled/occluded window (Chromium suspends background
  * setInterval timers) can miss the moment mail lands and the worker then sits on
- * an undrained inbox forever — the orchestrator ("god") never has this problem
+ * an undrained inbox forever — the orchestrator ("orchestrator") never has this problem
  * because the main process re-engages it on its own heartbeat cadence.
  *
  * This watchdog is the worker-side counterpart: on a cadence it finds live
@@ -34,7 +34,7 @@
 
 /** The exact nudge the renderer's inbox-wake loop would have typed. */
 export const WORKER_WAKE_NUDGE =
-  'You have new hive inbox message(s) — read your inbox, act on them now, and move handled ones to inbox/.done/. Act autonomously; only message god if you genuinely need a decision.';
+  'You have new hive inbox message(s) — read your inbox, act on them now, and move handled ones to inbox/.done/. Act autonomously; only message orchestrator if you genuinely need a decision.';
 
 /** No PTY output for this long = genuinely idle (renderer QUIESCE_IDLE_MS). */
 export const WORKER_WAKE_IDLE_MS = 12_000;
@@ -113,10 +113,10 @@ export function isTurnHook(event: string | undefined): boolean {
 
 /** One worker's live facts, gathered by the caller each beat. */
 export interface WorkerWakeFacts {
-  /** Worker agent id (god is never a candidate). */
+  /** Worker agent id (orchestrator is never a candidate). */
   agentId: string;
-  /** True when this agent is the orchestrator — god is never nudged. */
-  isGod?: boolean;
+  /** True when this agent is the orchestrator — orchestrator is never nudged. */
+  isOrchestrator?: boolean;
   /** Live PTY id, or undefined when the agent has no terminal. */
   ptyId?: string;
   /** Timestamp of the PTY's last output (0 = never output). */
@@ -142,7 +142,7 @@ export interface WorkerWakeFacts {
 
 /** Why a worker with pending mail is NOT being nudged right now. */
 export type WorkerWakeHold =
-  | 'god' | 'no-mail' | 'no-pty'
+  | 'orchestrator' | 'no-mail' | 'no-pty'
   | 'delivery-paused' | 'paused' | 'halted'
   | 'booting' | 'mid-turn' | 'boot-grace' | 'hitl' | 'announced' | 'cooldown';
 
@@ -254,7 +254,7 @@ export class WorkerWakeWatchdog {
   explain(f: WorkerWakeFacts, now = Date.now()): WorkerWakeHold | null {
     const inboxIds = liveInboxIds(f);
     if (inboxIds.size === 0) return 'no-mail';
-    if (f.isGod) return 'god';
+    if (f.isOrchestrator) return 'orchestrator';
     if (!f.ptyId) return 'no-pty';
     if (f.autoDeliveryPaused) return 'delivery-paused';
     if (f.paused) return 'paused';

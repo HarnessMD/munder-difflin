@@ -69,13 +69,13 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
     }
   };
 
-  const nonGodAgents = () =>
-    useStore.getState().agents.filter((a) => !a.isGod && !a.isAssistant);
+  const nonOrchestratorAgents = () =>
+    useStore.getState().agents.filter((a) => !a.isOrchestrator && !a.isAssistant);
 
   const onSelect = (id: ThemeId) => {
     setNote('');
     if (busy || id === current) return;                 // no-op on the current theme
-    if (nonGodAgents().length === 0) { void applyTheme(id); return; } // god-only → instant
+    if (nonOrchestratorAgents().length === 0) { void applyTheme(id); return; } // orchestrator-only → instant
     setPending(id);                                     // workers exist → confirm modal
   };
 
@@ -92,11 +92,11 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
           return;
         }
       }
-      // Tear down every non-god agent through the EXISTING lifecycle (kill PTY →
-      // dispose terminal → archive). god + the prep assistant carry over; god's
+      // Tear down every non-orchestrator through the EXISTING lifecycle (kill PTY →
+      // dispose terminal → archive). orchestrator + the prep assistant carry over; orchestrator's
       // PTY is never touched. If a PTY won't die, abort the switch (surface the
       // error, don't persist the new theme) rather than leave a half-switched floor.
-      const victims = nonGodAgents();
+      const victims = nonOrchestratorAgents();
       for (const a of victims) {
         if (a.ptyId) {
           await window.cth.killPty(a.ptyId);
@@ -200,7 +200,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       {pending && pendingMeta && (
         <ThemeSwitchConfirmModal
           label={pendingMeta.label}
-          agents={nonGodAgents()}
+          agents={nonOrchestratorAgents()}
           busy={busy}
           onCancel={() => setPending(null)}
           onConfirm={() => void applyTheme(pending)}
@@ -225,7 +225,7 @@ function ThemeSwitchConfirmModal({
   const { t } = useTranslation();
   const n = agents.length;
   const working = agents.filter((a) => a.status && !['idle', 'success', 'error'].includes(a.status)).length;
-  const godName = useStore.getState().agents.find((a) => a.isGod)?.name ?? 'the orchestrator';
+  const orchestratorName = useStore.getState().agents.find((a) => a.isOrchestrator)?.name ?? 'the orchestrator';
 
   return (
     <div
@@ -258,7 +258,7 @@ function ThemeSwitchConfirmModal({
                   {n === 1
                     ? t('officeTheme.deleteCount', { count: n })
                     : t('officeTheme.deleteCountPlural', { count: n })}{' '}
-                  {t('officeTheme.onlyCarries', { god: godName })}
+                  {t('officeTheme.onlyCarries', { orchestrator: orchestratorName })}
                   {working > 0 && (
                     <span style={{ display: 'block', marginTop: 6, color: 'var(--cth-coral)' }}>
                       ⚠ {working === 1

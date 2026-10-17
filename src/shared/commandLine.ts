@@ -3,7 +3,7 @@
  *  Quotes are stripped from the result.
  *
  *  Shared because BOTH sides split command lines: the renderer's spawn flows
- *  (AddAgentModal, restore, command center) and main's god-hired-worker path
+ *  (AddAgentModal, restore, command center) and main's orchestrator-hired-worker path
  *  (processSpawnRequest). They used to carry byte-identical copies, which is an
  *  invitation for the two to drift — and a worker whose command line splits
  *  differently from the renderer's is exactly the class of silent breakage the

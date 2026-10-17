@@ -21,7 +21,7 @@ Representative, not exhaustive. "Pack key" = where it lands in §2.
 | **Scene engine constants (not themeable)** | `TiledMapRenderer`, `Camera`, `portraitArt.ts` | tile 16px, cast frame 18x32 (`portraitArt.ts:15-16`), `OfficeFloor.tsx:254` render resolution | n/a — fixed |
 | **Cast** | `scene/office/cast.ts` (`OFFICE_CAST` 15 members, `:27-43`; `CastMember {name,displayName,shirt,blurb}`), `scene/office/portraitArt.ts` (procedural pixel recipes), `components/SpritePortrait.tsx` | `DEFAULT_CHARACTER='jim'` (`:48`); `OfficeCharacterName` closed union (`:12-15`); `getCastFrames` 3 rows x 7 frames (`:69-90`) | `cast/` |
 | **Terminal palette** | `components/PtyTerminalView.tsx` (`:55-110`, light + dark `ITheme`), `components/termColor.ts` (hex parse, OSC 10/11 replies, `isDarkBackground`) | `foreground '#1A1320'`, `cursorAccent '#FCFAF0'`, `brightRed '#E0584E'`; dark `foreground '#DEDBD6'` ("= --cth-ink-900") — duplicated by hand from tokens | `terminal.json` |
-| **Branding / copy** | `i18n/locales/{en,zh-CN,ar}.json` (en 1409 lines; `officeTheme.*` group at `:176`), `electron-builder.yml:2` (`productName: Munder Difflin`) | "Munder Difflin" appears inline in many strings (en.json `:168,172,594,695,834,884,911`); god's name "Michael" and the show names are literals in components (`MichaelBooting.tsx`, `CommandCenterPanel.tsx`, `OfficeThemePicker.tsx`) | `copy.appName/godName`, `copy/<locale>.json` |
+| **Branding / copy** | `i18n/locales/{en,zh-CN,ar}.json` (en 1409 lines; `officeTheme.*` group at `:176`), `electron-builder.yml:2` (`productName: Munder Difflin`) | "Munder Difflin" appears inline in many strings (en.json `:168,172,594,695,834,884,911`); orchestrator's name "Michael" and the show names are literals in components (`MichaelBooting.tsx`, `CommandCenterPanel.tsx`, `OfficeThemePicker.tsx`) | `copy.appName/orchestratorName`, `copy/<locale>.json` |
 | **Theme selection state** | `main/config.ts:316-320, 452` (`tvShowOffices`, `officeTheme`), `store/store.ts:281-284,883-884`, `App.tsx:113`, `realtimeActions.ts:142` | closed union of 6 ids in 4 places | widen to `string` |
 
 **Gaps worth knowing.** (1) Chrome tokens exist twice (`tokens.css` + `tokens.ts`) and the terminal
@@ -96,14 +96,14 @@ are ignored. Total pack size cap 24 MB (soft warn at 12 MB).
   "coffee": { "trayTile":{"x":29,"y":15}, "trayStand":{…}, "machineStand":{…},
               "sinkTile":{…}, "sinkStand":{…}, "maxCups":4 },        // optional => coffee loop disabled
   "anchors": { "calendar":{"x":4,"y":1}, "boards":{"x":6,"y":10}, "clock":{"x":1,"y":1} },
-  "errandSpots": [ { "kind":"water","stand":{…},"facing":"left","fx":{…},"duration":4.5,"godOnly":false } ],
+  "errandSpots": [ { "kind":"water","stand":{…},"facing":"left","fx":{…},"duration":4.5,"orchestratorOnly":false } ],
   "monitor": { "offTopLeftGid":365, "onGids":[[367,0,0],[368,1,0],[383,0,1],[384,1,1]] },
   "palette": { "background":"#1A1320", "noteColors":{"todo":"#f2df8a","doing":"#9ecbf0","blocked":"#f0a3a3","done":"#a8e0b0"} },
 
   "fonts":  [ { "family":"Inter", "file":"chrome/fonts/inter.woff2", "weight":"400 700", "slot":"ui" } ],
   "chrome": { "tokens": "chrome/tokens.css", "defaultMode": "light" },
   "terminal": "terminal.json",
-  "copy":   { "appName": "Munder Difflin", "godName": "Michael" },   // small typed set; bulk strings go in copy/<locale>.json
+  "copy":   { "appName": "Munder Difflin", "orchestratorName": "Michael" },   // small typed set; bulk strings go in copy/<locale>.json
   "cast":   { "roster": "cast/cast.json", "default": "jim" }
 }
 ```
@@ -122,7 +122,7 @@ omitted for a seat, facing falls back to geometric neighbor deduction (`facingFo
 | map | `map.tmj` (Tiled JSON; `.json` not accepted) |
 | tilesets | any `tilesets/*.png`, lowercase `[a-z0-9._-]`, PNG only |
 | map layers (exact names; `TiledMapRenderer.ts:259` looks up by name+type) | tilelayers `floor`, `walls`, `furniture-below`, `furniture-above`, `collision`; objectgroups `spawn-points`, `zones` |
-| required spawn points | `desk-ceo` (god's seat) plus >=1 more in `seats.primary`; every name in `seats.*` must exist in `spawn-points` |
+| required spawn points | `desk-ceo` (orchestrator's seat) plus >=1 more in `seats.primary`; every name in `seats.*` must exist in `spawn-points` |
 | zones | `boardroom`, `cafeteria` (optional; absent => feature off) |
 | cast files | `<name>` = lowercase `[a-z0-9-]`, must match a `cast.json` entry; `portraits/` and `sprites/` required together |
 | tokens | only `--cth-*` names that exist in `design/tokens.css`; others dropped with a warning |
@@ -204,7 +204,7 @@ export interface PackManifest {                        // == theme.json, 1:1
   fonts?: { family: string; file: string; weight?: string; slot?: 'display' | 'ui' | 'mono' }[];
   chrome?: { tokens?: string; defaultMode?: 'light' | 'dark' };
   terminal?: string;
-  copy?: { appName?: string; godName?: string };
+  copy?: { appName?: string; orchestratorName?: string };
   cast?: { roster: string; default: string };
 }
 
@@ -258,7 +258,7 @@ export interface ThemePack extends ThemeConfig {
 ## 3. Switch layers (cast-reseat vs. live)
 
 The destructive part of today's switch is `OfficeThemePicker.applyTheme` (`:64-88`): kill every
-non-god PTY, `disposeTerminal`, `archiveAgent`, then `updateConfig({officeTheme})` and
+non-orchestrator PTY, `disposeTerminal`, `archiveAgent`, then `updateConfig({officeTheme})` and
 `setOfficeTheme` (which rebuilds the scene, effect deps at `OfficeFloor.tsx:1774`). It exists
 because agents hold **seat indices into `primarySeatNames`** and a **`character` from the old
 roster** (`store/store.ts:45`); a new map/roster would orphan both.
@@ -267,7 +267,7 @@ roster** (`store/store.ts:45`); a new map/roster would orphan both.
 |---|---|---|---|
 | Chrome tokens (colours, spacing, radii, shadows) | `chrome/tokens.css` | **No** — live | swap one `<style>`; everything reads `var(--cth-*)`. Light/dark stays orthogonal (`design/theme.ts`, `data-cth-theme`). |
 | Fonts | `chrome/fonts`, `theme.json fonts[]` | **No** — live | `FontFace.load()` + swap the `--cth-font-*` stack; falls through to system faces until loaded. |
-| Copy (app name, god name, strings) | `copy/<locale>.json`, `copy.*` | **No** — live | `addResourceBundle` overlay; React re-renders via react-i18next. Caveat: strings already baked into persisted data (agent names, chat history, task titles) do NOT change. |
+| Copy (app name, orchestrator name, strings) | `copy/<locale>.json`, `copy.*` | **No** — live | `addResourceBundle` overlay; React re-renders via react-i18next. Caveat: strings already baked into persisted data (agent names, chat history, task titles) do NOT change. |
 | Terminal palette | `terminal.json` | **No** — live for xterm; **next spawn** for the Claude TUI | xterm `options.theme` re-assignment on every pooled terminal (the pool already follows light/dark). The per-agent Claude session theme (`config.terminalTheme`) is applied on spawn, so running TUIs keep their old palette until restart — same as today's dark-mode toggle. |
 | Scene palette (`background`, `noteColors`) | `theme.json palette` | **Scene rebuild, no reseat** if map unchanged | Pixi `background` + note colours re-read. Cheap, but in practice shipped together with a map change. |
 | Tileset art **only** (same map, same spawn names, same gid layout — a "re-skin") | `tilesets/*.png` | **No reseat; scene rebuild** | Seats/spawns unchanged, so agents keep seats. Detect: new pack has `seats`/`map` hash equal to the active one → skip the destructive modal. This is the useful non-destructive case for pack authors. |

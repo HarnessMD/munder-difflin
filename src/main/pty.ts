@@ -62,7 +62,7 @@ interface PtySession {
   /** Epoch ms of the most recent byte this PTY emitted (bumped in onData). The
    *  heartbeat (Lane A #1) reads this for two things: floor-quiet detection (an
    *  agent printing/thinking counts as activity even before it writes a hive
-   *  file) and the idle handshake that gates god's PTY nudge (never type into a
+   *  file) and the idle handshake that gates orchestrator's PTY nudge (never type into a
    *  PTY that produced output in the last few seconds = mid-stream). */
   lastOutputAt: number;
   /** A bounded ring of the most recent output bytes, kept ONLY so an abnormal

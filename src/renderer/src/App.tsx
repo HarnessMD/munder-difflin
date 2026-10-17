@@ -5,8 +5,8 @@ import type { HarnessConfig } from '@/store/config';
 import { DEFAULT_ORG_TRIGGER } from '@shared/triggers';
 import { OfficeFloor } from '@/scene/office/OfficeFloor';
 import { useHive } from '@/hooks/useHive';
-import { useResolvedGodName } from '@/hooks/useResolvedGodName';
-import { useGodNameSync } from '@/i18n/useGodNameSync';
+import { useResolvedOrchestratorName } from '@/hooks/useResolvedOrchestratorName';
+import { useOrchestratorNameSync } from '@/i18n/useOrchestratorNameSync';
 import { useDirectionSync } from '@/i18n/useDirection';
 import { useArabicTerminalSync } from '@/terminal/useArabicTerminalSync';
 import { MemoryPanel } from '@/components/MemoryPanel';
@@ -37,8 +37,8 @@ import brandLogo from '@brand/logo.png?url';
 declare const __APP_VERSION__: string;
 
 export function App() {
-  // Point every {{godName}} string at the orchestrator's real, renameable name.
-  useGodNameSync();
+  // Point every {{orchestratorName}} string at the orchestrator's real, renameable name.
+  useOrchestratorNameSync();
   // Mirror the document only for a user who has picked an RTL app language.
   useDirectionSync();
   // Let terminals that are ALREADY open follow a language switch too.
@@ -46,11 +46,11 @@ export function App() {
   const agent = useStore(selectedAgent);
   const agents = useStore(s => s.agents);
   const agentCount = agents.length;
-  const bootingGodName = useResolvedGodName();
+  const bootingOrchestratorName = useResolvedOrchestratorName();
   const addAgentOpen = useStore(s => s.addAgentOpen);
   const setAddAgentOpen = useStore(s => s.setAddAgentOpen);
   const clearPendingHires = useStore(s => s.clearPendingHires);
-  const godStatus = useStore(s => s.godStatus);
+  const orchestratorStatus = useStore(s => s.orchestratorStatus);
   const fullscreenAgentId = useStore(s => s.fullscreenAgentId);
   const appThemeNow = useAppTheme();
   const sidebarWidth = useStore(s => s.sidebarWidth);
@@ -187,7 +187,7 @@ export function App() {
     setClosing(null);
   };
 
-  // The hive: god-agent bootstrap, hook-driven avatars, idle-agent waking. Held
+  // The hive: orchestrator-agent bootstrap, hook-driven avatars, idle-agent waking. Held
   // off until the user opens a hive in the launch picker (passing null no-ops the
   // hook) so Michael doesn't boot against the current home while the user may be
   // about to switch to a different one.
@@ -235,7 +235,7 @@ export function App() {
   //
   // Not a one-shot at store construction: at launch every restored agent still
   // carries the PREVIOUS session's PTY id, so the reconcile above prunes the lot
-  // and correctly drops focus mode to null before god has respawned. The
+  // and correctly drops focus mode to null before orchestrator has respawned. The
   // preference therefore has to be re-checked once agents with live terminals
   // actually exist. `restoreFocusMode` is a no-op unless the preference is on and
   // focus mode is currently off, so re-running it on every roster change is safe
@@ -345,7 +345,7 @@ export function App() {
           {appThemeNow === 'dark' ? '☀' : '☾'}
         </button>
         {/* v0.3.4: the IDE button moved to agent level — every agent's header
-            (sidebar detail, god Command Center, fullscreen) carries it. */}
+            (sidebar detail, orchestrator Command Center, fullscreen) carries it. */}
         <button
           className="cth-titlebar-nodrag cth-settings-btn cth-tip"
           onClick={() => { setSettingsSection(undefined); setSettingsOpen(true); }}
@@ -372,7 +372,7 @@ export function App() {
             if (fullscreenAgentId) { useStore.getState().setFullscreen(null); return; }
             const all = useStore.getState().agents;
             const target = all.find((x) => x.id === useStore.getState().selectedId && x.ptyId)
-              ?? all.find((x) => x.isGod && x.ptyId)
+              ?? all.find((x) => x.isOrchestrator && x.ptyId)
               ?? all.find((x) => x.ptyId);
             if (target) useStore.getState().setFullscreen(target.id);
           }}
@@ -401,8 +401,8 @@ export function App() {
         <div style={{ flex: 1, minHeight: 0, minWidth: 0, position: 'relative' }}>
           <OfficeFloor />
           <MemoryPanel />
-          {agentCount === 0 && godStatus === 'booting' && <MichaelBooting />}
-          {agentCount === 0 && godStatus !== 'booting' && (
+          {agentCount === 0 && orchestratorStatus === 'booting' && <MichaelBooting />}
+          {agentCount === 0 && orchestratorStatus !== 'booting' && (
             <div style={{
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -438,7 +438,7 @@ export function App() {
         }}>
           {agent ? (
             <AgentDetailPanel agent={agent} />
-          ) : godStatus === 'booting' ? (
+          ) : orchestratorStatus === 'booting' ? (
             <PixelPanel variant="default" noPadding style={{
               padding: 16, height: '100%',
               display: 'flex', flexDirection: 'column',
@@ -449,7 +449,7 @@ export function App() {
                 color: 'var(--cth-ink-500)'
               }}>WAKING THE FLOOR</div>
               <p style={{ margin: 0, fontSize: 13, textAlign: 'center', color: 'var(--cth-ink-700)' }}>
-                {bootingGodName} is clocking in.<br />
+                {bootingOrchestratorName} is clocking in.<br />
                 The terminal will land here once he's seated.
               </p>
             </PixelPanel>

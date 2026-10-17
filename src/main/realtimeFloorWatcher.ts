@@ -18,7 +18,7 @@
 
 interface RegistryLike {
   agents: Record<string, { name?: string; archived?: boolean }>;
-  godId?: string | null;
+  orchestratorId?: string | null;
 }
 
 export interface FloorWatcherDeps {

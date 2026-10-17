@@ -1,13 +1,13 @@
 # Memory Graph Visualization — Spec (Phase 1)
 
 **Feature #8** of the Munder Difflin harness roadmap · author: Jim · branch `feature/memory-graph`
-**Status:** awaiting god sign-off. No component code is written yet — this document is the contract for Phase 2.
+**Status:** awaiting orchestrator sign-off. No component code is written yet — this document is the contract for Phase 2.
 
 ---
 
 ## 1. Goal
 
-Give Michael (god) a single glance answer to: *who is talking to whom, and what does the hive collectively know?*
+Give Michael (orchestrator) a single glance answer to: *who is talking to whom, and what does the hive collectively know?*
 
 The graph is a new **`graph` tab** in the Command Center (`CommandCenterPanel.tsx`) that draws the hive as a network — agents as nodes, the messages between them as edges, and (optionally) the topics each agent's memory file covers as a second layer. It is a read + navigate surface: click a node to jump into that agent's memory; hover to preview without leaving the graph.
 
@@ -21,8 +21,8 @@ Everything comes from the existing preload bridge — **no new IPC handlers, no 
 
 | Source | Signature (already in `src/preload/index.ts`) | Used for |
 |---|---|---|
-| Roster | `useStore((s) => s.agents)` → `Agent[]` | Agent nodes (id, name, accent, character, status, isGod) |
-| Registry | `window.cth.hiveRegistry()` → `HiveRegistry` | Fallback roster + `godId` + lastSeen, if store is thin |
+| Roster | `useStore((s) => s.agents)` → `Agent[]` | Agent nodes (id, name, accent, character, status, isOrchestrator) |
+| Registry | `window.cth.hiveRegistry()` → `HiveRegistry` | Fallback roster + `orchestratorId` + lastSeen, if store is thin |
 | Message log | `window.cth.hiveLog(200)` → `LogEntry[]` | Message edges (`kind:'message'`, `from`, `to`, `act`, `subject`) |
 | Per-agent memory | `window.cth.hiveMemory(id)` → `string` (raw markdown) | Topic nodes + agent↔topic edges |
 
@@ -31,7 +31,7 @@ Everything comes from the existing preload bridge — **no new IPC handlers, no 
 ```ts
 // Agent (store) — the primary node payload
 { id: string; name: string; accent: AccentColorName; character: OfficeCharacterName;
-  status: StatusKind; isGod?: boolean }
+  status: StatusKind; isOrchestrator?: boolean }
 
 // LogEntry (hiveLog) — loosely typed; we read the 'message' kind only
 { ts?: number; kind?: string; from?: string; to?: string; act?: MessageAct; subject?: string }
@@ -47,7 +47,7 @@ Log entries use agent **ids** (and the literal strings `"broadcast"` and `"human
 
 - id present in roster → that agent node.
 - `"broadcast"` → fan the edge from sender to **every** other agent (thin, dashed) — or, if it clutters, collapse to a single edge into a synthetic `broadcast` pseudo-node. **Decision: collapse to a `broadcast` pseudo-node** (square, ink-300, labelled "broadcast") to keep edge count linear.
-- `"human"` / `"god→human"` escalations → a single synthetic `human` node (distinct shape: double-border square, lemon accent).
+- `"human"` / `"orchestrator→human"` escalations → a single synthetic `human` node (distinct shape: double-border square, lemon accent).
 - Unknown id → skip the edge (defensive; logged to console once).
 
 ---
@@ -57,12 +57,12 @@ Log entries use agent **ids** (and the literal strings `"broadcast"` and `"human
 ```ts
 type GraphNode =
   | { kind: 'agent';  id: string; label: string; accent: AccentColorName;
-      status: StatusKind; isGod: boolean; degree: number }
+      status: StatusKind; isOrchestrator: boolean; degree: number }
   | { kind: 'topic';  id: string; label: string; weight: number /* # agents mentioning */ }
   | { kind: 'pseudo'; id: 'broadcast' | 'human'; label: string };
 ```
 
-- **Agent nodes (primary, always on).** Square tile, filled with the agent's `--cth-<accent>` colour, hard 2px ink-900 offset shadow (DESIGN.md neo-brutalist). God is larger (1.4×) and gets a double border. Node size scales gently with **degree** (message count) so the busiest agents read as hubs.
+- **Agent nodes (primary, always on).** Square tile, filled with the agent's `--cth-<accent>` colour, hard 2px ink-900 offset shadow (DESIGN.md neo-brutalist). Orchestrator is larger (1.4×) and gets a double border. Node size scales gently with **degree** (message count) so the busiest agents read as hubs.
 - **Topic nodes (secondary, toggleable — default OFF).** Small cream-200 squares with an ink-700 hairline border, VT323 label. Only shown when the "topics" toggle is on, to avoid overwhelming the default view.
 - **Pseudo nodes** (`broadcast`, `human`): ink-300 / lemon, visually subdued, never navigable.
 
@@ -104,7 +104,7 @@ This is heuristic, not semantic. **Note:** MemPalace (`window.cth.searchMemory`)
 
 ## 6. Layout — **force-directed** (chosen)
 
-A spring/charge simulation: edges pull connected nodes together, all nodes repel each other, a mild centring force keeps the whole thing on-screen, and god gets a small extra gravity toward centre so it reads as the orchestrator hub.
+A spring/charge simulation: edges pull connected nodes together, all nodes repel each other, a mild centring force keeps the whole thing on-screen, and orchestrator gets a small extra gravity toward centre so it reads as the orchestrator hub.
 
 **Why force-directed over the alternatives:**
 
@@ -112,9 +112,9 @@ A spring/charge simulation: edges pull connected nodes together, all nodes repel
 |---|---|
 | **Force-directed** ✅ | The relationships are an arbitrary mesh (any agent can message any other; topics wire to multiple agents). Force layout is the only one that makes *clusters* legible — tightly-collaborating agents drift together, isolated agents drift out. It handles both the agent-agent mesh and the bipartite agent-topic layer in one model. Dynamic data (new agents/messages each poll) settles gracefully. |
 | Timeline | Rejected. We have timestamps, but the question this tab answers is *structural* (who↔who, who-knows-what), not *temporal*. The Activity tab already serves the chronological view. A timeline also can't express the bipartite topic layer. |
-| Radial | Tempting (god is a natural centre) — but it hard-codes a single hub and flattens agent-agent edges that don't pass through god. Force-directed gives the same "god in the middle" read *emergently* (via god-gravity + god's high degree) without losing peer-to-peer structure. |
+| Radial | Tempting (orchestrator is a natural centre) — but it hard-codes a single hub and flattens agent-agent edges that don't pass through orchestrator. Force-directed gives the same "orchestrator in the middle" read *emergently* (via orchestrator-gravity + orchestrator's high degree) without losing peer-to-peer structure. |
 
-**Implementation:** a tiny hand-rolled simulation (~50 lines: Coulomb repulsion + Hooke spring + centre gravity + velocity damping), run for a fixed number of ticks on data change, then frozen. **No new dependency** — `d3-force` is *not* in `node_modules` (only `commit-graph`, which is git-specific), and the project keeps its dependency list deliberately lean. For < 100 nodes a fixed-iteration integrator is more than adequate and avoids a dep that would need god's approval. Nodes are also **draggable** (drag pins a node; the sim relaxes the rest around it). Layout seeding is deterministic (seeded by node index, not `Math.random`) so the graph doesn't jump between refreshes.
+**Implementation:** a tiny hand-rolled simulation (~50 lines: Coulomb repulsion + Hooke spring + centre gravity + velocity damping), run for a fixed number of ticks on data change, then frozen. **No new dependency** — `d3-force` is *not* in `node_modules` (only `commit-graph`, which is git-specific), and the project keeps its dependency list deliberately lean. For < 100 nodes a fixed-iteration integrator is more than adequate and avoids a dep that would need orchestrator's approval. Nodes are also **draggable** (drag pins a node; the sim relaxes the rest around it). Layout seeding is deterministic (seeded by node index, not `Math.random`) so the graph doesn't jump between refreshes.
 
 ---
 
@@ -136,7 +136,7 @@ Render the graph as inline SVG inside the panel: `<line>`/`<polyline>` edges wit
 
 The office floor uses Pixi because it is a continuously-animating tilemap game world with a moving camera and dozens of walking sprites — the right tool there. The memory graph is a small, mostly-static, interaction-and-text-heavy data view — SVG is the right tool here. SVG does **not** compromise the pixel aesthetic: square `<rect>` nodes, stepped (non-bezier) edges, hard `filter`/duplicate-rect offset shadows, and the VT323/Pixelify fonts keep it visually identical in spirit to the rest of the app.
 
-> **This is the one decision I'd most like god to confirm.** If hive-wide consistency ("everything visual is Pixi") outweighs the engineering simplicity, I'll switch to Pixi — the data model, layout, and interactions in this spec are renderer-agnostic and unchanged either way. My recommendation is SVG.
+> **This is the one decision I'd most like orchestrator to confirm.** If hive-wide consistency ("everything visual is Pixi") outweighs the engineering simplicity, I'll switch to Pixi — the data model, layout, and interactions in this spec are renderer-agnostic and unchanged either way. My recommendation is SVG.
 
 ---
 
@@ -161,7 +161,7 @@ Tooltips and the navigate-to-memory hook are the two requirements called out in 
 
 - Container: `PixelPanel` (`variant="inset"`), same `Section`/`Scroll` primitives already used by the other tabs.
 - Canvas background: `--cth-paper-100`; a faint 32px dotted grid (echoes the tile grid) in `--cth-ink-100`.
-- Agent node fill: `--cth-<accent>`; border `--cth-ink-900` 2px; offset shadow `2px 2px 0 --cth-ink-900`. God: 1.4× size + double border.
+- Agent node fill: `--cth-<accent>`; border `--cth-ink-900` 2px; offset shadow `2px 2px 0 --cth-ink-900`. Orchestrator: 1.4× size + double border.
 - Status: a 1px ring in the `status-<kind>` colour (idle/thinking/working/blocked/success) so liveness reads at a glance.
 - Topic node: `--cth-cream-200` fill, `--cth-ink-700` hairline, VT323 label `--cth-ink-700`.
 - Edges: message palette per act (mirror `MessageEnvelope.tsx`); topic edges = ink-300 dashed.
@@ -185,7 +185,7 @@ src/renderer/src/components/memoryGraph/
 Wiring into `CommandCenterPanel.tsx` (per shared-file discipline — additive only):
 1. Add `'graph'` to the `CCTab` union.
 2. Add one `TABS` entry: `{ key: 'graph', label: 'graph', icon: 'mcp' }` (reuse an existing `IconName` — `mcp` reads as a network/node glyph; no new icon needed).
-3. Add `{tab === 'graph' && <MemoryGraphPanel godId={agent.id} onJumpToMemory={...} />}` as a **self-contained block** alongside the other `tab === …` lines. No reordering of existing tabs or unrelated reformatting.
+3. Add `{tab === 'graph' && <MemoryGraphPanel orchestratorId={agent.id} onJumpToMemory={...} />}` as a **self-contained block** alongside the other `tab === …` lines. No reordering of existing tabs or unrelated reformatting.
 
 The data-loading logic mirrors `ActivityTab` (poll `hiveLog` on a 5s interval) and `MemoryTab` (`hiveMemory(id)` per agent), so it reuses proven patterns.
 
@@ -194,7 +194,7 @@ The data-loading logic mirrors `ActivityTab` (poll `hiveLog` on a 5s interval) a
 ## 11. Edge cases, performance, non-goals
 
 - **Scale:** caps — top 24 topics, 200-entry log window — keep nodes < ~100 and edges < ~200; SVG handles this with no perceptible cost. Any cap that drops data is surfaced in the UI, never silent.
-- **Self-loops** (agent messaging itself, or god→god) are dropped.
+- **Self-loops** (agent messaging itself, or orchestrator→orchestrator) are dropped.
 - **Memory fetch cost:** topic extraction needs every agent's memory text. Fetch lazily and cache by id; only refetch when the topics layer is enabled, so the default (agents-only) view does N=0 memory reads beyond what hover needs.
 - **Stability:** deterministic seeding + pinned dragged nodes → the graph doesn't reshuffle on every poll.
 - **Worktree caveat:** this runs in the Electron renderer; it cannot be exercised by a full GUI run from the worktree. The Phase 2 bar is a clean `npm run typecheck` + `npm run build` (per dispatch).
@@ -202,7 +202,7 @@ The data-loading logic mirrors `ActivityTab` (poll `hiveLog` on a 5s interval) a
 
 ---
 
-## 12. Open questions for god
+## 12. Open questions for orchestrator
 
 1. **Renderer: SVG vs Pixi** (§7) — I recommend SVG; confirm or tell me to use Pixi for hive-wide visual consistency.
 2. **Topic layer default** — I propose default **OFF** (agents+messages is the cleaner first impression). OK?

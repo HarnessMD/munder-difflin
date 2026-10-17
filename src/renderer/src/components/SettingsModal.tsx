@@ -121,7 +121,7 @@ const SLACK_CONNECT_STEPS = `Connect Munder Difflin to Slack
  *  shares one server and one tunnel and is told apart by its id in the path, so
  *  `<tunnel>` is the public base URL and `<webhookId>` picks the endpoint. The
  *  secret/token go in headers so they stay out of URLs and access logs. */
-const webhookApiDoc = (godName: string): string => `Webhook API
+const webhookApiDoc = (orchestratorName: string): string => `Webhook API
 
 Every webhook has its own URL, its own secret and its own mode. They share one
 server and one tunnel; the id in the path says which one you are calling.
@@ -148,7 +148,7 @@ token you were handed still reads that task once it is routed. The secret
 authorizes new work, the token only reads one task's status. Keep both private.
 
 Each webhook checks bodies against its own JSON schema — edit that in the
-Triggers tab of ${godName}'s Command Center.`;
+Triggers tab of ${orchestratorName}'s Command Center.`;
 
 /** Clear every renderer-side persisted key so a relaunch starts truly empty. */
 function clearLocalState(): void {
@@ -195,7 +195,7 @@ const NAV_SECTION_KEYS: Record<Section, string> = {
 
 export function SettingsModal({ config, onClose, initialSection }: SettingsModalProps) {
   const { t, i18n } = useTranslation();
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>(initialSection ?? 'General');
@@ -908,7 +908,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   <Icon name="bell" />
                 </div>
                 <div style={{ flex: 1, fontSize: 15, lineHeight: '22px', color: 'var(--cth-ink-700)' }}>
-                  {t('settings.resetConfirm.body', { godName })}
+                  {t('settings.resetConfirm.body', { orchestratorName })}
                 </div>
               </div>
 
@@ -1202,7 +1202,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                           <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                            {t('settings.agentsModels.defaultModelDesc', { godName })}
+                            {t('settings.agentsModels.defaultModelDesc', { orchestratorName })}
                           </span>
                           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                             {agentModels().map((m) => (
@@ -1278,12 +1278,12 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                             </span>
                             <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
                               {orchSpawnOn
-                                ? `${godName} can hire on his own. Every agent he starts spends tokens you did not approve.`
-                                : `Only you. ${godName} can still ask, and his request waits in the queue instead of failing.`}
+                                ? `${orchestratorName} can hire on his own. Every agent he starts spends tokens you did not approve.`
+                                : `Only you. ${orchestratorName} can still ask, and his request waits in the queue instead of failing.`}
                             </span>
                           </div>
                           <PixelButton variant={orchSpawnOn ? 'primary' : 'secondary'} size="sm" onClick={toggleOrchSpawn}>
-                            {orchSpawnOn ? `me and ${godName}` : 'only me'}
+                            {orchSpawnOn ? `me and ${orchestratorName}` : 'only me'}
                           </PixelButton>
                         </div>
                       </div>
@@ -1467,7 +1467,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               >i</button>
                             </span>
                             <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                              {t('settings.connections.slackDesc', { godName })}
+                              {t('settings.connections.slackDesc', { orchestratorName })}
                             </span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1664,7 +1664,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                             boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
                             fontFamily: 'var(--cth-font-mono)', fontSize: 11, lineHeight: '16px',
                             color: 'var(--cth-ink-700)'
-                          }}>{webhookApiDoc(godName)}</pre>
+                          }}>{webhookApiDoc(orchestratorName)}</pre>
                         )}
 
                         {/* Public surface warning. Loud, not buried. */}
@@ -1801,7 +1801,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         )}
 
                         <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                          {t('settings.connections.webhooksHint', { godName })}
+                          {t('settings.connections.webhooksHint', { orchestratorName })}
                         </span>
 
                         {webhookNote && (
@@ -1979,10 +1979,10 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>
-                            {t('settings.voice.voiceChat', { godName })}
+                            {t('settings.voice.voiceChat', { orchestratorName })}
                           </span>
                           <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                            {t('settings.voice.voiceChatDesc', { godName })}
+                            {t('settings.voice.voiceChatDesc', { orchestratorName })}
                           </span>
                         </div>
 
@@ -2003,7 +2003,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                             {t('settings.voice.openaiKey')}
                           </span>
                           <span style={{ fontSize: 12, lineHeight: '17px', color: 'var(--cth-ink-700)' }}>
-                            {t('settings.voice.openaiKeyDesc1', { godName, model: REALTIME_MODEL })}
+                            {t('settings.voice.openaiKeyDesc1', { orchestratorName, model: REALTIME_MODEL })}
                           </span>
                           <span style={{ fontSize: 12, lineHeight: '17px', color: 'var(--cth-ink-700)' }}>
                             {t('settings.voice.openaiKeyDesc2')}
@@ -2037,8 +2037,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
                             }} />
                             {openAiVoiceNote || (hasOpenAiKey
-                              ? t('settings.voice.keySaved', { godName })
-                              : t('settings.voice.noKey', { godName }))}
+                              ? t('settings.voice.keySaved', { orchestratorName })
+                              : t('settings.voice.noKey', { orchestratorName }))}
                           </span>
                         </div>
 
@@ -2081,7 +2081,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         color: 'var(--cth-danger-text)'
                       }}>{t('settings.general.dangerZone')}</div>
                       <p style={{ margin: 0, fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-700)' }}>
-                        {t('settings.general.dangerDesc', { godName })}
+                        {t('settings.general.dangerDesc', { orchestratorName })}
                       </p>
                       <div>
                         <PixelButton variant="destructive" size="md" onClick={() => setConfirming(true)}>

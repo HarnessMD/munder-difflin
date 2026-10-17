@@ -103,5 +103,5 @@ test('the install-PTY exit reports whether the auto-installer completed', () => 
 
 test('onboarding completion is reported on the false to true transition', () => {
   assert.match(main, /if \(!wasOnboarded && next\.onboardingComplete\) \{/);
-  assert.match(main, /analytics\.track\('onboarding_completed', \{ provider: next\.godProvider \?\? 'claude' \}\);/);
+  assert.match(main, /analytics\.track\('onboarding_completed', \{ provider: next\.orchestratorProvider \?\? 'claude' \}\);/);
 });

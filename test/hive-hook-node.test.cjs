@@ -322,7 +322,7 @@ test('bootstrap exposes archived Codex agents without respawning them', (t) => {
   fs.mkdirSync(sessions, { recursive: true });
   fs.writeFileSync(path.join(sessions, 'rollout-old.jsonl'), 'old\n', 'utf8');
   fs.writeFileSync(path.join(root, 'registry.json'), JSON.stringify({
-    godId: null,
+    orchestratorId: null,
     agents: { a1: { id: 'a1', name: 'A', provider: 'codex', cwd: harness, archived: true } }
   }), 'utf8');
 

@@ -55,7 +55,7 @@ export interface HiveAgentMeta {
   role?: string;
   capabilities?: string[];
   cwd: string;
-  isGod?: boolean;
+  isOrchestrator?: boolean;
   /** Michael's prep assistant — send-only; enriches prompts and forwards them. */
   isAssistant?: boolean;
 }
@@ -95,7 +95,7 @@ export interface VoiceMessage {
 }
 
 export interface HiveRegistry {
-  godId: string | null;
+  orchestratorId: string | null;
   /** `archived` agents have had their terminal closed — retained + flagged, not
    *  deleted; only live-PTY agents are 'active'. */
   agents: Record<string, HiveAgentMeta & {
@@ -121,7 +121,7 @@ export interface AgentDirectoryEntry {
   /** Whether `cwd` is an absolute, existing directory (spawn-usable). */
   cwdValid: boolean | null;
   archived: boolean;
-  isGod: boolean;
+  isOrchestrator: boolean;
   isAssistant: boolean;
   sessionId: string | null;
   /** Whether the agent has recorded non-trivial memory beyond the seed header. */
@@ -139,7 +139,7 @@ export interface AgentDirectoryEntry {
 }
 
 export interface AgentDirectory {
-  godId: string | null;
+  orchestratorId: string | null;
   agents: AgentDirectoryEntry[];
 }
 
@@ -162,7 +162,7 @@ export interface HiveTask {
   dependsOn: string[];
   priority: number;
   createdAt: string;
-  /** First-class human feedback: god appends {q}, the harness UI fills {a};
+  /** First-class human feedback: orchestrator appends {q}, the harness UI fills {a};
    *  the full history stays on the card. */
   humanQA?: HumanQA[];
   /** Outcome summary used for the Slack done-notification. */
@@ -176,7 +176,7 @@ export interface HiveTask {
 
 /** A message the router just delivered, with its resolved recipient ids. Drives
  *  the envelope-handoff animation on the office floor. `needsHuman` is set when
- *  the sender aimed at "human" (now routed to the god proxy) — cosmetic tint
+ *  the sender aimed at "human" (now routed to the orchestrator proxy) — cosmetic tint
  *  only; there is no approval queue. */
 export interface HiveRouteEvent {
   id: string;
@@ -271,10 +271,10 @@ export interface HarnessConfig {
   autoMode: boolean;
   defaultCommand: string;
   defaultModel?: string;
-  /** Which provider+model powers the GOD orchestrator ("Michael"). Default
+  /** Which provider+model powers the orchestrator ("Michael"). Default
    *  'claude' / 'claude-opus-4-8'. Mirrors src/main/config.ts. */
-  godProvider?: AgentProvider;
-  godModel?: string;
+  orchestratorProvider?: AgentProvider;
+  orchestratorModel?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id. Mirrors
    *  src/main/config.ts. */
   mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -543,7 +543,7 @@ export interface CIRun {
   url: string;
 }
 
-/** One live god-triggered ephemeral worker, as shown in the Workers tab. */
+/** One live orchestrator-triggered ephemeral worker, as shown in the Workers tab. */
 export interface WorkerSnapshot {
   workerId: string;
   reqId: string;
@@ -985,9 +985,9 @@ const api = {
   newFloor: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('window:newFloor'),
 
   // ─── Closing time (graceful shutdown via the hive) ─────────────────────────
-  /** Start the closing-time protocol: the god broadcasts shutdown, every worker
-   *  saves its memory and ACKs, the god concludes — then the app quits itself.
-   *  Resolves with ok:false (+ error) when no god agent is running. */
+  /** Start the closing-time protocol: the orchestrator broadcasts shutdown, every worker
+   *  saves its memory and ACKs, the orchestrator concludes — then the app quits itself.
+   *  Resolves with ok:false (+ error) when no orchestrator is running. */
   startClosingTime: (): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('app:startClosingTime'),
   /** Abort an in-progress closing time and tell the floor to resume work. */
@@ -1243,7 +1243,7 @@ const api = {
   /** The whole ledger, newest first (both directions, both sources). */
   listTriggerHistory: (): Promise<TriggerHistoryEntry[]> =>
     ipcRenderer.invoke('triggerHistory:list'),
-  /** Answer a held message. 'approved' RELEASES it to the hive (card + god
+  /** Answer a held message. 'approved' RELEASES it to the hive (card + orchestrator
    *  request, the same path an auto-allowed message takes); 'rejected' only flips
    *  the verdict. Deciding an already-decided entry is a no-op, never a second
    *  dispatch. Resolves to the updated row, or null when the id is gone. */

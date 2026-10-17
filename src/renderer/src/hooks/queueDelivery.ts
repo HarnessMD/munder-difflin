@@ -26,7 +26,7 @@ export async function deliverWithAcknowledgement(
  * for minutes, until something outside the app woke it.
  *
  * That is self-defeating, because the breaker STEERS by mailing the agent it
- * armed ("stop, write a plan, send it to god"). Under the old gate the one
+ * armed ("stop, write a plan, send it to orchestrator"). Under the old gate the one
  * message meant to unwedge a wedged agent was exactly the message that could
  * never arrive.
  *

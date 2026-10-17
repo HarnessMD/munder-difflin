@@ -58,7 +58,7 @@ test('the preference resolves to nothing when there is no agent to focus', () =>
 // --- re-applying the preference once the roster is live --------------------
 // `focusOnLoad` runs once, while the store is being built. At that moment every
 // restored agent still carries the PREVIOUS session's PTY id, so the startup
-// reconcile prunes them all and focus mode is correctly nulled before god has
+// reconcile prunes them all and focus mode is correctly nulled before orchestrator has
 // respawned. Nothing re-checked the preference afterwards, so the app opened in
 // the sidebar with the flag still set to 1. That was the actual "closing and
 // opening did not open in focus mode" bug.
@@ -66,11 +66,11 @@ test('the preference resolves to nothing when there is no agent to focus', () =>
 const live = (...ids) => ids.map((id) => ({ id, ptyId: `pty-${id}` }));
 
 test('focus mode re-enters once an agent with a terminal shows up', () => {
-  assert.equal(restoreFocus(true, null, live('god'), 'god'), 'god');
+  assert.equal(restoreFocus(true, null, live('orchestrator'), 'orchestrator'), 'orchestrator');
 });
 
 test('the restore waits for a LIVE terminal, it does not latch onto a corpse', () => {
-  assert.equal(restoreFocus(true, null, agents('god'), 'god'), null,
+  assert.equal(restoreFocus(true, null, agents('orchestrator'), 'orchestrator'), null,
     'a restored agent still holding last session PTY id is not focusable yet');
 });
 

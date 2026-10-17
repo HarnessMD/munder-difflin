@@ -105,14 +105,14 @@ export interface AgentProviderPreset {
    *  derives `{kind:'hooks'}` from their `hookBridge`. claude/custom leave it
    *  undefined (no bridge). Prefer `bridgeOf(provider)` over reading this directly. */
   bridge?: BridgeDescriptor;
-  /** The model the GOD orchestrator ("Michael") defaults to when this provider
+  /** The model the ORCHESTRATOR orchestrator ("Michael") defaults to when this provider
    *  powers it — surfaced as the picker default and the advisory "give Michael a
-   *  longer-context, higher-capability model". `modelForRole` resolves the GOD
-   *  model as `config.godModel ?? preset.recommendedOrchestratorModel ?? MODEL_GOD`.
+   *  longer-context, higher-capability model". `modelForRole` resolves the ORCHESTRATOR
+   *  model as `config.orchestratorModel ?? preset.recommendedOrchestratorModel ?? MODEL_ORCHESTRATOR`.
    *  Advisory + user-overridable. */
   recommendedOrchestratorModel?: string;
   /** Whether the router may DELIVER inbox mail to this provider (vs bouncing it
-   *  to the god). Requires lifecycle status so the renderer can deliver only at a
+   *  to the orchestrator). Requires lifecycle status so the renderer can deliver only at a
    *  safe idle prompt: Claude natively, Antigravity/Codex/Grok via hook bridges.
    *  A hookless custom provider cannot expose safe-idle state, so mail bounces.
    *  Distinct from hiveAware: agy/codex/grok are NOT hiveAware (no Claude injection)
@@ -364,7 +364,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     supportsModel: true,
     modelFlag: '--model', // value form: provider/model, e.g. anthropic/claude-sonnet-4-5
     hiveAware: false, // no --append-system-prompt/--settings; protocol rides in via --prompt
-    // NATIVE PLUGIN bridge (god Decision 1): OpenCode has no Claude-shaped Stop hook,
+    // NATIVE PLUGIN bridge (orchestrator Decision 1): OpenCode has no Claude-shaped Stop hook,
     // but its plugin API DOES expose a real lifecycle event (session.idle). A bundled
     // per-agent plugin drains the inbox on idle and posts HIVE_SOCK payloads — the
     // same Stop→drain semantics as codex's hooks, provider-agnostic, no traffic
@@ -372,10 +372,10 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // reuses the existing hooks dispatch arm (installOpenCodePlugin, sibling of
     // installCodexHooks). The config-injection proxy is the documented fallback only.
     bridge: { kind: 'hooks', shim: 'opencode' },
-    // god-eligible. NOTE: the plugin bridge is architecturally verified (event surface
+    // orchestrator-eligible. NOTE: the plugin bridge is architecturally verified (event surface
     // + payload contract) but its live runtime (auto-load + session.idle firing +
     // injection) is UNVERIFIED pending BYOK keys / a local LLM. The renderer idle
-    // inbox-wake nudge (useHive.ts) is the guaranteed fallback so a god still drains.
+    // inbox-wake nudge (useHive.ts) is the guaranteed fallback so a orchestrator still drains.
     canReceiveInbox: true,
     initialPromptFlag: '--prompt', // opencode --prompt "<orchestrator/worker brief>"
     // NO recommended model — deliberately. This used to preselect
@@ -439,12 +439,12 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // points at the loopback (installCrushConfig, special-cased in the proxy arm).
     // Do NOT "fix" this to a real env var — it would have no effect.
     bridge: { kind: 'proxy', api: 'openai', baseUrlEnv: 'CRUSH_PROXY_BASE_URL', inboxDelivery: 'terminal' },
-    // OpenAI-WIRE default so the out-of-box Crush god routes through the proxy
+    // OpenAI-WIRE default so the out-of-box Crush orchestrator routes through the proxy
     // cleanly (the proxy serves one wire-shape; an anthropic/* default would route to
     // the wrong upstream — Dwight verify-crush MF1). Advisory/editable; non-OpenAI-wire
     // Crush-via-proxy is on-device live-verify. // exact long-context id humanQA
     recommendedOrchestratorModel: 'openai/gpt-4o',
-    // god-eligible via the proxy bridge (terminal inbox delivery on synthesized idle).
+    // orchestrator-eligible via the proxy bridge (terminal inbox delivery on synthesized idle).
     // Live runtime (proxy parse of Crush traffic + synthesized Stop) is UNVERIFIED
     // pending keys; the renderer idle nudge is the guaranteed drain fallback.
     canReceiveInbox: true,
@@ -485,7 +485,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // first, so a hookBridge:'pi' would be dead weight + force a second union widening.
     bridge: { kind: 'hooks', shim: 'pi' },
     recommendedOrchestratorModel: 'anthropic/claude-sonnet-4-5',
-    // god-eligible. Live runtime (whether the extension auto-continues from agent_end,
+    // orchestrator-eligible. Live runtime (whether the extension auto-continues from agent_end,
     // or we lean on the renderer idle nudge) is UNVERIFIED pending keys. Renderer nudge
     // is the guaranteed drain fallback either way.
     canReceiveInbox: true,
@@ -523,7 +523,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // prior session id was recorded (no hook bridge captures it yet → best-effort).
     resumeFlag: '--resume',
     // Print mode exits per turn and there is no hook bridge to drain on idle, so a
-    // copilot worker can't receive routed inbox mail (it bounces to the god).
+    // copilot worker can't receive routed inbox mail (it bounces to the orchestrator).
     canReceiveInbox: false,
     installCommand: 'npm install -g @github/copilot', // trusted, hardcoded
     docsUrl: 'https://docs.github.com/copilot/concepts/agents/about-copilot-cli'
@@ -534,7 +534,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // TUI by default (no `-p`), so the session stays alive for hive mail via the
     // renderer idle / work-order path — same class as Crush. Print mode (`-p`) is
     // available for scripts but exits per turn; this preset intentionally does
-    // NOT use `-p` so Michael and workers remain god-eligible / inbox-capable.
+    // NOT use `-p` so Michael and workers remain orchestrator-eligible / inbox-capable.
     // Models (including cheap gpt-5.6-luna-*) bill against Cursor credits via the
     // logged-in CLI — there is no separate "plain OpenAI API" path for Luna.
     id: 'cursor',
@@ -576,7 +576,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     supportsModel: false,
     autoFlag: '',
     hiveAware: false,
-    canReceiveInbox: false // no inbox-drain path → mail bounces to the god
+    canReceiveInbox: false // no inbox-drain path → mail bounces to the orchestrator
   }
 ];
 
@@ -616,7 +616,7 @@ export function isHiveAwareProvider(provider: AgentProvider | undefined): boolea
 }
 
 /** Whether the router may deliver inbox mail to this provider (else bounce to
- *  the god). True when lifecycle status supports guarded idle delivery; false
+ *  the orchestrator). True when lifecycle status supports guarded idle delivery; false
  *  for hookless custom commands. */
 export function canReceiveInbox(provider: AgentProvider | undefined): boolean {
   return providerPreset(provider ?? 'claude').canReceiveInbox;

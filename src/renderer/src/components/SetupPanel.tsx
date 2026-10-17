@@ -138,7 +138,7 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
     [tools]
   );
   const readyCount = (tools ?? []).filter((t) => t.found).length;
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
 
   const askMichael = () => {
     if (missingEssential.length === 0) return;
@@ -174,7 +174,7 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
       }}>
         <div style={{ flex: 1, minWidth: 220, fontSize: 12, color: 'var(--cth-ink-700)', lineHeight: 1.5 }}>
           {missingEssential.length
-            ? t('setupPanel.askDesc', { count: missingEssential.length, godName })
+            ? t('setupPanel.askDesc', { count: missingEssential.length, orchestratorName })
             : t('setupPanel.allReady')}
         </div>
         <PixelButton
@@ -184,7 +184,7 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
           disabled={missingEssential.length === 0}
         >
           <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
-            <Icon name="sparkle" /> {t('setupPanel.askMichael', { godName })}
+            <Icon name="sparkle" /> {t('setupPanel.askMichael', { orchestratorName })}
           </span>
         </PixelButton>
       </div>

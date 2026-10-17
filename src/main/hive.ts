@@ -13,7 +13,7 @@
  * Human-in-the-loop is native to each agent's Claude Code session: permission
  * prompts surface in the agent's own terminal (and can be approved remotely via
  * `/remote-control`). The hive keeps no separate approval queue — a message aimed
- * at "human" is routed to the god/orchestrator, the human's proxy on the floor.
+ * at "human" is routed to the orchestrator, the human's proxy on the floor.
  *   - single-committer git with retry/backoff + stale-lock recovery
  *
  * Everything here runs in the Electron main process.
@@ -42,7 +42,8 @@ import { selectBroadcastTargets } from '../shared/broadcast';
 import { preferredAgentRole } from '../shared/agentRole';
 import { mergeTaskLedger } from '../shared/taskLedger';
 import { expandTilde } from './fs';
-import { resolveGodName } from '../shared/godIdentity';
+import { resolveOrchestratorName, isOrchestratorAddress } from '../shared/orchestratorIdentity';
+import { legacyOrchestratorIdIn, migrateRegistry, ORCHESTRATOR_ID } from '../shared/orchestratorMigration';
 
 /** The subset of HarnessConfig the hive consumes for the default-MCP merge.
  *  Kept as a local shape so hive.ts never imports the foundation-owned config
@@ -71,7 +72,7 @@ export interface HiveMessage {
   conversation: string;
   in_reply_to: string | null;
   from: string;
-  to: string;                 // an agentId, 'god', or 'broadcast'
+  to: string;                 // an agentId, 'orchestrator', or 'broadcast'
   act: MessageAct;
   subject: string;
   body: string;
@@ -125,7 +126,7 @@ export interface HiveTask {
   dependsOn: string[];
   priority: number;
   createdAt: string;
-  /** First-class human feedback: the god appends {q} when a card can only
+  /** First-class human feedback: the orchestrator appends {q} when a card can only
    *  proceed with the human's input (status goes blocked); the harness UI
    *  fills in {a}. The full history stays on the card forever. */
   humanQA?: HumanQA[];
@@ -151,7 +152,7 @@ export interface AgentMeta {
   role?: string;
   capabilities?: string[];
   cwd: string;
-  isGod?: boolean;
+  isOrchestrator?: boolean;
   /** Michael's prep assistant — enriches prompts and forwards them to Michael.
    *  Send-only: excluded from broadcast fan-out so it never drains an inbox. */
   isAssistant?: boolean;
@@ -183,7 +184,7 @@ export interface RegistryAgent extends AgentMeta {
 }
 
 export interface Registry {
-  godId: string | null;
+  orchestratorId: string | null;
   agents: Record<string, RegistryAgent>;
 }
 
@@ -431,7 +432,7 @@ export class HiveManager {
   }
 
   /** Whether config.orchestratorMaySpawn is on, mirrored here so the prompt
-   *  builder can decide whether to tell god the spawn queue is available. Set at
+   *  builder can decide whether to tell orchestrator the spawn queue is available. Set at
    *  bootstrap and on every config write; hive.ts deliberately does not import
    *  the config module. */
   private _maySpawn = false;
@@ -615,11 +616,34 @@ export class HiveManager {
 
   // — bootstrap —
 
+  /** One-time upgrade of a hive written before the orchestrator rename: back up
+   *  registry.json, move agents/<old id>/ to agents/orchestrator/, then rewrite the
+   *  registry with the new keys. The dir move goes first and aborts everything on
+   *  failure, so a half-migrated hive (registry says one thing, disk another)
+   *  cannot happen. Idempotent: a migrated registry is left alone. */
+  private migrateLegacyOrchestrator(root: string): void {
+    const regPath = join(root, 'registry.json');
+    if (!existsSync(regPath)) return;
+    try {
+      const raw = JSON.parse(readFileSync(regPath, 'utf8'));
+      const legacyId = legacyOrchestratorIdIn(raw);
+      if (!legacyId) return;
+      copyFileSync(regPath, regPath + '.pre-orchestrator-rename');
+      const oldDir = join(root, 'agents', legacyId);
+      const newDir = join(root, 'agents', ORCHESTRATOR_ID);
+      if (existsSync(oldDir) && !existsSync(newDir)) renameSync(oldDir, newDir);
+      this.atomicWriteJson(regPath, migrateRegistry(raw));
+    } catch (e) {
+      console.error('[hive] orchestrator-rename migration skipped:', e instanceof Error ? e.message : e);
+    }
+  }
+
   /** Create the hive skeleton + git repo if missing. Idempotent. */
   ensureHive(): void {
     const root = this.root();
     if (!root) return;
     mkdirSync(join(root, 'agents'), { recursive: true });
+    this.migrateLegacyOrchestrator(root);
 
     for (const { filename, contents } of GENERATED_HIVE_DOCS) {
       const path = join(root, filename);
@@ -628,7 +652,7 @@ export class HiveManager {
 
     const registry = join(root, 'registry.json');
     if (!existsSync(registry)) {
-      this.writeJson(registry, { godId: null, agents: {} } as Registry);
+      this.writeJson(registry, { orchestratorId: null, agents: {} } as Registry);
     }
     const userCodexHome = join(homedir(), '.codex');
     for (const [id, agent] of Object.entries(this.registry().agents)) {
@@ -639,7 +663,7 @@ export class HiveManager {
     }
     const board = join(root, 'board.md');
     if (!existsSync(board)) {
-      writeFileSync(board, '# Hive board\n\n_Shared plans live here. The god agent is the scribe._\n', 'utf8');
+      writeFileSync(board, '# Hive board\n\n_Shared plans live here. The orchestrator is the scribe._\n', 'utf8');
     }
     const tasks = join(root, 'tasks.json');
     if (!existsSync(tasks)) this.writeJson(tasks, { tasks: [] });
@@ -749,7 +773,7 @@ export class HiveManager {
     const reg = this.registry();
     const prev = reg.agents[meta.id];
     if (meta.cwd) meta = { ...meta, cwd: expandTilde(meta.cwd) };
-    const role = preferredAgentRole(meta.role, prev?.role, !!meta.isGod);
+    const role = preferredAgentRole(meta.role, prev?.role, !!meta.isOrchestrator);
     meta = { ...meta, role };
 
     const identity = join(dir, 'identity.md');
@@ -790,10 +814,10 @@ export class HiveManager {
       archived: false,
       lastSeen: Date.now()
     };
-    if (meta.isGod) reg.godId = meta.id;
+    if (meta.isOrchestrator) reg.orchestratorId = meta.id;
     this.atomicWriteJson(join(root, 'registry.json'), reg);
 
-    this.appendLog({ kind: 'spawn', agentId: meta.id, name: meta.name, isGod: !!meta.isGod });
+    this.appendLog({ kind: 'spawn', agentId: meta.id, name: meta.name, isOrchestrator: !!meta.isOrchestrator });
     // Only logs on an invalid cwd (rare) — not a per-spawn line, so no log spam.
     if (!cwd.valid) {
       this.appendLog({ kind: 'cwd_invalid', agentId: meta.id, cwd: meta.cwd, issue: cwd.issue });
@@ -882,7 +906,7 @@ export class HiveManager {
               // Auto mode keeps codex's OS sandbox (`-a never -s workspace-write`,
               // agentProvider.ts). workspace-write only covers cwd, so the agent
               // folder (inbox/.done, memory.md, outbox) and the shared hive root
-              // (research deliverables, the board for god) are added as extra
+              // (research deliverables, the board for orchestrator) are added as extra
               // writable roots. Harmless outside auto mode.
               for (const d of this.sandboxWritableDirs(meta, dir, root, opts.extraWritableDirs)) preArgs.push('--add-dir', d);
             }
@@ -899,7 +923,7 @@ export class HiveManager {
             }
             else if (desc.shim === 'opencode') {
               // OpenCode (anomalyco/opencode) has no Claude-shaped Stop hook, but its
-              // plugin API exposes a real session.idle event (god Decision 1). We drop
+              // plugin API exposes a real session.idle event (orchestrator Decision 1). We drop
               // a bundled plugin into a PER-AGENT OPENCODE config dir that posts
               // HIVE_SOCK payloads on tool.execute.before/after + session.idle — the
               // same Stop→drain semantics, provider-agnostic, no traffic interception.
@@ -1064,7 +1088,7 @@ export class HiveManager {
    *
    * Only mail that was already there when the worker signaled done is finished
    * with: `before` is that signal's timestamp, and a message created after it
-   * (a follow-up question from god that crossed the worker's done) is left in
+   * (a follow-up question from orchestrator that crossed the worker's done) is left in
    * place, still pending, for whoever picks the mailbox up next. Without the
    * cut-off such a message was filed as read and nobody ever saw it. Messages
    * whose `created_at` is unreadable fall back to the file's mtime.
@@ -1117,14 +1141,14 @@ export class HiveManager {
    * The registry key, agent directory, session id, and every mailbox path remain
    * keyed by `id`; only the human-facing name is updated.
    *
-   * `fleet.json` is patched in the same operation so god's next prompt receives
+   * `fleet.json` is patched in the same operation so orchestrator's next prompt receives
    * the new name immediately rather than waiting for the periodic fleet refresh.
    */
   /**
    * Put an agent on hold, or take it off, and tell Michael immediately.
    *
    * `fleet.json` is patched in the same operation for the same reason
-   * `renameAgent` does it: god's roster is injected from that file on its next
+   * `renameAgent` does it: orchestrator's roster is injected from that file on its next
    * prompt, and waiting up to 8s for the periodic refresh means one more
    * dispatch can still land on someone the human has just claimed.
    */
@@ -1233,7 +1257,7 @@ export class HiveManager {
   /**
    * Directories a sandboxed agent may write BESIDES its cwd: its own agent
    * folder (hive housekeeping) and the hive root (research deliverables; the
-   * board and tasks.json for god; outbox delivery is done by main, not the agent).
+   * board and tasks.json for orchestrator; outbox delivery is done by main, not the agent).
    * This is what lets auto mode keep the OS sandbox on — the old full-bypass
    * posture existed only because these paths sit outside the project cwd.
    */
@@ -1483,7 +1507,7 @@ export class HiveManager {
       `You have ${fresh.length} new hive message(s) in your inbox. Address them before finishing:`,
       lines,
       // Native separators (join, not string-concatenated `/`) so a Windows agent is
-      // handed a path its own shell/tools accept, not `C:\…\agents\god/inbox/`.
+      // handed a path its own shell/tools accept, not `C:\…\agents\orchestrator/inbox/`.
       `Open the files in ${join(dir, 'inbox')} for full detail, act on each, then move handled ones to ${join(dir, 'inbox', '.done')}. Reply via your outbox if a message requires it.`
     ].join('\n');
     return { block: true, reason };
@@ -1496,11 +1520,11 @@ export class HiveManager {
     return [
       `# ${meta.name} (${meta.id})`,
       '',
-      `- Role: ${meta.role ?? (meta.isGod ? 'orchestrator (god)' : 'agent')}`,
+      `- Role: ${meta.role ?? (meta.isOrchestrator ? 'orchestrator' : 'agent')}`,
       `- Capabilities: ${caps}`,
       `- Working directory: ${meta.cwd}`,
-      meta.isGod ? '- You are the **god / orchestrator**. You run the floor — keep awareness of the whole team, delegate execution, and personally own only the important calls (decomposition, sign-offs, conflicts, integration), not the grunt work.' : '',
-      meta.isGod ? '- Monitor the team with `fleet.json` (live per-agent status/tokens/cost/breaker) and `registry.json`; full command reference in `COMMANDS.md`. `claude agents` does NOT list your hive siblings.' : '',
+      meta.isOrchestrator ? '- You are the **orchestrator**. You run the floor — keep awareness of the whole team, delegate execution, and personally own only the important calls (decomposition, sign-offs, conflicts, integration), not the grunt work.' : '',
+      meta.isOrchestrator ? '- Monitor the team with `fleet.json` (live per-agent status/tokens/cost/breaker) and `registry.json`; full command reference in `COMMANDS.md`. `claude agents` does NOT list your hive siblings.' : '',
       ''
     ].filter(Boolean).join('\n');
   }
@@ -1524,7 +1548,7 @@ export class HiveManager {
    *    dead on every Windows floor. Bake the ABSOLUTE resolved path instead: it is
    *    platform-independent, needs no expansion, and stays prompt-cache-stable.
    *  - `'…' + '/inbox/'` — string-concatenating separators told a Windows agent to
-   *    read `C:\Users\x\hive\agents\god/inbox/`. Use join() so the agent's own
+   *    read `C:\Users\x\hive\agents\orchestrator/inbox/`. Use join() so the agent's own
    *    tooling gets a path it can pass straight to its shell.
    */
   private injectedPrompt(
@@ -1540,11 +1564,11 @@ export class HiveManager {
     const inRoot = (...parts: string[]): string => join(root, ...parts);
     // Resolved ONCE here, at THIS agent's own spawn — same prompt-cache-stable
     // shape as name/id/dir/root above it, not a live re-read on every turn.
-    // Needed only for the PREP ASSISTANT persona below, which refers to god by
-    // name in prose; god's own prompt already gets its name via `meta.name`.
-    const godRegistry = meta.isAssistant ? this.registry() : null;
-    const godNameForPrompt = godRegistry
-      ? resolveGodName(godRegistry.agents[godRegistry.godId ?? 'god']?.name)
+    // Needed only for the PREP ASSISTANT persona below, which refers to orchestrator by
+    // name in prose; orchestrator's own prompt already gets its name via `meta.name`.
+    const orchestratorRegistry = meta.isAssistant ? this.registry() : null;
+    const orchestratorNameForPrompt = orchestratorRegistry
+      ? resolveOrchestratorName(orchestratorRegistry.agents[orchestratorRegistry.orchestratorId ?? 'orchestrator']?.name)
       : '';
     const ctxLine = 'LIVE CONTEXT: each agent row in the LIVE ROSTER carries a `ctx NN%` tag — its live context-window occupancy. Treat it as the real headroom signal when routing: prefer an agent with a LOW `ctx` for a big task; treat a HIGH `ctx` (near 100%) as busy rather than idle, even if the cumulative token count looks modest.';
 
@@ -1571,27 +1595,27 @@ export class HiveManager {
     const runtimeLine = rt
       ? `RUNNING BUILD: Munder Difflin v${rt.version}, ${rt.packaged ? 'packaged app' : 'local dev build'}${rt.appPath ? `, from ${rt.appPath}` : ''}. Say this version if asked which one is running, and do not assume behaviour from an older one. A local dev build inherits the launching shell's environment (umask included) where a packaged app does not, so file modes and inherited env can legitimately differ between the two. \`log.jsonl\` records an \`app-start\` event on every launch, which is how you spot a restart or a build switch.`
       : '';
-    // Item 11: god could not find the spawn queue. The mechanism has worked since
+    // Item 11: orchestrator could not find the spawn queue. The mechanism has worked since
     // v0.4.4, but nothing told him it existed — the prompt said "spawn" without
     // saying how, COMMANDS.md and PROTOCOL.md did not mention it, and the only
     // description lived in a source comment. So he fell back to writing a hire
     // manifest, which needs a human to click confirm, and it looked like nothing
     // happened. Gated on the toggle: advertising a disabled path is worse than
     // saying nothing, and COMMANDS.md documents it either way for the case where
-    // the operator turns it on after god was already running.
-    const spawnQueueLine = meta.isGod && this.orchestratorMaySpawn()
+    // the operator turns it on after orchestrator was already running.
+    const spawnQueueLine = meta.isOrchestrator && this.orchestratorMaySpawn()
       ? `SPAWNING A WORKER: you can start an ephemeral worker yourself by writing ONE JSON file into ${inRoot('spawn-requests')}/<id>.json. Required: \`objective\` (what the worker must do) and \`cwd\` (the repo it runs in). Optional: \`name\`, \`command\` (overrides the provider default), \`provider\` (selects its default CLI when command is omitted), \`model\`, \`isolate\` (default true = its own git worktree), \`tokenCap\`, and \`slack\` ({channel, thread_ts}) to route its failures back to a thread. The harness polls that directory, spawns \`worker-<id>\`, and moves the request to \`spawn-requests/.done/\` on success or \`.failed/\` with a reason. This is the ONLY way you can spawn; a hire manifest under research/hires/ needs the human to confirm it in the UI, so it is not a route you can complete on your own. Reuse an existing agent first, as above — a worker is a fresh spend every time.`
       : '';
-    const godLine = meta.isGod
-      ? 'You are the GOD / ORCHESTRATOR of this hive — your job is to ORCHESTRATE, not to implement: maintain live situational awareness and delegate the work. (1) AWARENESS — always know what is going on: keep an accurate picture of every agent (active vs archived/idle), the task board, and all in-flight work; drain your inbox continually and triage every other agent\'s requests, answering clarifications so the team runs autonomously. (2) DELEGATE — decompose work and fan it out to the hive agents via their inboxes (route messages and assign owners; do not do their jobs); do NOT take on grunt implementation yourself. Stay aware of who is already on the floor and delegate OPPORTUNISTICALLY: BEFORE you spawn anything, CHECK THE LIVE ROSTER (active agents in registry.json + their state in fleet.json) and prefer routing to an EXISTING agent that fits — above all when the request names one ("ask Pam to…", "have Jim…"), route to that agent instead of reflexively creating a new one. Reuse an idle or already-running agent whose role matches; only spawn a fresh agent when no existing one is a sensible fit, and say that you checked. One capable owner beats a duplicate. (3) OWN ONLY THE IMPORTANT, high-leverage things — task decomposition, dispatch decisions, sign-offs, conflict resolution, branch integration, and final QA — and remain the sole scribe of board.md. You are otherwise fully autonomous — there is NO separate approval queue. For the genuinely critical (destructive actions, spending real money, scope changes, unresolvable conflicts), ask the human directly in your own session and let the tool-permission prompt gate the action; the human approves natively, including remotely from their phone via /remote-control. Keep the team unblocked. When you DISPATCH a task, write it as a 4-part contract so the agent can run autonomously: (1) OBJECTIVE — the concrete goal; (2) OUTPUT — the expected deliverable/format; (3) TOOLS — what to use or avoid, and any references to read instead of re-deriving; (4) BOUNDARIES — scope limits + the definition of done. Pass references (file paths, message ids, board sections), not pasted content — keep dispatches short.'
+    const orchestratorLine = meta.isOrchestrator
+      ? 'You are the ORCHESTRATOR of this hive — your job is to ORCHESTRATE, not to implement: maintain live situational awareness and delegate the work. (1) AWARENESS — always know what is going on: keep an accurate picture of every agent (active vs archived/idle), the task board, and all in-flight work; drain your inbox continually and triage every other agent\'s requests, answering clarifications so the team runs autonomously. (2) DELEGATE — decompose work and fan it out to the hive agents via their inboxes (route messages and assign owners; do not do their jobs); do NOT take on grunt implementation yourself. Stay aware of who is already on the floor and delegate OPPORTUNISTICALLY: BEFORE you spawn anything, CHECK THE LIVE ROSTER (active agents in registry.json + their state in fleet.json) and prefer routing to an EXISTING agent that fits — above all when the request names one ("ask Pam to…", "have Jim…"), route to that agent instead of reflexively creating a new one. Reuse an idle or already-running agent whose role matches; only spawn a fresh agent when no existing one is a sensible fit, and say that you checked. One capable owner beats a duplicate. (3) OWN ONLY THE IMPORTANT, high-leverage things — task decomposition, dispatch decisions, sign-offs, conflict resolution, branch integration, and final QA — and remain the sole scribe of board.md. You are otherwise fully autonomous — there is NO separate approval queue. For the genuinely critical (destructive actions, spending real money, scope changes, unresolvable conflicts), ask the human directly in your own session and let the tool-permission prompt gate the action; the human approves natively, including remotely from their phone via /remote-control. Keep the team unblocked. When you DISPATCH a task, write it as a 4-part contract so the agent can run autonomously: (1) OBJECTIVE — the concrete goal; (2) OUTPUT — the expected deliverable/format; (3) TOOLS — what to use or avoid, and any references to read instead of re-deriving; (4) BOUNDARIES — scope limits + the definition of done. Pass references (file paths, message ids, board sections), not pasted content — keep dispatches short.'
         + ` MONITOR the floor by reading ${inRoot('fleet.json')} (live per-agent tokens, cost, status, last tool, breaker level, inbox backlog) and ${inRoot('registry.json')} — note that running 'claude agents' will NOT list your hive's sibling agents. A full Claude Code command reference is at ${inRoot('COMMANDS.md')} (slash commands act ONLY on your own session; CLI commands run in your shell and can target the fleet). You periodically receive scheduler / "Heartbeat" standup requests — on each, review every agent via fleet.json, re-engage anyone stalled, over-budget, or breaker-armed, and keep board.md and tasks.json accurate. In tasks.json, ALWAYS set each task's "assignee" to the worker's agent id the moment you dispatch it, and NEVER clear it on status changes — a done card must still say who did the work (the human reads the board by who-did-what). HUMAN FEEDBACK is first-class in the ledger: when a task can only proceed with the human's input — a QUESTION to answer OR an ACTION only the human can perform (create an account, approve a purchase, provide credentials/screenshots, test on their device) — set its status to "blocked" and append the concrete ask to the card's "humanQA" array (push {"q":"...","askedAt":"<iso>"}; phrase actions as clear to-dos; keep every past entry — the history documents the card's decisions). WRITE THE ASK SHORT AND IN MARKDOWN. The human reads it on a CARD, not in a terminal, so an ask longer than a short paragraph plus its options (roughly 700 characters) is a report, not a question — cut the narrative, keep the decision. Open with ONE **bold** sentence saying exactly what you need from them; put paths, commands, values and identifiers in \`backticks\`; give each option or step its own "-" bullet or "1." number; leave a blank line between paragraphs (a single newline is a line break, so each option stays on its own line). When the ask originates in another agent's report, REWRITE it into that shape — never paste the report body in as the question, and never make the human read the investigation to find the decision. The harness surfaces open questions on the office floor's ASK ME board; the human's answer lands in the same entry ("a") AND arrives as an inbox message to you — read it, act on it, and unblock the card so work continues. Do NOT park human questions in separate files (no HumanQuestion.md) and never sit waiting on the human in your own session. Steward the token budget.`
       : meta.isAssistant
-      ? `You are ${godNameForPrompt}'s PREP ASSISTANT. You will be handed short, possibly vague instructions (each begins with "ENRICH TASK:"). For each one: (1) figure out which project it concerns and cd into the most relevant repo — you start in ${godNameForPrompt}'s home directory; (2) gather concrete context READ-ONLY (exact file paths, current state, relevant code, conventions, active branch, gotchas) — NEVER modify, create, or delete files; (3) rewrite the instruction into ONE clear, self-contained prompt that ${godNameForPrompt} can execute autonomously, preserving the user's original intent without inventing scope. Then deliver it: write ONE message JSON into your outbox with "to":"god", "act":"request", a short subject, and the finished prompt as the body. Do NOT perform the task yourself — your only output is the improved prompt sent to ${godNameForPrompt}.`
-      : 'For anything ambiguous, cross-cutting, or needing sign-off, address a message to "god".';
-    const guardrailsLine = 'Guardrails: a circuit breaker watches the floor — a "Circuit breaker: steer/constrain" message means you are looping or overspending, so STOP repeating, summarize what you tried, and follow it. Be token-frugal (a floor-wide or per-agent token budget can pause you). The shared plan has two parts: board.md (freeform; god is the sole scribe) and tasks.json (structured kanban — todo/doing/blocked/done).';
-    const slackLine = meta.isGod
+      ? `You are ${orchestratorNameForPrompt}'s PREP ASSISTANT. You will be handed short, possibly vague instructions (each begins with "ENRICH TASK:"). For each one: (1) figure out which project it concerns and cd into the most relevant repo — you start in ${orchestratorNameForPrompt}'s home directory; (2) gather concrete context READ-ONLY (exact file paths, current state, relevant code, conventions, active branch, gotchas) — NEVER modify, create, or delete files; (3) rewrite the instruction into ONE clear, self-contained prompt that ${orchestratorNameForPrompt} can execute autonomously, preserving the user's original intent without inventing scope. Then deliver it: write ONE message JSON into your outbox with "to":"orchestrator", "act":"request", a short subject, and the finished prompt as the body. Do NOT perform the task yourself — your only output is the improved prompt sent to ${orchestratorNameForPrompt}.`
+      : 'For anything ambiguous, cross-cutting, or needing sign-off, address a message to "orchestrator".';
+    const guardrailsLine = 'Guardrails: a circuit breaker watches the floor — a "Circuit breaker: steer/constrain" message means you are looping or overspending, so STOP repeating, summarize what you tried, and follow it. Be token-frugal (a floor-wide or per-agent token budget can pause you). The shared plan has two parts: board.md (freeform; orchestrator is the sole scribe) and tasks.json (structured kanban — todo/doing/blocked/done).';
+    const slackLine = meta.isOrchestrator
       ? 'SLACK REPLIES: When composing a Slack reply (or writing the `result` field of a Slack-origin kanban card), you MUST: (1) directly address what the user asked — never a bare "done"; (2) include the relevant specifics, outcome, and details; (3) format for Slack mrkdwn — open with a short *bold* headline, use bullet points for multiple items, wrap code/paths in `backtick` blocks, keep it concise (no walls of text). When finishing a Slack-origin task, always write a complete, user-facing, well-formatted `result` on the kanban card — the system posts it verbatim to Slack as the done reply.'
-      : `SLACK REPLIES: If god dispatches you a task that came from Slack, it will include an exact \`"${hiveNode}" "<helper>" --channel … --thread … --text "…"\` reply command — when you finish, run it VERBATIM to post your result back to that thread yourself. The reply must be SUBSTANTIVE Slack mrkdwn (a short *bold* headline + the actual outcome/specifics/links), NEVER a bare "done".`;
+      : `SLACK REPLIES: If orchestrator dispatches you a task that came from Slack, it will include an exact \`"${hiveNode}" "<helper>" --channel … --thread … --text "…"\` reply command — when you finish, run it VERBATIM to post your result back to that thread yourself. The reply must be SUBSTANTIVE Slack mrkdwn (a short *bold* headline + the actual outcome/specifics/links), NEVER a bare "done".`;
     return [
       `You are "${meta.name}" (${meta.id}), an autonomous agent in a collaborating hive of Claude agents.`,
       `Your private workspace is ${dir}. The shared hive is ${root}. Full protocol: ${inRoot('PROTOCOL.md')}.`,
@@ -1604,7 +1628,7 @@ export class HiveManager {
       guardrailsLine,
       memoryLine,
       knowledgeLine,
-      godLine,
+      orchestratorLine,
       spawnQueueLine,
       runtimeLine,
       slackLine,
@@ -1623,7 +1647,7 @@ export class HiveManager {
       conversation: partial.conversation ?? `conv-${shortRand()}`,
       in_reply_to: partial.in_reply_to ?? null,
       from: partial.from ?? from,
-      to: partial.to ?? 'god',
+      to: partial.to ?? 'orchestrator',
       act,
       subject: partial.subject ?? '',
       body: partial.body ?? '',
@@ -1632,7 +1656,7 @@ export class HiveManager {
       // count, never authoritative. Clamp it into range: an echoed relay must
       // keep climbing toward the cap, while a copied-forward `hops: 13` must
       // not read as a runaway loop (only a harness bounce moves the counter —
-      // see bounceToGod). A negative value would just buy more free bounces,
+      // see bounceToOrchestrator). A negative value would just buy more free bounces,
       // so the floor is 0.
       hops: Math.max(0, Math.min(typeof partial.hops === 'number' ? partial.hops : 0, HOP_CAP)),
       requires_reply: partial.requires_reply ?? ['request', 'query', 'propose'].includes(act),
@@ -1651,20 +1675,20 @@ export class HiveManager {
     return true;
   }
 
-  /** One harness bounce of `msg` to god: bump the hop counter, rewrite the
+  /** One harness bounce of `msg` to orchestrator: bump the hop counter, rewrite the
    *  subject, and log the drop once the counter passes HOP_CAP. Agents can't
    *  move hops past the cap themselves (normalize clamps what they wrote), so
    *  this fuse can only fire on a REAL relay loop — a bounced mail that keeps
    *  coming back undeliverable — and never on an agent-authored number. */
-  private bounceToGod(msg: HiveMessage, godId: string, subject: string): void {
+  private bounceToOrchestrator(msg: HiveMessage, orchestratorId: string, subject: string): void {
     const hops = msg.hops + 1;
     if (hops > HOP_CAP) {
       // loop guard — drop a runaway message rather than let agents ping-pong.
-      // There's no human queue to fall back on; the god agent owns conflicts.
+      // There's no human queue to fall back on; the orchestrator owns conflicts.
       this.appendLog({ kind: 'drop', reason: 'hop-cap', from: msg.from, to: msg.to, id: msg.id });
       return;
     }
-    this.deliver({ ...msg, hops, to: godId, subject }, godId);
+    this.deliver({ ...msg, hops, to: orchestratorId, subject }, orchestratorId);
   }
 
   /** Inject a message directly (used by the orchestrator / UI / tests). */
@@ -1677,11 +1701,11 @@ export class HiveManager {
 
   private routeMessage(msg: HiveMessage): void {
     const reg = this.registry();
-    const godId = reg.godId ?? 'god';
+    const orchestratorId = reg.orchestratorId ?? 'orchestrator';
     // The hive has no separate human-approval queue — approvals are native to
     // each agent's Claude Code session (and approvable remotely). A message aimed
-    // at "human" is handled by the god/orchestrator, the human's proxy here.
-    const resolveTo = (to: string): string => (to === 'human' || to === 'god' ? godId : to);
+    // at "human" is handled by the orchestrator, the human's proxy here.
+    const resolveTo = (to: string): string => (isOrchestratorAddress(to, orchestratorId) ? orchestratorId : to);
     const targets = msg.to === 'broadcast'
       // The roster for fan-out is the ACTIVE registry: skip the send-only prep
       // assistant and any archived agent (closed tab). Hookless providers are
@@ -1689,7 +1713,7 @@ export class HiveManager {
       // work order, so excluding them here only made a broadcast invisible to an
       // agent that direct mail reaches fine. See selectBroadcastTargets.
       ? selectBroadcastTargets(reg.agents, msg.from)
-      // Never deliver to self — guards a god → "human" message looping back to god.
+      // Never deliver to self — guards a orchestrator → "human" message looping back to orchestrator.
       : [resolveTo(msg.to)].filter((t) => t !== msg.from);
     // Targets that actually took delivery. The log below reports these instead of
     // intent, so a bounced or dropped message can never read as delivered.
@@ -1698,17 +1722,17 @@ export class HiveManager {
       // The send-only prep assistant must never be a delivery target: it doesn't
       // drain an inbox, so direct mail to it would rot unread (observed live: a
       // task brief plus the follow-up reprimand about the unread inbox, both
-      // unread for hours). Bounce such mail to god instead, so the sender's intent
+      // unread for hours). Bounce such mail to orchestrator instead, so the sender's intent
       // surfaces immediately and nothing is silently lost.
       if (reg.agents[t]?.isAssistant) {
-        this.bounceToGod(msg, godId, `[bounced — "${t}" is the send-only prep assistant; route work to a real agent] ${msg.subject}`);
+        this.bounceToOrchestrator(msg, orchestratorId, `[bounced — "${t}" is the send-only prep assistant; route work to a real agent] ${msg.subject}`);
         continue;
       }
       // An ARCHIVED recipient (its terminal is gone) still has an inbox, so the
       // mail lands there and reads as delivered — and stays unread. Filing it
       // is right: a worker re-hired under the same id reads it on its first turn
       // (a released worker's inbox is settled only up to its done signal). But
-      // the sender learned nothing, so god kept mailing dead agents for hours
+      // the sender learned nothing, so orchestrator kept mailing dead agents for hours
       // (seen live 2026-08-16), and a request to a worker nobody re-hires was
       // simply lost. Now mail that expects an answer is filed AND its sender is
       // told, at once, that no one is there to answer it. Inform-only mail
@@ -1717,7 +1741,7 @@ export class HiveManager {
       // work order to, whatever the engine — the inbox is the only place left.
       // The notice itself is ROUTED, not dropped into an inbox, so a sender on
       // a hookless or proxy-tier engine gets it the way it gets any mail.
-      if (t !== godId && reg.agents[t]?.archived) {
+      if (t !== orchestratorId && reg.agents[t]?.archived) {
         if (this.deliver(msg, t)) delivered.push(t);
         this.appendLog({ kind: 'archived-recipient', from: msg.from, to: t, id: msg.id, act: msg.act });
         const sender = reg.agents[msg.from];
@@ -1741,11 +1765,11 @@ export class HiveManager {
       // would let direct mail rot unread. Claude and bridged Antigravity/Codex
       // receive directly into inbox/ for guarded renderer delivery. Otherwise try
       // a terminal work-order handoff to its REPL (#53);
-      // if the renderer is unavailable, bounce to god to relay. God is exempt
+      // if the renderer is unavailable, bounce to orchestrator to relay. Orchestrator is exempt
       // (the bounce target).
-      if (t !== godId && !canReceiveInbox(reg.agents[t]?.provider)) {
+      if (t !== orchestratorId && !canReceiveInbox(reg.agents[t]?.provider)) {
         if (!this.emitTerminalHandoff(msg, t)) {
-          this.bounceToGod(msg, godId, `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a hookless CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`);
+          this.bounceToOrchestrator(msg, orchestratorId, `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a hookless CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`);
         } else delivered.push(t);
         continue;
       }
@@ -1755,9 +1779,9 @@ export class HiveManager {
       // mail rides the terminal work-order path verbatim, exactly like a hookless
       // provider; the synthesized Stop→drain keeps the cursor in step.
       const proxyDesc = bridgeOf(reg.agents[t]?.provider);
-      if (t !== godId && proxyDesc?.kind === 'proxy' && proxyDesc.inboxDelivery === 'terminal') {
+      if (t !== orchestratorId && proxyDesc?.kind === 'proxy' && proxyDesc.inboxDelivery === 'terminal') {
         if (!this.emitTerminalHandoff(msg, t)) {
-          this.bounceToGod(msg, godId, `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a proxy-tier CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`);
+          this.bounceToOrchestrator(msg, orchestratorId, `[undeliverable — "${t}" runs ${reg.agents[t]?.provider ?? 'a proxy-tier CLI'} and the terminal handoff failed (renderer unavailable); relay this to it] ${msg.subject}`);
         } else delivered.push(t);
         continue;
       }
@@ -1765,16 +1789,16 @@ export class HiveManager {
       // No agents/<t>/inbox — an id that isn't on the floor. This was the one
       // delivery failure with neither bounce nor log, so the sender saw a routed
       // message and the mail simply ceased to exist. Record the drop beside the
-      // hop-cap one and bounce to god, mirroring the undeliverable bounces above.
+      // hop-cap one and bounce to orchestrator, mirroring the undeliverable bounces above.
       this.appendLog({ kind: 'drop', reason: 'no-inbox', from: msg.from, to: t, id: msg.id });
-      if (t !== godId) {
-        this.bounceToGod(msg, godId, `[undeliverable — no agent "${t}" on this floor; check the id against the roster] ${msg.subject}`);
+      if (t !== orchestratorId) {
+        this.bounceToOrchestrator(msg, orchestratorId, `[undeliverable — no agent "${t}" on this floor; check the id against the roster] ${msg.subject}`);
       }
     }
     this.appendLog({ kind: 'message', from: msg.from, to: msg.to, act: msg.act, subject: msg.subject, id: msg.id, delivered });
     this.emitMessage(msg, targets);
     // Main-process observer (e.g. the closing-time controller watching for the
-    // team's ACKs and the god's COMPLETE). Best-effort, never breaks routing.
+    // team's ACKs and the orchestrator's COMPLETE). Best-effort, never breaks routing.
     try { this.routedObserver?.(msg, targets); } catch { /* observer error */ }
   }
 
@@ -1796,7 +1820,7 @@ export class HiveManager {
       subject: msg.subject,
       targets,
       // Coral-tints the floor envelope for a message the agent flagged for the
-      // human (now routed to the god proxy). Cosmetic only — no queue behind it.
+      // human (now routed to the orchestrator proxy). Cosmetic only — no queue behind it.
       needsHuman: msg.to === 'human'
     });
   }
@@ -1896,8 +1920,8 @@ export class HiveManager {
 
   registry(): Registry {
     const root = this.root();
-    if (!root) return { godId: null, agents: {} };
-    return this.readJson<Registry>(join(root, 'registry.json'), { godId: null, agents: {} });
+    if (!root) return { orchestratorId: null, agents: {} };
+    return this.readJson<Registry>(join(root, 'registry.json'), { orchestratorId: null, agents: {} });
   }
   board(): string {
     const root = this.root();
@@ -1912,7 +1936,7 @@ export class HiveManager {
    *  board/message persist pattern: write JSON, log the change, single-commit.
    *
    *  MERGES by card id instead of clobbering. Callers hold PARTIAL models of a
-   *  card — the renderer's kanban parser knows nine fields, the god writes as
+   *  card — the renderer's kanban parser knows nine fields, the orchestrator writes as
    *  many as the work needs (`result`, the verbatim Slack reply posted back to
    *  the user; `repo`; `scope`; `origin`; `commit`; …). A wholesale write meant
    *  one small edit through the UI deleted every unmodelled field on EVERY card
@@ -1935,7 +1959,7 @@ export class HiveManager {
 
   /** Append one card against the latest on-disk ledger. Renderer callers must
    *  use this instead of re-writing a collection they read before another
-   *  source (webhook, Slack, god, voice) added work. Idempotent by task id. */
+   *  source (webhook, Slack, orchestrator, voice) added work. Idempotent by task id. */
   addTask(task: HiveTask): boolean {
     const ledger = this.tasks() as { tasks?: HiveTask[] };
     const tasks = Array.isArray(ledger?.tasks) ? ledger.tasks : [];
@@ -2415,7 +2439,7 @@ export class HiveManager {
     return home;
   }
 
-  /** OpenCode (anomalyco/opencode) bridge — god Decision 1 (native plugin, not proxy).
+  /** OpenCode (anomalyco/opencode) bridge — orchestrator Decision 1 (native plugin, not proxy).
    *  OpenCode has no Claude-shaped Stop hook, but its plugin API exposes a real
    *  `session.idle` lifecycle event. We drop a bundled PLUGIN into a PER-AGENT config
    *  dir's `plugin/` folder (OpenCode auto-loads `*.js` plugins from there) that posts
@@ -2485,9 +2509,9 @@ export class HiveManager {
       // hit the wrong endpoint and the call would fail. Those are left to their real
       // upstreams (working calls, un-proxied — no synthesized events, but mail still
       // drains via the renderer nudge + the pty-quiescence idle fallback). For the
-      // default god (openai-wire) and a local OpenAI-compatible endpoint this routes
+      // default orchestrator (openai-wire) and a local OpenAI-compatible endpoint this routes
       // through the proxy cleanly. Cross-provider Crush-via-proxy is on-device
-      // live-verify (Dwight verify-crush MF1; the default god model is openai-wire to
+      // live-verify (Dwight verify-crush MF1; the default orchestrator model is openai-wire to
       // match). Literal loopback (Dwight's b1 — no ${VAR} expansion edge cases);
       // Crush merges config so only base_url is rewritten.
       const wireProvider = api === 'anthropic' ? 'anthropic' : 'openai';
@@ -2554,29 +2578,29 @@ export class HiveManager {
     try { writeFileSync(join(root, 'fleet.json'), JSON.stringify(snapshot, null, 2), 'utf8'); } catch { /* noop */ }
   }
 
-  /** Is this agent the hive's god/orchestrator? */
-  isGod(agentId: string): boolean {
+  /** Is this agent the hive's orchestrator? */
+  isOrchestrator(agentId: string): boolean {
     try {
       const reg = this.registry();
-      return reg.godId === agentId || !!reg.agents[agentId]?.isGod;
+      return reg.orchestratorId === agentId || !!reg.agents[agentId]?.isOrchestrator;
     } catch { return false; }
   }
 
   /**
    * A compact, one-shot LIVE ROSTER line built from `fleet.json` — injected into
-   * god's context as `additionalContext` on SessionStart and every
+   * orchestrator's context as `additionalContext` on SessionStart and every
    * UserPromptSubmit (see HookServer).
    *
    * Why: fleet.json/registry.json are always fresh on disk (8s snapshot +
-   * archiveOrphanedAgents on boot + PTY-exit archiving), but god's CONTEXT is not.
-   * After an app restart god resumes a session whose transcript still describes
+   * archiveOrphanedAgents on boot + PTY-exit archiving), but orchestrator's CONTEXT is not.
+   * After an app restart orchestrator resumes a session whose transcript still describes
    * the OLD floor, and it will happily message agents that no longer exist. It is
    * told to read fleet.json, but "told to" is not "always knows" — so we push the
    * truth in on every turn instead. One line, so the cost is negligible.
    *
    * `ctxOf` (optional, supplied by HookServer) lets the caller layer the LIVE
    * context-window occupancy on top of the disk snapshot — each agent gets a
-   * `ctx NN%` so god can see at a glance whose context is nearly full when it
+   * `ctx NN%` so orchestrator can see at a glance whose context is nearly full when it
    * routes work. fleet.json only carries cumulative `tokens`, which is a spend
    * figure, not how full the CURRENT window is; the real occupancy lives in
    * HookServer.contextById (from the statusLine shim). Omitted when the callback
@@ -2595,7 +2619,7 @@ export class HiveManager {
       const snap = JSON.parse(raw) as {
         ts?: number;
         agents?: Array<{
-          id: string; name?: string; role?: string; isGod?: boolean;
+          id: string; name?: string; role?: string; isOrchestrator?: boolean;
           breaker?: string; tokens?: number; usd?: number;
           lastTool?: string | null; lastActiveSecAgo?: number | null; inboxBacklog?: number;
           onHold?: boolean;
@@ -2623,12 +2647,12 @@ export class HiveManager {
         if (a.usd) bits.push(`$${a.usd.toFixed(2)}`);
         if (a.inboxBacklog) bits.push(`inbox ${a.inboxBacklog}`);
         if (a.breaker && a.breaker !== 'ok' && a.breaker !== 'none') bits.push(`breaker ${a.breaker}`);
-        if (a.isGod) bits.push('you');
+        if (a.isOrchestrator) bits.push('you');
         // First in the row after the role would be louder, but this reads in
-        // the same scan as `breaker` and `inbox`, and god already treats those
+        // the same scan as `breaker` and `inbox`, and orchestrator already treats those
         // as routing signals.
         if (a.onHold) { bits.push('ON HOLD — 1:1 with the human'); anyHold = true; }
-        // Live context-window occupancy from the statusLine shim — lets god see
+        // Live context-window occupancy from the statusLine shim — lets orchestrator see
         // which agents are near-full when routing, instead of guessing from the
         // cumulative token count. Clamp to 0-100; a fresh meter can briefly
         // report more than 100% before a window rotation.
@@ -2975,7 +2999,7 @@ Write one JSON file into \`outbox/\` (any filename ending in \`.json\`):
 
 \`\`\`json
 {
-  "to": "<agent-id> | god | broadcast",
+  "to": "<agent-id> | orchestrator | broadcast",
   "act": "request | inform | propose | query | agree | refuse | done",
   "subject": "one-line summary",
   "body": "the details",
@@ -2989,26 +3013,26 @@ The harness fills in \`id\`, \`from\`, \`hops\`, and timestamps.
 ## Rules of the road
 - Only \`request\`, \`query\`, and \`propose\` expect a reply. \`inform\` and \`done\` are terminal —
   don't reply to them, or two agents will loop forever.
-- For anything ambiguous, cross-cutting, or needing sign-off, message \`god\` — the
-  god agent clarifies answers for you so you rarely need the human directly.
+- For anything ambiguous, cross-cutting, or needing sign-off, message \`orchestrator\` — the
+  orchestrator clarifies answers for you so you rarely need the human directly.
 - There is NO separate human-approval queue. Human-in-the-loop is native to Claude
   Code: a tool you run that needs permission prompts in your own session (the human
   can approve it remotely from their phone via \`/remote-control\`). If you genuinely
-  need a human decision, raise it with \`god\` (a message \`"to": "human"\` is routed to
-  the god/orchestrator, the human's proxy on the floor).
-- \`board.md\` is the shared plan. Don't edit it directly — \`propose\` changes to \`god\`,
+  need a human decision, raise it with \`orchestrator\` (a message \`"to": "human"\` is routed to
+  the orchestrator, the human's proxy on the floor).
+- \`board.md\` is the shared plan. Don't edit it directly — \`propose\` changes to \`orchestrator\`,
   who is its sole scribe.
 - Re-reading a message you already moved to \`.done/\` is a no-op. Don't reprocess.
 
 ## The work: board.md vs tasks.json
 There are two shared surfaces, both in the hive root:
-- \`board.md\` — the freeform narrative plan. The god agent is its sole scribe; others \`propose\` edits.
+- \`board.md\` — the freeform narrative plan. The orchestrator is its sole scribe; others \`propose\` edits.
 - \`tasks.json\` — the structured task ledger (a kanban: \`todo / doing / blocked / done\`, with title,
   assignee, priority, deps). Keep the task you're working reflected in its status.
 
 ## Asking the human (the ASK ME card)
 When a card can only move with the human — a question to answer, or an action only they can do
-(create an account, approve a spend, hand over credentials, test on their device) — the god sets the
+(create an account, approve a spend, hand over credentials, test on their device) — the orchestrator sets the
 card \`"status": "blocked"\` and appends the ask to its \`humanQA\` array:
 
 \`\`\`json
@@ -3016,7 +3040,7 @@ card \`"status": "blocked"\` and appends the ask to its \`humanQA\` array:
 \`\`\`
 
 The harness shows the open ask on the ASK ME board and in the ASK ME tab, and the human's reply lands
-in the same entry as \`"a"\` plus an inbox message to god. Every past entry stays on the card — that
+in the same entry as \`"a"\` plus an inbox message to orchestrator. Every past entry stays on the card — that
 trail is the decision history.
 
 **Write the ask short, and in markdown.** The card renders it, so plain-text asterisks and backticks
@@ -3037,12 +3061,12 @@ A circuit breaker watches every agent for runaway behavior (looping on the same 
 overspending). It escalates gently: \`steer\` → \`constrain\` → \`stop\`. If a \`Circuit breaker: steer\`
 or \`Circuit breaker: constrain\` message lands in your inbox, you ARE the problem it caught — stop
 repeating, summarize what you've tried, and do exactly what the message says (constrain = go read-only
-and get god's sign-off before more tool calls). Be **token-frugal**: the floor has a token budget and
+and get orchestrator's sign-off before more tool calls). Be **token-frugal**: the floor has a token budget and
 each agent can have its own token limit; crossing it trips the breaker. Prefer references over pasted
 content, and \`/compact\` your own session when context gets heavy.
 
 ## Fleet monitoring (orchestrator)
-You (god) are responsible for situational awareness. To see the live state of every agent, read
+You (orchestrator) are responsible for situational awareness. To see the live state of every agent, read
 \`fleet.json\` in the hive root — it is refreshed continuously with each agent's tokens, cost, status,
 breaker level, last tool, last-active time, and inbox backlog. Pair it with \`registry.json\` (the roster)
 and \`log.jsonl\` (the event feed). IMPORTANT: \`claude agents\` will NOT show your hive's sibling
@@ -3282,7 +3306,7 @@ module.exports.default = module.exports;
 `;
 
 // ─── opencode bridge plugin (written to <agentDir>/.opencode/plugin/) ────────
-// A bundled plugin for OpenCode (anomalyco/opencode) — god Decision 1. OpenCode
+// A bundled plugin for OpenCode (anomalyco/opencode) — orchestrator Decision 1. OpenCode
 // has no Claude-shaped Stop hook but its plugin API exposes a real session.idle
 // event; this posts cth-hook-shaped payloads to HIVE_SOCK on tool.execute.before/
 // after + session.idle. The session.idle→Stop keeps status in step (→ idle) so the

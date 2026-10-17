@@ -6,7 +6,7 @@ import { TaskDetail, parseTasks, type HiveTask } from './TasksKanban';
  * App-wide host for the task detail: whoever calls store.openTaskDetail(id) —
  * a kanban card, the sticky note on an agent's strip card, a floor prop —
  * gets the SAME big overlay rendered over the office floor. Keeps its own
- * 5s ledger poll so an open detail stays fresh while the god edits cards.
+ * 5s ledger poll so an open detail stays fresh while the orchestrator edits cards.
  */
 
 const POLL_MS = 5000;
@@ -45,7 +45,7 @@ export function TaskDetailOverlay() {
   // NORMALIZES, so re-serializing it turns a hand-written `priority: "high"`
   // into the number 3 and grafts `dependsOn: []` onto a card that spells the key
   // `deps`. Those are real values, so they survive the merge in hive.writeTasks
-  // and land on disk — a status change quietly rewriting the god's cards.
+  // and land on disk — a status change quietly rewriting the orchestrator's cards.
   const move = async (status: HiveTask['status']) => {
     const next = tasks.map((t) => (t.id === task.id ? { ...t, status } : t));
     setTasks(next); // optimistic
@@ -56,11 +56,11 @@ export function TaskDetailOverlay() {
   };
 
   const assign = () => {
-    // Route through the Command Center's dispatch box (which mails the god —
+    // Route through the Command Center's dispatch box (which mails the orchestrator —
     // the human never writes into a worker's inbox directly).
     const st = useStore.getState();
-    const god = st.agents.find((a) => a.isGod);
-    if (god) st.select(god.id);
+    const orchestrator = st.agents.find((a) => a.isOrchestrator);
+    if (orchestrator) st.select(orchestrator.id);
     const desc = task.description?.trim() ? task.description.trim() : '(no description)';
     st.requestDispatchSeed(`Task: ${task.title}\nContext: ${desc}\n`);
     st.requestCommandCenterTab('floor');

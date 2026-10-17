@@ -5,7 +5,7 @@
  * `msg.hops > HOP_CAP` with a "loop guard — drop a runaway message" comment,
  * but the harness never incremented hops and every bounce path spread `...msg`
  * unchanged: normalize copied the agent-supplied value verbatim, so the guard
- * compared a frozen 0 against 12 forever while a god↔hookless-worker relay
+ * compared a frozen 0 against 12 forever while a orchestrator↔hookless-worker relay
  * loop delivered a duplicate bounce (plus a log line and a git commit) every
  * router tick. Conversely an outbox JSON echoing `hops: 13` — a field
  * PROTOCOL.md says the HARNESS fills in — had its first delivery dropped.
@@ -13,7 +13,7 @@
  * The fix makes hops harness-owned end to end: normalize clamps the
  * agent-carried value into [0, HOP_CAP] so a copied-forward count can neither
  * fake a runaway loop nor read as one, and the four harness bounce paths now
- * go through bounceToGod(), the only place the counter moves (+1 per bounce),
+ * go through bounceToOrchestrator(), the only place the counter moves (+1 per bounce),
  * where the cap fuse actually fires — and only on a real relay loop.
  */
 
@@ -36,10 +36,10 @@ async function floor(t) {
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home);
   // hopless-1 runs kimi — no hook bridge, canReceiveInbox:false, so every
-  // direct mail to it bounces to god (the hookless path). No PTY, no sidecar,
+  // direct mail to it bounces to orchestrator (the hookless path). No PTY, no sidecar,
   // no net: routing exercises the bounce ladder with nothing running but the
   // router itself.
-  await hive.ensureAgent({ id: 'god-1', name: 'Michael', provider: 'claude', cwd: home, isGod: true });
+  await hive.ensureAgent({ id: 'orchestrator-1', name: 'Michael', provider: 'claude', cwd: home, isOrchestrator: true });
   await hive.ensureAgent({ id: 'worker-1', name: 'Dwight', provider: 'claude', cwd: home });
   await hive.ensureAgent({ id: 'hopless-1', name: 'Kimi', provider: 'kimi', cwd: home });
   const outbox = (id) => path.join(home, 'hive', 'agents', id, 'outbox');
@@ -54,16 +54,16 @@ function writeOutbox(outbox, filename, partial) {
 const dropEntries = (hive, reason) =>
   hive.logTail(5000).filter((e) => e.kind === 'drop' && e.reason === reason);
 
-test('a god↔hookless-worker relay loop is bounded and hops climbs to the cap', async (t) => {
+test('a orchestrator↔hookless-worker relay loop is bounded and hops climbs to the cap', async (t) => {
   const { hive, outbox } = await floor(t);
 
-  // The documented echo loop: god mails the hookless worker, the harness
-  // bounces to god, god's scripted relay re-sends to the worker, and so on.
-  // The god relays FAITHFULLY — it copies what it received (subject, body,
+  // The documented echo loop: orchestrator mails the hookless worker, the harness
+  // bounces to orchestrator, orchestrator's scripted relay re-sends to the worker, and so on.
+  // The orchestrator relays FAITHFULLY — it copies what it received (subject, body,
   // conversation, in_reply_to and hops verbatim) into its own outbox, exactly
   // the fields PROTOCOL.md's send schema describes, and lets the harness do
   // the rest.
-  writeOutbox(outbox('god-1'), 'm-000.json', {
+  writeOutbox(outbox('orchestrator-1'), 'm-000.json', {
     to: 'hopless-1', act: 'request', subject: 'PING — coordinate with me',
     body: 'worker asks hookless peer to sync', conversation: 'conv-echo'
   });
@@ -71,11 +71,11 @@ test('a god↔hookless-worker relay loop is bounded and hops climbs to the cap',
   const hopsSeen = [];
   for (let i = 1; i <= RELAYS; i++) {
     hive.routeOnce();
-    const bounces = hive.inbox('god-1').filter((m) => m.subject.startsWith('[undeliverable'));
+    const bounces = hive.inbox('orchestrator-1').filter((m) => m.subject.startsWith('[undeliverable'));
     const bounce = bounces[bounces.length - 1] ?? null;
     if (bounces.length < i) break; // post-fix: the fuse dropped the relay — loop is bounded
     hopsSeen.push(bounce.hops);
-    writeOutbox(outbox('god-1'), `relay-${String(i).padStart(3, '0')}.json`, {
+    writeOutbox(outbox('orchestrator-1'), `relay-${String(i).padStart(3, '0')}.json`, {
       to: 'hopless-1',
       act: 'request',
       subject: bounce.subject,
@@ -87,7 +87,7 @@ test('a god↔hookless-worker relay loop is bounded and hops climbs to the cap',
   }
   hive.routeOnce();
 
-  const bounces = hive.inbox('god-1').filter((m) => m.subject.startsWith('[undeliverable — "hopless-1"'));
+  const bounces = hive.inbox('orchestrator-1').filter((m) => m.subject.startsWith('[undeliverable — "hopless-1"'));
 
   assert.ok(
     hopsSeen.length > 0 && hopsSeen[0] === 1,
@@ -117,7 +117,7 @@ test('an agent-authored hops value cannot trip the fuse on a first delivery', as
   // outbox JSON — e.g. one copied from a forwarded thread. PROTOCOL.md promises
   // "The harness fills in `id`, `from`, `hops`, and timestamps", so a
   // sender-authored number must never read as a runaway loop.
-  writeOutbox(outbox('god-1'), 'capped.json', {
+  writeOutbox(outbox('orchestrator-1'), 'capped.json', {
     to: 'worker-1', act: 'inform', subject: 'status report', body: 'all green',
     hops: HOP_CAP + 1
   });
@@ -142,7 +142,7 @@ test('an agent-authored hops value cannot trip the fuse on a first delivery', as
 test('honest mail with no hops field still delivers', async (t) => {
   const { hive, outbox } = await floor(t);
 
-  writeOutbox(outbox('god-1'), 'ok.json', {
+  writeOutbox(outbox('orchestrator-1'), 'ok.json', {
     to: 'worker-1', act: 'inform', subject: 'plain mail', body: 'no hops field at all'
   });
   assert.equal(hive.routeOnce(), 1);

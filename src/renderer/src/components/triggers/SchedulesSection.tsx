@@ -61,7 +61,7 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
   const [mInterval, setMInterval] = useState<number>(DEFAULT_INTERVAL_MS);
   // null ⇒ the interval above is what runs. Non-null ⇒ days and a time do.
   const [mWeekly, setMWeekly] = useState<WeeklyDraft | null>(null);
-  const [mTo, setMTo] = useState<string>('god');
+  const [mTo, setMTo] = useState<string>('orchestrator');
   const [mBody, setMBody] = useState('');
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
 
   const targetName = (to: string) =>
     to === 'broadcast' ? t('schedulesSection.everyone')
-      : to === 'god' ? (agents.find((a) => a.isGod)?.name ?? 'the orchestrator')
+      : to === 'orchestrator' ? (agents.find((a) => a.isOrchestrator)?.name ?? 'the orchestrator')
         : agents.find((a) => a.id === to)?.name ?? to;
 
   return (
@@ -144,8 +144,8 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
           <Field label={t('schedulesSection.goesTo')}>
             <Select value={mTo} onChange={setMTo} style={{ width: '100%' }}>
               <option value="broadcast">{t('schedulesSection.everyone')}</option>
-              <option value="god">{agents.find((a) => a.isGod)?.name ?? 'the orchestrator'}</option>
-              {agents.filter((a) => !a.isGod).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              <option value="orchestrator">{agents.find((a) => a.isOrchestrator)?.name ?? 'the orchestrator'}</option>
+              {agents.filter((a) => !a.isOrchestrator).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </Select>
           </Field>
           <Field label={t('schedulesSection.when')}>
@@ -182,7 +182,7 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
 
 /* ─────────────────────────────── one mission ─────────────────────────────── */
 
-interface RosterAgent { id: string; name: string; isGod?: boolean }
+interface RosterAgent { id: string; name: string; isOrchestrator?: boolean }
 
 function MissionRow({ mission, targetName, agents, onPatch, onDelete }: {
   mission: ScheduledMission;
@@ -289,8 +289,8 @@ function MissionRow({ mission, targetName, agents, onPatch, onDelete }: {
           <Field label={t('schedulesSection.goesTo')}>
             <Select value={to} onChange={setTo} style={{ width: '100%' }}>
               <option value="broadcast">{t('schedulesSection.everyone')}</option>
-              <option value="god">{agents.find((a) => a.isGod)?.name ?? 'the orchestrator'}</option>
-              {agents.filter((a) => !a.isGod).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              <option value="orchestrator">{agents.find((a) => a.isOrchestrator)?.name ?? 'the orchestrator'}</option>
+              {agents.filter((a) => !a.isOrchestrator).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </Select>
           </Field>
           <Field label={t('schedulesSection.when')}>

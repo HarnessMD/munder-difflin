@@ -20,7 +20,7 @@ function harness(initialGoal = 'Ship the release safely.') {
   let goal = initialGoal;
   const hive = {
     recordSession() {},
-    isGod() { return false; }
+    isOrchestrator() { return false; }
   };
   const server = new HookServer(
     hive,

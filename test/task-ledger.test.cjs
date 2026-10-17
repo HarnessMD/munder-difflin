@@ -3,7 +3,7 @@
 /**
  * Data-loss guarantee for hive/tasks.json.
  *
- * The ledger is hand-written by the god and carries whatever fields a card
+ * The ledger is hand-written by the orchestrator and carries whatever fields a card
  * needs — `result` (the verbatim Slack reply posted back to the user), `repo`,
  * `origin`, `commit`, string priorities, a `deps` key instead of `dependsOn`.
  * Every UI surface that writes the ledger back holds only a PARTIAL model of a
@@ -26,7 +26,7 @@ const loadTs = require('./load-ts.cjs');
 const { mergeTaskLedger, patchTaskInLedger } = loadTs('src/shared/taskLedger.ts');
 const { HiveManager } = loadTs('src/main/hive.ts');
 
-/** A card as the god actually writes one — most of it outside any UI model. */
+/** A card as the orchestrator actually writes one — most of it outside any UI model. */
 const richCard = () => ({
   id: 'vxr-onboarding-review',
   title: 'Review the onboarding doc',
@@ -86,7 +86,7 @@ test('an explicit null clears a field — a missing key never does', () => {
     'not mentioning a field means "I do not model it", never "remove it"');
 });
 
-test('a card the god wrote without an id passes through instead of being dropped', () => {
+test('a card the orchestrator wrote without an id passes through instead of being dropped', () => {
   const incoming = [{ title: 'no id here', status: 'todo' }];
   assert.deepEqual(mergeTaskLedger([], incoming), incoming);
 });

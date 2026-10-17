@@ -20,7 +20,7 @@ Two data planes feed one renderer:
        ┌──────┴──────────┐        ┌──────┴─────────────┐
        │  Event Plane    │        │  Terminal Plane    │
        │  hooks / hive   │        │  node-pty PTYs     │
-       │  router + GOD   │        │  + fs + git        │
+       │  router + ORCHESTRATOR   │        │  + fs + git        │
        └────────▲────────┘        └──────▲─────────────┘
                 │ hook payloads          │ stdin / stdout
                 └─────────┬──────────────┘
@@ -36,7 +36,7 @@ Two data planes feed one renderer:
 - **Hive / event plane.** `hive.ts` is the on-disk multi-agent layer; `hooks.ts` runs the hook
   server that provider bridges POST lifecycle payloads to (`cth-hook` for Claude Code, `agy-hook`
   for Antigravity). `memory.ts` wraps the semantic memory CLI. The router delivers messages, drains
-  provider outboxes, the GOD agent adjudicates, and idle/inbox wakeups keep workers draining mail.
+  provider outboxes, the ORCHESTRATOR agent adjudicates, and idle/inbox wakeups keep workers draining mail.
 
 ## Project structure
 

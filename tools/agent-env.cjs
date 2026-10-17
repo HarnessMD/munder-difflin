@@ -79,7 +79,7 @@ function buildRecords(hiveRoot) {
       name: a.name ?? null,
       provider: a.provider ?? null,        // terminal/CLI engine: claude / codex / crush / ...
       role: a.role ?? null,
-      isGod: !!a.isGod,
+      isOrchestrator: !!a.isOrchestrator,
       archived: !!a.archived,
       // --- environment ---
       cwd,

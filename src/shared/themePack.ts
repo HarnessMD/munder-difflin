@@ -58,7 +58,7 @@ export interface ErrandSpot {
   facing: Facing;
   fx: Tile;
   duration: number;
-  godOnly?: boolean;
+  orchestratorOnly?: boolean;
 }
 export interface MonitorConfig {
   offTopLeftGid: number;
@@ -118,7 +118,7 @@ export interface PackManifest {
   fonts?: { family: string; file: string; weight?: string; slot?: 'display' | 'ui' | 'mono' }[];
   chrome?: { tokens?: string; defaultMode?: 'light' | 'dark' };
   terminal?: string;
-  copy?: { appName?: string; godName?: string };
+  copy?: { appName?: string; orchestratorName?: string };
   cast?: { roster: string; default: string };
 }
 
@@ -391,7 +391,7 @@ export function validatePack(input: ValidateInput): ValidateResult {
   if (sp && Array.isArray(sp.objects)) {
     for (const o of sp.objects as unknown[]) if (isObj(o) && typeof o.name === 'string') spawnNames.add(o.name);
   }
-  if (!spawnNames.has('desk-ceo')) err('missing-desk-ceo', 'map.tmj', "spawn point 'desk-ceo' (god's seat) is required");
+  if (!spawnNames.has('desk-ceo')) err('missing-desk-ceo', 'map.tmj', "spawn point 'desk-ceo' (orchestrator's seat) is required");
   if (manifest.seats.primary[0] !== 'desk-ceo') err('bad-seats', 'seats.primary', "seats.primary[0] must be 'desk-ceo'");
   if (manifest.seats.primary.length < 2) err('bad-seats', 'seats.primary', 'seats.primary needs desk-ceo plus at least one more seat');
   const seatRefs: string[] = [

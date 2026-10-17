@@ -8,7 +8,7 @@
  *
  * Net-new + disjoint by design: I own this file + the HUD that reads it. Kevin's
  * session (session.ts) feeds it through TWO one-line calls (the integration points
- * god assigned to him):
+ * orchestrator assigned to him):
  *   • on connect():            resetRealtimeCost()
  *   • on each usage delta:     recordRealtimeUsage(usage)
  * and may read getRealtimeCostSnapshot()/isRealtimeIdle()/the overCap flag to

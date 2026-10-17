@@ -90,7 +90,7 @@ export function AgentStrip({ config }: AgentStripProps) {
       overflowY: 'hidden',
       borderTop: '1px solid var(--cth-ink-300)',
       background: 'var(--cth-cream-200)',
-      // Tall enough for the god card to stand proud of the row (it's taller and
+      // Tall enough for the orchestrator card to stand proud of the row (it's taller and
       // rides a drop shadow) plus the hover-lift on every card, without clipping.
       height: 112,
       minHeight: 112,
@@ -144,7 +144,7 @@ export function AgentStrip({ config }: AgentStripProps) {
             contextTokens={a.contextTokens}
             contextLimit={a.contextLimit}
             selected={a.id === selectedId}
-            isGod={a.isGod}
+            isOrchestrator={a.isOrchestrator}
             onClick={() => select(a.id)}
             onRename={(name) => renameAgent(a.id, name)}
             doingCount={doingByAgent[a.id]?.length ?? 0}
@@ -153,7 +153,7 @@ export function AgentStrip({ config }: AgentStripProps) {
               if (first) openTaskDetail(first);
             }}
             note={a.note}
-            onEditNote={a.isGod ? undefined : () => setNoteEditId(a.id)}
+            onEditNote={a.isOrchestrator ? undefined : () => setNoteEditId(a.id)}
           />
           {/* The note itself lives INSIDE the card (its own row above the gauge).
               This is the transient EDITOR: a fixed popover ABOVE the card —

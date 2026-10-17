@@ -1,7 +1,7 @@
 'use strict';
 // The watchdog's blind spot: a worker that never took its first turn.
 //
-// Observed live 2026-09-06: a god-spawned worker sat 17 minutes on its work
+// Observed live 2026-09-06: a orchestrator-spawned worker sat 17 minutes on its work
 // order — 0 tokens, no transcript, mail unread — and the watchdog never fired.
 // Its rules infer "busy" from PTY output and "booting" from no output, but a
 // TUI redraws its chrome without doing any work and the boot sequence itself is
@@ -229,7 +229,7 @@ test('the stall rule never overrides paused / halted / HITL / cooldown / boot gr
 
 test('explain names every hold so the beat can log why a worker starves', () => {
   const w = watchdog();
-  assert.equal(w.explain(chatty({ isGod: true }), NOW), 'god');
+  assert.equal(w.explain(chatty({ isOrchestrator: true }), NOW), 'orchestrator');
   assert.equal(w.explain(chatty({ inboxIds: [] }), NOW), 'no-mail');
   assert.equal(w.explain(chatty({ inboxIds: ['', 42] }), NOW), 'no-mail', 'junk ids do not count as mail');
   assert.equal(w.explain(chatty({ ptyId: undefined }), NOW), 'no-pty');

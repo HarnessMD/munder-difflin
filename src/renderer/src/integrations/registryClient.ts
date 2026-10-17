@@ -7,7 +7,7 @@
 // src/main/index.ts (integrations:list / templates / upsert / setSecret / remove /
 // test). The real path calls window.cth.* (Jim's preload bridge).
 //
-// ⚠️ The preload bridge is NOT landed yet (Jim owns it — god relays when it's in).
+// ⚠️ The preload bridge is NOT landed yet (Jim owns it — orchestrator relays when it's in).
 // Until then this falls back to an in-memory mock so the UI is fully usable in dev.
 // The real path is FEATURE-DETECTED: the moment Jim's preload methods appear it
 // activates with NO change here. Two coordination notes:
@@ -16,7 +16,7 @@
 //      Jim: expose exactly these (or tell me the names) so the detect matches.
 //   2. The catalog served by `integrations:templates` is Jim's `INTEGRATION_TEMPLATES`
 //      (the 2 v1 reference templates). Dwight's richer src/shared/integrationTemplates.ts
-//      is a SEPARATE, currently-unwired file — reconciliation is a god/Jim/Dwight call.
+//      is a SEPARATE, currently-unwired file — reconciliation is a orchestrator/Jim/Dwight call.
 //
 // SECURITY INVARIANT (matches §2): a secret value flows ONE WAY — from the form
 // into save()'s setSecret call and onward to the encrypted store. It is NEVER read

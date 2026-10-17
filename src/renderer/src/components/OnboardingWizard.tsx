@@ -12,7 +12,7 @@ import {
 } from '@shared/engineAvailability';
 import type { ToolStatus } from '@shared/toolCatalog';
 import type { PackSummary } from '@shared/themePack';
-import { useResolvedGodName } from '@/hooks/useResolvedGodName';
+import { useResolvedOrchestratorName } from '@/hooks/useResolvedOrchestratorName';
 import { setAppTheme, useAppTheme, type AppTheme } from '@/design/theme';
 
 export interface OnboardingWizardProps {
@@ -91,8 +91,8 @@ const PROVIDER_BLURB_KEYS: Partial<Record<AgentProvider, string>> = {
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const { t } = useTranslation();
-  // Onboarding runs before god exists in the store, so read the persisted name.
-  const godName = useResolvedGodName();
+  // Onboarding runs before orchestrator exists in the store, so read the persisted name.
+  const orchestratorName = useResolvedOrchestratorName();
   const [step, setStep] = useState<Step>('persona');
   // Self-identified audience (item 1). Undefined until chosen on the first screen;
   // the rest of the wizard reads `plain` to swap copy registers.
@@ -105,8 +105,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   // Anonymous usage stats (TELEMETRY.md). Default ON (opt-out); persisted by
   // finish() so unchecking before finishing means nothing is ever sent.
   const [shareStats, setShareStats] = useState<boolean>(true);
-  const [godProvider, setGodProvider] = useState<AgentProvider>('claude');
-  const [godModel, setGodModel] = useState<string | undefined>(
+  const [orchestratorProvider, setOrchestratorProvider] = useState<AgentProvider>('claude');
+  const [orchestratorModel, setOrchestratorModel] = useState<string | undefined>(
     providerPreset('claude').recommendedOrchestratorModel
   );
   const [error, setError] = useState<string | undefined>();
@@ -163,7 +163,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     finally { setProbing(false); }
   };
   useEffect(() => { void probeEngines(); }, []);
-  const selectedEngine = classifyEngineAvailability(engines, godProvider);
+  const selectedEngine = classifyEngineAvailability(engines, orchestratorProvider);
   const engineBlocked = engineBlocksOnboarding(selectedEngine);
 
   // Permissions & reliability toggles. These apply IMMEDIATELY on change (their
@@ -244,9 +244,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     if (!harnessHome) { setError(t('onboarding.errPickHome')); setBusy(false); setStep('home'); return; }
     // The orchestrator step already refuses to advance on this, but a late probe
     // result can change the answer after the user has moved on. Never write a
-    // godProvider that is known to be unable to boot.
+    // orchestratorProvider that is known to be unable to boot.
     if (engineBlocked) {
-      setError(t('onboarding.errEngineNotInstalled', { label: providerPreset(godProvider).label }));
+      setError(t('onboarding.errEngineNotInstalled', { label: providerPreset(orchestratorProvider).label }));
       setBusy(false); setStep('orchestrator'); return;
     }
     const ensure = await window.cth.ensureHarnessHome(harnessHome);
@@ -261,8 +261,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       harnessHome, // the same trimmed value we just mkdir'd, not the raw field
       registeredRepos: repos,
       autoMode,
-      godProvider,
-      godModel,
+      orchestratorProvider,
+      orchestratorModel,
       telemetryEnabled: shareStats,
       officeTheme: selectedPack
     });
@@ -401,7 +401,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                           fontSize: 10, lineHeight: '14px', marginBottom: 3
                           // These labels are literal caps to match their siblings, so
                           // the orchestrator's name has to arrive upper-cased too.
-                        }}>{t(f.labelKey, { godName: godName.toUpperCase() })}</div>
+                        }}>{t(f.labelKey, { orchestratorName: orchestratorName.toUpperCase() })}</div>
                         <div style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-700)' }}>
                           {plain ? t(f.descPlainKey) : t(f.descKey)}
                         </div>
@@ -568,7 +568,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                   <span style={{ flexShrink: 0, marginTop: 1 }}><Icon name="sparkle" /></span>
                   <span>
                     {plain ? (
-                      <Trans i18nKey="onboarding.orchestrator.cliAgentPlain" values={{ godName }} components={{ strong: <strong /> }}>
+                      <Trans i18nKey="onboarding.orchestrator.cliAgentPlain" values={{ orchestratorName }} components={{ strong: <strong /> }}>
                         A <strong>CLI agent</strong> is an AI coding assistant that runs on your
                         computer — popular ones are Claude Code (Anthropic), Codex (OpenAI) and
                         Antigravity (Google Gemini). <strong>Your clone</strong> is the always-on
@@ -576,12 +576,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                         You can add or switch the others later.
                       </Trans>
                     ) : (
-                      <Trans i18nKey="onboarding.orchestrator.cliAgent" values={{ godName }} components={{ strong: <strong /> }}>
+                      <Trans i18nKey="onboarding.orchestrator.cliAgent" values={{ orchestratorName }} components={{ strong: <strong /> }}>
                         Each option is a <strong>CLI engine</strong> (Claude Code, Codex,
                         Antigravity/Gemini, or a local proxy like Qwen). Engines marked
                         INSTALLED are already on this machine; INSTALLS ON FIRST RUN means the app
-                        sets it up when {godName} first starts.
-                        <strong> Your clone</strong> ({godName}) is the engine that orchestrates the whole
+                        sets it up when {orchestratorName} first starts.
+                        <strong> Your clone</strong> ({orchestratorName}) is the engine that orchestrates the whole
                         hive. Recommended: Claude Code · Opus 4.8 · 1M. Other providers can be wired
                         per agent later.
                       </Trans>
@@ -591,7 +591,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {onboardingEngineChoices().eligible.map((p) => {
-                    const sel = godProvider === p.id;
+                    const sel = orchestratorProvider === p.id;
                     return (
                       <label key={p.id} style={{
                         display: 'flex', alignItems: 'center', gap: 10,
@@ -602,14 +602,14 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       }}>
                         <input
                           type="radio"
-                          name="godProvider"
+                          name="orchestratorProvider"
                           value={p.id}
                           checked={sel}
                           onChange={() => {
-                            setGodProvider(p.id);
+                            setOrchestratorProvider(p.id);
                             // Reset the model to the new provider's recommended pick so the
                             // dropdown below always shows a valid model for the chosen engine.
-                            setGodModel(p.recommendedOrchestratorModel);
+                            setOrchestratorModel(p.recommendedOrchestratorModel);
                           }}
                           style={{ width: 16, height: 16, flexShrink: 0 }}
                         />
@@ -666,7 +666,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
                       cursor: 'not-allowed', opacity: 0.75
                     }}>
-                      <input type="radio" name="godProvider" value={p.id} checked={false} disabled
+                      <input type="radio" name="orchestratorProvider" value={p.id} checked={false} disabled
                         style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <span style={{
                         width: 22, height: 22, flexShrink: 0, display: 'flex',
@@ -697,7 +697,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 2px var(--cth-ink-900)',
                     fontSize: 12, lineHeight: '17px', color: 'var(--cth-ink-900)'
                   }}>
-                    <span>{engineAvailabilityMessage(selectedEngine, providerPreset(godProvider).label)}</span>
+                    <span>{engineAvailabilityMessage(selectedEngine, providerPreset(orchestratorProvider).label)}</span>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                       <PixelButton variant="secondary" size="sm" onClick={() => { void probeEngines(); }} disabled={probing}>
                         {probing ? 'checking...' : 'check again'}
@@ -713,11 +713,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>{t('onboarding.orchestrator.model')}</div>
                   <select
-                    value={godModel ?? ''}
-                    onChange={(e) => setGodModel(e.target.value || undefined)}
+                    value={orchestratorModel ?? ''}
+                    onChange={(e) => setOrchestratorModel(e.target.value || undefined)}
                     style={inputStyle}
                   >
-                    {modelsForProvider(godProvider).map((m) => (
+                    {modelsForProvider(orchestratorProvider).map((m) => (
                       <option key={m.label} value={m.id ?? ''}>{m.label}</option>
                     ))}
                   </select>
@@ -938,7 +938,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       // screen, instead of letting a pick that cannot boot through
                       // to a Michael that never starts.
                       if (step === 'orchestrator' && engineBlocked) {
-                        setError(`${providerPreset(godProvider).label} is not installed. Install it and press "check again", or pick another engine.`);
+                        setError(`${providerPreset(orchestratorProvider).label} is not installed. Install it and press "check again", or pick another engine.`);
                         return;
                       }
                       setError(undefined);

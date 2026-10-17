@@ -6,7 +6,7 @@
  * task for completion and EMITS a completion event so the rest of the realtime stack can
  * make Michael speak it unprompted ("Oscar finished — want details?").
  *
- * OWNERSHIP / SEAM (rt-12 split, god-ruled 2026-06-25): this module is OWNED by Jim and
+ * OWNERSHIP / SEAM (rt-12 split, orchestrator-ruled 2026-06-25): this module is OWNED by Jim and
  * is deliberately DISJOINT from Kevin's realtime CORE files. It NEVER imports session.ts
  * / the live RealtimeSession / electron — it only takes injected readers + a clock and
  * EMITS via callbacks. Kevin's side subscribes `onCompletion(...)` and pushes the event

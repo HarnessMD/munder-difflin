@@ -43,7 +43,7 @@ ABOVE_POLY = POLY_FURN[0]   # the conn/ops arc draws over seated crew
 
 # seats: name -> reference px of the chair
 SEATS = {
-    "desk-ceo": (767, 470),            # captain's chair (god)
+    "desk-ceo": (767, 470),            # captain's chair (orchestrator)
     "desk-first-officer": (620, 470),  # flank L
     "desk-counselor": (913, 470),      # flank R
     "desk-conn": (650, 598),

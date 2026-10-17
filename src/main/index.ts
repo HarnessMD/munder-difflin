@@ -66,7 +66,7 @@ import { buildWorkerLaunch } from './workerLaunch';
 import { ControlRegistry } from './control';
 import { WorkerWakeWatchdog, WORKER_WAKE_REPORT_MS, activityEvidenceAt, type WorkerWakeFacts } from './workerWake';
 import { inboxNudgeText } from '../shared/hiveNudge';
-import { resolveGodName } from '../shared/godIdentity';
+import { resolveOrchestratorName } from '../shared/orchestratorIdentity';
 import { fetchHireManifest, readHireManifestFiles } from './hire';
 import { parseHireDeepLink, type HireManifest } from '../shared/hire';
 import { ClosingTimeController } from './closingTime';
@@ -352,7 +352,7 @@ const reflector = new MemoryReflector(
 // Durable harness state (SQLite, main process). Phase A: window bounds (kv) +
 // net-new command history. Opened in whenReady, closed in the teardown blocks.
 const persist = new PersistStore();
-/** The PRIMARY window — the one running the hive/god orchestration and the sink
+/** The PRIMARY window — the one running the hive/orchestrator orchestration and the sink
  *  for process-global timer events (missions, breaker, Slack ingestion). It is
  *  the most-recently-focused live window, so global events follow the user.
  *  Additional "floor" windows are tracked in `allWindows` below. */
@@ -375,7 +375,7 @@ const worktreePaths = new Map<string, string>();
  *  `git worktree remove` from the parent tree, not the worktree itself). */
 const worktreeOrigins = new Map<string, string>();
 
-/** A live god-triggered ephemeral worker, tracked from spawn to teardown. */
+/** A live orchestrator-triggered ephemeral worker, tracked from spawn to teardown. */
 interface WorkerRec {
   workerId: string;       // == the PTY id == hive agent id (`worker-<reqId>`)
   reqId: string;          // the spawn-request id
@@ -390,7 +390,7 @@ interface WorkerRec {
 }
 /** Live ephemeral workers by id. Populated by the spawn-request watcher; consulted
  *  by teardownPty so a finished/crashed/reaped worker's worktree is PRESERVED (not
- *  force-removed) when it holds unintegrated work — god is the sole integrator. */
+ *  force-removed) when it holds unintegrated work — orchestrator is the sole integrator. */
 const liveWorkers = new Map<string, WorkerRec>();
 
 /** The loopback secret broker (Phase 2). Workers reach registered integrations through
@@ -512,11 +512,11 @@ function teardownPty(id: string): void {
   syncKeepAwake();
 }
 
-/** Send an inform to the god agent (the human's proxy). The ephemeral-worker
+/** Send an inform to the orchestrator (the human's proxy). The ephemeral-worker
  *  controller uses this to surface every terminal failure AND to carry the Slack
- *  {channel,thread_ts} so god can post a 'couldn't complete' reply — closing the
+ *  {channel,thread_ts} so orchestrator can post a 'couldn't complete' reply — closing the
  *  Slack loop (the success path is the worker replying in-thread itself). */
-function informGod(subject: string, body: string, slack?: { channel: string; thread_ts: string }): void {
+function informOrchestrator(subject: string, body: string, slack?: { channel: string; thread_ts: string }): void {
   try {
     const slackLine = slack
       // The bundled-node launcher, spelled as an ABSOLUTE PATH — NOT bare `node`
@@ -525,14 +525,14 @@ function informGod(subject: string, body: string, slack?: { channel: string; thr
       // whole reply command was dead on Windows).
       ? `\n\n[SLACK] Close the loop — post a reply to channel ${slack.channel} thread ${slack.thread_ts} via:\n  "${hive.nodeCommand()}" "${slackReplyScriptPath()}" --channel ${slack.channel} --thread ${slack.thread_ts} --text "<your message>"`
       : '';
-    hive.send({ to: 'god', act: 'inform', subject, body: body + slackLine }, 'ephemeral-worker');
+    hive.send({ to: 'orchestrator', act: 'inform', subject, body: body + slackLine }, 'ephemeral-worker');
   } catch (e) {
-    console.error('[worker] informGod failed:', e);
+    console.error('[worker] informOrchestrator failed:', e);
   }
 }
 
 /** Gated worktree teardown for an ephemeral worker: remove it ONLY when it holds no
- *  unintegrated work; otherwise leave it (and its branch) in place and ping god, the
+ *  unintegrated work; otherwise leave it (and its branch) in place and ping orchestrator, the
  *  sole integrator. Async + best-effort; on any uncertainty it KEEPS the worktree
  *  (fail-safe — never auto-discard possibly-valuable work). */
 async function finalizeWorkerWorktree(wtPath: string, origCwd: string, worker: WorkerRec): Promise<void> {
@@ -548,7 +548,7 @@ async function finalizeWorkerWorktree(wtPath: string, origCwd: string, worker: W
         workerId: worker.workerId, wtPath, origCwd, baseBranch: worker.baseBranch,
         scratchDir: workerScratchDir(worker.workerId), slack: worker.slack, preservedAt: Date.now()
       });
-      informGod(
+      informOrchestrator(
         `[worker worktree preserved] ${worker.workerId}`,
         `Ephemeral worker ${worker.workerId} ended but its worktree holds unintegrated work, so it was NOT auto-removed (you are the sole integrator).\n`
         + `Worktree: ${wtPath}\nBranch: ${work.branch}\nState: ${work.detail}\n`
@@ -907,10 +907,10 @@ function syncContextTriggers(): void {
  *  entry is therefore a stale carry-over from a prior session that quit/crashed
  *  WITHOUT archiving (e.g. the pre-acc13a3 'assistant' Dwight entry). Left as-is
  *  they have no live PTY, so the breaker beat steers them and the steer bounces to
- *  GOD as a requires_reply GOD can't clear → inbox flood.
+ *  ORCHESTRATOR as a requires_reply ORCHESTRATOR can't clear → inbox flood.
  *
  *  "No live PTY" = ptyForAgent(id) === undefined (ptyToAgent is populated only at
- *  spawn and pruned on teardown). God is never archived. A user's real agents are
+ *  spawn and pruned on teardown). Orchestrator is never archived. A user's real agents are
  *  unaffected: the "restore team" flow respawns them through ensureAgent, which
  *  re-clears `archived` — restorability does not depend on the archived flag. */
 function archiveOrphanedAgents(): void {
@@ -919,7 +919,7 @@ function archiveOrphanedAgents(): void {
     const reg = hive.registry();
     for (const [id, a] of Object.entries(reg.agents)) {
       if (a.archived) continue;
-      if (id === reg.godId) continue;        // god is never archived
+      if (id === reg.orchestratorId) continue;        // orchestrator is never archived
       if (ptyForAgent(id)) continue;         // has a live PTY → genuinely active
       hive.setArchived(id, true);            // stale archived:false orphan → archive
       console.log('[migration] archived orphaned agent (no live PTY):', id);
@@ -1126,7 +1126,7 @@ function looksStuck(windowMs: number): boolean {
   const reg = hive.registry();
   const now = Date.now();
   for (const [id, a] of Object.entries(reg.agents)) {
-    if (a.archived || id === reg.godId) continue;
+    if (a.archived || id === reg.orchestratorId) continue;
     const ptyId = ptyForAgent(id);
     if (!ptyId) continue;
     const idle = ptyManager.idleFor(ptyId) ?? Infinity;
@@ -1135,18 +1135,18 @@ function looksStuck(windowMs: number): boolean {
   return false;
 }
 
-/** Bounded digest for god — paths + counts, never full files (reference-passing,
+/** Bounded digest for orchestrator — paths + counts, never full files (reference-passing,
  *  #6.2). A few hundred tokens at most. */
 function buildHeartbeatDigest(quietMs: number, actionable = 0): string {
   const reg = hive.registry();
-  const active = Object.entries(reg.agents).filter(([id, a]) => !a.archived && id !== reg.godId);
+  const active = Object.entries(reg.agents).filter(([id, a]) => !a.archived && id !== reg.orchestratorId);
   const names = active.map(([, a]) => a.name).join(', ') || '—';
   const boardHead = hive.board().split('\n').slice(0, 10).join('\n').trim();
   const log = hive.logTail(8).map((e) => { try { return JSON.stringify(e); } catch { return ''; } }).filter(Boolean).join('\n');
   const withInbox = active.filter(([id]) => hive.inbox(id).length > 0).map(([, a]) => a.name);
   // When real agent/human mail is waiting, lead with an explicit call-to-action
   // instead of the "quiet" line — this beat fired BECAUSE of unread actionable
-  // inbox, not because the floor went quiet, and god must read it now.
+  // inbox, not because the floor went quiet, and orchestrator must read it now.
   const header = actionable > 0
     ? `Floor heartbeat — ${actionable} actionable inbox message(s) awaiting you (worker/human mail). Drain your inbox NOW and act on them.`
     : `Floor heartbeat — quiet ~${Math.round(quietMs / 60000)}m.`;
@@ -1167,31 +1167,31 @@ function buildHeartbeatDigest(quietMs: number, actionable = 0): string {
 
 /** Senders whose mail is the scheduler's OWN noise (heartbeat beats, ops-standup
  *  via 'scheduler', breaker steers, generic 'system') — never a reason to wake
- *  god. Everything else (a worker agent id, 'webhook', a human reply) is real
- *  mail god must act on. Kept narrow so any future real sender counts by default. */
+ *  orchestrator. Everything else (a worker agent id, 'webhook', a human reply) is real
+ *  mail orchestrator must act on. Kept narrow so any future real sender counts by default. */
 const SYSTEM_SENDERS = new Set(['heartbeat', 'scheduler', 'breaker', 'system']);
 
-/** Count of UNREAD actionable messages in god's inbox — real agent/human mail,
+/** Count of UNREAD actionable messages in orchestrator's inbox — real agent/human mail,
  *  excluding the scheduler's own beats. Drives an inbox-aware re-engage so a
  *  worker's reply (or a human answer) doesn't sit unread while the floor is busy:
  *  the floor-quiet gate alone misses that case — any active agent keeps the floor
- *  "loud", so god was never re-engaged until everything else went idle. */
-function godActionableInboxCount(): number {
+ *  "loud", so orchestrator was never re-engaged until everything else went idle. */
+function orchestratorActionableInboxCount(): number {
   try {
-    const godId = hive.registry().godId;
-    if (!godId) return 0;
-    return hive.inbox(godId).filter((m) => !SYSTEM_SENDERS.has(m.from)).length;
+    const orchestratorId = hive.registry().orchestratorId;
+    if (!orchestratorId) return 0;
+    return hive.inbox(orchestratorId).filter((m) => !SYSTEM_SENDERS.has(m.from)).length;
   } catch { return 0; }
 }
 
-/** Re-engage a quiet floor: drop a durable digest into god's inbox. We never
- *  type directly into god's PTY here — if he's busy that would jam mid-step. The
+/** Re-engage a quiet floor: drop a durable digest into orchestrator's inbox. We never
+ *  type directly into orchestrator's PTY here — if he's busy that would jam mid-step. The
  *  inbox message is delivered by the renderer's busy-aware inbox-wake (it nudges
- *  god to read his inbox only once he's idle), so the heartbeat defers around a
- *  working god instead of interrupting him. */
-function reengageGod(digest: string): void {
+ *  orchestrator to read his inbox only once he's idle), so the heartbeat defers around a
+ *  working orchestrator instead of interrupting him. */
+function reengageOrchestrator(digest: string): void {
   if (!hive.enabled()) return;
-  hive.send({ to: 'god', act: 'request', subject: 'Heartbeat', body: digest }, 'heartbeat');
+  hive.send({ to: 'orchestrator', act: 'request', subject: 'Heartbeat', body: digest }, 'heartbeat');
 }
 
 /** A native toast for breaker constrain/stop, gated on the notifications setting. */
@@ -1204,8 +1204,8 @@ function breakerToast(title: string, body: string): void {
 /** One circuit-breaker beat: pull a fresh usage sample per active agent, append
  *  it to the durable cost ledger (the SOLE durable cost store), tick the breaker,
  *  emit each BreakerState on control:breakerState (Seam 2), and enforce any
- *  escalation. God is in the LEDGER (cost visibility) but NOT the breaker inputs
- *  (the heartbeat manages god; we never auto-steer/kill the orchestrator). */
+ *  escalation. Orchestrator is in the LEDGER (cost visibility) but NOT the breaker inputs
+ *  (the heartbeat manages orchestrator; we never auto-steer/kill the orchestrator). */
 function runBreakerBeat(progressWindowMs: number): void {
   if (!hive.enabled()) return;
   const reg = hive.registry();
@@ -1216,13 +1216,13 @@ function runBreakerBeat(progressWindowMs: number): void {
     // #57/#58: skip assistant + orphaned shells. The breaker must only evaluate
     // live, real agents. An assistant entry (e.g. the pre-acc13a3 headless
     // 'Dwight') or any orphaned entry left archived:false with NO live PTY would
-    // otherwise be steered, and that steer bounces to GOD as a requires_reply GOD
+    // otherwise be steered, and that steer bounces to ORCHESTRATOR as a requires_reply ORCHESTRATOR
     // can't clear → inbox flood. ptyForAgent(id) === undefined means no live PTY.
-    // God is exempt from this orphan check (it keeps its own flow + the godId skip
+    // Orchestrator is exempt from this orphan check (it keeps its own flow + the orchestratorId skip
     // below) so its ledger row is unaffected. Live real agents always own a PTY
     // (ptyToAgent is set at spawn), so their breaker behavior is unchanged.
     if (a.isAssistant) continue;
-    if (id !== reg.godId && !ptyForAgent(id)) continue;
+    if (id !== reg.orchestratorId && !ptyForAgent(id)) continue;
     const sample = usageProvider.getAgentUsage(id);
     // #56: only append a ledger row for a LIVE session sample. A dead/orphaned
     // agent with a frozen transcript still yields a sample via the transcript
@@ -1237,7 +1237,7 @@ function runBreakerBeat(progressWindowMs: number): void {
       // change". Short-circuits before the gate for everyone else, leaving the
       // live-OTel path exactly as it was.
       const moved = a.provider !== 'grok' || grokLedgerGate.admits(sample);
-      if (moved) hive.appendCostLedger(sample); // ledger covers everyone incl. god
+      if (moved) hive.appendCostLedger(sample); // ledger covers everyone incl. orchestrator
     }
     // Second source for the resume key. recordSession() is otherwise reachable
     // ONLY from the hook shim, so any window where hooks don't land leaves the
@@ -1247,7 +1247,7 @@ function runBreakerBeat(progressWindowMs: number): void {
     // same liveness gate; recordSession writes only on change, so this is a
     // no-op once the hooks are flowing.
     if (sample?.sessionId) hive.recordSession(id, sample.sessionId);
-    if (id === reg.godId) continue;            // breaker skips god
+    if (id === reg.orchestratorId) continue;            // breaker skips orchestrator
     // Progress = fresh coordination files OR a recent OTel tool span. The span
     // leg closes the background-work blind spot: subagent/Workflow tool calls
     // never reach the parent session's PostToolUse hook (so the breaker's own
@@ -1273,10 +1273,10 @@ function runBreakerBeat(progressWindowMs: number): void {
     const reason = d.state.reason;
     if (d.action === 'steer') {
       hive.send({ to: d.state.agentId, act: 'request', subject: 'Circuit breaker: steer',
-        body: `Automated guardrail: ${reason}. Re-check your approach — if you're looping or stuck, STOP repeating, summarize what you've tried, and ask god for direction.` }, 'breaker');
+        body: `Automated guardrail: ${reason}. Re-check your approach — if you're looping or stuck, STOP repeating, summarize what you've tried, and ask orchestrator for direction.` }, 'breaker');
     } else if (d.action === 'constrain') {
       hive.send({ to: d.state.agentId, act: 'request', subject: 'Circuit breaker: constrain',
-        body: `Automated guardrail escalated: ${reason}. Stop active work now: switch to read-only/plan, write a short plan of your next step, and send it to god for sign-off BEFORE running more tools.` }, 'breaker');
+        body: `Automated guardrail escalated: ${reason}. Stop active work now: switch to read-only/plan, write a short plan of your next step, and send it to orchestrator for sign-off BEFORE running more tools.` }, 'breaker');
       breakerToast(`${name} constrained`, reason);
     } else if (d.action === 'stop') {
       const ptyId = ptyForAgent(d.state.agentId);
@@ -1317,9 +1317,9 @@ function writeFleetSnapshot(): void {
         return {
           id,
           name: a.name,
-          role: a.role ?? (a.isGod ? 'orchestrator' : 'agent'),
+          role: a.role ?? (a.isOrchestrator ? 'orchestrator' : 'agent'),
           cwd: a.cwd,
-          isGod: !!a.isGod,
+          isOrchestrator: !!a.isOrchestrator,
           breaker: breaker.levelFor(id),
           tokens,
           usd: lifetime === null ? sessionUsd : Number(lifetime.toFixed(4)),
@@ -1330,7 +1330,7 @@ function writeFleetSnapshot(): void {
           onHold: !!a.onHold
         };
       });
-    // `hooks` is the control plane's own health (#277): god and the operator
+    // `hooks` is the control plane's own health (#277): orchestrator and the operator
     // can read from fleet.json whether hooks are being enforced at all.
     hive.writeFleetSnapshot({ ts: now, agents, hooks: hookServer.health() });
   } catch (e) {
@@ -1350,12 +1350,12 @@ function armHeartbeat(m: ScheduledMission): void {
     let next = base;
     try {
       // (the breaker beat + cost ledger now run on their own always-on timer)
-      // Re-engage god when the floor is quiet OR when real agent/human mail is
-      // waiting in god's inbox — the latter is independent of floor-quiet so a
+      // Re-engage orchestrator when the floor is quiet OR when real agent/human mail is
+      // waiting in orchestrator's inbox — the latter is independent of floor-quiet so a
       // worker's reply doesn't sit unread while other agents keep the floor busy.
-      const actionable = godActionableInboxCount();
+      const actionable = orchestratorActionableInboxCount();
       if (isFloorQuiet(quiet) || actionable > 0) {
-        reengageGod(buildHeartbeatDigest(quiet, actionable));
+        reengageOrchestrator(buildHeartbeatDigest(quiet, actionable));
         next = Math.round(base * 2.5);            // back off after re-engaging
       } else if (looksStuck(quiet)) {
         next = Math.max(30_000, Math.round(base / 4)); // tighten when an agent is wedged
@@ -1402,11 +1402,11 @@ let lastSlackUrl: string | undefined;
 
 /** AUTONOMOUS REQUEST PROTOCOL — built PER MESSAGE (not a static const) so it can
  *  embed the request's concrete `channel`, `thread_ts`, and the resolved helper
- *  path. Prepended (server-side, authoritatively) to the working instruction god
+ *  path. Prepended (server-side, authoritatively) to the working instruction orchestrator
  *  reads for any Slack-origin request: there is no interactive human at the
- *  keyboard, so god must route fast, delegate WITH the exact reply command (so the
+ *  keyboard, so orchestrator must route fast, delegate WITH the exact reply command (so the
  *  worker posts its real result back into THIS thread itself), stay autonomous,
- *  and only block on enumerated high-severity actions. Prepended to god's PROMPT
+ *  and only block on enumerated high-severity actions. Prepended to orchestrator's PROMPT
  *  only — the human-facing kanban card TITLE stays the user's raw text (the
  *  renderer keeps them split). Trailing space is intentional so the user's message
  *  reads naturally after it. */
@@ -1416,7 +1416,7 @@ function buildAutonomousRequestProtocol(channel: string, threadTs: string, helpe
 2. DELEGATE WITH THE REPLY HANDLE — tell that agent to do the work autonomously AND to post its result back to THIS Slack thread itself when done, using exactly: "${hive.nodeCommand()}" "${helperPath}" --channel ${channel} --thread ${threadTs} --text "<substantive result>" (that first path is the harness's bundled Node, already resolved for this machine — pass it verbatim; bare "node" is not on the hook/agent PATH on many machines.)
 3. AUTONOMOUS EXECUTION — no interactive questions. PAUSE/ask ONLY for high-severity actions: pushing to main or any remote; buying or spawning infrastructure or paid services; deleting an existing repo, file, or folder it did not create. Stay READ-ONLY at critical infrastructure and git-push-type changes unless explicitly approved.
 4. DIRECT, SUBSTANTIVE REPLY — the agent posts a real Slack-mrkdwn answer (short *bold* headline + the actual outcome/specifics/links), NEVER a bare "done"/":white_check_mark:".
-5. REPORT TO GOD — the agent then tells you (Michael) what it did.
+5. REPORT TO ORCHESTRATOR — the agent then tells you (Michael) what it did.
 6. ASYNC QUESTIONS — if a decision is genuinely needed, don't block: post the question + numbered OPTIONS to the thread via that reply command, and record {q, options, askedAt (ISO + day & time), thread_ts ${threadTs}} so the threaded human reply correlates back and resumes.
 The user's message starts now: `;
 }
@@ -1715,10 +1715,10 @@ async function startSlackServer(): Promise<{ ok: boolean; url?: string; error?: 
       );
       // `text` stays the user's RAW Slack text → drives the readable kanban card
       // title. `autonomyPreamble` is the authoritative policy block the renderer
-      // prepends ONLY to god's working instruction (his PTY prompt), keeping the
+      // prepends ONLY to orchestrator's working instruction (his PTY prompt), keeping the
       // card title human-facing-clean. Built PER MESSAGE so the AUTONOMOUS REQUEST
       // PROTOCOL carries THIS request's concrete channel, thread_ts, and the
-      // resolved helper path — god hands the worker an exact reply command.
+      // resolved helper path — orchestrator hands the worker an exact reply command.
       // Server-side so it applies to every session.
       const ipcMsg: { text: string; channel: string; ts: string; thread_ts: string; autonomyPreamble: string; files?: typeof localFiles } = {
         text: m.text, channel: m.channel, ts: m.ts, thread_ts: m.thread_ts,
@@ -1863,15 +1863,15 @@ function notifyTriggerHistoryUpdated(): void {
 }
 
 /**
- * Create the stamped kanban card for an inbound message and route it to god.
+ * Create the stamped kanban card for an inbound message and route it to orchestrator.
  *
  * Split out of `handleWebhookMessage` because the APPROVAL path takes exactly
  * this route later — an operator saying yes must produce the same card and the
- * same god request an auto-allowed message would have, or the two paths drift
+ * same orchestrator request an auto-allowed message would have, or the two paths drift
  * and "approved" quietly means something weaker than "allowed".
  *
  * Returns false only when the card — the thing the caller polls — could not be
- * written. The god routing is best-effort: the card already exists and is
+ * written. The orchestrator routing is best-effort: the card already exists and is
  * pollable even if the send hiccups.
  */
 function dispatchWebhookWork(arg: {
@@ -1880,7 +1880,7 @@ function dispatchWebhookWork(arg: {
   message: string;
   /** Stamped onto the card so a GET can match the caller's token. */
   tokenHash?: string;
-  /** 'webhook' | 'org' — only for the subject line and the god-facing note. */
+  /** 'webhook' | 'org' — only for the subject line and the orchestrator-facing note. */
   origin: 'webhook' | 'org';
 }): boolean {
   try {
@@ -1895,7 +1895,7 @@ function dispatchWebhookWork(arg: {
       ...(arg.tokenHash ? { webhook: { tokenHash: arg.tokenHash } } : {})
     };
     // addTask appends against the latest on-disk ledger and is idempotent by task
-    // id, so a concurrent card writer (Slack, god, voice, another webhook) can't
+    // id, so a concurrent card writer (Slack, orchestrator, voice, another webhook) can't
     // have its card lost to our stale whole-ledger overwrite. (writeTasks(...existing)
     // recreated exactly that race.) A fresh taskId never collides, so this always adds.
     hive.addTask(card);
@@ -1908,14 +1908,14 @@ function dispatchWebhookWork(arg: {
   // never the raw token.
   try {
     hive.send({
-      to: 'god',
+      to: 'orchestrator',
       act: 'request',
       subject: `[${arg.origin}] ${arg.title}`,
       body: `${arg.message}\n\n(Inbound via the generic ${arg.origin} API, tracked as kanban card ${arg.taskId}. When this work is finished, set that card's status to 'done' and fill its 'result' so the caller's status check reflects the outcome.)`,
       requires_reply: false
     }, 'webhook');
   } catch (e) {
-    console.error('[webhook] could not route to god:', e instanceof Error ? e.message : e);
+    console.error('[webhook] could not route to orchestrator:', e instanceof Error ? e.message : e);
   }
   return true;
 }
@@ -1924,7 +1924,7 @@ function dispatchWebhookWork(arg: {
  * A verified POST, run through the endpoint's TriggerMode.
  *
  * `isAutoAllowed(mode, kind)` is the whole gate. When it says yes this behaves
- * exactly as the single-endpoint server always did — card, god request, capability
+ * exactly as the single-endpoint server always did — card, orchestrator request, capability
  * token. When it says no NOTHING reaches the hive: the message is written to the
  * ledger as `pending` and sits there until the operator decides, and the caller
  * is handed its token plus a 202 so it can watch the hold rather than believe
@@ -2604,7 +2604,7 @@ function findCodexHomeForSession(sessionId: string, siblingsRoot: string): strin
   }
 }
 
-/** Spawn options shared by the `pty:spawn` IPC handler and the god-triggered
+/** Spawn options shared by the `pty:spawn` IPC handler and the orchestrator-triggered
  *  ephemeral-worker watcher. */
 type AgentSpawnOptions = SpawnOptions & { hive?: AgentMeta; isolate?: boolean; resume?: boolean; requireResume?: boolean; resumeSessionId?: string; provider?: AgentProvider; noAutoInstall?: boolean };
 
@@ -2631,13 +2631,13 @@ ipcMain.handle('pty:spawn', async (evt, opts: AgentSpawnOptions) => {
 /** Core agent-spawn logic — provider inference, the missing-CLI installer
  *  short-circuit, git-worktree isolation, hive provisioning, model/resume flags,
  *  and the final PTY spawn. Extracted VERBATIM from the `pty:spawn` IPC handler so
- *  it can ALSO be invoked by the god-triggered ephemeral-worker watcher (which has
+ *  it can ALSO be invoked by the orchestrator-triggered ephemeral-worker watcher (which has
  *  no renderer `evt`). `owner` is the window that should receive this PTY's output
  *  (null → the primary window). Behavior-identical to the prior inline handler. */
 async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
   // ── cwd INGESTION — expand `~` exactly once, here ───────────────────────────
   // This is the single door every agent spawn comes through (`pty:spawn` IPC and
-  // the god-triggered ephemeral-worker watcher), so it is where a user-typed
+  // the orchestrator-triggered ephemeral-worker watcher), so it is where a user-typed
   // `~/dev/foo` becomes an absolute path. Only a shell expands `~`; Node treats it
   // as a literal dir, so without this every downstream existsSync/statSync fails
   // with `cwd does not exist`. Expanding BEFORE hive provisioning is what makes the
@@ -2826,7 +2826,7 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // silently fell back to a fresh session — returned so the dialog can surface it.
   let resumeNotFound = false;
   // Set when `--resume` was actually attached (explicit id or restore-on-restart),
-  // so the renderer can skip re-orienting a god/assistant that resumed its thread.
+  // so the renderer can skip re-orienting a orchestrator/assistant that resumed its thread.
   let didResume = false;
   // Claude-only — these are Claude Code flags; other CLIs carry their own flags
   // in the command string the renderer already built.
@@ -2848,10 +2848,10 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
     const args = argsWithAutoModeFlag(opts.args ?? [], cfg.autoMode, provider);
     // Model precedence: an explicit per-agent --model (from the renderer) wins;
     // else the user's global defaultModel; else the role-based default tier. The
-    // GOD is special-cased: it has its own engine config (godProvider/godModel), so
+    // ORCHESTRATOR is special-cased: it has its own engine config (orchestratorProvider/orchestratorModel), so
     // modelForRole resolves it and that wins over the worker-oriented defaultModel.
     if (!args.includes('--model')) {
-      const m = opts.hive.isGod
+      const m = opts.hive.isOrchestrator
         ? modelForRole(opts.hive, cfg)
         : cfg.defaultModel ?? modelForRole(opts.hive, cfg);
       if (m) args.push('--model', m);
@@ -3234,11 +3234,11 @@ ipcMain.handle('config:update', (_evt, patch: Partial<HarnessConfig>) => {
   // the launch → first-agent funnel. `provider` is the engine chosen in the wizard.
   // Fired here (main), not in the renderer, so it rides the same allowlist as the rest.
   if (!wasOnboarded && next.onboardingComplete) {
-    analytics.track('onboarding_completed', { provider: next.godProvider ?? 'claude' });
+    analytics.track('onboarding_completed', { provider: next.orchestratorProvider ?? 'claude' });
   }
   // Keep the hive's mirror of the spawn gate current. The queue itself reads
   // config per tick so it gates immediately; this is for the PROMPT, which is
-  // built per spawn, so flipping the toggle reaches god the next time he starts.
+  // built per spawn, so flipping the toggle reaches orchestrator the next time he starts.
   if (typeof patch?.orchestratorMaySpawn === 'boolean') hive.setOrchestratorMaySpawn(patch.orchestratorMaySpawn);
   if (!hiveWasEnabled && hive.enabled()) {
     console.log('[hive] harnessHome configured — bootstrapping hive services');
@@ -3815,7 +3815,7 @@ ipcMain.handle('history:search', (_evt, query: unknown, limit: unknown) =>
 
 // ─── IPC: quit confirmation ─────────────────────────────────────────────────
 /** Tear the harness down and quit. Shared by the hard "kill all & quit" path
- *  and the closing-time conclusion (after the god confirmed the floor saved). */
+ *  and the closing-time conclusion (after the orchestrator confirmed the floor saved). */
 function teardownAndQuit(): void {
   allowQuit = true;
   // Each teardown step is best-effort: a throw here (e.g. a dying child or a
@@ -3858,8 +3858,8 @@ ipcMain.handle('window:newFloor', () => {
 });
 
 // ─── IPC: closing time (graceful, data-loss-free shutdown) ──────────────────
-// The third quit-dialog button. The god broadcasts closing time, every worker
-// saves its memory and ACKs, the god concludes with CLOSING-TIME-COMPLETE —
+// The third quit-dialog button. The orchestrator broadcasts closing time, every worker
+// saves its memory and ACKs, the orchestrator concludes with CLOSING-TIME-COMPLETE —
 // only then does the harness tear down. See closingTime.ts for the protocol.
 const closingTime = new ClosingTimeController(
   hive,
@@ -3936,14 +3936,14 @@ ipcMain.handle('hive:agentContext', (_evt, agentId: unknown) => {
 // A consolidated, NON-SENSITIVE per-agent directory for the voice read-layer
 // (Realtime Michael's get_agent_detail / list_agents). One read that joins
 // everything the office-floor sidebar + telemetry know per agent: the registry
-// record (name/role/provider/cwd/status/archived/isGod/isAssistant/sessionId/
+// record (name/role/provider/cwd/status/archived/isOrchestrator/isAssistant/sessionId/
 // cwdValid), live token + breaker + last-tool telemetry, and the current context
 // window fill. Includes ARCHIVED agents (unlike the heartbeat's fleet.json, which
 // is live-only) so Michael can speak to inactive agents — their cwd and memory
 // stay reachable. PII-free: no secrets, env, or API keys ever leave main; cost is
 // carried as tokens (+ a usd field the voice layer deliberately never speaks).
 ipcMain.handle('hive:agentDirectory', () => {
-  if (!hive.enabled()) return { godId: null, agents: [] };
+  if (!hive.enabled()) return { orchestratorId: null, agents: [] };
   const reg = hive.registry();
   const snap = telemetry.snapshot();
   const usageById = new Map(snap.usage.map((u) => [u.agentId, u]));
@@ -3956,14 +3956,14 @@ ipcMain.handle('hive:agentDirectory', () => {
     return {
       id,
       name: a.name,
-      role: a.role ?? (a.isGod ? 'orchestrator' : 'agent'),
+      role: a.role ?? (a.isOrchestrator ? 'orchestrator' : 'agent'),
       provider: a.provider ?? 'claude',
       model: u?.model ?? null,
       status: a.status ?? 'idle',
       cwd: a.cwd ?? null,
       cwdValid: a.cwdValid ?? null,
       archived: !!a.archived,
-      isGod: !!a.isGod,
+      isOrchestrator: !!a.isOrchestrator,
       isAssistant: !!a.isAssistant,
       sessionId: a.sessionId ?? null,
       hasMemory: hive.hasMemory(id),
@@ -3978,7 +3978,7 @@ ipcMain.handle('hive:agentDirectory', () => {
       contextPct: ctx && ctx.limit > 0 ? Math.round((ctx.tokens / ctx.limit) * 100) : null
     };
   });
-  return { godId: reg.godId, agents };
+  return { orchestratorId: reg.orchestratorId, agents };
 });
 
 // ─── IPC: live telemetry (the OTel collector — the locked usage-provider seam) ─
@@ -4333,7 +4333,7 @@ ipcMain.handle('triggerHistory:clear', (_evt, arg: unknown) => {
  * The operator's verdict on a held message.
  *
  * 'approved' RELEASES it: it takes the identical path an auto-allowed message
- * would have taken (card + god request), then the entry flips. 'rejected' just
+ * would have taken (card + orchestrator request), then the entry flips. 'rejected' just
  * flips — nothing is ever dispatched.
  *
  * Idempotent by construction: only an entry still sitting at `pending` can be
@@ -4359,7 +4359,7 @@ ipcMain.handle('triggerHistory:decide', (_evt, arg: unknown) => {
   const tokenHash = heldTokenHashFor(id);
   const title = entry.title ?? (entry.body.length > 80 ? `${entry.body.slice(0, 79)}…` : entry.body);
   if (!dispatchWebhookWork({ taskId, title, message: entry.body, tokenHash, origin: entry.source })) {
-    // The card is what the caller polls and what god works from. Leave the entry
+    // The card is what the caller polls and what orchestrator works from. Leave the entry
     // pending so the operator can approve again once the hive is writable.
     return entry;
   }
@@ -4477,9 +4477,9 @@ ipcMain.handle('freeflow:transcribe', async (_evt, arg: unknown) => {
 registerRealtimeIpc();
 
 // ─── IPC: Realtime Michael voice ACTIONS (rt-5, Phase 2) ─────────────────────
-// Thin adapters over the SAME main fns the god PTY already uses. ALL of the safety
+// Thin adapters over the SAME main fns the orchestrator PTY already uses. ALL of the safety
 // spine — soft-vs-destructive tiering, the two-step verbal echo-back confirm, the
-// distinct-token rule, the hard allowlist (kill-god / mass-ops forbidden), and the
+// distinct-token rule, the hard allowlist (kill-orchestrator / mass-ops forbidden), and the
 // michael-voice attribution — lives in ./realtimeActions. This site only injects
 // the existing functions; it adds NO new orchestration logic.
 // ─── IPC: Realtime Michael completion watcher (rt-12, Phase 2) ───────────────
@@ -4492,14 +4492,14 @@ const completionWatcher = initCompletionWatcher({
   // Voice dispatches go out as from:michael-voice, so assignee done-replies land here.
   readInbox: () => {
     // Voice dispatches go out from:michael-voice, so done-replies normally land in its
-    // inbox — but an assignee may address god out of habit. Merge both inboxes (de-dupe
-    // by id) so a god-addressed completion isn't missed; the detector filters by sender.
+    // inbox — but an assignee may address orchestrator out of habit. Merge both inboxes (de-dupe
+    // by id) so a orchestrator-addressed completion isn't missed; the detector filters by sender.
     try {
       const mv = hive.inbox('michael-voice') as unknown as InboxMessage[];
-      const godId = hive.registry().godId;
-      const god = godId ? (hive.inbox(godId) as unknown as InboxMessage[]) : [];
+      const orchestratorId = hive.registry().orchestratorId;
+      const orchestrator = orchestratorId ? (hive.inbox(orchestratorId) as unknown as InboxMessage[]) : [];
       const seen = new Set<string>();
-      return [...mv, ...god].filter((m) => !!m?.id && !seen.has(m.id) && seen.add(m.id) !== undefined);
+      return [...mv, ...orchestrator].filter((m) => !!m?.id && !seen.has(m.id) && seen.add(m.id) !== undefined);
     } catch {
       return [];
     }
@@ -4508,7 +4508,7 @@ const completionWatcher = initCompletionWatcher({
     try {
       if (!Notification.isSupported()) return;
       const reg = hive.registry();
-      const title = resolveGodName(reg.agents[reg.godId ?? 'god']?.name);
+      const title = resolveOrchestratorName(reg.agents[reg.orchestratorId ?? 'orchestrator']?.name);
       new Notification({ title, body: evt.summary }).show();
     } catch { /* best-effort */ }
   }
@@ -4620,18 +4620,18 @@ ipcMain.handle('realtime:waitFor', (_e, taskId: unknown, timeoutMs: unknown) =>
     : Promise.resolve({ timedOut: true as const, taskId: '' }));
 completionWatcher.start();
 
-// ─── god-triggered ephemeral Slack workers ──────────────────────────────────
-// god drops a spawn-request JSON into HIVE_ROOT/spawn-requests/; MAIN polls that
+// ─── orchestrator-triggered ephemeral Slack workers ──────────────────────────────────
+// orchestrator drops a spawn-request JSON into HIVE_ROOT/spawn-requests/; MAIN polls that
 // queue (same cadence + atomic-rename archival as the hive router — reliability
 // over latency, no fs.watch/dedup needed), spins up a FRESH ISOLATED worker via
 // the shared spawnAgentCore, dispatches the objective through the standard inbox
 // path, then watches each worker for a terminal `act:"done"` (success → release)
 // or excessive idleness (reap). All teardown flows through teardownPty's
 // safety-gate, so a worker's worktree is never auto-removed while it holds
-// unintegrated work. Every terminal failure informs god WITH the Slack coords so
-// god closes the Slack loop; the success path is the worker replying in-thread.
+// unintegrated work. Every terminal failure informs orchestrator WITH the Slack coords so
+// orchestrator closes the Slack loop; the success path is the worker replying in-thread.
 
-/** A spawn-request god drops into HIVE_ROOT/spawn-requests/<id>.json. god authors
+/** A spawn-request orchestrator drops into HIVE_ROOT/spawn-requests/<id>.json. orchestrator authors
  *  these directly; `objective` and `cwd` are the only required fields. */
 interface SpawnRequest {
   id?: string;
@@ -4663,7 +4663,7 @@ let workerWatchTimer: ReturnType<typeof setInterval> | null = null;
 /** Re-entrancy guard so a slow tick (await spawn / git checks) never overlaps. */
 let workerTickRunning = false;
 
-/** HIVE_ROOT/spawn-requests — the queue dir god drops requests into. */
+/** HIVE_ROOT/spawn-requests — the queue dir orchestrator drops requests into. */
 function spawnRequestsDir(): string | null {
   const root = hive.root();
   return root ? join(root, 'spawn-requests') : null;
@@ -4725,8 +4725,8 @@ function workerDoneAt(workerId: string, spawnedAt: number): number | null {
 }
 
 /** Spin up one ephemeral worker from a spawn-request. Terminal failures (bad
- *  request, missing CLI, spawn error) archive to .failed and inform god WITH the
- *  Slack coords so god can post a 'couldn't start' reply. On success the worker is
+ *  request, missing CLI, spawn error) archive to .failed and inform orchestrator WITH the
+ *  Slack coords so orchestrator can post a 'couldn't start' reply. On success the worker is
  *  registered (for done-scan / reaping / safe teardown) and dispatched its
  *  objective via the standard inbox path. */
 async function processSpawnRequest(filePath: string): Promise<void> {
@@ -4735,14 +4735,14 @@ async function processSpawnRequest(filePath: string): Promise<void> {
     raw = JSON.parse(readFileSync(filePath, 'utf8')) as SpawnRequest;
   } catch (e) {
     console.error('[worker] unparseable spawn-request:', filePath, e);
-    informGod('[worker spawn rejected] unparseable request', `Could not parse spawn-request ${basename(filePath)} — ${String(e)}`);
+    informOrchestrator('[worker spawn rejected] unparseable request', `Could not parse spawn-request ${basename(filePath)} — ${String(e)}`);
     archiveRequest(filePath, '.failed');
     return;
   }
   const slack = raw.slack && typeof raw.slack.channel === 'string' && typeof raw.slack.thread_ts === 'string'
     ? { channel: raw.slack.channel, thread_ts: raw.slack.thread_ts } : undefined;
   const fail = (reason: string): void => {
-    informGod(`[worker spawn rejected] ${reason}`, `Spawn-request ${basename(filePath)} rejected: ${reason}.`, slack);
+    informOrchestrator(`[worker spawn rejected] ${reason}`, `Spawn-request ${basename(filePath)} rejected: ${reason}.`, slack);
     archiveRequest(filePath, '.failed');
   };
 
@@ -4782,7 +4782,7 @@ async function processSpawnRequest(filePath: string): Promise<void> {
     return;
   }
   // Missing-CLI → FAIL FAST. A headless worker has no human to watch an installer,
-  // so we never run the cc49e1e install banner here — we reject and tell god.
+  // so we never run the cc49e1e install banner here — we reject and tell orchestrator.
   if (!ptyManager.isCommandAvailable(bin)) { fail(`engine CLI "${bin}" is not installed`); return; }
 
   const isolate = raw.isolate !== false; // default true
@@ -4822,7 +4822,7 @@ async function processSpawnRequest(filePath: string): Promise<void> {
   }
   if (!res.ok) { integrationBroker.revoke(workerId); fail(`spawn failed — ${res.error ?? 'unknown error'}`); return; }
 
-  // A god-hired worker is a MAIN-initiated spawn, so the renderer would never
+  // A orchestrator-hired worker is a MAIN-initiated spawn, so the renderer would never
   // card it on its own (same reason as the voice-spawn broadcast): without this
   // the worker is invisible on the floor, never enters the roster, and after a
   // restart nothing offers to restore it. The card rides the normal agent
@@ -4852,14 +4852,14 @@ async function processSpawnRequest(filePath: string): Promise<void> {
 
   // Dispatch the objective via the standard inbox path (zero new transport),
   // reusing the autonomous-request preamble so the worker gets the exact Slack
-  // reply command + autonomy policy. `from: god` so the worker treats it as a god
+  // reply command + autonomy policy. `from: orchestrator` so the worker treats it as a orchestrator
   // dispatch per its protocol.
   try {
     const prefix = slack
       ? buildAutonomousRequestProtocol(slack.channel, slack.thread_ts, slackReplyScriptPath())
       : '[AUTONOMOUS WORKER TASK — no interactive human is watching. Work autonomously; do not ask interactive questions.] The task starts now: ';
-    const suffix = `\n\n[CAPABILITIES] Before you start, consult your capability catalog — run the \`/capabilities\` skill (or read \`$AGENT_DIR/.claude/skills/capabilities/SKILL.md\`). It lists your temporal date-range skills (\`/today\`, \`/last30Days\`, \`/lastQuarter\`, …) and the integrations available to you (reached via the loopback broker) and how to call each. For any time-scoped work, resolve the dates with those skills instead of computing them by hand.\n\n[WORKER COMPLETION] When finished, signal done by sending ONE outbox message to god with "act":"done" and a short result summary — that releases this ephemeral worker (terminal closed; your branch is handed to god). Do NOT push to any remote; god is the sole integrator.`;
-    hive.send({ to: workerId, conversation: `worker-${reqId}`, act: 'request', subject: meta.name, body: `${prefix}${objective}${suffix}` }, 'god');
+    const suffix = `\n\n[CAPABILITIES] Before you start, consult your capability catalog — run the \`/capabilities\` skill (or read \`$AGENT_DIR/.claude/skills/capabilities/SKILL.md\`). It lists your temporal date-range skills (\`/today\`, \`/last30Days\`, \`/lastQuarter\`, …) and the integrations available to you (reached via the loopback broker) and how to call each. For any time-scoped work, resolve the dates with those skills instead of computing them by hand.\n\n[WORKER COMPLETION] When finished, signal done by sending ONE outbox message to orchestrator with "act":"done" and a short result summary — that releases this ephemeral worker (terminal closed; your branch is handed to orchestrator). Do NOT push to any remote; orchestrator is the sole integrator.`;
+    hive.send({ to: workerId, conversation: `worker-${reqId}`, act: 'request', subject: meta.name, body: `${prefix}${objective}${suffix}` }, 'orchestrator');
   } catch (e) {
     console.error('[worker] dispatch send failed:', e);
   }
@@ -4884,7 +4884,7 @@ let gcSweepRunning = false;
 /** Reclaim preserved worker worktrees (+ their scratch dirs) whose work is now
  *  integrated, or whose worktree was already removed by hand. Fail-safe: a worktree
  *  is removed ONLY when `worktreeIsGcSafe` proves it clean AND integrated; any doubt
- *  KEEPS it (never discards un-integrated work — god is the sole integrator). Runs
+ *  KEEPS it (never discards un-integrated work — orchestrator is the sole integrator). Runs
  *  inside the worker tick, throttled to GC_SWEEP_MS, and is a no-op when nothing is
  *  preserved (the common case → zero cost). */
 async function gcPreservedWorktrees(): Promise<void> {
@@ -4895,7 +4895,7 @@ async function gcPreservedWorktrees(): Promise<void> {
       // A worker id that is live again (reqId reuse) → never GC its worktree or
       // scratch out from under the new run; leave the stale entry for a later sweep.
       if (liveWorkers.has(e.workerId)) continue;
-      // (a) Worktree already gone (removed at clean teardown, or god removed it by
+      // (a) Worktree already gone (removed at clean teardown, or orchestrator removed it by
       //     hand per the preserve note) → just reclaim the scratch dir + drop tracking.
       if (!existsSync(e.wtPath)) {
         removeWorkerScratch(e.workerId);
@@ -4915,7 +4915,7 @@ async function gcPreservedWorktrees(): Promise<void> {
       removeWorkerScratch(e.workerId);
       preservedWorktrees.delete(key);
       console.log(`[worker gc] reclaimed ${e.workerId} (${safe.detail})`);
-      informGod(
+      informOrchestrator(
         `[worker worktree reclaimed] ${e.workerId}`,
         `The preserved worktree for ${e.workerId} is now integrated (${safe.detail}), so it and its scratch dir were garbage-collected.\nWorktree: ${e.wtPath}`,
         e.slack
@@ -4946,7 +4946,7 @@ async function ephemeralWorkerTick(): Promise<void> {
     //     synchronously, so when node-pty's async onExit later fires it fails the
     //     session-identity guard and the global exit handler (→ teardownPty)
     //     never runs. Relying on onExit here left released workers un-torn-down:
-    //     no hive archive, no hive:agentArchived, frozen floor cards, and god
+    //     no hive archive, no hive:agentArchived, frozen floor cards, and orchestrator
     //     kept mailing dead agents (seen live 2026-08-16 with worker-business/
     //     worker-qa/worker-bizreview). A double teardown is a harmless no-op.
     for (const [workerId, rec] of [...liveWorkers]) {
@@ -4965,7 +4965,7 @@ async function ephemeralWorkerTick(): Promise<void> {
         // unanswered for 21h). Only the DONE path settles — an idle/token-cap
         // reap never signaled completion, so its unread mail stays pending —
         // and only mail from BEFORE the done signal: a follow-up that crossed
-        // the worker's done is still nobody's, so it stays pending. God hears
+        // the worker's done is still nobody's, so it stays pending. Orchestrator hears
         // which requests/queries were filed unread, so none vanishes silently.
         const settled = hive.settleInbox(workerId, doneAt);
         if (settled.moved > 0) console.log(`[worker] ${workerId}: filed ${settled.moved} unread inbox message(s) under inbox/.done`);
@@ -4973,13 +4973,13 @@ async function ephemeralWorkerTick(): Promise<void> {
         // The worker's own work order is dispatched in conversation
         // `worker-<reqId>` (processSpawnRequest) and is exactly what it just
         // completed: reporting it "filed unread" on every release would cost
-        // god a turn each time for nothing. Only OTHER requests/queries count.
+        // orchestrator a turn each time for nothing. Only OTHER requests/queries count.
         // Subjects are agent-written: keep each on its own line.
         const unanswered = settled.unanswered.filter((m) => m.conversation !== `worker-${rec.reqId}`);
         if (unanswered.length > 0) {
           const oneLine = (s: string): string => s.replace(/[\r\n]+/g, ' ');
           const lines = unanswered.map((m) => `- ${m.act} ${oneLine(m.id)} from ${oneLine(m.from)}: "${oneLine(m.subject)}"`);
-          informGod(
+          informOrchestrator(
             `[worker released — mail filed unread] ${workerId}`,
             `Worker ${workerId} signaled done and was released. These messages were still unread in its inbox and were filed under inbox/.done without an answer:\n`
             + lines.join('\n')
@@ -4999,7 +4999,7 @@ async function ephemeralWorkerTick(): Promise<void> {
         if (used > tokenCap) {
           rec.releasing = true;
           console.warn(`[worker] reaping ${workerId} — token cap (${used.toLocaleString()} > ${tokenCap.toLocaleString()})`);
-          informGod(
+          informOrchestrator(
             `[worker reaped — token cap] ${workerId}`,
             `Worker ${workerId} used ${used.toLocaleString()} tokens (> its cap of ${tokenCap.toLocaleString()}) and was reaped. Any committed work on its branch is preserved for you.`,
             rec.slack
@@ -5014,7 +5014,7 @@ async function ephemeralWorkerTick(): Promise<void> {
       if (idleMs > idleTimeoutMs) {
         rec.releasing = true;
         console.warn(`[worker] reaping idle ${workerId} (${Math.round(idleMs / 60000)}min idle)`);
-        informGod(
+        informOrchestrator(
           `[worker reaped — idle] ${workerId}`,
           `Worker ${workerId} produced no output for ${Math.round(idleMs / 60000)} min (> the ${Math.round(idleTimeoutMs / 60000)} min cap) and never signaled done, so it was reaped. Any committed work on its branch is preserved for you.`,
           rec.slack
@@ -5036,7 +5036,7 @@ async function ephemeralWorkerTick(): Promise<void> {
     //
     //     Declining also means declining to CONSUME. A request dropped in while
     //     this is off stays in the queue and runs when it is turned on, rather
-    //     than being eaten and failed for a reason god never asked about.
+    //     than being eaten and failed for a reason orchestrator never asked about.
     const dir = readConfig().orchestratorMaySpawn ? spawnRequestsDir() : null;
     if (dir && existsSync(dir)) {
       let files: string[] = [];
@@ -5242,16 +5242,16 @@ function nudgeWorker(ptyId: string, ids: string[] = []): void {
  *  it gathers live-worker facts (PTY quiescence, inbox depth, control flags) and
  *  lets WorkerWakeWatchdog.decide apply the exact renderer guards (idle-only,
  *  post-boot-grace, not paused/halted, no pending HITL, cooldown), then types the
- *  same nudge the renderer would have. God is never a candidate (its heartbeat
+ *  same nudge the renderer would have. Orchestrator is never a candidate (its heartbeat
  *  path already re-engages it). */
 function runWorkerWakeBeat(): void {
   if (!hive.enabled()) return;
   const reg = hive.registry();
-  if (!reg?.agents || !reg.godId) return;
+  if (!reg?.agents || !reg.orchestratorId) return;
   const now = Date.now();
   const facts: WorkerWakeFacts[] = [];
   for (const [agentId, a] of Object.entries(reg.agents)) {
-    if (agentId === reg.godId || a?.archived) continue;
+    if (agentId === reg.orchestratorId || a?.archived) continue;
     const ptyId = ptyForAgent(agentId);
     if (!ptyId) continue;
     const snap = control.snapshot(agentId);
@@ -5268,7 +5268,7 @@ function runWorkerWakeBeat(): void {
     const usage = telemetry.getAgentUsage(agentId);
     facts.push({
       agentId,
-      isGod: agentId === reg.godId,
+      isOrchestrator: agentId === reg.orchestratorId,
       ptyId,
       lastOutputAt: ptyManager.lastOutputAt(ptyId) ?? 0,
       inboxIds: mail.map((message) => message.id).filter(Boolean),
@@ -5392,8 +5392,8 @@ function onSystemResume(reason: string): void {
   // The hive message router (outbox→inbox drain) is a setInterval that freezes
   // during true system sleep exactly like the beats above — but it was the one
   // always-on timer never re-armed on wake. Symptom: after a long sleep the
-  // scheduler→god path recovered (it injects straight into god's inbox), while
-  // every agent's outbox silently stopped draining, so god→worker and
+  // scheduler→orchestrator path recovered (it injects straight into orchestrator's inbox), while
+  // every agent's outbox silently stopped draining, so orchestrator→worker and
   // worker↔worker mail piled up undelivered. Re-arm the poll loop (clear-then-set,
   // idempotent) and immediately drain the backlog that accrued while we were out
   // instead of waiting for the first post-wake tick. The renderer's idle inbox-wake

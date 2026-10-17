@@ -8,10 +8,10 @@
  * manager locks the door.
  *
  *   1. The human clicks "closing time" in the quit dialog.
- *   2. We mail the god agent a shutdown brief: broadcast closing time to the
+ *   2. We mail the orchestrator a shutdown brief: broadcast closing time to the
  *      team; every worker commits/parks WIP, appends state + next steps to
  *      its memory.md, then replies with subject CLOSING-TIME-ACK.
- *   3. The god waits for every ACK (the harness shows live progress by
+ *   3. The orchestrator waits for every ACK (the harness shows live progress by
  *      watching the same inbox traffic), saves its own memory, and sends a
  *      message with subject CLOSING-TIME-COMPLETE.
  *   4. The router observer spots that message → the app tears down and quits.
@@ -46,13 +46,13 @@ const COMPLETE_RE = /CLOSING[-_\s]*TIME[-_\s]*COMPLETE/i;
 /** How long to wait before surfacing "this is taking long — force quit?".
  *  Compaction or a long tool call can easily hold an ACK for a few minutes. */
 const TIMEOUT_MS = 6 * 60_000;
-/** Grace after COMPLETE before tearing down, so the god's final commit/log
+/** Grace after COMPLETE before tearing down, so the orchestrator's final commit/log
  *  writes land on disk and the floor visibly concludes. */
 const TEARDOWN_GRACE_MS = 2_500;
 
 export class ClosingTimeController {
   private active = false;
-  private godId = 'god';
+  private orchestratorId = 'orchestrator';
   private workers = new Set<string>();
   private acked = new Set<string>();
   private timeoutTimer: NodeJS.Timeout | null = null;
@@ -66,7 +66,7 @@ export class ClosingTimeController {
      *  registry-based roster waits on ghosts that can never ACK. */
     private getLiveAgentIds: () => string[],
     private getWebContents: () => WebContents | null,
-    /** Called once the god concluded — runs the real teardown + app.quit(). */
+    /** Called once the orchestrator concluded — runs the real teardown + app.quit(). */
     private onConcluded: () => void,
     /** Mid-run steering (#7C.2): lets closing time reach DEEPLY BUSY agents at
      *  their next hook boundary instead of waiting for the Stop-hook inbox
@@ -79,7 +79,7 @@ export class ClosingTimeController {
   }
 
   /** Kick off the protocol. Returns an error string when the floor cannot run
-   *  it (no live god agent) so the UI can fall back to the hard quit. */
+   *  it (no live orchestrator) so the UI can fall back to the hard quit. */
   start(): { ok: boolean; error?: string } {
     if (this.active) {
       // Re-pressed while running (e.g. from the timeout view): keep waiting.
@@ -88,18 +88,18 @@ export class ClosingTimeController {
       return { ok: true };
     }
     const reg = this.hive.registry();
-    this.godId = reg.godId ?? 'god';
+    this.orchestratorId = reg.orchestratorId ?? 'orchestrator';
     const live = new Set(this.getLiveAgentIds());
-    if (!reg.agents[this.godId] || !live.has(this.godId)) {
-      return { ok: false, error: 'No orchestrator is running — closing time needs the god agent to collect the reports.' };
+    if (!reg.agents[this.orchestratorId] || !live.has(this.orchestratorId)) {
+      return { ok: false, error: 'No orchestrator is running — closing time needs the orchestrator to collect the reports.' };
     }
 
     // Only agents with a live terminal are waited on — the registry is just
-    // metadata here (names + god/assistant flags), never the roster source.
+    // metadata here (names + orchestrator/assistant flags), never the roster source.
     this.workers = new Set(
       [...live].filter((id) => {
         const a = reg.agents[id];
-        return id !== this.godId && !!a && !a.isGod;
+        return id !== this.orchestratorId && !!a && !a.isOrchestrator;
       })
     );
     this.acked = new Set();
@@ -110,7 +110,7 @@ export class ClosingTimeController {
       .join(', ') || '(none — the floor is just you)';
 
     this.hive.send({
-      to: 'god',
+      to: 'orchestrator',
       act: 'request',
       subject: 'CLOSING TIME — run the shutdown protocol now',
       body: [
@@ -135,11 +135,11 @@ export class ClosingTimeController {
     // (PostToolUse/UserPromptSubmit) instead, so every live agent learns about
     // closing time within one tool call. Idle agents are covered by the
     // inbox-wake nudge; busy ones by the steer — both rails, no PTY typing.
-    this.control?.steer(this.godId,
+    this.control?.steer(this.orchestratorId,
       'CLOSING TIME was pressed by the human: pause your current work at the next sensible point and drain your inbox NOW — a shutdown brief is waiting there. Coordinate the floor shutdown before anything else.');
     for (const id of this.workers) {
       this.control?.steer(id,
-        'CLOSING TIME — the office is shutting down. Finish your current step but do NOT start new work. Park or commit your work-in-progress safely, append your current state + concrete next steps to your memory.md, then reply to god with a message whose subject is exactly "CLOSING-TIME-ACK".');
+        'CLOSING TIME — the office is shutting down. Finish your current step but do NOT start new work. Park or commit your work-in-progress safely, append your current state + concrete next steps to your memory.md, then reply to orchestrator with a message whose subject is exactly "CLOSING-TIME-ACK".');
     }
 
     this.armTimeout();
@@ -153,13 +153,13 @@ export class ClosingTimeController {
     this.cleanup();
     // Drop closing-time steers that no hook boundary has consumed yet, so a
     // busy agent doesn't get told to shut down AFTER the human cancelled.
-    // Agents that already saw the note get corrected via the god (below).
-    this.control?.clearSteers(this.godId);
+    // Agents that already saw the note get corrected via the orchestrator (below).
+    this.control?.clearSteers(this.orchestratorId);
     for (const id of this.workers) this.control?.clearSteers(id);
     this.emitState('cancelled');
     try {
       this.hive.send({
-        to: 'god',
+        to: 'orchestrator',
         act: 'inform',
         subject: 'CLOSING TIME CANCELLED',
         body: 'The human cancelled the shutdown — disregard the closing-time protocol and resume normal operation. Any memory saves already done are a bonus, not a problem.'
@@ -171,18 +171,18 @@ export class ClosingTimeController {
   onRouted(msg: HiveMessage, targets: string[]): void {
     if (!this.active) return;
     // A worker reporting in. Counted only for known workers, and only when the
-    // ACK actually reached the god (not e.g. a stray broadcast echo).
-    if (ACK_RE.test(msg.subject) && this.workers.has(msg.from) && targets.includes(this.godId)) {
+    // ACK actually reached the orchestrator (not e.g. a stray broadcast echo).
+    if (ACK_RE.test(msg.subject) && this.workers.has(msg.from) && targets.includes(this.orchestratorId)) {
       if (!this.acked.has(msg.from)) {
         this.acked.add(msg.from);
         this.emitState('progress');
       }
       return;
     }
-    // The god concluding. COMPLETE is only honored from the god itself — a
+    // The orchestrator concluding. COMPLETE is only honored from the orchestrator itself — a
     // worker can't (accidentally or otherwise) shut down the whole floor.
-    if (COMPLETE_RE.test(msg.subject) && msg.from === this.godId) {
-      // Trust but VERIFY: the god is told to wait for every ACK, but the
+    if (COMPLETE_RE.test(msg.subject) && msg.from === this.orchestratorId) {
+      // Trust but VERIFY: the orchestrator is told to wait for every ACK, but the
       // whole point of closing time is that no worker loses unsaved state —
       // so a premature COMPLETE must not close the floor. Workers whose
       // terminal died mid-protocol (tab closed, crash) are excused: their
@@ -195,7 +195,7 @@ export class ClosingTimeController {
       if (pending.length > 0) {
         const names = pending.map((id) => `${reg.agents[id]?.name ?? id} (${id})`).join(', ');
         this.hive.send({
-          to: 'god',
+          to: 'orchestrator',
           act: 'refuse',
           subject: 'CLOSING TIME — conclusion rejected, workers still missing',
           body: [

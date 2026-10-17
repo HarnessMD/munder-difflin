@@ -65,7 +65,7 @@ export function focusOnLoad(
  * the roster read from disk. Every agent in that roster still carries the PTY id
  * it had in the PREVIOUS session, and none of those PTYs exist yet, so the first
  * `reconcileWithLivePtys` correctly prunes the lot and `refocusAfterRemoval`
- * correctly returns null. By the time god respawns with a live terminal the
+ * correctly returns null. By the time orchestrator respawns with a live terminal the
  * preference has already been read and discarded, so the app opens in the
  * sidebar with `cth.prefersFocusMode` still set to 1.
  *

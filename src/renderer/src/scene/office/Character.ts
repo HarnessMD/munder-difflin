@@ -426,7 +426,7 @@ export class Character {
     this.thoughtBubble.setZoom(z);
   }
 
-  /** Update the nameplate text (a rename mid-session, e.g. god's name). No-op
+  /** Update the nameplate text (a rename mid-session, e.g. orchestrator's name). No-op
    *  when unchanged — cheap to call on every store tick, and the plate is only
    *  repainted when the text it has to cover actually changed. */
   setName(displayName: string): void {

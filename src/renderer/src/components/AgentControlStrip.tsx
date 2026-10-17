@@ -106,7 +106,7 @@ export function AgentControlStrip({ agentId }: { agentId: string }) {
             Michael — so the tooltip carries that distinction now that the
             grouping no longer does. */}
         <AgentHoldButton agentId={agentId} />
-        {/* v0.3.4: the auto-delivery switch moved to the god's Command Center
+        {/* v0.3.4: the auto-delivery switch moved to the orchestrator's Command Center
             header — ONE floor-wide control instead of a per-agent toggle. */}
         {snap?.autoDeliveryPaused && (
           <span style={{ fontSize: 11, color: 'var(--cth-ink-500)' }}>{t('agentControl.deliveryPaused')}</span>

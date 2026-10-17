@@ -85,7 +85,7 @@ Saturated and warm. Each avatar gets one — the strip badge, the agent's chat s
 | `status-idle` | `#A899B5` | Agent at desk, awaiting |
 | `status-thinking` | `#4ECDC4` | Reasoning + en route to a station |
 | `status-working` | `#FFD93D` | At a station, using a tool |
-| `status-waiting` | `#6C8EF5` | Worker stalled on god or another agent |
+| `status-waiting` | `#6C8EF5` | Worker stalled on orchestrator or another agent |
 | `status-blocked` | `#FF6B6B` | Notification fired, needs user |
 | `status-success` | `#6BCF7F` | Just finished |
 | `status-ghost` | `#D9CFE0` | Pane closed, fading out |
@@ -285,7 +285,7 @@ Color: status palette. Background: status-color at 20% opacity over cream-100.
 ```
 
 Labels are not the token names — they read from the *user's* side. `blocked` shows
-"needs you" (reserved for the god agent waiting on you), `waiting` stays "waiting"
+"needs you" (reserved for the orchestrator waiting on you), `waiting` stays "waiting"
 (honest about the worker being stalled on another agent), and `typing` shows
 **"your draft"** — it is your text on the prompt, not the agent's, and it is why
 that agent's message queue is not draining. See

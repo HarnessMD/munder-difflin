@@ -38,19 +38,19 @@ test('no locale hardcodes the orchestrator name', () => {
   }
 });
 
-test('the strings that talk about the orchestrator interpolate {{godName}}', () => {
+test('the strings that talk about the orchestrator interpolate {{orchestratorName}}', () => {
   const en = flatten(locale('en'));
   // A representative spread: settings, command centre, onboarding, triggers.
   for (const k of ['settings.connections.slackDesc', 'commandCenter.michaelDecides',
                    'onboarding.orchestrator.modelNote', 'triggerHistory.approveTitle',
                    'workersTab.liveIntro', 'kanban.newWorkHint']) {
     assert.ok(k in en, `${k} vanished from en.json`);
-    assert.match(text(en[k]), /\{\{godName\}\}/, `${k} does not interpolate godName`);
+    assert.match(text(en[k]), /\{\{orchestratorName\}\}/, `${k} does not interpolate orchestratorName`);
   }
 });
 
 test('strings about ONE agent interpolate {{name}}, not the orchestrator', () => {
-  // These describe whichever agent is on screen. Naming god here is not a
+  // These describe whichever agent is on screen. Naming orchestrator here is not a
   // translation nit: "This restarts Michael" on a dialog that restarts Kevin is
   // a destructive action describing the wrong target.
   const perAgent = ['commandCenter.runsTheFloor', 'commandCenter.noTerminal',
@@ -59,7 +59,7 @@ test('strings about ONE agent interpolate {{name}}, not the orchestrator', () =>
     const f = flatten(locale(l));
     for (const k of perAgent) {
       assert.match(text(f[k]), /\{\{name\}\}/, `${l}: ${k} must interpolate {{name}}`);
-      assert.doesNotMatch(text(f[k]), /\{\{godName\}\}/, `${l}: ${k} is per-agent, not god`);
+      assert.doesNotMatch(text(f[k]), /\{\{orchestratorName\}\}/, `${l}: ${k} is per-agent, not orchestrator`);
     }
   }
 });
@@ -100,17 +100,17 @@ test('with nothing saved the app starts in English, never the OS locale', () => 
   assert.match(body, /return 'en';/, 'detectLanguage does not fall back to English');
 });
 
-test('godName reaches i18next as a default variable, so no call site must pass it', () => {
+test('orchestratorName reaches i18next as a default variable, so no call site must pass it', () => {
   const src = read('src/renderer/src/i18n/index.ts');
-  assert.match(src, /defaultVariables:\s*\{\s*godName:\s*DEFAULT_GOD_NAME\s*\}/);
-  assert.match(src, /export function setGodName/);
+  assert.match(src, /defaultVariables:\s*\{\s*orchestratorName:\s*DEFAULT_ORCHESTRATOR_NAME\s*\}/);
+  assert.match(src, /export function setOrchestratorName/);
   // Without an event react-i18next never re-renders, so a rename would not show.
   assert.match(src, /i18n\.emit\('languageChanged'/);
 });
 
-test('something actually calls setGodName, or the wiring is dead', () => {
-  const hook = read('src/renderer/src/i18n/useGodNameSync.ts');
-  assert.match(hook, /setGodName\(/);
-  assert.match(hook, /isGod/);
-  assert.match(read('src/renderer/src/App.tsx'), /useGodNameSync\(\)/);
+test('something actually calls setOrchestratorName, or the wiring is dead', () => {
+  const hook = read('src/renderer/src/i18n/useOrchestratorNameSync.ts');
+  assert.match(hook, /setOrchestratorName\(/);
+  assert.match(hook, /isOrchestrator/);
+  assert.match(read('src/renderer/src/App.tsx'), /useOrchestratorNameSync\(\)/);
 });

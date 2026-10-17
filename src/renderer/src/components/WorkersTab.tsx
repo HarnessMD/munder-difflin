@@ -4,7 +4,7 @@ import { PixelButton } from './PixelButton';
 import { useStore } from '@/store/store';
 
 /**
- * WORKERS — live god-triggered ephemeral Slack workers (the Phase-1 spawn loop):
+ * WORKERS — live orchestrator-triggered ephemeral Slack workers (the Phase-1 spawn loop):
  * fresh isolated worktree → does a job → replies in-thread → safe teardown. This
  * tab reads main's `liveWorkers` map (via workers:list) so a human can SEE what's
  * running and stop one by hand; it also surfaces worktrees PRESERVED at teardown
@@ -66,7 +66,7 @@ function StatusBadge({ w }: { w: WorkerSnapshot }) {
 
 export function WorkersTab() {
   const { t } = useTranslation();
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const [data, setData] = useState<WorkersData | null>(null);
   const [stopping, setStopping] = useState<Record<string, boolean>>({});
 
@@ -101,7 +101,7 @@ export function WorkersTab() {
           </span>
         </div>
         <p style={{ fontFamily: 'var(--cth-font-ui)', fontSize: 11, color: 'var(--cth-ink-700)', margin: '2px 0 8px' }}>
-          {t('workersTab.liveIntro', { godName })}
+          {t('workersTab.liveIntro', { orchestratorName })}
         </p>
 
         {live.length === 0 ? (

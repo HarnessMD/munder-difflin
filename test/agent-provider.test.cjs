@@ -62,7 +62,7 @@ test('copilot passes model + resume through, non-hiveAware, never auto-receives 
   assert.strictEqual(ap.bridgeOf('copilot'), undefined, 'no hook/proxy bridge');
 });
 
-test('cursor is a recognized, selectable, god-eligible provider', () => {
+test('cursor is a recognized, selectable, orchestrator-eligible provider', () => {
   assert.ok(ap.isAgentProvider('cursor'), 'isAgentProvider("cursor")');
   assert.ok(ap.AGENT_PROVIDER_PRESETS.some((p) => p.id === 'cursor'), 'preset registered');
   assert.strictEqual(ap.canReceiveInbox('cursor'), true, 'interactive TUI can receive inbox');

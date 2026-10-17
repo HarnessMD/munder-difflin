@@ -189,7 +189,7 @@ const TWSS_EXCHANGES: readonly Exchange[] = [
   ['I can’t do it with people watching.', 'that’s what she said.', 'the presentation!', 'sure.'],
   ['it’s deeper than it looks.', 'that’s what she said.', 'the pothole, Michael!', 'doesn’t matter.'],
   ['so much longer than last time.', 'that’s what she said.', 'the report, Michael.', 'right, right.'],
-  ['oh my god, it went on FOREVER.', 'that’s what she said.', 'the Twilight movie!', 'classic.'],
+  ['oh my orchestrator, it went on FOREVER.', 'that’s what she said.', 'the Twilight movie!', 'classic.'],
   ['can’t believe how thick this is.', 'that’s what she said.', 'the folder. *stares*'],
   ['I fit all THAT in one day?', 'that’s what she said.', 'that’s actually what I said!', 'meta.'],
   ['I went at it hard this morning.', 'that’s what she said.', 'at the gym!', 'irrelevant.'],

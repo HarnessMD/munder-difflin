@@ -29,7 +29,7 @@ import { runHiddenClaude } from './hiddenClaude';
 
 /** Total memory.md budget — mirrors the janitor's CONTEXT_BUDGET_BYTES (128 KB). */
 const BUDGET_BYTES = 131_072;
-/** Cheap tail-summarizer (DECIDED by god). The verify gate covers quality. */
+/** Cheap tail-summarizer (DECIDED by orchestrator). The verify gate covers quality. */
 const CONDENSE_MODEL = 'claude-haiku-4-5';
 /** Hard cap so a wedged headless run can't stall the reflect loop. */
 const DEFAULT_TIMEOUT_MS = 180_000;

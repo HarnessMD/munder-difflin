@@ -21,16 +21,16 @@
  *     instant (the renderer mutes the mic during the confirm tool-call — see
  *     session.ts agent_tool_start), (4) the circuit-breaker still gates (actions go
  *     through the same control path it owns).
- *   • HARD ALLOWLIST — kill/pause/halt on the god orchestrator, and any mass /
+ *   • HARD ALLOWLIST — kill/pause/halt on the orchestrator, and any mass /
  *     all-agent op, are VOICE-FORBIDDEN even with a valid confirm — rejected
  *     outright, no pending created.
  *
  * Every committed action is attributed to actor `michael-voice` (a log stamp on
  * every verb + `from: michael-voice` on messages). rt-7 deepens this into a live
- * god-PTY cross-notify; rt-5 just needs the attribution present.
+ * orchestrator-PTY cross-notify; rt-5 just needs the attribution present.
  *
  * Thin wrappers ONLY — no new orchestration logic. Each verb maps onto a main fn
- * the god PTY already uses (hive.send / atomic task mutations / spawnAgentCore /
+ * the orchestrator PTY already uses (hive.send / atomic task mutations / spawnAgentCore /
  * control.pause+steer+halt / pty kill / missions save), injected via deps so this
  * module stays decoupled from index.ts wiring.
  */
@@ -39,7 +39,7 @@ import type { HiveMessage, HiveTask, Registry } from './hive';
 import type { ScheduledMission } from './config';
 import { inferAgentProvider } from '../shared/agentProvider';
 import { clearCommandForProvider } from '../shared/providerAutomation';
-import { resolveGodName } from '../shared/godIdentity';
+import { resolveOrchestratorName } from '../shared/orchestratorIdentity';
 import { scanThemes } from './themes';
 
 export const VOICE_ACTOR = 'michael-voice';
@@ -149,8 +149,8 @@ const SETTING_POLICY: Record<string, {
   // confirm: behavior-changing — echo old→new + distinct token
   autoMode: { tier: 'confirm', type: 'boolean' },
   defaultModel: { tier: 'confirm', type: 'string' },
-  godProvider: { tier: 'confirm', type: 'string' },
-  godModel: { tier: 'confirm', type: 'string' },
+  orchestratorProvider: { tier: 'confirm', type: 'string' },
+  orchestratorModel: { tier: 'confirm', type: 'string' },
   maxConcurrentWorkers: { tier: 'confirm', type: 'number', min: 1, max: 16 },
   costCapTokens: { tier: 'confirm', type: 'number', min: 0, max: 1_000_000_000 },
   maxTurns: { tier: 'confirm', type: 'number', min: 1, max: 1000 },
@@ -205,7 +205,7 @@ function isMassTarget(target: string): boolean {
   return false;
 }
 
-interface ResolvedAgent { id: string; name: string; isGod: boolean }
+interface ResolvedAgent { id: string; name: string; isOrchestrator: boolean }
 
 /** Resolve a spoken target ("jim", "kill oscar", an id) to a single live agent, or
  *  return a spoken disambiguation error. Prefers non-archived matches. */
@@ -213,15 +213,15 @@ function resolveAgent(target: string, reg: Registry): ResolvedAgent | { error: s
   const t = norm(target);
   if (!t) return { error: 'no agent was named' };
   const entries = Object.entries(reg.agents ?? {});
-  const mk = (id: string, m: { name?: string; isGod?: boolean }): ResolvedAgent => ({
-    id, name: m.name || id, isGod: !!m.isGod || id === reg.godId
+  const mk = (id: string, m: { name?: string; isOrchestrator?: boolean }): ResolvedAgent => ({
+    id, name: m.name || id, isOrchestrator: !!m.isOrchestrator || id === reg.orchestratorId
   });
   // exact id
   const byId = entries.find(([id]) => id.toLowerCase() === t);
   if (byId) return mk(byId[0], byId[1]);
-  // 'god' / 'michael' alias for the orchestrator
-  if ((t === 'god' || t === 'michael' || t === 'the god') && reg.godId)
-    return mk(reg.godId, reg.agents[reg.godId] ?? {});
+  // 'orchestrator' / 'michael' alias for the orchestrator
+  if ((t === 'orchestrator' || t === 'god' || t === 'michael' || t === 'the orchestrator') && reg.orchestratorId)
+    return mk(reg.orchestratorId, reg.agents[reg.orchestratorId] ?? {});
   // exact name, prefer live
   const byName = entries.filter(([, m]) => (m.name || '').toLowerCase() === t);
   const liveName = byName.filter(([, m]) => !m.archived);
@@ -273,10 +273,10 @@ function attribute(deps: RealtimeActionDeps, verb: string, target: string, extra
   } catch {
     /* attribution is best-effort — never block the action */
   }
-  // rt-7 dual-orchestrator coord: tell the god PTY what voice-Michael just COMMITTED, so
+  // rt-7 dual-orchestrator coord: tell the orchestrator PTY what voice-Michael just COMMITTED, so
   // the two autonomous orchestrators stay aware and don't make duplicate/contradictory
   // moves. attribute() only runs on committed writes (soft execs + post-confirm commits),
-  // so god is never notified for a merely-proposed/uncommitted destructive action.
+  // so orchestrator is never notified for a merely-proposed/uncommitted destructive action.
   try {
     const detail =
       typeof extra.objective === 'string' ? `: ${extra.objective}`
@@ -286,18 +286,18 @@ function attribute(deps: RealtimeActionDeps, verb: string, target: string, extra
       : typeof extra.action === 'string' ? ` (${extra.action})`
       : '';
     const reg = deps.hiveRegistry();
-    const godName = resolveGodName(reg.agents[reg.godId ?? 'god']?.name);
+    const orchestratorName = resolveOrchestratorName(reg.agents[reg.orchestratorId ?? 'orchestrator']?.name);
     deps.hiveSend(
       {
-        to: 'god',
+        to: 'orchestrator',
         act: 'inform',
         subject: `voice action: ${verb} ${target}`,
-        body: `${godName} (voice orchestrator, ${VOICE_ACTOR}) just did: ${verb} on ${target}${detail}. Heads-up so we don't duplicate — the board is the single source of truth.`
+        body: `${orchestratorName} (voice orchestrator, ${VOICE_ACTOR}) just did: ${verb} on ${target}${detail}. Heads-up so we don't duplicate — the board is the single source of truth.`
       },
       VOICE_ACTOR
     );
   } catch {
-    /* god cross-notify is best-effort — never block the action */
+    /* orchestrator cross-notify is best-effort — never block the action */
   }
 }
 
@@ -311,7 +311,7 @@ function execPing(deps: RealtimeActionDeps, a: Record<string, unknown>): ActionR
   const r = resolveAgent(str(a.agentId) || str(a.target) || str(a.name), reg);
   if ('error' in r) return { ok: false, spoken: r.error };
   const message = str(a.message) || str(a.text) || 'Checking in.';
-  deps.hiveSend({ to: r.id, act: 'inform', subject: `Voice ping from ${resolveGodName(reg.agents[reg.godId ?? 'god']?.name)}`, body: message }, VOICE_ACTOR);
+  deps.hiveSend({ to: r.id, act: 'inform', subject: `Voice ping from ${resolveOrchestratorName(reg.agents[reg.orchestratorId ?? 'orchestrator']?.name)}`, body: message }, VOICE_ACTOR);
   attribute(deps, 'ping', r.id);
   return { ok: true, spoken: `Pinged ${r.name}.` };
 }
@@ -609,17 +609,17 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
   const spec = VERBS[verb];
   const reg = deps.hiveRegistry();
 
-  // Agent-targeted destructive verbs: resolve + hard allowlist (god + mass).
+  // Agent-targeted destructive verbs: resolve + hard allowlist (orchestrator + mass).
   if (spec.agentTargeted) {
     const rawTarget = str(a.agentId) || str(a.target) || str(a.name);
     if (isMassTarget(rawTarget))
       return { ok: false, spoken: `${verb} on all agents at once is voice-forbidden. Do it agent by agent, or use the UI.` };
     const r = resolveAgent(rawTarget, reg);
     if ('error' in r) return { ok: false, spoken: r.error };
-    // God policy per verb: kill/pause/halt/archive on god stay voice-forbidden.
-    // clear_context on god is ALLOWED behind confirm — it's recoverable
+    // Orchestrator policy per verb: kill/pause/halt/archive on orchestrator stay voice-forbidden.
+    // clear_context on orchestrator is ALLOWED behind confirm — it's recoverable
     // (sessions resume) and "clear Michael's context" is a real operator need.
-    if (r.isGod && verb !== 'clear_context')
+    if (r.isOrchestrator && verb !== 'clear_context')
       return { ok: false, spoken: `${verb} on the orchestrator is voice-forbidden. That has to be done in the UI.` };
 
     const commit =
@@ -648,9 +648,9 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
     const provider = (str(a.provider) || 'claude').toLowerCase();
     const role = str(a.role) || str(a.job);
     const name = str(a.name) || (role ? role.replace(/\b\w/g, (c) => c.toUpperCase()) : provider) || 'Worker';
-    const godCwd = reg.godId ? reg.agents[reg.godId]?.cwd : undefined;
+    const orchestratorCwd = reg.orchestratorId ? reg.agents[reg.orchestratorId]?.cwd : undefined;
     const cwd =
-      str(a.cwd) || godCwd || Object.values(reg.agents).find((m) => m.cwd)?.cwd || '';
+      str(a.cwd) || orchestratorCwd || Object.values(reg.agents).find((m) => m.cwd)?.cwd || '';
     if (!cwd) return { ok: false, spoken: 'I need a working directory to hire into — none is configured.' };
     const command = str(a.command) || PROVIDER_COMMAND[provider] || 'claude';
     const id = `${slug(name)}-${shortId()}`;
@@ -700,9 +700,9 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
     const minutes = typeof a.intervalMinutes === 'number' && isFinite(a.intervalMinutes)
       ? Math.min(7 * 24 * 60, Math.max(5, Math.round(a.intervalMinutes)))
       : 60;
-    const to = str(a.to) || str(a.agentId) || 'god';
+    const to = str(a.to) || str(a.agentId) || 'orchestrator';
     const target = resolveAgent(to, reg);
-    const targetId = 'error' in target ? 'god' : target.id;
+    const targetId = 'error' in target ? 'orchestrator' : target.id;
     const mission: ScheduledMission = {
       id: `voice-${slug(label)}-${shortId()}`,
       label,

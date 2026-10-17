@@ -226,7 +226,7 @@ test('no Arabic string is left as its English source', () => {
 });
 
 test('every interpolation variable survives translation', () => {
-  // `{{godName}}` mistyped is a literal "{{godname}}" on screen, and i18next
+  // `{{orchestratorName}}` mistyped is a literal "{{orchestratorname}}" on screen, and i18next
   // will not warn. This is the highest-frequency way a locale file breaks.
   const e = pathsOf(en), a = pathsOf(ar), z = pathsOf(zh);
   const vars = (s) => [...String(s).matchAll(/\{\{\s*([\w.]+)\s*\}\}/g)].map((m) => m[1]).sort().join(',');

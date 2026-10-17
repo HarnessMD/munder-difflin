@@ -92,7 +92,7 @@
     onBreakerState: () => () => {},
     telemetrySpans: async () => [],
     hiveRegistry: async () => ({
-      godId: null,
+      orchestratorId: null,
       agents: Object.fromEntries(AGENT_IDS.map((id) => [id, {
         id, name: id, cwd: CWD, status: 'idle', lastSeen: 1, sessionId: SESSION_IDS[id]
       }]))
@@ -276,21 +276,21 @@
       description: 'watches the ledger', project: 'bug14', tmuxTarget: 't-a',
       cwd: CWD, status: 'working', action: 'reviewing the roadmap…', progress: 0,
       ptyId: 'pty-bug14-a', command: 'claude', provider: 'claude', model: 'claude-fable-5-1',
-      isGod: false
+      isOrchestrator: false
     },
     {
       id: 'bug14-b', name: 'Ben', character: 'jim', accent: 'sky',
       description: 'watches the queue', project: 'bug14', tmuxTarget: 't-b',
       cwd: CWD, status: 'working', action: 'reviewing the shipped build…', progress: 0,
       ptyId: 'pty-bug14-b', command: 'claude', provider: 'claude', model: 'claude-fable-5-1',
-      isGod: false
+      isOrchestrator: false
     },
     {
       id: 'bug14-c', name: 'Cy', character: 'kevin', accent: 'lemon',
       description: 'watches the tests', project: 'bug14', tmuxTarget: 't-c',
       cwd: CWD, status: 'working', action: 'reviewing the backlog…', progress: 0,
       ptyId: 'pty-bug14-c', command: 'claude', provider: 'claude', model: 'claude-fable-5-1',
-      isGod: false
+      isOrchestrator: false
     }
   ];
   useStore.setState({ agents: AGENTS, selectedId: 'bug14-a' });

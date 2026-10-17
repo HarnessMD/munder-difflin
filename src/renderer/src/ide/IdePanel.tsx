@@ -79,7 +79,7 @@ interface IdeTarget {
  *  Preference order, most-trustworthy first:
  *   1. `ideAgentId` — the opener said exactly who this is for.
  *   2. the current selection — right for anything opened off the sidebar.
- *   3. the god agent, then the first agent — last resorts so the IDE still
+ *   3. the orchestrator, then the first agent — last resorts so the IDE still
  *      opens on *something* browsable instead of an empty shell.
  *  Everything past (1) is marked `inferred`, because those paths are exactly the
  *  ones that can disagree with what the user was actually looking at. */
@@ -88,7 +88,7 @@ function pickIdeTarget(): IdeTarget {
   const byId = (id: string | null): Agent | null => (id ? s.agents.find((a) => a.id === id) ?? null : null);
   const named = byId(s.ideAgentId);
   if (named?.cwd) return { agent: named, root: named.cwd, inferred: false };
-  const guess = byId(s.selectedId) ?? s.agents.find((a) => a.isGod) ?? s.agents[0] ?? null;
+  const guess = byId(s.selectedId) ?? s.agents.find((a) => a.isOrchestrator) ?? s.agents[0] ?? null;
   if (guess?.cwd) return { agent: guess, root: guess.cwd, inferred: true };
   return { agent: null, root: null, inferred: false };
 }
@@ -395,7 +395,7 @@ export function IdePanel() {
                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '22vw'
               }}
             >{target.agent.name}</span>
-            {target.agent.isGod && (
+            {target.agent.isOrchestrator && (
               <span style={{
                 fontFamily: 'var(--cth-font-display)', fontSize: 7, padding: '1px 3px',
                 background: 'var(--cth-lilac-light)', color: 'var(--cth-ink-900)'

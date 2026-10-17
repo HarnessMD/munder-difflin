@@ -124,10 +124,10 @@ function useResolvedRepoNames(agents: Agent[]): number {
   return version;
 }
 
-/** The roster section an agent lives in — god agents share one ungrouped
+/** The roster section an agent lives in — orchestrator agents share one ungrouped
  *  section, everyone else groups by repository. */
 function groupKey(agent: Agent): string {
-  return agent.isGod ? '__god__' : repoKeyOf(agent);
+  return agent.isOrchestrator ? '__orchestrator__' : repoKeyOf(agent);
 }
 
 /** Drag-reorder wiring handed down to each row. */
@@ -211,23 +211,23 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
     end: () => { setDragId(null); setOverId(null); }
   };
 
-  // Roster: god agents first and ungrouped, everyone else bucketed by repo.
+  // Roster: orchestrator agents first and ungrouped, everyone else bucketed by repo.
   // Insertion order is preserved inside each bucket (it's the user's own
   // drag-reorder from the floor strip) and buckets appear in first-seen order,
   // so the list doesn't reshuffle as statuses change.
-  const { gods, groups } = useMemo(() => {
-    const godList: Agent[] = [];
+  const { orchestrators, groups } = useMemo(() => {
+    const orchestratorList: Agent[] = [];
     // Keyed by absolute repo root (identity); the label is carried alongside so
     // two same-named repos stay two groups but still read by name.
     const byRepo = new Map<string, { label: string; members: Agent[] }>();
     for (const a of agents) {
-      if (a.isGod) { godList.push(a); continue; }
+      if (a.isOrchestrator) { orchestratorList.push(a); continue; }
       const key = repoKeyOf(a);
       const bucket = byRepo.get(key);
       if (bucket) bucket.members.push(a);
       else byRepo.set(key, { label: repoLabelOf(a), members: [a] });
     }
-    return { gods: godList, groups: [...byRepo.entries()] };
+    return { orchestrators: orchestratorList, groups: [...byRepo.entries()] };
     // repoVersion: rebucket once the async main-repo lookups land.
   }, [agents, repoVersion]);
 
@@ -436,9 +436,9 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
           </div>
 
           <div className="cth-scroll-hidden" style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '6px 0' }}>
-            {/* The god agent runs the floor rather than a checkout, so it gets no
+            {/* The orchestrator runs the floor rather than a checkout, so it gets no
                 repository header — it sits alone at the top of the roster. */}
-            {gods.map(a => (
+            {orchestrators.map(a => (
               <SidebarRow
                 key={a.id}
                 agent={a}
@@ -565,7 +565,7 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
           display: 'flex', flexDirection: 'column',
           padding: 12, gap: 10
         }}>
-          {agent.isGod ? (
+          {agent.isOrchestrator ? (
             // Michael runs the floor from the command center — its tabs (tasks,
             // ask me, triggers, memory, graph…) are the whole point of selecting
             // him, and fullscreen used to drop them for a bare terminal.
@@ -937,7 +937,7 @@ function Header({ agent, onEdit }: { agent: Agent; onEdit: () => void }) {
   };
 
   /** Kill + archive, mirroring AgentDetailPanel. Confirmed, because it ends a
-   *  running process. God is exempt: the floor respawns it immediately, so the
+   *  running process. Orchestrator is exempt: the floor respawns it immediately, so the
    *  button would read as "restart Michael" while looking like "close". */
   const onKill = async () => {
     if (!agent.ptyId) return;
@@ -965,9 +965,9 @@ function Header({ agent, onEdit }: { agent: Agent; onEdit: () => void }) {
       {/* Edit belongs with the NAME, not with the action cluster on the right:
           it changes who this agent is, and the right-hand group is things you do
           with the agent. Icon-only because it sits inside the identity line —
-          the word "edit" there would push the path off. God is excluded, as
+          the word "edit" there would push the path off. Orchestrator is excluded, as
           everywhere else: his identity is the hive's, not the roster's. */}
-      {!agent.isGod && (
+      {!agent.isOrchestrator && (
         <PixelButton variant="secondary" size="sm" onClick={onEdit}>
           <span
             className="cth-tip cth-tip-left cth-tip-wrap"
@@ -1005,11 +1005,11 @@ function Header({ agent, onEdit }: { agent: Agent; onEdit: () => void }) {
           </span>
         </PixelButton>
         {/* Voice toggle is ALWAYS reachable in fullscreen — it controls Michael (the
-            god orchestrator) globally, not the agent in view, so users can start a
+            orchestrator) globally, not the agent in view, so users can start a
             voice session even while a worker's terminal fills the screen. The cost
             HUD stays Michael-only (it belongs to his card). */}
         <RealtimeMichaelToggle />
-        {agent.isGod && <CostHud compact />}
+        {agent.isOrchestrator && <CostHud compact />}
         <PixelButton variant="secondary" size="sm" onClick={openTerminal} disabled={openState === 'opening'}>
           <span
             className="cth-tip cth-tip-wrap"
@@ -1031,7 +1031,7 @@ function Header({ agent, onEdit }: { agent: Agent; onEdit: () => void }) {
           status={typing ? 'typing' : agent.status}
           style={{ height: 24, padding: '0 8px', lineHeight: '24px' }}
         />
-        {!agent.isGod && (
+        {!agent.isOrchestrator && (
           <PixelButton variant="destructive" size="sm" onClick={onKill}>
             {/* inline-flex + center: the other buttons hold TEXT, whose line box
                 the button centres for free. A bare <Icon> is replaced-content

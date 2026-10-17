@@ -59,7 +59,7 @@ export const HowMemPalace: React.FC = () => {
       <AgentBox x={150} y={180} fill={C.coralL} name="agent.coder" note="writes memory.md" />
       <AgentBox x={1510} y={180} fill={C.skyL} name="agent.research" note="mines its wing" />
       <AgentBox x={150} y={790} fill={C.lemonL} name="agent.qa" note="recall in 12ms" />
-      <AgentBox x={1510} y={790} fill={C.mintL} name="GOD" note="searches palace" />
+      <AgentBox x={1510} y={790} fill={C.mintL} name="ORCHESTRATOR" note="searches palace" />
 
       <Beam x1={410} y1={235} x2={700} y2={420} from={20} color={C.coral} />
       <Beam x1={1510} y1={235} x2={1220} y2={420} from={40} color={C.sky} />

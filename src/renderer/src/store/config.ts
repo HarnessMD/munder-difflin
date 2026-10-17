@@ -72,10 +72,10 @@ export interface HarnessConfig {
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;
-  /** Which provider+model powers the GOD orchestrator ("Michael"). Default
+  /** Which provider+model powers the orchestrator ("Michael"). Default
    *  'claude' / 'claude-opus-4-8'. Mirrors src/main/config.ts. */
-  godProvider?: AgentProvider;
-  godModel?: string;
+  orchestratorProvider?: AgentProvider;
+  orchestratorModel?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id (mirrors
    *  src/main/config.ts; seeded from MCP_CATALOG). */
   mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -352,11 +352,11 @@ export function agentModels(): ModelOption[] {
 }
 
 /** Providers shown in the Command Center's cross-provider model picker.
- *  God must remain on a provider with a working inbox drain; otherwise switching
+ *  Orchestrator must remain on a provider with a working inbox drain; otherwise switching
  *  to a terminal-only provider would silently disable orchestration. */
-export function modelProvidersForAgent(isGod = false) {
+export function modelProvidersForAgent(isOrchestrator = false) {
   return AGENT_PROVIDER_PRESETS.filter((preset) =>
-    preset.supportsModel && (!isGod || preset.canReceiveInbox)
+    preset.supportsModel && (!isOrchestrator || preset.canReceiveInbox)
   );
 }
 
@@ -364,7 +364,7 @@ export function modelProvidersForAgent(isGod = false) {
  *  engines there read as "Copilot isn't supported at all", when the truth is
  *  narrower: a print-mode / bridge-less CLI can be HIRED as a worker but cannot
  *  run Michael, because the orchestrator must drain hive mail. So the step now
- *  shows those engines too, as disabled workers-only rows — same god-eligible
+ *  shows those engines too, as disabled workers-only rows — same orchestrator-eligible
  *  set as `modelProvidersForAgent(true)` for the selectable group, and every
  *  other preset except `custom` (bring-your-own command, not an engine) in the
  *  disabled group. */

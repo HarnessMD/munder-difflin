@@ -62,7 +62,7 @@ const selectStyle: React.CSSProperties = {
 export function RealtimeDevicePicker(): React.ReactElement {
   const { t } = useTranslation();
   const { deviceId, setDeviceId, outputDeviceId, setOutputDeviceId } = useRealtimeMichael();
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const [mics, setMics] = useState<AudioDevice[]>([]);
   const [speakers, setSpeakers] = useState<AudioDevice[]>([]);
   /** True once at least one device exposes a real label ⇒ mic permission granted. */

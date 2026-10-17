@@ -23,7 +23,7 @@ One place types automatic messages into a live agent's PTY: the **drain loop**,
 `useHive.ts` effect #4. Everything that wants to reach a running agent enqueues into
 the MD queue and lets the drain decide when.
 
-(The single exception is the god agent's boot sequence, `useHive.ts:284`, which
+(The single exception is the orchestrator's boot sequence, `useHive.ts:284`, which
 writes its remote-control command and orientation prompt directly. That PTY was
 spawned milliseconds earlier and is covered by the boot-grace window, so there is no
 user draft it could land on.)

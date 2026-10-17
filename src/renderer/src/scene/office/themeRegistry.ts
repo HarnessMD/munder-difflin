@@ -24,19 +24,19 @@ export interface Tile { x: number; y: number; }
 export type Facing = 'up' | 'down' | 'left' | 'right';
 
 /** Kinds of small idle errands around the office (incl. plant watering).
- *  'smoke' is the boss special: cigar at the open window, god only. */
+ *  'smoke' is the boss special: cigar at the open window, orchestrator only. */
 export type ErrandKind =
   | 'water' | 'window' | 'dispenser' | 'fridge' | 'shelf' | 'bin' | 'smoke';
 
 /** One idle-errand anchor: a stand tile + facing, an `fx` tile for the ambient
- *  animation, a duration, and an optional god-only restriction. */
+ *  animation, a duration, and an optional orchestrator-only restriction. */
 export interface ErrandSpot {
   kind: ErrandKind;
   stand: Tile;
   facing: Facing;
   fx: Tile;
   duration: number;
-  godOnly?: boolean;
+  orchestratorOnly?: boolean;
 }
 
 /** One tileset atlas + its placement in the global gid space. `embedded` marks
@@ -124,7 +124,7 @@ export interface ThemeConfig {
   /** Ordered atlases — order matches both the texture load order and the map's
    *  tileset array (texture[i] ↔ tilesets[i]). */
   tilesets: TilesetEntry[];
-  /** Desk-claim order, by spawn-point name (seat 0 = god / desk-ceo). */
+  /** Desk-claim order, by spawn-point name (seat 0 = orchestrator / desk-ceo). */
   primarySeatNames: string[];
   /** Paired café table seats, in order. */
   cafeSeatNames: string[];

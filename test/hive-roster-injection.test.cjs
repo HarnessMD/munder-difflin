@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * God has to know the LIVE floor across its own restarts — a roster it read once
+ * Orchestrator has to know the LIVE floor across its own restarts — a roster it read once
  * goes stale, and it then messages agents that were archived or killed. So the
- * roster is PUSHED into god's context (SessionStart + every prompt) rather than
+ * roster is PUSHED into orchestrator's context (SessionStart + every prompt) rather than
  * pulled.
  *
  * Only one `additionalContext` may be returned per hook, so the roster and the
@@ -40,11 +40,11 @@ async function floor(t, { steer } = {}) {
   const home = tmpHome();
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home);
-  await hive.ensureAgent({ id: 'god-1', name: 'Michael', provider: 'claude', cwd: home, isGod: true });
+  await hive.ensureAgent({ id: 'orchestrator-1', name: 'Michael', provider: 'claude', cwd: home, isOrchestrator: true });
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
 
   const control = steer
-    ? { takeSteer: (id) => (id === 'god-1' ? steer : null), shouldHalt: () => false, toolDecision: () => ({ deny: false }) }
+    ? { takeSteer: (id) => (id === 'orchestrator-1' ? steer : null), shouldHalt: () => false, toolDecision: () => ({ deny: false }) }
     : undefined;
   const server = new HookServer(hive, () => null, () => CONFIG, control, undefined);
   const fire = (agent_id, hook_event_name, extra = {}) => server.handle({ agent_id, hook_event_name, session_id: 's1', ...extra });
@@ -55,7 +55,7 @@ function snapshot(hive) {
   hive.writeFleetSnapshot({
     ts: Date.now() - 4000,
     agents: [
-      { id: 'god-1', name: 'Michael', role: 'orchestrator', isGod: true, breaker: 'ok', tokens: 812_400, usd: 4.2199, lastActiveSecAgo: 6, inboxBacklog: 2 },
+      { id: 'orchestrator-1', name: 'Michael', role: 'orchestrator', isOrchestrator: true, breaker: 'ok', tokens: 812_400, usd: 4.2199, lastActiveSecAgo: 6, inboxBacklog: 2 },
       { id: 'jim-1', name: 'Jim', role: 'agent', breaker: 'warn', tokens: 120_401, usd: 1.0231, lastActiveSecAgo: 240, inboxBacklog: 0 },
       { id: 'pam-1', name: 'Pam', role: 'agent', breaker: 'ok', tokens: 0, usd: 0, lastActiveSecAgo: null, inboxBacklog: 0 }
     ]
@@ -72,14 +72,14 @@ test('the roster line carries the whole floor and its state', async (t) => {
   const line = hive.rosterContext();
 
   assert.ok(!line.includes('\n'), 'must stay a single compact line');
-  for (const id of ['god-1', 'jim-1', 'pam-1']) assert.ok(line.includes(id), `missing ${id}`);
+  for (const id of ['orchestrator-1', 'jim-1', 'pam-1']) assert.ok(line.includes(id), `missing ${id}`);
   assert.match(line, /812k tok/);
   assert.match(line, /\$4\.22/);
   assert.match(line, /inbox 2/);
   assert.match(line, /breaker warn/);
-  assert.match(line, /god-1[^;]*you/, 'god has to be able to spot itself');
+  assert.match(line, /orchestrator-1[^;]*you/, 'orchestrator has to be able to spot itself');
   assert.match(line, /no activity yet/, 'an agent that never ran must not read as "active never"');
-  assert.match(line, /SUPERSEDES/, 'the point is to override what god remembers');
+  assert.match(line, /SUPERSEDES/, 'the point is to override what orchestrator remembers');
   assert.ok(line.length < 1200, `too long for a 3-agent floor: ${line.length} chars`);
 });
 
@@ -91,22 +91,22 @@ test('each agent line carries its live context-window occupancy (ctx NN%)', asyn
   assert.ok(!hive.rosterContext().includes('ctx '), 'no occupancy when no statusLine tick has fired');
 
   // Seed live context-window accounting through the statusLine shim path.
-  // god-1: 62% of a 200k window; jim-1: 99% (near-full, the routing signal).
-  await fire('god-1', 'Status', { context_window: { total_input_tokens: 124000, context_window_size: 200000 } });
+  // orchestrator-1: 62% of a 200k window; jim-1: 99% (near-full, the routing signal).
+  await fire('orchestrator-1', 'Status', { context_window: { total_input_tokens: 124000, context_window_size: 200000 } });
   await fire('jim-1', 'Status', { context_window: { total_input_tokens: 99000, context_window_size: 100000 } });
 
-  // Read the roster the way god actually receives it: injected on a prompt,
+  // Read the roster the way orchestrator actually receives it: injected on a prompt,
   // which is where HookServer layers the LIVE occupancy onto the disk snapshot.
-  const line = context(await fire('god-1', 'UserPromptSubmit'));
+  const line = context(await fire('orchestrator-1', 'UserPromptSubmit'));
   assert.ok(line.includes('LIVE ROSTER'), 'roster injected on prompt');
-  assert.match(line, /god-1[^;]*ctx 62%/, 'god line shows its own occupancy');
-  assert.match(line, /jim-1[^;]*ctx 99%/, 'a near-full agent is flagged to god');
+  assert.match(line, /orchestrator-1[^;]*ctx 62%/, 'orchestrator line shows its own occupancy');
+  assert.match(line, /jim-1[^;]*ctx 99%/, 'a near-full agent is flagged to orchestrator');
   // pam-1 never fired a Status tick — its line must NOT get ctx.
   assert.match(line, /pam-1[^;]*\(agent, no activity yet\)/, 'no ctx for an agent with no Status data');
   assert.ok(!line.includes('\n'), 'still a single compact line');
 });
 
-test('renaming changes only the display name and reaches god immediately', async (t) => {
+test('renaming changes only the display name and reaches orchestrator immediately', async (t) => {
   const { home, hive } = await floor(t);
   snapshot(hive);
   const agentDir = path.join(home, 'hive', 'agents', 'jim-1');
@@ -130,18 +130,18 @@ test('rename rejects empty and unknown agents without changing the registry', as
   assert.equal(hive.registry().agents['jim-1'].name, 'Jim');
 });
 
-test('god gets the roster on SessionStart and on every prompt — nobody else does', async (t) => {
+test('orchestrator gets the roster on SessionStart and on every prompt — nobody else does', async (t) => {
   const { hive, fire } = await floor(t);
   snapshot(hive);
 
-  const start = await fire('god-1', 'SessionStart');
+  const start = await fire('orchestrator-1', 'SessionStart');
   assert.match(context(start), /LIVE ROSTER/);
   assert.equal(start.hookSpecificOutput.hookEventName, 'SessionStart');
-  assert.match(context(await fire('god-1', 'UserPromptSubmit')), /LIVE ROSTER/);
+  assert.match(context(await fire('orchestrator-1', 'UserPromptSubmit')), /LIVE ROSTER/);
 
   assert.doesNotMatch(context(await fire('jim-1', 'SessionStart')), /LIVE ROSTER/);
   assert.doesNotMatch(context(await fire('jim-1', 'UserPromptSubmit')), /LIVE ROSTER/);
-  assert.doesNotMatch(context(await fire('god-1', 'PostToolUse')), /LIVE ROSTER/,
+  assert.doesNotMatch(context(await fire('orchestrator-1', 'PostToolUse')), /LIVE ROSTER/,
     'prompt boundaries only — not once per tool call');
 });
 
@@ -150,7 +150,7 @@ test('a queued operator steer is not swallowed by the roster', async (t) => {
   const { hive, fire } = await floor(t, { steer });
   snapshot(hive);
 
-  const ctx = context(await fire('god-1', 'UserPromptSubmit'));
+  const ctx = context(await fire('orchestrator-1', 'UserPromptSubmit'));
   assert.match(ctx, /LIVE ROSTER/);
   assert.ok(ctx.includes(steer), 'only one additionalContext exists — the two must merge, not race');
 });
@@ -161,7 +161,7 @@ test('a corrupt fleet.json degrades to no injection instead of throwing into a h
   fs.writeFileSync(path.join(home, 'hive', 'fleet.json'), '{ not json');
 
   assert.equal(hive.rosterContext(), null);
-  const res = await fire('god-1', 'SessionStart');
+  const res = await fire('orchestrator-1', 'SessionStart');
   assert.doesNotMatch(context(res), /LIVE ROSTER/);
 });
 

@@ -1,7 +1,7 @@
 /**
  * Realtime Michael — voice toggle + live state indicator (card rt-3, Phase 1).
  *
- * A reusable mic button for the god/orchestrator agent ("Michael"). It consumes the
+ * A reusable mic button for the orchestrator agent ("Michael"). It consumes the
  * already-built `useRealtimeMichael()` voice-loop hook (a shared module-level singleton —
  * see realtime/session.ts) and exposes a single start/stop control plus a live indicator
  * of the loop's status.
@@ -13,7 +13,7 @@
  *
  * Click behaviour: status==='off' → connect(); anything else → disconnect().
  *
- * Rendered in two places (AgentCard for the god card, FullscreenTerminal header when
+ * Rendered in two places (AgentCard for the orchestrator card, FullscreenTerminal header when
  * Michael is fullscreen). It is intentionally state-only / hook-only so both can mount it.
  */
 import { useEffect, useRef, useState, type MouseEvent } from 'react';

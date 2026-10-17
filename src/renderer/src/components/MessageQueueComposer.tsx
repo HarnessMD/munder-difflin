@@ -71,7 +71,7 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
 
   const idle = agent.status === 'idle';
 
-  // Only the god/Michael agent gets the delegation toggle. Default OFF.
+  // Only the orchestrator/Michael agent gets the delegation toggle. Default OFF.
 
   // Files/images staged for the next message. Component-local: switching agents
   // remounts this component, so attachments are cleared on tab switch (drafts

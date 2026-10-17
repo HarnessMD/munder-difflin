@@ -3,7 +3,7 @@ import { AbsoluteFill, Sequence } from 'remotion';
 import { C, FONT } from './theme';
 import { press } from './fonts';
 import { HowAgents } from './HowAgents';
-import { HowGodHive } from './HowGodHive';
+import { HowOrchestratorHive } from './HowOrchestratorHive';
 import { HowMemPalace } from './HowMemPalace';
 
 // Optional synthetic hero used ONLY if you don't have a real screen recording yet.
@@ -11,7 +11,7 @@ import { HowMemPalace } from './HowMemPalace';
 export const HeroFallback: React.FC = () => (
   <AbsoluteFill style={{ background: C.ink }}>
     <Sequence durationInFrames={150}><HowAgents /></Sequence>
-    <Sequence from={150} durationInFrames={150}><HowGodHive /></Sequence>
+    <Sequence from={150} durationInFrames={150}><HowOrchestratorHive /></Sequence>
     <Sequence from={300} durationInFrames={150}><HowMemPalace /></Sequence>
     <div style={{
       position: 'absolute', left: 0, right: 0, top: 40, textAlign: 'center',

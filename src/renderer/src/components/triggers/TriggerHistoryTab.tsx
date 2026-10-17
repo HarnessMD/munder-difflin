@@ -247,7 +247,7 @@ function ExchangeCard({
   onDecide: (id: string, decision: 'approved' | 'rejected') => void;
 }) {
   const { t } = useTranslation();
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const head = ex.head;
   const hasInbound = ex.msgs.some((m) => m.direction === 'inbound');
   const decision = head.decision;
@@ -259,7 +259,7 @@ function ExchangeCard({
   const tail = (() => {
     if (pending || ex.answered) return null;
     if (decision === 'rejected') return t('triggerHistory.tailRejected');
-    return t('triggerHistory.tailNoReply', { godName });
+    return t('triggerHistory.tailNoReply', { orchestratorName });
   })();
 
   return (
@@ -309,8 +309,8 @@ function ExchangeCard({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ ...uiText, fontSize: 11, lineHeight: '16px', color: 'var(--cth-ink-700)' }}>
             {pending.kind === 'directive'
-              ? t('triggerHistory.pendingDirectiveDesc', { godName })
-              : t('triggerHistory.pendingDesc', { godName })}
+              ? t('triggerHistory.pendingDirectiveDesc', { orchestratorName })
+              : t('triggerHistory.pendingDesc', { orchestratorName })}
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             <PixelButton
@@ -318,7 +318,7 @@ function ExchangeCard({
               size="sm"
               disabled={!!busy[pending.id]}
               onClick={() => onDecide(pending.id, 'approved')}
-              title={t('triggerHistory.approveTitle', { godName })}
+              title={t('triggerHistory.approveTitle', { orchestratorName })}
             >
               {busy[pending.id] ? t('triggerHistory.oneSec') : t('triggerHistory.approve')}
             </PixelButton>
@@ -372,7 +372,7 @@ const SECTIONS: { key: Source; labelKey: string; blurbKey: string }[] = [
 
 export function TriggerHistoryTab() {
   const { t } = useTranslation();
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const [entries, setEntries] = useState<TriggerHistoryEntry[]>([]);
   const [source, setSource] = useState<Source>('webhook');
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -492,7 +492,7 @@ export function TriggerHistoryTab() {
         flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden',
         padding: 8, display: 'flex', flexDirection: 'column', gap: 8
       }}>
-        <div style={{ ...muted, fontSize: 11, lineHeight: '16px' }}>{t(section.blurbKey, { godName })}</div>
+        <div style={{ ...muted, fontSize: 11, lineHeight: '16px' }}>{t(section.blurbKey, { orchestratorName })}</div>
 
         {pendingCount > 0 && (
           <div style={{
@@ -521,7 +521,7 @@ export function TriggerHistoryTab() {
           ) : (
             <EmptyState
               title={t('triggerHistory.emptyWebhookTitle')}
-              body={t('triggerHistory.emptyWebhookBody', { godName })}
+              body={t('triggerHistory.emptyWebhookBody', { orchestratorName })}
             />
           )
         ) : (

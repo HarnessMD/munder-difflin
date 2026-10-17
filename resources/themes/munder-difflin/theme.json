@@ -152,7 +152,7 @@
         "y": 3
       },
       "duration": 4.5,
-      "godOnly": true
+      "orchestratorOnly": true
     },
     {
       "kind": "smoke",
@@ -166,7 +166,7 @@
         "y": 1
       },
       "duration": 18,
-      "godOnly": true
+      "orchestratorOnly": true
     },
     {
       "kind": "water",

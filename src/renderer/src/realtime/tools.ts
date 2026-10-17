@@ -115,7 +115,7 @@ export function realtimeReadTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'get_fleet_status',
       description:
-        'Who is in the agent hive right now: how many agents, which are active versus archived, who the god orchestrator is, and each active agent name, role, and engine. Call this when the user asks who is working, who is on the floor, or for a roster.',
+        'Who is in the agent hive right now: how many agents, which are active versus archived, who the orchestrator is, and each active agent name, role, and engine. Call this when the user asks who is working, who is on the floor, or for a roster.',
       parameters: { type: 'object', properties: {}, required: [], additionalProperties: false },
       execute: () =>
         spoken(async () => {
@@ -124,10 +124,10 @@ export function realtimeReadTools(): ReturnType<typeof tool>[] {
           if (!entries.length) return 'The hive has no registered agents yet.';
           const active = entries.filter(([, a]) => !obj(a).archived);
           const archived = entries.length - active.length;
-          const godId = reg.godId;
-          const godName = godId ? str(obj(obj(reg.agents)[godId]).name) || godId : null;
+          const orchestratorId = reg.orchestratorId;
+          const orchestratorName = orchestratorId ? str(obj(obj(reg.agents)[orchestratorId]).name) || orchestratorId : null;
           const lines = active
-            .filter(([id]) => id !== godId)
+            .filter(([id]) => id !== orchestratorId)
             .map(([, a]) => {
               const m = obj(a);
               const name = str(m.name) || 'an unnamed agent';
@@ -139,9 +139,9 @@ export function realtimeReadTools(): ReturnType<typeof tool>[] {
           const head = `There ${active.length === 1 ? 'is' : 'are'} ${plural(active.length, 'agent')} active${
             archived ? ` and ${plural(archived, 'archived agent')}` : ''
           }.`;
-          const god = godName ? ` ${godName} is the orchestrator.` : '';
+          const orchestrator = orchestratorName ? ` ${orchestratorName} is the orchestrator.` : '';
           const roster = lines.length ? ` Active workers: ${lines.join('; ')}.` : '';
-          return head + god + roster;
+          return head + orchestrator + roster;
         }, 'fleet status')
     }),
 
@@ -263,7 +263,7 @@ export function realtimeReadTools(): ReturnType<typeof tool>[] {
     tool({
       name: 'get_config',
       description:
-        'The non-sensitive hive settings: autonomy mode, the default model and god engine, budget caps, worker limits, the circuit breaker, and which features are on. Never returns secrets or API keys. Call this when the user asks how the hive is configured, what the limits or budgets are, or whether a feature is enabled.',
+        'The non-sensitive hive settings: autonomy mode, the default model and orchestrator engine, budget caps, worker limits, the circuit breaker, and which features are on. Never returns secrets or API keys. Call this when the user asks how the hive is configured, what the limits or budgets are, or whether a feature is enabled.',
       parameters: { type: 'object', properties: {}, required: [], additionalProperties: false },
       execute: () =>
         spoken(async () => {
@@ -276,8 +276,8 @@ export function realtimeReadTools(): ReturnType<typeof tool>[] {
           const parts: string[] = [];
           parts.push(`Autonomy mode is ${c.autoMode ? 'on' : 'off'}.`);
           if (c.defaultModel) parts.push(`The default model is ${c.defaultModel}.`);
-          if (c.godProvider || c.godModel)
-            parts.push(`The orchestrator runs ${[c.godProvider, c.godModel].filter(Boolean).join(' ')}.`);
+          if (c.orchestratorProvider || c.orchestratorModel)
+            parts.push(`The orchestrator runs ${[c.orchestratorProvider, c.orchestratorModel].filter(Boolean).join(' ')}.`);
           if (typeof cc.maxConcurrentWorkers === 'number')
             parts.push(`Up to ${plural(cc.maxConcurrentWorkers, 'worker')} run concurrently.`);
           // De-monetized: report only the token cap (no dollar cap), and avoid
@@ -616,7 +616,7 @@ export function realtimeReadTools(): ReturnType<typeof tool>[] {
 
 /**
  * A short, preloaded orientation Michael can open the session with — the hive
- * size, who god is, and how many tasks are in flight — so the first answer is
+ * size, who orchestrator is, and how many tasks are in flight — so the first answer is
  * grounded without a tool round-trip. Best-effort: returns '' if reads fail, so
  * the caller can safely concatenate it onto the agent instructions.
  */
@@ -631,7 +631,7 @@ export async function realtimeSessionSummary(): Promise<string> {
       window.cth.hiveTasks()
     ]);
     const rows = (Array.isArray(dir?.agents) ? (dir.agents as unknown[]) : []).map(obj).filter((a) => !a.archived);
-    const godRow = rows.find((a) => a.isGod === true);
+    const orchestratorRow = rows.find((a) => a.isOrchestrator === true);
     const lines = rows.slice(0, 20).map((a) => {
       const bits = [
         `${str(a.name) || str(a.id)} is ${str(a.status) || 'in an unknown state'}`,
@@ -653,7 +653,7 @@ export async function realtimeSessionSummary(): Promise<string> {
     ].filter(Boolean).join(' ');
     return (
       `Floor at connect — ${plural(rows.length, 'agent')} active` +
-      `${godRow ? `, ${str(godRow.name)} orchestrating alongside you` : ''}. ` +
+      `${orchestratorRow ? `, ${str(orchestratorRow.name)} orchestrating alongside you` : ''}. ` +
       `Per agent: ${lines.join(' | ') || 'none'}. ` +
       taskLine +
       ` You will also receive short "(Floor update: …)" notes as things change mid-call — trust those over this snapshot.` +

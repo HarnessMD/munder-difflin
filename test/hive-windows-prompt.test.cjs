@@ -8,7 +8,7 @@
  *    command). Under cmd.exe `$FOO` expands to nothing and under PowerShell to an
  *    undefined variable, so those instructions were dead on every Windows floor.
  *  - String-concatenated separators (`${dir}/inbox/`), which told a Windows agent
- *    to read `C:\Users\x\hive\agents\god-1/inbox/`.
+ *    to read `C:\Users\x\hive\agents\orchestrator-1/inbox/`.
  *
  * And the prompt itself must survive the spawn: it is passed on argv, is multi-line
  * and paren/quote-heavy, and on Windows now rides node-pty's CRT escaping rather
@@ -32,10 +32,10 @@ async function floor(t, opts = {}) {
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home);
   const inj = await hive.ensureAgent(
-    { id: 'god-1', name: 'Michael', provider: opts.provider ?? 'claude', cwd: home, isGod: true },
+    { id: 'orchestrator-1', name: 'Michael', provider: opts.provider ?? 'claude', cwd: home, isOrchestrator: true },
     { semanticMemory: true, knowledgeGraph: true, kgCliPath: KG_CLI, ...(opts.injectOpts ?? {}) }
   );
-  return { home, hive, inj, dir: path.join(home, 'hive', 'agents', 'god-1'), root: path.join(home, 'hive') };
+  return { home, hive, inj, dir: path.join(home, 'hive', 'agents', 'orchestrator-1'), root: path.join(home, 'hive') };
 }
 
 /** The injected system prompt, whichever flag this provider carries it on. */
@@ -84,7 +84,7 @@ test('protocol paths use native separators the agent can actually use', async (t
     assert.ok(prompt.includes(p), `missing native-separator path: ${p}`);
   }
   // The old form concatenated literal `/` onto a native dir, which on win32 read
-  // `C:\…\god-1/inbox/`. Pin the exact old spellings so a regression fails HERE,
+  // `C:\…\orchestrator-1/inbox/`. Pin the exact old spellings so a regression fails HERE,
   // on macOS, where this code is actually written — they differ from the new text
   // on POSIX too (the trailing slash is gone).
   for (const old of ['/inbox/ (messages', '/inbox/.done/.', '/outbox/ (schema']) {
@@ -98,8 +98,8 @@ test('protocol paths use native separators the agent can actually use', async (t
 
 test('the Stop-hook drain text uses native separators too', async (t) => {
   const { hive, dir } = await floor(t);
-  hive.send({ to: 'god-1', act: 'request', subject: 'ping', body: 'hello' }, 'tester');
-  const { block, reason } = hive.drainForStop('god-1');
+  hive.send({ to: 'orchestrator-1', act: 'request', subject: 'ping', body: 'hello' }, 'tester');
+  const { block, reason } = hive.drainForStop('orchestrator-1');
   assert.equal(block, true);
   assert.ok(reason.includes(path.join(dir, 'inbox')));
   assert.ok(reason.includes(path.join(dir, 'inbox', '.done')));
