@@ -352,7 +352,7 @@
       "freeFlowHint": "Two ways to dictate: click the mic button above Send in the queue composer (click to record, click again to transcribe), or — while viewing any agent's terminal — hold Option (⌥) to talk and release to transcribe. Either way the text lands in the composer draft for you to review before sending. macOS will ask for microphone permission the first time you record.",
       "realtime": "Realtime {{orchestratorName}}",
       "voiceChat": "Voice chat with {{orchestratorName}}",
-      "voiceChatDesc": "Talk to {{orchestratorName}} in real time. Toggle it on from {{orchestratorName}}'s tab; choose which microphone and speaker the voice loop uses here.",
+      "voiceChatDesc": "Talk to your agents in real time. Toggle it on from {{orchestratorName}}'s tab; choose which microphone and speaker the voice loop uses here.",
       "openaiKey": "OpenAI API key · voice",
       "openaiKeyDesc1": "Talking to {{orchestratorName}} runs on OpenAI's Realtime API — speech in, speech out, over a live connection to {{model}}. That is a different service from the Claude subscription your agents run on, so it needs its own OpenAI API key.",
       "openaiKeyDesc2": "Paste it once below. It is encrypted on this machine and never shown again — each voice session mints its own short-lived token from it, and the key itself never leaves your computer. It is the same OpenAI key listed under Agents & Models; setting it in either place is enough.",

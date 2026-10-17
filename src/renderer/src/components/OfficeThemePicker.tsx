@@ -7,7 +7,7 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import type { ThemeId } from '@/scene/office/themeRegistry';
-import type { PackSummary } from '@shared/themePack';
+import { DEFAULT_THEME_ID, type PackSummary } from '@shared/themePack';
 
 interface ThemeCardItem {
   id: ThemeId;
@@ -23,7 +23,7 @@ interface ThemeCardItem {
 export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
   const { t } = useTranslation();
   const [enabled, setEnabled] = useState(!!config.tvShowOffices);
-  const [current, setCurrent] = useState<ThemeId>((config.officeTheme as ThemeId) ?? 'munder-difflin');
+  const [current, setCurrent] = useState<ThemeId>((config.officeTheme as ThemeId) ?? DEFAULT_THEME_ID);
   const [pending, setPending] = useState<ThemeId | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
@@ -63,7 +63,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       await window.cth.updateConfig({ tvShowOffices: next });
       // Flag off → the office renders regardless of the saved theme; flag on →
       // restore the persisted theme.
-      setOfficeTheme(next ? current : 'munder-difflin');
+      setOfficeTheme(next ? current : DEFAULT_THEME_ID);
     } catch {
       setEnabled(!next); // revert optimistic toggle on failure
     }
@@ -147,7 +147,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       {enabled && (
         <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
           {themes.map((theme) => {
-            const isCurrent = theme.id === current || (theme.id === 'munder-difflin' && current === 'office');
+            const isCurrent = theme.id === current || (theme.id === DEFAULT_THEME_ID && current === 'office');
             return (
               <button
                 key={theme.id}

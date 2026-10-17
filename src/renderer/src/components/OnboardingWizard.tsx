@@ -12,7 +12,7 @@ import {
   classifyEngineAvailability, engineAvailabilityBadge, engineAvailabilityMessage, engineBlocksOnboarding
 } from '@shared/engineAvailability';
 import type { ToolStatus } from '@shared/toolCatalog';
-import type { PackSummary } from '@shared/themePack';
+import { DEFAULT_THEME_ID, type PackSummary } from '@shared/themePack';
 import { useResolvedOrchestratorName } from '@/hooks/useResolvedOrchestratorName';
 import { setAppTheme, useAppTheme, type AppTheme } from '@/design/theme';
 
@@ -116,7 +116,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   // Appearance & Theme Pack selection (#3, #4)
   const currentAppTheme = useAppTheme();
   const [selectedMode, setSelectedMode] = useState<AppTheme>(currentAppTheme);
-  const [selectedPack, setSelectedPack] = useState<string>('munder-difflin');
+  const [selectedPack, setSelectedPack] = useState<string>(DEFAULT_THEME_ID);
   const [themeSelected, setThemeSelected] = useState<boolean>(false);
   const [packs, setPacks] = useState<PackSummary[]>([]);
 

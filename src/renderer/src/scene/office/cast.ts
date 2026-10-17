@@ -3,8 +3,8 @@
 // Both the static portraits (cards / picker) and the in-scene walking sprites are
 // now fully custom-drawn from the same per-character recipes in portraitArt.ts:
 // the scene sprite reuses the portrait's exact head/face/clothing and adds legs,
-// so an agent on the office floor looks identical to its card. The LimeZu base
-// sheets are no longer used for the cast. See assets/ATTRIBUTION.md.
+// so an agent on the office floor looks identical to its card. No third-party
+// sprite sheets are used. See assets/ATTRIBUTION.md.
 
 import { Texture } from 'pixi.js';
 import { paintPortrait, sceneFrameBufs, SCENE_W, SCENE_H } from './portraitArt';

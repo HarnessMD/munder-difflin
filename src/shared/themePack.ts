@@ -14,9 +14,9 @@ export const PACK_ID_RE = /^[a-z0-9][a-z0-9-]{1,39}$/;
 /** Ids a pack may not use. `office` is the legacy alias for the first pack. */
 export const RESERVED_PACK_IDS: readonly string[] = ['office', 'default', 'none'];
 /** The built-in pack every fallback chain ends at. */
-export const DEFAULT_THEME_ID: ThemeId = 'munder-difflin';
+export const DEFAULT_THEME_ID: ThemeId = 'plain';
 /** Legacy ids rewritten on config load (§4 step 0). */
-export const LEGACY_THEME_ALIASES: Readonly<Record<string, ThemeId>> = { office: DEFAULT_THEME_ID };
+export const LEGACY_THEME_ALIASES: Readonly<Record<string, ThemeId>> = { office: 'munder-difflin' };
 
 /** Resolve a legacy alias; anything else passes through unchanged. */
 export function normalizeThemeId(id: string): ThemeId {

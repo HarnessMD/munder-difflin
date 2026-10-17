@@ -329,7 +329,7 @@ export function applyThemeChrome(theme: ThemeConfig): void {
 
 /** Resolve a theme id to a renderable ThemeConfig. Async by design;
  *  loads disk pack via window.cth.loadThemePack(id) and caches in THEMES.
- *  Falls back to DEFAULT_THEME_ID ('munder-difflin') on any failure. */
+ *  Falls back to DEFAULT_THEME_ID ('plain') on any failure. */
 export async function loadTheme(id: ThemeId): Promise<ThemeConfig> {
   const normId = normalizeThemeId(id);
 

@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "id": "plain",
+  "name": "Plain",
+  "version": "1.0.0",
+  "author": "agent-stage contributors",
+  "license": "MIT",
+  "blurb": "A quiet, original default floor",
+  "swatch": "#2c2e3a",
+  "map": "map.tmj",
+  "tilesets": [
+    {
+      "file": "tilesets/plain.png",
+      "embedded": true
+    }
+  ],
+  "seats": {
+    "primary": [
+      "desk-ceo",
+      "pc-1",
+      "pc-2",
+      "pc-3",
+      "pc-4",
+      "pc-5",
+      "pc-6",
+      "pc-7",
+      "pc-8",
+      "pc-9",
+      "pc-10",
+      "pc-11",
+      "pc-12"
+    ],
+    "cafe": [
+      "cafe-seat-1",
+      "cafe-seat-2",
+      "cafe-seat-3",
+      "cafe-seat-4"
+    ],
+    "cafeStands": [],
+    "facing": {
+      "desk-ceo": "up",
+      "pc-1": "up",
+      "pc-2": "up",
+      "pc-3": "up",
+      "pc-4": "up",
+      "pc-5": "up",
+      "pc-6": "up",
+      "pc-7": "up",
+      "pc-8": "up",
+      "pc-9": "up",
+      "pc-10": "up",
+      "pc-11": "up",
+      "pc-12": "up",
+      "cafe-seat-1": "right",
+      "cafe-seat-2": "left",
+      "cafe-seat-3": "down",
+      "cafe-seat-4": "up"
+    }
+  },
+  "anchors": {
+    "calendar": {
+      "x": 6,
+      "y": 1
+    },
+    "boards": {
+      "x": 10,
+      "y": 1
+    },
+    "clock": {
+      "x": 14,
+      "y": 1
+    }
+  },
+  "errandSpots": [],
+  "monitor": {
+    "offTopLeftGid": 6,
+    "onGids": [
+      [
+        7,
+        0,
+        0
+      ]
+    ]
+  },
+  "palette": {
+    "background": "#14151c",
+    "noteColors": {
+      "todo": "#f2df8a",
+      "doing": "#9ecbf0",
+      "blocked": "#f0a3a3",
+      "done": "#a8e0b0"
+    }
+  }
+}

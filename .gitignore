@@ -35,3 +35,8 @@ docs/blog-preview-*/
 # Finder duplicate files, e.g. "spec 2.js", "sitemap 2.xml"
 *\ 2.*
 *\ [0-9].*
+
+# Third-party / licensed theme packs live outside the repo (point MD_THEMES_DIR at them).
+# The only built-in pack is resources/themes/plain.
+/resources/themes/*
+!/resources/themes/plain/

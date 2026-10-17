@@ -1,11 +1,8 @@
 // Procedural portraits for the built-in cast.
 //
-// These are fully custom-drawn busts (NOT recolored LimeZu sprites): each
-// character is an explicit recipe layering skin → clothing → face → facial hair
-// → hairstyle → glasses on an 18×28 canvas. This gives real control over each
-// person's hairstyle shape, garment cut/color, and facial hair so they read as
-// the specific show character. The in-scene walking sprites still use the LimeZu
-// recolor in cast.ts; this module only powers the static portraits in the UI.
+// These are fully custom-drawn busts: each character is an explicit recipe layering
+// skin → clothing → face → facial hair → hairstyle → glasses on an 18×28 canvas.
+// The in-scene walking sprites in cast.ts reuse the same recipes plus legs.
 
 import { normalizeCharacter, type CharacterName } from './characters';
 

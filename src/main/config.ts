@@ -455,7 +455,7 @@ const DEFAULTS: HarnessConfig = {
   telemetryEnabled: true,
   multiWindow: true,
   tvShowOffices: false,
-  officeTheme: 'office',
+  officeTheme: DEFAULT_THEME_ID,
   slackEnabled: false,
   slackSigningSecret: undefined,
   slackBotToken: undefined,
