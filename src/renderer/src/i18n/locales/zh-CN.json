@@ -165,11 +165,11 @@
     "reportProblem": "反馈问题",
     "fullChangelog": "完整更新日志 →",
     "announcement": "公告",
-    "proLaunch": "v0.5.0 与 Munder Difflin Pro 一同发布。",
+    "proLaunch": "v0.5.0 与 Agent Stage Pro 一同发布。",
     "proCommunityFree": "社区版保持免费、开源，并持续获得更新。",
     "proParagraph": "Pro 版将带来新的功能与集成，全年持续上新；它领先于社区版，面向想要充分发挥编码智能体与智能体工具链潜力的重度用户。Pro 路线图还包括移动端应用。",
     "foundersWallTitle": "在 Founders' Wall 上吗？",
-    "foundersWallBody": "免费获得一个月的 Munder Difflin Pro，此后年度套餐享 5 折。仅限前 100 位上榜用户。",
+    "foundersWallBody": "免费获得一个月的 Agent Stage Pro，此后年度套餐享 5 折。仅限前 100 位上榜用户。",
     "seeTheWall": "查看榜单",
     "joinDiscord": "加入 Discord"
   },
@@ -583,7 +583,7 @@
   },
   "onboarding": {
     "titles": {
-      "persona": "欢迎来到 MUNDER DIFFLIN",
+      "persona": "欢迎来到 AGENT STAGE",
       "welcome": "认识你的办公室",
       "theme": "第 1 步，共 5 步 · 选择主题",
       "home": "第 2 步，共 5 步 · HARNESS 主目录",
@@ -597,7 +597,7 @@
     },
     "persona": {
       "headline": "一个 24/7 工作的你",
-      "body": "Munder Difflin 把你在用的 CLI 智能体变成你的克隆——一个经营着一屋子长期运行智能体、在你离开时持续工作的存在。它管理着围绕它们的一切：上下文、记忆、任务、触发器、环境、文件和集成。",
+      "body": "Agent Stage 把你在用的 CLI 智能体变成你的克隆——一个经营着一屋子长期运行智能体、在你离开时持续工作的存在。它管理着围绕它们的一切：上下文、记忆、任务、触发器、环境、文件和集成。",
       "bodyLocal": " 一切都在本机运行。",
       "ask": "首先——你是谁？（我们会据此定制设置）",
       "technicalTitle": "我是技术人员",
@@ -706,7 +706,7 @@
       "openAtLogin": "开机启动",
       "openAtLoginDesc": "重启后自动重新启动 harness，让计划任务自行恢复。无提示——立即生效。",
       "shareStats": "共享匿名使用统计",
-      "shareStatsDesc": "少量匿名事件（打开应用、生成智能体、使用功能），用于改进 Munder Difflin——绝不包含提示词、代码、文件路径或智能体输出。完整清单见 TELEMETRY.md；可随时在设置中更改。",
+      "shareStatsDesc": "少量匿名事件（打开应用、生成智能体、使用功能），用于改进 Agent Stage——绝不包含提示词、代码、文件路径或智能体输出。完整清单见 TELEMETRY.md；可随时在设置中更改。",
       "stayAwake": "接电源时保持唤醒（手动）",
       "stayAwakeDescMac": "macOS 只允许你自己设置这一项。在「电池」→「选项」中，开启「防止显示器关闭时自动进入睡眠」（接电源适配器时），这样显示器休眠时定时器也能继续触发。没有防休眠设置的话 Mac 仍会真正休眠——工作会保存并在唤醒后补上。",
       "stayAwakeDescWindows": "Windows 只允许你自己设置这一项。在「设置」→「系统」→「电源和电池」→「屏幕和睡眠」中，将「使用电源时，使设备进入睡眠状态」设为「从不」（或延长时间），这样定时器也能继续触发。没有防休眠设置的话 Windows 仍会真正休眠——工作会保存并在唤醒后补上。",
@@ -845,7 +845,7 @@
     "localEndpoint": "本地端点 · 默认模型（按引擎）",
     "defaultModelPlaceholder": "默认模型（提供商/模型）",
     "runningOpenModels": "要跑开源模型？分步指南：",
-    "runOnOpenModels": "在开源模型上运行 Munder Difflin",
+    "runOnOpenModels": "在开源模型上运行 Agent Stage",
     "setUpMacMini": "在 Mac Mini 上配置",
     "autoModeCaveat": "⚠ 在自动模式下，这些引擎以完整的文件系统 + shell 访问权限运行（无沙箱）——就像 Claude 的绕过模式。把自动模式关掉（通用页）即可让它们先询问。与真实模型调用的端到端实测仍在等待你的密钥 / 本地 LLM。"
   },
@@ -895,7 +895,7 @@
     "downloadingHeadline": "正在下载 v{{version}}",
     "downloadingDetail": "已完成 {{percent}}%。你可以继续工作；重启由你自己决定。",
     "downloadedHeadline": "v{{version}} 已就绪，可安装",
-    "downloadedDetail": "重启 Munder Difflin 以完成从 v{{v}} 的更新。",
+    "downloadedDetail": "重启 Agent Stage 以完成从 v{{v}} 的更新。",
     "restartBtn": "重启以更新",
     "manualDetail": "此安装无法自行更新——请从发布页面下载。",
     "manualDetailReason": "此安装无法自行更新（{{reason}}）——请从发布页面下载。",
@@ -922,7 +922,7 @@
     "webhooks": "Webhook",
     "webhooksBlurb": "让外部系统把工作投进来。",
     "organisation": "组织",
-    "organisationBlurb": "让队友的 Munder Difflin 给你的发消息。"
+    "organisationBlurb": "让队友的 Agent Stage 给你的发消息。"
   },
   "orgSection": {
     "acceptMessages": "接受来自你组织的消息",

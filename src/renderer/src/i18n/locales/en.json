@@ -165,11 +165,11 @@
     "reportProblem": "report a problem",
     "fullChangelog": "full changelog →",
     "announcement": "Announcement",
-    "proLaunch": "v0.5.0 launches with Munder Difflin Pro.",
+    "proLaunch": "v0.5.0 launches with Agent Stage Pro.",
     "proCommunityFree": "Community stays free, stays open, and keeps getting updates.",
     "proParagraph": "Pro ships with new features and integrations, with more posted throughout the year, and it stays ahead of Community, for power users who want the full potential of coding agents and agent harnesses. The Pro roadmap also includes a mobile app.",
     "foundersWallTitle": "On the Founders' Wall?",
-    "foundersWallBody": "A month of Munder Difflin Pro free, then 50% off the annual plan. For the first 100 people on the wall.",
+    "foundersWallBody": "A month of Agent Stage Pro free, then 50% off the annual plan. For the first 100 people on the wall.",
     "seeTheWall": "see the wall",
     "joinDiscord": "join Discord"
   },
@@ -583,7 +583,7 @@
   },
   "onboarding": {
     "titles": {
-      "persona": "WELCOME TO MUNDER DIFFLIN",
+      "persona": "WELCOME TO AGENT STAGE",
       "welcome": "MEET YOUR OFFICE",
       "theme": "STEP 1 OF 5 · CHOOSE A THEME",
       "home": "STEP 2 OF 5 · HARNESS HOME",
@@ -597,7 +597,7 @@
     },
     "persona": {
       "headline": "A CLONE OF YOU, WORKING 24/7",
-      "body": "Munder Difflin turns the CLI agent you already use into a clone of you — one that runs an office of long-running agents and keeps working while you're away. It manages everything around them: context, memory, tasks, triggers, environment, files, and integrations.",
+      "body": "Agent Stage turns the CLI agent you already use into a clone of you — one that runs an office of long-running agents and keeps working while you're away. It manages everything around them: context, memory, tasks, triggers, environment, files, and integrations.",
       "bodyLocal": " Everything runs on this machine.",
       "ask": "FIRST — WHO ARE YOU? (we'll tailor the setup)",
       "technicalTitle": "I'M TECHNICAL",
@@ -706,7 +706,7 @@
       "openAtLogin": "OPEN AT LOGIN",
       "openAtLoginDesc": "Relaunch the harness after a reboot so scheduled missions resume on their own. No prompt — applies immediately.",
       "shareStats": "SHARE ANONYMOUS USAGE STATS",
-      "shareStatsDesc": "A handful of anonymous events (app opened, agent spawned, feature used) that help improve Munder Difflin — never prompts, code, file paths, or agent output. Full list in TELEMETRY.md; change anytime in Settings.",
+      "shareStatsDesc": "A handful of anonymous events (app opened, agent spawned, feature used) that help improve Agent Stage — never prompts, code, file paths, or agent output. Full list in TELEMETRY.md; change anytime in Settings.",
       "stayAwake": "STAY AWAKE ON POWER (MANUAL)",
       "stayAwakeDescMac": "macOS only lets you set this one yourself. In Battery → Options, turn on \"Prevent automatic sleeping when the display is off\" (on power adapter) so timers keep firing with the display asleep. Without a sleep-preventing setting the Mac still truly sleeps — work survives and catches up on wake.",
       "stayAwakeDescWindows": "Windows only lets you set this one yourself. In Settings → System → Power & battery → Screen, blank & sleep, set \"On battery power, put my device to sleep\" and \"When plugged in\" to Never (or increase them) so timers keep firing. Without a sleep-preventing setting Windows still truly sleeps — work survives and catches up on wake.",
@@ -845,7 +845,7 @@
     "localEndpoint": "LOCAL ENDPOINT · DEFAULT MODEL (PER ENGINE)",
     "defaultModelPlaceholder": "default model (provider/model)",
     "runningOpenModels": "Running open models? Step-by-step guides:",
-    "runOnOpenModels": "run Munder Difflin on open models",
+    "runOnOpenModels": "run Agent Stage on open models",
     "setUpMacMini": "set it up on a Mac Mini",
     "autoModeCaveat": "⚠ In auto mode these engines run with full filesystem + shell access (no sandbox) — like Claude's bypass mode. Turn auto mode off (General) to make them ask first. Live end-to-end verification with real model calls is pending your keys / a local LLM."
   },
@@ -895,7 +895,7 @@
     "downloadingHeadline": "Downloading v{{version}}",
     "downloadingDetail": "{{percent}}% done. You can keep working; the restart is yours to trigger.",
     "downloadedHeadline": "v{{version}} is ready to install",
-    "downloadedDetail": "Restart Munder Difflin to finish updating from v{{v}}.",
+    "downloadedDetail": "Restart Agent Stage to finish updating from v{{v}}.",
     "restartBtn": "Restart to update",
     "manualDetail": "This install can't update itself — download it from the release page.",
     "manualDetailReason": "This install can't update itself ({{reason}}) — download it from the release page.",
@@ -922,7 +922,7 @@
     "webhooks": "WEBHOOKS",
     "webhooksBlurb": "Let an outside system post work in.",
     "organisation": "ORGANISATION",
-    "organisationBlurb": "Let a teammate's Munder Difflin message yours."
+    "organisationBlurb": "Let a teammate's Agent Stage message yours."
   },
   "orgSection": {
     "acceptMessages": "Accept messages from your organisation",

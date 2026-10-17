@@ -334,7 +334,7 @@ export const DEFAULT_DROP_HTML = `<style>
 
   <section class="page p1">
     <div class="content center">
-      <p class="kicker">Munder Difflin</p>
+      <p class="kicker">Agent Stage</p>
       <h1 class="big">0.4.4</h1>
       <p class="lede" style="font-size:clamp(1.05rem,2.1vw,1.3rem);margin-top:.5em">
         The release where Windows finally joined the floor — and the first run
