@@ -33,7 +33,7 @@ Plenty of people still can't use it, or don't want to. There are three common re
 
 - **You live outside the US.** Muse launched for US users aged 18 and over only.
 - **You don't want Meta holding your inbox, calendar and bank data.** Muse trains on your chats by default unless you switch it off, according to [Meta's own help page](https://www.meta.com/help/artificial-intelligence/1047255454427887/). A WIRED reporter also found it [kept asking for more personal data](https://techbriefly.com/2026/09/21/meta-muse-ai-data-collection-scrutiny/).
-- **You want agents for your work, not your errands.** Muse is built for bookings, forms and shopping, not for writing code or running projects.
+- **You want agents for your work, not your errands.** Muse is built for bookings, forms and shopping, not for writing code or running projects. For Meta's coding agent, see [Muse Code and Muse Wonder](/blog/muse-wonder/). Or read [Muse Code vs Claude Code](/blog/muse-code-vs-claude-code/).
 
 Here are seven alternatives, and which reason each one solves.
 

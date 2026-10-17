@@ -12,7 +12,7 @@ faq:
   - q: "How much does Claude Haiku 5.5 cost?"
     a: "Anthropic's announcement of 7 October 2026 lists $0.10 input and $0.50 output per million tokens for prompts up to 100,000 tokens, and $0.50 input and $2.50 output for prompts over 100,000 tokens. Cache reads are $0.01 and $0.05. Checked 8 Oct 2026."
   - q: "Is Claude Haiku 5.5 better than Haiku 4.5?"
-    a: "On Anthropic's own figures, yes on every row where both have a score. For example, the announcement lists 72.4% for Haiku 5.5 and 15.7% for Haiku 4.5 on the offline subset of OSWorld 2.1. We did not run these tests."
+    a: "On Anthropic's own figures, yes on every row where both have a score. For example, the announcement lists 72.4% for Haiku 5.5 and 15.7% for Haiku 4.5 on the offline subset of OSWorld 2.1."
   - q: "Is Claude Haiku 5.5 better than Sonnet 5.5?"
     a: "No. Sonnet 5.5 is ahead on every row of Anthropic's own benchmark table, and the announcement says Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding tasks. Haiku 5.5 is the cheaper and faster option."
   - q: "What is the model ID for Claude Haiku 5.5?"
@@ -21,7 +21,7 @@ faq:
     a: "Claude Code's model docs say to run /model claude-haiku-5-5 in a session, or start with claude --model claude-haiku-5-5. The same page says to use Claude Code v2.1.293 or later with Haiku 5.5. Read on 8 Oct 2026."
 ---
 
-Claude Haiku 5.5 is Anthropic's new small model: much cheaper than Haiku 4.5 on prompts up to 100,000 tokens, and behind Sonnet 5.5 on every row of Anthropic's own benchmark table. Anthropic released it on 7 October 2026. We have not tried it. Checked 8 Oct 2026.
+Claude Haiku 5.5 is Anthropic's new small model: much cheaper than Haiku 4.5 on prompts up to 100,000 tokens, and behind Sonnet 5.5 on every row of Anthropic's own benchmark table. Anthropic released it on 7 October 2026. Checked 8 Oct 2026.
 
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. A cheaper small model matters when several agents run at once, which is why we cover it. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
@@ -56,7 +56,7 @@ The model page also lists a 50% Batch API discount on input and output. For the 
 
 ## How does Claude Haiku 5.5 score on benchmarks?
 
-On Anthropic's own figures it is far ahead of Haiku 4.5 and behind Sonnet 5.5. The five rows below are our selection from the eight rows in the [announcement](https://www.anthropic.com/claude-haiku-5-5) table. We did not run them. NR means not reported.
+On Anthropic's own figures it is far ahead of Haiku 4.5 and behind Sonnet 5.5. The five rows below are our selection from the eight rows in the [announcement](https://www.anthropic.com/claude-haiku-5-5) table. NR means not reported.
 
 | Benchmark (as named by Anthropic) | Haiku 5.5 | Haiku 4.5 | GPT-6 Luna | Sonnet 5.5 |
 | --- | --- | --- | --- | --- |
@@ -70,7 +70,7 @@ Sonnet 5.5 leads on all eight rows of the full table. Anthropic marks its Fronti
 
 The coding gap is the one to notice. On Terminal-Bench 4.0, Haiku 5.5 is at 39.2% against 70.6% for Sonnet 5.5. Anthropic says so itself: "Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding tasks like those measured by Terminal-Bench 4.0."
 
-<figure class="mg" data-scene="planes"><img src="/blog/assets/media/claude-haiku-5-5/planes.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four paper planes for Haiku 5.5, Haiku 4.5, GPT-6 Luna and Sonnet 5.5 glide along a ruled strip and land at distances set by their scores on one benchmark at a time. Arrow buttons step through the five benchmarks."><figcaption>Anthropic's own figures, five rows we selected from its table of 7 October 2026. We did not run them.</figcaption></figure>
+<figure class="mg" data-scene="planes"><img src="/blog/assets/media/claude-haiku-5-5/planes.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four paper planes for Haiku 5.5, Haiku 4.5, GPT-6 Luna and Sonnet 5.5 glide along a ruled strip and land at distances set by their scores on one benchmark at a time. Arrow buttons step through the five benchmarks."><figcaption>Anthropic's own figures, five rows we selected from its table of 7 October 2026.</figcaption></figure>
 
 ## Where can you use Claude Haiku 5.5?
 
@@ -98,7 +98,7 @@ We think it makes the split between a planner and its helpers cheaper to try. An
 
 Two customer quotes from the announcement, the first on subagents and the second on speed. Rogo: "The short and high-volume work is where Claude Haiku 5.5 fits for us, like quick lookups, subagents, and summaries." Asana: "Compared with the model we use today, we saw over a 30% reduction in latency for task completions and up to 2.5x faster inference per agent turn."
 
-Our view: put a bigger model on planning and hard debugging, and a small fast one on searching, summarising and running tests. The small one fetches, the big one decides. This is an idea, not a test. We have not tried Haiku 5.5. Our piece on [model routing](/blog/do-more-with-less-model-routing/) explains the reasoning.
+Our view: put a bigger model on planning and hard debugging, and a small fast one on searching, summarising and running tests. The small one fetches, the big one decides. Our piece on [model routing](/blog/do-more-with-less-model-routing/) explains the reasoning.
 
 ## What should you do now?
 

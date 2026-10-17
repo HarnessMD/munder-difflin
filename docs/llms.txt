@@ -1,56 +1,86 @@
 # Munder Difflin
 
-> Munder Difflin gives you clones for you and your team, working 24/7. It is a free,
-> MIT-licensed, local-first multi-agent harness for CLI coding agents that turns Claude Code,
-> OpenAI Codex, Antigravity (Gemini), GitHub Copilot CLI, xAI Grok, Kimi Code, Qwen, OpenCode,
-> Crush, Gemini CLI, Cursor Agent, and pi.dev into a coordinated "office" of agents on
-> your own computer — each agent a real CLI process in a real terminal, with shared
-> long-term memory, inter-agent messaging, your clone ("Michael") orchestrating, scheduled missions, Slack
-> and webhook triggers, realtime voice orchestration, a built-in Monaco IDE with git
-> history and branch compare, markdown previews, and auto-update. The interface runs in
-> English, Simplified Chinese and Arabic, with right to left layout when Arabic is chosen,
-> and its fonts are bundled rather than fetched from a font host. Current version: 0.4.6
-> (August 2026). Desktop app for macOS, Windows, and Linux. No vendor cloud; code never
-> leaves your machine. It covers the same jobs as YC's qm (security postures, background
-> crons/watches, Slack, shared skills) as a simpler local-first desktop app, and adds what
-> a headless harness doesn't have: watchable terminals, voice, an IDE, auto-update.
+> Munder Difflin is free and open source: a desktop app that runs a team of coding agents
+> such as Claude Code, Codex and Gemini CLI on your own computer. Each agent is the real
+> CLI in its own terminal, signed in with the subscription or API key you already have.
+> Your clone, Michael, is the one agent you brief: he assigns the work, routes messages
+> between agents and brings back only what needs you (spend, scope and destructive steps).
+> Agents keep markdown memory in a shared, searchable palace, message each other through
+> mailboxes, and can run on a schedule, from Slack or from a webhook. The source in the
+> GitHub repository is MIT licensed. Current version: 0.4.6 (the source in the repository).
+> Latest app release: 0.5.6 (17 October 2026), installers for macOS (signed and notarized),
+> Windows and Linux.
+
+Engines it runs: Claude Code, OpenAI Codex, Gemini CLI, Antigravity (Gemini), xAI Grok,
+Kimi Code, Qwen, OpenCode, Crush, pi.dev, GitHub Copilot CLI, Cursor, or any custom command.
+Your own API keys and local models work too, through Ollama, LM Studio or vLLM.
+
+New in 0.5.6: Capabilities (Pro), a marketplace of 2,347 MCP servers, skills, plugins and tools
+from the public list HarnessMD/awesome-agent-capabilities, 622 of them reviewed by us; Integrations,
+one place for Slack, webhooks, the apps your agents use and your keys; and Teams, so your office
+talks to your teammates' offices. Agents also use fewer tokens by default, and a temp, a short lived
+agent for one job, can answer Slack, a teammate, a webhook or a schedule.
+
+Free and Pro: the app is free. Pro is a paid plan, $150 USD a year adjusted for purchasing power,
+that adds Capabilities, agent files, the Pro sidebar (Tasks, Inbox, Automations, Memory,
+Capabilities, Integrations) and the Stapler, which records meetings and sends messages, screenshots
+and files to any agent. As part of the 0.5.6 launch, Pro is free for everyone who signs in until
+Saturday 24 October 2026.
 
 ## Product
 
-- [Homepage](https://munderdiffl.in/): features, download links, FAQ
-- [GitHub repository](https://github.com/chaitanyagiri/munder-difflin): source, issues, releases
-- [Latest release](https://github.com/chaitanyagiri/munder-difflin/releases/latest): macOS dmg, Windows setup, Linux AppImage
-- [Changelog](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md)
+- [Download](https://harnessmd.com/download): macOS, Windows and Linux builds
+- [Homepage](https://munderdiffl.in/): features and FAQ
+- [GitHub repository](https://github.com/HarnessMD/munder-difflin): source, issues and releases
+- [Release notes](https://harnessmd.com/download#whats-new): what changed in each release from 0.5.2 to 0.5.6
+- [Agent Gallery](https://munderdiffl.in/hires/): ready made agent roles to import
+- [Telemetry](https://github.com/HarnessMD/munder-difflin/blob/main/TELEMETRY.md): the anonymous usage events official builds send, and how to turn them off
 
 ## Key guides
 
-- [What's up with Munder Difflin](https://munderdiffl.in/blog/whats-up-with-munder-difflin/): everything shipped from v0.3.3 to v0.3.7
-- [Why our auto-update never ran](https://munderdiffl.in/blog/why-our-auto-update-never-ran/): the v0.3.7 fix — a CommonJS export that vanished into an ESM namespace
-- [What's new in v0.3.5](https://munderdiffl.in/blog/launching-munder-difflin-v0-3-5/): the v0.3.4+v0.3.5 release wave
 - [How to install and use Munder Difflin](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/)
 - [Your first hour with Munder Difflin](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/)
 - [Frequently asked questions](https://munderdiffl.in/blog/munder-difflin-faq/)
+- [How to hire from the Agent Gallery](https://munderdiffl.in/blog/how-to-hire-from-the-agent-gallery/)
 - [How the GOD orchestrator works](https://munderdiffl.in/blog/how-the-god-orchestrator-works/)
 - [How to talk to your orchestrator (voice)](https://munderdiffl.in/blog/how-to-talk-to-your-orchestrator/)
+- [Command Center guide](https://munderdiffl.in/blog/command-center-guide/): tasks, schedules, fleet and budgets
+- [Scheduling autonomous agent missions](https://munderdiffl.in/blog/scheduling-autonomous-agent-missions/)
+- [Trigger AI agents from Slack](https://munderdiffl.in/blog/trigger-ai-agents-from-slack/)
 - [How to use the built-in Monaco IDE](https://munderdiffl.in/blog/how-to-use-the-built-in-monaco-ide/)
+- [Give Claude Code long-term memory](https://munderdiffl.in/blog/give-claude-code-long-term-memory/)
+- [Run a mixed engine office](https://munderdiffl.in/blog/run-a-mixed-engine-office/)
+- [Run Munder Difflin on open models](https://munderdiffl.in/blog/run-munder-difflin-on-open-models/)
+- [Run Munder Difflin on a Mac Mini](https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/)
+- [What's new in 0.5.6](https://harnessmd.com/download#whats-new)
 
 ## Comparisons
 
-- [qm vs Munder Difflin](https://munderdiffl.in/blog/qm-vs-munder-difflin/): YC's multiplayer harness vs a local-first agent office
-- [Claude Squad vs Munder Difflin](https://munderdiffl.in/blog/claude-squad-vs-munder-difflin/)
 - [Best Claude Code multi-agent tools](https://munderdiffl.in/blog/best-claude-code-multi-agent-tools/)
+- [Claude Code orchestration tools compared](https://munderdiffl.in/blog/claude-code-orchestration-tools-compared/)
+- [Claude Code alternatives](https://munderdiffl.in/blog/claude-code-alternatives/)
+- [qm vs Munder Difflin](https://munderdiffl.in/blog/qm-vs-munder-difflin/)
+- [Claude Squad vs Munder Difflin](https://munderdiffl.in/blog/claude-squad-vs-munder-difflin/)
+- [Orca vs Munder Difflin](https://munderdiffl.in/blog/orca-vs-munder-difflin/)
+- [Cline vs Munder Difflin](https://munderdiffl.in/blog/cline-vs-munder-difflin/)
+- [Claude Code git worktrees vs a hive](https://munderdiffl.in/blog/claude-code-git-worktrees-vs-hive/)
 
 <!-- BLOG:START generated by blog/scripts/postbuild.mjs -->
 ## Blog
 
-202 posts, grouped by topic, newest first in each topic. Topic hubs: https://munderdiffl.in/blog/topics/
+221 posts, grouped by topic, newest first in each topic. Topic hubs: https://munderdiffl.in/blog/topics/
 
 ### guides
 
-- [How to Install and Use Munder Difflin: A Beginner's Guide](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/): A plain language guide to Munder Difflin 0.5.2. What a coding agent is, which AI engine to pick based on what you already pay for, the one terminal command you'll ever run, and how to install and set it up on macOS, Windows or Linux.
-- [Your First Hour With Munder Difflin: Onboarding to a Pro Office](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/): Munder Difflin 0.5.2 from download to a working Pro office: install Claude Code, Codex or OpenCode, sign in, go Pro, then automate reviews, Slack and email.
+- [How to Install Munder Difflin 0.5.6: A Beginner's Guide From Zero to a Working Office](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/): Install Munder Difflin 0.5.6 on macOS, Windows or Linux: what you need first, which AI engine to pick, the sign in, the setup steps and a fix for each failure.
+- [Your First Hour With Munder Difflin 0.5.6: Onboarding From First Sign In to a Working Office](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/): Your first hour with Munder Difflin 0.5.6: sign in, brief your orchestrator, hire a team, schedule work, connect Slack, start temps, then tour the Pro screens.
+- [AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does](https://munderdiffl.in/blog/ai-agent-use-cases-our-office/): We run our company on Munder Difflin. Every seat on our floor: what each AI agent does, how its work starts, what comes out, and how to copy it.
 - [How to Get the Most Out of Your Claude Code Max Plan](https://munderdiffl.in/blog/claude-code-max-plan-tips/): Stretch a Claude Code Max plan: model choice, context hygiene, prompt caching, subagents and unattended runs, checked against Anthropic's own pages.
 - [How to Make the Most of Your Codex Max Plan](https://munderdiffl.in/blog/codex-max-plan-tips/): There is no Codex Max plan. What ChatGPT Pro 5x and 20x give you in Codex, how the weekly limit works, and how to stretch it.
+- [Claude Code Best Practices: 9 Habits From Anthropic's Docs](https://munderdiffl.in/blog/claude-code-best-practices/): Nine Claude Code best practices from Anthropic's docs, checked 15 Oct 2026: give Claude a check, plan first, keep memory short, clear context, run in parallel.
+- [Claude Code Skills: What They Are, Where They Live and How to Write One](https://munderdiffl.in/blog/claude-code-skills/): Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.
+- [Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives](https://munderdiffl.in/blog/gemini-4-argon-pricing/): Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside.
+- [How to Use Gemini 4 Argon: Five Ways In, and Free Is Not One of Them](https://munderdiffl.in/blog/how-to-use-gemini-4-argon/): How to use Gemini 4 Argon on 13 Oct 2026: the Gemini app, AI Mode, AI Studio, the API with model ID gemini-4-argon, and Antigravity. What each route needs.
 - [ASD-STE100 Prompting: Karpathy's 4 Tricks for Clearer AI Answers](https://munderdiffl.in/blog/asd-ste100-prompting/): Ask your AI to answer in ASD-STE100, the aerospace manual standard, about 80% of the way. Plus Karpathy's three other tricks: diagrams, HTML and video.
 - [Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)](https://munderdiffl.in/blog/codex-pricing/): Codex pricing checked 5 Oct 2026: which ChatGPT plans include Codex, US prices from $0 to $500, how usage limits are counted, credits and API key rates.
 - [How to Use Claude Code: Setup, First Task and the Commands That Matter](https://munderdiffl.in/blog/how-to-use-claude-code/): How to use Claude Code, checked 5 Oct 2026: install it, sign in, run a first task, then the commands, shortcuts and habits a beginner needs.
@@ -97,6 +127,13 @@
 
 ### concepts
 
+- [OpenCode 2.0: what changed and how to upgrade](https://munderdiffl.in/blog/opencode-2-0/): OpenCode 2.0 from Anomaly: the background service, Code Mode, background subagents, the new plugin API and SDK, and how to upgrade. Checked 15 Oct 2026.
+- [Claude Code Router: What It Is, How It Works and How to Install It](https://munderdiffl.in/blog/claude-code-router/): Claude Code Router, checked 14 Oct 2026: what the local gateway does, how to install it, which providers it lists, and what Anthropic says about it.
+- [Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.](https://munderdiffl.in/blog/gemini-4-argon-inside-google/): Google's own numbers for Gemini 4 Argon on real code: 134 bugs triaged in under 3 hours, 30% fewer rollbacks, a framework tuned overnight. Checked 13 Oct 2026.
+- [Gemini 4 Argon: Google's Flagship Model Shares a Name With a Gas That Barely Reacts](https://munderdiffl.in/blog/gemini-4-argon/): Gemini 4 Argon went on general release on 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, a 1M token window, and where you can use it.
+- [Muse Wonder and Muse Code: Meta's new models, prices and scores](https://munderdiffl.in/blog/muse-wonder/): Meta's Muse Wonder and Muse Wonder Full: API price, Muse Code plans, context window and Meta's own coding scores, checked 13 Oct 2026.
+- [Claude routines: what they are, triggers, cost and limits](https://munderdiffl.in/blog/claude-code-routines/): Claude routines run a saved Claude Code prompt in the cloud on a schedule, an API call or a GitHub event. Plans, steps and limits, checked 12 Oct 2026.
+- [Claude Code Projects: what they are and who can use them](https://munderdiffl.in/blog/claude-code-projects/): Claude Code Projects, checked 11 Oct 2026: a public beta on Pro and Max where Claude runs your tasks as parallel threads. Access, limits and plan use.
 - [Claude Managed Agents dynamic workflows: limits and cost](https://munderdiffl.in/blog/claude-managed-agents-dynamic-workflows/): Dynamic workflows let a Claude Managed Agents agent write a program that runs many agents. How to turn them on, beta limits and cost, checked 11 Oct 2026.
 - [Claude Code agent teams: what they are, how to use them](https://munderdiffl.in/blog/claude-code-agent-teams/): Claude Code agent teams, checked 8 Oct 2026: what they are, the experimental setting that turns them on, how they differ from subagents, token cost and limits.
 - [Claude Haiku 5.5: price, benchmarks and where it fits](https://munderdiffl.in/blog/claude-haiku-5-5/): Claude Haiku 5.5 is Anthropic's new small model. Its tiered price, Anthropic's own scores and how to pick it in Claude Code, checked 8 Oct 2026.
@@ -110,10 +147,10 @@
 - [What Is Claude Cowork? Plans, Prices and How to Use It](https://munderdiffl.in/blog/what-is-claude-cowork/): Claude Cowork is Anthropic's agent for multi-step office work. Which plans include it, what it costs, where it runs and how to start, checked 3 Oct 2026.
 - [Gemini Spark: what it is, what it costs and who can get it](https://munderdiffl.in/blog/what-is-gemini-spark/): Gemini Spark is Google's personal AI agent in the Gemini app. Plans, US prices, countries, limits and how it compares with Grok Bot, checked 3 Oct 2026.
 - [Hermes Agent: what it is, how to install it and what it costs](https://munderdiffl.in/blog/what-is-hermes-agent/): Hermes Agent is Nous Research's MIT licensed AI agent with memory, skills and chat channels. Install command, models, pricing and how it compares.
-- [What Is Codex? OpenAI's Coding Agent in the CLI, App and Cloud](https://munderdiffl.in/blog/what-is-codex/): What is Codex? OpenAI's coding agent runs in your terminal, the ChatGPT desktop app, your IDE and the cloud. Which plans include it, checked 2 Oct 2026.
+- [What Is Codex? OpenAI's Coding Agent, Its Free Plan and Models](https://munderdiffl.in/blog/what-is-codex/): Codex is OpenAI's coding agent for your terminal, editor, desktop app and cloud. ChatGPT Free, Go, Plus and Pro include it. Plans and models, 15 Oct 2026.
 - [What is Pi agent? The open source coding agent harness, explained](https://munderdiffl.in/blog/what-is-pi-agent/): Pi agent is Earendil's MIT licensed coding agent harness. What it is, how to install it, what Pi 1.0 and Pi Durable add, and how it compares.
 - [What Is ChatGPT Dots? OpenAI's Always On Agents Explained](https://munderdiffl.in/blog/what-is-chatgpt-dots/): A ChatGPT dot is an always on agent with its own cloud computer. Needs Pro (from $100 a month) or Business Premium, not Plus. Not on Pro in the UK or EU.
-- [What Is OpenCode? Install, Pricing and How It Compares](https://munderdiffl.in/blog/what-is-opencode/): OpenCode is Anomaly's MIT licensed coding agent for the terminal. What it is, how to install it, what it costs, and how it compares with Claude Code and Codex.
+- [What Is OpenCode? Free, MIT Licensed, and What You Pay For](https://munderdiffl.in/blog/what-is-opencode/): OpenCode is a free, MIT licensed coding agent from Anomaly. The tool costs nothing; you pay for the model you connect, unless it is local or free.
 - [Is Ollama Good for Coding? Yes, for Scoped Work on the Right Model](https://munderdiffl.in/blog/is-ollama-good-for-coding/): Ollama is good for coding on scoped, private work if the model fits your memory. Which models to pull, how much RAM, and where Claude still wins.
 - [Claude Max Plan: Is It Worth It? Max 5x vs 20x vs Pro](https://munderdiffl.in/blog/is-claude-code-max-worth-it/): Is the Claude Max plan worth it? Max 5x and 20x against Pro, checked 29 Sep 2026: price, five hour and weekly limits, Fable, and the API break even.
 - [Is Claude Code Open Source?](https://munderdiffl.in/blog/is-claude-code-open-source/): No. Claude Code is proprietary under Anthropic's terms. What its GitHub repo holds, what the 2026 leak changed, and which open tools sit around it.
@@ -147,6 +184,9 @@
 - [Grok Bot Alternatives: 9 Picks, Hosted or on Your Computer](https://munderdiffl.in/blog/grok-bot-alternatives/): Grok Bot runs every Bot on one shared cloud computer in the US. Nine alternatives checked on 30 Sep 2026, from ChatGPT dots to open source agents you run.
 - [Herdr Alternatives: What to Pick and Who Each One Fits](https://munderdiffl.in/blog/herdr-alternatives/): Herdr alternatives checked on 14 Sep 2026: tmux, Munder Difflin, Claude Squad, cmux, Orca, Conductor, Superset and Emdash, and who each fits.
 - [OmniAgent Alternatives: What to Use Instead of Databricks Omnigent](https://munderdiffl.in/blog/omniagent-alternatives/): OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits.
+- [OpenCode Alternatives: 7 Coding Agents to Switch To](https://munderdiffl.in/blog/opencode-alternatives/): Seven OpenCode alternatives checked on 15 Oct 2026: Claude Code, Codex CLI, Gemini CLI, Kilo Code, Crush, Pi and Goose, by licence, models and release.
+- [Muse Code vs Claude Code: Plans, Prices, Models and Where They Run](https://munderdiffl.in/blog/muse-code-vs-claude-code/): Muse Code vs Claude Code, checked 14 Oct 2026: the main plans and monthly prices, the models each runs, where each installs, and which one to pick.
+- [Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra: Google Published a Table It Does Not Fully Win](https://munderdiffl.in/blog/gemini-4-argon-vs-claude-opus-5-5/): Google's own table: Gemini 4 Argon tops 13 of 19 rows, GPT-6 Astra 3 and Claude Opus 5.5 2. The coding rows split. List prices compared.
 - [Codex Usage Limits vs Claude Code: What Each Plan Gives You](https://munderdiffl.in/blog/codex-vs-claude-code-usage-limits/): Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan.
 - [Cursor Alternatives: 7 AI Coding Tools to Switch To](https://munderdiffl.in/blog/cursor-alternatives/): Seven Cursor alternatives checked on 8 Oct 2026: Claude Code, Codex, Cline, OpenCode, Zed, Devin Desktop and GitHub Copilot, by licence and price.
 - [Codex vs Cursor: Which Should You Pick in 2026?](https://munderdiffl.in/blog/codex-vs-cursor/): Codex vs Cursor, checked 7 Oct 2026: what each is, licence, paid plans from $8 a month, models, where each runs, and whether Codex works inside Cursor.
@@ -230,6 +270,22 @@
 - [The Office Parody Behind Munder Difflin (and Why It Helps)](https://munderdiffl.in/blog/the-office-parody-behind-munder-difflin/): Why Munder Difflin is a loving parody of The Office — and how the office metaphor makes a hive of AI agents genuinely easier to understand and trust.
 - [Why We Built Munder Difflin](https://munderdiffl.in/blog/why-we-built-munder-difflin/): The origin story of Munder Difflin — how the pain of juggling Claude Code terminals led to a coordinated, memory-backed hive of agents you can watch.
 
+### news
+
+- [Agent Tools Today, 16 Oct 2026: Muse Spark Open, Tiny Little Office, OpenCode Ends Sharing](https://munderdiffl.in/blog/agent-tools-today-2026-10-16/): The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 16 Oct 2026, each with its source.
+- [Agent Tools Today, 15 Oct 2026: OpenCode 2.0, Hermes Agent v0.22.0, a Lost TV Season](https://munderdiffl.in/blog/agent-tools-today-2026-10-15/): The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 15 Oct 2026, each with its source.
+- [Agent Tools Today, 13 Oct 2026: Muse Wonder, GLM-Legal, the Codex Daemon Issue](https://munderdiffl.in/blog/agent-tools-today-2026-10-13/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 13 Oct 2026, each with its source.
+- [Agent Tools Today, 12 Oct 2026: WordCraft 0.5.0, Genkit Dart 1.0, 500 Billion Tokens](https://munderdiffl.in/blog/agent-tools-today-2026-10-12/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 12 Oct 2026, each with its source.
+- [Agent Tools Today, 11 Oct 2026: Dynamic Workflows, TypeSafe AI's Raise, OpenCode 1.19.0](https://munderdiffl.in/blog/agent-tools-today-2026-10-11/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 11 Oct 2026, each with its source.
+- [Agent Tools Today, 10 Oct 2026: MXC SDK 1.0, Claude Code 2.1.296, Microsoft-Decision-1](https://munderdiffl.in/blog/agent-tools-today-2026-10-10/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 10 Oct 2026, each with its source.
+- [Agent Tools Today, 9 Oct 2026: Gemini Agent, Codex CLI 0.162.0, Step 5 Preview](https://munderdiffl.in/blog/agent-tools-today-2026-10-09/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 9 Oct 2026, each with its source.
+- [Agent Tools Today, 8 Oct 2026: Claude Haiku 5.5, GPT-6 Intelligent UI, Docker Agent](https://munderdiffl.in/blog/agent-tools-today-2026-10-08/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 8 Oct 2026, each with its source.
+- [Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API](https://munderdiffl.in/blog/agent-tools-today-2026-10-07/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 7 Oct 2026, each with its source.
+- [Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search](https://munderdiffl.in/blog/agent-tools-today-2026-10-06/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 6 Oct 2026, each with its source.
+- [Agent Tools Today, 5 Oct 2026: Paperclip Goes Full Auto, Strata's Codex API, Cloudflare's Git Contest](https://munderdiffl.in/blog/agent-tools-today-2026-10-05/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 5 Oct 2026, each with its source.
+- [Agent Tools Today, 4 Oct 2026: You should Know, OpenClaw's Android Wait, Codex Wish List](https://munderdiffl.in/blog/agent-tools-today-2026-10-04/): The top 5 launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 4 Oct 2026, each with its source.
+- [Agent Tools Today, 3 Oct 2026: Claude Code Mods, OpenDots, Conductor Mobile](https://munderdiffl.in/blog/agent-tools-today-2026-10-03/): The top 5 launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 3 Oct 2026, each with its source.
+
 ### orchestration
 
 - [Deploy a PR Reviewer That Never Sleeps — In About One Prompt](https://munderdiffl.in/blog/deploy-automated-pr-reviewer-agent/): A how-to for standing up a fully automated PR-reviewing agent in Munder Difflin — one that reads your real source (not just the PR description), de-dupes noise, and only escalates what matters. With a real triage run that turned 22 duplicate firings into a clean v0.2.5 patch queue.
@@ -253,18 +309,6 @@
 - [From One Terminal to a Team: Scaling Your Claude Code Workflow](https://munderdiffl.in/blog/from-one-terminal-to-a-team/): The workflow shift from a single Claude Code session to a coordinated team of agents — what changes, where it breaks, and the concrete before-and-after.
 - [Run an Office of AI Agents While You Sleep](https://munderdiffl.in/blog/run-an-office-of-ai-agents/): What it takes to run a self-coordinating office of AI coding agents that keeps shipping after you log off — and the guardrails that keep it sane.
 - [Why Local-First Matters for Your AI Agents](https://munderdiffl.in/blog/why-local-first-matters-for-ai-agents/): The control, privacy, and cost case for keeping your AI agents and their memory on your own machine — and what cloud orchestration quietly costs.
-
-### news
-
-- [Agent Tools Today, 11 Oct 2026: Dynamic Workflows, TypeSafe AI's Raise, OpenCode 1.19.0](https://munderdiffl.in/blog/agent-tools-today-2026-10-11/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 11 Oct 2026, each with its source.
-- [Agent Tools Today, 10 Oct 2026: MXC SDK 1.0, Claude Code 2.1.296, Microsoft-Decision-1](https://munderdiffl.in/blog/agent-tools-today-2026-10-10/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 10 Oct 2026, each with its source.
-- [Agent Tools Today, 9 Oct 2026: Gemini Agent, Codex CLI 0.162.0, Step 5 Preview](https://munderdiffl.in/blog/agent-tools-today-2026-10-09/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 9 Oct 2026, each with its source.
-- [Agent Tools Today, 8 Oct 2026: Claude Haiku 5.5, GPT-6 Intelligent UI, Docker Agent](https://munderdiffl.in/blog/agent-tools-today-2026-10-08/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 8 Oct 2026, each with its source.
-- [Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API](https://munderdiffl.in/blog/agent-tools-today-2026-10-07/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 7 Oct 2026, each with its source.
-- [Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search](https://munderdiffl.in/blog/agent-tools-today-2026-10-06/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 6 Oct 2026, each with its source.
-- [Agent Tools Today, 5 Oct 2026: Paperclip Goes Full Auto, Strata's Codex API, Cloudflare's Git Contest](https://munderdiffl.in/blog/agent-tools-today-2026-10-05/): The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 5 Oct 2026, each with its source.
-- [Agent Tools Today, 4 Oct 2026: You should Know, OpenClaw's Android Wait, Codex Wish List](https://munderdiffl.in/blog/agent-tools-today-2026-10-04/): The top 5 launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 4 Oct 2026, each with its source.
-- [Agent Tools Today, 3 Oct 2026: Claude Code Mods, OpenDots, Conductor Mobile](https://munderdiffl.in/blog/agent-tools-today-2026-10-03/): The top 5 launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 3 Oct 2026, each with its source.
 
 ### memory
 

@@ -35,7 +35,7 @@ Everything below was checked on 29 Sep 2026 against the official [hooks referenc
 
 A hook is a rule that says "when this event fires, run this handler". Most handlers are shell commands (`type: "command"`), but the reference now lists five types: `command`, `http`, `mcp_tool`, `prompt` and `agent`. As the [hooks guide](https://code.claude.com/docs/en/hooks-guide) says, hooks give you deterministic control: a guard runs every time, not when the model remembers.
 
-That is also the answer to "hooks vs skills". A skill is instructions Claude may choose to load. A hook runs whether Claude likes it or not.
+That is also the answer to "hooks vs skills". A skill is instructions Claude may choose to load. A hook runs whether Claude likes it or not. Our [Claude Code skills guide](/blog/claude-code-skills/) covers writing one.
 
 ## Which hook events does Claude Code have?
 

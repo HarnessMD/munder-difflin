@@ -6,7 +6,7 @@ category: guides
 categoryLabel: Guides
 type: Technical
 pinned: true
-pinOrder: 4
+pinOrder: 5
 primaryKeyword: "codex max plan"
 secondaryKeywords: ["how to make the most of codex", "codex max plan usage", "chatgpt pro codex usage limits", "does codex have weekly limits", "how to check codex limit usage", "how to reduce codex token usage"]
 tags: ["Guides", "Codex", "Cost", "Model Routing"]

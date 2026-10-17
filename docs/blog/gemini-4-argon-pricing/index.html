@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gemini 4 Argon Pricing: API Rates, Plans and Free Tier</title>
+<meta name="description" content="Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside." />
+<link rel="canonical" href="https://munderdiffl.in/blog/gemini-4-argon-pricing/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Gemini 4 Argon Pricing: API Rates, Plans and Free Tier" />
+<meta property="og:description" content="Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside." />
+<meta property="og:url" content="https://munderdiffl.in/blog/gemini-4-argon-pricing/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/gemini-4-argon-pricing/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. The words Gemini 4 Argon Pricing in large ink type above a Checked 13 Oct 2026 pill, beside a wind chime with four coloured tubes." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-13T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Pricing" />
+<meta property="article:tag" content="Cost" />
+<meta property="article:tag" content="Engines" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Gemini 4 Argon Pricing: API Rates, Plans and Free Tier" />
+<meta name="twitter:description" content="Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/gemini-4-argon-pricing/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. The words Gemini 4 Argon Pricing in large ink type above a Checked 13 Oct 2026 pill, beside a wind chime with four coloured tubes." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives",
+  "description": "Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside.",
+  "image": ["https://munderdiffl.in/blog/assets/media/gemini-4-argon-pricing/hero.png"],
+  "datePublished": "2026-10-13T00:00:00.000Z",
+  "dateModified": "2026-10-13T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/gemini-4-argon-pricing/" },
+  "keywords": "gemini 4 pricing, gemini 4 argon pricing, gemini 4 api pricing, gemini 4 argon cost, is gemini 4 free, gemini 4 argon price per token, google antigravity pricing",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/gemini-4-argon-pricing/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives", "item": "https://munderdiffl.in/blog/gemini-4-argon-pricing/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How much does Gemini 4 Argon cost per token?", "acceptedAnswer": { "@type": "Answer", "text": "Google's pricing page, read on 13 Oct 2026, lists Gemini 4 Argon at $2.00 input and $10.00 output per 1M tokens through November 30, 2026, then $4.00 input and $20.00 output starting December 1, 2026. The output price includes thinking tokens." } },
+    { "@type": "Question", "name": "Is there a free tier for Gemini 4 Argon?", "acceptedAnswer": { "@type": "Answer", "text": "No. Google's pricing page marks every Free Tier cell for Gemini 4 Argon as not available, and says the model is not available on the Free tier or on the Google AI Pro plan." } },
+    { "@type": "Question", "name": "When does the Gemini 4 Argon launch price end?", "acceptedAnswer": { "@type": "Answer", "text": "On 30 November 2026. Google's launch post says that after the introductory period expires on November 30, 2026, the price of $4 per 1M input tokens and $20 per 1M output tokens will apply." } },
+    { "@type": "Question", "name": "Is Gemini 4 Argon cheaper than Claude Opus 5.5?", "acceptedAnswer": { "@type": "Answer", "text": "Until 30 November 2026, yes. On 13 Oct 2026 Google listed Gemini 4 Argon at $2.00 input and $10.00 output per 1M tokens, rising to $4.00 and $20.00 on 1 December 2026. Anthropic listed Claude Opus 5.5 at $4 input and $20 output per MTok, so the two match from December." } },
+    { "@type": "Question", "name": "Does Gemini 4 Argon have a batch discount?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Google's pricing page lists batch prices at half the standard figures: $1.00 input and $5.00 output per 1M tokens through November 30, 2026, then $2.00 and $10.00 starting December 1, 2026." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives</h1>
+    <p class="dek">Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>4 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/gemini-4-argon-pricing/hero.png" alt="Title card on white. The words Gemini 4 Argon Pricing in large ink type above a Checked 13 Oct 2026 pill, beside a wind chime with four coloured tubes." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Our view: budget for the December price, because the launch price is a seven week offer. Gemini 4 pricing on 13 Oct 2026 is $2.00 input and $10.00 output per 1M tokens for Gemini 4 Argon, rising to $4.00 and $20.00 on 1 December 2026. There is no free tier.</p>
+<p>Model prices decide what a team of agents costs to run. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup, the <a href="/blog/topics/guides/">Guides hub</a> has more price pages, and our <a href="/blog/gemini-4-argon/">Gemini 4 Argon page</a> covers the launch.</p>
+<h2 id="what-does-gemini-4-argon-cost-through-the-api" tabindex="-1">What does Gemini 4 Argon cost through the API? <a class="anchor" href="#what-does-gemini-4-argon-cost-through-the-api" aria-hidden="true">#</a></h2>
+<p>Gemini 4 Argon costs $2.00 input and $10.00 output per 1M tokens through November 30, 2026, on Google’s <a href="https://ai.google.dev/gemini-api/docs/pricing">pricing page</a> as read on 13 Oct 2026. The output price includes thinking tokens, so a model that thinks for a long time bills for it.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Paid tier, per 1M tokens</th>
+<th>Through 30 Nov 2026</th>
+<th>From 1 Dec 2026</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input</td>
+<td>$2.00</td>
+<td>$4.00</td>
+</tr>
+<tr>
+<td>Output, including thinking tokens</td>
+<td>$10.00</td>
+<td>$20.00</td>
+</tr>
+<tr>
+<td>Context caching</td>
+<td>$0.10</td>
+<td>$0.20</td>
+</tr>
+<tr>
+<td>Batch input</td>
+<td>$1.00</td>
+<td>$2.00</td>
+</tr>
+<tr>
+<td>Batch output</td>
+<td>$5.00</td>
+<td>$10.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Caching is automatic only. The pricing page says “Implicit caching only (explicit caching is not supported)”.</p>
+<h2 id="when-does-the-launch-price-end" tabindex="-1">When does the launch price end? <a class="anchor" href="#when-does-the-launch-price-end" aria-hidden="true">#</a></h2>
+<p>The launch price ends on 30 November 2026. Google’s <a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/">launch post</a> says “After the introductory period expires on November 30, 2026, the price of $4 per 1M input tokens and $20 per 1M output tokens will apply.”</p>
+<p>Every figure doubles on the same day. An introductory price is a free sample with a calendar attached.</p>
+<figure class="mg" data-scene="sticker"><img src="/blog/assets/media/gemini-4-argon-pricing/sticker.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A shop window with a striped awning stands on a white wall, beside a hanging sign reading Gemini 4 Argon, per 1M tokens. A round sticker on the glass reads Through 30 Nov 2026, Input $2.00, Output $10.00. The sticker peels away at one corner and flutters down to the pavement, and the card behind it reads From 1 Dec 2026, Input $4.00, Output $20.00."><figcaption>Google's pricing page, read 13 Oct 2026, lists $2.00 input and $10.00 output per 1M tokens through 30 November 2026, then $4.00 and $20.00. The drawing shows the launch price as a sticker that peels off. Tap the window to stick it back.</figcaption></figure>
+<h2 id="is-there-a-free-tier" tabindex="-1">Is there a free tier? <a class="anchor" href="#is-there-a-free-tier" aria-hidden="true">#</a></h2>
+<p>No. Google’s pricing page marks each Free Tier cell for Gemini 4 Argon “Not available”, and adds that the model “is not available on the Free tier or on the Google AI Pro plan”.</p>
+<p>Subscriptions are a separate route. Google’s <a href="https://one.google.com/about/google-ai-plans/">plans page</a> said on 13 Oct 2026 that the model is “Available to Google AI Ultra and rolling out to Google AI Pro subscribers in select countries”. Check that page for the plan price in your country.</p>
+<h2 id="what-would-a-real-job-cost" tabindex="-1">What would a real job cost? <a class="anchor" href="#what-would-a-real-job-cost" aria-hidden="true">#</a></h2>
+<p>A job that reads 500,000 tokens and writes 50,000 costs $1.50 at the launch price and $3.00 from 1 December 2026. This is our arithmetic on Google’s listed prices, with thinking tokens counted inside the output figure.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Through 30 Nov 2026</th>
+<th>From 1 Dec 2026</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>500,000 tokens in, 50,000 out</td>
+<td>$1.50</td>
+<td>$3.00</td>
+</tr>
+<tr>
+<td>900,000 tokens in, 100,000 out</td>
+<td>$2.80</td>
+<td>$5.60</td>
+</tr>
+<tr>
+<td>The same two jobs by batch</td>
+<td>$0.75 and $1.40</td>
+<td>$1.50 and $2.80</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>One agent run is cheap. A team of agents running all night is the same sum with more zeros.</p>
+<figure class="mg" data-scene="basket"><img src="/blog/assets/media/gemini-4-argon-pricing/basket.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A wire shopping basket sits on a white counter. Two boxes drop into it, labelled 500,000 tokens in and 50,000 out. A card beside the basket fills in two lines: Through 30 Nov 2026, $1.50, and From 1 Dec 2026, $3.00."><figcaption>By arithmetic on Google's listed prices, read 13 Oct 2026, a job of 500,000 tokens in and 50,000 out costs $1.50 through 30 November 2026 and $3.00 from 1 December 2026. The drawing shows the job as a basket. Tap the basket to add it up again.</figcaption></figure>
+<h2 id="how-does-it-compare-with-claude-opus-55-and-gpt-6-astra" tabindex="-1">How does it compare with Claude Opus 5.5 and GPT-6 Astra? <a class="anchor" href="#how-does-it-compare-with-claude-opus-55-and-gpt-6-astra" aria-hidden="true">#</a></h2>
+<p>Gemini 4 Argon is the cheapest of the three on list price through 30 November 2026. From 1 December 2026 it costs exactly what Anthropic lists for Claude Opus 5.5 and what Meta lists for Muse Wonder. Three vendors, one price tag. All four price pages were read on 13 Oct 2026.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Per 1M tokens</th>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemini 4 Argon, through 30 Nov 2026</td>
+<td>$2.00</td>
+<td>$10.00</td>
+</tr>
+<tr>
+<td>Gemini 4 Argon, from 1 Dec 2026</td>
+<td>$4.00</td>
+<td>$20.00</td>
+</tr>
+<tr>
+<td>Muse Wonder</td>
+<td>$4.00</td>
+<td>$20.00</td>
+</tr>
+<tr>
+<td>Claude Opus 5.5</td>
+<td>$4</td>
+<td>$20</td>
+</tr>
+<tr>
+<td>GPT-6 Astra, short context</td>
+<td>$10.00</td>
+<td>$50.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The other rows come from Meta’s model page, as the <a href="/blog/muse-wonder/">Muse Wonder page</a> records, Anthropic’s <a href="https://platform.claude.com/docs/en/about-claude/pricing">pricing page</a> and OpenAI’s <a href="https://developers.openai.com/api/docs/pricing">pricing page</a>. On 13 Oct 2026 OpenAI also listed a higher long context rate of $20.00 and $75.00.</p>
+<figure class="mg" data-scene="gumballs"><img src="/blog/assets/media/gemini-4-argon-pricing/gumballs.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four gumball machines stand in a row on a white counter, with plates reading Gemini 4 Argon, Muse Wonder, Claude Opus 5.5 and GPT-6 Astra. A price card pops up above each one for input and output per 1M tokens: $4.00 and $20.00 from 1 Dec 2026, $4.00 and $20.00, $4 and $20, $10.00 and $50.00 short context. The first three cards then turn yellow, since they show the same price."><figcaption>List prices per 1M tokens, read 13 Oct 2026: Gemini 4 Argon $4.00 input and $20.00 output from 1 December 2026, Muse Wonder $4.00 and $20.00, Claude Opus 5.5 $4 and $20, GPT-6 Astra $10.00 and $50.00 for short context. The drawing shows them as gumball machines. Tap a machine to turn its handle.</figcaption></figure>
+<h2 id="what-else-is-on-the-bill" tabindex="-1">What else is on the bill? <a class="anchor" href="#what-else-is-on-the-bill" aria-hidden="true">#</a></h2>
+<p>Search grounding is the main extra. Google’s pricing page lists “5,000 free search requests per month (shared across all Gemini 3 and newer models), then $14 per 1,000 requests”.</p>
+<p>Antigravity has its own page. Google’s <a href="https://antigravity.google/pricing">Antigravity pricing page</a> lists an individual plan at “$0/month” and, for eligible Gemini Enterprise customers, “Standard/Plus plans starting at $30 USD per seat per month”. Google’s <a href="https://antigravity.google/blog/gemini-4-argon-in-google-antigravity">Antigravity post</a> puts Gemini 4 Argon there for Google AI Ultra subscribers.</p>
+<h2 id="how-should-you-budget-for-it" tabindex="-1">How should you budget for it? <a class="anchor" href="#how-should-you-budget-for-it" aria-hidden="true">#</a></h2>
+<p>Budget at $4.00 and $20.00, and treat anything you save before December as a bonus. Run long jobs by batch where a delay is fine, since batch is half price. For other tools, see <a href="/blog/codex-pricing/">Codex pricing</a> and <a href="/blog/how-much-does-claude-code-cost/">how much Claude Code costs</a>.</p>
+<link rel="stylesheet" href="/blog/assets/media/gemini-4-argon-pricing/motion.css"><script defer src="/blog/assets/media/gemini-4-argon-pricing/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">How much does Gemini 4 Argon cost per token?</p>
+          <p class="a">Google&#39;s pricing page, read on 13 Oct 2026, lists Gemini 4 Argon at $2.00 input and $10.00 output per 1M tokens through November 30, 2026, then $4.00 input and $20.00 output starting December 1, 2026. The output price includes thinking tokens.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is there a free tier for Gemini 4 Argon?</p>
+          <p class="a">No. Google&#39;s pricing page marks every Free Tier cell for Gemini 4 Argon as not available, and says the model is not available on the Free tier or on the Google AI Pro plan.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">When does the Gemini 4 Argon launch price end?</p>
+          <p class="a">On 30 November 2026. Google&#39;s launch post says that after the introductory period expires on November 30, 2026, the price of $4 per 1M input tokens and $20 per 1M output tokens will apply.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is Gemini 4 Argon cheaper than Claude Opus 5.5?</p>
+          <p class="a">Until 30 November 2026, yes. On 13 Oct 2026 Google listed Gemini 4 Argon at $2.00 input and $10.00 output per 1M tokens, rising to $4.00 and $20.00 on 1 December 2026. Anthropic listed Claude Opus 5.5 at $4 input and $20 output per MTok, so the two match from December.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does Gemini 4 Argon have a batch discount?</p>
+          <p class="a">Yes. Google&#39;s pricing page lists batch prices at half the standard figures: $1.00 input and $5.00 output per 1M tokens through November 30, 2026, then $2.00 and $10.00 starting December 1, 2026.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/pricing/">Pricing</a><a class="tag" href="/blog/tags/cost/">Cost</a><a class="tag" href="/blog/tags/engines/">Engines</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-does-gemini-4-argon-cost-through-the-api">What does Gemini 4 Argon cost through the API?</a></li><li class="lvl-2"><a href="#when-does-the-launch-price-end">When does the launch price end?</a></li><li class="lvl-2"><a href="#is-there-a-free-tier">Is there a free tier?</a></li><li class="lvl-2"><a href="#what-would-a-real-job-cost">What would a real job cost?</a></li><li class="lvl-2"><a href="#how-does-it-compare-with-claude-opus-55-and-gpt-6-astra">How does it compare with Claude Opus 5.5 and GPT-6 Astra?</a></li><li class="lvl-2"><a href="#what-else-is-on-the-bill">What else is on the bill?</a></li><li class="lvl-2"><a href="#how-should-you-budget-for-it">How should you budget for it?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/gemini-4-argon-vs-claude-opus-5-5/"><span class="k">← Older</span><span class="t">Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra: Google Published a Table It Does Not Fully Win</span></a>
+      <a class="pn next" href="/blog/gemini-4-argon-inside-google/"><span class="k">Newer →</span><span class="t">Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-code-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-15">Oct 15, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-best-practices/">Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs</a></h3>
+    <p class="dek">Nine Claude Code best practices from Anthropic&#39;s docs, checked 15 Oct 2026: give Claude a check, plan first, keep memory short, clear context, run in parallel.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-code-best-practices/" aria-label="Read: Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/ai-agent-use-cases-our-office/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/ai-agent-use-cases-our-office/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>8 min</span><span class="pin">Pinned</span>
+    </div>
+    <h3><a href="/blog/ai-agent-use-cases-our-office/">AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does</a></h3>
+    <p class="dek">We run our company on Munder Difflin. Every seat on our floor: what each AI agent does, how its work starts, what comes out, and how to copy it.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/ai-agent-use-cases-our-office/" aria-label="Read: AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-code-skills/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-skills/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-skills/">Claude Code Skills: What They Are, Where They Live and How to Write One</a></h3>
+    <p class="dek">Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-code-skills/" aria-label="Read: Claude Code Skills: What They Are, Where They Live and How to Write One">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      if (!id) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

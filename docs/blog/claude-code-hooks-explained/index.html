@@ -192,7 +192,7 @@
 <p>Everything below was checked on 29 Sep 2026 against the official <a href="https://code.claude.com/docs/en/hooks">hooks reference</a> and Claude Code 2.1.284.</p>
 <h2 id="what-are-claude-code-hooks" tabindex="-1">What are Claude Code hooks? <a class="anchor" href="#what-are-claude-code-hooks" aria-hidden="true">#</a></h2>
 <p>A hook is a rule that says “when this event fires, run this handler”. Most handlers are shell commands (<code>type: &quot;command&quot;</code>), but the reference now lists five types: <code>command</code>, <code>http</code>, <code>mcp_tool</code>, <code>prompt</code> and <code>agent</code>. As the <a href="https://code.claude.com/docs/en/hooks-guide">hooks guide</a> says, hooks give you deterministic control: a guard runs every time, not when the model remembers.</p>
-<p>That is also the answer to “hooks vs skills”. A skill is instructions Claude may choose to load. A hook runs whether Claude likes it or not.</p>
+<p>That is also the answer to “hooks vs skills”. A skill is instructions Claude may choose to load. A hook runs whether Claude likes it or not. Our <a href="/blog/claude-code-skills/">Claude Code skills guide</a> covers writing one.</p>
 <h2 id="which-hook-events-does-claude-code-have" tabindex="-1">Which hook events does Claude Code have? <a class="anchor" href="#which-hook-events-does-claude-code-have" aria-hidden="true">#</a></h2>
 <p>Claude Code 2.1.284 documents 33 hook events. These are the ones most people reach for:</p>
 <div class="table-scroll">

@@ -6,7 +6,7 @@ category: comparisons
 categoryLabel: Comparisons
 type: Technical
 pinned: true
-pinOrder: 7
+pinOrder: 8
 primaryKeyword: "omniagent alternatives"
 secondaryKeywords: ["omnigent alternatives", "omnigent databricks", "omnigent meta harness", "omniagent harness", "omnigent vs opencode"]
 tags: ["Comparisons", "Multi-Agent", "Claude Code", "Tools", "Open Source"]
