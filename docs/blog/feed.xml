@@ -16,12 +16,36 @@
     <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 17 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>DeepSeek V4.1 Flash 1017: What Changed, the Price and Claude Code Setup</title>
+    <link href="https://munderdiffl.in/blog/deepseek-v4-1-flash-1017/" />
+    <id>https://munderdiffl.in/blog/deepseek-v4-1-flash-1017/</id>
+    <published>2026-10-17T00:00:00.000Z</published>
+    <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>DeepSeek V4.1 Flash 1017, released 17 Oct 2026 under MIT: what changed, DeepSeek&#39;s benchmarks, the API price and Claude Code setup.</summary>
+  </entry>
+  <entry>
+    <title>What Is NanoClaw? The Small OpenClaw Alternative That Runs Agents in Containers</title>
+    <link href="https://munderdiffl.in/blog/what-is-nanoclaw/" />
+    <id>https://munderdiffl.in/blog/what-is-nanoclaw/</id>
+    <published>2026-10-17T00:00:00.000Z</published>
+    <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>NanoClaw explained on 17 Oct 2026: what the MIT licensed assistant does, how it differs from OpenClaw, how to install it and which models it works with.</summary>
+  </entry>
+  <entry>
     <title>What Is Roo Code? The Archived VS Code Agent, Explained</title>
     <link href="https://munderdiffl.in/blog/what-is-roo-code/" />
     <id>https://munderdiffl.in/blog/what-is-roo-code/</id>
     <published>2026-10-17T00:00:00.000Z</published>
     <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now.</summary>
+  </entry>
+  <entry>
+    <title>What Is ZeroClaw? The Single Binary Agent Runtime in Rust, Explained</title>
+    <link href="https://munderdiffl.in/blog/what-is-zeroclaw/" />
+    <id>https://munderdiffl.in/blog/what-is-zeroclaw/</id>
+    <published>2026-10-17T00:00:00.000Z</published>
+    <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>ZeroClaw explained on 17 Oct 2026: what the Rust agent runtime does, how it keeps the agent in check, how to install it and which models it works with.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 16 Oct 2026: Muse Spark Open, Tiny Little Office, OpenCode Ends Sharing</title>
@@ -462,29 +486,5 @@
     <published>2026-10-02T00:00:00.000Z</published>
     <updated>2026-10-02T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Pi agent is Earendil&#39;s MIT licensed coding agent harness. What it is, how to install it, what Pi 1.0 and Pi Durable add, and how it compares.</summary>
-  </entry>
-  <entry>
-    <title>Best Open Source AI Agents: 10 Picks by Job, Checked 1 Oct 2026</title>
-    <link href="https://munderdiffl.in/blog/open-source-ai-agents/" />
-    <id>https://munderdiffl.in/blog/open-source-ai-agents/</id>
-    <published>2026-10-01T00:00:00.000Z</published>
-    <updated>2026-10-01T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>The best open source AI agents in 2026, sorted by job: personal assistants, coding agents, agent teams and a framework. Licences checked 1 Oct 2026.</summary>
-  </entry>
-  <entry>
-    <title>ChatGPT Dots Alternatives: 7 Always On Agents, Local and Cloud</title>
-    <link href="https://munderdiffl.in/blog/chatgpt-dots-alternatives/" />
-    <id>https://munderdiffl.in/blog/chatgpt-dots-alternatives/</id>
-    <published>2026-09-30T00:00:00.000Z</published>
-    <updated>2026-09-30T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Personal ChatGPT dots need Pro from $100 a month and skip the UK and EU. Seven alternatives, sorted by where they run: your computer or a vendor&#39;s cloud.</summary>
-  </entry>
-  <entry>
-    <title>ChatGPT Dots vs Munder Difflin: One Cloud Agent or a Team on Your Computer</title>
-    <link href="https://munderdiffl.in/blog/munder-difflin-vs-chatgpt-dots/" />
-    <id>https://munderdiffl.in/blog/munder-difflin-vs-chatgpt-dots/</id>
-    <published>2026-09-30T00:00:00.000Z</published>
-    <updated>2026-09-30T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>ChatGPT dots vs Munder Difflin: one hosted agent on OpenAI&#39;s cloud, or a free, open source team of agents on your own computer. Checked 30 Sep 2026.</summary>
   </entry>
 </feed>

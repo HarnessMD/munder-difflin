@@ -73,6 +73,8 @@ Custom compatible providers, in the README's words, plus a list of named presets
 
 <figure class="mg" data-scene="chime"><img src="/blog/assets/media/claude-code-router/chime.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A wind chime hangs from one bar labelled CCR. Its tubes are labelled OpenRouter, DeepSeek, SiliconFlow, Moonshot, Mistral and Z.AI, and a breeze touches each tube in turn so it swings."><figcaption>Some of the hosted providers CCR's README named on 14 Oct 2026.</figcaption></figure>
 
+DeepSeek also publishes its own Claude Code setup with no gateway in between; see [DeepSeek V4.1 Flash 1017](/blog/deepseek-v4-1-flash-1017/).
+
 ## What are the trade offs?
 
 You leave Anthropic's support behind, and some Claude Code features may not make the trip. Anthropic's [LLM gateway docs](https://code.claude.com/docs/en/llm-gateway) say Anthropic "doesn't endorse, maintain, or audit third-party gateway products, and doesn't support routing Claude Code to non-Claude models through any gateway."
