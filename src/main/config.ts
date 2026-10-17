@@ -24,6 +24,7 @@ import {
 } from '../shared/triggers';
 import { normalizeThemeId, DEFAULT_THEME_ID } from '../shared/themePack';
 import { migrateConfig } from '../shared/orchestratorMigration';
+import { normalizeUsageEndpoint, DEFAULT_USAGE_TIMEOUT_MS, type UsageEndpointConfig } from '../shared/usageEndpoint';
 
 /** A recurring auto-dispatched mission fired on an interval by the scheduler. */
 export interface ScheduledMission {
@@ -202,6 +203,8 @@ export interface HarnessConfig {
    *  Off does not FAIL a queued spawn request, it declines to consume one. The
    *  request sits in HIVE_ROOT/spawn-requests until the toggle is turned on. */
   orchestratorMaySpawn: boolean;
+  /** Optional provider-usage endpoint polled at each standup (see src/shared/usageEndpoint.ts). */
+  usageEndpoint?: UsageEndpointConfig;
   /** The command we run when spawning a new agent. */
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
@@ -428,6 +431,7 @@ const DEFAULTS: HarnessConfig = {
   registeredRepos: [],
   autoMode: true,
   orchestratorMaySpawn: false,
+  usageEndpoint: { enabled: false, url: '', timeoutMs: DEFAULT_USAGE_TIMEOUT_MS },
   defaultCommand: 'claude',
   orchestratorProvider: 'claude',
   orchestratorModel: 'claude-opus-4-8',
@@ -700,6 +704,7 @@ export function writeConfig(patch: Partial<HarnessConfig>): HarnessConfig {
     next.harnessHome = home;
     next.recentHives = recentHives;
   }
+  if (patch.usageEndpoint !== undefined) next.usageEndpoint = normalizeUsageEndpoint(patch.usageEndpoint);
   return persistConfig(next);
 }
 

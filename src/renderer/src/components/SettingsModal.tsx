@@ -295,6 +295,25 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
     setOrchSpawnOn(next);
     stage({ orchestratorMaySpawn: next } as Partial<HarnessConfig>);
   };
+  // Provider-usage endpoint (polled at each standup). Staged like every other
+  // setting; "Test" runs the form values without saving them.
+  const [usage, setUsage] = useState({
+    enabled: cfgX.usageEndpoint?.enabled === true,
+    url: cfgX.usageEndpoint?.url ?? '',
+    token: cfgX.usageEndpoint?.token ?? '',
+    timeoutMs: cfgX.usageEndpoint?.timeoutMs ?? 5000
+  });
+  const [usageTest, setUsageTest] = useState<{ busy: boolean; ok?: boolean; text?: string }>({ busy: false });
+  const stageUsage = (patch: Partial<typeof usage>): void => {
+    const next = { ...usage, ...patch };
+    setUsage(next);
+    stage({ usageEndpoint: { ...next, token: next.token || undefined } } as Partial<HarnessConfig>);
+  };
+  const runUsageTest = async (): Promise<void> => {
+    setUsageTest({ busy: true });
+    const r = await window.cth.testUsageEndpoint({ url: usage.url, token: usage.token || undefined, timeoutMs: usage.timeoutMs });
+    setUsageTest({ busy: false, ok: r.ok, text: r.ok ? r.summary : r.error });
+  };
   const [defaultModelSel, setDefaultModelSel] = useState<string>(cfgX.defaultModel ?? 'claude-fable-5');
   const saveDefaultModel = (id: string): void => {
     setDefaultModelSel(id);
@@ -1285,6 +1304,52 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                           <PixelButton variant={orchSpawnOn ? 'primary' : 'secondary'} size="sm" onClick={toggleOrchSpawn}>
                             {orchSpawnOn ? `me and ${orchestratorName}` : 'only me'}
                           </PixelButton>
+                        </div>
+                      </div>
+
+                      <div style={{ height: 1, background: 'var(--cth-ink-300)' }} />
+
+                      {/* Provider usage endpoint — remaining allowance per engine, read at each standup */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>Usage endpoint</span>
+                            <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
+                              {`Each standup, ${orchestratorName} reads how much allowance every engine has left and when it resets, so he can steer work away from an engine that is nearly out. Point this at any URL that returns the JSON in docs/usage-endpoint.md.`}
+                            </span>
+                          </div>
+                          <PixelButton variant={usage.enabled ? 'primary' : 'secondary'} size="sm"
+                            onClick={() => stageUsage({ enabled: !usage.enabled })}>
+                            {usage.enabled ? t('common.on') : t('common.off')}
+                          </PixelButton>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
+                          <input
+                            type="url" value={usage.url} placeholder="http://raspberrypi.local:8080/api/agents/remaining"
+                            onChange={(e) => stageUsage({ url: e.target.value })}
+                            style={{ ...slackInputStyle, width: '100%' }}
+                          />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <input
+                              type="password" value={usage.token} placeholder="Bearer token (optional)"
+                              onChange={(e) => stageUsage({ token: e.target.value })}
+                              style={{ ...slackInputStyle, flex: 1 }}
+                            />
+                            <input
+                              type="number" min="1" max="30" step="1" value={Math.round(usage.timeoutMs / 1000)}
+                              onChange={(e) => stageUsage({ timeoutMs: Math.max(1, Number(e.target.value) || 5) * 1000 })}
+                              style={{ ...slackInputStyle, width: 70 }}
+                            />
+                            <span style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>sec timeout</span>
+                            <PixelButton variant="secondary" size="sm" onClick={runUsageTest} disabled={usageTest.busy || !usage.url.trim()}>
+                              {usageTest.busy ? 'Testing…' : 'Test'}
+                            </PixelButton>
+                          </div>
+                          {usageTest.text && (
+                            <pre style={{ margin: 0, fontSize: 11, lineHeight: '16px', whiteSpace: 'pre-wrap', color: usageTest.ok ? 'var(--cth-ink-700)' : 'var(--cth-danger, #c0392b)' }}>
+                              {usageTest.ok ? usageTest.text : `Failed: ${usageTest.text}`}
+                            </pre>
+                          )}
                         </div>
                       </div>
 

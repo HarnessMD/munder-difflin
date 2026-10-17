@@ -29,6 +29,8 @@ import { HiveManager, type AgentMeta, type HiveMessage, type HiveTask } from './
 import { HookServer } from './hooks';
 import { CircuitBreaker, type BreakerInput } from './breaker';
 import { CumulativeSampleGate, type UsageProvider } from './usage';
+import { fetchUsage } from './usageEndpoint';
+import { summarizeForOrchestrator, normalizeUsageEndpoint } from '../shared/usageEndpoint';
 import { MemoryManager } from './memory';
 import { KnowledgeManager } from './knowledge';
 import { MemoryReflector, type ReflectSettings } from './reflect';
@@ -700,6 +702,27 @@ function clearMissionTimers(): void {
   missionTimers.clear();
 }
 
+/** True when this fire is the ops standup and the user turned the usage endpoint on. */
+function wantsUsage(m: ScheduledMission): boolean {
+  return m.id === OPS_STANDUP_MISSION.id && !!readConfig().usageEndpoint?.enabled;
+}
+
+/** The standup body with the provider-usage summary appended. Never throws and never
+ *  blocks past the endpoint's timeout, so an unreachable box costs one line, not a standup. */
+async function missionBodyWithUsage(m: ScheduledMission): Promise<string> {
+  const cfg = readConfig().usageEndpoint;
+  if (!cfg?.enabled) return m.body;
+  const res = await fetchUsage(cfg);
+  if (!res.ok) return `${m.body}
+
+PROVIDER USAGE: the usage endpoint was unavailable (${res.error}). Treat remaining allowance as unknown.`;
+  hive.writeUsageAvailability({ fetchedAt: new Date().toISOString(), ...res.snapshot });
+  return `${m.body}
+
+PROVIDER USAGE (remaining allowance per engine, from the user's usage endpoint; also in usage-availability.json):
+${summarizeForOrchestrator(res.snapshot)}`;
+}
+
 /** Rebuild the scheduler from persisted config: clear every existing timer,
  *  then arm each enabled mission honoring its lastFiredAt — a setTimeout for the
  *  time remaining until its next due fire, which then settles into a steady
@@ -728,7 +751,14 @@ function syncMissions(): void {
         // we deliberately do NOT add `&& m.body`, so other (dispatch) missions keep
         // their prior behaviour, including the historical empty-body send (Pam N1).
         if (m.kind !== 'compact' && hive.enabled()) {
-          hive.send({ to: m.to, act: 'request', subject: m.label, body: m.body }, 'scheduler');
+          const send = (body: string): void => {
+            try { hive.send({ to: m.to, act: 'request', subject: m.label, body }, 'scheduler'); }
+            catch (e) { console.error('[scheduler] send', m.id, e); }
+          };
+          // The standup is the one mission that waits on the network: it appends the
+          // user's provider-usage summary first. Every other mission sends at once.
+          if (wantsUsage(m)) void missionBodyWithUsage(m).then(send);
+          else send(m.body);
         }
         // Auto-compact: do NOT jam /compact into busy terminals. Hand it to the
         // renderer, which queues a /compact per agent (deduped — never two at
@@ -3383,6 +3413,15 @@ ipcMain.handle('themes:validate', (_evt, id: unknown) => {
     };
   }
   return validateThemePack(id);
+});
+
+// Settings "Test" button: run the endpoint with the (possibly unsaved) form values
+// and report what the orchestrator would see. Never writes config or the hive.
+ipcMain.handle('usage:test', async (_evt, raw: unknown) => {
+  const cfg = normalizeUsageEndpoint({ ...(raw as object), enabled: true });
+  if (!cfg.enabled) return { ok: false, error: 'enter an http(s) URL first' };
+  const res = await fetchUsage(cfg);
+  return res.ok ? { ok: true, summary: summarizeForOrchestrator(res.snapshot) } : res;
 });
 
 ipcMain.handle('themes:openFolder', async () => {

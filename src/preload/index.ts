@@ -1431,7 +1431,11 @@ const api = {
   listThemes: (): Promise<PackSummary[]> => ipcRenderer.invoke('themes:list'),
   loadThemePack: (id: string): Promise<PackPayload | null> => ipcRenderer.invoke('themes:load', id),
   validateTheme: (id: string): Promise<{ valid: boolean; issues: Issue[] }> => ipcRenderer.invoke('themes:validate', id),
-  openThemesFolder: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('themes:openFolder')
+  openThemesFolder: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('themes:openFolder'),
+
+  // Provider-usage endpoint (Settings "Test")
+  testUsageEndpoint: (cfg: { url: string; token?: string; timeoutMs?: number }): Promise<{ ok: boolean; summary?: string; error?: string }> =>
+    ipcRenderer.invoke('usage:test', cfg)
 };
 
 contextBridge.exposeInMainWorld('cth', api);
