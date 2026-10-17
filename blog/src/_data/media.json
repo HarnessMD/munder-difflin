@@ -651,28 +651,15 @@
     "youtube": []
   },
   "cline-vs-munder-difflin": {
-    "title": "Cline vs Munder Difflin: In-Editor Agent or Local Hive?",
+    "title": "Cline vs Munder Difflin: One Agent Everywhere, or a Team of Agents?",
     "category": "comparisons",
     "hero": {
       "file": "assets/media/cline-vs-munder-difflin/hero.png",
-      "alt": "Illustration: Cline vs Munder Difflin: In-Editor Agent or Local Hive?",
-      "prompt": "Hero image for a blog post titled \"Cline vs Munder Difflin: In-Editor Agent or Local Hive?\". The post is about: A fair comparison of Cline and Munder Difflin — an in-editor BYOK coding agent vs a local multi-agent orchestration hive — and when to pick which.",
+      "alt": "Cline vs Munder Difflin on white: a yellow Cline block wired to four tiles labelled VS Code, Terminal, Desktop and SDK, captioned one agent, many places, beside a lilac Munder Difflin block wired to three tiles labelled Claude Code, Codex and Gemini CLI, captioned many agents, one job.",
+      "prompt": "Still of the hero scene in assets/media/cline-vs-munder-difflin/motion.js.",
       "status": "ready"
     },
-    "inline": {
-      "note-1": {
-        "file": "assets/media/cline-vs-munder-difflin/note-1.png",
-        "alt": "Hand-drawn sketch from “Cline vs Munder Difflin: In-Editor Agent or Local Hive?”",
-        "prompt": "",
-        "status": "ready"
-      },
-      "note-2": {
-        "file": "assets/media/cline-vs-munder-difflin/note-2.png",
-        "alt": "Hand-drawn sketch from “Cline vs Munder Difflin: In-Editor Agent or Local Hive?”",
-        "prompt": "",
-        "status": "ready"
-      }
-    },
+    "inline": {},
     "youtube": []
   },
   "codex-cli-vs-claude-code": {
@@ -5010,6 +4997,39 @@
       "file": "assets/media/what-is-roo-code/hero.png",
       "alt": "Title card on white. \"What Is Roo Code?\" in large ink type with a \"Checked 17 Oct 2026\" pill, beside a museum display case holding a code tile on a plinth marked v3.54.0, with a rope barrier.",
       "prompt": "Code drawn title card, motion standard (17 Oct 2026).",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "deepseek-v4-1-flash-1017": {
+    "title": "DeepSeek V4.1 Flash 1017: What Changed, the Price and Claude Code Setup",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/deepseek-v4-1-flash-1017/hero.png",
+      "alt": "Title image: DeepSeek V4.1 Flash 1017, what changed, price and setup, checked 17 Oct 2026, beside a stopwatch whose hand has swept most of the way round.",
+      "prompt": "Still of the hero scene in assets/media/deepseek-v4-1-flash-1017/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-nanoclaw": {
+    "title": "What Is NanoClaw? The Small OpenClaw Alternative That Runs Agents in Containers",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-nanoclaw/hero.png",
+      "alt": "What is NanoClaw: three chat app tiles labelled WhatsApp, Telegram and Slack are wired on white into a box labelled container, with a yellow agent tile inside.",
+      "prompt": "Still of the hero scene in assets/media/what-is-nanoclaw/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-zeroclaw": {
+    "title": "What Is ZeroClaw? The Single Binary Agent Runtime in Rust, Explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-zeroclaw/hero.png",
+      "alt": "What is ZeroClaw: a yellow hexagon labelled ZeroClaw on white, wired to three tiles labelled models, channels and tools.",
+      "prompt": "Still of the hero scene in assets/media/what-is-zeroclaw/motion.js.",
       "status": "ready"
     },
     "inline": {}
