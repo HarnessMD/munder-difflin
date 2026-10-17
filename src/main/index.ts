@@ -94,7 +94,7 @@ import {
   codexRemoteSocketFits,
   withCodexRemoteArgs
 } from '../shared/codexRemote';
-import { scanThemes, readPack, validateThemePack, getThemeSearchPaths, readThemeOrchestratorName } from './themes';
+import { scanThemes, readPack, validateThemePack, getThemeSearchPaths, readThemeOrchestratorName, setConfiguredThemesDir } from './themes';
 
 // Dev isolation: apply MD_USER_DATA_DIR early before config, db, or hive initialize
 if (process.env.MD_USER_DATA_DIR && typeof process.env.MD_USER_DATA_DIR === 'string') {
@@ -3269,7 +3269,10 @@ ipcMain.handle('config:update', (_evt, patch: Partial<HarnessConfig>) => {
   // Keep the hive's mirror of the spawn gate current. The queue itself reads
   // config per tick so it gates immediately; this is for the PROMPT, which is
   // built per spawn, so flipping the toggle reaches orchestrator the next time he starts.
-  if (typeof patch?.officeTheme === 'string') setThemeOrchestratorName(readThemeOrchestratorName(patch.officeTheme));
+  if (typeof patch?.themesDir === 'string') setConfiguredThemesDir(patch.themesDir);
+  if (typeof patch?.officeTheme === 'string' || typeof patch?.themesDir === 'string') {
+    setThemeOrchestratorName(readThemeOrchestratorName(readConfig().officeTheme));
+  }
   if (typeof patch?.orchestratorMaySpawn === 'boolean') hive.setOrchestratorMaySpawn(patch.orchestratorMaySpawn);
   if (!hiveWasEnabled && hive.enabled()) {
     console.log('[hive] harnessHome configured — bootstrapping hive services');
@@ -3401,6 +3404,9 @@ ipcMain.handle('themes:list', () => {
   return scanThemes().packs;
 });
 
+// Rescan after the user drops a pack into a themes folder (or fixes one).
+ipcMain.handle('themes:rescan', () => scanThemes(true).packs);
+
 ipcMain.handle('themes:load', (_evt, id: unknown) => {
   if (typeof id !== 'string') return null;
   return readPack(id);
@@ -3428,7 +3434,7 @@ ipcMain.handle('usage:test', async (_evt, raw: unknown) => {
 // The renderer asks before it registers the orchestrator, so a theme's suggested
 // name is in place the first time the name is persisted.
 ipcMain.handle('themes:orchestratorName', () => {
-setThemeOrchestratorName(readThemeOrchestratorName(readConfig().officeTheme));
+  setThemeOrchestratorName(readThemeOrchestratorName(readConfig().officeTheme));
   return getThemeOrchestratorName();
 });
 
@@ -5233,8 +5239,9 @@ function bootstrapHiveServices(): void {
     if (r.ok) console.log('[broker] integration broker listening on', integrationBroker.url());
     else console.error('[broker] failed to start:', r.error);
   });
-setThemeOrchestratorName(readThemeOrchestratorName(readConfig().officeTheme));
-ensureDefaultMissions(); // one-time: seed the built-in hourly ops standup
+  setConfiguredThemesDir(readConfig().themesDir);
+  setThemeOrchestratorName(readThemeOrchestratorName(readConfig().officeTheme));
+  ensureDefaultMissions(); // one-time: seed the built-in hourly ops standup
   syncMissions(); // arm recurring auto-dispatch missions now the router is live
   syncContextTriggers(); // …and the context trigger's own compact/clear cadences
   // Pair replies to inbound webhook messages in the ledger. Tied to the FEATURE

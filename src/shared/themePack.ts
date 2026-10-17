@@ -1,5 +1,5 @@
 import { sanitizeDisplayName } from './orchestratorIdentity';
-// Theme pack contract + PURE validator (docs/theming/THEME-PACK-INVENTORY.md §2).
+// Theme pack contract + PURE validator (docs/theming/THEMING.md §2).
 //
 // No fs, no Pixi, no Electron, no DOM: runs in main at scan time AND in the
 // renderer before the scene touches a pack, and is unit-testable under plain
@@ -538,9 +538,27 @@ export function validatePack(input: ValidateInput): ValidateResult {
     }
     out.copy = { ...(orchestratorName ? { orchestratorName } : {}), ...(appName ? { appName } : {}) };
   }
-  if (manifest.cast !== undefined) {
-    warn('cast-unsupported', 'cast', 'disk casts are not loaded in this build; the default roster is used');
-    delete out.cast;
+  // The roster is auto-detected from cast/cast.json (+ cast/sprites/<name>.png); the
+  // manifest `cast` field is not used. Check the file so a typo is reported, not silent.
+  delete out.cast;
+  const castBytes = input.files['cast/cast.json'];
+  if (castBytes) {
+    try {
+      const roster = JSON.parse(new TextDecoder('utf-8').decode(castBytes));
+      if (!Array.isArray(roster) || roster.length === 0) {
+        warn('bad-cast', 'cast/cast.json', 'must be a non-empty array; the built-in roster is used');
+      } else {
+        const bad = roster.findIndex((m) => !isObj(m) || !isStr(m.name) || !/^[a-z0-9_-]{1,32}$/i.test(m.name));
+        if (bad >= 0) warn('bad-cast', `cast/cast.json[${bad}]`, 'each member needs a "name" (letters, digits, - or _)');
+        for (const m of roster) {
+          if (isObj(m) && isStr(m.name) && !input.files[`cast/sprites/${m.name}.png`]) {
+            warn('cast-sprite-missing', `cast/sprites/${m.name}.png`, 'sprite missing; a drawn fallback is used for this member');
+          }
+        }
+      }
+    } catch {
+      warn('bad-cast', 'cast/cast.json', 'not valid JSON; the built-in roster is used');
+    }
   }
   if (tsFiles.length > 0 && !manifest.license) warn('no-license', 'license', 'pack uses tilesets but declares no license');
 

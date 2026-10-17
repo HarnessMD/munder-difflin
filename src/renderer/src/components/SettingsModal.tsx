@@ -1201,7 +1201,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         </div>
                       </div>
 
-                      {/* Office Theme — TV-show office maps (experimental; flag tvShowOffices, default off) */}
+                      {/* Theme picker: validated packs, rescan, extra themes folder */}
                       <OfficeThemePicker config={config} />
                     </>
                   )}

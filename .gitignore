@@ -40,3 +40,4 @@ docs/blog-preview-*/
 # The only built-in pack is resources/themes/plain.
 /resources/themes/*
 !/resources/themes/plain/
+/my-themes/

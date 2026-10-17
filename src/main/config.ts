@@ -315,14 +315,15 @@ export interface HarnessConfig {
    *  without an injected key and environments with DO_NOT_TRACK set never send
    *  regardless of this flag. (Mirrored in preload + renderer config.) */
   telemetryEnabled?: boolean;
-  /** Master flag for the TV-show office themes feature (Settings theme picker +
-   *  destructive switch flow). Default false = the picker is hidden and the
-   *  office renders as today (zero behavior change). */
+  /** Deprecated and ignored: the theme picker is always available. Kept so old
+   *  config files and the realtime allow-list still parse. */
   tvShowOffices?: boolean;
-  /** Which office map/cast theme the pixel office renders. Only honored when
-   *  `tvShowOffices` is on; otherwise the office theme is used. Unbuilt show
-   *  themes fall back to 'office' in the loader. */
+  /** Which theme pack the pixel office renders. A missing or invalid pack falls
+   *  back to the built-in default ('plain'). */
   officeTheme?: string;
+  /** Extra folder scanned for theme packs (each pack is a subfolder with a theme.json).
+   *  Searched after <userData>/themes. See docs/theming/THEMING.md. */
+  themesDir?: string;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn (config-injection or proxy
    *  upstream). API KEYS are NOT stored here — they live write-only in the secret

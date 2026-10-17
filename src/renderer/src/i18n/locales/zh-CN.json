@@ -175,9 +175,7 @@
   },
   "officeTheme": {
     "title": "办公室主题",
-    "tvShow": "电视剧办公室主题",
-    "experimental": "实验性",
-    "desc": "把像素办公室换皮成电视剧场景。切换会开启一套全新演员阵容。",
+    "desc": "选择像素办公室的外观。切换会重新组建一批新角色。",
     "current": "当前",
     "soon": "即将推出",
     "notBuiltYet": "{{label}} 尚未构建——暂时显示办公室。",
@@ -191,7 +189,14 @@
     "stillWorkingPlural": "⚠ {{count}} 个智能体仍在工作。",
     "cantUndo": "此操作无法撤销。",
     "switching": "切换中…",
-    "deleteSwitch": "删除 {{count}} 个并切换"
+    "deleteSwitch": "删除 {{count}} 个并切换",
+    "rescan": "重新扫描",
+    "openFolder": "打开主题文件夹",
+    "themesDir": "额外的主题文件夹",
+    "themesDirHint": "可选。其子文件夹为主题包的目录。",
+    "issues": "{{name}} 存在问题",
+    "noThemes": "未找到主题。",
+    "unavailable": "不可用"
   },
   "settings": {
     "title": "设置",

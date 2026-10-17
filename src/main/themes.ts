@@ -17,10 +17,18 @@ export interface ScanResult {
   byPath: Map<ThemeId, { dir: string; source: 'builtin' | 'user' | 'dev' }>;
 }
 
+let configuredThemesDir = '';
+/** Folder from Settings → Themes (config.themesDir). Takes effect on the next scan. */
+export function setConfiguredThemesDir(dir: unknown): void {
+  configuredThemesDir = typeof dir === 'string' ? dir.trim() : '';
+  cachedScan = null;
+}
+
 /**
  * Returns candidate root directories for theme discovery per §2.6:
  * 1. Dev override: env MD_THEMES_DIR (path-delimited list) -> source 'dev'
  * 2. User: <userData>/themes -> source 'user'
+ * 2b. Configured: `themesDir` from Settings (set via setConfiguredThemesDir) -> source 'user'
  * 3. Built-in: <process.resourcesPath>/themes in packaged, or <repo>/resources/themes in dev -> source 'builtin'
  */
 export function getThemeSearchPaths(): Array<{ dir: string; source: 'builtin' | 'user' | 'dev' }> {
@@ -41,6 +49,11 @@ export function getThemeSearchPaths(): Array<{ dir: string; source: 'builtin' | 
   // 2. User: <userData>/themes
   const userDataThemes = join(app.getPath('userData'), 'themes');
   paths.push({ dir: userDataThemes, source: 'user' });
+
+  // 2b. A folder the user chose in Settings, searched after the default user folder.
+  if (configuredThemesDir && isAbsolute(configuredThemesDir)) {
+    paths.push({ dir: configuredThemesDir, source: 'user' });
+  }
 
   // 3. Built-in: <resourcesPath>/themes (packaged) or <repo>/resources/themes (dev)
   const builtinThemes = app.isPackaged
@@ -281,7 +294,8 @@ export function scanThemes(force = false): ScanResult {
       seenIds.add(sub);
       byPath.set(sub, { dir: packDir, source });
 
-      // Lightweight inspection for PackSummary
+      // Name/blurb/swatch come from a cheap manifest read; the issue list comes from the
+      // same validator the app loads with, so an "available" badge is truthful.
       const themeJsonPath = join(packDir, 'theme.json');
       const issues: Issue[] = [];
       let name = sub;
@@ -300,12 +314,7 @@ export function scanThemes(force = false): ScanResult {
         try {
           const st = statSync(themeJsonPath);
           if (st.size > PACK_LIMITS.manifestBytes) {
-            issues.push({
-              level: 'error',
-              code: 'manifest-too-large',
-              path: 'theme.json',
-              message: 'theme.json exceeds size limit'
-            });
+            issues.push({ level: 'error', code: 'manifest-too-large', path: 'theme.json', message: 'theme.json exceeds size limit' });
           } else {
             const raw = JSON.parse(readFileSync(themeJsonPath, 'utf8'));
             if (raw && typeof raw === 'object') {
@@ -314,6 +323,7 @@ export function scanThemes(force = false): ScanResult {
               if (typeof raw.blurb === 'string') blurb = raw.blurb;
               if (typeof raw.swatch === 'string') swatch = raw.swatch;
             }
+            issues.push(...readPackFromDisk(packDir, source, sub).issues);
           }
         } catch (e) {
           issues.push({

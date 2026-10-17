@@ -175,12 +175,10 @@
   },
   "officeTheme": {
     "title": "Office Theme",
-    "tvShow": "TV-show office themes",
-    "experimental": "experimental",
-    "desc": "Re-skin the pixel office as a TV show. Switching starts a fresh cast.",
+    "desc": "Pick the look of the pixel office. Switching starts a fresh cast.",
     "current": "current",
     "soon": "soon",
-    "notBuiltYet": "{{label}} isn't built yet — showing the office for now.",
+    "notBuiltYet": "{{label}} could not be loaded — showing the default theme.",
     "switchAborted": "Switch aborted — a terminal wouldn't close: {{error}}",
     "confirmTitle": "SWITCH OFFICE TO \"{{label}}\"?",
     "startsFreshCast": "STARTS A FRESH CAST",
@@ -191,7 +189,14 @@
     "stillWorkingPlural": "⚠ {{count}} agents are still working.",
     "cantUndo": "This can't be undone.",
     "switching": "switching…",
-    "deleteSwitch": "delete {{count}} & switch"
+    "deleteSwitch": "delete {{count}} & switch",
+    "rescan": "Rescan",
+    "openFolder": "Open themes folder",
+    "themesDir": "Extra themes folder",
+    "themesDirHint": "Optional. A folder whose subfolders are theme packs.",
+    "issues": "{{name}} has problems",
+    "noThemes": "No themes found.",
+    "unavailable": "unavailable"
   },
   "settings": {
     "title": "SETTINGS",

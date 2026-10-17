@@ -18,6 +18,8 @@
     "preview": "electron-vite preview",
     "postinstall": "electron-rebuild -f && node tools/ensure-pty-perms.cjs && node tools/patch-node-pty-conpty.cjs",
     "test:themes": "vitest run",
+    "theme:validate": "node scripts/theme-packs/validate.cjs",
+    "theme:new": "node scripts/theme-packs/new.cjs",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",

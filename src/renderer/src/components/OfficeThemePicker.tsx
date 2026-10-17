@@ -17,56 +17,57 @@ interface ThemeCardItem {
   swatch: string;
 }
 
-/** Settings "Office Theme" section: an experimental flag toggle + theme picker
- *  cards from window.cth.listThemes() with the destructive switch flow (report §E).
+/** Settings "Office Theme" section: theme picker cards from window.cth.listThemes()
+ *  with the destructive switch flow, validation problems per pack, Rescan, an
+ *  Open-folder button and an optional extra themes folder.
  *  Self-contained so it stays out of SettingsModal's bulk. */
 export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
   const { t } = useTranslation();
-  const [enabled, setEnabled] = useState(!!config.tvShowOffices);
   const [current, setCurrent] = useState<ThemeId>((config.officeTheme as ThemeId) ?? DEFAULT_THEME_ID);
   const [pending, setPending] = useState<ThemeId | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
   const [themes, setThemes] = useState<ThemeCardItem[]>([]);
+  const [packs, setPacks] = useState<PackSummary[]>([]);
+  const [themesDir, setThemesDir] = useState(config.themesDir ?? '');
 
   const archiveAgent = useStore((s) => s.archiveAgent);
   const setOfficeTheme = useStore((s) => s.setOfficeTheme);
 
+  const applyList = (list: PackSummary[]) => {
+    setPacks(list);
+    setThemes(list.map((p) => ({
+      id: p.id,
+      label: p.name || p.id,
+      blurb: p.blurb || '',
+      built: p.available,
+      swatch: p.swatch || '#6b5a4a',
+    })));
+  };
+
   useEffect(() => {
     let cancelled = false;
-    const fetchThemes = async () => {
+    void (async () => {
       try {
         if (!window.cth?.listThemes) return;
-        const list: PackSummary[] = await window.cth.listThemes();
-        if (cancelled) return;
-        const cards: ThemeCardItem[] = list.map((p) => ({
-          id: p.id,
-          label: p.name || p.id,
-          blurb: p.blurb || '',
-          built: p.available,
-          swatch: p.swatch || '#6b5a4a',
-        }));
-        setThemes(cards);
-      } catch {
-        // Fallback or ignore if bridge unavailable
-      }
-    };
-    void fetchThemes();
+        const list = await window.cth.listThemes();
+        if (!cancelled) applyList(list);
+      } catch { /* bridge unavailable */ }
+    })();
     return () => { cancelled = true; };
   }, []);
 
-  const toggleFlag = async () => {
-    const next = !enabled;
-    setEnabled(next);
+  const rescan = async () => {
     setNote('');
+    try { applyList(await window.cth.rescanThemes()); } catch { /* keep the current list */ }
+  };
+
+  const saveThemesDir = async () => {
+    if (themesDir === (config.themesDir ?? '')) return;
     try {
-      await window.cth.updateConfig({ tvShowOffices: next });
-      // Flag off → the office renders regardless of the saved theme; flag on →
-      // restore the persisted theme.
-      setOfficeTheme(next ? current : DEFAULT_THEME_ID);
-    } catch {
-      setEnabled(!next); // revert optimistic toggle on failure
-    }
+      await window.cth.updateConfig({ themesDir });
+      await rescan();
+    } catch { /* leave the field as typed */ }
   };
 
   const nonOrchestratorAgents = () =>
@@ -74,7 +75,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
 
   const onSelect = (id: ThemeId) => {
     setNote('');
-    if (busy || id === current) return;                 // no-op on the current theme
+    if (busy || id === current || packs.find((p) => p.id === id)?.available === false) return;                 // no-op on the current theme
     if (nonOrchestratorAgents().length === 0) { void applyTheme(id); return; } // orchestrator-only → instant
     setPending(id);                                     // workers exist → confirm modal
   };
@@ -86,7 +87,8 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       if (window.cth?.validateTheme) {
         const val = await window.cth.validateTheme(id);
         if (!val.valid) {
-          setNote(t('officeTheme.switchAborted', { error: 'Theme validation failed' }));
+          const first = val.issues.find((i) => i.level === 'error');
+          setNote(t('officeTheme.switchAborted', { error: first ? `[${first.code}] ${first.message}` : 'Theme validation failed' }));
           setBusy(false);
           setPending(null);
           return;
@@ -128,31 +130,19 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
         {t('officeTheme.title')}
       </div>
 
-      {/* Experimental feature flag */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>
-            {t('officeTheme.tvShow')} <span style={{ color: 'var(--cth-ink-500)' }}>({t('officeTheme.experimental')})</span>
-          </span>
-          <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-            {t('officeTheme.desc')}
-          </span>
-        </div>
-        <PixelButton variant={enabled ? 'primary' : 'secondary'} size="sm" onClick={toggleFlag}>
-          {enabled ? t('common.on') : t('common.off')}
-        </PixelButton>
+      <div style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)', marginBottom: 8 }}>
+        {t('officeTheme.desc')}
       </div>
-
-      {/* Theme picker grid (only when the flag is on) */}
-      {enabled && (
-        <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+      {/* Theme picker grid */}
+      {(
+        <div style={{ marginTop: 4, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
           {themes.map((theme) => {
-            const isCurrent = theme.id === current || (theme.id === DEFAULT_THEME_ID && current === 'office');
+            const isCurrent = theme.id === current;
             return (
               <button
                 key={theme.id}
                 onClick={() => onSelect(theme.id)}
-                disabled={busy}
+                disabled={busy || !theme.built}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left',
                   padding: 8, cursor: busy ? 'default' : 'pointer',
@@ -160,7 +150,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
                   boxShadow: isCurrent
                     ? 'inset 0 0 0 1.5px var(--cth-ink-500)'
                     : 'inset 0 0 0 1px var(--cth-ink-300)',
-                  opacity: busy && !isCurrent ? 0.6 : 1,
+                  opacity: (busy || !theme.built) && !isCurrent ? 0.6 : 1,
                 }}
               >
                 <span style={{
@@ -179,7 +169,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
                     )}
                     {!theme.built && !isCurrent && (
                       <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-ink-500)', textTransform: 'uppercase' }}>
-                        {t('officeTheme.soon')}
+                        {t('officeTheme.unavailable')}
                       </span>
                     )}
                   </span>
@@ -193,7 +183,43 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
         </div>
       )}
 
-      {enabled && note && (
+
+      {themes.length === 0 && (
+        <div style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>{t('officeTheme.noThemes')}</div>
+      )}
+
+      {/* Problems found while validating each pack (errors make it unavailable) */}
+      {packs.filter((p) => p.issues.length > 0).map((p) => (
+        <div key={p.id} style={{ marginTop: 8, fontSize: 11, lineHeight: '15px', color: 'var(--cth-ink-500)' }}>
+          <div style={{ color: p.available ? 'var(--cth-ink-700)' : 'var(--cth-coral)' }}>
+            {t('officeTheme.issues', { name: p.name || p.id })}
+          </div>
+          {p.issues.map((i, n) => (
+            <div key={n} style={{ fontFamily: 'var(--cth-font-mono)' }}>
+              {i.level === 'error' ? 'error' : 'warn'} [{i.code}] {i.path ? `${i.path}: ` : ''}{i.message}
+            </div>
+          ))}
+        </div>
+      ))}
+
+      <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <PixelButton variant="secondary" size="sm" onClick={() => void rescan()}>{t('officeTheme.rescan')}</PixelButton>
+        <PixelButton variant="secondary" size="sm" onClick={() => void window.cth.openThemesFolder()}>{t('officeTheme.openFolder')}</PixelButton>
+      </div>
+
+      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <label style={{ fontSize: 12, color: 'var(--cth-ink-900)' }}>{t('officeTheme.themesDir')}</label>
+        <input
+          value={themesDir}
+          onChange={(e) => setThemesDir(e.target.value)}
+          onBlur={() => void saveThemesDir()}
+          spellCheck={false}
+          style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 12, padding: '4px 6px' }}
+        />
+        <span style={{ fontSize: 11, color: 'var(--cth-ink-500)' }}>{t('officeTheme.themesDirHint')}</span>
+      </div>
+
+      {note && (
         <div style={{ marginTop: 10, fontSize: 12, color: 'var(--cth-ink-500)' }}>{note}</div>
       )}
 

@@ -325,8 +325,10 @@ export interface HarnessConfig {
   terminalTheme?: 'light' | 'dark';
   /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
   tvShowOffices?: boolean;
-  /** Active office map/cast theme (honored only when tvShowOffices is on). */
+  /** Active theme pack id (falls back to 'plain'). tvShowOffices above is deprecated and ignored. */
   officeTheme?: string;
+  /** Extra folder scanned for theme packs. See docs/theming/THEMING.md. */
+  themesDir?: string;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn. API KEYS are NOT stored here —
    *  they live write-only in the secret broker. */
@@ -1429,6 +1431,7 @@ const api = {
 
   // Themes (§2.7)
   listThemes: (): Promise<PackSummary[]> => ipcRenderer.invoke('themes:list'),
+  rescanThemes: (): Promise<PackSummary[]> => ipcRenderer.invoke('themes:rescan'),
   loadThemePack: (id: string): Promise<PackPayload | null> => ipcRenderer.invoke('themes:load', id),
   validateTheme: (id: string): Promise<{ valid: boolean; issues: Issue[] }> => ipcRenderer.invoke('themes:validate', id),
   openThemesFolder: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('themes:openFolder'),
