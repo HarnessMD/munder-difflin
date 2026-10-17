@@ -144,6 +144,8 @@ export interface ThemeConfig {
   /** Undefined when the pack has no chrome overrides at all (e.g. the default
    *  munder-difflin pack) — the loader/applier treats that as "restore base". */
   chrome?: ThemeChrome;
+  /** Suggested orchestrator/command name from the theme (manifest copy.orchestratorName). */
+  orchestratorName?: string;
 }
 
 /** Runtime registry of loaded themes, populated on demand by loadTheme. */

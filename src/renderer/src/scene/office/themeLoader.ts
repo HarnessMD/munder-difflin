@@ -270,6 +270,7 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
     cast,
     seatFacing: manifest.seats.facing ? { ...manifest.seats.facing } : undefined,
     chrome,
+    orchestratorName: manifest.copy?.orchestratorName,
   };
 
   return themeConfig;
