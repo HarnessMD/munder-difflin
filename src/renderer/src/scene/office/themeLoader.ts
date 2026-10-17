@@ -257,6 +257,7 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
       maxCups: 0,
     },
     anchors: { ...manifest.anchors },
+    cameraBounds: manifest.cameraBounds,
     errandSpots: manifest.errandSpots.map((s) => ({ ...s })),
     monitor: {
       offTopLeftGid: manifest.monitor.offTopLeftGid,

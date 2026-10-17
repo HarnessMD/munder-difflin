@@ -74,6 +74,8 @@ export interface CoffeeConfig {
   maxCups: number;
 }
 export interface AnchorConfig { calendar: Tile; boards: Tile; clock: Tile; }
+/** Optional tile-space action rectangle used by automatic camera fitting. */
+export interface CameraBounds { x: number; y: number; width: number; height: number; }
 
 // ─── on-disk shapes ─────────────────────────────────────────────────────────
 export interface Issue {
@@ -113,6 +115,7 @@ export interface PackManifest {
   };
   coffee?: CoffeeConfig;
   anchors: AnchorConfig;
+  cameraBounds?: CameraBounds;
   errandSpots: ErrandSpot[];
   monitor: MonitorConfig;
   palette: { background: string; noteColors: Record<string, string> };
@@ -487,6 +490,13 @@ export function validatePack(input: ValidateInput): ValidateResult {
   const standOk = (t: unknown): t is Tile => isTile(t) && inBounds(t) && !blocked(t);
 
   const out: PackManifest = { ...manifest };
+
+  if (manifest.cameraBounds !== undefined) {
+    const b = manifest.cameraBounds;
+    const ok = isObj(b) && isInt(b.x) && isInt(b.y) && isInt(b.width) && isInt(b.height)
+      && b.width > 0 && b.height > 0 && b.x >= 0 && b.y >= 0 && b.x + b.width <= W && b.y + b.height <= H;
+    if (!ok) { warn('bad-camera-bounds', 'cameraBounds', 'cameraBounds must be an in-map tile rect; ignored'); delete out.cameraBounds; }
+  }
 
   const c = manifest.coffee;
   if (c !== undefined) {

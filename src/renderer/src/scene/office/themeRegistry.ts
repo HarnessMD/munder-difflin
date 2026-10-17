@@ -82,6 +82,7 @@ export interface AnchorConfig {
   boards: Tile;
   clock: Tile;
 }
+export interface CameraBounds { x: number; y: number; width: number; height: number; }
 
 /** Theme palette. `background` is the canvas clear color; `noteColors` are the
  *  kanban note colors keyed by task status. */
@@ -132,6 +133,8 @@ export interface ThemeConfig {
   cafeStands: ReadonlyArray<readonly [string, 'coffee' | 'vending']>;
   coffee: CoffeeConfig;
   anchors: AnchorConfig;
+  /** Optional tile-space action rectangle for auto-fit; absent fits the whole map. */
+  cameraBounds?: CameraBounds;
   errandSpots: ErrandSpot[];
   monitor: MonitorConfig;
   palette: PaletteConfig;

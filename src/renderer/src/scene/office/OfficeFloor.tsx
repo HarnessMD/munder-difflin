@@ -298,6 +298,10 @@ export function OfficeFloor() {
 
       const camera = new Camera(world);
       camera.setMapSize(mapRenderer.width * mapRenderer.tileSize, mapRenderer.height * mapRenderer.tileSize);
+      if (theme.cameraBounds) {
+        const b = theme.cameraBounds;
+        camera.setFitBounds(b.x * mapRenderer.tileSize, b.y * mapRenderer.tileSize, b.width * mapRenderer.tileSize, b.height * mapRenderer.tileSize);
+      }
       camera.setViewSize(app.screen.width, app.screen.height);
       camera.fitToScreen();
 
