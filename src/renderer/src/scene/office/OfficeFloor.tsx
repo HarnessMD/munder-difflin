@@ -331,7 +331,9 @@ export function OfficeFloor() {
         }
       }
       calG.rect(8, 11, 2, 2).fill(0xc94f4f);                  // today, circled red
-      charLayer.addChild(calG);
+      if (theme.anchors.calendar.x >= 0 && theme.anchors.calendar.y >= 0) {
+        charLayer.addChild(calG);
+      }
 
       // Build the ordered seat list once: PC desks + named desks first, then
       // conference-room chairs as overflow. Each agent claims one and stays there;
@@ -1048,7 +1050,9 @@ export function OfficeFloor() {
         if (orchestrator) st.select(orchestrator.id);
         st.requestCommandCenterTab('tasks');
       });
-      charLayer.addChild(boardG);
+      if (theme.anchors.boards.x >= 0 && theme.anchors.boards.y >= 0) {
+        charLayer.addChild(boardG);
+      }
       // One small Graphics per desk currently holding a taken note.
       const deskNoteG = new Map<string, Graphics>();
       const clearDeskNotes = (): void => {
@@ -1137,7 +1141,9 @@ export function OfficeFloor() {
         ev.stopPropagation();
         window.close(); // intercepted by the main process while PTYs are alive
       });
-      charLayer.addChild(clockG);
+      if (theme.anchors.clock.x >= 0 && theme.anchors.clock.y >= 0) {
+        charLayer.addChild(clockG);
+      }
 
       // ─── The ASK ME board: tasks waiting on the HUMAN, first class ─────────
       // Hangs on the right wall run (between the second doorway and the war
@@ -1163,7 +1169,9 @@ export function OfficeFloor() {
         if (orchestrator) st.select(orchestrator.id);
         st.requestCommandCenterTab('human');
       });
-      charLayer.addChild(askG);
+      if (askTile.x >= 0 && askTile.y >= 0 && theme.anchors.boards.x >= 0) {
+        charLayer.addChild(askG);
+      }
       let askCount = 0;
       let askPulse = 0;
       const drawAskBoard = (pulse: number): void => {

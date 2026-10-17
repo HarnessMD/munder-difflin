@@ -7,6 +7,7 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import type { ThemeId } from '@/scene/office/themeRegistry';
+import { loadTheme } from '@/scene/office/themeLoader';
 import { DEFAULT_THEME_ID, type PackSummary } from '@shared/themePack';
 
 interface ThemeCardItem {
@@ -109,6 +110,27 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       await window.cth.updateConfig({ officeTheme: id });
       setCurrent(id);
       setOfficeTheme(id); // → OfficeFloor rebuilds the scene on the new map/cast
+
+      // Update the orchestrator's portrait & name to match the new theme's roster
+      try {
+        const loaded = await loadTheme(id);
+        const newCast = loaded?.cast;
+        if (newCast && newCast.defaultCharacter && newCast.byName) {
+          const defaultChar = newCast.defaultCharacter;
+          const member = newCast.byName[defaultChar];
+          const st = useStore.getState();
+          const orch = st.agents.find((a) => a.isOrchestrator);
+          if (orch) {
+            st.updateAgent(orch.id, {
+              character: defaultChar as any,
+              name: member?.displayName ?? orch.name
+            });
+          }
+        }
+      } catch {
+        // Fallback silently if theme cast couldn't be loaded immediately
+      }
+
       const meta = themes.find((item) => item.id === id);
       if (meta && !meta.built) setNote(t('officeTheme.notBuiltYet', { label: meta.label }));
     } catch (e) {

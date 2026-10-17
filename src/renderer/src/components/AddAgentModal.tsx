@@ -7,6 +7,7 @@ import { Icon } from './Icon';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
 import { CAST, DEFAULT_CHARACTER, type CharacterName } from '@/scene/office/cast';
+import { useThemeCast } from '@/hooks/useThemeCast';
 import { type AccentColorName } from '@/design/tokens';
 import type { HireManifest } from '@shared/hire';
 import { hireQueueProgress } from '@shared/hireQueue';
@@ -154,24 +155,17 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
   const pendingHire = hireQueue.pending[0];
   const reviewProgress = hireQueueProgress(hireQueue);
 
+  const { roster, defaultCharacter } = useThemeCast();
+
   const knownCharacter = (c?: string): CharacterName =>
-    (CAST.some(m => m.name === c) ? (c as CharacterName) : DEFAULT_CHARACTER);
+    (roster.some(m => m.name === c) ? (c as CharacterName) : (defaultCharacter as CharacterName));
   const knownAccent = (a?: string): AccentColorName =>
     (ACCENTS.includes(a as AccentColorName) ? (a as AccentColorName) : 'sky');
-  /** The cast member a typed name refers to, if any.
-   *
-   *  The character tiles already set the name (clicking Cleo names the agent
-   *  Cleo), but the coupling ran ONE WAY, so typing "Cleo" left the
-   *  avatar on whatever was selected, in practice the Ben default. Same missing
-   *  default as issue #191 from the other direction, where a manifest that omits
-   *  `character` always lands on Ben.
-   *
-   *  Returns null on no match, and the caller leaves the avatar alone, so a
-   *  deliberate pick is never overwritten by continuing to type. */
+  /** The cast member a typed name refers to, if any. */
   const characterForName = (n: string): CharacterName | null => {
     const q = n.trim().toLowerCase();
     if (!q) return null;
-    const hit = CAST.find(c => c.displayName.toLowerCase() === q || c.name === q);
+    const hit = roster.find(c => c.displayName.toLowerCase() === q || c.name === q);
     return hit ? hit.name : null;
   };
   /** The locally-built spawn command for a manifest: provider preset + model
@@ -685,7 +679,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
 
                     <Row label={tr('addAgent.character')}>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {CAST.map(c => (
+                        {roster.map(c => (
                           <button
                             key={c.name}
                             onClick={() => { setCharacter(c.name); setName(c.displayName); }}

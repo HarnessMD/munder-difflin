@@ -4,7 +4,8 @@ import { PixelButton } from './PixelButton';
 import { SpritePortrait } from './SpritePortrait';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
-import { CAST, type CharacterName } from '@/scene/office/cast';
+import { type CharacterName } from '@/scene/office/cast';
+import { useThemeCast } from '@/hooks/useThemeCast';
 import { type AccentColorName } from '@/design/tokens';
 import {
   type AgentProvider,
@@ -31,6 +32,7 @@ export interface EditAgentModalProps {
  */
 export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
   const updateAgent = useStore((s) => s.updateAgent);
+  const { roster } = useThemeCast();
   const [config, setConfig] = useState<HarnessConfig | null>(null);
 
   const [name, setName] = useState(agent.name);
@@ -132,7 +134,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
 
               <Row label="Character">
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {CAST.map((c) => {
+                  {roster.map((c) => {
                     const active = character === c.name;
                     return (
                       <button

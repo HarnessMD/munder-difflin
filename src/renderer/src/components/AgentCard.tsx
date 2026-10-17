@@ -45,6 +45,8 @@ export interface AgentCardProps {
   /** Opens the note editor (the strip owns the editing overlay). When set, the
    *  card shows a small ✎ affordance on its note row. */
   onEditNote?: () => void;
+  /** Direct edit of this agent's portrait/character. */
+  onEditPortrait?: () => void;
 }
 
 const fmtK = (n: number): string => `${Math.round(n / 1000)}k`;
@@ -57,7 +59,7 @@ const fmtK = (n: number): string => `${Math.round(n / 1000)}k`;
 export function AgentCard({
   name, character, accent, status, ptyId, project, action, progress = 0,
   contextTokens, contextLimit, selected, isOrchestrator, onClick, onRename,
-  doingCount = 0, onTaskNoteClick, draggable, note, onEditNote
+  doingCount = 0, onTaskNoteClick, draggable, note, onEditNote, onEditPortrait
 }: AgentCardProps) {
   const { t } = useTranslation();
   const [hover, setHover] = useState(false);
@@ -185,18 +187,23 @@ export function AgentCard({
       >
         <div style={{ display: 'flex', gap: 8, height: '100%' }}>
           {/* Portrait tile — vertically centred so the card reads calm and even. */}
-          <div style={{
-            width: 36, height: isOrchestrator ? 50 : 46, alignSelf: 'center',
-            // Orchestrator's CARD is now accent-light, so the tile cannot be — it would
-            // vanish into its own background. Paper reads as an inset frame
-            // against the tint, which is what the tile is meant to look like.
-            background: isOrchestrator ? 'var(--cth-paper-100)' : `var(--cth-${accent}-light)`,
-            boxShadow: `inset 0 0 0 1px var(--cth-ink-${isOrchestrator ? '300' : '100'})`,
-            // Anchor the sprite's TOP: the 56px-tall portrait overflows this
-            // tile, and bottom-anchoring cropped the head — crop feet, not face.
-            display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden',
-            flexShrink: 0
-          }}>
+          <div
+            onClick={(e) => {
+              if (onEditPortrait) {
+                e.stopPropagation();
+                onEditPortrait();
+              }
+            }}
+            title={t('agentCard.editPortrait', { defaultValue: 'Edit character portrait' })}
+            style={{
+              width: 36, height: isOrchestrator ? 50 : 46, alignSelf: 'center',
+              background: isOrchestrator ? 'var(--cth-paper-100)' : `var(--cth-${accent}-light)`,
+              boxShadow: `inset 0 0 0 1px var(--cth-ink-${isOrchestrator ? '300' : '100'})`,
+              display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden',
+              flexShrink: 0,
+              cursor: onEditPortrait ? 'pointer' : undefined
+            }}
+          >
             <SpritePortrait character={character} scale={2} />
           </div>
 
