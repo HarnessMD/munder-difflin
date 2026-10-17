@@ -2353,6 +2353,7 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   const geom = cascade ?? saved;
 
   const win = new BrowserWindow({
+    icon: join(app.isPackaged ? process.resourcesPath : app.getAppPath(), app.isPackaged ? 'agent-stage.png' : 'build/agent-stage.png'),
     width: geom?.width ?? DEFAULT_WIN.width,
     height: geom?.height ?? DEFAULT_WIN.height,
     ...(geom && geom.x !== undefined && geom.y !== undefined ? { x: geom.x, y: geom.y } : {}),
@@ -5471,6 +5472,9 @@ function onSystemResume(reason: string): void {
 }
 
 app.whenReady().then(() => {
+  if (process.platform === 'darwin' && !app.isPackaged) {
+    app.dock?.setIcon(join(app.getAppPath(), 'build/agent-stage.png'));
+  }
   // Realtime voice mic-gate hygiene (rt-8 / Pam rt-10 nit): the voice session
   // opens the mic permission gate by persisting realtimeVoiceEnabled=true and
   // closes it on disconnect — but a hard crash/reload mid-session skips that
