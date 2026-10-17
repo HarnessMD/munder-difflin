@@ -44,7 +44,7 @@ import { reduceStatus, clampPercent, isNewer, installerUrl, shouldShowReleaseDro
  *      downgrade is per-check, not a permanent latch.
  */
 
-const REPO = 'chaitanyagiri/munder-difflin';
+const REPO = 'jdell64/agent-stage';
 const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6h
 const FALLBACK_CACHE_MS = 60 * 60 * 1000;     // 1h between releases/latest polls
 

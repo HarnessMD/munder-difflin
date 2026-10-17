@@ -271,12 +271,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     onComplete(next);
   };
 
-  const overlayBackground = themeSelected
-    ? 'var(--cth-cream-200)'
-    : '#121316';
-  const overlayPattern = themeSelected
-    ? `repeating-linear-gradient(45deg, rgba(232, 217, 160, 0.4) 0 1px, transparent 1px 8px)`
-    : `repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 8px)`;
+  const overlayBackground = 'var(--cth-cream-200)';
+  const overlayPattern = `repeating-linear-gradient(45deg, rgba(232, 217, 160, 0.4) 0 1px, transparent 1px 8px)`;
 
   return (
     <div style={{
@@ -299,9 +295,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       <div style={{ width: 640, maxWidth: '94vw', margin: 'auto' }}>
         <PixelPanel
           variant="dialog"
-          style={!themeSelected ? { background: '#1c1e24', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12)' } : undefined}
           title={
-            step === 'persona' ? (themeSelected ? t('onboarding.titles.persona') : 'WELCOME')
+            step === 'persona' ? t('onboarding.titles.persona')
             : step === 'welcome' ? t('onboarding.titles.welcome')
             : step === 'theme' ? t('onboarding.titles.theme')
             : step === 'home' ? (plain ? t('onboarding.titles.homePlain') : t('onboarding.titles.home'))

@@ -1148,8 +1148,14 @@ export function OfficeFloor() {
       const askG = new Graphics();
       askG.eventMode = 'static';
       askG.cursor = 'pointer';
-      askG.position.set(14 * tsB + 25, 10 * tsB);
-      askG.zIndex = 11 * tsB;
+      // In custom/legacy themes anchors might define specific wall placements;
+      // for default plain (and other themes), position it on the top wall (e.g. x: 16, y: 1)
+      const askTile = (theme.anchors as unknown as Record<string, Tile | undefined>)?.ask ?? {
+        x: theme.anchors.clock.x + 2,
+        y: theme.anchors.boards.y
+      };
+      askG.position.set(askTile.x * tsB + 4, askTile.y * tsB);
+      askG.zIndex = (askTile.y + 1) * tsB;
       askG.on('pointertap', (ev) => {
         ev.stopPropagation();
         const st = useStore.getState();

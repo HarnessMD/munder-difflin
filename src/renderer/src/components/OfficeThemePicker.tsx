@@ -135,7 +135,14 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
       </div>
       {/* Theme picker grid */}
       {(
-        <div style={{ marginTop: 4, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+        <div style={{
+          marginTop: 4,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
+          gap: 8,
+          width: '100%',
+          boxSizing: 'border-box'
+        }}>
           {themes.map((theme) => {
             const isCurrent = theme.id === current;
             return (
@@ -147,6 +154,10 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
                   display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left',
                   padding: 8, cursor: busy ? 'default' : 'pointer',
                   background: isCurrent ? 'var(--cth-paper-100)' : 'transparent',
+                  border: 'none',
+                  boxSizing: 'border-box',
+                  width: '100%',
+                  minWidth: 0,
                   boxShadow: isCurrent
                     ? 'inset 0 0 0 1.5px var(--cth-ink-500)'
                     : 'inset 0 0 0 1px var(--cth-ink-300)',
@@ -157,18 +168,18 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
                   width: 28, height: 28, flexShrink: 0, background: theme.swatch,
                   boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500)',
                 }} />
-                <span style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0, flex: 1 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
                     <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-900)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {theme.label}
                     </span>
                     {isCurrent && (
-                      <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-mint)', textTransform: 'uppercase' }}>
+                      <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-mint)', textTransform: 'uppercase', flexShrink: 0 }}>
                         {t('officeTheme.current')}
                       </span>
                     )}
                     {!theme.built && !isCurrent && (
-                      <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-ink-500)', textTransform: 'uppercase' }}>
+                      <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 7, color: 'var(--cth-ink-500)', textTransform: 'uppercase', flexShrink: 0 }}>
                         {t('officeTheme.unavailable')}
                       </span>
                     )}
@@ -214,7 +225,7 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
           onChange={(e) => setThemesDir(e.target.value)}
           onBlur={() => void saveThemesDir()}
           spellCheck={false}
-          style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 12, padding: '4px 6px' }}
+          style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 12, padding: '4px 6px', boxSizing: 'border-box', width: '100%' }}
         />
         <span style={{ fontSize: 11, color: 'var(--cth-ink-500)' }}>{t('officeTheme.themesDirHint')}</span>
       </div>
