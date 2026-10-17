@@ -149,9 +149,24 @@ function submitToPty(
     // immune (the prev.catch above absorbs it for the next writer).
     const wrote = await window.cth.writePty(ptyId, payload);
     if (!wrote?.ok) throw new Error(wrote?.error ?? `pty write failed: ${ptyId}`);
-    await new Promise((r) => setTimeout(r, 140));
+    // Codex's ratatui composer SWALLOWS a CR that arrives while it is still
+    // ingesting the just-written input (its status line repaints continuously),
+    // so the stock prompt-then-\r at 140ms left the text sitting UNSENT until a
+    // human pressed Enter — the per-turn "manual nudge" codex workers needed.
+    // Verified live on a real worker: a LATE \r submits the sitting text, and a
+    // \r on an already-empty composer is a harmless no-op. So for codex, wait
+    // longer before the CR and send a SECOND one — the redundant CR lands on an
+    // empty composer (no-op) when the first submit already took, and rescues the
+    // case where the first was still swallowed. LOCAL PATCH — drop when the
+    // upstream 0.5.6 codex auto-advance fix lands. (#codex-submit)
+    const isCodex = provider === 'codex';
+    await new Promise((r) => setTimeout(r, isCodex ? 450 : 140));
     const submitted = await window.cth.writePty(ptyId, '\r');
     if (!submitted?.ok) throw new Error(submitted?.error ?? `pty write failed: ${ptyId}`);
+    if (isCodex) {
+      await new Promise((r) => setTimeout(r, 200));
+      await window.cth.writePty(ptyId, '\r');
+    }
     await new Promise((r) => setTimeout(r, settleMs));
   });
   writeChains.set(ptyId, next);
@@ -728,6 +743,37 @@ export function useHive(config: HarnessConfig | null): void {
         } catch { /* ignore */ }
       }
     }, 4000);
+    return () => clearInterval(iv);
+  }, [config?.onboardingComplete]);
+
+  // 3a-codex) CODEX SUBMIT SAFETY NET. Codex's ratatui composer accepts a
+  //   standalone CR but SWALLOWS the one submitToPty fires right after typing the
+  //   nudge, so the nudge text SITS UNSENT and the worker stalls until a human
+  //   presses Enter. Verified live on a real worker: a CR sent on its own, a few
+  //   seconds after the text has settled, submits it; a CR on an EMPTY composer is
+  //   a harmless no-op. So for each codex worker whose inbox is non-empty and whose
+  //   PTY has gone quiet (idle, not mid-generation, not awaiting a prompt), fire one
+  //   bare CR — replicating the timing that works, independent of the fragile inline
+  //   submit. LOCAL PATCH — drop with the submitToPty change when the upstream 0.5.6
+  //   codex auto-advance fix lands. (#codex-submit)
+  useEffect(() => {
+    if (!config?.onboardingComplete) return;
+    const QUIET_MS = 5000;
+    const iv = setInterval(async () => {
+      const now = Date.now();
+      const agents = useStore.getState().agents.filter((a) => a.ptyId);
+      for (const a of agents) {
+        if (inferAgentProvider(a.command, a.provider) !== 'codex') continue;
+        if (a.status === 'waiting' || a.status === 'blocked') continue; // don't confirm a prompt
+        if ((bootGraceUntil.current[a.id] ?? 0) >= now) continue;       // let boot settle
+        const quiet = ptyQuietMs(a.ptyId!, now);
+        if (quiet === null || quiet < QUIET_MS) continue;               // unknown or mid-generation
+        try {
+          // #codex-submit: fire for ANY quiet codex agent; objective-seeded workers have an empty inbox, so the old guard left them stuck with unsubmitted text.
+          await window.cth.writePty(a.ptyId!, '\r');                    // no-op if composer already empty
+        } catch { /* dead pty / ignore */ }
+      }
+    }, 6000);
     return () => clearInterval(iv);
   }, [config?.onboardingComplete]);
 
