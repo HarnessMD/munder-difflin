@@ -39,7 +39,9 @@
  * Read-only: this module never writes to the ledger.
  */
 
-import { createReadStream, statSync } from 'fs';
+import { createReadStream } from 'fs';
+import { open } from 'fs/promises';
+import { filesInOrder } from './appendLog';
 
 /** Per (agent, session) fold state: closed segments plus the open one. */
 interface Segment {
@@ -58,8 +60,14 @@ const EPS = 1e-9;
 const MAX_BYTES_PER_PASS = 8 * 1024 * 1024;
 
 export class CostLedgerTotals {
-  /** Bytes of the ledger already folded. */
+  /** Bytes of the CURRENT ledger file already folded. */
   private offset = 0;
+  /** LOG-STALL-AV F2: the ledger rotates (every rotated file is kept), so the fold reads the
+   *  rotated files in order, then the live one. A file is identified by its file id, which a
+   *  rename keeps: the live file being folded when it rotates is simply continued under its new
+   *  name. Rotated files are immutable; once read to the end they are done. */
+  private curId: string | null = null;
+  private readonly doneIds = new Set<string>();
   /** Trailing partial line, kept as BYTES so a multi-byte character split
    *  across a read boundary is never decoded in half. */
   private tail: Buffer = Buffer.alloc(0);
@@ -121,31 +129,50 @@ export class CostLedgerTotals {
   }
 
   private async fold(ledgerPath: string): Promise<void> {
-    let size: number;
-    try { size = statSync(ledgerPath).size; } catch { return; }
-
-    // Truncated or rotated underneath us: the offset now points past the end,
-    // so every segment we hold is suspect. Start clean.
-    if (size < this.offset) this.reset();
-    if (size === this.offset) { this.warm = true; return; }
-
-    const end = Math.min(size, this.offset + MAX_BYTES_PER_PASS) - 1;
-    const from = this.offset;
-
-    await new Promise<void>((resolve, reject) => {
-      const stream = createReadStream(ledgerPath, { start: from, end });
-      stream.on('data', (chunk: string | Buffer) => {
-        const buf = typeof chunk === 'string' ? Buffer.from(chunk) : chunk;
-        this.consume(buf);
-      });
-      stream.on('error', reject);
-      stream.on('end', () => resolve());
-    });
-
-    this.offset = end + 1;
-    this.recompute();
-    // Only "warm" once we have caught up to EOF; a capped pass is still behind.
-    if (this.offset >= size) this.warm = true;
+    const files = filesInOrder(ledgerPath);
+    let seenCur = this.curId === null;
+    for (let i = 0; i < files.length; i++) {
+      const live = i === files.length - 1;
+      let fh;
+      // An unreadable live ledger leaves the last good totals (and warmth) as they were.
+      // The live file is briefly absent right after a rotation: every rotated file read means
+      // the fold is caught up. With nothing read at all, the last good totals stand.
+      try { fh = await open(files[i], 'r'); } catch { if (live) { if (this.curId === null && this.doneIds.size) this.warm = true; return; } continue; }
+      try {
+        const st = await fh.stat({ bigint: true });
+        const id = `${st.dev}:${st.ino}`;
+        const size = Number(st.size);
+        if (this.doneIds.has(id)) continue;
+        if (this.curId === null) { this.curId = id; this.offset = 0; this.tail = Buffer.alloc(0); }
+        if (id !== this.curId) {
+          // The file we were folding is gone (not a rotation: those keep the id): start clean.
+          if (!seenCur) { this.reset(); return this.fold(ledgerPath); }
+          continue;
+        }
+        seenCur = true;
+        // Truncated underneath us: the offset now points past the end. Start clean.
+        if (size < this.offset) { this.reset(); return; }
+        if (size > this.offset) {
+          const end = Math.min(size, this.offset + MAX_BYTES_PER_PASS) - 1;
+          const from = this.offset;
+          await new Promise<void>((resolve, reject) => {
+            const stream = createReadStream('', { fd: fh!.fd, start: from, end, autoClose: false });
+            stream.on('data', (chunk: string | Buffer) => this.consume(typeof chunk === 'string' ? Buffer.from(chunk) : chunk));
+            stream.on('error', reject);
+            stream.on('end', () => resolve());
+          });
+          this.offset = end + 1;
+          this.recompute();
+          // A capped pass is still behind: resume here next time.
+          if (this.offset < size) return;
+        }
+        if (live) { this.warm = true; return; }
+        // A rotated file read to its end: done for good; the next file starts at 0.
+        this.doneIds.add(id);
+        this.curId = null;
+        this.offset = 0;
+      } finally { await fh.close().catch(() => {}); }
+    }
   }
 
   /** Fold one buffer, holding back any incomplete trailing line. */
@@ -189,6 +216,8 @@ export class CostLedgerTotals {
 
   private reset(): void {
     this.offset = 0;
+    this.curId = null;
+    this.doneIds.clear();
     this.tail = Buffer.alloc(0);
     this.seg.clear();
     this.totals = new Map();

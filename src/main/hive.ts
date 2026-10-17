@@ -21,11 +21,13 @@
 import {
   existsSync, mkdirSync, readFileSync, writeFileSync, renameSync,
   readdirSync, statSync, lstatSync, realpathSync, rmSync, appendFileSync,
-  symlinkSync, unlinkSync, copyFileSync, cpSync, chmodSync
+  symlinkSync, unlinkSync, copyFileSync, cpSync, chmodSync,
+  openSync, readSync, closeSync
 } from 'node:fs';
 import { join, dirname, basename, isAbsolute, relative } from 'node:path';
 import { homedir } from 'node:os';
 import { spawnSync, spawn, type ChildProcess } from 'node:child_process';
+import { AppendFile, LOG_KEEP_ROTATED, rotatedFiles } from './appendLog';
 import { randomBytes, createHash } from 'node:crypto';
 import type { AgentUsageSample } from './usage';
 import { COMMAND_GROUPS } from '../shared/claudeCommands';
@@ -386,6 +388,10 @@ function pruneCrashLogs(dir: string): void {
   } catch { /* unreadable directory is not worth failing an exit path over */ }
 }
 
+/** First window logTail() reads off the end of a log file. Sized so the default 200 rows
+ *  (~170 B each) land in one read; it quadruples from here if a caller asks for more. */
+const LOG_TAIL_WINDOW_BYTES = 256 * 1024;
+
 export class HiveManager {
   /**
    * @param getHome  Lazily resolve harnessHome so the hive follows config changes.
@@ -397,6 +403,29 @@ export class HiveManager {
     private getHome: () => string | null,
     private emit?: (channel: string, payload: unknown) => boolean | void
   ) {}
+
+  /** LOG-STALL-AV: the kept-open, rotated append files, per hive root (see appendLog.ts). */
+  private readonly appendFiles = new Map<string, AppendFile>();
+  private keepAppendOpen = false;
+  private appendFileFor(path: string, keep: number): AppendFile {
+    let f = this.appendFiles.get(path);
+    if (!f) { f = new AppendFile(path, { keep, keepOpen: this.keepAppendOpen }); this.appendFiles.set(path, f); }
+    return f;
+  }
+  /** The APP keeps the log and ledger descriptors open (no antivirus rescan per row). Off by
+   *  default so a caller that deletes the hive folder (tests) is never blocked by a held file. */
+  keepAppendFilesOpen(on: boolean): void {
+    if (on === this.keepAppendOpen) return;
+    this.closeAppendFiles();
+    this.keepAppendOpen = on;
+  }
+  /** Close the kept-open log and ledger descriptors. Rows are already on disk; the next row
+   *  reopens. Call before deleting or copying the hive folder (reset, change home) and at
+   *  quit: Windows cannot remove a directory while a file in it is open. */
+  closeAppendFiles(): void {
+    for (const f of this.appendFiles.values()) f.close();
+    this.appendFiles.clear();
+  }
 
   private routerTimer: NodeJS.Timeout | null = null;
 
@@ -2739,9 +2768,53 @@ export class HiveManager {
   }
   logTail(n = 200): unknown[] {
     const root = this.root();
-    if (!root || !existsSync(join(root, 'log.jsonl'))) return [];
-    const lines = readFileSync(join(root, 'log.jsonl'), 'utf8').trim().split('\n').filter(Boolean);
-    return lines.slice(-n).map((l) => { try { return JSON.parse(l); } catch { return { raw: l }; } });
+    if (!root || n <= 0) return [];
+    const live = join(root, 'log.jsonl');
+    // LOG-STALL-AV: the log rotates, so a tail that the live file cannot fill continues into
+    // the rotated files, newest first. Each is read with the same bounded tail window.
+    const files = [...rotatedFiles(live).map((r) => r.path), ...(existsSync(live) ? [live] : [])];
+    const parse = (l: string): unknown => { try { return JSON.parse(l); } catch { return { raw: l }; } };
+    let rows: unknown[] = [];
+    for (let i = files.length - 1; i >= 0 && rows.length < n; i--) {
+      rows = [...this.fileTail(files[i], n - rows.length, parse), ...rows];
+    }
+    return rows;
+  }
+
+  /** The last `n` rows of one log file (bounded tail read; the logic logTail always had). */
+  private fileTail(file: string, n: number, parse: (l: string) => unknown): unknown[] {
+    if (n <= 0 || !existsSync(file)) return [];
+    try {
+      const size = statSync(file).size;
+      if (size === 0) return [];
+      let fd: number | null = null;
+      try {
+        fd = openSync(file, 'r');
+        // Grow the window until it holds n+1 line starts (so we know the first line in it
+        // is whole) or we have read the entire file.
+        for (let want = Math.min(size, LOG_TAIL_WINDOW_BYTES); ; want = Math.min(size, want * 4)) {
+          const from = size - want;
+          const buf = Buffer.alloc(want);
+          readSync(fd, buf, 0, want, from);
+          let text = buf.toString('utf8');
+          // A window that starts mid-file almost certainly starts mid-LINE. Drop that
+          // fragment: keeping it would hand back a corrupt row, and JSON.parse failing on
+          // it would surface as a bogus {raw} event rather than an error anyone notices.
+          if (from > 0) {
+            const nl = text.indexOf('\n');
+            if (nl === -1) { if (want >= size) return []; continue; }
+            text = text.slice(nl + 1);
+          }
+          const lines = text.split('\n').filter(Boolean);
+          if (lines.length >= n || want >= size) return lines.slice(-n).map(parse);
+        }
+      } finally { if (fd !== null) closeSync(fd); }
+    } catch {
+      // Any read problem falls back to the whole-file path: correctness over speed, and a
+      // log small enough to be unreadable this way is small enough for it not to matter.
+      const lines = readFileSync(file, 'utf8').trim().split('\n').filter(Boolean);
+      return lines.slice(-n).map(parse);
+    }
   }
 
   private listMessages(dir: string): HiveMessage[] {
@@ -2828,7 +2901,8 @@ export class HiveManager {
     const root = this.root();
     if (!root) return;
     const line = JSON.stringify({ ts: Date.now(), ...event }) + '\n';
-    try { appendFileSync(join(root, 'log.jsonl'), line, 'utf8'); } catch { /* noop */ }
+    // A kept-open descriptor, rotated at 8 MB: no open/close (so no antivirus rescan) per row.
+    this.appendFileFor(join(root, 'log.jsonl'), LOG_KEEP_ROTATED).append(line);
   }
 
   /**

@@ -255,6 +255,8 @@ const hive = new HiveManager(
     try { wc.send(channel, payload); return true; } catch { return false; }
   }
 );
+// LOG-STALL-AV: the app keeps log.jsonl / cost-ledger.jsonl open (closed on reset, change-home, quit).
+hive.keepAppendFilesOpen(true);
 if (process.env.MD_HOOKS_PIPE) {
   const customPipe = process.env.MD_HOOKS_PIPE;
   hive.sockPath = () => customPipe;
@@ -3438,6 +3440,8 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   try { stopSlackServer(); } catch (e) { console.error('[changeHome] slack.stop:', e); }
   try { stopWebhookServer(); } catch (e) { console.error('[changeHome] webhook.stop:', e); }
   try { memory.stop(); } catch (e) { console.error('[changeHome] memory.stop:', e); }
+  // Close the hive's kept-open log and ledger before the copy (and the relaunch).
+  try { hive.closeAppendFiles(); } catch (e) { console.error('[changeHome] hive.closeAppendFiles:', e); }
   try { reflector.stop(); } catch (e) { console.error('[changeHome] reflector.stop:', e); }
 
   if (mode === 'move' && oldHome) {
@@ -4054,6 +4058,8 @@ ipcMain.handle('app:resetAll', () => {
   try { reflector.stop(); } catch (e) { console.error('[reset] reflector.stop:', e); }
   try { persist.close(); } catch (e) { console.error('[reset] persist.close:', e); }
   try { ptyManager.killAll(); } catch (e) { console.error('[reset] killAll:', e); }
+  // The hive's kept-open log and ledger: an open file makes the rm below fail (ENOTEMPTY).
+  try { hive.closeAppendFiles(); } catch (e) { console.error('[reset] hive.closeAppendFiles:', e); }
   try { hive.removeExposedCodexData(); } catch (e) { console.error('[reset] removeExposedCodexData:', e); }
   // Erase the hive (the orchestrator's + every agent's memory, inboxes, tasks, board,
   // git history) and the semantic-memory palace. Only these harness-created
@@ -5711,7 +5717,7 @@ app.on('will-quit', (e) => {
   if (analyticsFlushed) return;
   analyticsFlushed = true;
   e.preventDefault();
-  const finish = (): void => app.exit(0);
+  const finish = (): void => { try { hive.closeAppendFiles(); } catch { /* rows are on disk */ } app.exit(0); };
   Promise.race([
     analytics.endSession(),
     new Promise<void>((r) => setTimeout(r, 1200))
