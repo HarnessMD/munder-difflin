@@ -33,6 +33,10 @@ import { setAppTheme } from '@/design/theme';
 
 /** Track created object URLs per theme to allow cleanup if needed. */
 const THEME_OBJECT_URLS = new Map<ThemeId, string[]>();
+/** One pack can be needed by the floor and a portrait at the same time. Sharing
+ * the in-flight load prevents the later caller from revoking the first caller's
+ * blob URLs before its images have decoded. */
+const THEME_LOADS = new Map<ThemeId, Promise<ThemeConfig>>();
 
 /** Parse a theme's raw Tiled JSON and patch its tileset array.
  *  `embedded` atlases keep the map's own inline metadata; the rest are replaced
@@ -338,6 +342,22 @@ export async function loadTheme(id: ThemeId): Promise<ThemeConfig> {
   if (cached && isThemeRenderable(cached)) {
     return cached;
   }
+
+  const inFlight = THEME_LOADS.get(normId);
+  if (inFlight) return inFlight;
+
+  const load = loadThemeUncached(id, normId);
+  THEME_LOADS.set(normId, load);
+  try {
+    return await load;
+  } finally {
+    THEME_LOADS.delete(normId);
+  }
+}
+
+/** Load one uncached theme bundle. Call through `loadTheme` so concurrent
+ * consumers share this operation rather than revoking each other's blobs. */
+async function loadThemeUncached(id: ThemeId, normId: ThemeId): Promise<ThemeConfig> {
 
   // Attempt to load from disk
   if (typeof window !== 'undefined' && window.cth?.loadThemePack) {
