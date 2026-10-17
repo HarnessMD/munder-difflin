@@ -4,9 +4,25 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-16T00:00:00.000Z</updated>
+  <updated>2026-10-17T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 17 Oct 2026: Muse Spark Open on Mac Studio, StarSkirmish, Claude Design Closes</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-17/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-17/</id>
+    <published>2026-10-17T00:00:00.000Z</published>
+    <updated>2026-10-17T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 17 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>What Is Roo Code? The Archived VS Code Agent, Explained</title>
+    <link href="https://munderdiffl.in/blog/what-is-roo-code/" />
+    <id>https://munderdiffl.in/blog/what-is-roo-code/</id>
+    <published>2026-10-17T00:00:00.000Z</published>
+    <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 16 Oct 2026: Muse Spark Open, Tiny Little Office, OpenCode Ends Sharing</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-16/" />
@@ -470,21 +486,5 @@
     <published>2026-09-30T00:00:00.000Z</published>
     <updated>2026-09-30T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>ChatGPT dots vs Munder Difflin: one hosted agent on OpenAI&#39;s cloud, or a free, open source team of agents on your own computer. Checked 30 Sep 2026.</summary>
-  </entry>
-  <entry>
-    <title>What Is ChatGPT Dots? OpenAI&#39;s Always On Agents Explained</title>
-    <link href="https://munderdiffl.in/blog/what-is-chatgpt-dots/" />
-    <id>https://munderdiffl.in/blog/what-is-chatgpt-dots/</id>
-    <published>2026-09-30T00:00:00.000Z</published>
-    <updated>2026-10-03T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>A ChatGPT dot is an always on agent with its own cloud computer. Needs Pro (from $100 a month) or Business Premium, not Plus. Not on Pro in the UK or EU.</summary>
-  </entry>
-  <entry>
-    <title>What Is OpenCode? Free, MIT Licensed, and What You Pay For</title>
-    <link href="https://munderdiffl.in/blog/what-is-opencode/" />
-    <id>https://munderdiffl.in/blog/what-is-opencode/</id>
-    <published>2026-09-29T00:00:00.000Z</published>
-    <updated>2026-09-29T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>OpenCode is a free, MIT licensed coding agent from Anomaly. The tool costs nothing; you pay for the model you connect, unless it is local or free.</summary>
   </entry>
 </feed>

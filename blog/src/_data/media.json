@@ -4990,5 +4990,28 @@
     },
     "inline": {},
     "youtube": []
+  },
+  "agent-tools-today-2026-10-17": {
+    "title": "Agent Tools Today, 17 Oct 2026: Muse Spark Open on Mac Studio, StarSkirmish, Claude Design Closes",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "what-is-roo-code": {
+    "title": "What Is Roo Code? The Archived VS Code Agent, Explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-roo-code/hero.png",
+      "alt": "Title card on white. \"What Is Roo Code?\" in large ink type with a \"Checked 17 Oct 2026\" pill, beside a museum display case holding a code tile on a plinth marked v3.54.0, with a rope barrier.",
+      "prompt": "Code drawn title card, motion standard (17 Oct 2026).",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
