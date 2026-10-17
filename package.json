@@ -5,10 +5,10 @@
   "description": "Clones for you and your team, working 24/7 — a free, local-first multi-agent harness that turns the CLI coding agent you already run into a clone of you, coordinating an office of agents on your machine.",
   "main": "out/main/index.js",
   "author": "Chaitanya Giri",
-  "homepage": "https://munderdiffl.in/",
+  "homepage": "https://github.com/jdell64/agent-stage",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chaitanyagiri/munder-difflin.git"
+    "url": "https://github.com/jdell64/agent-stage.git"
   },
   "scripts": {
     "dev": "electron-vite dev",

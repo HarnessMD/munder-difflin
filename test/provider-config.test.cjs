@@ -146,7 +146,7 @@ test('model picker options stay provider-specific', () => {
   );
   assert.deepEqual(
     modelsForProvider('gemini').map((model) => model.id),
-    [undefined, 'auto', 'pro', 'flash', 'flash-lite']
+    [undefined, 'auto', 'gemini-4-argon', 'pro', 'flash', 'flash-lite']
   );
   assert.deepEqual(modelsForProvider('custom'), []);
 });
