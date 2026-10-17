@@ -23,7 +23,7 @@ faq:
 
 The OpenAI Decisions API is a beta endpoint that answers fixed questions with a probability, a pick or a score instead of written text. OpenAI released it on 6 Oct 2026 with one model, gpt-6-luna, at $0.10 per 1M input tokens. Our view: worth a test for classifying and routing, not a coding tool. Checked 7 Oct 2026.
 
-Agents need sorting and routing too, which is why we looked. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried the Decisions API, so nothing here is a test result. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+Agents need sorting and routing too, which is why we looked. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is the OpenAI Decisions API?
 

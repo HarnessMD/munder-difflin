@@ -1501,11 +1501,11 @@
     "youtube": []
   },
   "how-to-install-and-use-munder-difflin": {
-    "title": "How to Install and Use Munder Difflin: A Beginner's Guide",
+    "title": "How to Install Munder Difflin 0.5.6: A Beginner's Guide From Zero to a Working Office",
     "category": "guides",
     "hero": {
       "file": "assets/media/how-to-install-and-use-munder-difflin/hero.png",
-      "alt": "The first Munder Difflin onboarding screen, asking whether you are technical or non-technical",
+      "alt": "Title card on white. Large ink type reads Install Munder Difflin 0.5.6 under the line From zero to a working office, with a Beginner's guide pill, beside a shelf going up on two brackets with a spirit level on it, a screwdriver, a hex key and two spare screws.",
       "prompt": "",
       "status": "ready"
     },
@@ -1603,6 +1603,18 @@
       "shot-focus": {
         "file": "assets/media/how-to-install-and-use-munder-difflin/shot-focus.png",
         "alt": "Munder Difflin in focus mode, showing a single agent's terminal at full width with the agent list on the left",
+        "prompt": "",
+        "status": "ready"
+      },
+      "autonomy-056": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/autonomy-056.png",
+        "alt": "Screenshot of Munder Difflin Settings, Autonomy & Budgets, in light mode: Autonomous set to autonomous, Who can add agents set to me and the orchestrator, the circuit breaker switched on with fields for a floor token budget and token velocity, and archiving settings.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "prerequisites-056": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/prerequisites-056.png",
+        "alt": "Screenshot of Munder Difflin Settings, Prerequisites, in light mode: uv, git and Node.js marked Found with their paths, and MemPalace marked Not found with its install command and a copy button.",
         "prompt": "",
         "status": "ready"
       }
@@ -3822,11 +3834,11 @@
     "youtube": []
   },
   "your-first-hour-with-munder-difflin": {
-    "title": "Your First Hour With Munder Difflin: Onboarding to a Pro Office",
+    "title": "Your First Hour With Munder Difflin 0.5.6: Onboarding From First Sign In to a Working Office",
     "category": "guides",
     "hero": {
       "file": "assets/media/your-first-hour-with-munder-difflin/hero.png",
-      "alt": "Michael, the orchestrator, in the Pro app after dispatching four tasks to his agents",
+      "alt": "Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.6, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings.",
       "prompt": "",
       "status": "ready"
     },
@@ -3984,6 +3996,18 @@
       "g3-ring": {
         "file": "assets/media/your-first-hour-with-munder-difflin/g3-ring.png",
         "alt": "The floating Stapler with its action ring open",
+        "prompt": "",
+        "status": "ready"
+      },
+      "pro-sidebar-056": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/pro-sidebar-056.png",
+        "alt": "Screenshot of the Munder Difflin Pro sidebar in light mode: the app name and PRO plan, then rows for Tasks, Inbox, Automations, Memory, Capabilities and Stapler.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "ask-me-056": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/ask-me-056.png",
+        "alt": "Screenshot of an agent's Inbox in Munder Difflin, light mode: an Ask me list with three questions, each with a task key, a time and an Answer button, above the message box with Send and Steer.",
         "prompt": "",
         "status": "ready"
       }
@@ -4260,7 +4284,7 @@
     }
   },
   "what-is-codex": {
-    "title": "What Is Codex? OpenAI's Coding Agent in the CLI, App and Cloud",
+    "title": "What Is Codex? OpenAI's Coding Agent, Its Free Plan and Models",
     "category": "concepts",
     "hero": {
       "file": "assets/media/what-is-codex/hero.png",
@@ -4814,5 +4838,157 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gemini-4-argon-vs-claude-opus-5-5": {
+    "title": "Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra: Google Published a Table It Does Not Fully Win",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-4-argon-vs-claude-opus-5-5/hero.png",
+      "alt": "Title card on white. Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra in large ink type, Checked 13 Oct 2026, and a telescope on a tripod pointed at three stars.",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-argon-vs-claude-opus-5-5/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-4-argon-pricing": {
+    "title": "Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gemini-4-argon-pricing/hero.png",
+      "alt": "Title card on white. The words Gemini 4 Argon Pricing in large ink type above a Checked 13 Oct 2026 pill, beside a wind chime with four coloured tubes.",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-argon-pricing/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "how-to-use-gemini-4-argon": {
+    "title": "How to Use Gemini 4 Argon: Five Ways In, and Free Is Not One of Them",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/how-to-use-gemini-4-argon/hero.png",
+      "alt": "Title card on white. The title How to Use Gemini 4 Argon in large ink type, with the kicker Five ways in, and free is not one of them, a Checked 13 Oct 2026 pill and a striped spinning top.",
+      "prompt": "Still of the hero scene in assets/media/how-to-use-gemini-4-argon/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-4-argon-inside-google": {
+    "title": "Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-argon-inside-google/hero.png",
+      "alt": "Title card on white. Gemini 4 Argon Inside Google in large ink type with a kicker, a line reading Checked 13 Oct 2026 and a folded paper boat riding three wavy lines of water.",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-argon-inside-google/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "ai-agent-use-cases-our-office": {
+    "title": "AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/ai-agent-use-cases-our-office/hero.png",
+      "alt": "Title card on white. Every Agent on Our Floor in large ink type, a Checked 14 Oct 2026 pill and a yellow desk bell ringing.",
+      "prompt": "Still of the hero scene in assets/media/ai-agent-use-cases-our-office/motion.js.",
+      "status": "ready"
+    },
+    "inline": {
+      "busy-office": {
+        "file": "assets/media/ai-agent-use-cases-our-office/busy-office.png",
+        "alt": "Screenshot of the middle of our real Munder Difflin office floor in the Classic view: seven agents on a green tiled floor among desks, each with a name label, Jim, Angela, Ryan, Stanley, Creed, Dwight and Kevin. Thought bubbles above them read idle and starting up.",
+        "prompt": "",
+        "status": "ready"
+      }
+    }
+  },
+  "claude-code-skills": {
+    "title": "Claude Code skills",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-code-skills/hero.png",
+      "alt": "Title card on white. Claude Code skills in large ink type, a kicker reading What they are, where they live, how to write one, a Checked 14 Oct 2026 pill and a yellow folder with a SKILL.md sheet sticking out.",
+      "prompt": "Still of the hero scene in assets/media/claude-code-skills/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-code-router": {
+    "title": "Claude Code Router",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-code-router/hero.png",
+      "alt": "Title card on white. Claude Code Router in large ink type, with a kicker and a Checked 14 Oct 2026 chip, beside a paper plane trailing a dotted loop.",
+      "prompt": "Still of the hero scene in assets/media/claude-code-router/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-10-15": {
+    "title": "Agent Tools Today, 15 Oct 2026: OpenCode 2.0, Hermes Agent v0.22.0, a Lost TV Season",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "muse-code-vs-claude-code": {
+    "title": "Muse Code vs Claude Code",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/muse-code-vs-claude-code/hero.png",
+      "alt": "Title card on white. The words Muse Code vs Claude Code in large ink type above a Checked 14 Oct 2026 pill, with two spinning tops facing each other.",
+      "prompt": "Still of the hero scene in assets/media/muse-code-vs-claude-code/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-2-0": {
+    "title": "OpenCode 2.0: what changed and how to upgrade",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/opencode-2-0/hero.png",
+      "alt": "Title card on white. OpenCode 2.0 in large ink type under the kicker What changed, a Checked 15 Oct 2026 pill, and a weathervane turning in the wind.",
+      "prompt": "Still of the hero scene in assets/media/opencode-2-0/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-alternatives": {
+    "title": "OpenCode Alternatives: 7 Coding Agents to Switch To",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/opencode-alternatives/hero.png",
+      "alt": "Title card on white. \"OpenCode Alternatives\" in large ink type under the kicker \"7 coding agents to switch to\", a \"Checked 15 Oct 2026\" pill, and a snow globe holding a tiny terminal window and two pine trees while snow falls.",
+      "prompt": "Code drawn title card, motion standard (15 Oct 2026).",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-code-best-practices": {
+    "title": "Claude Code Best Practices: 9 Habits From Anthropic's Docs",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-code-best-practices/hero.png",
+      "alt": "Title card on white. 'Claude Code Best Practices' in large ink type, the kicker '9 Habits From Anthropic's Docs', a 'Checked 15 Oct 2026' pill, and a small bonsai tree in a blue pot.",
+      "prompt": "Code drawn title card, motion standard (15 Oct 2026).",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-10-16": {
+    "title": "Agent Tools Today, 16 Oct 2026: Muse Spark Open, Tiny Little Office, OpenCode Ends Sharing",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
   }
 }

@@ -97,7 +97,7 @@
   "@type": "FAQPage",
   "mainEntity": [
     { "@type": "Question", "name": "How much does Claude Haiku 5.5 cost?", "acceptedAnswer": { "@type": "Answer", "text": "Anthropic's announcement of 7 October 2026 lists $0.10 input and $0.50 output per million tokens for prompts up to 100,000 tokens, and $0.50 input and $2.50 output for prompts over 100,000 tokens. Cache reads are $0.01 and $0.05. Checked 8 Oct 2026." } },
-    { "@type": "Question", "name": "Is Claude Haiku 5.5 better than Haiku 4.5?", "acceptedAnswer": { "@type": "Answer", "text": "On Anthropic's own figures, yes on every row where both have a score. For example, the announcement lists 72.4% for Haiku 5.5 and 15.7% for Haiku 4.5 on the offline subset of OSWorld 2.1. We did not run these tests." } },
+    { "@type": "Question", "name": "Is Claude Haiku 5.5 better than Haiku 4.5?", "acceptedAnswer": { "@type": "Answer", "text": "On Anthropic's own figures, yes on every row where both have a score. For example, the announcement lists 72.4% for Haiku 5.5 and 15.7% for Haiku 4.5 on the offline subset of OSWorld 2.1." } },
     { "@type": "Question", "name": "Is Claude Haiku 5.5 better than Sonnet 5.5?", "acceptedAnswer": { "@type": "Answer", "text": "No. Sonnet 5.5 is ahead on every row of Anthropic's own benchmark table, and the announcement says Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding tasks. Haiku 5.5 is the cheaper and faster option." } },
     { "@type": "Question", "name": "What is the model ID for Claude Haiku 5.5?", "acceptedAnswer": { "@type": "Answer", "text": "It is claude-haiku-5-5 on the Claude API, Google Cloud, Microsoft Foundry and Claude Platform on AWS, and anthropic.claude-haiku-5-5 on Amazon Bedrock, according to Anthropic's model page read on 8 Oct 2026." } },
     { "@type": "Question", "name": "How do I use Claude Haiku 5.5 in Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Claude Code's model docs say to run /model claude-haiku-5-5 in a session, or start with claude --model claude-haiku-5-5. The same page says to use Claude Code v2.1.293 or later with Haiku 5.5. Read on 8 Oct 2026." } }
@@ -186,7 +186,7 @@
 
   <div class="post-wrap wrap">
     <div class="prose">
-      <p>Claude Haiku 5.5 is Anthropic’s new small model: much cheaper than Haiku 4.5 on prompts up to 100,000 tokens, and behind Sonnet 5.5 on every row of Anthropic’s own benchmark table. Anthropic released it on 7 October 2026. We have not tried it. Checked 8 Oct 2026.</p>
+      <p>Claude Haiku 5.5 is Anthropic’s new small model: much cheaper than Haiku 4.5 on prompts up to 100,000 tokens, and behind Sonnet 5.5 on every row of Anthropic’s own benchmark table. Anthropic released it on 7 October 2026. Checked 8 Oct 2026.</p>
 <p><a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. A cheaper small model matters when several agents run at once, which is why we cover it. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup and the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms.</p>
 <h2 id="what-is-claude-haiku-55" tabindex="-1">What is Claude Haiku 5.5? <a class="anchor" href="#what-is-claude-haiku-55" aria-hidden="true">#</a></h2>
 <p>It is Anthropic’s new small model, with the model ID <code>claude-haiku-5-5</code>. Anthropic’s <a href="https://www.anthropic.com/claude-haiku-5-5">announcement</a>, dated October 7, 2026, calls it “the cheapest, fastest, and most capable small model we’ve ever released” and says it is designed for high-volume, cost-sensitive tasks.</p>
@@ -243,7 +243,7 @@
 <p>The model page also lists a 50% Batch API discount on input and output. For the wider bill, see <a href="/blog/how-much-does-claude-code-cost/">how much Claude Code costs</a>.</p>
 <figure class="mg" data-scene="cups"><img src="/blog/assets/media/claude-haiku-5-5/cups.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A tap fills a small measuring cup, and a card under it headed prompts up to 100k tokens shows $0.10 input and $0.50 output. The water spills over the lip into a larger cup, and its card headed prompts over 100k tokens shows $0.50 input and $2.50 output."><figcaption>Anthropic's prices per 1 million tokens, in two tiers by prompt size. Checked 8 Oct 2026.</figcaption></figure>
 <h2 id="how-does-claude-haiku-55-score-on-benchmarks" tabindex="-1">How does Claude Haiku 5.5 score on benchmarks? <a class="anchor" href="#how-does-claude-haiku-55-score-on-benchmarks" aria-hidden="true">#</a></h2>
-<p>On Anthropic’s own figures it is far ahead of Haiku 4.5 and behind Sonnet 5.5. The five rows below are our selection from the eight rows in the <a href="https://www.anthropic.com/claude-haiku-5-5">announcement</a> table. We did not run them. NR means not reported.</p>
+<p>On Anthropic’s own figures it is far ahead of Haiku 4.5 and behind Sonnet 5.5. The five rows below are our selection from the eight rows in the <a href="https://www.anthropic.com/claude-haiku-5-5">announcement</a> table. NR means not reported.</p>
 <div class="table-scroll">
 <table>
 <thead>
@@ -296,7 +296,7 @@
 </div>
 <p>Sonnet 5.5 leads on all eight rows of the full table. Anthropic marks its FrontierCode figure for Sonnet 5.5 as Xhigh effort. Haiku 5.5 is ahead of GPT-6 Luna on all six rows where Anthropic reports both.</p>
 <p>The coding gap is the one to notice. On Terminal-Bench 4.0, Haiku 5.5 is at 39.2% against 70.6% for Sonnet 5.5. Anthropic says so itself: “Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding tasks like those measured by Terminal-Bench 4.0.”</p>
-<figure class="mg" data-scene="planes"><img src="/blog/assets/media/claude-haiku-5-5/planes.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four paper planes for Haiku 5.5, Haiku 4.5, GPT-6 Luna and Sonnet 5.5 glide along a ruled strip and land at distances set by their scores on one benchmark at a time. Arrow buttons step through the five benchmarks."><figcaption>Anthropic's own figures, five rows we selected from its table of 7 October 2026. We did not run them.</figcaption></figure>
+<figure class="mg" data-scene="planes"><img src="/blog/assets/media/claude-haiku-5-5/planes.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four paper planes for Haiku 5.5, Haiku 4.5, GPT-6 Luna and Sonnet 5.5 glide along a ruled strip and land at distances set by their scores on one benchmark at a time. Arrow buttons step through the five benchmarks."><figcaption>Anthropic's own figures, five rows we selected from its table of 7 October 2026.</figcaption></figure>
 <h2 id="where-can-you-use-claude-haiku-55" tabindex="-1">Where can you use Claude Haiku 5.5? <a class="anchor" href="#where-can-you-use-claude-haiku-55" aria-hidden="true">#</a></h2>
 <p>Anthropic says it “is available now on all platforms, including Amazon Web Services, Google Cloud, and Microsoft Azure”. The <a href="https://platform.claude.com/docs/en/models/haiku-5-5/overview">model page</a> lists the Claude API, Amazon Bedrock, Google Cloud, Microsoft Foundry and Claude Platform on AWS. The ID is <code>claude-haiku-5-5</code>, except on Amazon Bedrock, where it is <code>anthropic.claude-haiku-5-5</code>.</p>
 <p>Neither page says which Claude app plans include it, so we leave that out.</p>
@@ -313,7 +313,7 @@
 <h2 id="what-does-it-mean-if-you-run-a-team-of-coding-agents" tabindex="-1">What does it mean if you run a team of coding agents? <a class="anchor" href="#what-does-it-mean-if-you-run-a-team-of-coding-agents" aria-hidden="true">#</a></h2>
 <p>We think it makes the split between a planner and its helpers cheaper to try. Anthropic says Haiku 5.5 “pairs well with Opus 5.5 and Sonnet 5.5 as a subagent on coding work”, and that it suits narrowly scoped tasks like compaction, summarization or subagent work.</p>
 <p>Two customer quotes from the announcement, the first on subagents and the second on speed. Rogo: “The short and high-volume work is where Claude Haiku 5.5 fits for us, like quick lookups, subagents, and summaries.” Asana: “Compared with the model we use today, we saw over a 30% reduction in latency for task completions and up to 2.5x faster inference per agent turn.”</p>
-<p>Our view: put a bigger model on planning and hard debugging, and a small fast one on searching, summarising and running tests. The small one fetches, the big one decides. This is an idea, not a test. We have not tried Haiku 5.5. Our piece on <a href="/blog/do-more-with-less-model-routing/">model routing</a> explains the reasoning.</p>
+<p>Our view: put a bigger model on planning and hard debugging, and a small fast one on searching, summarising and running tests. The small one fetches, the big one decides. Our piece on <a href="/blog/do-more-with-less-model-routing/">model routing</a> explains the reasoning.</p>
 <h2 id="what-should-you-do-now" tabindex="-1">What should you do now? <a class="anchor" href="#what-should-you-do-now" aria-hidden="true">#</a></h2>
 <p>Our view: try it on routine work first, and keep your bigger model where the task is hard.</p>
 <ol>
@@ -336,7 +336,7 @@
         
         <div class="qa">
           <p class="q">Is Claude Haiku 5.5 better than Haiku 4.5?</p>
-          <p class="a">On Anthropic&#39;s own figures, yes on every row where both have a score. For example, the announcement lists 72.4% for Haiku 5.5 and 15.7% for Haiku 4.5 on the offline subset of OSWorld 2.1. We did not run these tests.</p>
+          <p class="a">On Anthropic&#39;s own figures, yes on every row where both have a score. For example, the announcement lists 72.4% for Haiku 5.5 and 15.7% for Haiku 4.5 on the offline subset of OSWorld 2.1.</p>
         </div>
         
         <div class="qa">
@@ -384,50 +384,50 @@
       <h2>Related in Concepts</h2>
       <div class="post-grid">
         <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/gemini-4-argon/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/opencode-2-0/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opencode-2-0/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <time datetime="2026-10-15">Oct 15, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/gemini-4-argon/">Gemini 4 Argon: Google&#39;s Flagship Model Shares a Name With a Gas That Barely Reacts</a></h3>
-    <p class="dek">Gemini 4 Argon went on general release on 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, a 1M token window, and where you can use it.</p>
+    <h3><a href="/blog/opencode-2-0/">OpenCode 2.0: what changed and how to upgrade</a></h3>
+    <p class="dek">OpenCode 2.0 from Anomaly: the background service, Code Mode, background subagents, the new plugin API and SDK, and how to upgrade. Checked 15 Oct 2026.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/gemini-4-argon/" aria-label="Read: Gemini 4 Argon: Google&#39;s Flagship Model Shares a Name With a Gas That Barely Reacts">Read →</a>
+      <a class="more" href="/blog/opencode-2-0/" aria-label="Read: OpenCode 2.0: what changed and how to upgrade">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/muse-wonder/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/muse-wonder/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/claude-code-router/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-router/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <time datetime="2026-10-14">Oct 14, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
+      <span>4 min</span>
     </div>
-    <h3><a href="/blog/muse-wonder/">Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores</a></h3>
-    <p class="dek">Meta&#39;s Muse Wonder and Muse Wonder Full: API price, Muse Code plans, context window and Meta&#39;s own coding scores, checked 13 Oct 2026.</p>
+    <h3><a href="/blog/claude-code-router/">Claude Code Router: What It Is, How It Works and How to Install It</a></h3>
+    <p class="dek">Claude Code Router, checked 14 Oct 2026: what the local gateway does, how to install it, which providers it lists, and what Anthropic says about it.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/muse-wonder/" aria-label="Read: Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores">Read →</a>
+      <a class="more" href="/blog/claude-code-router/" aria-label="Read: Claude Code Router: What It Is, How It Works and How to Install It">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/claude-code-routines/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-routines/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/gemini-4-argon-inside-google/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon-inside-google/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-12">Oct 12, 2026</time>
+      <time datetime="2026-10-13">Oct 13, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
+      <span>4 min</span>
     </div>
-    <h3><a href="/blog/claude-code-routines/">Claude routines: what they are, triggers, cost and limits</a></h3>
-    <p class="dek">Claude routines run a saved Claude Code prompt in the cloud on a schedule, an API call or a GitHub event. Plans, steps and limits, checked 12 Oct 2026.</p>
+    <h3><a href="/blog/gemini-4-argon-inside-google/">Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.</a></h3>
+    <p class="dek">Google&#39;s own numbers for Gemini 4 Argon on real code: 134 bugs triaged in under 3 hours, 30% fewer rollbacks, a framework tuned overnight. Checked 13 Oct 2026.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/claude-code-routines/" aria-label="Read: Claude routines: what they are, triggers, cost and limits">Read →</a>
+      <a class="more" href="/blog/gemini-4-argon-inside-google/" aria-label="Read: Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.">Read →</a>
     </div>
   </div>
 </article>

@@ -187,7 +187,7 @@
   <div class="post-wrap wrap">
     <div class="prose">
       <p>Our view: Mistral Large 4, nicknamed Le Chonk, is a serious open weight coding model that you can only rent for now. Mistral launched it as a public preview on 6 October 2026, with about 1 trillion parameters, a 1M token context window, an API you can call today and weights promised this month. Checked 6 Oct 2026.</p>
-<p>Open models can drive coding agents, which is why we care. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. We have not tried Mistral Large 4 with it. Our guide to <a href="/blog/run-munder-difflin-on-open-models/">running Munder Difflin on open models</a> covers the models you can use now, the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup, and the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms.</p>
+<p>Open models can drive coding agents, which is why we care. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our guide to <a href="/blog/run-munder-difflin-on-open-models/">running Munder Difflin on open models</a> covers the models you can use now, the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup, and the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms.</p>
 <h2 id="what-is-mistral-large-4" tabindex="-1">What is Mistral Large 4? <a class="anchor" href="#what-is-mistral-large-4" aria-hidden="true">#</a></h2>
 <p>Mistral Large 4 is Mistral’s largest model so far, released as a public preview. The <a href="https://mistral.ai/news/mistral-large-4/">launch post</a> says the model is “unofficially ML4, very officially: le Chonk”. Yes, that is the vendor’s wording, not ours.</p>
 <p>Mistral’s <a href="https://docs.mistral.ai/models/mistral-large-4-0">model page</a> describes an open-weight, general-purpose multimodal model with a Mixture-of-Experts architecture. The launch post says it takes multimodal input and was trained on more than 160 languages. <a href="https://venturebeat.com/technology/mistral-debuts-large-4-le-chonk-a-1-trillion-parameter-text-output-model-with-high-benchmarks-planned-for-open-weights-release">VentureBeat</a> describes it as a text output model.</p>
@@ -233,7 +233,7 @@
 <p>Source: <a href="https://docs.mistral.ai/models/mistral-large-4-0">Mistral’s model page</a>, checked 6 Oct 2026. The API model name is <code>mistral-large-4</code>.</p>
 <figure class="mg" data-scene="tags"><img src="/blog/assets/media/mistral-large-4/tags.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three price tags hang from pegs on a line, for input, cached input and output. On each tag the higher price is crossed out by a pencil and the lower price drops in below it."><figcaption>Mistral's model page on 6 Oct 2026: input $0.68 with $1.36 struck through, cached input $0.07 with $0.14 struck through, output $2.09 with $4.18 struck through.</figcaption></figure>
 <h2 id="how-does-mistral-large-4-score-on-benchmarks" tabindex="-1">How does Mistral Large 4 score on benchmarks? <a class="anchor" href="#how-does-mistral-large-4-score-on-benchmarks" aria-hidden="true">#</a></h2>
-<p>On the vendor’s own figures, it is second among the five models in both charts below, and leads neither. The two rows below are our selection from the charts in Mistral’s <a href="https://mistral.ai/news/mistral-large-4/">launch post</a>. We did not run them. The charts round to whole numbers.</p>
+<p>On the vendor’s own figures, it is second among the five models in both charts below, and leads neither. The two rows below are our selection from the charts in Mistral’s <a href="https://mistral.ai/news/mistral-large-4/">launch post</a>. The charts round to whole numbers.</p>
 <div class="table-scroll">
 <table>
 <thead>
@@ -268,14 +268,14 @@
 </div>
 <p>In its text, Mistral gives 61.7% on DeepSWE v1.1, 28.3% on Terminal-Bench 4 and 59.4% on SWE-Atlas-QnA, and a combined Coding Agent Index of 49.8%. It also says the model solves 93% of Cybench. In a blind human evaluation of coding quality across five models, Mistral says the preview rated 3.74 out of 5, second to Claude Opus 5 at 4.22.</p>
 <p>VentureBeat noted that the model did not yet appear in Artificial Analysis’ public evaluations or on the DeepSWE leaderboard, so the ranking claim “remains provisional”. Mistral’s charts say the scores were evaluated privately by Artificial Analysis. For another launch this week, see our <a href="/blog/reflection-beam/">Reflection Beam explainer</a>.</p>
-<figure class="mg" data-scene="flags"><img src="/blog/assets/media/mistral-large-4/flags.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Five flags for Mistral Large 4, Kimi K3, GLM-5.3, DeepSeek V4 Pro 0813 and Qwen3.8 Max slide up their poles to heights set by their scores, first for DeepSWE 1.1 and then for Terminal-Bench 4, and the order changes between the two."><figcaption>Mistral's own figures from its launch post of 6 October 2026, two rows we selected. We did not run them.</figcaption></figure>
+<figure class="mg" data-scene="flags"><img src="/blog/assets/media/mistral-large-4/flags.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Five flags for Mistral Large 4, Kimi K3, GLM-5.3, DeepSeek V4 Pro 0813 and Qwen3.8 Max slide up their poles to heights set by their scores, first for DeepSWE 1.1 and then for Terminal-Bench 4, and the order changes between the two."><figcaption>Mistral's own figures from its launch post of 6 October 2026, two rows we selected.</figcaption></figure>
 <h2 id="what-hardware-do-you-need-to-run-it" tabindex="-1">What hardware do you need to run it? <a class="anchor" href="#what-hardware-do-you-need-to-run-it" aria-hidden="true">#</a></h2>
 <p>Mistral has not said. The model page has a column for approximate GPU RAM, and it read “N/A” on 6 Oct 2026. The launch post gives training hardware only: 3,800 NVIDIA Grace Blackwell GPUs in Mistral’s own datacenters in Europe.</p>
 <p>Our view: do not read 49B active as “fits on a workstation”. The download will hold every parameter. For a local coding model this week, <a href="/blog/is-ollama-good-for-coding/">is Ollama good for coding?</a> covers what runs on normal hardware.</p>
 <h2 id="can-mistral-large-4-drive-a-coding-agent-today" tabindex="-1">Can Mistral Large 4 drive a coding agent today? <a class="anchor" href="#can-mistral-large-4-drive-a-coding-agent-today" aria-hidden="true">#</a></h2>
 <p>Through the API, probably, but no source we opened names a coding CLI that ships with it. The model page lists Function Calling on <code>/v1/chat/completions</code>, which is what a coding agent needs from a model. The launch post points people to the preview API on Mistral Studio.</p>
 <p>One detail is telling. Mistral’s DeepSWE chart labels rivals by harness, such as Qwen3.8 Max with Claude Code and GLM-5.3 with Opencode. Its own bar names none, and the footnote mentions a harness that has not launched publicly.</p>
-<p>We think any agent that accepts a custom API endpoint could be pointed at it, but we have not tested that. For what works now, see our <a href="/blog/best-ai-coding-agents/">best AI coding agents</a> roundup.</p>
+<p>We think any agent that accepts a custom API endpoint could be pointed at it. For what works now, see our <a href="/blog/best-ai-coding-agents/">best AI coding agents</a> roundup.</p>
 <h2 id="what-should-you-do-now" tabindex="-1">What should you do now? <a class="anchor" href="#what-should-you-do-now" aria-hidden="true">#</a></h2>
 <p>Try the preview on the API if you are curious, and wait for the weights before committing.</p>
 <ol>
@@ -346,50 +346,50 @@
       <h2>Related in Concepts</h2>
       <div class="post-grid">
         <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/gemini-4-argon/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/opencode-2-0/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opencode-2-0/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <time datetime="2026-10-15">Oct 15, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/gemini-4-argon/">Gemini 4 Argon: Google&#39;s Flagship Model Shares a Name With a Gas That Barely Reacts</a></h3>
-    <p class="dek">Gemini 4 Argon went on general release on 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, a 1M token window, and where you can use it.</p>
+    <h3><a href="/blog/opencode-2-0/">OpenCode 2.0: what changed and how to upgrade</a></h3>
+    <p class="dek">OpenCode 2.0 from Anomaly: the background service, Code Mode, background subagents, the new plugin API and SDK, and how to upgrade. Checked 15 Oct 2026.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/gemini-4-argon/" aria-label="Read: Gemini 4 Argon: Google&#39;s Flagship Model Shares a Name With a Gas That Barely Reacts">Read →</a>
+      <a class="more" href="/blog/opencode-2-0/" aria-label="Read: OpenCode 2.0: what changed and how to upgrade">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/muse-wonder/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/muse-wonder/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/claude-code-router/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-router/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <time datetime="2026-10-14">Oct 14, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
+      <span>4 min</span>
     </div>
-    <h3><a href="/blog/muse-wonder/">Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores</a></h3>
-    <p class="dek">Meta&#39;s Muse Wonder and Muse Wonder Full: API price, Muse Code plans, context window and Meta&#39;s own coding scores, checked 13 Oct 2026.</p>
+    <h3><a href="/blog/claude-code-router/">Claude Code Router: What It Is, How It Works and How to Install It</a></h3>
+    <p class="dek">Claude Code Router, checked 14 Oct 2026: what the local gateway does, how to install it, which providers it lists, and what Anthropic says about it.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/muse-wonder/" aria-label="Read: Muse Wonder and Muse Code: Meta&#39;s new models, prices and scores">Read →</a>
+      <a class="more" href="/blog/claude-code-router/" aria-label="Read: Claude Code Router: What It Is, How It Works and How to Install It">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/claude-code-routines/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-routines/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/gemini-4-argon-inside-google/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon-inside-google/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-12">Oct 12, 2026</time>
+      <time datetime="2026-10-13">Oct 13, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
+      <span>4 min</span>
     </div>
-    <h3><a href="/blog/claude-code-routines/">Claude routines: what they are, triggers, cost and limits</a></h3>
-    <p class="dek">Claude routines run a saved Claude Code prompt in the cloud on a schedule, an API call or a GitHub event. Plans, steps and limits, checked 12 Oct 2026.</p>
+    <h3><a href="/blog/gemini-4-argon-inside-google/">Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.</a></h3>
+    <p class="dek">Google&#39;s own numbers for Gemini 4 Argon on real code: 134 bugs triaged in under 3 hours, 30% fewer rollbacks, a framework tuned overnight. Checked 13 Oct 2026.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/claude-code-routines/" aria-label="Read: Claude routines: what they are, triggers, cost and limits">Read →</a>
+      <a class="more" href="/blog/gemini-4-argon-inside-google/" aria-label="Read: Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.">Read →</a>
     </div>
   </div>
 </article>

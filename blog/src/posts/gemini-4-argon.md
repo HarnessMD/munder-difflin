@@ -99,13 +99,15 @@ A vendor table that prints rows it loses is rarer than it should be. Read the bo
 
 ## How does Google say Gemini 4 Argon behaves as an agent?
 
-Google reports fewer shortcuts and better resistance to planted instructions, and leaves one security question open. The launch post says "shortcut attempts dropped to just 2%" on coding benchmarks, and that attack success on the Gray Swan Indirect Prompt Injection benchmark fell to 0.7% "across 15 adaptive attempts".
+Google reports fewer shortcuts and better resistance to planted instructions, and leaves one security question open. The launch post says that on "coding benchmarks where models have no incentive to hold back, shortcut attempts dropped to just 2%", and that attack success on the Gray Swan Indirect Prompt Injection benchmark fell to 0.7% "across 15 adaptive attempts".
 
 The model card is blunter about one risk: "We cannot rule out that Gemini 4 Argon reaches the cybersecurity CCL". CCL is a risk threshold the model card tests against. The card then says "We are therefore applying safeguards that we assess lower risk to below the cybersecurity CCL level".
 
 ## Should you switch your coding agents to Gemini 4 Argon?
 
 Test it on long jobs first, and do not move everything at once. Our reasons: it tops most of Google's table, the coding rows are split, and the price doubles on 1 December 2026.
+
+More on this launch: [Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra](/blog/gemini-4-argon-vs-claude-opus-5-5/), [Gemini 4 Argon pricing](/blog/gemini-4-argon-pricing/), [how to use it](/blog/how-to-use-gemini-4-argon/) and [what it did inside Google](/blog/gemini-4-argon-inside-google/).
 
 For how it sits beside Google's other tools, see [Gemini CLI vs Claude Code](/blog/gemini-cli-vs-claude-code/) and [Claude Code vs Antigravity](/blog/claude-code-vs-antigravity/). For Meta's rival launch this week, see [Muse Wonder](/blog/muse-wonder/).
 

@@ -1,234 +1,110 @@
 ---
-title: "How to Install and Use Munder Difflin: A Beginner's Guide"
-description: "A plain language guide to Munder Difflin 0.5.2. What a coding agent is, which AI engine to pick based on what you already pay for, the one terminal command you'll ever run, and how to install and set it up on macOS, Windows or Linux."
+title: "How to Install Munder Difflin 0.5.6: A Beginner's Guide From Zero to a Working Office"
+seoTitle: "How to Install Munder Difflin 0.5.6: Beginner's Guide"
+description: "Install Munder Difflin 0.5.6 on macOS, Windows or Linux: what you need first, which AI engine to pick, the sign in, the setup steps and a fix for each failure."
 date: 2026-06-05
-updated: 2026-09-10
+updated: 2026-10-14
 category: guides
 categoryLabel: Guides
 type: Non-technical
 pinned: true
 pinOrder: 1
 primaryKeyword: "how to install munder difflin"
-secondaryKeywords: ["munder difflin download", "munder difflin setup", "what is a coding agent", "munder difflin windows", "free ai coding agent", "antigravity free", "munder difflin beginner guide"]
-tags: ["Guides", "Getting Started", "Tutorial", "Non-Technical", "Automation"]
+secondaryKeywords: ["munder difflin download", "munder difflin setup", "install munder difflin windows", "install munder difflin mac", "what is a coding agent", "munder difflin beginner guide", "munder difflin not installed fix"]
+tags: ["Guides", "Getting Started", "Tutorial", "Non-Technical"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
-  - q: "Do I need to know how to code to use Munder Difflin?"
-    a: "No. The onboarding asks whether you are technical or not on its very first screen, and the non-technical path replaces every piece of jargon with plain language. You will open a terminal exactly once, to install and log into your AI engine, and you can copy and paste those commands."
-  - q: "Does Munder Difflin cost anything?"
-    a: "The classic app is free and open source, with unlimited local agents. Pro and Teams are optional paid plans. What you may pay for is the AI engine behind it. Antigravity is available at no charge and OpenCode has a free path, so you can run the whole thing without paying anything. If you already pay for ChatGPT or Claude, you can use those subscriptions instead."
-  - q: "Can these agents really change files on my computer?"
-    a: "Yes, and that is the point, so it is worth understanding before you start. An agent can read files, write files and run commands in the folders you give it. You choose how much freedom it has during setup, and you can set it to ask permission before every change."
+  - q: "Do I need to know how to code to install Munder Difflin?"
+    a: "No. You type two or three commands, to install an AI engine and sign in to it, and you can copy and paste them. If you skip that, the app offers to install a missing engine for you the first time an agent starts."
+  - q: "Do I have to install an AI engine before the app?"
+    a: "No. Setup marks each engine Installed, Installs on first start or Not installed. An engine marked Installs on first start is installed in the agent's own terminal when you press Install, and the app installs Node first if that engine needs it. You still have to sign in to the engine yourself."
+  - q: "Do I need an account?"
+    a: "Yes. The first launch asks you to sign in through your browser, on the free version as well. The browser does not open by itself: press Open browser to sign in and sign in there. The screen usually moves on by itself; if it does not, paste the code the browser shows you into the app."
   - q: "Which operating systems does Munder Difflin run on?"
-    a: "macOS, Windows and Linux. macOS ships as one universal .dmg for Apple Silicon and Intel, Windows 10 and 11 as a setup installer or a portable build, and Linux as an AppImage."
-  - q: "Is my code or data sent anywhere?"
-    a: "The app runs on your machine and stores its files there. Your prompts and the files an agent reads do go to whichever AI engine you picked, the same as if you used that tool directly. Anonymous usage telemetry is opt-out and every event is listed publicly in TELEMETRY.md."
+    a: "macOS, Windows and Linux. macOS is one universal build for Apple Silicon and Intel, signed and notarized by Apple. Windows 10 and 11, 64 bit, get a setup installer and a portable build. Linux gets a 64 bit AppImage."
+  - q: "Can these agents really change files on my computer?"
+    a: "Yes, and that is the point, so understand it before you start. An agent starts in the folder you give it and can read files, write files and run commands. It is not locked in there: it can reach anything your account can. Start with a new empty folder and watch what the agents do before you point one at anything you care about."
+  - q: "Is the free version a separate download from Pro?"
+    a: "No. There is one installer. The free version is the Classic view, and a licence unlocks the Pro view in the same app. On first launch, press Continue with the free version to reach Classic. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch: sign in and the app opens Pro with no licence."
 startHere: true
 startOrder: 1
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>Pick an AI engine based on what you
-already pay for (or pick a free one). Install it with one command in the terminal, which is the
-only time you will open a terminal. Download Munder Difflin, answer six onboarding screens, and
-you have an office of AI workers you can watch on a screen.</p></div>
+<div class="callout tldr"><span class="ic">TL;DR</span><p>Pick one AI engine, by what you already pay for. Download Munder Difflin 0.5.6 and open it. Press <strong>Open browser to sign in</strong> and sign in, name your workspace and your orchestrator, then press <strong>Continue with the free version</strong>. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch, so you go straight to Pro. If the engine is missing, the app offers to install it. About twenty minutes.</p></div>
 
-If you have never used an AI coding tool, most guides start three steps ahead of you. This one does
-not. It starts with what these things actually are, then walks the whole way to a working setup.
+This is how to install Munder Difflin 0.5.6 when you have never used an AI coding tool. Most guides start three steps ahead of you. This one starts with what the thing is, and ends with a working office and a fix for every way setup can fail.
 
-You will need about twenty minutes.
+## What is Munder Difflin?
 
-## First, what is Munder Difflin?
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer.
 
-Munder Difflin is a desktop app that runs a small office of AI workers on your computer.
+In plain words, it is a small office of AI workers. One of them is your orchestrator, the one you talk to. He is called Michael until you rename him. You give Michael a job, he splits it into pieces, hands the pieces to other agents and comes back to you only when something needs your decision.
 
-You see an actual office floor on screen, with characters at desks. Each character is an AI agent
-working on something you asked for. One of them is your clone, the boss of the floor, who takes what
-you ask for, breaks it into jobs, and hands those jobs to the others. You talk to your clone, and
-your clone manages everyone else.
+It is not a chatbot. You do not sit there typing and waiting for replies. You brief Michael, go and do something else, and come back to finished work.
 
-The app is free and open source. It runs on your machine, and it keeps its files on your machine. There are
-optional paid plans, Pro and Teams, but nothing in this guide needs them.
+<figure class="mg" data-scene="office"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/office.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An office seen from the front on white. One wide desk with a screen stands at the front, marked your orchestrator. Behind it, on a step marked other agents, are four smaller desks, each with its own screen. A slip marked your job lands on the front screen, is torn into three smaller slips, and each flies to a different desk at the back, where a progress bar starts to fill. Two of those desks finish with a tick. The third stops part way and sends back a slip marked needs your decision, which lands on the front screen. The fourth desk gets no slip, and its screen runs a bouncing screensaver. A filing cabinet and a water cooler stand at the sides."><figcaption>What Munder Difflin does: you brief one orchestrator, he hands the pieces to other agents, and only the decisions come back to you. Tap the front desk to send another job.</figcaption></figure>
 
-The thing it is not: a chatbot. You are not sitting there typing and waiting for replies. You give
-your clone a job, close the laptop, and come back to work that was done while you were gone.
+## What is a coding agent, and what can it touch on your computer?
 
-{% img "note-1" %}
+A coding agent is an AI that acts instead of only answering. Ask a chatbot a question and you get text. Give a coding agent a job and it reads your files, writes new ones, runs commands and checks its own work, in a loop, until the job is done or it gets stuck.
 
-## What is a coding agent, and how can it touch my computer?
+Each agent runs through a program called an engine: Claude Code, Codex, Antigravity and the others in this guide. The engine does the thinking. Munder Difflin is the office around a team of them: tasks, memory, schedules, messages, and when to come and ask you.
 
-This is the part worth reading slowly, because it is the part that surprises people.
+An engine runs with your own permissions. Anything you can do from your account, it can do: open files, change them, delete them, run software. That is why it is useful, and why you should be deliberate. Three things keep it sane:
 
-A **coding agent** is an AI that does not just talk back. It can act. Give a normal chatbot a
-question and it returns text. Give a coding agent a job and it will read your files, write new ones,
-run commands, install things, and check its own work, in a loop, until the job is done or it gets
-stuck.
+1. **You choose the folder.** An agent starts in the folder you give it. It is not locked in there, so do not make your first one your whole home folder.
+2. **You choose how much freedom they have.** Whether agents act on their own or stop and ask is a setting: **Settings**, then **Autonomy & Budgets**. A new install starts on autonomous: agents act without asking. Look at it before your first real job.
+3. **You can watch.** Every agent has a live terminal you can open and watch.
 
-It does this through a program on your computer called a **CLI agent**. CLI stands for command line
-interface, which is the text-only way of controlling a computer that predates windows and buttons.
-Claude Code, Codex, Antigravity and the others in this guide are all CLI agents. They are the engine.
-Munder Difflin is the office that runs a team of them and keeps track of everything around them:
-memory, tasks, schedules, files, and when to come ask you something.
+{% img "autonomy-056", "Settings, then Autonomy & Budgets: how much agents do alone, who may add agents, and the circuit breaker. From a preview build of 0.5.6 with sample data." %}
 
-**So how does it reach your computer?** When you install one of these engines, it runs as a program
-with your permissions. Anything you can do from your own account, it can technically do: open your
-files, edit them, delete them, run software, reach the internet. It is not sandboxed away from your
-machine by default. That is exactly why it is useful, and exactly why you should be deliberate.
+<figure class="mg" data-scene="rooms"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/rooms.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. The floor plan of a house on white. Four pale rooms are each labelled as a folder: Documents, Photos, Projects and Downloads. Beside them is a hatched plot with a plus sign, labelled new empty folder. Its walls are drawn in and it becomes a fifth room, the only one drawn in colour. A small desk with a terminal on it drops into that room, a tag reading agent works here appears under it, and three new files appear beside it. The other rooms stay pale, and loose pages keep piling up in Downloads. Tapping a pale room colours it and moves a second desk in."><figcaption>An agent starts in the folder you give it. It is not locked in there: it can reach anything your account can. For your first job, make a new empty folder and use that. Tap a room to give the agent another folder.</figcaption></figure>
 
-Three things keep this sane, and Munder Difflin sets all three up during onboarding:
+## What do you need before you install?
 
-1. **You choose which folders it can work in.** Agents work inside the projects you add. A project
-   is just a folder. Do not point your first one at your entire home directory.
-2. **You choose how much freedom it has.** During setup you pick whether agents work on their own or
-   pause and ask you before changing files and running commands. If you are new, pick ask.
-3. **You can watch it happen.** Every agent has a terminal you can open and read, live. Nothing
-   happens off-screen.
+Less than you would think. The app itself needs nothing else installed.
 
-<div class="callout note"><span class="ic">Start safe</span><p>For your first project, make a brand
-new empty folder and use that. Watch what the agents do for an hour before you point one at
-anything you care about.</p></div>
+* **A computer.** macOS on Apple Silicon or Intel, Windows 10 or 11 (64 bit), or a modern 64 bit Linux.
+* **An email address.** The first launch asks you to sign in, on the free version as well.
+* **One AI engine, signed in.** You can install it now with one command, or let the app install it later. Either way you sign in to the engine yourself, with your own subscription or key.
 
-## Step 1: Which AI engine will you use?
+Good to have, and you can add them after setup: git, and two small tools called `uv` and MemPalace that let agents search their memory by meaning. The app checks for these, and for Node, under **Settings**, then **Prerequisites**.
 
-Munder Difflin does not include an AI. It drives one you install. Twelve engines are supported, but
-you only need one, and the right one is usually decided by what you already pay for.
+{% img "prerequisites-056", "Settings, then Prerequisites: each helper tool shows Found or Not found, and a missing one shows the command that installs it. From a preview build of 0.5.6 with sample data." %}
 
-Find yourself below.
+## Which AI engine should you pick?
 
-### You do not want to pay anything
+Munder Difflin does not include an AI. It drives one you install. It supports twelve engines plus a custom one, and you need exactly one to start. What you already pay for usually decides it.
 
-**Use Antigravity.** It is Google's agentic development platform and it is
-[available at no charge](https://antigravity.google/). It ships with a command line tool called
-`agy`, which is what Munder Difflin drives. This is the best starting point for most people reading
-this guide.
+* **You pay for Claude:** use **Claude Code**. It is the app's default engine.
+* **You pay for ChatGPT:** use **Codex**.
+* **You pay for nothing:** use **Antigravity**, Google's coding tool, whose command is `agy`.
+* **You already have a key from an AI provider:** use **OpenCode**, which is open source and runs on the provider and model you choose.
 
-**OpenCode** is the other free path. It is open source, and it lets you bring your own model,
-including free and local ones.
+<figure class="mg" data-scene="engine"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/engine.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three cards lie on a white table, reading You pay for Claude, You pay for ChatGPT and You pay for nothing. Each card turns over in turn to show the engine to pick: use Claude Code with a Claude subscription, use Codex with a ChatGPT subscription, and use Antigravity if you pay for nothing. The third card turns over once more than it needs to and lands crooked before it straightens. The line under the cards ends on You need exactly one to start."><figcaption>Pick your first engine by what you already pay for: Claude Code with a Claude subscription, Codex with a ChatGPT subscription, Antigravity if you pay for nothing. Tap a card to flip it back.</figcaption></figure>
 
-<div class="callout note"><span class="ic">If you are in India, on Jio</span><p>Jio is running an
-offer that gives eligible users <a href="https://www.jio.com/google-gemini-offer/">Google AI Pro
-free for 18 months</a>. The terms on Jio's page: you must be over 18 and on an active unlimited 5G
-plan of ₹349 or above, prepaid or postpaid, kept active for the whole period, claimable once per
-number. Google AI Pro raises the daily request limits on <strong>Gemini CLI</strong>, which is a
-separate supported engine in Munder Difflin. Note that Jio's page does not mention Antigravity, so
-treat this as a boost to the Gemini CLI path rather than to Antigravity. Antigravity is free for
-everyone anyway. Check Jio's page for current terms, offers change.</p></div>
+Each of the other engines has its own sign in, and the app can install them for you. Pick one only if you already use it.
 
-### You already pay for ChatGPT
+| Engine | Command | Installs with |
+| --- | --- | --- |
+| Gemini CLI | `gemini` | npm |
+| Qwen | `qwen` | npm |
+| Crush | `crush` | npm |
+| Pi | `pi` | npm |
+| Copilot | `copilot` | npm |
+| Grok | `grok` | its own installer |
+| Kimi Code | `kimi` | its own installer |
+| Cursor | `cursor-agent` | its own installer |
 
-**Use Codex.** Your ChatGPT Plus or Pro subscription covers it. Nothing more to buy.
+You can add more engines later and run several at once, with different agents on different engines. The [Gemini CLI install guide](/blog/how-to-install-gemini-cli/) has that engine's steps.
 
-### You already pay for Claude
+## How do you install an engine and sign in?
 
-**Use Claude Code.** Your Claude Pro or Max subscription covers it. This is the engine the app was
-built against first, and it is the most thoroughly tested of the twelve.
+Open a terminal and paste the lines for your engine one at a time, pressing Enter after each. A terminal is a plain text window for typing commands. On macOS press `Cmd+Space`, type `Terminal` and press Enter. On Windows press Start, type `PowerShell` and press Enter.
 
-### The other engines
-
-Any of these work. Pick one only if you already use it.
-
-| Engine | Command | Good reason to pick it |
-|---|---|---|
-| Gemini CLI | `gemini` | You have Google AI Pro, including via the Jio offer |
-| Grok | `grok` | You have an xAI subscription |
-| Kimi Code | `kimi` | You use Kimi already |
-| Qwen | `qwen` | You want to run a model locally on your own hardware |
-| Crush | `crush` | You like Charm's tools |
-| Copilot | `copilot` | You have GitHub Copilot |
-| Cursor | `cursor-agent` | You have a Cursor subscription |
-| pi | `pi` | You use pi already |
-
-You can add more engines later and run several at once, with different agents on different engines.
-
-## Step 2: Install your engine, and log in
-
-**This is the only step where you open a terminal.** Once it is done you will not need it again.
-
-The terminal is a plain text window for typing commands. On macOS press `Cmd+Space`, type
-`Terminal`, press Enter. On Windows press the Start button, type `PowerShell`, press Enter. On Linux
-you already know.
-
-Find your engine below, copy the block, paste it, press Enter. Wait for it to finish before typing
-the next line.
-
-{% img "shot-terminal", "Checking that the engines installed. This is the only time you need this window." %}
-
-### First: do you have Node.js?
-
-Most of these engines install through `npm`, which comes with Node.js. Check with:
-
-```bash
-node --version
-```
-
-If that prints a version number, you are ready. If it says "command not found", get the **LTS**
-build from [nodejs.org/en/download](https://nodejs.org/en/download), install it, then close the
-terminal window and open a fresh one.
-
-Antigravity, Claude Code and Cursor can be installed without Node.js. Everything else needs it.
-
-### Antigravity (free, no subscription)
-
-Google's coding agent. The command is `agy`. Homepage:
-[antigravity.google](https://antigravity.google/) · Install docs:
-[antigravity.google/docs/cli/install](https://antigravity.google/docs/cli/install/)
-
-macOS and Linux:
-
-```bash
-curl -fsSL https://antigravity.google/cli/install.sh | bash
-```
-
-Windows PowerShell:
-
-```powershell
-irm https://antigravity.google/cli/install.ps1 | iex
-```
-
-Then sign in:
-
-```bash
-agy
-```
-
-Your browser opens. Sign in with a Google account.
-
-### OpenCode (free, bring your own model)
-
-Open source, works with free and local models. Docs:
-[opencode.ai/docs](https://opencode.ai/docs)
-
-```bash
-npm install -g opencode-ai@latest
-opencode auth login
-```
-
-### Codex (with a ChatGPT subscription)
-
-Covered by ChatGPT Plus or Pro. Docs:
-[github.com/openai/codex](https://github.com/openai/codex)
-
-```bash
-npm install -g @openai/codex
-codex
-```
-
-On first run it opens a browser to sign you into your ChatGPT account.
-
-### Claude Code (with a Claude subscription)
-
-Covered by Claude Pro or Max. Docs:
-[docs.claude.com/en/docs/claude-code](https://docs.claude.com/en/docs/claude-code)
-
-```bash
-npm install -g @anthropic-ai/claude-code
-claude
-```
-
-If you would rather not install Node.js, use the standalone installer instead.
-
-macOS and Linux:
+**Claude Code** (a Claude subscription). macOS and Linux:
 
 ```bash
 curl -fsSL https://claude.ai/install.sh | bash
@@ -240,259 +116,171 @@ Windows PowerShell:
 irm https://claude.ai/install.ps1 | iex
 ```
 
-Then run `claude` and sign in when the browser opens.
+On any system, close the terminal and open a new one, then run `claude` once and sign in when the browser opens.
 
-### The other engines
-
-Same idea: install, then run the command once on its own to sign in.
-
-| Engine | Install it with | Then run | Official docs |
-|---|---|---|---|
-| Gemini CLI | `npm install -g @google/gemini-cli` | `gemini` | [google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
-| Grok | `npm install -g @xai-official/grok` | `grok` | [docs.x.ai](https://docs.x.ai/build/overview) |
-| Kimi Code | `npm install -g @moonshot-ai/kimi-code` | `kimi` | [kimi.com/code](https://www.kimi.com/code/docs/en/kimi-code-cli/guides/getting-started.html) |
-| Qwen | `npm install -g @qwen-code/qwen-code@latest` | `qwen` | [QwenLM/qwen-code](https://github.com/QwenLM/qwen-code) |
-| Crush | `npm install -g @charmland/crush` | `crush` | [charmbracelet/crush](https://github.com/charmbracelet/crush) |
-| Copilot | `npm install -g @github/copilot` | `copilot` | [docs.github.com](https://docs.github.com/copilot/concepts/agents/about-copilot-cli) |
-| Cursor | `curl https://cursor.com/install -fsS \| bash` | `cursor-agent` | [cursor.com/docs](https://cursor.com/docs/cli/overview) |
-| pi | `npm install -g --ignore-scripts @earendil-works/pi-coding-agent` | `pi` | [pi.dev/docs](https://pi.dev/docs/latest) |
-
-On Windows, the Cursor line is `irm 'https://cursor.com/install?win32=true' | iex` in PowerShell.
-
-### Check it actually installed
-
-Run this, swapping `claude` for whichever command you installed:
+**Codex** (a ChatGPT subscription). macOS and Linux:
 
 ```bash
-claude --version
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
 ```
 
-A version number means you are done with the terminal. "Command not found" means the install did
-not finish, or the terminal is still running from before the install: close the window, open a new
-one, and try again.
+Windows PowerShell:
 
-<div class="callout warn"><span class="ic">The one thing people skip</span><p><strong>You must
-actually sign in.</strong> Installing the tool is not the same as logging into it. Run the command
-once on its own and complete the sign-in before moving on, or Munder Difflin will find the engine
-and every agent will still fail the moment it starts.</p></div>
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
+```
 
-## Step 3: Install Munder Difflin
+Codex can also install through npm, which comes with Node: `npm install -g @openai/codex`. Check Node with `node --version`; the app wants version 20 or newer. If you see an error such as "command not found" instead of a number, you have no Node: get the LTS build from [nodejs.org](https://nodejs.org/en/download), then close the terminal and open a new one.
 
-Go to [munderdiffl.in](https://munderdiffl.in) and download the build for your system, or take it
-straight from the
-[latest release on GitHub](https://github.com/chaitanyagiri/munder-difflin/releases/latest).
+Then close the terminal, open a new one and run `codex`. The first `codex` opens a sign in; choose to sign in with ChatGPT. [How to install Codex CLI](/blog/how-to-install-codex-cli/) covers Windows and updates.
 
-{% img "shot-download", "The download page. Pick the file that matches your computer." %}
+**Antigravity** (no subscription). macOS and Linux:
 
-**macOS.** Download the universal `.dmg`, which runs on Apple Silicon and Intel. Open it and drag
-Munder Difflin into Applications. The app is signed and notarized by Apple, so the first launch only
-shows the usual question about opening an app downloaded from the internet. Click Open.
+```bash
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+```
 
-**Windows.** Download the setup `.exe` and run it. If Windows SmartScreen shows a warning, click
-More info, then Run anyway. If the installer will not start at all, download the portable `.exe`
-from the release instead, which needs no installation.
+Windows PowerShell:
 
-**Linux.** Download the `.AppImage`, make it executable (`chmod +x` on the file) and run it.
+```powershell
+irm https://antigravity.google/cli/install.ps1 | iex
+```
 
-**Want to be sure the file is genuine?** Every release carries a `SHA256SUMS.txt`. Run
-`shasum -a 256` on the file you downloaded (or `Get-FileHash` in Windows PowerShell) and check that
-the value matches that file's line.
+Then close the terminal, open a new one, run `agy` and sign in with a Google account.
 
-## Step 4: Onboarding, six screens
+**OpenCode** (a key from an AI provider you choose; you pay that provider). The second line asks which provider and takes the key:
 
-Open the app. It walks you through setup. There are two intro screens and then four numbered steps.
+```bash
+npm install -g opencode-ai@latest
+opencode auth login
+```
 
-### Screen 1: Who are you?
+To check any of them, ask for its version, for example `claude --version`. A version number means you are done with the terminal.
 
-It asks whether you are technical or not.
+<figure class="mg" data-scene="terminal"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/terminal.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A light terminal window on white, above a row of keyboard keys with a large Enter key. A line types itself: npm install -g @openai/codex. Enter is pressed and a progress bar fills, slips back one block near the end, then finishes with a tick. A second line types codex, a dotted arrow runs from it to a small browser window that slides in over the terminal showing Sign in, and the button in that window turns into a tick. A third line types codex --version and prints three blocks that stand in for a version number, a tick and the words a version number."><figcaption>The whole terminal part of this guide: install the engine, run it once to sign in, then ask for its version to check. The drawing uses Codex; every engine follows the same three steps, though the install command differs. Tap the terminal to run it again.</figcaption></figure>
 
-**Pick the non-technical option.** This is not a downgrade. It changes the language of the entire
-rest of the app, replacing engine ids, flags and model slugs with plain descriptions. You can change
-it later in Settings.
+<div class="callout warn"><span class="ic">The step people skip</span><p><strong>Installing an engine is not the same as signing in to it.</strong> Run its command once and finish the sign in. Otherwise the agent cannot start. For Claude Code, Codex and Cursor the app shows <strong>Sign in needed</strong>.</p></div>
 
-{% img "shot-persona", "The first onboarding screen. Choosing the non-technical path rewrites the rest of the setup in plain language." %}
+### Or let the app install it
 
-### Screen 2: Meet your office
+You can skip the terminal. Setup marks every engine **Installed**, **Installs on first start** or **Not installed**. When you start an agent whose engine is missing, the app says so and offers an **Install** button. Nothing installs until you press it.
 
-An explanation of what you are about to set up. Read it and continue.
+The app uses the first route that can work on your computer: npm; Node and npm together if Node is missing; the engine's own installer; else a manual route with a link to the docs. The sign in is still yours to finish, in that agent's terminal.
 
-{% img "shot-welcome", "The office tour screen." %}
+## How do you download and install Munder Difflin?
 
-### Step 1 of 4: A home for the app
+Get the file for your system from the [download page](https://harnessmd.com/download).
 
-The app needs an empty folder to keep its own files: its settings, and your agents' memory.
+<figure class="mg" data-scene="download"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/download.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A download page on white shows the address harnessmd.com/download and three buttons labelled macOS, Windows and Linux. A file hangs from a clip under each button: universal .dmg, setup .exe with portable .exe beside it, and .AppImage. Each button is pressed in turn and lets go of its file, which opens a parachute and floats down to a landing pad on the ground. The portable .exe has a carry handle and no parachute, so it drops and bounces."><figcaption>One file per system: a universal .dmg for macOS, a setup .exe or a portable .exe for Windows, and an .AppImage for Linux. Tap a button to drop its file again.</figcaption></figure>
 
-Something like `HarnessAgents` in your home folder is fine. It will create it if it does not exist.
-This is not where your work goes. It is the app's own filing cabinet.
+* **macOS.** One universal `.dmg` for Apple Silicon and Intel, signed and notarized by Apple. Open it and drag Munder Difflin into Applications. If macOS still refuses to open it, try to open it once, then open **System Settings**, then **Privacy & Security**, press **Open Anyway** within the hour and enter your password.
+* **Windows.** Run the setup `.exe`. It installs for your user only and lets you pick the folder. There is also a portable `.exe` that needs no installing.
+* **Linux.** Mark the `.AppImage` as executable (`chmod +x` on the file), then run it.
 
-{% img "shot-home", "Choosing a home folder. Make a new empty one." %}
+Optional: to confirm the download arrived intact, compare its checksum with `SHA256SUMS-v0.5.6.txt`, published with the release. Run `shasum -a 256` on your download on macOS, `sha256sum` on Linux, or `Get-FileHash` in PowerShell, and compare the value with that file's line.
 
-### Step 2 of 4: Your clone
+## What happens the first time you open it?
 
-Name your clone and pick the engine that powers it. This is where the engine you installed in Step 2
-shows up. If it is not listed as installed, the sign-in did not finish, so go back and run the
-command once more.
+Setup has four steps. The words in bold are the words on the screen.
 
-Give your clone the most capable model available to you. It is doing the thinking and delegating,
-so it benefits from the extra capability more than the workers do.
+1. **How are you using Munder Difflin?** Pick **On my own**, or **With my team** if someone sent you an invite code (a team code, not the sign in code below), and press **Continue**. Then comes **Sign in to continue**: press **Open browser to sign in**. The browser never opens by itself. Sign in there. The screen usually moves on by itself. If it does not, copy the code the browser shows, switch back to the app, paste it into **Code from the browser** and press **Use this code**. You see **You are signed in**; press **Continue**.
+2. **Name your workspace.** The default name is `HarnessAgents`. Everything your agents do lives in this one folder: their work, memory, tasks and history. **Browse** picks where it goes. The name cannot hold a space, and the app offers a fixed one if you type a space. This step also asks whether you are technical or non-technical.
+3. **Meet your orchestrator.** Name him and pick his engine. The engine you pick shows **Installed**, **Installs on first start** or **Not installed**.
+4. **A last look at him.** Press **Open the workspace**, and you are in.
 
-{% img "shot-engine", "Naming your clone and picking its engine." %}
+<figure class="mg" data-scene="signin"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/signin.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Two windows on white. An app window on the left holds a button reading Open browser to sign in, an empty field labelled Code from the browser and a pale button reading Use this code. A dotted outline on the right marks the browser, which is not open yet. The first button is pressed and a browser window opens in the outline, with a crowded row of tabs, a tick, the words copy the code and a code drawn as a row of boxes with a dot in each. A copy of the code lifts out of the browser, travels across and drops into the field. Use this code turns yellow and is pressed, and the app window shows You are signed in."><figcaption>Sign in takes two windows: press Open browser to sign in and sign in there. If the screen does not move on by itself, copy the code from the browser, paste it into Code from the browser and press Use this code. Tap the app window to watch it again.</figcaption></figure>
 
-### Step 3 of 4: Your projects
+Until Saturday 24 October 2026, Pro is free for everyone as part of the launch. Once you sign in, the app opens the Pro view with no licence and skips the screen below. From Sunday 25 October it is back.
 
-Add the folders you want agents working in. A project is just a folder. It can hold code, documents,
-notes, or anything else.
+Then comes the screen that stops people: the Pro sales screen, **Run your agents like a company**, with three buttons.
 
-You can skip this and add projects later. If you are adding one now, make it a new empty folder.
+* **Continue with the free version** opens the Classic view. This is the one you want if you have no licence.
+* **I have a licence key** lets you paste a key.
+* **Get PRO** opens the checkout in your browser.
 
-{% img "shot-repos", "Adding a project. A project is simply a folder." %}
+<figure class="mg" data-scene="fork"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/fork.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A mini golf course on white, seen from above. A putter taps a ball off a mat marked after setup. The green lane splits into three branches, and a button sits on each one: Continue with the free version, I have a licence key and Get PRO. Each branch ends at a hole, marked Classic view, paste a key and checkout in your browser. The ball rolls to the split, stops, leans toward two of the branches, then takes the one under Continue with the free version, which turns yellow. It circles the rim of the hole once before it drops in, and a tick appears on the hole beside Classic view. The other two buttons then light up in turn. Tapping a branch sends the ball down that one."><figcaption>The first screen after setup offers Continue with the free version, I have a licence key and Get PRO. Without a licence, press Continue with the free version to reach the Classic view. Tap a branch to take it.</figcaption></figure>
 
-### Step 4 of 4: Permissions
+Classic is the free view: the office floor. The Pro view adds one window with screens for Tasks, Inbox, Automations, Memory and Capabilities, plus the Stapler, a small window above every app. You can move between the two later with the switch in the title bar, **Classic** and **PRO**. Without a licence the second one reads **TRY PRO**, and pressing it brings back this screen.
 
-The important screen. It asks how much agents can do on their own.
+## What do you do in your first ten minutes?
 
-**On** means agents carry out tasks without stopping to ask. Smoothest, and how you will eventually
-want it.
-
-**Off** means agents pause and ask you before changing files or running commands.
-
-**Start with off.** Watch a few tasks run, see what the agents actually try to do, and turn it on
-when you are comfortable. You can change this any time.
-
-{% img "shot-permissions", "The autonomy choice. Start with agents asking permission." %}
-
-## Step 5: Your first job
-
-You are looking at the office floor. Your clone is there. Nobody else yet.
-
-Talk to your clone the way you would talk to a capable new hire who has not met you yet. Be specific
-about the outcome, and do not bother specifying the steps.
+You are in the office. Your orchestrator is there, and nobody else yet. Talk to him the way you would brief a capable new hire: the outcome, the folder, and what done looks like.
 
 Weak: *"organise my files"*
 
-Better: *"Look in my Documents/receipts folder. Sort every PDF into subfolders by year, based on the
-date inside the document, not the filename. Tell me about anything you cannot read."*
+Better: *"Look in my Documents/receipts folder. Sort every PDF into folders by year, using the date inside the document, not the file name. Tell me about any file you cannot read."*
 
-Your clone will decide it needs a worker, hire one, and hand the job over. You will see a new
-character appear at a desk.
+Your orchestrator decides whether he needs help, and hires it. A new agent appears at a desk. When you hire one yourself, you pick its face from fifteen built in avatars. Click any agent to open its terminal and watch it work.
 
-{% img "shot-floor", "The office floor on a fresh setup. Michael, your clone, is the only one here yet. The Command Center on the right is where work gets dispatched." %}
+When that works, [your first hour](/blog/your-first-hour-with-munder-difflin/) covers teams, schedules, Slack and the Pro screens. For ideas, [every agent on our own floor](/blog/ai-agent-use-cases-our-office/) shows the jobs we give ours.
 
-Click any agent to open its terminal and watch it work in real time.
+## What is the IDE button for?
 
-### Things people actually use this for
+Click an agent and press **IDE** in its panel. The button opens a code editor on that agent's working folder, inside the app. Use it to see what an agent just did without leaving the office.
 
-Not all of these are coding.
+* Open, edit and save any file, or make a **New file**.
+* See what the agent changed: **Changes**, **History** and **Compare**.
+* Preview Markdown files, the plain text format agents write reports in, as **code**, **split** or **preview**.
+* Open images.
 
-- **Documents.** Sort a folder of files, rename them consistently, pull the numbers out of fifty
-  invoices into one spreadsheet.
-- **Research.** Give an agent a question and a place to write, and let it work through it while you
-  do something else.
-- **Code.** The obvious one. Fix a bug, add a feature, upgrade a dependency, write the tests.
-- **Repeating chores.** Anything you do every Monday, handed to a schedule instead.
-- **Long jobs.** The ones you keep not starting because they take four hours. Start one before bed.
+It is the quickest way to check an agent's work. Ask for a report, open the IDE and read the report in preview next to the files it describes.
 
-## Step 6: Add agents yourself
+<figure class="mg" data-scene="ide"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/ide.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A light code editor window on white. Its title bar holds a button reading IDE and the words an agent's working folder. Under it are three tabs, Changes, History and Compare, and a switch reading code, split and preview. A file list runs down the left side with a New file button at the bottom, and one file is selected. The code pane shows the file as grey bars, one bar per line. Two new lines type themselves in at the bottom, and a yellow dot marks the selected file as changed. The Changes tab lights up and the two new lines are marked in green. The switch then slides to split, and a formatted preview with a heading and a bullet list opens beside the code. It slides to preview, where the preview fills the pane, and back to split. The scroll bar handle is tiny, because the file is long."><figcaption>The IDE button opens an editor on an agent's working folder: edit and save files, see Changes, History and Compare, and preview Markdown as code, split or preview. Tap the switch to change the view.</figcaption></figure>
 
-Your clone hires people on its own, but you can hire directly too.
+## What can you add after setup?
 
-Click add agent. You pick a name, an engine, a model and a project. Different agents can run on
-different engines, so you can put a free engine on the boring jobs and your paid one on the hard
-ones.
+Almost everything. Setup asks for the minimum, and the rest lives in **Settings**.
 
-{% img "shot-addagent", "The add agent panel: identity, workspace, engine, briefing. Yes, you pick which Office character they are." %}
+* **Prerequisites** shows whether each engine and helper tool is installed.
+* **Agents & Models** is where a second or third engine comes in.
+* **Autonomy & Budgets** holds how much agents may do alone, their budgets, and whether temps (short lived agents for one job) may be started.
+* **Connections** is Slack and the other ways work arrives from outside. The [Slack guide](/blog/connect-slack-to-munder-difflin/) walks through it.
+* **Memory & Knowledge** covers what agents remember. Search by meaning needs `uv` and MemPalace.
+* **Keys & Secrets** is where saved keys live. OpenCode, Crush, Pi and Qwen take a key; Claude Code and Codex use their own sign in.
 
-Agents persist. Close an agent and its memory and inbox reattach when you bring it back, with the
-same identity.
+In Pro, the **Integrations** row in the sidebar puts Slack, webhooks, the apps your agents use and your keys in one place, each with a plain status and the last 50 things that happened. Nothing saves until you press **Save**.
 
-## Step 7: Work that starts without you
+## What do you do when an install fails?
 
-Open the triggers tab. Everything here starts work when you are not typing.
+Read the message first. The app says what is wrong in a sentence, and most screens carry the button that fixes it.
 
-{% img "shot-triggers", "The triggers tab: schedules, context, webhooks and organisation." %}
+| What you see | What to do |
+| --- | --- |
+| "… is not installed on this computer.", with your engine's name in front | Press **Install**. If it stops, **Try again**. **Open the docs** and **Set up manually** are the fallbacks. |
+| **Sign in needed** | Finish the engine's sign in in that agent's terminal, then press **Setup complete, start agent**. |
+| "Signing in needs the internet. Your work is safe on this machine. Reconnect and try again." | Reconnect, then try again. Nothing is lost. |
+| "Munder Difflin could not verify the secure connection to our server." | Check the computer's date and time. If they are right, ask whoever runs your network or security software to allow the address in the message, then press **Try again**. |
+| "A folder name cannot hold a space." | Press the button that reads **Use** and the suggested name. |
+| A note that a port (a numbered door programs listen on) was in use and the session listens on another one | Nothing, unless something on this computer calls that port, such as a webhook. Then point it at the new number. |
+| macOS will not open the app | Try to open it once, then **System Settings**, then **Privacy & Security**, then **Open Anyway**. |
 
-**Schedules** run a prompt on a repeating clock. You give it a label, choose who it goes to, and
-write the prompt, which is sent word for word on every run. This is the feature that turns the app
-from a tool you use into something that runs on its own.
+If the message does not settle it, work up this list and stop at the first step that fixes it. This order is our advice from running the app every day; the app itself only offers the first step.
 
-Good first schedule: every morning, ask an agent to check something and write you a short summary.
+1. **Check again.** Press **Check again** or **Try again** on the screen.
+2. **Restart the agent.** Close that agent and start it again.
+3. **Reopen the app.** Quit Munder Difflin completely and open it again.
+4. **Restart the computer.** The last resort, if step 3 did not help.
 
-{% img "shot-schedule", "Creating a schedule. The prompt is sent word for word on every run." %}
+<figure class="mg" data-scene="fixes"><img src="/blog/assets/media/how-to-install-and-use-munder-difflin/fixes.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four stepping stones cross a small stream on white, between two green banks, each stone a little bigger than the last. They are labelled Check again, restart the agent, reopen the app and restart the computer. Every stone carries the same round restart arrow, drawn around a button, a terminal, an app window and a computer. Above the near bank a crooked card reading Install shows a progress bar snapped in two and a yellow warning mark. A pebble hops from the bank onto the first stone, the arrow spins, the broken half of the bar lifts and drops again, and the stone gets a lilac cross. The second stone goes the same way. On the third stone the bar mends and fills, the card straightens, a tick appears and the pebble stays there. The fourth stone is never needed. Past the far bank a speech bubble reads Still stuck? Ask your orchestrator. Tapping a stone makes that stone the one that works."><figcaption>When an install fails, work up four steps and stop at the first that fixes it: Check again, restart the agent, reopen the app, restart the computer. Tap a stone to hop that far.</figcaption></figure>
 
-**Context** handles what happens as an agent's memory fills up (see below).
+Still stuck? Ask your orchestrator: *"The Codex install failed. Read the log and tell me why."* If the engine that failed is the one your orchestrator runs on, there is nobody to ask yet: run that engine's lines from the terminal section above, then press **Check again**. The log is `hive/log.jsonl` inside your workspace folder, and a crashed agent's raw output is in `hive/crashes` beside it.
 
-**Webhooks** let an outside system post work in.
+Three things look like failures and are not:
 
-**Organisation** lets a teammate's Munder Difflin send work to yours.
+* **An agent reads "looping".** That is the circuit breaker warning an agent that repeats itself or spends fast. It is the app working.
+* **An agent's session was cleared.** By default the app clears a session when the agent's work switches and the session has run for 60 minutes, to save tokens. A file called `handoff.md` in the agent's folder carries the thread across.
+* **Everything is slow with many agents.** A computer with 8 GB of memory struggles with a large team. Run fewer at once.
 
-## Step 8: Context and auto-compaction, briefly
+## What is the short version?
 
-Every AI model has a limited working memory, called its context. A long-running agent will fill it.
-When it is full, the agent gets confused or stops.
+Seven steps, about twenty minutes.
 
-**Auto-compaction** is the fix. When an agent's context gets close to full, the app has it summarise
-what has happened so far and carry the summary forward instead of the raw history. The agent keeps
-going without losing the thread.
+1. Pick one engine: Claude Code, Codex, or a free one.
+2. Download Munder Difflin and open it.
+3. Press **Open browser to sign in** and sign in.
+4. Name your workspace and your orchestrator.
+5. Press **Continue with the free version**.
+6. If the engine is missing, press **Install**, then sign in to it.
+7. Give your orchestrator a real job in a new empty folder, and watch.
 
-You control this under Context in the triggers tab: compact automatically, clear entirely, or leave
-it alone. The default is sensible and most people never touch it.
-
-## Step 9: Settings worth knowing
-
-Seven sections. These are the ones that matter early:
-
-- **General.** Change your home folder, switch between technical and plain language, pick your
-  language. The app runs in English, Simplified Chinese and Arabic.
-- **Prerequisites.** Checks whether your engines are actually installed and logged in. **This is the
-  first place to look when something is not working.**
-- **Agents & Models.** Which engines are available and which models each uses. New models show up
-  without an app update, because the model pickers read the latest list when the app launches.
-- **Autonomy & Budgets.** The permission choice from onboarding, plus spending limits per agent.
-  Worth setting a cap before leaving anything running overnight.
-- **Connections.** Slack, webhooks, MCP and the REST API.
-- **Voice.** Talk to your agents out loud.
-- **Memory & Knowledge.** What your agents remember between sessions.
-
-{% img "shot-settings", "The settings panel. Prerequisites is where you check that an engine is really installed." %}
-
-## Step 10: Focus mode
-
-When you want to stop watching the office and work with one agent, press the fullscreen control on
-its terminal. The floor disappears and you get a full-width terminal.
-
-Press `Esc` to come back.
-
-{% img "shot-focus", "Focus mode. One agent, full width, no office." %}
-
-## When something goes wrong
-
-**An agent dies the moment it starts.** Almost always the engine is installed but not logged in.
-Open Settings, then Prerequisites. Or run the engine's command once in a terminal and finish the
-sign-in.
-
-**"Engine not installed" during onboarding, but you installed it.** The app looks for the command on
-your system path. Close the app completely and reopen it, since it reads your environment at launch.
-
-**Windows blocks the installer.** If SmartScreen flags it, choose More info, then Run anyway, or use
-the portable build.
-
-**macOS asks whether to open an app downloaded from the internet.** That is normal for anything you
-download. Click Open.
-
-**Nothing is happening.** Check whether message delivery is paused in the Command Center. Paused
-means queued work is being held for every agent, and nothing is lost when you switch it back on.
-
-## The short version
-
-1. Pick an engine. Antigravity if you want free, Codex if you pay for ChatGPT, Claude Code if you
-   pay for Claude.
-2. Install it and sign in. One terminal command. The only one.
-3. Download Munder Difflin and install it.
-4. Six onboarding screens. Pick the non-technical path, use a new empty folder, start with agents
-   asking permission.
-5. Give your clone a real job and watch what happens.
-
-{% img "note-2" %}
-
-The app is [open source on GitHub](https://github.com/chaitanyagiri/munder-difflin). If you get
-stuck, the [Discord](https://munderdiffl.in) is the fastest place to ask.
+<link rel="stylesheet" href="/blog/assets/media/how-to-install-and-use-munder-difflin/motion.css"><script defer src="/blog/assets/media/how-to-install-and-use-munder-difflin/motion.js"></script>

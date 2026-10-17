@@ -24,7 +24,7 @@ faq:
 
 Dynamic workflows let a Claude Managed Agents agent write a program that runs many agents in the background and combines their results. They have been in beta since 9 October 2026. Our view: a good fit for work with many pieces, and a reason to set a budget first. Checked 11 Oct 2026.
 
-We have not tried dynamic workflows. This page reports what Anthropic's documentation says. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It sits at the local end of this choice, and Managed Agents sits at the hosted end. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+This page reports what Anthropic's documentation says. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It sits at the local end of this choice, and Managed Agents sits at the hosted end. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Claude Managed Agents?
 

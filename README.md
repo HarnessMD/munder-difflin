@@ -30,7 +30,7 @@ visualized as avatars at work on a shared office floor.
 
 <p>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-F4D35E.svg?style=flat-square&labelColor=6E1423"></a>
-  <a href="./CHANGELOG.md"><img alt="Version: 0.5.3" src="https://img.shields.io/badge/version-0.5.3-F4D35E.svg?style=flat-square&labelColor=6E1423"></a>
+  <a href="./CHANGELOG.md"><img alt="Version: 0.5.6" src="https://img.shields.io/badge/version-0.5.6-F4D35E.svg?style=flat-square&labelColor=6E1423"></a>
   <a href="https://github.com/chaitanyagiri/munder-difflin/releases"><img alt="Downloads across all releases" src="https://img.shields.io/github/downloads/chaitanyagiri/munder-difflin/total?style=flat-square&label=downloads&color=F4D35E&labelColor=6E1423"></a>
   <img alt="Status: pre-release" src="https://img.shields.io/badge/status-pre--release-F4F1EA.svg?style=flat-square&labelColor=6E1423">
   <img alt="Platform: macOS | Windows | Linux" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-F4F1EA.svg?style=flat-square&labelColor=6E1423">
@@ -48,16 +48,20 @@ visualized as avatars at work on a shared office floor.
 
 <br><br>
 
-**[⬇ Download 0.5.3 for macOS, Windows or Linux](https://harnessmd.com/download)**
+**[⬇ Download 0.5.6 for macOS, Windows or Linux](https://harnessmd.com/download)**
 
 <sub>macOS builds are signed and notarized. You do not need to build from source to use it.
-The open source build is on the <a href="https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.3">GitHub releases page</a>.</sub>
+The open source build is on the <a href="https://github.com/HarnessMD/munder-difflin/releases">GitHub releases page</a>.</sub>
 
-**Cancel your Granola and Wispr Flow subscriptions.** 0.5.3 dictates into any app and transcribes your
+**Cancel your Granola and Wispr Flow subscriptions.** It dictates into any app and transcribes your
 meetings, all running locally.
 
-<sub><b>Launch offer:</b> the Pro annual plan for $150 USD, adjusted for purchasing power in different
-countries and as low as $100 a year. <a href="https://app.harnessmd.com/console/license">Get Pro</a></sub>
+**New here?** Start with the [install guide](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/), then
+[your first hour](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/), and see [every agent on our own floor](https://munderdiffl.in/blog/ai-agent-use-cases-our-office/).
+
+<sub><b>Launch offer:</b> Pro is free for everyone until Saturday 24 October 2026: download the app and sign in.
+After that the Pro annual plan is $150 USD, adjusted for purchasing power in different countries and as low as $100 a
+year. <a href="https://app.harnessmd.com/console/license">Get Pro</a></sub>
 
 </div>
 
@@ -318,7 +322,42 @@ than sending you to a docs page.
 - **Prerequisites**: one Settings page showing which supporting tools (uv, git, Node, MemPalace, each agent CLI) you have, what each is for, and a button that asks Michael to install what is missing.
 
 > [!NOTE]
-> **Status: v0.5.3. Cancel your Granola and Wispr Flow subscriptions.**
+> **Status: v0.5.6. Capabilities, Integrations and Teams, and fewer tokens.**
+> **Pro is free for everyone until Saturday 24 October 2026**, as part of the launch: download the app and sign in.
+> These notes describe the 0.5.6 app on the [download page](https://harnessmd.com/download).
+> **Capabilities (Pro)**: a marketplace of 2,347 MCP servers, skills, plugins and tools from the public list
+> [HarnessMD/awesome-agent-capabilities](https://github.com/HarnessMD/awesome-agent-capabilities). We reviewed 622 of
+> them; the rest read "Listed, not reviewed by us" and have no Install button. A merged change reaches the app with no
+> new release, and the app uses the list only when it carries our signature.
+> **Integrations**: one place for Slack, webhooks, the apps your agents use and your keys, each with a plain status and
+> the last 50 things that happened. Nothing saves until you press Save.
+> **Teams**: your office talks to your teammates' offices. One plain chat per teammate, you choose who answers each one,
+> and files and folders go as a link with a password, for one download.
+> **Fewer tokens by default**: Compact when context fills and Clear on a switch of work are on for every new install.
+> The clear runs when an agent's work switches after a session of 60 minutes, and a `handoff.md` in the agent's folder
+> carries the thread across. A new install has no hourly standup. In a replay of one office of 13 Claude agents over a
+> week, with those two changes, token use fell about 37%. That is a replay, not a live measurement.
+> **Agent files (Pro)**: export an agent as a file and choose what goes in; a key, a token or a secret's value never
+> does. 36 templates replace role bundles.
+> **Temps**: any lasting agent can start a temp, a short lived agent for one job, not only the orchestrator. Wherever you
+> pick who answers (Slack, a teammate, a webhook, a schedule's Sends to, the Stapler's Send captures to), you can pick
+> **A temp** or **A temp, clone of** one of your agents. **Temps per agent** (0 to 4) and **Max temps at once** sit on
+> the orchestrator's **Budget & breaker** tab.
+> **Slack**: one bot answers in **All channels** it is in by default, or only the channels you tick, and in direct
+> messages; replies stay in the thread. Set the Slack app up from the manifest: press **Copy manifest** under
+> **How to get these**. Slack comes back by itself after a failed start.
+> **Token limits per period**: Every 5 hours, Daily, Weekly or Monthly, for the office and for each agent. They replace
+> the old token caps.
+> **Sign in and accounts in the app**: press **Open browser to sign in** and sign in there; the screen moves on by itself,
+> or you paste the code into **Code from the browser**. **Sign out** and **Switch to Teams** sit in the profile menu.
+> **Circuit breaker**: an agent that stopped as told is no longer constrained again, and the same warning is not sent twice
+> inside ten minutes.
+> **Fixes**: the window no longer hangs after hours, hooks work in Claude Code's auto mode, sign in works on a network with
+> its own certificate, a message to Codex no longer waits for Enter, the Windows folder name field shows the name and not
+> the whole path, the Dock click works the first time with the Stapler on, and Haiku 5.5 is in the model list.
+> New to it? The [install guide](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/) and [your first hour](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/) cover every step.
+>
+> **v0.5.3: Cancel your Granola and Wispr Flow subscriptions.**
 > The Stapler does both, all running locally, and every agent gets easier to start, restart and steer.
 > **Dictate into any app**: hold Option on the Mac (Microphone and Accessibility permissions), or
 > Control+Alt+Space on Windows and Linux X11, talk, and let go. Wayland says why it cannot.
@@ -352,8 +391,6 @@ than sending you to a docs page.
 > renders one sidebar row with the task ledger read once.
 > Not in this release: the Kimi scroll and queue bug, which we could not reproduce, and it is first
 > on the 0.5.4 list.
-> **Launch offer**: the Pro annual plan for $150 USD, adjusted for purchasing power in different
-> countries and as low as $100 a year. [Get Pro](https://app.harnessmd.com/console/license)
 > Before that, v0.4.6 brought a Simplified Chinese and Arabic interface with right to left support
 > and self hosted fonts, the update badge that runs the real download and restart, and the security
 > work on CLI name validation and analytics.
@@ -361,7 +398,7 @@ than sending you to a docs page.
 > and it has been removed entirely.
 > macOS (signed & notarized), Windows, and Linux builds are on the
 > [download page](https://harnessmd.com/download). The open source build is on the
-> [releases page](https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.3).
+> [releases page](https://github.com/HarnessMD/munder-difflin/releases).
 
 <div align="right">(<a href="#munder-difflin">↑ back to top</a>)</div>
 
@@ -370,17 +407,19 @@ than sending you to a docs page.
 ### Download the app
 
 **Most people want this one.** Munder Difflin is free and open source. Signed and notarized macOS
-builds of 0.5.3, plus Windows and Linux, are on the [download page](https://harnessmd.com/download).
-The open source build is on the [latest GitHub release](https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.3). Install it,
-open it, and the wizard takes you the rest of the way. You do not need Node, a toolchain, or this
+builds of 0.5.6, plus Windows and Linux, are on the [download page](https://harnessmd.com/download).
+The open source build is on the [GitHub releases page](https://github.com/HarnessMD/munder-difflin/releases). Install it,
+open it, and the wizard takes you the rest of the way. The [install guide](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/) walks through
+every step and every fix. You do not need Node, a toolchain, or this
 repository.
 
 You do still need at least one agent CLI on your machine. From 0.5.3 a missing CLI shows as a card
 in the agent's terminal: Install runs the command, you sign in inside the app, and the agent starts.
 **Settings → Prerequisites** lists the rest.
 
-**Pro** adds Stapler and the new sidebar. Launch offer: the annual plan
-for $150 USD, adjusted for purchasing power, as low as $100 a year.
+**Pro** adds Capabilities, agent files, Stapler and the new sidebar. As part of the launch it is free for everyone
+until Saturday 24 October 2026. After that the annual plan is $150 USD, adjusted for purchasing power, as low as
+$100 a year.
 [Get Pro](https://app.harnessmd.com/console/license)
 
 ### Build from source
@@ -443,7 +482,10 @@ visual system.
 
 ## Roadmap
 
-Shipped through **v0.5.3**: local dictation into any app and meetings with both sides of the call,
+Shipped through **v0.5.6**: Capabilities, Integrations and Teams, agent files with 36 templates, token limits per
+period, fewer tokens by default with a handoff file across a cleared session, temps that any
+agent can start and that can answer inbound messages, one Slack bot for every channel it is in, sign in and accounts
+inside the app, a quieter circuit breaker, local dictation into any app and meetings with both sides of the call,
 with the model in the installer, the new agent cards in the free build and a new Pro sidebar, a
 missing CLI you install and sign in to from inside the app, Ask me on every Inbox, more than one
 floor on one machine, ticket keys and a Tasks tab on every agent, redesigned Settings with inbound webhooks and custom secrets, Opus 5.5 as the default Claude

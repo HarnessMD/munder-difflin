@@ -1,6 +1,6 @@
 ---
-title: "What Is OpenCode? Install, Pricing and How It Compares"
-description: "OpenCode is Anomaly's MIT licensed coding agent for the terminal. What it is, how to install it, what it costs, and how it compares with Claude Code and Codex."
+title: "What Is OpenCode? Free, MIT Licensed, and What You Pay For"
+description: "OpenCode is a free, MIT licensed coding agent from Anomaly. The tool costs nothing; you pay for the model you connect, unless it is local or free."
 date: 2026-09-29
 category: concepts
 categoryLabel: Concepts

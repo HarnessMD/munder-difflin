@@ -1,289 +1,174 @@
 ---
-title: "Your First Hour With Munder Difflin: Onboarding to a Pro Office"
-description: "Munder Difflin 0.5.2 from download to a working Pro office: install Claude Code, Codex or OpenCode, sign in, go Pro, then automate reviews, Slack and email."
+title: "Your First Hour With Munder Difflin 0.5.6: Onboarding From First Sign In to a Working Office"
+seoTitle: "Munder Difflin Onboarding: Your First Hour With 0.5.6"
+description: "Your first hour with Munder Difflin 0.5.6: sign in, brief your orchestrator, hire a team, schedule work, connect Slack, start temps, then tour the Pro screens."
 date: 2026-07-03
-updated: 2026-09-14
+updated: 2026-10-14
 category: guides
 categoryLabel: Guides
 type: Non-technical
 pinned: true
 pinOrder: 2
 primaryKeyword: "munder difflin onboarding"
-secondaryKeywords: ["getting started with munder difflin", "munder difflin tutorial", "munder difflin pro", "munder difflin setup", "scheduled agent automations", "munder difflin stapler"]
-tags: ["Guides", "Onboarding", "Getting Started", "Multi-Agent", "Local-First"]
+secondaryKeywords: ["getting started with munder difflin", "munder difflin tutorial", "munder difflin pro", "munder difflin temps", "munder difflin automations", "munder difflin stapler", "munder difflin first hour"]
+tags: ["Guides", "Onboarding", "Getting Started", "Multi-Agent"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
   - q: "How long does it take to get Munder Difflin running?"
-    a: "About ten minutes if Claude Code, Codex or OpenCode is already installed and signed in: download, sign in, answer four setup steps. Allow the rest of the hour to hire a small team and set up your first automations."
-  - q: "Do I need an account to use Munder Difflin?"
-    a: "Yes, in 0.5.2. The first launch asks you to sign in with an email address in your browser, on the free plan as well. Pro then needs a licence key on top of that account."
-  - q: "What does Pro add over the free version?"
-    a: "The free version is the classic office. Pro adds a single window workspace with screens for the orchestrator, agents, agent rooms, tasks, inbox, automations, memory, capabilities and temps, plus the Stapler. It runs on one machine at a time; the pricing page has the rest."
-  - q: "Can one Pro office mix Claude Code, Codex and OpenCode agents?"
-    a: "Yes. Each agent picks its own provider and model when you add it, and can have its own token cap. Claude Code and Codex use their own logins; OpenCode can use a provider key you save under Settings."
+    a: "Setup is four short steps when an AI engine is already installed and signed in: download, sign in, name your workspace and your orchestrator. The rest of the hour goes on a first job, a small team and the first work that starts without you."
+  - q: "Do I need Pro for this first hour?"
+    a: "No. Agents, schedules, the context rules, webhooks, Slack and temps are in both views. The Pro view adds one window with screens for Tasks, Inbox, Automations, Memory and Capabilities, plus the Stapler, a small window above every app. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch."
+  - q: "What is a temp?"
+    a: "A temp is a short lived agent started for one job. The orchestrator or any lasting agent can start one, and the app can start one to answer an inbound message. It does the job, reports done and leaves."
+  - q: "Can one office mix Claude Code, Codex and other engines?"
+    a: "Yes. Each agent picks its own engine and model when you add it, and can have its own token limit per period. Claude Code and Codex use their own sign in; OpenCode, Crush, Pi and Qwen take a key."
   - q: "Does the office keep working when I close my laptop?"
-    a: "No. Agents, automations, Slack and webhooks all run on your machine, so they stop when the app closes or the laptop sleeps. A schedule missed while the laptop slept runs once when the app wakes; a weekly one only if that is within six hours of its slot."
-  - q: "Is the Stapler free?"
-    a: "No. The Stapler is Pro only, and it is off until you turn on **Show the stapler** on the Stapler screen."
+    a: "No. Agents, schedules, Slack and webhooks all run on your own computer, so they stop when the app closes or the laptop sleeps."
+  - q: "Why did my agent's session clear itself?"
+    a: "That is a default in 0.5.6 that saves tokens. When an agent's work switches and its session has run for 60 minutes, the app clears the session, and a handoff file in the agent's folder carries the thread across."
 startHere: true
 startOrder: 2
 ---
 
-Your first hour with [Munder Difflin](https://harnessmd.com/download) 0.5.2 goes like this. Download the app, install one coding CLI, sign in and name your orchestrator. Then activate Pro and set the office up to work without you: a mixed team of agents, a pull request reviewer, a Slack responder, a morning email brief and a content agent on a schedule.
+Your first hour of Munder Difflin onboarding goes like this: sign in, give your orchestrator one real job, hire a small team, set up work that starts without you, then learn the Pro screens. This guide is written for version 0.5.6 and follows the clock.
 
-The app screenshots below are the real 0.5.2 Pro app, with personal details blurred. The order follows a new user from the download page to a working office.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Not installed yet? The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers the download, the engines and every fix. For ideas on what to hand your agents, [every agent on our own floor](/blog/ai-agent-use-cases-our-office/) shows what ours do.
 
-## Where do you download Munder Difflin?
+<figure class="mg" data-scene="hour"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/hour.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A bus route map on white: one road runs left to right, bends round a hairpin past a pond and comes back, with six stops on it. Each stop has a minute mark and a name: Minute 0, sign in; Minute 10, a first job; Minute 20, a small team; Minute 35, work that starts without you; Minute 45, temps and tokens; Minute 50, the Pro screens. A small yellow bus drives from stop to stop, the road turns blue behind it, and each stop lights up yellow as the bus arrives. The bus leans through the hairpin and leaves two skid marks."><figcaption>The first hour as a route: sign in, a first job, a small team, work that starts without you, temps and tokens, then the Pro screens. Tap a stop to send the bus there.</figcaption></figure>
 
-Download it from [harnessmd.com/download](https://harnessmd.com/download). You get there from **Download free** on [munderdiffl.in](https://munderdiffl.in/), or from **Download** in its top bar.
+## Minute 0: what do you need, and how do you sign in?
 
-{% img "a1-landing" %}
+You need the app, one AI engine and an email address. The app needs nothing else installed, and it can install a missing engine for you later.
 
-On 14 Sep 2026 the page listed version 0.5.2, published 9 Sep 2026, in three builds:
+The first launch asks **How are you using Munder Difflin?** Pick **On my own**, then:
 
-* **macOS:** one build for Apple silicon and Intel, 246 MB.
-* **Windows:** x64 installer, 132 MB.
-* **Linux:** x86_64 AppImage, 175 MB.
+1. Press **Open browser to sign in**. The browser does not open by itself.
+2. Sign in in the browser. The screen moves on by itself; if it does not, paste the code into **Code from the browser** and press **Use this code**.
+3. **Name your workspace**, **Meet your orchestrator**, then **Open the workspace**.
 
-{% img "a3-download" %}
+Next comes the Pro sales screen, **Run your agents like a company**. Until Saturday 24 October 2026, Pro is free for everyone as part of the launch: once you sign in, the app opens the Pro view with no licence and skips this screen. From Sunday 25 October, press **Continue with the free version** to reach the Classic view, or **I have a licence key** to turn on Pro. The steps through minute 45 work in both views; a few labels below are the Pro view's.
 
-Open the file the usual way for your system: drag the app to Applications on a Mac, run the installer on Windows, or make the AppImage executable on Linux. [What changed in this version](https://harnessmd.com/download#whats-new) is written out on the download page.
+## Minute 10: how do you give your orchestrator a first job?
 
-## What do you need installed before the first launch?
+Brief him like a capable new hire: the outcome, the folder, and what done looks like. Your orchestrator is the one agent you talk to. He is called Michael until you rename him.
 
-You need at least one coding CLI on your path, signed in with your own subscription or key. Munder Difflin supports twelve; this guide uses Claude Code, Codex and OpenCode. The commands below come from each vendor's install docs, checked on 14 Sep 2026.
+A vague brief gets a vague job. Compare:
 
-### Claude Code
+* Weak: *"clean up my project"*
+* Better: *"In the folder notes-app, find every function with no test. Write the tests, run them, and give me a list of what failed and why. Do not change any function."*
 
-```bash
-# macOS, Linux, WSL
-curl -fsSL https://claude.ai/install.sh | bash
-```
+Your orchestrator turns the brief into tasks and works them, hands them to an agent you added, or starts a temp. Once there is one, click any agent to watch its terminal. To read what it wrote, press **IDE**: an editor opens on the agent's folder, with **Changes** to show what was edited and a Markdown **preview** for reports.
 
-```powershell
-# Windows PowerShell
-irm https://claude.ai/install.ps1 | iex
-```
+<figure class="mg" data-scene="brief"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/brief.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Two notepads on white above a long toaster marked your orchestrator. The pad tagged Weak reads clean up my project; the pad tagged Better reads the outcome, the folder, what done looks like. A slip drops from the weak pad into the first slot, the toaster works, and one grey card with a question mark pops up, wobbles and keeps smoking a little. A slip drops from the better pad into the second slot, and three task cards pop up, hop apart and each one gets a tick in its box."><figcaption>A brief with the outcome, the folder and what done looks like turns into clear tasks. A vague one turns into a question. Tap a note to drop it again.</figcaption></figure>
 
-Homebrew (`brew install --cask claude-code`) and WinGet (`winget install Anthropic.ClaudeCode`) work too. Run `claude` once in any folder and sign in with your Claude account.
+## Minute 20: how do you hire a small team?
 
-### Codex
+Press **Add an agent**. Pick a face, an engine, a model and the folder it works in. Each agent can run on a different engine, and that is the point: put your best model on the hard work and a cheaper one on the chores.
 
-```bash
-# macOS, Linux
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
-# or, with Node installed
-npm install -g @openai/codex
-```
+One split to try on day one:
 
-Run `codex` and sign in with ChatGPT or an API key. Watch out for `npm install -g codex` without the `@openai/` scope: that is an unrelated package. [How to install Codex CLI](/blog/how-to-install-codex-cli/) covers Windows and updates, and the [Munder Difflin install guide](/blog/how-to-install-and-use-munder-difflin/) has the commands for all twelve CLIs.
+* a builder on **Claude Code**, writing the feature
+* a reviewer on **Codex**, reading every change the builder makes
+* a helper on a free engine such as Antigravity, for docs and tidying
 
-### OpenCode
+Each agent can also have its own **token limit per period**: **Every 5 hours**, **Daily**, **Weekly** or **Monthly**, with a cap, in the agent's side panel under **Budget**. Leave it empty unless one agent needs its own. Sign every engine in before you hire on it, or the new agent cannot start; a Claude Code, Codex or Cursor agent stops at **Sign in needed**.
 
-```bash
-# macOS, Linux
-curl -fsSL https://opencode.ai/install | bash
-# or
-npm install -g opencode-ai
-```
+Our own floor has eleven kinds of seat: an orchestrator, mission control, a community lead, growth, motion graphics, research, a founder's office, a scrum master, an engineering lead, builders, and a designer. You do not need eleven. You need a reviewer.
 
-On Windows, OpenCode's docs list `choco install opencode` and `scoop install opencode`. Start `opencode` and run `/connect` to choose a model provider.
+<figure class="mg" data-scene="team"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/team.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three dotted outlines of office chairs stand in a row on white under a yellow button reading Add an agent, with the roles builder, reviewer and helper below them. A pointer presses the button three times; each press rolls in a chair, and an engine tag appears under it: on Claude Code, on Codex, on a free engine. The third chair arrives still spinning. A sheet of paper leaves the builder's chair, crosses to the reviewer's chair, is read line by line, gets a tick and comes back. Then the helper's heap of papers squares itself into a neat stack."><figcaption>A first team of three: a builder on Claude Code, a reviewer on Codex that reads every change, and a helper on a free engine for docs and tidying. Tap the builder to send another change for review.</figcaption></figure>
 
-With Node installed, npm can put all three on your machine in one command. For the screenshot we installed them into a throwaway folder, then checked each with `--version`:
+## Minute 35: how do you set up work that starts without you?
 
-{% img "b1-terminal" %}
+With an automation. In the Pro view open **Automations** and press **New automation**; in the Classic view the same things live under Triggers. Two kinds start there, a schedule and a webhook, and Slack is a third way in.
 
-If you skip this step, the app has a fallback. When you start an agent whose CLI is missing, 0.5.2 installs it in that agent's own terminal, installing Node first if it has to, then relaunches the agent. You finish the CLI's sign in right there. **Settings, Prerequisites** shows the status of each tool, with a **Check now** button. For memory search you also want `uv` and MemPalace, covered under memory below.
+**A schedule** sends a message to an agent on a clock. Choose **Schedule**, then fill in four things: a **Label**, **When** (an **Interval** or **Weekly**), **Sends to**, and the **Message**, then press **Save**. The message is what the agent should do when it fires. A good first one: every weekday morning, ask an agent to check something and write you three lines.
 
-{% img "b2-prerequisites" %}
+<figure class="mg" data-scene="schedule"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/schedule.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A card on white titled Automations with a yellow New automation button; on the right, a horizon with an empty sky and an office chair. A pointer presses New automation, picks Schedule over Webhook endpoint, and four fields fill in: Label, morning check; When, Weekly rather than Interval; Sends to, an agent; Message, check something and write you three lines. The pointer leaves. A sun climbs over the horizon, the card fires by itself, and a paper slip flies to the chair and gets a tick. The pointer peeks back in to check, then leaves again."><figcaption>A schedule has four parts: a Label, When (an Interval or Weekly), Sends to, and the Message the agent gets every time it fires. Tap the card to fire it again.</figcaption></figure>
 
-## How do you sign in on the first launch?
+**A webhook** lets any tool that can send a web request start work. Choose **Webhook endpoint**. A new endpoint starts switched off: choose how much you trust the caller, copy its address and its secret into the tool that will send, then turn it on and press **Save**. The sender must hold the secret.
 
-You sign in through your browser with an email address; 0.5.2 asks for an account even on the free plan. The first screen asks **How are you using Munder Difflin?** Pick **On my own**, or **With my team** if an admin sent you an invite code.
+**Slack** lets people send work from a channel or a direct message and read the answer in the same thread. In the Pro view it is under **Integrations**; in Classic, under **Settings**, then **Connections**. Create the Slack app from a manifest: press **Copy manifest** under **How to get these**, then in Slack choose **Create New App**, **From a manifest**. The channel list opens on **All channels**, every channel the bot is in, and direct messages to the bot are answered too. Tick channels only to narrow it. You choose the agent under **Who answers inbound messages**. If Slack fails to start, it now comes back by itself. The [Slack guide](/blog/connect-slack-to-munder-difflin/) has the full setup.
 
-{% img "c1-entry" %}
+<figure class="mg" data-scene="slack"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/slack.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a Connections card under Settings with a Slack switch and a box for Every channel the bot is in; below it, three chat cards labelled a channel, another channel and a direct message. A pointer switches Slack on and ticks the box, and an office chair rolls into the empty seat under Who answers inbound messages. A string runs from each card to the chair. Each card posts a message, a note travels down its string to the chair, and a reply comes back and lands under that message as a thread. Then Slack switches itself off, the strings go slack, and it switches itself back on."><figcaption>In 0.5.6 one bot can hear every channel it is in, a direct message is always answered, and the reply comes back in the same thread. Tap a card to send a message.</figcaption></figure>
 
-**On my own** leads to **Sign in to continue**, which opens your browser. If your browser does not come back to the app on its own, the screen lets you paste a code instead. New to Munder Difflin? The same sign in page on [harnessmd.com](https://harnessmd.com/signup) creates the account.
+## Minute 45: what are temps, and how do you keep token use down?
 
-{% img "c2-signin" %}
+A temp is an agent for one job. It gets an objective, does the work, reports done and leaves. There is no button for one. You ask: *"Michael, start a temp to rename every file in this folder to lower case."*
 
-## How do you set up your workspace and orchestrator?
+Three things changed in 0.5.6:
 
-Three short steps follow the sign in, and the header counts all four for you.
+* **Any lasting agent can start a temp**, not only the orchestrator. A temp cannot start a temp.
+* **A temp can answer inbound messages.** Wherever you pick who answers (Slack, a teammate, a webhook, a schedule's **Sends to**, the Stapler's **Send captures to**), the list now offers **A temp** and **A temp, clone of** one of your agents.
+* **You set the limits.** In the Pro view, on the orchestrator's **Budget & breaker** tab, **Temps per agent** runs from 0 to 4 and **Max temps at once** caps how many temps run in the whole office at the same time. At 0, agents cannot start temps.
 
-1. **Name your workspace.** A workspace name (HarnessAgents by default), a folder for the app's own files, and whether you are technical or non technical. That last answer only changes how much jargon the app shows.
-2. **Meet your orchestrator.** Name the one agent that runs the others, then pick its engine and model. Each engine shows **Installed**, **Installs on first start** or **Not installed**. On Claude Code the default model is Opus 4.8 with a 1M context window, which suits the job: the orchestrator does the planning and delegating.
-3. **Open the workspace.** A last card shows the orchestrator and your first agent, with **Open the workspace** at the bottom.
+<figure class="mg" data-scene="temp"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/temp.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three office chairs stand on white over the words your lasting agents, beside the dotted outline of a folding chair. A message card reading one job waits at the top left, then flies across while a yellow folding chair slides in folded, half opens, snaps shut, then opens properly and gets a tag reading A temp. The message lands on its seat, a done card pops up and flies to the first office chair, and the folding chair folds flat and slides away. The three office chairs never move."><figcaption>A temp answers one message or does one job, reports done and leaves; your lasting agents keep their seats. Tap the message to send another.</figcaption></figure>
 
-We call the orchestrator Michael in this guide. Call yours whatever you like.
+Tokens are the other limit. Long sessions fill an agent's context, and a full context is slow and uses up your plan's limits faster. 0.5.6 ships with defaults that deal with it:
 
-{% img "c4-orchestrator" %}
+* **Compact when context fills** summarises a long session and carries the summary forward.
+* **Clear on a switch of work** clears the session when an agent moves to different work and the session has run for 60 minutes. A file called `handoff.md` in the agent's folder carries the thread across, so the next session knows where the last one stopped.
+* **No hourly standup.** A new install no longer pings the orchestrator every hour.
 
-{% img "c5-engines" %}
+The first two are rules in **Automations** under **Context** (in the Classic view, the Triggers tab). Leave them on.
 
-## How do you get Pro?
+<figure class="mg" data-scene="tokens"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/tokens.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a tall glass on a coaster stands beside a card titled Context under Automations, with two rules switched on: Compact when context fills, and Clear on a switch of work. A pill below the card reads Leave them on. Paper slips drop into the glass until the pile nears a dashed line. The first rule lights up, a press with a yellow knob swings over and pushes down, and the slips squash into one slip labelled summary. A few more slips land on top. Then the second rule lights up: the glass turns upside down and is shaken, the slips fall out, the summary clings on until a second shake, and the glass turns back. A yellow note labelled with the handoff file's name drops into the empty glass and stays."><figcaption>Two defaults in 0.5.6 keep sessions small: Compact when context fills summarises a long session, and Clear on a switch of work clears it and leaves a handoff file to carry the thread. Tap the glass to fill it again.</figcaption></figure>
 
-When you open the workspace without a licence, the app shows **Go PRO on this machine**. You have three choices:
+## Minute 50: what does the Pro view add?
 
-* **Continue with the free version** takes you to the classic office, free, with everything local.
-* **Get PRO** opens checkout in your browser. Pro runs on one machine at a time. Plans and prices are on the [pricing page](https://munderdiffl.in/#pricing).
-* **I have a licence key** opens **Enter your license key**. Paste the key from your console at app.harnessmd.com, press **Activate**, and it is bound to this machine.
+One window with a sidebar, and a screen for each part of the office. The switch in the title bar moves between **Classic** and **PRO**; without a licence it reads **TRY PRO**.
 
-{% img "c7-paywall" %}
+<figure class="mg" data-scene="sidebar"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/sidebar.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An app window on white with a switch in the title bar reading Classic and PRO, with PRO selected, and a sidebar of six rows: Tasks, Inbox, Automations, Memory, Capabilities, Stapler. A yellow highlight walks down the rows, and as each one lights, its one line note writes itself into the pane beside it: every card in the office; one conversation per agent; Scheduled, Context and Webhooks; Search every agent's memory; what each agent can reach; a small window that floats above every app. When the highlight reaches Stapler, that row lifts off the sidebar and floats above it with a small shadow under it."><figcaption>The Pro view is one window with a sidebar row for Tasks, Inbox, Automations, Memory, Capabilities and the Stapler. Tap a row to see what it is for.</figcaption></figure>
 
-A key that is already active on another machine is refused: release it in your console, then activate it again. After that the app rechecks the licence in the background, and you do nothing.
+{% img "pro-sidebar-056", "The real Pro sidebar: Tasks, Inbox, Automations, Memory, Capabilities and Stapler. From a preview build of 0.5.6 with sample data." %}
 
-{% img "c8-license" %}
+**Tasks** is every card in the office, as a **Board**, a **List** or **Cards**. The habit that pays: start the day on the **Asks me** filter, which shows only the cards waiting on you. (It is a filter in Tasks; **Ask me** in the Inbox, below, is where you answer.) You can drag cards between columns. Nothing changes for your team until you send your edits, and then your orchestrator makes the change.
 
-## What does a set up Pro office look like?
+**Inbox** holds one conversation per agent, plus **Ask me**, **Slack** and **Webhooks**. **Ask me** is the list of questions waiting on a person. Answer in one line; answering unblocks the task. This is the screen that keeps an office moving while you do something else.
 
-A Pro office is one window. The sidebar lists the orchestrator and your agents, and has a screen each for **Agents**, **Tasks**, **Inbox**, **Automations**, **Memory**, **Capabilities**, **Stapler** and **Temps** (short lived agents the orchestrator starts for one job).
+{% img "ask-me-056", "Ask me in an agent's Inbox: each question waits with an Answer button. From a preview build of 0.5.6 with sample data." %}
 
-The **Agents** screen puts the orchestrator on top, with today's spend, the circuit breaker, open tasks and questions waiting on you. Below him, each agent has a card with its engine, model, current ticket and a live terminal preview.
+<figure class="mg" data-scene="askme"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/askme.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a large card with an Ask me chip and the word Inbox shows a question as grey lines with a lilac question mark, an answer field reading Answer in one line, a blue send button and a chip reading waiting on you. Beside it, three smaller question cards wait in a column under the words waiting on a person. A short answer types itself in as one line and is sent; the question mark turns into a mint tick and the chip becomes unblocks the task. The card slides away, the next question card grows into its place, and the queue shuffles up; the last card arrives a little too fast and bumps the one ahead. The new question gets its one line answer and its tick too."><figcaption>Ask me collects the questions waiting on a person. A short answer unblocks the task, and the card moves on. Tap the card to ask again.</figcaption></figure>
 
-You give work to the orchestrator in his terminal, the way you would brief a capable new hire: the outcome, the folder, and what done looks like. He turns it into tasks, hands them to agents and brings you only what needs your decision. How he decides is in [how the orchestrator routes work](/blog/how-the-god-orchestrator-works/).
+**Automations** is the list you met at minute 35, with filters for **Scheduled**, **Context** and **Webhooks**, Each schedule shows when it **Last fired**, each webhook lists its **Recent** arrivals, and **History** opens the Inbox, where webhook messages are answered.
 
-{% img "d2-agents" %}
+**Memory** lets you **Search every agent's memory** at once and see the result as a **Graph** or a **List**. Use it before you brief: if an agent already solved this last week, the note is here. Narrow a search with **Whose memory** and **Kind**.
 
-## What can your office do in its first hour?
+**Capabilities** is a marketplace of 2,347 MCP servers, skills, plugins and tools from the public list [HarnessMD/awesome-agent-capabilities](https://github.com/HarnessMD/awesome-agent-capabilities). We reviewed 622 of them; the rest read **Listed, not reviewed by us** and have no **Install** button. A merged change to the list reaches the app with no new release.
 
-Each of these six use cases takes a few minutes to set up.
+**The Stapler** is a small window that floats above every app. On the **Stapler** screen, turn on **Show the stapler**, then click it for its ring:
 
-### Use case: a mixed team of agents
+* **Screenshot** captures a region of the screen and sends it, with a note, to the agent you pick under **Send captures to**.
+* **Record message** takes a spoken message and shows you the transcript before it goes.
+* **Record meeting** records the microphone into a folder of transcripts, one folder per meeting.
+* **Make invisible** hides the Stapler from screen sharing and recordings.
 
-Different models are good at different work, so give each agent the engine that fits its job. In **Agents**, press **Add an agent**. Under **Providers**, pick the provider (Claude Code, Codex, OpenCode or any of the others) and the model. **Command** then shows the exact command that starts the agent. Last comes the **Token cap**, the session budget before a restart: **Workspace budget**, **200k**, **800k**, **2M** or **Other**. When an agent passes its cap, the circuit breaker steers it, then constrains it, and stops it only if Hard stop is on.
+A fifth button, **Computer use**, reads **Coming soon** and cannot be turned on yet.
 
-One split to try: a Claude Code agent writing features, a Codex agent reviewing every diff, and an OpenCode agent on a cheaper model for docs and chores. OpenCode, Crush, Pi and Qwen read provider keys you save under **Settings, Agents & Models**; Claude Code and Codex use their own logins.
+The habit: when you see a bug in any app, do not describe it. Staple it.
 
-{% img "d3-add-agent" %}
+<figure class="mg" data-scene="stapler"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/stapler.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a plain app window made of grey bars, with a setting above it reading Show the stapler and a chip reading an agent. The setting switches on and a round stapler button pops up and floats over the corner of the app window. A pointer clicks it and a ring of four actions opens around it: Screenshot, Record message, Record meeting, Make invisible. Screenshot is picked, a crosshair drags a dashed box over part of the app, and the region lifts out as a capture. A note field reading your note slides in under it and a short line types itself in. The stapler's arm comes down and a staple joins the note to the capture, then the pair flies to the agent chip, which gets a tick. The ring opens again and stays."><figcaption>The Stapler floats above every app. Its ring offers Screenshot, Record message, Record meeting and Make invisible, plus Computer use, coming soon, and a capture goes to an agent with your note. Tap the stapler to open the ring.</figcaption></figure>
 
-Sign each CLI in before you hire it. In the office we set up for these screenshots, the Codex account had no credits and the OpenCode key was invalid, so Angela and Oscar sat idle and Michael moved their tasks to Dwight, a Claude Code agent.
+## Minute 58: what about accounts and teams?
 
-Every agent also gets its own room: the live terminal on one side, and its goal, engine, capabilities and token cap on the other.
+Your account sits in the profile menu. **Sign out** asks you to press again, so you cannot do it by accident. **Switch to Teams** opens one sheet for joining a team with an invite code or generating one. In 0.5.6 your office talks to your teammates' offices: one plain chat per teammate, you choose who answers each one, and files and folders go as a link with a password, for one download.
 
-{% img "d4-agent" %}
+## What trips people up in the first hour?
 
-### Use case: an agent that reviews new pull requests
+Eight things, all normal.
 
-0.5.2 has no built in GitHub trigger, so use a schedule. In **Automations**, press **New automation**, then **Schedule**. Set the interval (15 minutes up to 24 hours), send it to your reviewer agent, and write the message: run `gh pr list` for the repo, review any pull request opened since the last sweep, and post the review as a comment. The agent needs the GitHub CLI signed in on your machine.
+1. **The paywall comes first.** Press **Continue with the free version** to reach the app.
+2. **The sign in browser does not open by itself.** Press the button and sign in there. If the screen does not move on by itself, paste the code.
+3. **"Installs on first start" still needs you.** The engine installs when you press **Install**.
+4. **An agent reads "looping".** The circuit breaker warns an agent that repeats itself or spends fast. That is the app working, not a crash.
+5. **A session cleared itself.** See the token rules above. `handoff.md` has the thread.
+6. **Auto mode decides how much agents ask.** On, agents act on their own and ask only when blocked. Off, they ask before each tool call. In the Pro view it is on the orchestrator's **Budget & breaker** tab; in the Classic view, **Settings**, then **Autonomy & Budgets**. It applies when an agent next starts.
+7. **Many agents on 8 GB of memory run slowly.** Run fewer at once.
+8. **On Linux with Wayland, dictation into other apps is refused.** It needs X11.
 
-Want reviews the moment a pull request opens? A GitHub Action can post to a Munder Difflin webhook instead; see the webhook use case below.
+## What should you do after the first hour?
 
-{% img "e1-pr-sweep" %}
+Add one seat at a time. A reviewer first, then one scheduled job, then a scout. [Every agent on our own floor](/blog/ai-agent-use-cases-our-office/) has starter messages for four seats. [How the orchestrator routes work](/blog/how-the-god-orchestrator-works/) explains what your orchestrator does with your briefs, and [build your personal AGI](/blog/build-your-personal-agi-on-your-computer/) turns the office into something that briefs you each morning.
 
-### Use case: an agent that answers Slack
-
-Your team mentions the bot in a Slack channel, and an agent does the work and replies in the thread. The basics:
-
-1. Create a Slack app at api.slack.com/apps with the bot scopes `channels:history`, `groups:history`, `chat:write` and `files:read`, plus `channels:read` and `groups:read` so the app can list your channels. Install it and invite the bot to your channel.
-2. In **Settings, Connections**, choose **Who answers inbound messages**. The orchestrator is the recommended default.
-3. In the **Slack** card, paste the bot token, press **Test connection**, pick the channel, then press **Turn on**. The card starts on **Check for messages**, the recommended way in, which you can change under **Advanced**.
-
-The full walkthrough, with all three connection modes and the common failures, is [How to Connect Slack to Munder Difflin 0.5.2](/blog/connect-slack-to-munder-difflin/).
-
-{% img "h3-slack" %}
-
-### Use case: a morning email and calendar brief
-
-Claude Code has Gmail and Google Calendar connectors. Add them once at [claude.ai/customize/connectors](https://claude.ai/customize/connectors), and every Claude Code session signed in with that claude.ai subscription can use them, which includes your Claude Code agents in Munder Difflin. [Claude Code's MCP docs](https://code.claude.com/docs/en/mcp) note that connectors do not load when an API key is the active login, and `/mcp` in the agent's terminal shows whether they are there.
-
-Then schedule the brief. **New automation, Schedule**, set **When** to **Weekly**, pick Monday to Friday at 08:30, send it to a Claude Code agent, and write: "Use the Gmail and Google Calendar connectors to summarise unread email and today's meetings. Write it to `brief.md`." Weekly times use your computer's local clock.
-
-{% img "e2-morning-brief" %}
-
-{% img "e7-connectors" %}
-
-### Use case: a content agent that publishes on a schedule
-
-This blog runs this way. An agent takes the next topic from a backlog every few hours, researches and writes a post, runs its checks, and opens a pull request that a person merges. For your own version, schedule a message to the orchestrator every 6 hours: "Write one blog post from the backlog, run the checks, open a pull request." Keep the human merge; it is where mistakes get caught.
-
-Every automation sits in one list, with filters for **Scheduled**, **Context** and **Webhooks**, and a **History** of what fired. The list starts with an **Hourly ops standup** that pings the orchestrator every hour (on by default, switched off in this screenshot), and context rules that compact or clear an agent's terminal when its context fills. Turn off the standup if you do not want those tokens spent.
-
-{% img "e4-automations" %}
-
-### Use case: run a smoke test when a deploy finishes (webhooks)
-
-Webhooks let any tool that can send an HTTP request start work. In **Automations**, choose **New automation, Webhook endpoint**. The endpoint gets a public address once the webhook server is running and the tunnel picks it up. Each endpoint also has:
-
-* **Secret:** senders send it in the `x-md-webhook-secret` header, and **Regenerate** revokes every sender at once.
-* **Gate:** the default, strict, asks you before anything reaches the workspace.
-* **Prompt sent with every request:** a standing instruction that rides ahead of the caller's own text. The screenshot shows a support desk example; for deploys, try "Run the smoke test and report what fails. Never deploy."
-* **A security warning switch:** it adds a short note that the message is data, not instructions.
-* **Payload schema:** a request whose body does not match is refused.
-
-The sender posts JSON with a `message` field and the secret in the `x-md-webhook-secret` header:
-
-```bash
-curl -X POST "$MD_WEBHOOK_URL" \
-  -H "x-md-webhook-secret: $MD_WEBHOOK_SECRET" \
-  -H "content-type: application/json" \
-  -d '{"message":"Deploy finished, run the smoke test","title":"deploy"}'
-```
-
-With the default strict gate, the request waits in **Inbox, Outside** until you approve it, and only then does the orchestrator get a task card. For an unattended smoke test, set the gate to **allow all**. Two limits to know: new endpoints start switched off, and the tunnel URL changes every time the app restarts, so update the sender after a restart.
-
-{% img "e5-webhook" %}
-
-## Which Pro features should you learn next?
-
-Learn the screens you will open every day: tasks, inbox, memory and capabilities. Then add the voice features and the Stapler.
-
-### Feature: Tasks board
-
-**Tasks** shows every card in the office as a board, a list or cards, with filters for **Asks me**, **Unassigned** and **Archived**, plus search. **New task** opens the orchestrator's dispatch box so work still goes through him. If you drag cards between columns, the moves wait as proposals until you press **Send to Michael**.
-
-{% img "f1-tasks" %}
-
-### Feature: Inbox
-
-**Inbox** puts every conversation in one place. **For you** holds the questions waiting on you and the orchestrator's messages. **Your team** has a row per agent, and **Everyone** shows all routed messages. **Outside** collects Slack threads and webhook requests, and held webhook requests are approved or rejected right there.
-
-{% img "f2-inbox" %}
-
-### Feature: Memory search
-
-**Memory** searches every agent's notes at once. Type a query, and results come back in three groups, **Tickets**, **Agents** and **Memories**, which you can narrow with **Whose memory** and **Kind**. Each ticket links to the agents and notes connected to it, and you can send selected results to an agent. Exact text search works out of the box. Search by meaning needs `uv` and MemPalace (`uv tool install mempalace`); **Search across memory** under **Settings, Memory & Knowledge** is on by default.
-
-{% img "f4-memory" %}
-
-### Feature: Capabilities, MCP servers and skills
-
-**Capabilities** is a marketplace we curate and check against each release: skills, MCP servers, plugins and engines. **Install** puts a skill in place for your Claude Code agents. Plugins install from inside a Claude Code session: press **Copy command** and paste it into the agent's terminal. An MCP server can be turned on for the whole workspace or limited with **Choose agents**. **Who has what** shows which agent holds which capability, and **Grant a role bundle** sets an agent up in one go, with eleven role bundles to choose from. MCP servers reach Claude Code agents only.
-
-{% img "f5-capabilities" %}
-
-### Feature: Talk and dictation
-
-**Talk** is a live voice conversation with the orchestrator on OpenAI's Realtime API. Save an OpenAI API key under **Settings, Voice**, then press **Talk** on the orchestrator's screen. OpenAI bills the voice usage to your key, and the session disconnects after 3 idle minutes by default.
-
-**Free Flow** is dictation on Groq's Whisper. It is on by default in the same Voice settings; save a Groq API key and pick a model, then click the mic above Send, or hold Option while you look at an agent's terminal.
-
-{% img "f8-voice" %}
-
-### Feature: Stapler
-
-The **Stapler** is a small floating window that stays above every app, full screen ones included, and sends things to the orchestrator from anywhere. Turn on **Show the stapler** in the Stapler screen, then click it:
-
-* **Screenshot:** drag a box, add a note ("What should Michael do with this?"), send. The first capture makes macOS ask for screen recording permission.
-* **Record message:** speak, read the transcript, send.
-* **Record meeting:** records your microphone and writes a transcript you can send from **Meeting transcripts**.
-* **Leave invisible:** hides the Stapler from screen sharing.
-
-Recording needs the Groq key: until one is saved, **Record message** and **Record meeting** stay greyed out on the ring. Under **Actions, Send captures to**, you can point captures at any agent instead of the orchestrator.
-
-{% img "g1-stapler" %}
-
-{% img "g3-ring" %}
-
-## What should you change on day one?
-
-Check four defaults before you leave the office alone. Setup turns them on or off for you:
-
-* **Auto mode is on.** Agents act without stopping to ask permission. That is what lets them work unattended, and it is also why they belong in folders you are happy for them to change. The switch is **Auto mode** in the orchestrator's **Budget & breaker** tab.
-* **The orchestrator cannot start agents on his own** until you turn on **Can start agents on its own** in his **Configuration** tab. Turn it on if you want temps.
-* **The Hourly ops standup is on.** Keep it if you like the check ins; otherwise switch it off in Automations.
-* **New Claude Code agents default to Fable 5.** The orchestrator starts on Opus 4.8. As of September 2026, [Fable runs on usage credits](https://support.claude.com/en/articles/15424964-claude-fable-models-on-your-plan) on Claude Pro; on Max it can use up to half of your weekly limit at no extra cost, then usage credits. Pick another default under **Settings, Agents & Models** if you run many agents.
-
-That is the hour: download, one CLI, sign in, Pro, a mixed team, and five jobs that keep running while you do something else. Once it runs, [build your personal AGI](/blog/build-your-personal-agi-on-your-computer/) turns that office into a team that briefs you, sweeps pull requests, remembers you and answers from Slack. [Download Munder Difflin](https://harnessmd.com/download), and if the hour earns it, [a GitHub star](https://github.com/chaitanyagiri/munder-difflin) helps other people find it.
+<link rel="stylesheet" href="/blog/assets/media/your-first-hour-with-munder-difflin/motion.css"><script defer src="/blog/assets/media/your-first-hour-with-munder-difflin/motion.js"></script>

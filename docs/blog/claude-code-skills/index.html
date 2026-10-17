@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude Code Skills: Write, Find and Share Skills (Oct 2026)</title>
+<meta name="description" content="Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them." />
+<link rel="canonical" href="https://munderdiffl.in/blog/claude-code-skills/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Claude Code Skills: Write, Find and Share Skills (Oct 2026)" />
+<meta property="og:description" content="Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them." />
+<meta property="og:url" content="https://munderdiffl.in/blog/claude-code-skills/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/claude-code-skills/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. Claude Code skills in large ink type, a kicker reading What they are, where they live, how to write one, a Checked 14 Oct 2026 pill and a yellow folder with a SKILL.md sheet sticking out." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-14T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="Skills" />
+<meta property="article:tag" content="Security" />
+<meta property="article:tag" content="Open Source" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Claude Code Skills: Write, Find and Share Skills (Oct 2026)" />
+<meta name="twitter:description" content="Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/claude-code-skills/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. Claude Code skills in large ink type, a kicker reading What they are, where they live, how to write one, a Checked 14 Oct 2026 pill and a yellow folder with a SKILL.md sheet sticking out." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude Code Skills: What They Are, Where They Live and How to Write One",
+  "description": "Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.",
+  "image": ["https://munderdiffl.in/blog/assets/media/claude-code-skills/hero.png"],
+  "datePublished": "2026-10-14T00:00:00.000Z",
+  "dateModified": "2026-10-14T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/claude-code-skills/" },
+  "keywords": "claude code skills, claude skills, how to create a claude code skill, SKILL.md, claude code skills directory, agent skills, skills hub",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/claude-code-skills/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Claude Code Skills: What They Are, Where They Live and How to Write One", "item": "https://munderdiffl.in/blog/claude-code-skills/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is the difference between a skill and CLAUDE.md?", "acceptedAnswer": { "@type": "Answer", "text": "Anthropic's skills docs say that, unlike `CLAUDE.md` content, a skill's body loads only when it is used, so long reference material costs almost nothing until you need it. The docs suggest a skill when a section of `CLAUDE.md` has grown into a procedure rather than a fact." } },
+    { "@type": "Question", "name": "Are custom slash commands the same as skills now?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Anthropic's skills docs say custom commands have been merged into skills: `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same way. Old command files keep working, but a skill folder can also hold supporting files." } },
+    { "@type": "Question", "name": "Why is my Claude Code skill not triggering?", "acceptedAnswer": { "@type": "Answer", "text": "Anthropic's troubleshooting list starts with the description: it should include keywords users would naturally say. Check that the skill appears when you ask Claude what skills are available, or invoke it with its slash name. If the frontmatter YAML is malformed, Claude can't match your description; on v2.1.233 or later, `claude plugin validate .claude/skills` finds the broken file." } },
+    { "@type": "Question", "name": "How do I stop Claude from running a skill by itself?", "acceptedAnswer": { "@type": "Answer", "text": "Add `disable-model-invocation: true` to the skill's frontmatter. Anthropic's skills docs say Claude then can't invoke it on its own, while you can still run it by typing its slash name. The docs suggest this for workflows with side effects, such as a deploy or a commit." } },
+    { "@type": "Question", "name": "Do Claude Code skills work in Codex or Cursor?", "acceptedAnswer": { "@type": "Answer", "text": "The format can travel. Claude Code skills follow the Agent Skills open standard, and on 14 Oct 2026 the Skills Hub README listed Codex, Cursor and OpenCode among 48 supported tools. Claude Code adds its own features on top of the standard, such as dynamic context injection, so we think shared skills should stick to the standard fields." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>Claude Code Skills: What They Are, Where They Live and How to Write One</h1>
+    <p class="dek">Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/claude-code-skills/hero.png" alt="Title card on white. Claude Code skills in large ink type, a kicker reading What they are, where they live, how to write one, a Checked 14 Oct 2026 pill and a yellow folder with a SKILL.md sheet sticking out." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>A Claude Code skill is a folder holding a <code>SKILL.md</code> file of instructions, which Claude loads when your request matches its description or when you type <code>/skill-name</code>. Anthropic’s <a href="https://code.claude.com/docs/en/skills">skills docs</a> put personal skills in <code>~/.claude/skills/</code> and project skills in <code>.claude/skills/</code>. Checked 14 Oct 2026.</p>
+<p>Everything below applies to a plain Claude Code session. If you run several agents side by side, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. More walkthroughs sit in our <a href="/blog/topics/guides/">Guides hub</a>.</p>
+<h2 id="what-is-a-claude-code-skill" tabindex="-1">What is a Claude Code skill? <a class="anchor" href="#what-is-a-claude-code-skill" aria-hidden="true">#</a></h2>
+<p>A skill is a set of instructions that Claude adds to its toolkit and uses when relevant. Anthropic’s skills docs suggest writing one “when you keep pasting the same instructions, checklist, or multi-step procedure into chat”. The difference from <code>CLAUDE.md</code> is cost: the docs say a skill’s body “loads only when it’s used, so long reference material costs almost nothing until you need it.”</p>
+<figure class="mg" data-scene="stamp"><img src="/blog/assets/media/claude-code-skills/stamp.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A rubber stamp lifts off an ink pad and presses the same short checklist onto three blank cards in a row, and every print comes out identical."><figcaption>Write the instructions once and reuse them. Anthropic's skills docs, read 14 Oct 2026.</figcaption></figure>
+<p>Custom commands now count as skills. Per the skills docs, <code>.claude/commands/deploy.md</code> and <code>.claude/skills/deploy/SKILL.md</code> both create <code>/deploy</code>, and old command files keep working. Skills follow the <a href="https://agentskills.io">Agent Skills</a> open standard, which the docs say “works across multiple AI tools”. Our guide to <a href="/blog/how-to-add-an-mcp-server-to-claude-code/">adding an MCP server</a> covers the other common way to extend Claude Code.</p>
+<h2 id="where-do-claude-code-skills-live" tabindex="-1">Where do Claude Code skills live? <a class="anchor" href="#where-do-claude-code-skills-live" aria-hidden="true">#</a></h2>
+<p>Where you save a skill decides which sessions load it. These rows are our selection from the table in Anthropic’s skills docs, read 14 Oct 2026:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Path</th>
+<th>Loads in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Personal</td>
+<td><code>~/.claude/skills/&lt;skill-name&gt;/SKILL.md</code></td>
+<td>All your projects on this machine, but not Cowork or cloud sessions</td>
+</tr>
+<tr>
+<td>Project</td>
+<td><code>.claude/skills/&lt;skill-name&gt;/SKILL.md</code></td>
+<td>Sessions in this repository; commit it so your team gets it</td>
+</tr>
+<tr>
+<td>Plugin</td>
+<td><code>&lt;plugin&gt;/skills/&lt;skill-name&gt;/SKILL.md</code></td>
+<td>Wherever the plugin is enabled, as <code>/plugin-name:skill-name</code></td>
+</tr>
+<tr>
+<td>Enterprise</td>
+<td><code>.claude/skills/&lt;skill-name&gt;/SKILL.md</code> in the managed settings directory</td>
+<td>All users on machines where your organization deploys it</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>When two skills share a name, the docs say enterprise wins over personal, and personal over project. If you sign in with a <a href="http://claude.ai">claude.ai</a> account in the terminal, Claude Code v2.1.273 or later syncs the skills enabled there into <code>~/.claude/skills/synced/</code>.</p>
+<figure class="mg" data-scene="drawers"><img src="/blog/assets/media/claude-code-skills/drawers.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A wooden card catalogue has four drawers labelled Personal, Project, Plugin and Enterprise. Each drawer slides open in turn and one index card rises out of it."><figcaption>Where a skill is saved decides which sessions load it. Anthropic's skills docs, 14 Oct 2026.</figcaption></figure>
+<h2 id="how-do-you-write-your-first-claude-code-skill" tabindex="-1">How do you write your first Claude Code skill? <a class="anchor" href="#how-do-you-write-your-first-claude-code-skill" aria-hidden="true">#</a></h2>
+<p>Make a folder, add a <code>SKILL.md</code> with a <code>description</code>, and write the steps under it. This is the example in Anthropic’s skills docs, a skill that summarizes your uncommitted changes:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token function">mkdir</span> <span class="token parameter variable">-p</span> ~/.claude/skills/summarize-changes</code></pre>
+<p>Save this as <code>~/.claude/skills/summarize-changes/SKILL.md</code>:</p>
+<pre class="language-yaml"><code class="language-yaml"><span class="token punctuation">---</span>
+<span class="token key atrule">description</span><span class="token punctuation">:</span> Summarizes uncommitted changes and flags anything risky. Use when the user asks what changed<span class="token punctuation">,</span> wants a commit message<span class="token punctuation">,</span> or asks to review their diff.
+<span class="token punctuation">---</span>
+
+<span class="token comment">## Current changes</span>
+
+<span class="token tag">!</span>`git diff HEAD`
+
+<span class="token comment">## Instructions</span>
+
+Summarize the changes above in two or three bullet points<span class="token punctuation">,</span> then list any risks you notice such as missing error handling<span class="token punctuation">,</span> hardcoded values<span class="token punctuation">,</span> or tests that need updating. If the diff is empty<span class="token punctuation">,</span> say there are no uncommitted changes.</code></pre>
+<p>The line that starts with <code>!</code> runs <code>git diff HEAD</code> first and swaps in its output, so Claude reads your real diff. Test it by asking “What did I change?” or by typing <code>/summarize-changes</code>. The folder name becomes the command unless you set <code>name</code>.</p>
+<p>The docs say every frontmatter field is optional and only <code>description</code> is recommended. Four you will meet early, our pick:</p>
+<ul>
+<li><code>disable-model-invocation: true</code> stops Claude loading the skill on its own.</li>
+<li><code>allowed-tools</code> lets Claude use the listed tools without asking, for that turn.</li>
+<li><code>paths</code> limits automatic loading to files that match its patterns.</li>
+<li><code>context: fork</code> runs the skill in a forked subagent.</li>
+</ul>
+<h2 id="how-does-claude-decide-to-use-a-skill" tabindex="-1">How does Claude decide to use a skill? <a class="anchor" href="#how-does-claude-decide-to-use-a-skill" aria-hidden="true">#</a></h2>
+<p>Claude reads each skill’s description and loads the full skill when a request matches it. Anthropic’s skills docs say descriptions sit in context during a regular session, but “full skill content only loads when invoked”. On 14 Oct 2026 the docs set two defaults, which settings can change: 1,536 characters for the description plus <code>when_to_use</code>, and 1% of the context window for the listing. With many skills, Claude Code drops some descriptions to fit, starting with the ones you invoke least.</p>
+<figure class="mg" data-scene="bookmark"><img src="/blog/assets/media/claude-code-skills/bookmark.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A closed book has a row of bookmark tabs along its top edge, each with a short label. A request card slides in, one tab lifts and the book falls open at that page."><figcaption>Claude sees each description first, and the full skill loads when invoked. Anthropic's skills docs, 14 Oct 2026.</figcaption></figure>
+<p>The docs’ first fix for a skill that never triggers is a description with the keywords users would naturally say. Typing <code>/deploy staging</code> at the start of a message runs the skill directly; the same name after plain text gives Claude permission but doesn’t run it. If Claude skips a rule that must hold every time, the docs say to move it into a hook, and our <a href="/blog/claude-code-hooks-explained/">hooks guide</a> shows how.</p>
+<h2 id="how-do-you-share-skills-across-tools" tabindex="-1">How do you share skills across tools? <a class="anchor" href="#how-do-you-share-skills-across-tools" aria-hidden="true">#</a></h2>
+<p>Commit them to the repo, ship them in a plugin, or sync one copy to several agents. Anthropic’s skills docs list three scopes: commit <code>.claude/skills/</code>, add a <code>skills/</code> directory to a plugin, or deploy through managed settings. The <a href="https://github.com/mvanhorn/last30days-skill">last30days skill</a>, a research skill, installs in Claude Code as a plugin, per its README on 14 Oct 2026: <code>/plugin marketplace add mvanhorn/last30days-skill</code>, then <code>/plugin install last30days</code>.</p>
+<p>For several tools at once, <a href="https://github.com/qufei1993/skills-hub">Skills Hub</a> is a desktop app for macOS, Windows and Linux that installs a skill once and syncs it to the tools you choose. Its README said on 14 Oct 2026 that it supports 48 AI coding tools, including Claude Code, Codex, Cursor and OpenCode. GitHub showed v1.0.0, released 11 Oct 2026, under the MIT licence, with more than 1,800 stars.</p>
+<figure class="mg" data-scene="rack"><img src="/blog/assets/media/claude-code-skills/rack.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. One labelled jar sits on a central spice rack. Copies of it slide onto four smaller racks marked Claude Code, Codex, Cursor and OpenCode, and every label matches."><figcaption>Skills Hub's README lists 48 supported tools, these four among them. Read 14 Oct 2026.</figcaption></figure>
+<p>Portability has a catch. Anthropic’s skills docs say that outside Claude Code, for <a href="http://claude.ai">claude.ai</a> uploads and the Skills API, you can use only the six fields in the Agent Skills spec: <code>name</code>, <code>description</code>, <code>license</code>, <code>compatibility</code>, <code>metadata</code> and <code>allowed-tools</code>. Any other field makes packaging or upload fail with a hard error. Our view: keep a skill you plan to share to those six.</p>
+<h2 id="are-claude-code-skills-safe-to-install" tabindex="-1">Are Claude Code skills safe to install? <a class="anchor" href="#are-claude-code-skills-safe-to-install" aria-hidden="true">#</a></h2>
+<p>Treat a skill like a script you are about to run, because it can run commands. Anthropic’s skills docs warn that workspace trust doesn’t gate a project skill’s <code>allowed-tools</code>, even in a <code>-p</code> run in a folder you’ve never trusted, and tell you to review that field in repository skills before you run Claude Code there. A skill from a stranger is a shell script with good manners.</p>
+<p>NVIDIA’s <a href="https://github.com/NVIDIA/SkillSpector">SkillSpector</a> README said on 14 Oct 2026 that 26.1% of skills in a 31,132 skill research subset contained vulnerabilities, and its <code>skillspector scan</code> command checks a skill before you install it.</p>
+<h2 id="do-skills-work-inside-munder-difflin" tabindex="-1">Do skills work inside Munder Difflin? <a class="anchor" href="#do-skills-work-inside-munder-difflin" aria-hidden="true">#</a></h2>
+<p>Yes. Munder Difflin runs Claude Code in your project folder, so the skills Claude Code reads there apply. To set it up, follow <a href="/blog/how-to-install-and-use-munder-difflin/">how to install and use Munder Difflin</a>.</p>
+<link rel="stylesheet" href="/blog/assets/media/claude-code-skills/motion.css"><script defer src="/blog/assets/media/claude-code-skills/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">What is the difference between a skill and CLAUDE.md?</p>
+          <p class="a">Anthropic&#39;s skills docs say that, unlike `CLAUDE.md` content, a skill&#39;s body loads only when it is used, so long reference material costs almost nothing until you need it. The docs suggest a skill when a section of `CLAUDE.md` has grown into a procedure rather than a fact.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Are custom slash commands the same as skills now?</p>
+          <p class="a">Yes. Anthropic&#39;s skills docs say custom commands have been merged into skills: `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same way. Old command files keep working, but a skill folder can also hold supporting files.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Why is my Claude Code skill not triggering?</p>
+          <p class="a">Anthropic&#39;s troubleshooting list starts with the description: it should include keywords users would naturally say. Check that the skill appears when you ask Claude what skills are available, or invoke it with its slash name. If the frontmatter YAML is malformed, Claude can&#39;t match your description; on v2.1.233 or later, `claude plugin validate .claude/skills` finds the broken file.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I stop Claude from running a skill by itself?</p>
+          <p class="a">Add `disable-model-invocation: true` to the skill&#39;s frontmatter. Anthropic&#39;s skills docs say Claude then can&#39;t invoke it on its own, while you can still run it by typing its slash name. The docs suggest this for workflows with side effects, such as a deploy or a commit.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Do Claude Code skills work in Codex or Cursor?</p>
+          <p class="a">The format can travel. Claude Code skills follow the Agent Skills open standard, and on 14 Oct 2026 the Skills Hub README listed Codex, Cursor and OpenCode among 48 supported tools. Claude Code adds its own features on top of the standard, such as dynamic context injection, so we think shared skills should stick to the standard fields.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/skills/">Skills</a><a class="tag" href="/blog/tags/security/">Security</a><a class="tag" href="/blog/tags/open-source/">Open Source</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-a-claude-code-skill">What is a Claude Code skill?</a></li><li class="lvl-2"><a href="#where-do-claude-code-skills-live">Where do Claude Code skills live?</a></li><li class="lvl-2"><a href="#how-do-you-write-your-first-claude-code-skill">How do you write your first Claude Code skill?</a></li><li class="lvl-2"><a href="#how-does-claude-decide-to-use-a-skill">How does Claude decide to use a skill?</a></li><li class="lvl-2"><a href="#how-do-you-share-skills-across-tools">How do you share skills across tools?</a></li><li class="lvl-2"><a href="#are-claude-code-skills-safe-to-install">Are Claude Code skills safe to install?</a></li><li class="lvl-2"><a href="#do-skills-work-inside-munder-difflin">Do skills work inside Munder Difflin?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/muse-code-vs-claude-code/"><span class="k">← Older</span><span class="t">Muse Code vs Claude Code: Plans, Prices, Models and Where They Run</span></a>
+      <a class="pn next" href="/blog/claude-code-router/"><span class="k">Newer →</span><span class="t">Claude Code Router: What It Is, How It Works and How to Install It</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-code-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-15">Oct 15, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-best-practices/">Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs</a></h3>
+    <p class="dek">Nine Claude Code best practices from Anthropic&#39;s docs, checked 15 Oct 2026: give Claude a check, plan first, keep memory short, clear context, run in parallel.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-code-best-practices/" aria-label="Read: Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/ai-agent-use-cases-our-office/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/ai-agent-use-cases-our-office/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>8 min</span><span class="pin">Pinned</span>
+    </div>
+    <h3><a href="/blog/ai-agent-use-cases-our-office/">AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does</a></h3>
+    <p class="dek">We run our company on Munder Difflin. Every seat on our floor: what each AI agent does, how its work starts, what comes out, and how to copy it.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/ai-agent-use-cases-our-office/" aria-label="Read: AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/gemini-4-argon-pricing/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon-pricing/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/gemini-4-argon-pricing/">Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives</a></h3>
+    <p class="dek">Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/gemini-4-argon-pricing/" aria-label="Read: Gemini 4 Argon Pricing: Half Price Until 30 November, Then the Real Bill Arrives">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      if (!id) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
