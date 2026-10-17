@@ -60,6 +60,19 @@ export interface ScheduledMission {
    *  inbox/outbox mtimes, any PTY output) has moved in this many ms. Default
    *  ~5 min. NOT derived from registry.status (which never transitions in main). */
   quietThresholdMs?: number;
+  /** TE0: suppress this mission's dispatch while the floor is provably unchanged.
+   *  ABSENT ⇒ OFF ⇒ the pre-TE0 unconditional dispatch, so every mission that does
+   *  not opt in keeps its exact prior behaviour. See main/standupDelta.ts for what
+   *  "unchanged" hashes, and for the two rules that make the answer trustworthy. */
+  deltaGate?: { enabled: boolean };
+  /** Scheduler-owned, like `lastFiredAt`: the floor fingerprint as of the last
+   *  DISPATCHED run, and when that was. `lastFiredAt` cannot stand in for the
+   *  latter — it advances on suppressed ticks too (it has to, or the timer
+   *  re-arms with zero delay). `lastDispatchAt` no longer gates anything: it is
+   *  read only to report how long a suppressed floor has been quiet, which under
+   *  the gate's RULE 3 is an unbounded span and therefore worth reporting. */
+  lastDeltaFingerprint?: string;
+  lastDispatchAt?: number;
 }
 
 /** The built-in hourly ops standup: orchestrator reviews who's doing what + whether tasks
@@ -79,7 +92,14 @@ export const OPS_STANDUP_MISSION: ScheduledMission = {
     'next step, then compact and resume from the same point — so terminal ' +
     'contexts stay bounded without losing work. The compaction is queued and ' +
     'runs when an agent is idle, so it never interrupts work mid-step.)',
-  enabled: true
+  enabled: true,
+  // TE0. A standup whose only finding is "nothing changed" still costs a full
+  // model turn over orchestrator's whole session prefix, because the dispatch wakes him.
+  // The gate answers that question locally instead. There is NO periodic
+  // fallback: a provably unchanged floor may go indefinitely without a standup,
+  // which is the owner's ruling and the whole point of the gate. Stall detection
+  // is the HEARTBEAT's job, not this mission's — see standupDelta.ts RULE 3.
+  deltaGate: { enabled: true }
   // NO autoCompact. Compaction belongs to contextTrigger.compact and nothing else.
   // This flag used to live here as well, which meant a default install asked for
   // compaction on TWO cadences — hourly from this standup and 2-hourly from the

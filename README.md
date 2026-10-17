@@ -122,4 +122,17 @@ and the Gemini CLI) and is refreshed at runtime from `docs/model-catalog.json` o
 
 Code: MIT, see [LICENSE](LICENSE); the copyright notice of the original author is retained. The
 bundled `plain` theme is original and covered by the same licence ([LICENSE-ASSETS](LICENSE-ASSETS)).
-Original project: [chaitanyagiri/munder-difflin](https://github.com/chaitanyagiri/munder-difflin).
+
+### Acknowledgements
+
+- **[chaitanyagiri/munder-difflin](https://github.com/chaitanyagiri/munder-difflin)** —
+  the original project and concept this work is built upon.
+- **[Prozzta/guppyos](https://github.com/Prozzta/guppyos)** by **Prozzta** —
+  special thanks and credit to Prozzta for architectural optimizations and key stability fixes,
+  including:
+  - Startup token burn reduction (bounded orchestrator handoff for fresh starts vs. resuming giant contexts).
+  - Standup zero-token delta gating (`standupDelta.ts`), skipping redundant standup turns when the floor is unchanged.
+  - Billed-equivalent token metrics accounting for prompt cache weights.
+  - MemPalace process leak hardening and async non-blocking execution.
+  - Star Trek TOS theme pack inspiration and bridge concepts.
+

@@ -44,6 +44,7 @@ import { mergeTaskLedger } from '../shared/taskLedger';
 import { expandTilde } from './fs';
 import { resolveOrchestratorName, isOrchestratorAddress } from '../shared/orchestratorIdentity';
 import { legacyOrchestratorIdIn, migrateRegistry, ORCHESTRATOR_ID } from '../shared/orchestratorMigration';
+import { godHandoffFit } from './godStartup';
 
 /** The subset of HarnessConfig the hive consumes for the default-MCP merge.
  *  Kept as a local shape so hive.ts never imports the foundation-owned config
@@ -1248,6 +1249,15 @@ export class HiveManager {
    *  `claude --resume <id>` spawn so a restarted agent resumes its thread. */
   lastSession(agentId: string): string | undefined {
     return this.registry().agents[agentId]?.sessionId;
+  }
+
+  private retiredSessions = new Map<string, Set<string>>();
+  /** A retired session id will not be resumed automatically. */
+  retireSession(agentId: string, sessionId: string): void {
+    if (!sessionId) return;
+    const set = this.retiredSessions.get(agentId) ?? new Set<string>();
+    set.add(sessionId);
+    this.retiredSessions.set(agentId, set);
   }
 
   /** Claude Code settings that route every relevant hook through the shim, plus
@@ -2593,6 +2603,41 @@ export class HiveManager {
       return reg.orchestratorId === agentId || !!reg.agents[agentId]?.isOrchestrator;
     } catch { return false; }
   }
+
+  /** GOD-STARTUP-TOKENS R1: orchestrator spawn chose a fresh start; its first answering hook gets the
+   *  handoff. In memory: a restart before that hook makes the same decision again. */
+  private godHandoff = new Map<string, { reasons: string[]; previousSession: string | null; contextTokens: number | null; at: number }>();
+  armGodHandoff(agentId: string, h: { reasons: string[]; previousSession: string | null; contextTokens: number | null }): void {
+    this.godHandoff.set(agentId, { ...h, reasons: [...h.reasons], at: Date.now() });
+    this.appendLog({ kind: 'god-handoff-armed', agentId, reasons: h.reasons, previousSession: h.previousSession });
+  }
+
+  /** R1: the armed handoff as context (and disarmed), or null. Reads orchestrator's memory.md, the floor
+   *  digest and the board status from disk now, so the handoff is current. */
+  takeGodHandoff(agentId: string, others: Array<string | null | undefined> = []): string | null {
+    const h = this.godHandoff.get(agentId);
+    if (!h) return null;
+    this.godHandoff.delete(agentId);
+    if (Date.now() - h.at > HiveManager.GOD_HANDOFF_STALE_MS) {
+      this.appendLog({ kind: 'god-handoff-dropped', agentId, reasons: h.reasons, ageMs: Date.now() - h.at });
+      return null;
+    }
+    const joined = others.filter((x): x is string => typeof x === 'string' && x.length > 0);
+    const budget = 9500 - (joined.length ? joined.join('\n\n').length + 2 : 0);
+    const root = this.root();
+    const read = (p: string | null): string | null => { try { return p && existsSync(p) ? readFileSync(p, 'utf8') : null; } catch { return null; } };
+    const { text, cut } = godHandoffFit({
+      reasons: h.reasons, previousSession: h.previousSession, contextTokens: h.contextTokens,
+      memory: read(root ? join(this.agentDir(agentId), 'memory.md') : null),
+      floorDigest: read(root ? join(root, 'floor-digest.md') : null),
+      boardStatus: read(root ? join(root, 'board-status.md') : null)
+    }, budget);
+    this.appendLog({ kind: 'god-handoff-delivered', agentId, chars: text.length, budget, cut, reasons: h.reasons });
+    return text || null;
+  }
+
+  /** Creed N1: an armed handoff older than this was for a session that never started. */
+  static readonly GOD_HANDOFF_STALE_MS = 10 * 60 * 1000;
 
   /**
    * A compact, one-shot LIVE ROSTER line built from `fleet.json` — injected into

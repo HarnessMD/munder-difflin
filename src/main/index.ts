@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import {
   rmSync, existsSync, readFileSync, readdirSync, statSync, cpSync, writeFileSync,
   unlinkSync, mkdirSync, renameSync, createWriteStream, copyFileSync, lstatSync,
-  readlinkSync, symlinkSync
+  readlinkSync, symlinkSync, appendFileSync
 } from 'node:fs';
 import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
 import { join, resolve, sep, basename, dirname, isAbsolute } from 'node:path';
@@ -35,7 +35,8 @@ import { MemoryManager } from './memory';
 import { KnowledgeManager } from './knowledge';
 import { MemoryReflector, type ReflectSettings } from './reflect';
 import { PersistStore } from './db';
-import { readAgentUsage, readContextTokens, seedSessionTranscript, resolveSessionCwd } from './transcript';
+import { readAgentUsage, readContextTokens, seedSessionTranscript, resolveSessionCwd, sessionTranscriptPath } from './transcript';
+import { godFreshStart, readClaudeVersion, type GodFreshReason } from './godStartup';
 import { listIssues, listCIRuns } from './github';
 import { SlackWebhookServer, SlackReplyServer, postSlackReply, type SlackEventFile } from './slack';
 import {
@@ -95,6 +96,11 @@ import {
   withCodexRemoteArgs
 } from '../shared/codexRemote';
 import { scanThemes, readPack, validateThemePack, getThemeSearchPaths, readThemeOrchestratorName, setConfiguredThemesDir } from './themes';
+import {
+  runStandupTick, projectTasks,
+  type FloorState, type StandupDecision, type StandupSkipRecord
+} from './standupDelta';
+import { billedEquivalentTokens, rawTokens } from '../shared/tokenWeights';
 
 // Dev isolation: apply MD_USER_DATA_DIR early before config, db, or hive initialize
 if (process.env.MD_USER_DATA_DIR && typeof process.env.MD_USER_DATA_DIR === 'string') {
@@ -723,6 +729,69 @@ PROVIDER USAGE (remaining allowance per engine, from the user's usage endpoint; 
 ${summarizeForOrchestrator(res.snapshot)}`;
 }
 
+/**
+ * TE0 (standupDelta.ts): collect the inputs to the floor fingerprint.
+ *
+ * RULE 1 is enforced here: NOTHING is collected that is mtime-based or that is
+ * disturbed by the dispatch itself (orchestrator's inbox, then his .done/memory/outbox as
+ * he handles it, then every agent's files as the standup asks them to summarise
+ * and compact). Hashing any of them makes the gate see a delta after every
+ * standup and suppress nothing.
+ *
+ * Never throws, but never silently guesses either: anything it could not read is
+ * named in `unknown`, and an unknown floor dispatches. */
+function collectFloorState(): FloorState {
+  const unknown: string[] = [];
+  const agents: FloorState['agents'] = [];
+  let reg: ReturnType<typeof hive.registry> | null = null;
+  try { reg = hive.registry(); } catch { unknown.push('registry'); }
+  for (const [id, a] of Object.entries(reg?.agents ?? {})) {
+    if (a.archived) continue;
+    let actionableInbox = 0;
+    try {
+      actionableInbox = hive.inbox(id).filter((m) => !SYSTEM_SENDERS.has(m.from)).length;
+    } catch {
+      unknown.push(`inbox:${id}`);
+    }
+    agents.push({
+      id,
+      onHold: !!a.onHold,
+      breaker: breaker.levelFor(id),
+      hasLivePty: !!ptyManager.list().some((t) => t.id === id),
+      actionableInbox
+    });
+  }
+  const countDir = (label: string, p: string): number => {
+    try { return readdirSync(p).length; } catch (e) {
+      if ((e as NodeJS.ErrnoException)?.code === 'ENOENT') return 0;
+      unknown.push(label);
+      return 0;
+    }
+  };
+  const root = hive.root();
+  if (!root) unknown.push('hive-root');
+  let tasks: FloorState['tasks'] = [];
+  try { tasks = projectTasks(hive.tasks()); } catch { unknown.push('tasks'); }
+  return {
+    agents,
+    tasks,
+    spawnRequests: root ? countDir('spawn-requests', join(root, 'spawn-requests')) : 0,
+    crashes: root ? countDir('crashes', join(root, 'crashes')) : 0,
+    unknown
+  };
+}
+
+/** Append the durable record of a SUPPRESSED standup. */
+function appendStandupSkip(record: StandupSkipRecord): void {
+  const root = hive.root();
+  if (!root) return;
+  try {
+    appendFileSync(join(root, 'standup-skips.jsonl'), JSON.stringify(record) + '\n', 'utf8');
+  } catch (e) {
+    console.error('[scheduler] skip record', record.missionId, e);
+  }
+}
+
 /** Rebuild the scheduler from persisted config: clear every existing timer,
  *  then arm each enabled mission honoring its lastFiredAt — a setTimeout for the
  *  time remaining until its next due fire, which then settles into a steady
@@ -743,41 +812,50 @@ function syncMissions(): void {
     // with an adaptive cadence. Registered into the same missionTimers map so
     // clearMissionTimers() tears it down identically on quit/reset.
     if (m.kind === 'heartbeat') { armHeartbeat(m); continue; }
-    const fire = (): void => {
+    const fire = (forced = false): void => {
       try {
+        let gate: StandupDecision | null = null;
         // A 'compact' maintenance mission (maint-1) is compaction-ONLY: it carries
         // no dispatch body/target, so skip the hive.send and just fire auto-compact.
         // Gate on `kind!=='compact'` ALONE — that already excludes the compact mission;
         // we deliberately do NOT add `&& m.body`, so other (dispatch) missions keep
         // their prior behaviour, including the historical empty-body send (Pam N1).
         if (m.kind !== 'compact' && hive.enabled()) {
-          const send = (body: string): void => {
+          const doSend = (body: string): void => {
             try { hive.send({ to: m.to, act: 'request', subject: m.label, body }, 'scheduler'); }
             catch (e) { console.error('[scheduler] send', m.id, e); }
           };
-          // The standup is the one mission that waits on the network: it appends the
-          // user's provider-usage summary first. Every other mission sends at once.
-          if (wantsUsage(m)) void missionBodyWithUsage(m).then(send);
-          else send(m.body);
+          gate = runStandupTick(m.id, {
+            readMission: () => (readConfig().missions ?? []).find((x) => x.id === m.id) ?? m,
+            collect: collectFloorState,
+            now: Date.now,
+            send: () => {
+              if (wantsUsage(m)) void missionBodyWithUsage(m).then(doSend);
+              else doSend(m.body);
+            },
+            recordSkip: (rec) => appendStandupSkip(rec),
+            stamp: (patch) => {
+              const current = readConfig().missions ?? [];
+              writeConfig({
+                missions: current.map((x) => (x.id === m.id ? { ...x, ...patch } : x))
+              });
+            }
+          }, forced);
         }
         // Auto-compact: do NOT jam /compact into busy terminals. Hand it to the
         // renderer, which queues a /compact per agent (deduped — never two at
         // once) and delivers it only when that agent goes idle (its drain loop),
         // so a working agent compacts between steps, never mid-step.
-        //
-        // The CADENCE now belongs to the context trigger, not to a mission — but
-        // the legacy per-mission `autoCompact` flag keeps working, routed through
-        // the same emit so there is exactly ONE path from main to the renderer.
-        // It carries the context trigger's current rule so a mission-driven
-        // compaction obeys the same pressure thresholds as a trigger-driven one.
         if (m.autoCompact || m.kind === 'compact') {
           emitContextTrigger('compact', contextRule('compact'));
         }
-        const current = readConfig().missions ?? [];
-        const next = current.map((x) =>
-          x.id === m.id ? { ...x, lastFiredAt: Date.now() } : x
-        );
-        writeConfig({ missions: next });
+        if (!gate) {
+          const firedAt = Date.now();
+          const current = readConfig().missions ?? [];
+          writeConfig({
+            missions: current.map((x) => (x.id === m.id ? { ...x, lastFiredAt: firedAt } : x))
+          });
+        }
         // Let the SCHEDULES panel refresh its "last fired" without a reload (#2.3).
         try { liveWebContents()?.send('missions:updated'); } catch { /* window gone */ }
       } catch (e) {
@@ -1339,7 +1417,8 @@ function writeFleetSnapshot(): void {
       .map(([id, a]) => {
         const u = usageById.get(id);
         const spans = snap.spans[id] ?? [];
-        const tokens = u ? u.input + u.output + u.cacheRead + u.cacheCreation : 0;
+        const tokens = u ? billedEquivalentTokens(u) : 0;
+        const tokensRaw = u ? rawTokens(u) : 0;
         // `usd` is LIFETIME (reset-corrected). Until the first fold completes we
         // fall back to the session figure rather than publishing a cold $0.
         const lifetime = costTotals.usdFor(id);
@@ -1352,6 +1431,7 @@ function writeFleetSnapshot(): void {
           isOrchestrator: !!a.isOrchestrator,
           breaker: breaker.levelFor(id),
           tokens,
+          tokensRaw,
           usd: lifetime === null ? sessionUsd : Number(lifetime.toFixed(4)),
           sessionUsd,
           lastTool: spans.length ? spans[spans.length - 1].tool : null,
@@ -2910,7 +2990,33 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
     // actually present (already or after the copy); otherwise fall back to a fresh
     // session rather than launching a `--resume` against a missing id.
     const explicitSid = typeof opts.resumeSessionId === 'string' ? opts.resumeSessionId.trim() : '';
-    const sid = explicitSid || (opts.resume === true ? hive.lastSession(opts.hive.id) : undefined);
+    let sid = explicitSid || (opts.resume === true ? hive.lastSession(opts.hive.id) : undefined);
+
+    // GOD-STARTUP-TOKENS R1 (godStartup.ts): an AUTOMATIC orchestrator resume whose last request was too
+    // big (>150k), is past the cache lifetime (1h), or was made by another Claude Code version or model
+    // starts FRESH with a handoff instead (hive.armGodHandoff; the hooks put it in context).
+    const godCurrent = opts.hive.isOrchestrator && !explicitSid && sid
+      ? {
+          cliVersion: readClaudeVersion(await ptyManager.commandPath(opts.command.trim().split(/\s+/)[0] || opts.command)),
+          model: args.find((_, i, arr) => arr[i - 1] === '--model') ?? null
+        }
+      : null;
+    const godAgentId = opts.hive.id;
+    const godCwd = opts.cwd;
+    const godFresh = (s: string): GodFreshReason[] | null => !godCurrent ? null : godFreshStart(s, {
+      agentId: godAgentId,
+      current: godCurrent,
+      transcriptPath: (id) => sessionTranscriptPath(godCwd, id),
+      now: Date.now,
+      log: (row) => hive.appendLog(row),
+      retire: (id) => hive.retireSession(godAgentId, id),
+      arm: (h) => (hive as any).armGodHandoff(godAgentId, h)
+    });
+    if (sid && !explicitSid && godFresh(sid)) {
+      console.log(`[resume] ${opts.hive.id}: session ${sid} would re-send its whole context; starting fresh with a handoff`);
+      sid = undefined;
+    }
+
     if (sid && !args.includes('--resume')) {
       if (seedSessionTranscript(opts.cwd, sid)) {
         args.push('--resume', sid);

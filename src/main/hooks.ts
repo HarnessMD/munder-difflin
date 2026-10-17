@@ -542,6 +542,12 @@ export class HookServer {
       ? this.hive.rosterContext((id) => this.contextFor(id))
       : null;
 
+    // GOD-STARTUP-TOKENS R1: an orchestrator that started FRESH gets its bounded handoff
+    // once, at that session's SessionStart (source "startup").
+    const handoff = wantsRoster && event === 'SessionStart' && p.source === 'startup' && (p as any).transport !== 'pipe-oneway'
+      ? (this.hive as any).takeGodHandoff?.(agentId) ?? null
+      : null;
+
     // Standing goal (hire Briefing) — durable roster field, re-read every cycle so
     // an Edit Agent save is picked up on the next UserPromptSubmit without
     // restarting the worker. Deliver it once at SessionStart, then only when its
@@ -569,12 +575,12 @@ export class HookServer {
       }
     }
 
-    if (steer || roster || goal) {
+    if (handoff || steer || roster || goal) {
       this.emit(agentId, event, p);
       return {
         hookSpecificOutput: {
           hookEventName: event,
-          additionalContext: [roster, goal, steer].filter(Boolean).join('\n\n')
+          additionalContext: [handoff, roster, goal, steer].filter(Boolean).join('\n\n')
         }
       };
     }
