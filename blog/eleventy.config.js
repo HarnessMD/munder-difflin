@@ -261,6 +261,9 @@ export default function (eleventyConfig) {
   <div class="ph-art"><span class="yt-badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="ph-note">video on its way</span><span class="yt-ph-title">${safeTitle}</span></div>
 </div>`;
     }
+    if (!/^[A-Za-z0-9_-]{11}$/.test(String(id))) {
+      throw new Error(`youtube shortcode: "${id}" is not an 11 character YouTube video id`);
+    }
     return `<div class="yt" data-yt="${id}" data-title="${safeTitle}">
   <button type="button" class="yt-load" aria-label="Play video: ${safeTitle}">
     <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy" decoding="async" />

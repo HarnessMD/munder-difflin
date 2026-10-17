@@ -114,9 +114,9 @@
   <div class="filters" role="navigation" aria-label="Topics">
     <a class="chip" href="/blog/">All</a>
     
-    <a class="chip" href="/blog/topics/guides/">guides<span class="ct">52</span></a>
+    <a class="chip" href="/blog/topics/concepts/">concepts<span class="ct">52</span></a>
     
-    <a class="chip" href="/blog/topics/concepts/">concepts<span class="ct">51</span></a>
+    <a class="chip" href="/blog/topics/guides/">guides<span class="ct">52</span></a>
     
     <a class="chip" href="/blog/topics/comparisons/">comparisons<span class="ct">44</span></a>
     
@@ -124,7 +124,7 @@
     
     <a class="chip" href="/blog/topics/story/" aria-current="page">story<span class="ct">19</span></a>
     
-    <a class="chip" href="/blog/topics/news/">news<span class="ct">13</span></a>
+    <a class="chip" href="/blog/topics/news/">news<span class="ct">14</span></a>
     
     <a class="chip" href="/blog/topics/orchestration/">orchestration<span class="ct">9</span></a>
     
@@ -485,9 +485,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

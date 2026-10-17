@@ -105,11 +105,27 @@
 <header class="page-head wrap">
   <p class="eyebrow">Tag</p>
   <h1>#Editors</h1>
-  <p class="lead">1 post tagged <strong>Editors</strong>.</p>
+  <p class="lead">2 posts tagged <strong>Editors</strong>.</p>
 </header>
 <section class="wrap">
   <div class="post-grid">
-    <article class="card t-comparisons">
+    <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-roo-code/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-roo-code/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-17">Oct 17, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/what-is-roo-code/">What Is Roo Code? The Archived VS Code Agent, Explained</a></h3>
+    <p class="dek">Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-roo-code/" aria-label="Read: What Is Roo Code? The Archived VS Code Agent, Explained">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
   <a class="thumb t-comparisons" href="/blog/cursor-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/cursor-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -169,9 +185,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

@@ -196,7 +196,7 @@
 <p><strong>3. OpenCode.</strong> <a href="https://opencode.ai/">OpenCode</a> is an MIT licensed agent for your terminal, IDE or desktop. Its site says “free models included or connect any model from any provider”, with 75+ providers and local models. OpenCode Go was $10 a month on 5 Oct 2026. Best for: model freedom. See <a href="/blog/what-is-opencode/">what is OpenCode</a>.</p>
 <p><strong>4. Cursor.</strong> <a href="https://cursor.com/pricing">Cursor</a> is a proprietary editor with an agent built in, plus a CLI. Hobby is free with limited Agent requests, and Individual was $20 a month on 5 Oct 2026. Its docs list models from OpenAI, Anthropic, Google and SpaceXAI. Best for: people who think in an editor. See <a href="/blog/claude-code-vs-cursor/">Claude Code vs Cursor</a>. Leaving Cursor? See <a href="/blog/cursor-alternatives/">Cursor alternatives</a>.</p>
 <p><strong>5. Gemini CLI.</strong> <a href="https://github.com/google-gemini/gemini-cli">Gemini CLI</a> is Google’s Apache 2.0 terminal agent for Gemini models. Read the fine print: Google’s <a href="https://github.com/google-gemini/gemini-cli/discussions/27274">transition notice</a> set 18 Jun 2026 as the day it stops serving free, Google AI Pro and Ultra users, while paid Gemini API keys keep working. Those tiers are now supported through Antigravity CLI. The repo README still advertises a free tier, which the notice overrides. Best for: teams already paying Google.</p>
-<p><strong>6. Cline.</strong> <a href="https://cline.bot/pricing">Cline</a> is an Apache 2.0 agent that ships as a VS Code extension and a CLI. Its pricing page says it “is free for individual developers” and you pay only for inference, with your own keys or through Cline. Best for: an open agent inside stock VS Code.</p>
+<p><strong>6. Cline.</strong> <a href="https://cline.bot/pricing">Cline</a> is an Apache 2.0 agent that ships as a VS Code extension and a CLI. Its pricing page says it “is free for individual developers” and you pay only for inference, with your own keys or through Cline. Roo Code originated from Cline, and the Roo Code repo was archived in May 2026; see <a href="/blog/what-is-roo-code/">what happened to Roo Code</a>. Best for: an open agent inside stock VS Code.</p>
 <p><strong>7. Pi.</strong> <a href="https://pi.dev/">Pi</a> is an MIT licensed “minimal agent harness”. It supports 15+ providers and skips sub-agents and plan mode on purpose: you add them as extensions. Version 1.0.3 came out on 5 Oct 2026. Best for: people who want to build their own setup. See <a href="/blog/what-is-pi-agent/">what is Pi agent</a>.</p>
 <p><strong>8. Aider.</strong> <a href="https://aider.chat/">Aider</a> is Apache 2.0 “AI pair programming in your terminal”, and it commits every edit to git. It is free with your own API keys. One flag: PyPI’s newest version on 5 Oct 2026 was 0.86.2, uploaded 12 Feb 2026. Best for: git first work, if the slow release pace is fine with you.</p>
 <h2 id="claude-code-alternatives-compared-checked-5-oct-2026" tabindex="-1">Claude Code alternatives compared, checked 5 Oct 2026 <a class="anchor" href="#claude-code-alternatives-compared-checked-5-oct-2026" aria-hidden="true">#</a></h2>
@@ -453,9 +453,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');
