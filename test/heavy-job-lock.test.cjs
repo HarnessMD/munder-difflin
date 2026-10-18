@@ -216,14 +216,14 @@ test('WIRING: index.ts builds the lock from the LIVE setting, hands it to the Ho
   assert.match(idx, /heavyLock: \{ limit: heavyLimit\(readConfig\(\)\.heavyJobsAtOnce\), holders: heavyLock\.snapshot\(\) \}/);
 });
 
-test('CONFIG + SETTINGS: default 1; the Autonomy & Budgets section offers Off and N, saved through updateConfig', () => {
+test('CONFIG + SETTINGS: default 1; the Autonomy & Budgets section offers Off and N, staged and saved through saveAll', () => {
   const cfg = fs.readFileSync(path.join(REPO, 'src', 'main', 'config.ts'), 'utf8');
   assert.match(cfg, /heavyJobsAtOnce\?: number \| 'off';/);
   assert.match(cfg, /heavyJobsAtOnce: 1,/);
   const ui = fs.readFileSync(path.join(REPO, 'src', 'renderer', 'src', 'components', 'SettingsModal.tsx'), 'utf8');
   assert.match(ui, /Heavy jobs at once/);
   assert.match(ui, /<option value="off">Off<\/option>/);
-  assert.match(ui, /updateConfig\(\{ heavyJobsAtOnce: next \}/);
+  assert.match(ui, /stage\(\{ heavyJobsAtOnce: next \}/);
 });
 
 test('HOOK: a heavy PreToolUse the HITL/control layer denies never holds a slot (no PostToolUse would free it)', async (t) => {

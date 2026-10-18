@@ -314,13 +314,12 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
     const r = await window.cth.testUsageEndpoint({ url: usage.url, token: usage.token || undefined, timeoutMs: usage.timeoutMs });
     setUsageTest({ busy: false, ok: r.ok, text: r.ok ? r.summary : r.error });
   };
-  // HEAVY-JOB-SERIALIZE: "Heavy jobs at once" (Off or N, default 1), applied live by main.
+  // HEAVY-JOB-SERIALIZE: "Heavy jobs at once" (Off or N, default 1).
   const [heavyAtOnce, setHeavyAtOnce] = useState<number | 'off'>(cfgX.heavyJobsAtOnce ?? 1);
-  const saveHeavyAtOnce = async (next: number | 'off') => {
-    const prev = heavyAtOnce;
+  // Staged like every other setting here (one writer: saveAll); main reads it live once saved.
+  const saveHeavyAtOnce = (next: number | 'off'): void => {
     setHeavyAtOnce(next);
-    try { await window.cth.updateConfig({ heavyJobsAtOnce: next } as Partial<HarnessConfig>); }
-    catch { setHeavyAtOnce(prev); }
+    stage({ heavyJobsAtOnce: next } as Partial<HarnessConfig>);
   };
   const [defaultModelSel, setDefaultModelSel] = useState<string>(cfgX.defaultModel ?? 'claude-fable-5');
   const saveDefaultModel = (id: string): void => {
@@ -1327,14 +1326,14 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               {heavyAtOnce === 'off'
                                 ? 'No limit. Agents may run installs, builds, full test suites and benchmarks at the same time.'
                                 : heavyAtOnce === 1
-                                  ? 'Agents run one install, build, full test suite or benchmark at a time; another waits, so your PC stays usable. Applies at once.'
-                                  : `Agents run up to ${heavyAtOnce} installs, builds, full test suites or benchmarks at a time; another waits. Applies at once.`}
+                                  ? 'Agents run one install, build, full test suite or benchmark at a time; another waits, so your PC stays usable. Applies on Save.'
+                                  : `Agents run up to ${heavyAtOnce} installs, builds, full test suites or benchmarks at a time; another waits. Applies on Save.`}
                             </span>
                           </div>
                           <select
                             aria-label="Heavy jobs at once"
                             value={String(heavyAtOnce)}
-                            onChange={(e) => { void saveHeavyAtOnce(e.target.value === 'off' ? 'off' : Number(e.target.value)); }}
+                            onChange={(e) => { saveHeavyAtOnce(e.target.value === 'off' ? 'off' : Number(e.target.value)); }}
                             style={{ fontSize: 12, padding: '2px 6px' }}>
                             <option value="off">Off</option>
                             {[1, 2, 3, 4, 6, 8].map((n) => <option key={n} value={String(n)}>{n}</option>)}
