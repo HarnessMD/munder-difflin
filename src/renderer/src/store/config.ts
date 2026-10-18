@@ -71,6 +71,8 @@ export interface HarnessConfig {
   orchestratorMaySpawn?: boolean;
   /** Mirrors src/main/config.ts. */
   usageEndpoint?: { enabled: boolean; url: string; token?: string; timeoutMs: number };
+  /** HEAVY-JOB-SERIALIZE: heavy jobs (installs, builds, full suites, benches) at once; 'off' = no limit. Default 1. */
+  heavyJobsAtOnce?: number | 'off';
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;

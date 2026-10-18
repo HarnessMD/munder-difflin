@@ -19,7 +19,9 @@ const MAX_WIDTH = 150;
 const FILL_COLOR = colors.cream[50];   // light cloud
 const OUTLINE_COLOR = colors.ink[900];
 const TEXT_COLOR = '#3d2e4a';           // ink-700
-const FONT_SIZE = 12;
+// Inner content is rendered at 2x then halved for pixel-crisp text. 20px here
+// therefore reads as a comfortable 10px on screen rather than the old 6px.
+const FONT_SIZE = 20;
 const RENDER_SCALE = 0.5;               // render at 2x, scale down for crispness
 const OFFSET_Y = -38;                   // a touch higher than the tool bubble
 const FADE_IN_DURATION = 0.15;

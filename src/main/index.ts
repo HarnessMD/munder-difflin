@@ -28,6 +28,7 @@ import {
 import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
 import { HiveManager, type AgentMeta, type HiveMessage, type HiveTask } from './hive';
 import { HookServer } from './hooks';
+import { HeavyJobLock, heavyLimit, probeProcesses } from './heavyJob';
 import { CircuitBreaker, type BreakerInput } from './breaker';
 import { CumulativeSampleGate, type UsageProvider } from './usage';
 import { fetchUsage } from './usageEndpoint';
@@ -332,6 +333,16 @@ const hookServer = new HookServer(
   standingGoalFromRoster,
   (agentId, event, message) => workerWake.noteHook(agentId, event, message)
 );
+// HEAVY-JOB-SERIALIZE: the machine's heavy-job slots (Settings "Heavy jobs at once", read live).
+// PreToolUse takes or denies a slot; a background job's slot is freed by a hidden process check
+// that runs ONLY while a slot is held; PTY exit and a TTL free the rest. Holders go to fleet.json.
+const heavyLock = new HeavyJobLock({
+  limit: () => heavyLimit(readConfig().heavyJobsAtOnce),
+  roots: () => ptyManager.list().flatMap((s) => { const a = ptyToAgent.get(s.id); return a && s.pid > 0 ? [{ agentId: a, pid: s.pid }] : []; }),
+  probe: probeProcesses,
+  log: (row) => { try { hive.appendLog(row); } catch { /* best effort */ } }
+});
+hookServer.setHeavyLock(heavyLock);
 const memory = new MemoryManager(
   () => readConfig().harnessHome,
   () => { const c = readConfig(); return { enabled: c.semanticMemory !== false, model: c.embeddingModel ?? 'minilm' }; }
@@ -477,6 +488,8 @@ function teardownPty(id: string): void {
     ptyToAgent.delete(id);
     // Drop watchdog state so a dead agent can't get nudged or leak its grace.
     try { workerWake.forget(agentId, id); } catch { /* best-effort */ }
+    // HEAVY-JOB-SERIALIZE: its jobs went with the PTY (unless another PTY of it is still alive).
+    if (![...ptyToAgent.values()].includes(agentId)) { try { heavyLock.agentGone(agentId); } catch { /* best-effort */ } }
     // Drop breaker state so a dead agent can't leak/zombie a tripped level.
     try { breaker.forget(agentId); } catch { /* best-effort */ }
     // A replacement using this id needs a new usage counter, not the dead PTY's.
@@ -1445,7 +1458,8 @@ function writeFleetSnapshot(): void {
       });
     // `hooks` is the control plane's own health (#277): orchestrator and the operator
     // can read from fleet.json whether hooks are being enforced at all.
-    hive.writeFleetSnapshot({ ts: now, agents, hooks: hookServer.health() });
+    // HEAVY-JOB-SERIALIZE: who holds the heavy-job slots (the orchestrator reads fleet.json every standup).
+    hive.writeFleetSnapshot({ ts: now, agents, hooks: hookServer.health(), heavyLock: { limit: heavyLimit(readConfig().heavyJobsAtOnce), holders: heavyLock.snapshot() } });
   } catch (e) {
     console.error('[fleet] snapshot failed:', e);
   }
