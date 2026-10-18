@@ -225,3 +225,13 @@ test('CONFIG + SETTINGS: default 1; the Autonomy & Budgets section offers Off an
   assert.match(ui, /<option value="off">Off<\/option>/);
   assert.match(ui, /updateConfig\(\{ heavyJobsAtOnce: next \}/);
 });
+
+test('HOOK: a heavy PreToolUse the HITL/control layer denies never holds a slot (no PostToolUse would free it)', async (t) => {
+  const { s, l } = await server(t, 1);
+  s.control = { takeSteer: () => null, shouldHalt: () => false, toolDecision: (id) => (id === 'a1' ? { deny: true, reason: 'paused' } : { deny: false }) };
+  const r = s.handle({ agent_id: 'a1', hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'npm ci' }, tool_use_id: 'u9' });
+  assert.equal(r.hookSpecificOutput.permissionDecision, 'deny');
+  assert.equal(r.hookSpecificOutput.permissionDecisionReason, 'paused');
+  assert.equal(l.snapshot().length, 0, 'the denied call holds nothing');
+  assert.equal(s.handle({ agent_id: 'a2', hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'npm ci' } }).hookSpecificOutput?.permissionDecision, undefined, 'another agent can take the only slot');
+});
