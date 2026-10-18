@@ -225,6 +225,11 @@ export interface HarnessConfig {
   orchestratorMaySpawn: boolean;
   /** Optional provider-usage endpoint polled at each standup (see src/shared/usageEndpoint.ts). */
   usageEndpoint?: UsageEndpointConfig;
+  /** HEAVY-JOB-SERIALIZE (Settings → Autonomy & Budgets, "Heavy jobs at once"): how many heavy
+   *  jobs (installs, builds, full test suites, benches) the floor's agents may run at once; a
+   *  further one is denied at PreToolUse, naming the holders. 'off' = no limit (the guard does
+   *  nothing). Default 1. Read live on every hook: a change applies without restarting agents. */
+  heavyJobsAtOnce?: number | 'off';
   /** The command we run when spawning a new agent. */
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
@@ -453,6 +458,7 @@ const DEFAULTS: HarnessConfig = {
   autoMode: true,
   orchestratorMaySpawn: false,
   usageEndpoint: { enabled: false, url: '', timeoutMs: DEFAULT_USAGE_TIMEOUT_MS },
+  heavyJobsAtOnce: 1,
   defaultCommand: 'claude',
   orchestratorProvider: 'claude',
   orchestratorModel: 'claude-opus-4-8',
