@@ -294,12 +294,6 @@ export async function refreshModelCatalog(force = false): Promise<boolean> {
   }
 }
 
-// Fire once on load. The pickers all call modelsForProvider() during render, so
-// the usual case — main pre-warmed the cache at startup, this resolves in a few
-// ms, no modal is open yet — needs no subscription at all. A catalog that lands
-// while a picker is already open reaches it on that picker's next render.
-if (typeof window !== 'undefined') void refreshModelCatalog();
-
 declare const __APP_VERSION__: string | undefined;
 
 /** The version of the running build. electron-vite replaces `__APP_VERSION__`
