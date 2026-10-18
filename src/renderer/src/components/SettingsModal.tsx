@@ -1,6 +1,7 @@
 import { useState, useEffect, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { agentModels, type HarnessConfig } from '@/store/config';
+import { ModelsRefreshPanel } from './ModelsRefreshPanel';
 import { useStore } from '@/store/store';
 import {
   CLONE_NODE_BLURB,
@@ -1215,6 +1216,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                   {activeSection === 'Agents & Models' && (
                     <>
+                      <ModelsRefreshPanel />
                       <div>
                         <div style={sectionHead}>
                           {t('settings.agentsModels.defaultModel')}

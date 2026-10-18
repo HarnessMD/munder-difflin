@@ -1,5 +1,5 @@
-// Mirrors src/main/config.ts. Kept as a renderer-side type-only module
-// so we don't have to reach into the preload package to type-check.
+import { useSyncExternalStore } from 'react';
+import { catalogModels, type ModelsCatalog } from '@shared/modelCatalog';
 import {
   AGENT_PROVIDER_PRESETS,
   providerPreset,
@@ -343,8 +343,61 @@ export function modelsForProviderAtVersion(
 // importers keep their path.
 export { tokenizeCommand } from '@shared/commandLine';
 
+// ── REFRESH-MODELS: the models file, as main hands it over ─────────────────────────────
+// Loaded ONCE per window (a file read in main, never a lookup) and replaced when the Settings
+// button refreshes it. Module-level subscribe/getSnapshot: a re-render never re-subscribes.
+let modelCatalogState: ModelsCatalog | null = null;
+let catalogVersion = 0;
+const catalogListeners = new Set<() => void>();
+let catalogLoading: Promise<void> | null = null;
+
+export function setModelCatalog(next: ModelsCatalog | null): void {
+  modelCatalogState = next;
+  catalogVersion += 1;
+  for (const l of [...catalogListeners]) { try { l(); } catch { /* a listener never breaks the rest */ } }
+}
+export function currentModelCatalog(): ModelsCatalog | null { return modelCatalogState; }
+function subscribeCatalog(l: () => void): () => void { catalogListeners.add(l); return () => { catalogListeners.delete(l); }; }
+function catalogVersionSnapshot(): number { return catalogVersion; }
+/** Re-renders a picker when the models file changes. */
+export function useModelCatalogVersion(): number {
+  return useSyncExternalStore(subscribeCatalog, catalogVersionSnapshot, catalogVersionSnapshot);
+}
+
+type CatalogApi = { modelCatalog?: () => Promise<ModelsCatalog | null>; onModelCatalogChanged?: (cb: (f: ModelsCatalog) => void) => () => void };
+/** Read the models file once (App mount) and follow its changes. Idempotent. */
+export function loadModelCatalog(): Promise<void> {
+  if (catalogLoading) return catalogLoading;
+  const api = (typeof window !== 'undefined' ? (window as unknown as { cth?: CatalogApi }).cth : undefined);
+  if (!api?.modelCatalog) return Promise.resolve();
+  api.onModelCatalogChanged?.((f) => setModelCatalog(f));
+  catalogLoading = api.modelCatalog().then((f) => { if (f) setModelCatalog(f); }).catch(() => { catalogLoading = null; });
+  return catalogLoading;
+}
+
+/** A provider's picker list from the models file, or null (use the floor). Claude keeps the
+ *  curated `[1m]` context variants of the listed models (the Models API does not list them). */
+function catalogOptions(provider: AgentProvider): ModelOption[] | null {
+  const list = catalogModels(modelCatalogState, provider);
+  if (!list) return null;
+  const options: ModelOption[] = [{ id: undefined, label: 'CLI default' }, ...list.map((m) => ({ id: m.id, label: m.label }))];
+  if (provider === 'claude') {
+    const ids = new Set(list.map((m) => m.id));
+    for (const m of modelsForProviderAtVersion('claude', runningAppVersion())) if (m.id && /\[1m\]$/.test(m.id) && ids.has(m.id.replace(/\[1m\]$/, '')) && !ids.has(m.id)) options.push(m);
+  }
+  return options;
+}
+
+/** How a picker labels a saved model that is not in the provider's list: once the list is the
+ *  provider's own (refreshed), that model is one it no longer offers. */
+export function unknownModelSuffix(provider: AgentProvider, fallback: string): string {
+  return catalogModels(modelCatalogState, provider) ? '· not in the refreshed list' : fallback;
+}
+
 /** The model preset list for a given provider's picker, on this build. */
 export function modelsForProvider(provider: AgentProvider): ModelOption[] {
+  const refreshed = catalogOptions(provider);
+  if (refreshed) return refreshed;
   return modelsForProviderAtVersion(provider, runningAppVersion());
 }
 

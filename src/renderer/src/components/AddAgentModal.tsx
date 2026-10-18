@@ -26,6 +26,8 @@ import {
   buildSpawnCommand,
   tokenizeCommand,
   modelsForProvider,
+  unknownModelSuffix,
+  useModelCatalogVersion,
   inferAgentProvider,
   providerPreset,
   isClaudeProvider
@@ -144,6 +146,7 @@ export interface AddAgentModalProps {
 }
 
 export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModalProps) {
+  useModelCatalogVersion(); // REFRESH-MODELS: re-render when the models file is refreshed
   const { t: tr } = useTranslation();
   const rtl = useRtl();
   const addAgent = useStore(s => s.addAgent);
@@ -912,7 +915,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                           // the command field already carries it either way.
                           const known = modelsForProvider(provider);
                           return model && !known.some((m) => m.id === model)
-                            ? [...known, { id: model, label: tr('addAgent.fromHire', { model }) }]
+                            ? [...known, { id: model, label: `${model} ${unknownModelSuffix(provider, '(from hire)')}` }]
                             : known;
                         })().map((m) => {
                           const active = (model ?? '') === (m.id ?? '');

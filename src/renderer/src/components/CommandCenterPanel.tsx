@@ -29,6 +29,7 @@ import {
   isClaudeProvider,
   modelProvidersForAgent,
   modelsForProvider,
+  useModelCatalogVersion,
   providerPreset,
   tokenizeCommand,
   AGENT_PROVIDER_PRESETS,
@@ -344,6 +345,7 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
 // ─── Floor tab — roster, model, dispatch, dirs, assistant ────────────────────
 
 function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
+  useModelCatalogVersion(); // REFRESH-MODELS: re-render when the models file is refreshed
   const { t } = useTranslation();
   const rtl = useRtl();
   const agents = useStore((s) => s.agents);

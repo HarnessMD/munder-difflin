@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore, selectedAgent } from '@/store/store';
+import { loadModelCatalog } from '@/store/config';
 import { startMockLoop, stopMockLoop } from '@/store/mockEvents';
 import type { HarnessConfig } from '@/store/config';
 import { DEFAULT_ORG_TRIGGER } from '@shared/triggers';
@@ -86,6 +87,8 @@ export function App() {
   // button) has no path to it without threading a prop through every layer
   // between; a window event keeps that plumbing out of the components in
   // between, matching the existing `cth:` CustomEvent convention.
+  // REFRESH-MODELS: read the models file once (a file read in main, never a lookup).
+  useEffect(() => { void loadModelCatalog(); }, []);
   useEffect(() => {
     const onOpenSettings = (e: Event): void => {
       const section = (e as CustomEvent<{ section?: SettingsSection }>).detail?.section;

@@ -1,5 +1,5 @@
 import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, powerMonitor, powerSaveBlocker, screen, shell, Notification } from 'electron';
-import { spawn } from 'node:child_process';
+import { spawn, execFile } from 'node:child_process';
 import {
   rmSync, existsSync, readFileSync, readdirSync, statSync, cpSync, writeFileSync,
   unlinkSync, mkdirSync, renameSync, createWriteStream, copyFileSync, lstatSync,
@@ -13,6 +13,7 @@ import { PtyManager, type SpawnOptions } from './pty';
 import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellEnv';
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
+import { ProviderModelStore, defaultAdapters } from './providerModels';
 import {
   readConfig, writeConfig, setAgentTokenCap, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
   modelForHiveSpawn, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
@@ -3830,6 +3831,33 @@ ipcMain.handle('skills:reveal', (_evt, path: unknown) => {
  * Finder-launched app) and knows whether the palace is initialised, so it is
  * authoritative and reused rather than re-probed differently here.
  */
+// REFRESH-MODELS: ONE models file (userData/models.json) that every picker reads. It is filled ONLY
+// by Settings -> Agents & Models -> "Refresh models" (models:refresh). models:catalog is a file
+// read: nothing is looked up at startup or when a picker opens. Every lookup is async (no sync
+// child process on main); Claude uses the Models API only with a stored Anthropic BYOK key.
+const providerModels = new ProviderModelStore({
+  path: join(app.getPath('userData'), 'models.json'),
+  now: () => Date.now(),
+  log: (row) => { try { hive.appendLog(row); } catch { /* best-effort */ } }
+});
+ipcMain.handle('models:catalog', () => providerModels.read());
+ipcMain.handle('models:refresh', async () => {
+  const cli = {
+    platform: process.platform, env: process.env, exists: existsSync,
+    exec: (file: string, args: string[], opts: Parameters<typeof execFile>[2], cb: (err: (Error & { code?: unknown; killed?: boolean }) | null, stdout: string) => void) =>
+      execFile(file, args, opts, (err, stdout) => cb(err, String(stdout ?? '')))
+  };
+  const fetchJson = async (url: string, headers: Record<string, string>, timeoutMs: number) => {
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(timeoutMs) });
+    let body: unknown = null;
+    try { body = await res.json(); } catch { /* not JSON */ }
+    return { status: res.status, body };
+  };
+  const { file, rows } = await providerModels.refresh(defaultAdapters(cli, () => integrations.getSecret(providerKeyRef('anthropic')), fetchJson));
+  for (const w of BrowserWindow.getAllWindows()) { try { if (!w.isDestroyed()) w.webContents.send('models:catalogChanged', file); } catch { /* gone */ } }
+  return { file, rows };
+});
+
 ipcMain.handle('tools:status', (): ToolStatus[] => {
   const win = process.platform === 'win32';
   const mem = (() => { try { memory.resetBinCache(); return memory.status(); } catch { return null; } })();
