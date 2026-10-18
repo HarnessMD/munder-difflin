@@ -320,7 +320,7 @@ without forgetting; it’s free and open source.</p>
 
   <footer class="post-foot wrap"><div class="prevnext">
       <a class="pn prev" href="/blog/generative-engine-optimization-techniques/"><span class="k">← Older</span><span class="t">Generative Engine Optimization: The Techniques the Research Backs</span></a>
-      <a class="pn next" href="/blog/cline-vs-munder-difflin/"><span class="k">Newer →</span><span class="t">Cline vs Munder Difflin: In-Editor Agent or Local Hive?</span></a>
+      <a class="pn next" href="/blog/cline-vs-munder-difflin/"><span class="k">Newer →</span><span class="t">Cline vs Munder Difflin: One Agent Everywhere, or a Team of Agents?</span></a>
     </div>
     <section class="related">
       <h2>Related in Internals</h2>
@@ -419,9 +419,10 @@ without forgetting; it’s free and open source.</p>
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

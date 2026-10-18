@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What Is Roo Code? The Archived VS Code Agent, Explained — Munder Difflin Blog</title>
+<meta name="description" content="Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now." />
+<link rel="canonical" href="https://munderdiffl.in/blog/what-is-roo-code/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="What Is Roo Code? The Archived VS Code Agent, Explained — Munder Difflin Blog" />
+<meta property="og:description" content="Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now." />
+<meta property="og:url" content="https://munderdiffl.in/blog/what-is-roo-code/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/what-is-roo-code/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. &quot;What Is Roo Code?&quot; in large ink type with a &quot;Checked 17 Oct 2026&quot; pill, beside a museum display case holding a code tile on a plinth marked v3.54.0, with a rope barrier." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-17T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="Editors" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="What Is Roo Code? The Archived VS Code Agent, Explained — Munder Difflin Blog" />
+<meta name="twitter:description" content="Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/what-is-roo-code/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. &quot;What Is Roo Code?&quot; in large ink type with a &quot;Checked 17 Oct 2026&quot; pill, beside a museum display case holding a code tile on a plinth marked v3.54.0, with a rope barrier." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What Is Roo Code? The Archived VS Code Agent, Explained",
+  "description": "Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now.",
+  "image": ["https://munderdiffl.in/blog/assets/media/what-is-roo-code/hero.png"],
+  "datePublished": "2026-10-17T00:00:00.000Z",
+  "dateModified": "2026-10-17T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/what-is-roo-code/" },
+  "keywords": "roo code, what is roo code, is roo code dead, roo code archived, roo code alternative, roo code shut down, roo code vs kilo code",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/what-is-roo-code/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "What Is Roo Code? The Archived VS Code Agent, Explained", "item": "https://munderdiffl.in/blog/what-is-roo-code/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Roo Code dead?", "acceptedAnswer": { "@type": "Answer", "text": "Roo Code itself is no longer developed. On 17 Oct 2026 GitHub showed the RooCodeInc/Roo-Code repository as archived, which makes it read only, and its README says \"The Roo Code Extension was shut down on May 15th.\" The VS Code Marketplace listing was still up, at version 3.54.0." } },
+    { "@type": "Question", "name": "Why did Roo Code shut down?", "acceptedAnswer": { "@type": "Answer", "text": "Roo Code's own README does not give a reason. ZooCode's README says the Roo team wound down active Roo Code work to focus on Roomote, and Kilo's migration guide quotes the announcement: \"We're shutting it down to go all-in on Roomote.\" roocode.com now redirects to roomote.dev." } },
+    { "@type": "Question", "name": "Is Kilo Code a fork of Roo Code?", "acceptedAnswer": { "@type": "Answer", "text": "It began as one, by Kilo's own account; its current extension was rebuilt on OpenCode server. Kilo's Roo migration guide says \"We started Kilo as a Roo fork in 2025\" and that the two codebases share real git history. Roo Code's README, in turn, names Cline as the project Roo Code originated from." } },
+    { "@type": "Question", "name": "Can I still use Roo Code?", "acceptedAnswer": { "@type": "Answer", "text": "The extension is still listed on the VS Code Marketplace, but its README says it was shut down and that Roo Code, Inc makes no warranties about it. Kilo's migration guide says \"BYOK continues working after archive.\" An archived repository gets no new commits, so plan a move." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>What Is Roo Code? The Archived VS Code Agent, Explained</h1>
+    <p class="dek">Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-17">Oct 17, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>4 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/what-is-roo-code/hero.png" alt="Title card on white. &quot;What Is Roo Code?&quot; in large ink type with a &quot;Checked 17 Oct 2026&quot; pill, beside a museum display case holding a code tile on a plinth marked v3.54.0, with a rope barrier." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Roo Code was an open source AI coding agent for VS Code, and its GitHub repository was archived in May 2026. Its README now says “The Roo Code Extension was shut down on May 15th.” Checked 17 Oct 2026.</p>
+<p>This explainer covers what Roo Code was, what each official page shows today, and where its users are going. For the wider field, see our <a href="/blog/topics/concepts/">Concepts hub</a> and <a href="/blog/best-ai-coding-agents/">best AI coding agents</a>.</p>
+<h2 id="what-is-roo-code" tabindex="-1">What is Roo Code? <a class="anchor" href="#what-is-roo-code" aria-hidden="true">#</a></h2>
+<p>Roo Code is an AI coding agent that runs inside VS Code. Its <a href="https://roocodeinc.github.io/Roo-Code/">documentation site</a> calls it “an open-source AI coding agent for VS Code” and “model-agnostic”. The <a href="https://github.com/RooCodeInc/Roo-Code">README</a> lists five modes: Code, Architect, Ask, Debug and Custom Modes, with lines such as “Architect Mode: plan systems, specs, and migrations”. The documentation site is frank about cost: “Roo’s approach is to trade tokens for quality.” Its Marketplace id is <code>RooVeterinaryInc.roo-cline</code>. The code is Apache 2.0, copyright Roo Code, Inc.</p>
+<h2 id="is-roo-code-dead" tabindex="-1">Is Roo Code dead? <a class="anchor" href="#is-roo-code-dead" aria-hidden="true">#</a></h2>
+<p>As a maintained project, yes. On 17 Oct 2026 <a href="https://github.com/RooCodeInc/Roo-Code">GitHub</a> showed the repository as archived, which makes it read only. It still has more than 24,000 stars. The last push was 15 May 2026, the same day as the final release, v3.54.0.</p>
+<figure class="mg" data-scene="closed"><img src="/blog/assets/media/what-is-roo-code/closed.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A glass shop door with a hanging card. The card reads Roo Code, then swings and turns over to show the word Archived and the date 15 May 2026, and the door handle stays still. Notes taped in the two windows say read only and final release, v3.54.0."><figcaption>Archived on GitHub, last push 15 May 2026. From the RooCodeInc/Roo-Code repository, checked 17 Oct 2026.</figcaption></figure>
+<p>The <a href="https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline">VS Code Marketplace listing</a> is still up. It shows version 3.54.0, last updated 15 May 2026, more than 2 million installs, and the same shutdown notice as the README.</p>
+<h2 id="why-was-roo-code-shut-down" tabindex="-1">Why was Roo Code shut down? <a class="anchor" href="#why-was-roo-code-shut-down" aria-hidden="true">#</a></h2>
+<p>Roo Code’s own README does not say why; two other projects do. <a href="https://github.com/Zoo-Code-Org/Zoo-Code">ZooCode’s README</a> says it “continues development of this project after the Roo team wound down active Roo Code work to focus on Roomote”. <a href="https://kilo.ai/articles/roo-to-kilo-migration-guide">Kilo’s Roo migration guide</a> dates the announcement to 21 April 2026 and quotes it: “We’re shutting it down to go all-in on Roomote.” Kilo’s guide sums up the stated reason as a “Pivot to Roomote, Roo’s cloud agent”.</p>
+<p>The company’s own pages point the same way. <a href="http://roocode.com">roocode.com</a> now redirects to <a href="https://roomote.dev/">roomote.dev</a>, a cloud coding agent whose homepage carries a “By the creators of” line with the Roo Code logo. The <a href="https://github.com/RooCodeInc">RooCodeInc GitHub organisation</a> now shows the name Roomote, with Roo-Code marked “Public archive”.</p>
+<h2 id="where-did-roo-code-come-from-and-who-forked-it" tabindex="-1">Where did Roo Code come from, and who forked it? <a class="anchor" href="#where-did-roo-code-come-from-and-who-forked-it" aria-hidden="true">#</a></h2>
+<p>Roo Code came from Cline; two of its forks are ZooCode and Kilo. Roo Code’s README names <a href="https://cline.bot/">Cline</a> as the project “from where Roo Code originated”, and points to ZooCode as “a fork started by the Roo Code community”. Kilo’s guide gives the second: “We started Kilo as a Roo fork in 2025.”</p>
+<figure class="mg" data-scene="tree"><img src="/blog/assets/media/what-is-roo-code/tree.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A family tree draws itself on a white page. A card labelled Cline appears at the top, a line grows down to a card labelled Roo Code, then the line branches to a card labelled ZooCode and a dashed card labelled Kilo Code."><figcaption>Cline to Roo Code to ZooCode, as Roo Code's own README tells it; the dashed Kilo Code branch is from Kilo's guide.</figcaption></figure>
+<p>ZooCode says it continues development of the project. Its README says its core team “contributed to Roo previously”, and it has a Roo to Zoo migration guide. On 17 Oct 2026 its latest release was v3.90.0, published that day, under Apache 2.0.</p>
+<h2 id="roo-code-status-checked-17-oct-2026" tabindex="-1">Roo Code status, checked 17 Oct 2026 <a class="anchor" href="#roo-code-status-checked-17-oct-2026" aria-hidden="true">#</a></h2>
+<p>Each row comes from the page named in its last column, opened on 17 Oct 2026.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>What the page shows</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository</td>
+<td>Archived, read only; Apache 2.0; more than 24,000 stars</td>
+<td>GitHub API</td>
+</tr>
+<tr>
+<td>Last push and release</td>
+<td>15 May 2026; v3.54.0</td>
+<td>GitHub API</td>
+</tr>
+<tr>
+<td>README</td>
+<td>“The Roo Code Extension was shut down on May 15th.”</td>
+<td>GitHub README</td>
+</tr>
+<tr>
+<td>Docs site</td>
+<td>Same notice, under “Extension Shutdown”</td>
+<td><a href="http://roocodeinc.github.io">roocodeinc.github.io</a></td>
+</tr>
+<tr>
+<td>Marketplace</td>
+<td>Still listed; 3.54.0, updated 15 May 2026</td>
+<td>VS Code Marketplace</td>
+</tr>
+<tr>
+<td><a href="http://roocode.com">roocode.com</a></td>
+<td>Redirects to roomote.dev</td>
+<td>roomote.dev</td>
+</tr>
+<tr>
+<td>GitHub org</td>
+<td>RooCodeInc shows the name Roomote</td>
+<td><a href="http://github.com/RooCodeInc">github.com/RooCodeInc</a></td>
+</tr>
+<tr>
+<td>Alternatives named in README</td>
+<td>ZooCode, a community fork, and Cline</td>
+<td>Roo Code README</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="can-you-still-use-roo-code" tabindex="-1">Can you still use Roo Code? <a class="anchor" href="#can-you-still-use-roo-code" aria-hidden="true">#</a></h2>
+<p>You can still install it, but the repository takes no new commits. The Marketplace listing is live, and Roo Code’s README says such tools are provided “AS IS” and that Roo Code, Inc makes no warranties. Kilo’s migration guide says “BYOK continues working after archive.” Our view: treat Roo Code as frozen and plan a move before a model or VS Code change breaks it.</p>
+<h2 id="how-do-you-move-off-roo-code" tabindex="-1">How do you move off Roo Code? <a class="anchor" href="#how-do-you-move-off-roo-code" aria-hidden="true">#</a></h2>
+<p>Pick a successor, then carry your settings across by hand where the guides say so. ZooCode’s README links a Roo to Zoo migration guide. Kilo’s migration guide spells out the steps. It maps Architect mode to Kilo’s plan agent and custom modes in YAML to custom agents in Markdown with YAML frontmatter. It also says the command namespace changes from <code>roo-cline.*</code> to <code>kilo-code.*</code>, so you find and replace in <code>keybindings.json</code>. On API keys it is blunt: “Re-authenticate manually. Keys don’t port.”</p>
+<figure class="mg" data-scene="boxes"><img src="/blog/assets/media/what-is-roo-code/boxes.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A cardboard removal box labelled Roo Code settings fills with small cards for Architect mode, custom modes and keybindings.json, the flaps fold shut, and the box slides across to a new shelf labelled Kilo Code. A card marked API keys bounces off the shut flaps and stays behind on the old Roo Code shelf."><figcaption>Modes and keybindings move; API keys do not, per Kilo's Roo migration guide, checked 17 Oct 2026.</figcaption></figure>
+<h2 id="what-to-use-instead" tabindex="-1">What to use instead <a class="anchor" href="#what-to-use-instead" aria-hidden="true">#</a></h2>
+<p>Roo Code’s README points to ZooCode, covered above, and Cline. Here are five ways to go, Cline included, each with its own source:</p>
+<ol>
+<li><strong>Cline.</strong> Its <a href="https://github.com/cline/cline">README</a> says “The open source coding agent in your IDE, terminal, &amp; desktop.” Apache 2.0; latest extension release v4.1.25 (16 Oct 2026). See <a href="/blog/cline-vs-munder-difflin/">Cline vs Munder Difflin</a>.</li>
+<li><strong>Munder Difflin.</strong> <a href="https://harnessmd.com/download">Munder Difflin</a> is what we make, and it is not an editor extension. It is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Start with <a href="/blog/how-to-install-and-use-munder-difflin/">how to install and use Munder Difflin</a>.</li>
+<li><strong>Kilo Code.</strong> Kilo’s <a href="https://github.com/Kilo-Org/kilocode">README</a> offers VS Code, JetBrains and a CLI, MIT licensed, and its Roo migration guide maps <code>RooVeterinaryInc.roo-cline</code> to <code>kilocode.Kilo-Code</code>.</li>
+<li><strong>Claude Code.</strong> Anthropic’s <a href="https://code.claude.com/docs/en/overview">overview</a> says it is “Available in your terminal, IDE, desktop app, and browser.” Its <a href="https://github.com/anthropics/claude-code/blob/main/LICENSE.md">licence file</a> says “All rights reserved”. See <a href="/blog/claude-code-alternatives/">Claude Code alternatives</a>.</li>
+<li><strong>Codex.</strong> OpenAI’s <a href="https://github.com/openai/codex">README</a> says Codex installs in your code editor, naming VS Code, Cursor and Windsurf. The CLI is Apache 2.0.</li>
+</ol>
+<link rel="stylesheet" href="/blog/assets/media/what-is-roo-code/motion.css"><script defer src="/blog/assets/media/what-is-roo-code/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is Roo Code dead?</p>
+          <p class="a">Roo Code itself is no longer developed. On 17 Oct 2026 GitHub showed the RooCodeInc/Roo-Code repository as archived, which makes it read only, and its README says &quot;The Roo Code Extension was shut down on May 15th.&quot; The VS Code Marketplace listing was still up, at version 3.54.0.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Why did Roo Code shut down?</p>
+          <p class="a">Roo Code&#39;s own README does not give a reason. ZooCode&#39;s README says the Roo team wound down active Roo Code work to focus on Roomote, and Kilo&#39;s migration guide quotes the announcement: &quot;We&#39;re shutting it down to go all-in on Roomote.&quot; roocode.com now redirects to roomote.dev.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is Kilo Code a fork of Roo Code?</p>
+          <p class="a">It began as one, by Kilo&#39;s own account; its current extension was rebuilt on OpenCode server. Kilo&#39;s Roo migration guide says &quot;We started Kilo as a Roo fork in 2025&quot; and that the two codebases share real git history. Roo Code&#39;s README, in turn, names Cline as the project Roo Code originated from.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can I still use Roo Code?</p>
+          <p class="a">The extension is still listed on the VS Code Marketplace, but its README says it was shut down and that Roo Code, Inc makes no warranties about it. Kilo&#39;s migration guide says &quot;BYOK continues working after archive.&quot; An archived repository gets no new commits, so plan a move.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/editors/">Editors</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-roo-code">What is Roo Code?</a></li><li class="lvl-2"><a href="#is-roo-code-dead">Is Roo Code dead?</a></li><li class="lvl-2"><a href="#why-was-roo-code-shut-down">Why was Roo Code shut down?</a></li><li class="lvl-2"><a href="#where-did-roo-code-come-from-and-who-forked-it">Where did Roo Code come from, and who forked it?</a></li><li class="lvl-2"><a href="#roo-code-status-checked-17-oct-2026">Roo Code status, checked 17 Oct 2026</a></li><li class="lvl-2"><a href="#can-you-still-use-roo-code">Can you still use Roo Code?</a></li><li class="lvl-2"><a href="#how-do-you-move-off-roo-code">How do you move off Roo Code?</a></li><li class="lvl-2"><a href="#what-to-use-instead">What to use instead</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/what-is-zeroclaw/"><span class="k">← Older</span><span class="t">What Is ZeroClaw? The Single Binary Agent Runtime in Rust, Explained</span></a>
+      <a class="pn next" href="/blog/what-is-nanoclaw/"><span class="k">Newer →</span><span class="t">What Is NanoClaw? The Small OpenClaw Alternative That Runs Agents in Containers</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/deepseek-v4-1-flash-1017/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/deepseek-v4-1-flash-1017/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-17">Oct 17, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/deepseek-v4-1-flash-1017/">DeepSeek V4.1 Flash 1017: What Changed, the Price and Claude Code Setup</a></h3>
+    <p class="dek">DeepSeek V4.1 Flash 1017, released 17 Oct 2026 under MIT: what changed, DeepSeek&#39;s benchmarks, the API price and Claude Code setup.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/deepseek-v4-1-flash-1017/" aria-label="Read: DeepSeek V4.1 Flash 1017: What Changed, the Price and Claude Code Setup">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-nanoclaw/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-nanoclaw/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-17">Oct 17, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/what-is-nanoclaw/">What Is NanoClaw? The Small OpenClaw Alternative That Runs Agents in Containers</a></h3>
+    <p class="dek">NanoClaw explained on 17 Oct 2026: what the MIT licensed assistant does, how it differs from OpenClaw, how to install it and which models it works with.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-nanoclaw/" aria-label="Read: What Is NanoClaw? The Small OpenClaw Alternative That Runs Agents in Containers">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-zeroclaw/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-zeroclaw/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-17">Oct 17, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/what-is-zeroclaw/">What Is ZeroClaw? The Single Binary Agent Runtime in Rust, Explained</a></h3>
+    <p class="dek">ZeroClaw explained on 17 Oct 2026: what the Rust agent runtime does, how it keeps the agent in check, how to install it and which models it works with.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-zeroclaw/" aria-label="Read: What Is ZeroClaw? The Single Binary Agent Runtime in Rust, Explained">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

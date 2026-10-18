@@ -284,50 +284,50 @@
       <h2>Related in Concepts</h2>
       <div class="post-grid">
         <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/opencode-2-0/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opencode-2-0/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/deepseek-v4-1-flash-1017/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/deepseek-v4-1-flash-1017/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-15">Oct 15, 2026</time>
+      <time datetime="2026-10-17">Oct 17, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
+      <span>4 min</span>
     </div>
-    <h3><a href="/blog/opencode-2-0/">OpenCode 2.0: what changed and how to upgrade</a></h3>
-    <p class="dek">OpenCode 2.0 from Anomaly: the background service, Code Mode, background subagents, the new plugin API and SDK, and how to upgrade. Checked 15 Oct 2026.</p>
+    <h3><a href="/blog/deepseek-v4-1-flash-1017/">DeepSeek V4.1 Flash 1017: What Changed, the Price and Claude Code Setup</a></h3>
+    <p class="dek">DeepSeek V4.1 Flash 1017, released 17 Oct 2026 under MIT: what changed, DeepSeek&#39;s benchmarks, the API price and Claude Code setup.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/opencode-2-0/" aria-label="Read: OpenCode 2.0: what changed and how to upgrade">Read →</a>
+      <a class="more" href="/blog/deepseek-v4-1-flash-1017/" aria-label="Read: DeepSeek V4.1 Flash 1017: What Changed, the Price and Claude Code Setup">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/claude-code-router/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-router/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/what-is-nanoclaw/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-nanoclaw/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <time datetime="2026-10-17">Oct 17, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>4 min</span>
     </div>
-    <h3><a href="/blog/claude-code-router/">Claude Code Router: What It Is, How It Works and How to Install It</a></h3>
-    <p class="dek">Claude Code Router, checked 14 Oct 2026: what the local gateway does, how to install it, which providers it lists, and what Anthropic says about it.</p>
+    <h3><a href="/blog/what-is-nanoclaw/">What Is NanoClaw? The Small OpenClaw Alternative That Runs Agents in Containers</a></h3>
+    <p class="dek">NanoClaw explained on 17 Oct 2026: what the MIT licensed assistant does, how it differs from OpenClaw, how to install it and which models it works with.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/claude-code-router/" aria-label="Read: Claude Code Router: What It Is, How It Works and How to Install It">Read →</a>
+      <a class="more" href="/blog/what-is-nanoclaw/" aria-label="Read: What Is NanoClaw? The Small OpenClaw Alternative That Runs Agents in Containers">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/gemini-4-argon-inside-google/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-argon-inside-google/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/what-is-roo-code/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-roo-code/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-10-13">Oct 13, 2026</time>
+      <time datetime="2026-10-17">Oct 17, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>4 min</span>
     </div>
-    <h3><a href="/blog/gemini-4-argon-inside-google/">Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.</a></h3>
-    <p class="dek">Google&#39;s own numbers for Gemini 4 Argon on real code: 134 bugs triaged in under 3 hours, 30% fewer rollbacks, a framework tuned overnight. Checked 13 Oct 2026.</p>
+    <h3><a href="/blog/what-is-roo-code/">What Is Roo Code? The Archived VS Code Agent, Explained</a></h3>
+    <p class="dek">Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/gemini-4-argon-inside-google/" aria-label="Read: Google Let Gemini 4 Argon Loose on Its Own Coding Backlog. Here Are the Receipts.">Read →</a>
+      <a class="more" href="/blog/what-is-roo-code/" aria-label="Read: What Is Roo Code? The Archived VS Code Agent, Explained">Read →</a>
     </div>
   </div>
 </article>
@@ -377,9 +377,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

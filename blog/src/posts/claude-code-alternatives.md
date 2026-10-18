@@ -48,7 +48,7 @@ The Claude Code repo is public, but its licence file says "All rights reserved",
 
 **5. Gemini CLI.** [Gemini CLI](https://github.com/google-gemini/gemini-cli) is Google's Apache 2.0 terminal agent for Gemini models. Read the fine print: Google's [transition notice](https://github.com/google-gemini/gemini-cli/discussions/27274) set 18 Jun 2026 as the day it stops serving free, Google AI Pro and Ultra users, while paid Gemini API keys keep working. Those tiers are now supported through Antigravity CLI. The repo README still advertises a free tier, which the notice overrides. Best for: teams already paying Google.
 
-**6. Cline.** [Cline](https://cline.bot/pricing) is an Apache 2.0 agent that ships as a VS Code extension and a CLI. Its pricing page says it "is free for individual developers" and you pay only for inference, with your own keys or through Cline. Best for: an open agent inside stock VS Code.
+**6. Cline.** [Cline](https://cline.bot/pricing) is an Apache 2.0 agent that ships as a VS Code extension and a CLI. Its pricing page says it "is free for individual developers" and you pay only for inference, with your own keys or through Cline. Roo Code originated from Cline, and the Roo Code repo was archived in May 2026; see [what happened to Roo Code](/blog/what-is-roo-code/). Best for: an open agent inside stock VS Code.
 
 **7. Pi.** [Pi](https://pi.dev/) is an MIT licensed "minimal agent harness". It supports 15+ providers and skips sub-agents and plan mode on purpose: you add them as extensions. Version 1.0.3 came out on 5 Oct 2026. Best for: people who want to build their own setup. See [what is Pi agent](/blog/what-is-pi-agent/).
 
