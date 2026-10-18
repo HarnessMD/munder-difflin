@@ -31,8 +31,8 @@ const colorByStatus: Record<StatusKind, string> = {
   typing:     'var(--cth-status-typing)'
 };
 
-// i18n key per status. "blocked" is reserved for the god agent waiting on YOU,
-// so it reads as "needs you"; sub-agents waiting on god/another agent are
+// i18n key per status. "blocked" is reserved for the orchestrator waiting on YOU,
+// so it reads as "needs you"; sub-agents waiting on orchestrator/another agent are
 // "waiting", which is honest about who they're actually stalled on.
 const labelKeyByStatus: Record<StatusKind, string> = {
   idle:     'badge.idle',

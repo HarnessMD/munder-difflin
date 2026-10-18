@@ -201,9 +201,9 @@ open-source project should build it:
 ## Still new in 0.4.1 — *The app says what the site says*
 
 **Michael is your clone.** The website has been describing Munder Difflin as a clone of you that
-works around the clock — the app still called it a "GOD agent." Now they match.
+works around the clock — the app still called it a "ORCHESTRATOR agent." Now they match.
 
-- **Your clone, not the GOD agent.** Michael is described as your clone throughout onboarding,
+- **Your clone, not the ORCHESTRATOR agent.** Michael is described as your clone throughout onboarding,
   and his card on the floor carries a **BOSS** tag — he's the boss of the agents, you're still
   the boss of him.
 - **Onboarding was rewritten.** It opens on what you actually get ("a clone of you, working
@@ -212,7 +212,7 @@ works around the clock — the app still called it a "GOD agent." Now they match
   are all named.
 
 > [!NOTE]
-> **This release changes wording only.** The `god` agent id, the hive folder layout, and message
+> **This release changes wording only.** The `orchestrator` agent id, the hive folder layout, and message
 > routing are untouched, so existing hives, memory, and running agents carry over exactly as they
 > are. Nothing to migrate.
 
@@ -247,7 +247,7 @@ works around the clock — the app still called it a "GOD agent." Now they match
   [@gts-47](https://github.com/gts-47) and [@qschmick](https://github.com/qschmick).
 - **0.3.3** — the built-in Monaco IDE, and GitHub Copilot CLI as the first community-contributed
   engine ([@anxkhn](https://github.com/anxkhn)).
-- **0.3.2** — Realtime Michael: a voice channel to the GOD orchestrator.
+- **0.3.2** — Realtime Michael: a voice channel to the orchestrator.
 - **0.3.1** — three more engines: OpenCode, Crush, and pi.dev.
 
 Full history in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
@@ -269,7 +269,7 @@ This release carries community work. All 23 of these landed in v0.4.5:
 | [#175](https://github.com/chaitanyagiri/munder-difflin/pull/175) | [@rekcilyssup](https://github.com/rekcilyssup) | a main-process watchdog wakes an idle worker sitting on an undrained inbox |
 | [#176](https://github.com/chaitanyagiri/munder-difflin/pull/176) | [@FenjuFu](https://github.com/FenjuFu) | Gemini CLI joins the engine list |
 | [#177](https://github.com/chaitanyagiri/munder-difflin/pull/177) | [@TTAWDTT](https://github.com/TTAWDTT) | each agent's live context-window occupancy shows in the roster |
-| [#178](https://github.com/chaitanyagiri/munder-difflin/pull/178) | [@gpechieu](https://github.com/gpechieu) | a god-hired worker gets a floor card, and it archives when the worker dies |
+| [#178](https://github.com/chaitanyagiri/munder-difflin/pull/178) | [@gpechieu](https://github.com/gpechieu) | a orchestrator-hired worker gets a floor card, and it archives when the worker dies |
 | [#179](https://github.com/chaitanyagiri/munder-difflin/pull/179) | [@kdahal7](https://github.com/kdahal7) | `statAbs` expands `~`, so a path resolves the same way on every platform |
 | [#181](https://github.com/chaitanyagiri/munder-difflin/pull/181) | [@TTAWDTT](https://github.com/TTAWDTT) | webhook dispatch goes through an atomic add, so a stale ledger cannot overwrite it |
 | [#184](https://github.com/chaitanyagiri/munder-difflin/pull/184) | [@TTAWDTT](https://github.com/TTAWDTT) | the per-agent steer queue is capped, which bounds memory on a stalled agent |
@@ -359,10 +359,10 @@ To produce installers yourself: `npm run dist` (current OS), or `dist:mac` / `di
 
 ## What's inside
 - **The simulation** — every agent is a real `claude` (or `agy` / `codex` / local-provider) pseudo-terminal, visualized as an avatar on a watchable office floor (`node-pty` · `xterm.js` · Pixi.js).
-- **Talk to Michael** — a realtime **voice channel to the GOD orchestrator** that reads the hive and acts behind spoken echo-back confirmation, BYOK and main-only.
+- **Talk to Michael** — a realtime **voice channel to the orchestrator** that reads the hive and acts behind spoken echo-back confirmation, BYOK and main-only.
 - **Selectable engines + per-hire capabilities** — each hire (and Michael himself) runs on a pluggable engine, with its own consented skills + MCP catalog.
 - **MemPalace** — a markdown-first, semantic memory layer the whole office shares; cross-session recall in ~12ms.
-- **GOD orchestrator + hive** — one agent you talk to routes work to specialists and stays autonomous, escalating only critical items (spend, destructive ops, scope) to you natively, through human-in-the-loop prompts. It can also spawn an ephemeral worker straight from Slack and tear it down safely.
+- **orchestrator + hive** — one agent you talk to routes work to specialists and stays autonomous, escalating only critical items (spend, destructive ops, scope) to you natively, through human-in-the-loop prompts. It can also spawn an ephemeral worker straight from Slack and tear it down safely.
 - **Plugs into your setup** — your subscription, settings, skills, and MCP servers, plus an integrations registry with a write-only secret broker; `/remote-control` reaches the whole floor from your phone.
 
 Full notes in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).

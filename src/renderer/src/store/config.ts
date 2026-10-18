@@ -1,5 +1,5 @@
-// Mirrors src/main/config.ts. Kept as a renderer-side type-only module
-// so we don't have to reach into the preload package to type-check.
+import { useSyncExternalStore } from 'react';
+import { catalogModels, type ModelsCatalog } from '@shared/modelCatalog';
 import {
   AGENT_PROVIDER_PRESETS,
   providerPreset,
@@ -66,16 +66,20 @@ export interface HarnessConfig {
   recentHives?: string[];
   registeredRepos: string[];
   autoMode: boolean;
-  /** May the orchestrator ("Michael") spin up agents on its own? Default FALSE,
+  /** May the orchestrator (the orchestrator) spin up agents on its own? Default FALSE,
    *  so an absent value reads as off. Mirrors src/main/config.ts. */
   orchestratorMaySpawn?: boolean;
+  /** Mirrors src/main/config.ts. */
+  usageEndpoint?: { enabled: boolean; url: string; token?: string; timeoutMs: number };
+  /** HEAVY-JOB-SERIALIZE: heavy jobs (installs, builds, full suites, benches) at once; 'off' = no limit. Default 1. */
+  heavyJobsAtOnce?: number | 'off';
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;
-  /** Which provider+model powers the GOD orchestrator ("Michael"). Default
+  /** Which provider+model powers the orchestrator (the orchestrator). Default
    *  'claude' / 'claude-opus-4-8'. Mirrors src/main/config.ts. */
-  godProvider?: AgentProvider;
-  godModel?: string;
+  orchestratorProvider?: AgentProvider;
+  orchestratorModel?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id (mirrors
    *  src/main/config.ts; seeded from MCP_CATALOG). */
   mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -108,7 +112,7 @@ export interface HarnessConfig {
   groqApiKey?: string;
   freeflowModel?: string;
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
-   *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
+   *  Tuned in Settings → Realtime voice; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;
   costCapUsd?: number;
   /** Hard total-token ceiling across active agents (the user-facing budget). */
@@ -123,8 +127,10 @@ export interface HarnessConfig {
   knowledgeGraph?: KnowledgeGraphConfig;
   /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
   tvShowOffices?: boolean;
-  /** Active office map/cast theme (honored only when tvShowOffices is on). */
+  /** Active theme pack id (falls back to 'plain'). tvShowOffices above is deprecated and ignored. */
   officeTheme?: string;
+  /** Extra folder scanned for theme packs. See docs/theming/THEMING.md. */
+  themesDir?: string;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn. API KEYS are NOT stored here —
    *  they live write-only in the secret broker. */
@@ -153,7 +159,7 @@ export interface HarnessConfig {
   triggersMigratedV1?: boolean;
 }
 
-/** The Sonnet model with the 1M-token context window — used for Michael's prep
+/** The Sonnet model with the 1M-token context window — used for the orchestrator's prep
  *  assistant (cheap, large-context context gathering). Mirrors ASSISTANT_MODEL
  *  in src/main/assistant.ts; keep the two in sync. */
 export const ASSISTANT_MODEL = 'claude-sonnet-4-6[1m]';
@@ -228,7 +234,7 @@ export type { CatalogModel, ModelCatalog } from '@shared/modelCatalogPayload';
  *    suggestions, editable command field. // TODO-verify exact live ids (the
  *    /model picker is the source of truth; they drift).
  *  - cursor: ids match `cursor-agent models` / `--model` (Cursor account catalog).
- *    Luna is the cheap, high-context default for Michael; the rest are curated
+ *    Luna is the cheap, high-context default for the orchestrator; the rest are curated
  *    quick-picks and the command field stays editable for any live slug.
  *  - grok: the models reported by the installed Grok CLI (`grok models`).
  *  - kimi: managed Kimi Code aliases accepted by `kimi --model <alias>`.
@@ -288,12 +294,6 @@ export async function refreshModelCatalog(force = false): Promise<boolean> {
   }
 }
 
-// Fire once on load. The pickers all call modelsForProvider() during render, so
-// the usual case — main pre-warmed the cache at startup, this resolves in a few
-// ms, no modal is open yet — needs no subscription at all. A catalog that lands
-// while a picker is already open reaches it on that picker's next render.
-if (typeof window !== 'undefined') void refreshModelCatalog();
-
 declare const __APP_VERSION__: string | undefined;
 
 /** The version of the running build. electron-vite replaces `__APP_VERSION__`
@@ -339,8 +339,61 @@ export function modelsForProviderAtVersion(
 // importers keep their path.
 export { tokenizeCommand } from '@shared/commandLine';
 
+// ── REFRESH-MODELS: the models file, as main hands it over ─────────────────────────────
+// Loaded ONCE per window (a file read in main, never a lookup) and replaced when the Settings
+// button refreshes it. Module-level subscribe/getSnapshot: a re-render never re-subscribes.
+let modelCatalogState: ModelsCatalog | null = null;
+let catalogVersion = 0;
+const catalogListeners = new Set<() => void>();
+let catalogLoading: Promise<void> | null = null;
+
+export function setModelCatalog(next: ModelsCatalog | null): void {
+  modelCatalogState = next;
+  catalogVersion += 1;
+  for (const l of [...catalogListeners]) { try { l(); } catch { /* a listener never breaks the rest */ } }
+}
+export function currentModelCatalog(): ModelsCatalog | null { return modelCatalogState; }
+function subscribeCatalog(l: () => void): () => void { catalogListeners.add(l); return () => { catalogListeners.delete(l); }; }
+function catalogVersionSnapshot(): number { return catalogVersion; }
+/** Re-renders a picker when the models file changes. */
+export function useModelCatalogVersion(): number {
+  return useSyncExternalStore(subscribeCatalog, catalogVersionSnapshot, catalogVersionSnapshot);
+}
+
+type CatalogApi = { modelCatalog?: () => Promise<ModelsCatalog | null>; onModelCatalogChanged?: (cb: (f: ModelsCatalog) => void) => () => void };
+/** Read the models file once (App mount) and follow its changes. Idempotent. */
+export function loadModelCatalog(): Promise<void> {
+  if (catalogLoading) return catalogLoading;
+  const api = (typeof window !== 'undefined' ? (window as unknown as { cth?: CatalogApi }).cth : undefined);
+  if (!api?.modelCatalog) return Promise.resolve();
+  api.onModelCatalogChanged?.((f) => setModelCatalog(f));
+  catalogLoading = api.modelCatalog().then((f) => { if (f) setModelCatalog(f); }).catch(() => { catalogLoading = null; });
+  return catalogLoading;
+}
+
+/** A provider's picker list from the models file, or null (use the floor). Claude keeps the
+ *  curated `[1m]` context variants of the listed models (the Models API does not list them). */
+function catalogOptions(provider: AgentProvider): ModelOption[] | null {
+  const list = catalogModels(modelCatalogState, provider);
+  if (!list) return null;
+  const options: ModelOption[] = [{ id: undefined, label: 'CLI default' }, ...list.map((m) => ({ id: m.id, label: m.label }))];
+  if (provider === 'claude') {
+    const ids = new Set(list.map((m) => m.id));
+    for (const m of modelsForProviderAtVersion('claude', runningAppVersion())) if (m.id && /\[1m\]$/.test(m.id) && ids.has(m.id.replace(/\[1m\]$/, '')) && !ids.has(m.id)) options.push(m);
+  }
+  return options;
+}
+
+/** How a picker labels a saved model that is not in the provider's list: once the list is the
+ *  provider's own (refreshed), that model is one it no longer offers. */
+export function unknownModelSuffix(provider: AgentProvider, fallback: string): string {
+  return catalogModels(modelCatalogState, provider) ? '· not in the refreshed list' : fallback;
+}
+
 /** The model preset list for a given provider's picker, on this build. */
 export function modelsForProvider(provider: AgentProvider): ModelOption[] {
+  const refreshed = catalogOptions(provider);
+  if (refreshed) return refreshed;
   return modelsForProviderAtVersion(provider, runningAppVersion());
 }
 
@@ -352,19 +405,19 @@ export function agentModels(): ModelOption[] {
 }
 
 /** Providers shown in the Command Center's cross-provider model picker.
- *  God must remain on a provider with a working inbox drain; otherwise switching
+ *  Orchestrator must remain on a provider with a working inbox drain; otherwise switching
  *  to a terminal-only provider would silently disable orchestration. */
-export function modelProvidersForAgent(isGod = false) {
+export function modelProvidersForAgent(isOrchestrator = false) {
   return AGENT_PROVIDER_PRESETS.filter((preset) =>
-    preset.supportsModel && (!isGod || preset.canReceiveInbox)
+    preset.supportsModel && (!isOrchestrator || preset.canReceiveInbox)
   );
 }
 
 /** The onboarding engine step's two groups (issue #355). Hiding inbox-less
  *  engines there read as "Copilot isn't supported at all", when the truth is
  *  narrower: a print-mode / bridge-less CLI can be HIRED as a worker but cannot
- *  run Michael, because the orchestrator must drain hive mail. So the step now
- *  shows those engines too, as disabled workers-only rows — same god-eligible
+ *  run the orchestrator, because the orchestrator must drain hive mail. So the step now
+ *  shows those engines too, as disabled workers-only rows — same orchestrator-eligible
  *  set as `modelProvidersForAgent(true)` for the selectable group, and every
  *  other preset except `custom` (bring-your-own command, not an engine) in the
  *  disabled group. */

@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>L0 renderer harness</title>
+<style>
+  /* A deliberate, fixed baseline. The app's own styles are imported by whatever
+     component a scenario mounts; anything here would be an invisible third source
+     of layout that no production surface has. */
+  html, body { margin: 0; padding: 0; background: #FCFAF0; }
+  #root { position: absolute; inset: 0; }
+</style>
+<div id="root"></div>

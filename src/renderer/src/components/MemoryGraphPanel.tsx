@@ -21,10 +21,10 @@ import { forceLayout, type Positions } from './memoryGraph/forceLayout';
  *  All data comes from the existing preload bridge: store.agents + hiveLog +
  *  hiveMemory. No new IPC. Click an agent to jump to its memory; hover to peek. */
 export function MemoryGraphPanel({
-  godId,
+  orchestratorId,
   onJumpToMemory
 }: {
-  godId: string;
+  orchestratorId: string;
   onJumpToMemory: (agentId: string) => void;
 }) {
   const { t } = useTranslation();
@@ -99,7 +99,7 @@ export function MemoryGraphPanel({
   const layout: Positions = useMemo(() => {
     const lnodes = graph.nodes.map((n) => ({
       id: n.id,
-      gravityBias: n.kind === 'topic' ? 0.6 : n.kind === 'pseudo' ? 1.4 : n.id === godId ? 2.4 : 1
+      gravityBias: n.kind === 'topic' ? 0.6 : n.kind === 'pseudo' ? 1.4 : n.id === orchestratorId ? 2.4 : 1
     }));
     const ledges = graph.edges.map((e) => ({
       source: e.source,
@@ -109,7 +109,7 @@ export function MemoryGraphPanel({
     return forceLayout(lnodes, ledges, { width: dims.w, height: dims.h, pinned });
     // structKey/pinnedKey capture the relevant graph identity; intentional.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [structKey, pinnedKey, dims.w, dims.h, godId]);
+  }, [structKey, pinnedKey, dims.w, dims.h, orchestratorId]);
 
   // ── drag ──────────────────────────────────────────────────────────────────────
   const [live, setLive] = useState<{ id: string; x: number; y: number } | null>(null);
@@ -300,10 +300,10 @@ export function MemoryGraphPanel({
                     x={-half} y={-half} width={s} height={s}
                     fill={nodeFill(n)}
                     stroke="var(--cth-ink-900)"
-                    strokeWidth={n.kind === 'agent' && n.isGod ? 2 : 1.5}
+                    strokeWidth={n.kind === 'agent' && n.isOrchestrator ? 2 : 1.5}
                   />
-                  {/* double border for god + human */}
-                  {((n.kind === 'agent' && n.isGod) || (n.kind === 'pseudo' && n.id === 'human')) && (
+                  {/* double border for orchestrator + human */}
+                  {((n.kind === 'agent' && n.isOrchestrator) || (n.kind === 'pseudo' && n.id === 'human')) && (
                     <rect x={-half + 3} y={-half + 3} width={s - 6} height={s - 6}
                       fill="none" stroke="var(--cth-ink-900)" strokeWidth={1} />
                   )}
@@ -494,7 +494,7 @@ function actColor(act?: MessageAct): string {
 }
 
 function nodeSize(n: GraphNode): number {
-  if (n.kind === 'agent') return (n.isGod ? 30 : 22) + Math.min(n.degree, 10) * 1.0;
+  if (n.kind === 'agent') return (n.isOrchestrator ? 30 : 22) + Math.min(n.degree, 10) * 1.0;
   if (n.kind === 'topic') return 12 + Math.min(n.weight, 6) * 1.4;
   return 17; // pseudo
 }

@@ -29,6 +29,7 @@ import {
   isClaudeProvider,
   modelProvidersForAgent,
   modelsForProvider,
+  useModelCatalogVersion,
   providerPreset,
   tokenizeCommand,
   AGENT_PROVIDER_PRESETS,
@@ -38,8 +39,8 @@ import { canReceiveInbox } from '@shared/agentProvider';
 import { isComposingKey } from '@shared/imeGuard';
 import { useRtl } from '@/i18n/useDirection';
 
-/** Michael's control surface. Shown instead of the plain terminal/files panel
- *  when the god agent is selected: terminal + queue, the floor roster (with
+/** the orchestrator's control surface. Shown instead of the plain terminal/files panel
+ *  when the orchestrator is selected: terminal + queue, the floor roster (with
  *  per-agent model + dispatch + assistant access), a memory view, and a live
  *  activity feed / board / usage meter. */
 
@@ -130,8 +131,8 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
   // True only for the DOCKED panel while the overlay holds this agent.
   const isFullscreenedHere = fullscreenAgentId === agent.id && !fullscreen;
   // v0.3.4: ONE floor-wide auto-delivery switch, moved off the per-agent
-  // control strips — toggling applies to every live agent, god included.
-  // Seeded from the god's own control state (the floor is kept in sync by
+  // control strips — toggling applies to every live agent, orchestrator included.
+  // Seeded from the orchestrator's own control state (the floor is kept in sync by
   // this single control, so any agent's state reflects the floor's).
   const [floorDeliveryPaused, setFloorDeliveryPaused] = useState(false);
   useEffect(() => {
@@ -325,11 +326,11 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
         {tab === 'triggers' && <TriggersTab />}
         {tab === 'trigger-history' && <TriggerHistoryTab />}
         {tab === 'memory' && (
-          <MemoryTab godId={agent.id} who={selectedMemoryAgent ?? undefined} onWho={setSelectedMemoryAgent} />
+          <MemoryTab orchestratorId={agent.id} who={selectedMemoryAgent ?? undefined} onWho={setSelectedMemoryAgent} />
         )}
         {tab === 'graph' && (
           <MemoryGraphPanel
-            godId={agent.id}
+            orchestratorId={agent.id}
             onJumpToMemory={(id) => { setSelectedMemoryAgent(id); setTab('memory'); }}
           />
         )}
@@ -344,10 +345,11 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
 // ─── Floor tab — roster, model, dispatch, dirs, assistant ────────────────────
 
 function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
+  useModelCatalogVersion(); // REFRESH-MODELS: re-render when the models file is refreshed
   const { t } = useTranslation();
   const rtl = useRtl();
   const agents = useStore((s) => s.agents);
-  const godName = agents.find((a) => a.isGod)?.name ?? 'the orchestrator';
+  const orchestratorName = agents.find((a) => a.isOrchestrator)?.name ?? 'the orchestrator';
   const select = useStore((s) => s.select);
   const updateAgent = useStore((s) => s.updateAgent);
   const toolCounts = useStore((s) => s.toolCounts);
@@ -364,11 +366,11 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
   const [engineProvider, setEngineProvider] = useState<AgentProvider>('claude');
   const [engineModel, setEngineModel] = useState<string | undefined>(undefined);
   const [restartErrors, setRestartErrors] = useState<Record<string, string>>({});
-  // The harness's own default model (Settings → default model). Michael and every
+  // The harness's own default model (Settings → default model). the orchestrator and every
   // new agent spawn on this, so the picker marks it — otherwise the only entry
   // reading "default" was the CLI's, which is a different thing entirely.
   const [defaultModel, setDefaultModel] = useState<string | undefined>(undefined);
-  const [dispatchTo, setDispatchTo] = useState<string>(''); // '' = Michael decides
+  const [dispatchTo, setDispatchTo] = useState<string>(''); // '' = the orchestrator decides
   const [dispatchText, setDispatchText] = useState('');
   const [dispatchMsg, setDispatchMsg] = useState<string | null>(null);
   // ── ISSUES section state ──
@@ -382,8 +384,8 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       setRepos(c.registeredRepos ?? []);
       setTokenCap(c.costCapTokens);
       setAgentTokenCaps(c.agentTokenCaps ?? {});
-      setEngineProvider(c.godProvider ?? 'claude');
-      setEngineModel(c.godModel);
+      setEngineProvider(c.orchestratorProvider ?? 'claude');
+      setEngineModel(c.orchestratorModel);
       setDefaultModel(c.defaultModel);
     }).catch(() => { /* noop */ });
   }, []);
@@ -423,7 +425,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       // Respawn on the same CLI this agent already runs on (inferred from its
       // command if not explicitly tagged) so an Antigravity/Codex worker stays
       // on its own binary. tokenizeCommand keeps quoted model labels one arg.
-      // opts.provider overrides the inferred provider — used when changing GOD's engine.
+      // opts.provider overrides the inferred provider — used when changing ORCHESTRATOR's engine.
       const previousProvider = inferAgentProvider(a.command, a.provider);
       const provider = opts.provider ?? previousProvider;
       let resume = opts.resume === true && provider === previousProvider;
@@ -479,7 +481,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
         name: a.name,
         cwd: a.cwd,
         provider,
-        isGod: a.isGod,
+        isOrchestrator: a.isOrchestrator,
         isAssistant: a.isAssistant,
         role: roleForHiveSpawn(a)
       };
@@ -554,11 +556,11 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
     }
   };
 
-  // ALL human dispatch flows through the god — never directly into a worker's
+  // ALL human dispatch flows through the orchestrator — never directly into a worker's
   // inbox. Direct dispatch bypassed the orchestrator's whole job: no 4-part
   // contract, no card in tasks.json, no board awareness — and the old
   // 'broadcast' DEFAULT sent the same task to every worker at once. A worker
-  // picked in the dropdown is forwarded as a SUGGESTION the god may follow.
+  // picked in the dropdown is forwarded as a SUGGESTION the orchestrator may follow.
   const dispatch = async () => {
     const body = dispatchText.trim();
     if (!body) return;
@@ -567,14 +569,14 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       ? `${body}\n\n${t('commandCenter.dispatchSuggestion', { name: suggested.name, id: suggested.id })}`
       : body;
     const res = await window.cth.hiveSend(
-      { to: 'god', act: 'request', subject: t('commandCenter.taskFromHuman'), body: full },
+      { to: 'orchestrator', act: 'request', subject: t('commandCenter.taskFromHuman'), body: full },
       'human'
     );
     setDispatchText('');
     setDispatchMsg(res.ok
       ? suggested
-        ? t('commandCenter.sentToWithSuggestion', { godName, name: suggested.name })
-        : t('commandCenter.sentToMichael', { godName })
+        ? t('commandCenter.sentToWithSuggestion', { orchestratorName, name: suggested.name })
+        : t('commandCenter.sentToOrchestrator', { orchestratorName })
       : t('commandCenter.dispatchFailed', { error: res.error ?? '?' }));
     setTimeout(() => setDispatchMsg(null), 4000);
   };
@@ -603,7 +605,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
   const assignIssue = (issue: GHIssue) => {
     const body = (issue.body ?? '').slice(0, 200);
     setDispatchText(`GitHub Issue #${issue.number}: ${issue.title}\n\n${body}\n\nURL: ${issue.url}`);
-    setDispatchTo(''); // Michael decomposes and assigns — no more broadcast blasts
+    setDispatchTo(''); // the orchestrator decomposes and assigns — no more broadcast blasts
   };
 
   // Set/clear one agent's token limit atomically in main. Renderer config objects
@@ -645,14 +647,14 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
 
   return (
     <Scroll>
-      <Section title={t('commandCenter.dispatchViaMichael', { godName: godName.toUpperCase() })}>
+      <Section title={t('commandCenter.dispatchViaOrchestrator', { orchestratorName: orchestratorName.toUpperCase() })}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 8, color: 'var(--cth-ink-500)', flexShrink: 0 }}>
             {t('commandCenter.suggestedOwner')}
           </span>
           <Select value={dispatchTo} onChange={setDispatchTo}>
-            <option value="">{t('commandCenter.michaelDecides', { godName })}</option>
-            {agents.filter((a) => !a.isGod).map((a) => (
+            <option value="">{t('commandCenter.orchestratorDecides', { orchestratorName })}</option>
+            {agents.filter((a) => !a.isOrchestrator).map((a) => (
               <option key={a.id} value={a.id}>{a.name}</option>
             ))}
           </Select>
@@ -662,7 +664,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
           value={dispatchText}
           onChange={(e) => setDispatchText(e.target.value)}
           rows={2}
-          placeholder={t('commandCenter.dispatchPlaceholder', { godName })}
+          placeholder={t('commandCenter.dispatchPlaceholder', { orchestratorName })}
           style={textareaStyle}
         />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
@@ -722,7 +724,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                   border: 'none', background: 'transparent', cursor: 'pointer', padding: 0,
                   fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-900)'
                 }}
-              >{a.name}{a.isGod ? t('commandCenter.godTag') : ''}</button>
+              >{a.name}{a.isOrchestrator ? t('commandCenter.orchestratorTag') : ''}</button>
               <PixelBadge status={armed ? 'looping' : a.status} />
               {armed && <span title={breaker?.reason} style={{ color: 'var(--cth-coral)', fontSize: 12 }}>⚠</span>}
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--cth-ink-500)' }}>
@@ -796,11 +798,11 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                 </span>
               )}
             </div>
-            {/* Non-god agents get the cross-provider model picker + restart controls
-                here. The GOD agent's model lives in the engine row below
+            {/* Non-orchestrator agents get the cross-provider model picker + restart controls
+                here. The ORCHESTRATOR agent's model lives in the engine row below
                 (provider+model+apply), so we DON'T render this second selector for
                 it — one model picker, not two. */}
-            {!a.isGod && (
+            {!a.isOrchestrator && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
               <Select
                 value={encodeProviderModel(agentProvider, a.model)}
@@ -827,7 +829,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                     {agentPreset.label} · {a.model ?? 'current'}
                   </option>
                 )}
-                {modelProvidersForAgent(a.isGod).map((preset) => (
+                {modelProvidersForAgent(a.isOrchestrator).map((preset) => (
                   <optgroup key={preset.id} label={preset.label}>
                     {modelsForProvider(preset.id).map((model) => {
                       // `defaultModel` is a Claude model id, so it can only mark
@@ -875,7 +877,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                 {restartErrors[a.id]}
               </div>
             )}
-            {a.isGod && (
+            {a.isOrchestrator && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 11, color: 'var(--cth-ink-500)', flexShrink: 0 }}>{t('commandCenter.engine')}</span>
                 <Select
@@ -912,14 +914,14 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                     if (engineProvider !== currentProvider) {
                       if (!window.confirm(t('commandCenter.confirmRestartEngine', { name: a.name }))) return;
                     }
-                    await window.cth.updateConfig({ godProvider: engineProvider, godModel: engineModel });
+                    await window.cth.updateConfig({ orchestratorProvider: engineProvider, orchestratorModel: engineModel });
                     await restartWithModel(a, engineModel, { provider: engineProvider, resume: false });
                   }}
                 >
                   {restarting === a.id ? t('common.restarting') : t('commandCenter.apply')}
                 </PixelButton>
                 {/* Redraw a garbled terminal without losing the thread (resume the
-                    SAME engine+model). Kept here since the god has no per-agent row above. */}
+                    SAME engine+model). Kept here since the orchestrator has no per-agent row above. */}
                 <PixelButton
                   variant="secondary"
                   size="sm"
@@ -1075,11 +1077,11 @@ function ArchivedSection() {
 
 // ─── Memory tab ──────────────────────────────────────────────────────────────
 
-function MemoryTab({ godId, who: controlledWho, onWho }: { godId: string; who?: string; onWho?: (id: string) => void }) {
+function MemoryTab({ orchestratorId, who: controlledWho, onWho }: { orchestratorId: string; who?: string; onWho?: (id: string) => void }) {
   const { t } = useTranslation();
   const agents = useStore((s) => s.agents);
   // Selection is controllable from the graph tab; falls back to local state.
-  const [internalWho, setInternalWho] = useState<string>(godId);
+  const [internalWho, setInternalWho] = useState<string>(orchestratorId);
   const who = controlledWho ?? internalWho;
   const setWho = onWho ?? setInternalWho;
   const [mem, setMem] = useState('');

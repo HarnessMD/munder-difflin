@@ -4,6 +4,7 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon, type IconName } from './Icon';
 import { SpritePortrait } from './SpritePortrait';
+import { ORCHESTRATOR_CHARACTER } from '@/scene/office/cast';
 import { ProviderLogo } from './ProviderLogo';
 import { modelsForProvider, onboardingEngineChoices, type AgentProvider, type HarnessConfig } from '@/store/config';
 import { providerPreset } from '@shared/agentProvider';
@@ -11,8 +12,8 @@ import {
   classifyEngineAvailability, engineAvailabilityBadge, engineAvailabilityMessage, engineBlocksOnboarding
 } from '@shared/engineAvailability';
 import type { ToolStatus } from '@shared/toolCatalog';
-import type { PackSummary } from '@shared/themePack';
-import { useResolvedGodName } from '@/hooks/useResolvedGodName';
+import { DEFAULT_THEME_ID, type PackSummary } from '@shared/themePack';
+import { useResolvedOrchestratorName } from '@/hooks/useResolvedOrchestratorName';
 import { setAppTheme, useAppTheme, type AppTheme } from '@/design/theme';
 
 export interface OnboardingWizardProps {
@@ -91,8 +92,8 @@ const PROVIDER_BLURB_KEYS: Partial<Record<AgentProvider, string>> = {
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const { t } = useTranslation();
-  // Onboarding runs before god exists in the store, so read the persisted name.
-  const godName = useResolvedGodName();
+  // Onboarding runs before orchestrator exists in the store, so read the persisted name.
+  const orchestratorName = useResolvedOrchestratorName();
   const [step, setStep] = useState<Step>('persona');
   // Self-identified audience (item 1). Undefined until chosen on the first screen;
   // the rest of the wizard reads `plain` to swap copy registers.
@@ -105,8 +106,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   // Anonymous usage stats (TELEMETRY.md). Default ON (opt-out); persisted by
   // finish() so unchecking before finishing means nothing is ever sent.
   const [shareStats, setShareStats] = useState<boolean>(true);
-  const [godProvider, setGodProvider] = useState<AgentProvider>('claude');
-  const [godModel, setGodModel] = useState<string | undefined>(
+  const [orchestratorProvider, setOrchestratorProvider] = useState<AgentProvider>('claude');
+  const [orchestratorModel, setOrchestratorModel] = useState<string | undefined>(
     providerPreset('claude').recommendedOrchestratorModel
   );
   const [error, setError] = useState<string | undefined>();
@@ -115,7 +116,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   // Appearance & Theme Pack selection (#3, #4)
   const currentAppTheme = useAppTheme();
   const [selectedMode, setSelectedMode] = useState<AppTheme>(currentAppTheme);
-  const [selectedPack, setSelectedPack] = useState<string>('munder-difflin');
+  const [selectedPack, setSelectedPack] = useState<string>(DEFAULT_THEME_ID);
   const [themeSelected, setThemeSelected] = useState<boolean>(false);
   const [packs, setPacks] = useState<PackSummary[]>([]);
 
@@ -150,7 +151,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   };
 
   // Which engine CLIs are actually on this machine. The picker used to record the
-  // choice blind; the first check happened when Michael spawned, and for a
+  // choice blind; the first check happened when the orchestrator spawned, and for a
   // provider with no installer that meant a first run where nothing ever booted.
   // `undefined` = probe not back yet (or failed): rows show no badge and nothing
   // is blocked, because a broken probe must not lock a new user out.
@@ -163,7 +164,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     finally { setProbing(false); }
   };
   useEffect(() => { void probeEngines(); }, []);
-  const selectedEngine = classifyEngineAvailability(engines, godProvider);
+  const selectedEngine = classifyEngineAvailability(engines, orchestratorProvider);
   const engineBlocked = engineBlocksOnboarding(selectedEngine);
 
   // Permissions & reliability toggles. These apply IMMEDIATELY on change (their
@@ -244,9 +245,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     if (!harnessHome) { setError(t('onboarding.errPickHome')); setBusy(false); setStep('home'); return; }
     // The orchestrator step already refuses to advance on this, but a late probe
     // result can change the answer after the user has moved on. Never write a
-    // godProvider that is known to be unable to boot.
+    // orchestratorProvider that is known to be unable to boot.
     if (engineBlocked) {
-      setError(t('onboarding.errEngineNotInstalled', { label: providerPreset(godProvider).label }));
+      setError(t('onboarding.errEngineNotInstalled', { label: providerPreset(orchestratorProvider).label }));
       setBusy(false); setStep('orchestrator'); return;
     }
     const ensure = await window.cth.ensureHarnessHome(harnessHome);
@@ -261,8 +262,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       harnessHome, // the same trimmed value we just mkdir'd, not the raw field
       registeredRepos: repos,
       autoMode,
-      godProvider,
-      godModel,
+      orchestratorProvider,
+      orchestratorModel,
       telemetryEnabled: shareStats,
       officeTheme: selectedPack
     });
@@ -270,12 +271,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     onComplete(next);
   };
 
-  const overlayBackground = themeSelected
-    ? 'var(--cth-cream-200)'
-    : '#121316';
-  const overlayPattern = themeSelected
-    ? `repeating-linear-gradient(45deg, rgba(232, 217, 160, 0.4) 0 1px, transparent 1px 8px)`
-    : `repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 8px)`;
+  const overlayBackground = 'var(--cth-cream-200)';
+  const overlayPattern = `repeating-linear-gradient(45deg, rgba(232, 217, 160, 0.4) 0 1px, transparent 1px 8px)`;
 
   return (
     <div style={{
@@ -298,9 +295,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       <div style={{ width: 640, maxWidth: '94vw', margin: 'auto' }}>
         <PixelPanel
           variant="dialog"
-          style={!themeSelected ? { background: '#1c1e24', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12)' } : undefined}
           title={
-            step === 'persona' ? (themeSelected ? t('onboarding.titles.persona') : 'WELCOME')
+            step === 'persona' ? t('onboarding.titles.persona')
             : step === 'welcome' ? t('onboarding.titles.welcome')
             : step === 'theme' ? t('onboarding.titles.theme')
             : step === 'home' ? (plain ? t('onboarding.titles.homePlain') : t('onboarding.titles.home'))
@@ -322,7 +318,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500)',
                     display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden'
                   }}>
-                    <SpritePortrait character="michael" scale={2} />
+                    <SpritePortrait character={ORCHESTRATOR_CHARACTER} scale={2} />
                   </div>
                   <div>
                     <div style={{ fontFamily: 'var(--cth-font-display)', fontSize: 12, lineHeight: '18px' }}>
@@ -366,7 +362,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500)',
                     display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden'
                   }}>
-                    <SpritePortrait character="michael" scale={2} />
+                    <SpritePortrait character={ORCHESTRATOR_CHARACTER} scale={2} />
                   </div>
                   <div>
                     <div style={{
@@ -401,7 +397,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                           fontSize: 10, lineHeight: '14px', marginBottom: 3
                           // These labels are literal caps to match their siblings, so
                           // the orchestrator's name has to arrive upper-cased too.
-                        }}>{t(f.labelKey, { godName: godName.toUpperCase() })}</div>
+                        }}>{t(f.labelKey, { orchestratorName: orchestratorName.toUpperCase() })}</div>
                         <div style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-700)' }}>
                           {plain ? t(f.descPlainKey) : t(f.descKey)}
                         </div>
@@ -568,7 +564,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                   <span style={{ flexShrink: 0, marginTop: 1 }}><Icon name="sparkle" /></span>
                   <span>
                     {plain ? (
-                      <Trans i18nKey="onboarding.orchestrator.cliAgentPlain" values={{ godName }} components={{ strong: <strong /> }}>
+                      <Trans i18nKey="onboarding.orchestrator.cliAgentPlain" values={{ orchestratorName }} components={{ strong: <strong /> }}>
                         A <strong>CLI agent</strong> is an AI coding assistant that runs on your
                         computer — popular ones are Claude Code (Anthropic), Codex (OpenAI) and
                         Antigravity (Google Gemini). <strong>Your clone</strong> is the always-on
@@ -576,12 +572,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                         You can add or switch the others later.
                       </Trans>
                     ) : (
-                      <Trans i18nKey="onboarding.orchestrator.cliAgent" values={{ godName }} components={{ strong: <strong /> }}>
+                      <Trans i18nKey="onboarding.orchestrator.cliAgent" values={{ orchestratorName }} components={{ strong: <strong /> }}>
                         Each option is a <strong>CLI engine</strong> (Claude Code, Codex,
                         Antigravity/Gemini, or a local proxy like Qwen). Engines marked
                         INSTALLED are already on this machine; INSTALLS ON FIRST RUN means the app
-                        sets it up when {godName} first starts.
-                        <strong> Your clone</strong> ({godName}) is the engine that orchestrates the whole
+                        sets it up when {orchestratorName} first starts.
+                        <strong> Your clone</strong> ({orchestratorName}) is the engine that orchestrates the whole
                         hive. Recommended: Claude Code · Opus 4.8 · 1M. Other providers can be wired
                         per agent later.
                       </Trans>
@@ -591,7 +587,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {onboardingEngineChoices().eligible.map((p) => {
-                    const sel = godProvider === p.id;
+                    const sel = orchestratorProvider === p.id;
                     return (
                       <label key={p.id} style={{
                         display: 'flex', alignItems: 'center', gap: 10,
@@ -602,14 +598,14 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       }}>
                         <input
                           type="radio"
-                          name="godProvider"
+                          name="orchestratorProvider"
                           value={p.id}
                           checked={sel}
                           onChange={() => {
-                            setGodProvider(p.id);
+                            setOrchestratorProvider(p.id);
                             // Reset the model to the new provider's recommended pick so the
                             // dropdown below always shows a valid model for the chosen engine.
-                            setGodModel(p.recommendedOrchestratorModel);
+                            setOrchestratorModel(p.recommendedOrchestratorModel);
                           }}
                           style={{ width: 16, height: 16, flexShrink: 0 }}
                         />
@@ -655,7 +651,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       </label>
                     );
                   })}
-                  {/* Engines a WORKER can run but Michael cannot (issue #355): shown
+                  {/* Engines a WORKER can run but the orchestrator cannot (issue #355): shown
                       disabled instead of hidden, so "Copilot is missing" reads as the
                       real constraint — no inbox drain path — not as "unsupported". */}
                   {onboardingEngineChoices().workersOnly.map((p) => (
@@ -666,7 +662,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
                       cursor: 'not-allowed', opacity: 0.75
                     }}>
-                      <input type="radio" name="godProvider" value={p.id} checked={false} disabled
+                      <input type="radio" name="orchestratorProvider" value={p.id} checked={false} disabled
                         style={{ width: 16, height: 16, flexShrink: 0 }} />
                       <span style={{
                         width: 22, height: 22, flexShrink: 0, display: 'flex',
@@ -697,7 +693,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 2px var(--cth-ink-900)',
                     fontSize: 12, lineHeight: '17px', color: 'var(--cth-ink-900)'
                   }}>
-                    <span>{engineAvailabilityMessage(selectedEngine, providerPreset(godProvider).label)}</span>
+                    <span>{engineAvailabilityMessage(selectedEngine, providerPreset(orchestratorProvider).label)}</span>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                       <PixelButton variant="secondary" size="sm" onClick={() => { void probeEngines(); }} disabled={probing}>
                         {probing ? 'checking...' : 'check again'}
@@ -713,11 +709,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>{t('onboarding.orchestrator.model')}</div>
                   <select
-                    value={godModel ?? ''}
-                    onChange={(e) => setGodModel(e.target.value || undefined)}
+                    value={orchestratorModel ?? ''}
+                    onChange={(e) => setOrchestratorModel(e.target.value || undefined)}
                     style={inputStyle}
                   >
-                    {modelsForProvider(godProvider).map((m) => (
+                    {modelsForProvider(orchestratorProvider).map((m) => (
                       <option key={m.label} value={m.id ?? ''}>{m.label}</option>
                     ))}
                   </select>
@@ -936,9 +932,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       }
                       // Same idea for the engine: refuse here, with the reason on
                       // screen, instead of letting a pick that cannot boot through
-                      // to a Michael that never starts.
+                      // to a the orchestrator that never starts.
                       if (step === 'orchestrator' && engineBlocked) {
-                        setError(`${providerPreset(godProvider).label} is not installed. Install it and press "check again", or pick another engine.`);
+                        setError(`${providerPreset(orchestratorProvider).label} is not installed. Install it and press "check again", or pick another engine.`);
                         return;
                       }
                       setError(undefined);

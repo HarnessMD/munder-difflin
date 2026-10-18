@@ -19,6 +19,10 @@ export class Camera {
   private viewHeight = 800;
   private mapWidth = 640;
   private mapHeight = 480;
+  private fitX = 0;
+  private fitY = 0;
+  private fitWidth = 640;
+  private fitHeight = 480;
   private manualOverride = false;
 
   private nudgeOffsetX = 0;
@@ -34,6 +38,13 @@ export class Camera {
   setMapSize(width: number, height: number): void {
     this.mapWidth = width;
     this.mapHeight = height;
+    this.fitX = 0; this.fitY = 0; this.fitWidth = width; this.fitHeight = height;
+  }
+
+  /** Optional authored action rectangle. The map remains rendered whole; only
+   *  automatic fitting/clamping uses this tile-space-derived world rect. */
+  setFitBounds(x: number, y: number, width: number, height: number): void {
+    this.fitX = x; this.fitY = y; this.fitWidth = width; this.fitHeight = height;
   }
 
   setViewSize(width: number, height: number): void {
@@ -44,14 +55,14 @@ export class Camera {
 
   private getMinZoom(): number {
     if (this.viewWidth === 0 || this.viewHeight === 0) return 1;
-    return Math.min(this.viewWidth / this.mapWidth, this.viewHeight / this.mapHeight);
+    return Math.min(this.viewWidth / this.fitWidth, this.viewHeight / this.fitHeight);
   }
 
   /** Fit the whole map to the viewport, centered. */
   fitToScreen(): void {
     this.manualOverride = false;
-    this.targetX = this.mapWidth / 2;
-    this.targetY = this.mapHeight / 2;
+    this.targetX = this.fitX + this.fitWidth / 2;
+    this.targetY = this.fitY + this.fitHeight / 2;
     this.targetZoom = this.getMinZoom();
   }
 
@@ -94,17 +105,17 @@ export class Camera {
     this.container.x = this.viewWidth / 2 - this.currentX * this.currentZoom;
     this.container.y = this.viewHeight / 2 - this.currentY * this.currentZoom;
 
-    const scaledW = this.mapWidth * this.currentZoom;
-    const scaledH = this.mapHeight * this.currentZoom;
+    const scaledW = this.fitWidth * this.currentZoom;
+    const scaledH = this.fitHeight * this.currentZoom;
     if (scaledW <= this.viewWidth) {
-      this.container.x = (this.viewWidth - scaledW) / 2;
+      this.container.x = (this.viewWidth - scaledW) / 2 - this.fitX * this.currentZoom;
     } else {
-      this.container.x = Math.min(0, Math.max(this.viewWidth - scaledW, this.container.x));
+      this.container.x = Math.min(-this.fitX * this.currentZoom, Math.max(this.viewWidth - (this.fitX + this.fitWidth) * this.currentZoom, this.container.x));
     }
     if (scaledH <= this.viewHeight) {
-      this.container.y = (this.viewHeight - scaledH) / 2;
+      this.container.y = (this.viewHeight - scaledH) / 2 - this.fitY * this.currentZoom;
     } else {
-      this.container.y = Math.min(0, Math.max(this.viewHeight - scaledH, this.container.y));
+      this.container.y = Math.min(-this.fitY * this.currentZoom, Math.max(this.viewHeight - (this.fitY + this.fitHeight) * this.currentZoom, this.container.y));
     }
   }
 }

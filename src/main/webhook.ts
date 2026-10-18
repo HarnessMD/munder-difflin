@@ -7,7 +7,7 @@
  *   - POST /<webhookId>  + `x-md-webhook-secret: <that endpoint's secret>`
  *       + JSON body matching THAT endpoint's user-editable schema
  *       → 200 `{ ok, token, taskId }`  when the endpoint's TriggerMode lets the
- *         message through (routed to god, kanban card created), or
+ *         message through (routed to orchestrator, kanban card created), or
  *       → 202 `{ ok, pending: true, token, status: 'awaiting-approval' }` when the
  *         mode holds it for the operator. Either way the caller gets its token.
  *   - GET  /<webhookId>  + `x-md-webhook-token: <token>` (or `?token=`)
@@ -35,7 +35,7 @@
  *
  * Runs in the Electron main process. Deliberately free of any `electron` import so
  * it can be unit-/smoke-tested as a plain Node module. The actual card creation +
- * god routing + token→status lookup are injected as callbacks (they need hive
+ * orchestrator routing + token→status lookup are injected as callbacks (they need hive
  * access, which lives in the main entrypoint); this class owns only transport,
  * the secret gate, schema validation, rate limiting, and the tunnel.
  */
@@ -87,7 +87,7 @@ export interface WebhookDispatch {
   token: string;
   /** Kanban card id; absent while a message waits for the operator (no card yet). */
   taskId?: string;
-  /** true = held for operator approval (→ 202), false = routed to god (→ 200). */
+  /** true = held for operator approval (→ 202), false = routed to orchestrator (→ 200). */
   pending: boolean;
 }
 

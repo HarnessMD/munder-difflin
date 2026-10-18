@@ -4,7 +4,8 @@ import { PixelButton } from './PixelButton';
 import { SpritePortrait } from './SpritePortrait';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
-import { OFFICE_CAST, type OfficeCharacterName } from '@/scene/office/cast';
+import { type CharacterName } from '@/scene/office/cast';
+import { useThemeCast } from '@/hooks/useThemeCast';
 import { type AccentColorName } from '@/design/tokens';
 import {
   type AgentProvider,
@@ -12,6 +13,8 @@ import {
   AGENT_PROVIDER_PRESETS,
   buildSpawnCommand,
   modelsForProvider,
+  unknownModelSuffix,
+  useModelCatalogVersion,
   inferAgentProvider,
   providerPreset,
   isClaudeProvider
@@ -30,11 +33,13 @@ export interface EditAgentModalProps {
  * via updateAgent (engine changes apply on the next restart).
  */
 export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
+  useModelCatalogVersion(); // REFRESH-MODELS: re-render when the models file is refreshed
   const updateAgent = useStore((s) => s.updateAgent);
+  const { roster } = useThemeCast();
   const [config, setConfig] = useState<HarnessConfig | null>(null);
 
   const [name, setName] = useState(agent.name);
-  const [character, setCharacter] = useState<OfficeCharacterName>(agent.character);
+  const [character, setCharacter] = useState<CharacterName>(agent.character);
   const [accent, setAccent] = useState<AccentColorName>(agent.accent);
   const [provider, setProvider] = useState<AgentProvider>(
     inferAgentProvider(agent.command, agent.provider)
@@ -124,7 +129,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Stanley"
+                  placeholder="Gus"
                   style={inputStyle}
                   autoFocus
                 />
@@ -132,7 +137,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
 
               <Row label="Character">
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {OFFICE_CAST.map((c) => {
+                  {roster.map((c) => {
                     const active = character === c.name;
                     return (
                       <button
@@ -222,7 +227,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
                     {(() => {
                       const known = modelsForProvider(provider);
                       return model && !known.some((m) => m.id === model)
-                        ? [...known, { id: model, label: `${model} (current)` }]
+                        ? [...known, { id: model, label: `${model} ${unknownModelSuffix(provider, '(current)')}` }]
                         : known;
                     })().map((m) => {
                       const active = (model ?? '') === (m.id ?? '');

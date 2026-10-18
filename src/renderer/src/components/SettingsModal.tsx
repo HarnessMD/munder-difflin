@@ -1,6 +1,7 @@
 import { useState, useEffect, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { agentModels, type HarnessConfig } from '@/store/config';
+import { ModelsRefreshPanel } from './ModelsRefreshPanel';
 import { useStore } from '@/store/store';
 import {
   CLONE_NODE_BLURB,
@@ -90,10 +91,10 @@ const slackLabelStyle: CSSProperties = {
 /** The exact connect walkthrough shown behind the i icon. Steps 6 & 7 spell out
  *  the both-lists requirement: subscribe to message.channels / message.groups in
  *  BOTH "Subscribe to bot events" AND "Subscribe to events on behalf of users". */
-const SLACK_CONNECT_STEPS = `Connect Munder Difflin to Slack
+const SLACK_CONNECT_STEPS = `Connect Agent Stage to Slack
 
 1. api.slack.com/apps -> Create New App -> From scratch. Name it
-   "Munder Difflin" and pick your workspace.
+   "Agent Stage" and pick your workspace.
 2. Basic Information -> Signing Secret -> copy it into the
    "Signing secret" field here.
 3. OAuth & Permissions -> Bot Token Scopes: add
@@ -121,7 +122,7 @@ const SLACK_CONNECT_STEPS = `Connect Munder Difflin to Slack
  *  shares one server and one tunnel and is told apart by its id in the path, so
  *  `<tunnel>` is the public base URL and `<webhookId>` picks the endpoint. The
  *  secret/token go in headers so they stay out of URLs and access logs. */
-const webhookApiDoc = (godName: string): string => `Webhook API
+const webhookApiDoc = (orchestratorName: string): string => `Webhook API
 
 Every webhook has its own URL, its own secret and its own mode. They share one
 server and one tunnel; the id in the path says which one you are calling.
@@ -148,7 +149,7 @@ token you were handed still reads that task once it is routed. The secret
 authorizes new work, the token only reads one task's status. Keep both private.
 
 Each webhook checks bodies against its own JSON schema — edit that in the
-Triggers tab of ${godName}'s Command Center.`;
+Triggers tab of ${orchestratorName}'s Command Center.`;
 
 /** Clear every renderer-side persisted key so a relaunch starts truly empty. */
 function clearLocalState(): void {
@@ -195,7 +196,7 @@ const NAV_SECTION_KEYS: Record<Section, string> = {
 
 export function SettingsModal({ config, onClose, initialSection }: SettingsModalProps) {
   const { t, i18n } = useTranslation();
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>(initialSection ?? 'General');
@@ -294,6 +295,32 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
     const next = !orchSpawnOn;
     setOrchSpawnOn(next);
     stage({ orchestratorMaySpawn: next } as Partial<HarnessConfig>);
+  };
+  // Provider-usage endpoint (polled at each standup). Staged like every other
+  // setting; "Test" runs the form values without saving them.
+  const [usage, setUsage] = useState({
+    enabled: cfgX.usageEndpoint?.enabled === true,
+    url: cfgX.usageEndpoint?.url ?? '',
+    token: cfgX.usageEndpoint?.token ?? '',
+    timeoutMs: cfgX.usageEndpoint?.timeoutMs ?? 5000
+  });
+  const [usageTest, setUsageTest] = useState<{ busy: boolean; ok?: boolean; text?: string }>({ busy: false });
+  const stageUsage = (patch: Partial<typeof usage>): void => {
+    const next = { ...usage, ...patch };
+    setUsage(next);
+    stage({ usageEndpoint: { ...next, token: next.token || undefined } } as Partial<HarnessConfig>);
+  };
+  const runUsageTest = async (): Promise<void> => {
+    setUsageTest({ busy: true });
+    const r = await window.cth.testUsageEndpoint({ url: usage.url, token: usage.token || undefined, timeoutMs: usage.timeoutMs });
+    setUsageTest({ busy: false, ok: r.ok, text: r.ok ? r.summary : r.error });
+  };
+  // HEAVY-JOB-SERIALIZE: "Heavy jobs at once" (Off or N, default 1).
+  const [heavyAtOnce, setHeavyAtOnce] = useState<number | 'off'>(cfgX.heavyJobsAtOnce ?? 1);
+  // Staged like every other setting here (one writer: saveAll); main reads it live once saved.
+  const saveHeavyAtOnce = (next: number | 'off'): void => {
+    setHeavyAtOnce(next);
+    stage({ heavyJobsAtOnce: next } as Partial<HarnessConfig>);
   };
   const [defaultModelSel, setDefaultModelSel] = useState<string>(cfgX.defaultModel ?? 'claude-fable-5');
   const saveDefaultModel = (id: string): void => {
@@ -499,8 +526,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
   // --- Free Flow (voice dictation → message queue) ---
   const setFreeflowEnabledStore = useStore((s) => s.setFreeflowEnabled);
   const setHasGroqKeyStore = useStore((s) => s.setHasGroqKey);
-  // Talk (Realtime Michael) is gated on the OpenAI key — read the live presence
-  // boolean so the Realtime Michael section can show its enabled/disabled status.
+  // Talk (Realtime voice) is gated on the OpenAI key — read the live presence
+  // boolean so the Realtime voice section can show its enabled/disabled status.
   const hasOpenAiKey = useStore((s) => s.hasOpenAiKey);
   // Voice-tab entry for the SAME broker slot Agents & Models writes (apikey:openai).
   // Mirroring presence into the store on save is what makes the Talk button light up
@@ -908,7 +935,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   <Icon name="bell" />
                 </div>
                 <div style={{ flex: 1, fontSize: 15, lineHeight: '22px', color: 'var(--cth-ink-700)' }}>
-                  {t('settings.resetConfirm.body', { godName })}
+                  {t('settings.resetConfirm.body', { orchestratorName })}
                 </div>
               </div>
 
@@ -1182,7 +1209,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         </div>
                       </div>
 
-                      {/* Office Theme — TV-show office maps (experimental; flag tvShowOffices, default off) */}
+                      {/* Theme picker: validated packs, rescan, extra themes folder */}
                       <OfficeThemePicker config={config} />
                     </>
                   )}
@@ -1196,13 +1223,14 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                   {activeSection === 'Agents & Models' && (
                     <>
+                      <ModelsRefreshPanel />
                       <div>
                         <div style={sectionHead}>
                           {t('settings.agentsModels.defaultModel')}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                           <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                            {t('settings.agentsModels.defaultModelDesc', { godName })}
+                            {t('settings.agentsModels.defaultModelDesc', { orchestratorName })}
                           </span>
                           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                             {agentModels().map((m) => (
@@ -1278,13 +1306,86 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                             </span>
                             <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
                               {orchSpawnOn
-                                ? `${godName} can hire on his own. Every agent he starts spends tokens you did not approve.`
-                                : `Only you. ${godName} can still ask, and his request waits in the queue instead of failing.`}
+                                ? `${orchestratorName} can hire on his own. Every agent he starts spends tokens you did not approve.`
+                                : `Only you. ${orchestratorName} can still ask, and his request waits in the queue instead of failing.`}
                             </span>
                           </div>
                           <PixelButton variant={orchSpawnOn ? 'primary' : 'secondary'} size="sm" onClick={toggleOrchSpawn}>
-                            {orchSpawnOn ? `me and ${godName}` : 'only me'}
+                            {orchSpawnOn ? `me and ${orchestratorName}` : 'only me'}
                           </PixelButton>
+                        </div>
+                      </div>
+
+                      <div style={{ height: 1, background: 'var(--cth-ink-300)', margin: '12px 0' }} />
+
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>
+                              Heavy jobs at once
+                            </span>
+                            <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
+                              {heavyAtOnce === 'off'
+                                ? 'No limit. Agents may run installs, builds, full test suites and benchmarks at the same time.'
+                                : heavyAtOnce === 1
+                                  ? 'Agents run one install, build, full test suite or benchmark at a time; another waits, so your PC stays usable. Applies on Save.'
+                                  : `Agents run up to ${heavyAtOnce} installs, builds, full test suites or benchmarks at a time; another waits. Applies on Save.`}
+                            </span>
+                          </div>
+                          <select
+                            aria-label="Heavy jobs at once"
+                            value={String(heavyAtOnce)}
+                            onChange={(e) => { saveHeavyAtOnce(e.target.value === 'off' ? 'off' : Number(e.target.value)); }}
+                            style={{ fontSize: 12, padding: '2px 6px' }}>
+                            <option value="off">Off</option>
+                            {[1, 2, 3, 4, 6, 8].map((n) => <option key={n} value={String(n)}>{n}</option>)}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div style={{ height: 1, background: 'var(--cth-ink-300)' }} />
+
+                      {/* Provider usage endpoint — remaining allowance per engine, read at each standup */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>Usage endpoint</span>
+                            <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
+                              {`Each standup, ${orchestratorName} reads how much allowance every engine has left and when it resets, so he can steer work away from an engine that is nearly out. Point this at any URL that returns the JSON in docs/usage-endpoint.md.`}
+                            </span>
+                          </div>
+                          <PixelButton variant={usage.enabled ? 'primary' : 'secondary'} size="sm"
+                            onClick={() => stageUsage({ enabled: !usage.enabled })}>
+                            {usage.enabled ? t('common.on') : t('common.off')}
+                          </PixelButton>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
+                          <input
+                            type="url" value={usage.url} placeholder="http://raspberrypi.local:8080/api/agents/remaining"
+                            onChange={(e) => stageUsage({ url: e.target.value })}
+                            style={{ ...slackInputStyle, width: '100%' }}
+                          />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <input
+                              type="password" value={usage.token} placeholder="Bearer token (optional)"
+                              onChange={(e) => stageUsage({ token: e.target.value })}
+                              style={{ ...slackInputStyle, flex: 1 }}
+                            />
+                            <input
+                              type="number" min="1" max="30" step="1" value={Math.round(usage.timeoutMs / 1000)}
+                              onChange={(e) => stageUsage({ timeoutMs: Math.max(1, Number(e.target.value) || 5) * 1000 })}
+                              style={{ ...slackInputStyle, width: 70 }}
+                            />
+                            <span style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>sec timeout</span>
+                            <PixelButton variant="secondary" size="sm" onClick={runUsageTest} disabled={usageTest.busy || !usage.url.trim()}>
+                              {usageTest.busy ? 'Testing…' : 'Test'}
+                            </PixelButton>
+                          </div>
+                          {usageTest.text && (
+                            <pre style={{ margin: 0, fontSize: 11, lineHeight: '16px', whiteSpace: 'pre-wrap', color: usageTest.ok ? 'var(--cth-ink-700)' : 'var(--cth-danger, #c0392b)' }}>
+                              {usageTest.ok ? usageTest.text : `Failed: ${usageTest.text}`}
+                            </pre>
+                          )}
                         </div>
                       </div>
 
@@ -1467,7 +1568,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               >i</button>
                             </span>
                             <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                              {t('settings.connections.slackDesc', { godName })}
+                              {t('settings.connections.slackDesc', { orchestratorName })}
                             </span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1664,7 +1765,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                             boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
                             fontFamily: 'var(--cth-font-mono)', fontSize: 11, lineHeight: '16px',
                             color: 'var(--cth-ink-700)'
-                          }}>{webhookApiDoc(godName)}</pre>
+                          }}>{webhookApiDoc(orchestratorName)}</pre>
                         )}
 
                         {/* Public surface warning. Loud, not buried. */}
@@ -1801,7 +1902,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         )}
 
                         <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                          {t('settings.connections.webhooksHint', { godName })}
+                          {t('settings.connections.webhooksHint', { orchestratorName })}
                         </span>
 
                         {webhookNote && (
@@ -1895,7 +1996,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                     </>
                   )}
 
-                  {/* VOICE — Free Flow dictation + Realtime Michael (v0.3.4: its own tab) */}
+                  {/* VOICE — Free Flow dictation + Realtime voice (v0.3.4: its own tab) */}
                   {activeSection === 'Voice' && (
                     <>
                       {/* Free Flow (voice dictation) */}
@@ -1972,17 +2073,17 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       <div style={sectionRule} />
 
-                      {/* Realtime Michael — voice device selection (rt-8) */}
+                      {/* Realtime voice — voice device selection (rt-8) */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                         <div style={sectionHeadTight}>
                           {t('settings.voice.realtime')}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>
-                            {t('settings.voice.voiceChat', { godName })}
+                            {t('settings.voice.voiceChat', { orchestratorName })}
                           </span>
                           <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-                            {t('settings.voice.voiceChatDesc', { godName })}
+                            {t('settings.voice.voiceChatDesc', { orchestratorName })}
                           </span>
                         </div>
 
@@ -2003,7 +2104,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                             {t('settings.voice.openaiKey')}
                           </span>
                           <span style={{ fontSize: 12, lineHeight: '17px', color: 'var(--cth-ink-700)' }}>
-                            {t('settings.voice.openaiKeyDesc1', { godName, model: REALTIME_MODEL })}
+                            {t('settings.voice.openaiKeyDesc1', { orchestratorName, model: REALTIME_MODEL })}
                           </span>
                           <span style={{ fontSize: 12, lineHeight: '17px', color: 'var(--cth-ink-700)' }}>
                             {t('settings.voice.openaiKeyDesc2')}
@@ -2037,8 +2138,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
                             }} />
                             {openAiVoiceNote || (hasOpenAiKey
-                              ? t('settings.voice.keySaved', { godName })
-                              : t('settings.voice.noKey', { godName }))}
+                              ? t('settings.voice.keySaved', { orchestratorName })
+                              : t('settings.voice.noKey', { orchestratorName }))}
                           </span>
                         </div>
 
@@ -2081,7 +2182,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         color: 'var(--cth-danger-text)'
                       }}>{t('settings.general.dangerZone')}</div>
                       <p style={{ margin: 0, fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-700)' }}>
-                        {t('settings.general.dangerDesc', { godName })}
+                        {t('settings.general.dangerDesc', { orchestratorName })}
                       </p>
                       <div>
                         <PixelButton variant="destructive" size="md" onClick={() => setConfirming(true)}>

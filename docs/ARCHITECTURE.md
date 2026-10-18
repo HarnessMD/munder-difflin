@@ -20,7 +20,7 @@ Two data planes feed one renderer:
        ┌──────┴──────────┐        ┌──────┴─────────────┐
        │  Event Plane    │        │  Terminal Plane    │
        │  hooks / hive   │        │  node-pty PTYs     │
-       │  router + GOD   │        │  + fs + git        │
+       │  router + ORCHESTRATOR   │        │  + fs + git        │
        └────────▲────────┘        └──────▲─────────────┘
                 │ hook payloads          │ stdin / stdout
                 └─────────┬──────────────┘
@@ -36,7 +36,7 @@ Two data planes feed one renderer:
 - **Hive / event plane.** `hive.ts` is the on-disk multi-agent layer; `hooks.ts` runs the hook
   server that provider bridges POST lifecycle payloads to (`cth-hook` for Claude Code, `agy-hook`
   for Antigravity). `memory.ts` wraps the semantic memory CLI. The router delivers messages, drains
-  provider outboxes, the GOD agent adjudicates, and idle/inbox wakeups keep workers draining mail.
+  provider outboxes, the ORCHESTRATOR agent adjudicates, and idle/inbox wakeups keep workers draining mail.
 
 ## Project structure
 
@@ -63,7 +63,7 @@ src/
     App.tsx                  top-level layout + wiring
     design/                  tokens.css / tokens.ts / global.css (design source of truth)
     components/              PixelPanel, AgentDetailPanel, CommandBar, ApprovalsPanel, MemoryPanel, …
-    CommandCenterPanel,      Michael's control surface (Terminal/Floor/Memory/Activity/Tasks/Triggers/Handbook tabs)
+    CommandCenterPanel,      the orchestrator's control surface (Terminal/Floor/Memory/Activity/Tasks/Triggers/Handbook tabs)
     ToolWaterfall,           per-agent tool-span waterfall for the observability view
     TasksKanban,             dependency-aware kanban board (Tasks tab)
     ThreadsPanel,            hive message conversation viewer (Messages tab)
@@ -84,6 +84,6 @@ docs/message-queue.md        who may type into an agent's terminal, and when
 
 The aesthetic is **Animal Crossing × Earthbound × SNES menu UI** — pixel-snapped, chunky, friendly.
 [`DESIGN.md`](../DESIGN.md) is canonical; every component derives from its tokens. The Munder Difflin
-brand layers a **Dunder-Mifflin maroon** (`#6E1423`) and **gold** (`#F4D35E`) on top for logo and
-chrome. The 15 avatars are the cast of *The Office*, differentiated by hair/skin/shirt recipes.
+brand layers a **maroon** (`#6E1423`) and **gold** (`#F4D35E`) on top for logo and
+chrome. The 15 avatars are a generic cast, differentiated by hair/skin/shirt recipes.
 

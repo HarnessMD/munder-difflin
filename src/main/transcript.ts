@@ -129,6 +129,25 @@ export function resolveSessionCwd(sessionId: string): string | null {
   }
 }
 
+/** GOD-STARTUP-TOKENS R1: where a session's transcript is (the cwd's project dir first, else any
+ *  project dir, as seedSessionTranscript looks), or null. Read only; nothing is copied. */
+export function sessionTranscriptPath(cwd: string, sessionId: string): string | null {
+  try {
+    if (!sessionId || !VALID_SESSION_ID.test(sessionId)) return null;
+    const own = path.join(projectDir(cwd), `${sessionId}.jsonl`);
+    if (existsSync(own)) return own;
+    const projectsRoot = path.join(os.homedir(), '.claude/projects');
+    if (!existsSync(projectsRoot)) return null;
+    for (const dir of readdirSync(projectsRoot)) {
+      const candidate = path.join(projectsRoot, dir, `${sessionId}.jsonl`);
+      if (existsSync(candidate)) return candidate;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export interface AgentUsage {
   inputTokens: number;
   outputTokens: number;

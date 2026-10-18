@@ -1,5 +1,5 @@
-appId: in.munderdiffl.app
-productName: Munder Difflin
+appId: com.agentstage.app
+productName: Agent Stage
 copyright: Copyright © 2026 Chaitanya Giri
 
 # Where electron-updater looks for new versions (latest*.yml + assets on GitHub
@@ -8,8 +8,8 @@ copyright: Copyright © 2026 Chaitanya Giri
 # knows which repo to poll.
 publish:
   provider: github
-  owner: chaitanyagiri
-  repo: munder-difflin
+  owner: jdell64
+  repo: agent-stage
 
 # Bake the update toast's "What's new" list straight into latest*.yml.
 #
@@ -38,7 +38,7 @@ afterSign: build/notarize.cjs
 # Register the munderdifflin:// URL scheme (shareable-hires deep link) in the
 # packaged app: CFBundleURLTypes on macOS, registry entries via NSIS on Windows.
 protocols:
-  - name: Munder Difflin
+  - name: Agent Stage
     schemes:
       - munderdifflin
 
@@ -60,6 +60,8 @@ files:
 # resources dir (process.resourcesPath). It runs under `node`, NOT inside the
 # asar, so the office worker can invoke `node <resources>/md-slack-reply.cjs`.
 extraResources:
+  - from: build/agent-stage.png
+    to: agent-stage.png
   - from: resources/md-slack-reply.cjs
     to: md-slack-reply.cjs
   # Knowledge Graph agent CLI + its pure-JS core. Agents invoke `node
@@ -90,20 +92,20 @@ npmRebuild: true
 # ---- macOS ----
 mac:
   category: public.app-category.developer-tools
-  icon: build/icon.icns
+  icon: build/agent-stage.icns
   # Declare WHY the app touches the user's folders. macOS shows these strings in
   # the privacy prompt and, for a signed app, remembers the grant — so the user
   # is asked ONCE instead of on every agent action.
   extendInfo:
-    NSDocumentsFolderUsageDescription: "Munder Difflin runs your Claude Code agents, which read and write files in the project folders you point them at."
-    NSDesktopFolderUsageDescription: "Munder Difflin's agents may work on projects located on your Desktop."
-    NSDownloadsFolderUsageDescription: "Munder Difflin's agents may work on projects located in your Downloads."
-    NSRemovableVolumesUsageDescription: "Munder Difflin's agents may work on projects located on external volumes."
-    NSNetworkVolumesUsageDescription: "Munder Difflin's agents may work on projects located on network volumes."
+    NSDocumentsFolderUsageDescription: "Agent Stage runs your Claude Code agents, which read and write files in the project folders you point them at."
+    NSDesktopFolderUsageDescription: "Agent Stage's agents may work on projects located on your Desktop."
+    NSDownloadsFolderUsageDescription: "Agent Stage's agents may work on projects located in your Downloads."
+    NSRemovableVolumesUsageDescription: "Agent Stage's agents may work on projects located on external volumes."
+    NSNetworkVolumesUsageDescription: "Agent Stage's agents may work on projects located on network volumes."
     # The microphone is used by two opt-in, off-by-default voice features: Free
     # Flow dictation (Groq transcription) and Realtime Michael (live voice chat
     # with the orchestrator via OpenAI). Mic access only happens while one is on.
-    NSMicrophoneUsageDescription: "Munder Difflin uses your microphone only for its opt-in voice features: Free Flow dictation (transcribed by Groq into the message queue) and talking to Michael in real time (streamed to OpenAI). The mic is off unless you turn one of these on."
+    NSMicrophoneUsageDescription: "Agent Stage uses your microphone only for its opt-in voice features: Free Flow dictation (transcribed by Groq into the message queue) and talking to Michael in real time (streamed to OpenAI). The mic is off unless you turn one of these on."
   # Hardened runtime + entitlements so the spawned `claude` agents inherit this
   # app's TCC responsibility (one grant covers them all) and node-pty can load.
   hardenedRuntime: true
@@ -136,11 +138,11 @@ mac:
   artifactName: Munder-Difflin-${version}-mac-${arch}.${ext}
 
 dmg:
-  title: Munder Difflin ${version}
+  title: Agent Stage ${version}
 
 # ---- Windows ----
 win:
-  icon: build/icon.ico
+  icon: build/agent-stage.ico
   target:
     - target: nsis
       arch: [x64]
@@ -152,7 +154,7 @@ nsis:
   perMachine: false
   allowToChangeInstallationDirectory: true
   artifactName: Munder-Difflin-${version}-win-x64-setup.exe
-  shortcutName: Munder Difflin
+  shortcutName: Agent Stage
 
 portable:
   artifactName: Munder-Difflin-${version}-win-x64-portable.exe
@@ -160,7 +162,7 @@ portable:
 # ---- Linux ----
 linux:
   category: Development
-  icon: build/icon.png
+  icon: build/agent-stage.png
   target:
     - target: AppImage
       arch: [x64]

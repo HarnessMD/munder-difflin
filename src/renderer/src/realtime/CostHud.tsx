@@ -1,21 +1,21 @@
 /**
- * Realtime Michael — voice session cost HUD (card rt-9, cost-guard).
+ * Realtime voice — voice session cost HUD (card rt-9, cost-guard).
  *
  * A compact meter for the live voice session's spend. Reads the cost store
  * (costStore.ts), which Kevin's session feeds via resetRealtimeCost() on connect
  * and recordRealtimeUsage() on each usage delta. Self-contained: mount it once
- * near the voice toggle (Michael's card / fullscreen header) — it renders its own
+ * near the voice toggle (the orchestrator's card / fullscreen header) — it renders its own
  * state and needs no props.
  *
  * Shows:
  *  • a spend cap control (always) — set a USD ceiling for the session;
  *  • the running $ + token counts while a session is metering;
  *  • an amber "approaching cap" cue at ≥80% and a red "over cap" warning at 100%,
- *    so the user (and Michael, who can read get_cost) knows to wrap up. The actual
+ *    so the user (and the orchestrator, who can read get_cost) knows to wrap up. The actual
  *    auto-stop / mic-off-when-idle action lives in the session (it owns the mic);
  *    this HUD surfaces the signal + the cap the session reads.
  *
- * Branch feat/realtime-michael. See board.md "🎙 REALTIME MICHAEL".
+ * Branch feat/realtime-voice. See board.md "🎙 REALTIME VOICE".
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

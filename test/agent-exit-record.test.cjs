@@ -5,7 +5,7 @@
  *
  * Observed live on 2026-08-24: a `claude` CLI panicked 923 ms into startup
  * (Bun, SIGILL) and the hive recorded exactly
- *   {"kind":"archive","agentId":"god","archived":true}
+ *   {"kind":"archive","agentId":"orchestrator","archived":true}
  * — no exit code, no signal, no output. The crash banner existed only in a UI
  * terminal pane. A two-second death and a completed agent were indistinguishable
  * in the only record the hive keeps.

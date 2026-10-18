@@ -233,9 +233,16 @@ export class MemoryManager {
     this.startMineLoop();
   }
 
+  private activeProcs = new Set<number>();
+
   stop(): void {
     this.mineStopped = true;
     if (this.mineTimer) { clearTimeout(this.mineTimer); this.mineTimer = null; }
+    for (const pid of this.activeProcs) {
+      try { process.kill(pid, 'SIGTERM'); } catch { /* gone */ }
+      ensureKilled(pid, 500);
+    }
+    this.activeProcs.clear();
   }
 
   /**
@@ -368,6 +375,7 @@ export class MemoryManager {
       const proc = spawn(bin, ['mine', agentDir, '--wing', id, '--agent', id], {
         env: this.childEnv(), stdio: ['ignore', 'ignore', 'pipe']
       });
+      if (proc.pid) this.activeProcs.add(proc.pid);
       let err = '';
       proc.stderr?.on('data', (d) => { err += d.toString(); });
       // Hard ceiling: a wedged mine used to hold its PID forever AND leave
@@ -380,6 +388,7 @@ export class MemoryManager {
       }, MINE_TIMEOUT_MS);
       timer.unref?.();
       proc.on('close', (code) => {
+        if (proc.pid) this.activeProcs.delete(proc.pid);
         clearTimeout(timer);
         if (code !== 0) {
           console.error(`[memory] mine ${id} exited ${code}: ${err.slice(-300)}`);
@@ -387,7 +396,12 @@ export class MemoryManager {
         }
         resolve();
       });
-      proc.on('error', () => { clearTimeout(timer); this.lastMined.delete(id); resolve(); });
+      proc.on('error', () => {
+        if (proc.pid) this.activeProcs.delete(proc.pid);
+        clearTimeout(timer);
+        this.lastMined.delete(id);
+        resolve();
+      });
     });
   }
 
@@ -404,6 +418,7 @@ export class MemoryManager {
       let proc: ReturnType<typeof spawn>;
       try {
         proc = spawn(bin, args, { env: this.childEnv(), stdio: ['ignore', 'pipe', 'pipe'] });
+        if (proc.pid) this.activeProcs.add(proc.pid);
       } catch (e) {
         resolve({ ok: false, output: '', error: e instanceof Error ? e.message : String(e) });
         return;
@@ -411,6 +426,7 @@ export class MemoryManager {
       let out = '', err = '';
       let settled = false;
       const settle = (r: { ok: boolean; output: string; error?: string }): void => {
+        if (proc.pid) this.activeProcs.delete(proc.pid);
         if (!settled) { settled = true; clearTimeout(timer); resolve(r); }
       };
       proc.stdout?.setEncoding('utf8');

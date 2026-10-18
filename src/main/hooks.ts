@@ -15,7 +15,8 @@ import { existsSync, rmSync, statSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { Notification, type WebContents } from 'electron';
 import type { HiveManager } from './hive';
-import type { HarnessConfig } from './config';
+import { classifyHeavy, commandFromToolInput, isBackground, type HeavyJobLock } from './heavyJob';
+import { modelForHiveSpawn, type HarnessConfig } from './config';
 import type { ControlRegistry } from './control';
 import type { CircuitBreaker } from './breaker';
 import { estimateCostUsd } from './pricing';
@@ -43,9 +44,8 @@ interface HookPayload {
   /** Notification hook text, e.g. "Claude is waiting for your input" (idle) vs a
    *  permission request. Used to tell "needs you" from "just done / lingering". */
   message?: string;
-  /** CostSample payloads only (synthesized by the proxy-bridge sidecar for
-   *  qwen). Raw token counts for one response, fed to the cost ledger. */
-  model?: string;
+  /** Status payloads carry Claude's model object; CostSample uses a string. */
+  model?: string | { id?: unknown };
   input?: number;
   output?: number;
   cache_read?: number;
@@ -57,7 +57,7 @@ interface HookPayload {
  *  it the shims' connect() fails and they exit 0 with empty stdout, which the
  *  CLI reads as "allow": the breaker is inert, fleet.json never appears, no cost
  *  is recorded — and until #277 nothing said so. The beat writes this into
- *  fleet.json so an operator (or god) can see it without a debugger. */
+ *  fleet.json so an operator (or orchestrator) can see it without a debugger. */
 export interface HookSocketHealth {
   /** HIVE_SOCK — where the shims connect. null while the hive has no root. */
   path: string | null;
@@ -380,6 +380,18 @@ export class HookServer {
     return this.contextById.get(agentId);
   }
 
+  /** HEAVY-JOB-SERIALIZE: the app-held heavy-job lock (main wires it; null in tests = no lock). */
+  private heavyLock: HeavyJobLock | null = null;
+  setHeavyLock(lock: HeavyJobLock | null): void { this.heavyLock = lock; }
+
+  /** The id that pairs a heavy call's PreToolUse with its PostToolUse: the provider's tool-use
+   *  id when it sends one, else the command itself (identical in both hooks). */
+  private static heavyCallId(p: HookPayload): string {
+    const id = (p as { tool_use_id?: unknown }).tool_use_id;
+    if (typeof id === 'string' && id) return `id:${id}`;
+    return `cmd:${(commandFromToolInput(p.tool_input) ?? '').slice(0, 500)}`;
+  }
+
   private handle(p: HookPayload): unknown {
     const agentId = p.agent_id ?? undefined;
     const event = p.hook_event_name ?? 'Unknown';
@@ -395,10 +407,22 @@ export class HookServer {
     // statusLine shim, not a real hook boundary — it must never trip the
     // HALT gate or feed the breaker's loop detector below. The early return
     // also (deliberately) skips recordSession for status ticks: a statusLine
-    // payload's session_id adds nothing the real hooks don't already record,
-    // and telemetry should never write to the registry. transcript_path IS
-    // still captured above, where every payload shape benefits from it.
+    // payload's session_id adds nothing the real hooks don't already record.
+    // The model is the exception: it is the authoritative per-agent `/model`
+    // observation and must survive a restart. transcript_path IS still captured
+    // above, where every payload shape benefits from it.
     if (event === 'Status') {
+      const statusModel = typeof p.model === 'object' && p.model !== null && typeof p.model.id === 'string'
+        ? p.model.id.trim()
+        : '';
+      if (agentId && statusModel) {
+        const agent = this.hive.registry().agents[agentId];
+        // Do not let a bridged provider's display model become a future Claude
+        // argv. `recordModel` repeats this gate at the persistence boundary.
+        if (agent?.provider === 'claude') {
+          this.hive.recordModel(agentId, statusModel, modelForHiveSpawn(agent, this.getConfig()));
+        }
+      }
       const cw = p.context_window;
       if (agentId && cw && typeof cw.total_input_tokens === 'number'
         && typeof cw.context_window_size === 'number' && cw.context_window_size > 0) {
@@ -438,6 +462,7 @@ export class HookServer {
     // accounting schema uniform). Pure telemetry — never feeds the loop detector.
     if (event === 'CostSample') {
       if (agentId && p.session_id) {
+        const model = typeof p.model === 'string' ? p.model : '';
         const input = p.input ?? 0;
         const output = p.output ?? 0;
         const cacheRead = p.cache_read ?? 0;
@@ -450,8 +475,8 @@ export class HookServer {
           output,
           cacheRead,
           cacheCreation,
-          model: p.model ?? '',
-          usd: estimateCostUsd(p.model, {
+          model,
+          usd: estimateCostUsd(model, {
             inputTokens: input,
             outputTokens: output,
             cacheReadTokens: cacheRead,
@@ -518,6 +543,27 @@ export class HookServer {
       }
     }
 
+    // HEAVY-JOB-SERIALIZE: (AFTER the HITL gate above, so a call the control layer denies never holds a
+    // slot: a denied call gets no PostToolUse to free it.) A heavy command (install / build / full suite / bench) takes one of the
+    // machine's heavy-job slots, or is DENIED naming the holders. Every provider reaches this deny
+    // (Claude http, Codex mcp, the AGY shim's deny translation). A subagent's call counts as its
+    // agent's. Settings "Heavy jobs at once" = Off makes this do nothing.
+    if (event === 'PreToolUse' && agentId && this.heavyLock) {
+      const cls = classifyHeavy(p.tool_name, p.tool_input);
+      if (cls.heavy) {
+        const d = this.heavyLock.acquire(agentId, cls, commandFromToolInput(p.tool_input) ?? '', HookServer.heavyCallId(p), isBackground(p.tool_input));
+        if (!d.allow) {
+          this.emitControl(agentId, p.tool_name, d.reason);
+          this.emit(agentId, event, p);
+          return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: d.reason } };
+        }
+      }
+    }
+    // A heavy FOREGROUND call returned: its job is done (a backgrounded one is left to the watcher).
+    if (event === 'PostToolUse' && agentId && this.heavyLock && classifyHeavy(p.tool_name, p.tool_input).heavy) {
+      this.heavyLock.callDone(agentId, HookServer.heavyCallId(p));
+    }
+
     // 7C.2 — mid-run steering: inject queued operator guidance as context on the
     // next eligible hook (no fragile typing into the TUI). Delivered once.
     // Merged with the roster line below so the two injections never displace each
@@ -527,19 +573,25 @@ export class HookServer {
       steer = this.control.takeSteer(agentId) ?? null;
     }
 
-    // Keep god's roster CURRENT. fleet.json is always fresh on disk, but god's
+    // Keep orchestrator's roster CURRENT. fleet.json is always fresh on disk, but orchestrator's
     // context is not: after a restart it resumes a transcript describing the old
     // floor and messages agents that are long gone. Push the live roster in as
-    // additionalContext at the start of each session and on every prompt, so god
+    // additionalContext at the start of each session and on every prompt, so orchestrator
     // knows the floor all the time instead of only when it remembers to Read.
-    // God-only and one line — every other agent is unaffected.
+    // Orchestrator-only and one line — every other agent is unaffected.
     const wantsRoster = (event === 'SessionStart' || event === 'UserPromptSubmit')
-      && !!agentId && this.hive.isGod(agentId);
+      && !!agentId && this.hive.isOrchestrator(agentId);
     // Hand the roster the LIVE context-window occupancy (contextById) so each
-    // agent line can carry a `ctx NN%` — god then sees whose context is nearly
+    // agent line can carry a `ctx NN%` — orchestrator then sees whose context is nearly
     // full when it routes work, instead of guessing from cumulative token spend.
     const roster = wantsRoster
       ? this.hive.rosterContext((id) => this.contextFor(id))
+      : null;
+
+    // GOD-STARTUP-TOKENS R1: an orchestrator that started FRESH gets its bounded handoff
+    // once, at that session's SessionStart (source "startup").
+    const handoff = wantsRoster && event === 'SessionStart' && p.source === 'startup' && (p as any).transport !== 'pipe-oneway'
+      ? (this.hive as any).takeGodHandoff?.(agentId) ?? null
       : null;
 
     // Standing goal (hire Briefing) — durable roster field, re-read every cycle so
@@ -569,12 +621,12 @@ export class HookServer {
       }
     }
 
-    if (steer || roster || goal) {
+    if (handoff || steer || roster || goal) {
       this.emit(agentId, event, p);
       return {
         hookSpecificOutput: {
           hookEventName: event,
-          additionalContext: [roster, goal, steer].filter(Boolean).join('\n\n')
+          additionalContext: [handoff, roster, goal, steer].filter(Boolean).join('\n\n')
         }
       };
     }

@@ -1,5 +1,5 @@
 /**
- * Realtime Michael — audio token pricing for the OpenAI gpt-realtime-2 voice loop
+ * Realtime voice — audio token pricing for the OpenAI gpt-realtime-2 voice loop
  * (card rt-9, cost-guard). Shared so BOTH the main cost module (src/main/
  * realtimeCost.ts) and the renderer cost store (src/renderer/src/realtime/
  * costStore.ts) price from one source. Pure + dependency-free (no electron, no

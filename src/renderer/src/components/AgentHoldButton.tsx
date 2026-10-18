@@ -4,7 +4,7 @@ import { Icon } from './Icon';
 import { useStore } from '@/store/store';
 
 /**
- * 1:1 — "I have this agent, Michael stop sending it work."
+ * 1:1 — "I have this agent, the orchestrator stop sending it work."
  *
  * Lives in `AgentControlStrip` beside "block tools" and "stop after this step",
  * so it is present in both sidebar and focus mode. It was briefly in the title
@@ -14,16 +14,16 @@ import { useStore } from '@/store/store';
  * It is a different KIND of control from the two it sits with, and the tooltip
  * carries that since the grouping no longer does: those two restrain the AGENT
  * (take its tools, or stop it after this step), while this one restrains
- * MICHAEL. The agent keeps running and keeps answering you. "Stop after this
+ * THE ORCHESTRATOR. The agent keeps running and keeps answering you. "Stop after this
  * step" is in fact the worst thing to reach for in a 1:1, because it stops the
  * agent you wanted to talk to.
  *
- * Never rendered for Michael himself: telling the orchestrator to stop routing
+ * Never rendered for the orchestrator himself: telling the orchestrator to stop routing
  * work to itself is not a state worth having.
  */
 export function AgentHoldButton({ agentId }: { agentId: string }) {
   const agent = useStore((s) => s.agents.find((a) => a.id === agentId));
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
   const [busy, setBusy] = useState(false);
   /** Last failure, shown on the button itself. A control that silently does
    *  nothing is worse than one that says why. */
@@ -43,7 +43,7 @@ export function AgentHoldButton({ agentId }: { agentId: string }) {
     return () => { alive = false; };
   }, [agentId]);
 
-  if (!agent || agent.isGod) return null;
+  if (!agent || agent.isOrchestrator) return null;
   const on = !!agent.onHold;
 
   return (
@@ -63,7 +63,7 @@ export function AgentHoldButton({ agentId }: { agentId: string }) {
           .then(() => window.cth.hiveSetAgentHold?.(agentId, !on)
             ?? Promise.reject(new Error('restart the app: this build\'s preload predates the 1:1 control')))
           // Mirror locally only after main confirms the write. Flipping
-          // optimistically would show a hold Michael never heard about.
+          // optimistically would show a hold the orchestrator never heard about.
           .then((r) => {
             if (r?.ok) { setErr(null); useStore.getState().updateAgent(agentId, { onHold: !on }); }
             else setErr(r?.error ?? 'could not set the hold');
@@ -75,9 +75,9 @@ export function AgentHoldButton({ agentId }: { agentId: string }) {
       <span
         className="cth-tip cth-tip-wrap"
         data-tip={err ? err : on
-          ? `End the 1:1. ${godName} can hand ${agent.name} work again.`
-          : `Take ${agent.name} aside. ${godName} stops sending them work until you end it. Unlike the two buttons here, this does not restrain the agent: they keep running and keep answering you.`}
-        aria-label={on ? `End the 1:1 and release this agent to ${godName}` : 'Take this agent aside for a 1:1'}
+          ? `End the 1:1. ${orchestratorName} can hand ${agent.name} work again.`
+          : `Take ${agent.name} aside. ${orchestratorName} stops sending them work until you end it. Unlike the two buttons here, this does not restrain the agent: they keep running and keep answering you.`}
+        aria-label={on ? `End the 1:1 and release this agent to ${orchestratorName}` : 'Take this agent aside for a 1:1'}
         style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
       >
         <Icon name={on ? 'pause' : 'play'} /> {err ? '1:1 failed' : on ? 'in 1:1' : '1:1'}

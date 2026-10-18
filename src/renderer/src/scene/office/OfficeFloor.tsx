@@ -298,12 +298,16 @@ export function OfficeFloor() {
 
       const camera = new Camera(world);
       camera.setMapSize(mapRenderer.width * mapRenderer.tileSize, mapRenderer.height * mapRenderer.tileSize);
+      if (theme.cameraBounds) {
+        const b = theme.cameraBounds;
+        camera.setFitBounds(b.x * mapRenderer.tileSize, b.y * mapRenderer.tileSize, b.width * mapRenderer.tileSize, b.height * mapRenderer.tileSize);
+      }
       camera.setViewSize(app.screen.width, app.screen.height);
       camera.fitToScreen();
 
       // ─── The boss's wall calendar → TRIGGERS ───────────────────────────────
       // A little tear-off month page hangs on the CEO office wall. Clicking it
-      // selects Michael (the god) and opens the Command Center's TRIGGERS tab —
+      // selects the orchestrator (the orchestrator) and opens the Command Center's TRIGGERS tab —
       // everything that wakes the hive without you, schedules first among them.
       const calTs = mapRenderer.tileSize;
       const calG = new Graphics();
@@ -314,8 +318,8 @@ export function OfficeFloor() {
       calG.on('pointertap', (ev) => {
         ev.stopPropagation();
         const st = useStore.getState();
-        const god = st.agents.find((a) => a.isGod);
-        if (god) st.select(god.id);
+        const orchestrator = st.agents.find((a) => a.isOrchestrator);
+        if (orchestrator) st.select(orchestrator.id);
         st.requestCommandCenterTab('triggers');
       });
       // nail + ring binding above a white page with a red month header
@@ -331,7 +335,9 @@ export function OfficeFloor() {
         }
       }
       calG.rect(8, 11, 2, 2).fill(0xc94f4f);                  // today, circled red
-      charLayer.addChild(calG);
+      if (theme.anchors.calendar.x >= 0 && theme.anchors.calendar.y >= 0) {
+        charLayer.addChild(calG);
+      }
 
       // Build the ordered seat list once: PC desks + named desks first, then
       // conference-room chairs as overflow. Each agent claims one and stays there;
@@ -382,11 +388,11 @@ export function OfficeFloor() {
       }
       if (waitTiles.length === 0) waitTiles.push(entrance);
 
-      // Seat 0 is desk-ceo — "Michael's room" — reserved for the god agent.
+      // Seat 0 is desk-ceo — "the orchestrator's room" — reserved for the orchestrator.
       // All other workers claim seats from 1 onward.
-      const GOD_SEAT = 0;
+      const ORCHESTRATOR_SEAT = 0;
       const claimSeat = (agent: Agent): number | null => {
-        if (agent.isGod) { seatClaims.add(GOD_SEAT); return GOD_SEAT; }
+        if (agent.isOrchestrator) { seatClaims.add(ORCHESTRATOR_SEAT); return ORCHESTRATOR_SEAT; }
         for (let i = 1; i < seatTiles.length; i++) {
           if (!seatClaims.has(i)) { seatClaims.add(i); return i; }
         }
@@ -607,10 +613,10 @@ export function OfficeFloor() {
         }
       };
 
-      /** Distance from the god's avatar in px, or Infinity when he's absent. */
-      const godDistance = (px: number, py: number): number => {
-        const god = useStore.getState().agents.find((a) => a.isGod);
-        const grt = god ? runtimes.get(god.id) : undefined;
+      /** Distance from the orchestrator's avatar in px, or Infinity when he's absent. */
+      const orchestratorDistance = (px: number, py: number): number => {
+        const orchestrator = useStore.getState().agents.find((a) => a.isOrchestrator);
+        const grt = orchestrator ? runtimes.get(orchestrator.id) : undefined;
         if (!grt) return Infinity;
         const p = grt.character.getPixelPosition();
         return Math.hypot(p.x - px, p.y - py);
@@ -624,7 +630,7 @@ export function OfficeFloor() {
         // presence it's the usual harmless quips (the sucking up happens via
         // the proximity director below).
         const p = rt.character.getPixelPosition();
-        if (godDistance(p.x, p.y) > 96 && Math.random() < 0.35) {
+        if (orchestratorDistance(p.x, p.y) > 96 && Math.random() < 0.35) {
           rt.character.showThought(t(GOSSIP_KEYS[Math.floor(Math.random() * GOSSIP_KEYS.length)]));
           return;
         }
@@ -677,7 +683,7 @@ export function OfficeFloor() {
         releaseBreak(rt);
         rt.character.hideThought();
         const agent = agentById(id);
-        if (agent?.isGod) { rt.character.sitAtDesk(true); return; }
+        if (agent?.isOrchestrator) { rt.character.sitAtDesk(true); return; }
         const c = rt.character;
         if (!arrived) {
           // Never made it to the café (watchdog) — a held mug still goes home.
@@ -735,7 +741,7 @@ export function OfficeFloor() {
       };
 
       const breakEligible = (agent: Agent, rt: Runtime): boolean => {
-        if (agent.isGod || rt.brk || rt.err || rt.run || rt.cupCarryHome) return false;
+        if (agent.isOrchestrator || rt.brk || rt.err || rt.run || rt.cupCarryHome) return false;
         if (agent.status !== 'idle' && agent.status !== 'success') return false;
         return !rt.character.isSitting();   // already parked at a desk → leave it
       };
@@ -901,18 +907,18 @@ export function OfficeFloor() {
         if (free.length === 0) return;
         const idx = free[Math.floor(Math.random() * free.length)];
         const spot = ERRAND_SPOTS[idx];
-        // Pick the performer. The CEO office's spots belong to Michael alone —
+        // Pick the performer. The CEO office's spots belong to the orchestrator alone —
         // and unlike workers he runs his errands FROM his desk (he's seated
         // while idle, so the sitting check doesn't apply to him).
         let agent: Agent | undefined;
         let rt: Runtime | undefined;
-        if (spot.godOnly) {
-          const god = useStore.getState().agents.find((a) => a.isGod);
-          const grt = god ? runtimes.get(god.id) : undefined;
-          if (!god || !grt || grt.err || grt.brk
-            || (god.status !== 'idle' && god.status !== 'success')
+        if (spot.orchestratorOnly) {
+          const orchestrator = useStore.getState().agents.find((a) => a.isOrchestrator);
+          const grt = orchestrator ? runtimes.get(orchestrator.id) : undefined;
+          if (!orchestrator || !grt || grt.err || grt.brk
+            || (orchestrator.status !== 'idle' && orchestrator.status !== 'success')
             || Math.random() >= 0.5) return;        // the boss is unhurried
-          agent = god; rt = grt;
+          agent = orchestrator; rt = grt;
         } else {
           const candidates: Array<[Agent, Runtime]> = [];
           for (const a of useStore.getState().agents) {
@@ -933,10 +939,10 @@ export function OfficeFloor() {
           const lines = ERRAND_THOUGHTS[spot.kind];
           c.showThought(t(lines[Math.floor(Math.random() * lines.length)]));
           const finish = (): void => {
-            const wasGod = !!agent!.isGod;
+            const wasOrchestrator = !!agent!.isOrchestrator;
             releaseErrand(rt!);
             c.hideThought();
-            if (wasGod) c.sitAtDesk(true);  // the boss returns to his throne
+            if (wasOrchestrator) c.sitAtDesk(true);  // the boss returns to his throne
             else c.startWandering();
           };
           if (spot.kind === 'water') c.startWatering(spot.duration, finish);
@@ -944,10 +950,10 @@ export function OfficeFloor() {
         });
       };
 
-      // ─── The boss aura: performative excellence in Michael's presence ──────
-      // When the god's avatar wanders close to a worker, the worker bursts
+      // ─── The boss aura: performative excellence in the orchestrator's presence ──────
+      // When the orchestrator's avatar wanders close to a worker, the worker bursts
       // into suck-up mode — including REAL stats ("already shipped N tasks,
-      // Michael. raise?" with N from the actual ledger). What they say once
+      // the orchestrator. raise?" with N from the actual ledger). What they say once
       // he's out of earshot is a different story (see emitQuip's gossip).
       const lastSuckUp = new Map<string, number>();
       let doneByAssignee = new Map<string, number>();
@@ -974,13 +980,13 @@ export function OfficeFloor() {
         auraCooldown -= dt;
         if (auraCooldown > 0) return;
         auraCooldown = 1.5;
-        const god = useStore.getState().agents.find((a) => a.isGod);
-        const grt = god ? runtimes.get(god.id) : undefined;
+        const orchestrator = useStore.getState().agents.find((a) => a.isOrchestrator);
+        const grt = orchestrator ? runtimes.get(orchestrator.id) : undefined;
         if (!grt) return;
         const gp = grt.character.getPixelPosition();
         const now = Date.now();
         for (const [id, rt] of runtimes) {
-          if (id === god!.id) continue;
+          if (id === orchestrator!.id) continue;
           const a = agentById(id);
           if (!a) continue;
           // only relaxed workers perform — not someone mid-thought of real work
@@ -1010,7 +1016,7 @@ export function OfficeFloor() {
             rt.character.setCarryingCup(false);
             rt.character.setCupOnDesk(true);
             const agent = agentById(id);
-            if (agent && !agent.isGod && (agent.status === 'idle' || agent.status === 'success')) {
+            if (agent && !agent.isOrchestrator && (agent.status === 'idle' || agent.status === 'success')) {
               rt.character.startWandering();
             }
           }
@@ -1028,7 +1034,7 @@ export function OfficeFloor() {
       // assignee) literally TAKES THE NOTE ALONG: it leaves the boards and
       // sticks to that worker's desk instead. Finished tasks archive as a green
       // stack on the little table at the end. Clicking any of it selects
-      // Michael and opens the Command Center's tasks tab.
+      // the orchestrator and opens the Command Center's tasks tab.
       const BOARD_TILE: Tile = theme.anchors.boards;
       // The ensemble (two boards + archive table) is 82px wide; the wall run
       // between the two doorways spans tiles 6..12 (112px) — center it.
@@ -1044,11 +1050,13 @@ export function OfficeFloor() {
       boardG.on('pointertap', (ev) => {
         ev.stopPropagation();
         const st = useStore.getState();
-        const god = st.agents.find((a) => a.isGod);
-        if (god) st.select(god.id);
+        const orchestrator = st.agents.find((a) => a.isOrchestrator);
+        if (orchestrator) st.select(orchestrator.id);
         st.requestCommandCenterTab('tasks');
       });
-      charLayer.addChild(boardG);
+      if (theme.anchors.boards.x >= 0 && theme.anchors.boards.y >= 0) {
+        charLayer.addChild(boardG);
+      }
       // One small Graphics per desk currently holding a taken note.
       const deskNoteG = new Map<string, Graphics>();
       const clearDeskNotes = (): void => {
@@ -1123,7 +1131,7 @@ export function OfficeFloor() {
       drawTaskBoard([]);
 
       // ─── The office clock: clicking it is CLOCKING OUT ─────────────────────
-      // The wall clock beside Michael's window doubles as the quit entry:
+      // The wall clock beside the orchestrator's window doubles as the quit entry:
       // a click runs the real close flow (window.close() → the main process
       // intercepts while agents run → the "Quitting now?" dialog with its
       // closing-time option). The office clock literally opens quitting time.
@@ -1137,27 +1145,37 @@ export function OfficeFloor() {
         ev.stopPropagation();
         window.close(); // intercepted by the main process while PTYs are alive
       });
-      charLayer.addChild(clockG);
+      if (theme.anchors.clock.x >= 0 && theme.anchors.clock.y >= 0) {
+        charLayer.addChild(clockG);
+      }
 
       // ─── The ASK ME board: tasks waiting on the HUMAN, first class ─────────
       // Hangs on the right wall run (between the second doorway and the war
-      // room): one lilac note per open question the god parked for the human.
+      // room): one lilac note per open question the orchestrator parked for the human.
       // It pulses while anything waits — clicking it opens the Command Center's
       // ASK ME tab, where the human reads the questions, answers, and the
-      // answers flow back to the god (documented on the card itself).
+      // answers flow back to the orchestrator (documented on the card itself).
       const askG = new Graphics();
       askG.eventMode = 'static';
       askG.cursor = 'pointer';
-      askG.position.set(14 * tsB + 25, 10 * tsB);
-      askG.zIndex = 11 * tsB;
+      // In custom/legacy themes anchors might define specific wall placements;
+      // for default plain (and other themes), position it on the top wall (e.g. x: 16, y: 1)
+      const askTile = (theme.anchors as unknown as Record<string, Tile | undefined>)?.ask ?? {
+        x: theme.anchors.clock.x + 2,
+        y: theme.anchors.boards.y
+      };
+      askG.position.set(askTile.x * tsB + 4, askTile.y * tsB);
+      askG.zIndex = (askTile.y + 1) * tsB;
       askG.on('pointertap', (ev) => {
         ev.stopPropagation();
         const st = useStore.getState();
-        const god = st.agents.find((a) => a.isGod);
-        if (god) st.select(god.id);
+        const orchestrator = st.agents.find((a) => a.isOrchestrator);
+        if (orchestrator) st.select(orchestrator.id);
         st.requestCommandCenterTab('human');
       });
-      charLayer.addChild(askG);
+      if (askTile.x >= 0 && askTile.y >= 0 && theme.anchors.boards.x >= 0) {
+        charLayer.addChild(askG);
+      }
       let askCount = 0;
       let askPulse = 0;
       const drawAskBoard = (pulse: number): void => {
@@ -1187,7 +1205,7 @@ export function OfficeFloor() {
       drawAskBoard(0);
 
       // ─── Board choreography: every ledger move is ACTED on the floor ───────
-      // Michael walks over and pins fresh cards; an assigned worker walks to
+      // the orchestrator walks over and pins fresh cards; an assigned worker walks to
       // the TODO board, takes its note and carries it home; finishing carries
       // the note to the archive table; a card going blocked gets walked to the
       // red board. While a move is in flight, the boards keep showing the OLD
@@ -1308,11 +1326,11 @@ export function OfficeFloor() {
       };
 
       /** Pick who performs a ledger change: the assignee if on the floor, the
-       *  god for fresh pins / orphan cards. Returns undefined → instant redraw. */
-      const actorFor = (assignee: string | undefined, preferGod: boolean): string | undefined => {
-        if (!preferGod && assignee && runtimes.has(assignee)) return assignee;
-        const god = useStore.getState().agents.find((a) => a.isGod);
-        return god && runtimes.has(god.id) ? god.id : undefined;
+       *  orchestrator for fresh pins / orphan cards. Returns undefined → instant redraw. */
+      const actorFor = (assignee: string | undefined, preferOrchestrator: boolean): string | undefined => {
+        if (!preferOrchestrator && assignee && runtimes.has(assignee)) return assignee;
+        const orchestrator = useStore.getState().agents.find((a) => a.isOrchestrator);
+        return orchestrator && runtimes.has(orchestrator.id) ? orchestrator.id : undefined;
       };
 
       let lastLedger: LedgerTask[] = [];
@@ -1470,7 +1488,7 @@ export function OfficeFloor() {
         const wasBusy = rt.prevStatus === 'working' || rt.prevStatus === 'thinking' || rt.prevStatus === 'compacting';
         const isBusy = agent.status === 'working' || agent.status === 'thinking' || agent.status === 'compacting';
         if (isBusy && !wasBusy) rt.busySince = Date.now();
-        const finishedWork = !force && !agent.isGod
+        const finishedWork = !force && !agent.isOrchestrator
           && wasBusy && (agent.status === 'idle' || agent.status === 'success')
           && rt.busySince !== undefined && Date.now() - rt.busySince >= CHEER_MIN_BUSY_MS;
         if (!isBusy) rt.busySince = undefined;
@@ -1523,7 +1541,7 @@ export function OfficeFloor() {
             c.showThought(liveActivity(agent), agent.carrying);
             break;
           case 'waiting':
-            // Parked at the desk awaiting god / another agent — not actively
+            // Parked at the desk awaiting orchestrator / another agent — not actively
             // working (no focus glow) and NOT at the door (that's reserved for
             // agents that need the human).
             c.setStatusGlyph('none');
@@ -1551,7 +1569,7 @@ export function OfficeFloor() {
             break;
           case 'success':
             c.setStatusGlyph('success');
-            if (agent.isGod) { c.hideThought(); c.sitAtDesk(true); break; }
+            if (agent.isOrchestrator) { c.hideThought(); c.sitAtDesk(true); break; }
             c.startWandering();
             if (finishedWork) {
               c.cheer();
@@ -1568,8 +1586,8 @@ export function OfficeFloor() {
           case 'idle':
           default:
             c.setStatusGlyph('none');
-            // The god runs the floor from its desk; everyone else wanders when idle.
-            if (agent.isGod) { c.sitAtDesk(true); c.showThought(liveActivity(agent, t('office.activity.runningFloor'))); }
+            // The orchestrator runs the floor from its desk; everyone else wanders when idle.
+            if (agent.isOrchestrator) { c.sitAtDesk(true); c.showThought(liveActivity(agent, t('office.activity.runningFloor'))); }
             else if (finishedWork) {
               // Task done → a quick cheer on the spot, then back to roaming.
               c.startWandering();

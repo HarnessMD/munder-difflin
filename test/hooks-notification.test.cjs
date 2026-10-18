@@ -33,18 +33,19 @@ require.cache[electron] = {
 
 const { HiveManager } = loadTs('src/main/hive.ts');
 const { HookServer } = loadTs('src/main/hooks.ts');
+const { modelForHiveSpawn } = loadTs('src/main/config.ts');
 const CONFIG = { notifications: true };
 
 function tmpHome() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'md-hooks-notif-'));
 }
 
-async function floor(t) {
+async function floor(t, getConfig = () => CONFIG) {
   const home = tmpHome();
   t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
-  const server = new HookServer(hive, () => null, () => CONFIG, undefined, undefined);
+  const server = new HookServer(hive, () => null, getConfig, undefined, undefined);
   const fire = (payload) => server.handle({ agent_id: 'jim-1', session_id: 's1', ...payload });
   notifications.length = 0;
   return { home, hive, server, fire };
@@ -111,4 +112,49 @@ test('notifications setting off suppresses the OS toast but the hook still resol
   const res = await server.handle({ agent_id: 'jim-1', session_id: 's1', hook_event_name: 'Stop' });
   assert.equal(notifications.length, 0, 'notifications:false must suppress the OS toast');
   assert.deepEqual(res, {}, 'the hook itself still resolves normally');
+});
+
+test('Status captures Claude model.id as the agent\'s restart-safe model', async (t) => {
+  const { hive, fire } = await floor(t);
+  await fire({ hook_event_name: 'Status', model: { id: 'claude-opus-5-5[1m]' } });
+  assert.equal(hive.lastModel('jim-1'), 'claude-opus-5-5[1m]');
+});
+
+test('a Status report at the app default leaves no pin, so a later Settings default reaches respawn', async (t) => {
+  let config = { notifications: true, defaultModel: 'claude-opus-5-5', godProvider: 'claude', godModel: 'claude-opus-4-8' };
+  const { hive, fire } = await floor(t, () => config);
+
+  // Case and surrounding whitespace are status spelling only; neither may create a pin.
+  await fire({ hook_event_name: 'Status', model: { id: '  CLAUDE-OPUS-5-5  ' } });
+  assert.equal(hive.lastModel('jim-1'), undefined);
+
+  config = { ...config, defaultModel: 'claude-fable-5-1' };
+  const agent = hive.registry().agents['jim-1'];
+  assert.equal(modelForHiveSpawn(agent, config, hive.lastModel('jim-1')), 'claude-fable-5-1');
+});
+
+test('a /model change pins only the divergence and returning to default clears it', async (t) => {
+  const config = { notifications: true, defaultModel: 'claude-fable-5-1', godProvider: 'claude', godModel: 'claude-opus-4-8' };
+  const { hive, fire } = await floor(t, () => config);
+
+  await fire({ hook_event_name: 'Status', model: { id: 'claude-opus-5-5[1m]' } });
+  assert.equal(hive.lastModel('jim-1'), 'claude-opus-5-5[1m]');
+
+  await fire({ hook_event_name: 'Status', model: { id: 'claude-fable-5-1' } });
+  assert.equal(hive.lastModel('jim-1'), undefined);
+});
+
+test('recordModel refuses a non-Claude registry provider', async (t) => {
+  const home = tmpHome();
+  t.after(() => fs.rmSync(home, { recursive: true, force: true }));
+  const hive = new HiveManager(() => home);
+  // Keep this synthetic: spawning agy would install its global hook bridge.
+  await hive.ensureAgent({ id: 'agy-1', name: 'Agy', provider: 'claude', cwd: home });
+  const registryPath = path.join(hive.root(), 'registry.json');
+  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  registry.agents['agy-1'].provider = 'agy';
+  fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2));
+
+  hive.recordModel('agy-1', 'Gemini 3.8 Flash (High)', 'claude-fable-5-1');
+  assert.equal(hive.lastModel('agy-1'), undefined);
 });

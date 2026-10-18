@@ -6,6 +6,25 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Fork changes (agent-stage)
+
+- **The lead agent is the `orchestrator`.** The old agent id is gone from code, config keys
+  (`orchestratorProvider`/`orchestratorModel`), prompts and UI. Existing hives migrate on first
+  start (registry and `agents/` folder renamed, `registry.json` backed up as
+  `.pre-orchestrator-rename`), and the router still accepts the old address. The name people see
+  is the user's rename, else the active theme's `copy.orchestratorName`, else `Orchestrator`.
+- **A rights-clean default theme.** `plain` is generated from flat shapes. The Office, Brooklyn 99
+  and Star Trek packs and the bundled LimeZu tilesets are removed from the tree; keep them in your
+  own themes folder. Characters are generic and drawn procedurally.
+- **Theme tooling.** The picker is always on, validates packs with the real validator, lists each
+  problem, and has Rescan, Open folder and an extra themes folder. `npm run theme:validate` and
+  `npm run theme:new`; contract in `docs/theming/THEMING.md`.
+- **Usage endpoint at standup.** Optional URL and bearer token; the hourly standup includes a
+  summary and writes `usage-availability.json`. See `docs/usage-endpoint.md`.
+- **Gemini 4 Argon** in the Antigravity and Gemini CLI model lists.
+- **Codex submit fix.** Longer Enter delay with a second Enter, plus a safety-net interval for
+  quiet PTYs.
+
 ### Added
 
 - **Tasks show their id.** The one thing people actually refer to a card by — `bmt-12` — was not

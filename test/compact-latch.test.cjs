@@ -2,7 +2,7 @@
 
 // Regression guard for #270 — the compaction latch.
 //
-// The bug it fixed is SILENT AND SLOW: god latches out of compaction, nothing
+// The bug it fixed is SILENT AND SLOW: orchestrator latches out of compaction, nothing
 // errors, no toast, no log line, and context simply stops compacting until
 // something else breaks. Nothing guarded it. The code is correct as shipped;
 // this is the missing guard, not a bug hunt, so nothing here refactors it.
@@ -27,7 +27,7 @@ const QUIESCE = 30_000;
 // ── (a) the gate that decides "undeliverable" ────────────────────────────────
 
 test('(a) an agent blocked on a human prompt is undeliverable', () => {
-  // The exact scenario #270 names: god 'blocked' on a human prompt. Enqueuing
+  // The exact scenario #270 names: orchestrator 'blocked' on a human prompt. Enqueuing
   // anyway left a stuck /compact at the head of the queue that dedupe then
   // collapsed every later hourly attempt against, forever.
   assert.equal(canDeliverToAgent('blocked', 0, QUIESCE), false);

@@ -22,7 +22,7 @@ test('preferredAgentRole keeps a hire role over standby', () => {
   assert.equal(preferredAgentRole('on standby', hire), hire);
   assert.equal(preferredAgentRole(hire, 'on standby'), hire);
   assert.equal(preferredAgentRole('on standby', 'idle', true), 'on standby');
-  assert.equal(preferredAgentRole(undefined, undefined, true), 'orchestrator (god)');
+  assert.equal(preferredAgentRole(undefined, undefined, true), 'orchestrator');
 });
 
 test('roleForHiveSpawn omits a transient roster caption', () => {
@@ -32,7 +32,7 @@ test('roleForHiveSpawn omits a transient roster caption', () => {
     'SRT product steward — owns marketing execution'
   );
   assert.equal(
-    roleForHiveSpawn({ description: 'on standby', isGod: true }),
-    'orchestrator (god)'
+    roleForHiveSpawn({ description: 'on standby', isOrchestrator: true }),
+    'orchestrator'
   );
 });

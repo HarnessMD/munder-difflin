@@ -34,12 +34,12 @@ test('nudges an idle worker with undrained inbox mail', () => {
   assert.deepEqual(out, ['alice']);
 });
 
-test('never nudges god, archived agents, or agents without a live pty', () => {
+test('never nudges orchestrator, archived agents, or agents without a live pty', () => {
   const w = new WorkerWakeWatchdog();
   w.noteSpawn('p1', 0);
   const now = 200_000;
   const out = w.decide([
-    fact({ agentId: 'god', isGod: true, ptyId: 'p1' }),
+    fact({ agentId: 'orchestrator', isOrchestrator: true, ptyId: 'p1' }),
     fact({ agentId: 'gone', archived: true, ptyId: undefined }),
     fact({ agentId: 'no-pty', ptyId: undefined })
   ], now);

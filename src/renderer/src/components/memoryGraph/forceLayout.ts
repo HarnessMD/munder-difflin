@@ -9,7 +9,7 @@
 
 export interface LayoutNode {
   id: string;
-  /** extra centre-pull multiplier (god reads as the hub) */
+  /** extra centre-pull multiplier (orchestrator reads as the hub) */
   gravityBias?: number;
 }
 export interface LayoutEdge {

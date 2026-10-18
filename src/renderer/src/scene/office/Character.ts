@@ -40,13 +40,11 @@ const SPEED = 48; // pixels/sec (tileSize=16)
 // monitor and the torso rests on the chair. Down-facing agents (desk in front)
 // are pushed into the desk instead.
 const SIT_OFFSET = 5;
-const SIT_OFFSET_DOWN = 12;
+const SIT_OFFSET_DOWN = 6;
 const SIT_OFFSET_UP = 5;   // up-facing: drop the body down onto the chair
 const SIT_OFFSET_SIDE = 4; // left/right: a smaller drop plus the sideways tuck
-// Pixels cropped off the bottom of the 32px sprite while seated. Up/side seats
-// trim just the feet so most of the torso shows and fills the chair seat; the
-// down-facing crop is larger so the legs tuck under the desk in front.
-const SEAT_LEG_CROP = 8;
+// Pixels cropped off the bottom of the 32px sprite while seated.
+const SEAT_LEG_CROP = 3;
 const SEAT_BACK_CROP = 2;
 
 // Idle 30/30 loop: between tasks an agent alternates roaming the floor with
@@ -56,16 +54,18 @@ const SEAT_BACK_CROP = 2;
 const IDLE_LINGER_SECONDS = 30;
 const DESK_REST_SECONDS = 30;
 
-// Nameplate. Small and thinly outlined on purpose: a dozen of these on screen
-// at once should read as labels under the sprites, not compete with the action
-// bubbles above their heads.
-const NAME_TAG_FONT_SIZE = 6;
+// Nameplate. They need to remain readable at the floor's normal camera zoom,
+// but a dozen of them still need to fit around the desks. Long roster roles
+// ("Chief Engineer", "Science Officer") are clipped with an ellipsis to this
+// fixed footprint instead of letting their backing plate cover nearby avatars.
+const NAME_TAG_FONT_SIZE = 8;
 const NAME_TAG_STROKE_WIDTH = 1;
 const NAME_TAG_OFFSET_Y = -4;
 const NAME_TAG_PAD_X = 2;
 const NAME_TAG_PAD_Y = 1;
 const NAME_TAG_RADIUS = 2;
 const NAME_TAG_PLATE_ALPHA = 0.82;
+const NAME_TAG_MAX_TEXT_WIDTH = 44;
 /** Nameplates sort ABOVE every avatar (whose zIndex is its world y, bounded by
  *  the map height in px) and below the thought bubbles at 100000. Riding the
  *  sprite container instead would have been cheaper, but it put a name at the
@@ -131,6 +131,7 @@ export class Character {
   private nameTag: Container;
   private nameTagText: Text;
   private nameTagPlate: Graphics;
+  private nameTagName = '';
   private workGlow: Graphics;
   private workGlowElapsed = 0;
   private glowOn = false;
@@ -175,7 +176,7 @@ export class Character {
     this.sprite.setPosition(this.px, this.py);
 
     this.thoughtBubble = new ThoughtBubble();
-    // Keep the cloud inside the world — Michael's corner office would
+    // Keep the cloud inside the world — the orchestrator's corner office would
     // otherwise push his bubble off the top/left map edge.
     this.thoughtBubble.setBounds(
       this.mapRenderer.width * this.mapRenderer.tileSize,
@@ -193,7 +194,7 @@ export class Character {
     this.nameTag.eventMode = 'none';
     this.nameTagPlate = new Graphics();
     this.nameTagText = new Text({
-      text: options.displayName,
+      text: '',
       style: {
         fontSize: NAME_TAG_FONT_SIZE,
         fontWeight: 'bold',
@@ -206,6 +207,7 @@ export class Character {
     this.nameTagText.anchor.set(0.5, 0);
     this.nameTag.addChild(this.nameTagPlate);
     this.nameTag.addChild(this.nameTagText);
+    this.setNameTagText(options.displayName);
     this.drawNameTagPlate();
 
     this.workGlow = new Graphics();
@@ -426,17 +428,31 @@ export class Character {
     this.thoughtBubble.setZoom(z);
   }
 
-  /** Update the nameplate text (a rename mid-session, e.g. god's name). No-op
+  /** Update the nameplate text (a rename mid-session, e.g. orchestrator's name). No-op
    *  when unchanged — cheap to call on every store tick, and the plate is only
    *  repainted when the text it has to cover actually changed. */
   setName(displayName: string): void {
-    if (this.nameTagText.text === displayName) return;
-    this.nameTagText.text = displayName;
+    if (this.nameTagName === displayName) return;
+    this.setNameTagText(displayName);
     this.drawNameTagPlate();
   }
 
-  /** Repaint the backing plate to the text's measured width. Sized here rather
-   *  than at a fixed width because names run from "QA" to "Architect". */
+  /** Keep a roster role legible without allowing its plate to span desks. */
+  private setNameTagText(displayName: string): void {
+    this.nameTagName = displayName;
+    this.nameTagText.text = displayName;
+    if (this.nameTagText.width <= NAME_TAG_MAX_TEXT_WIDTH) return;
+
+    const ellipsis = '…';
+    for (let end = displayName.length - 1; end > 0; end--) {
+      const clipped = `${displayName.slice(0, end).trimEnd()}${ellipsis}`;
+      this.nameTagText.text = clipped;
+      if (this.nameTagText.width <= NAME_TAG_MAX_TEXT_WIDTH) return;
+    }
+    this.nameTagText.text = ellipsis;
+  }
+
+  /** Repaint the backing plate to the (already clamped) measured text width. */
   private drawNameTagPlate(): void {
     const w = this.nameTagText.width + NAME_TAG_PAD_X * 2;
     const h = this.nameTagText.height + NAME_TAG_PAD_Y * 2;

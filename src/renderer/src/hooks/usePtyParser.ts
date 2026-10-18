@@ -148,11 +148,11 @@ export function usePtyParser(agentId: string) {
     // Not running → a genuine approval/question prompt is on screen.
     const recent = text.slice(-400);
     if (BLOCK_HINTS.some(re => re.test(recent))) {
-      // Only the god agent talks to the human, so only it is truly "blocked"
+      // Only the orchestrator talks to the human, so only it is truly "blocked"
       // (needs you). A sub-agent sitting at a prompt is autonomous — it reads as
       // "waiting" and we don't raise a human-approval card for it.
-      const isGod = !!useStore.getState().agents.find((a) => a.id === agentId)?.isGod;
-      if (isGod) {
+      const isOrchestrator = !!useStore.getState().agents.find((a) => a.id === agentId)?.isOrchestrator;
+      if (isOrchestrator) {
         updateAgent(agentId, {
           status: 'blocked',
           action: 'waiting on you',

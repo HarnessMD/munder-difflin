@@ -29,7 +29,7 @@ import { runHiddenClaude } from './hiddenClaude';
 
 /** Total memory.md budget — mirrors the janitor's CONTEXT_BUDGET_BYTES (128 KB). */
 const BUDGET_BYTES = 131_072;
-/** Cheap tail-summarizer (DECIDED by god). The verify gate covers quality. */
+/** Cheap tail-summarizer (DECIDED by orchestrator). The verify gate covers quality. */
 const CONDENSE_MODEL = 'claude-haiku-4-5';
 /** Hard cap so a wedged headless run can't stall the reflect loop. */
 const DEFAULT_TIMEOUT_MS = 180_000;
@@ -128,7 +128,10 @@ export class MemoryReflector {
     private getCommand: () => string,
     private getMemoryEnv: () => Record<string, string>,
     private getSettings: () => ReflectSettings,
-    private appendLog: (event: Record<string, unknown>) => void
+    private appendLog: (event: Record<string, unknown>) => void,
+    /** The hidden model call. Injectable ONLY so the summarize path can be driven
+     *  deterministically in tests; production always uses the real print process. */
+    private runHidden: typeof runHiddenClaude = runHiddenClaude
   ) {}
 
   // — lifecycle (mirrors MemoryManager) —
@@ -293,7 +296,7 @@ export class MemoryReflector {
       pinned?.trim() || '(none)'
     ].join('\n');
 
-    const result = await runHiddenClaude(prompt, {
+    const result = await this.runHidden(prompt, {
       model: CONDENSE_MODEL,
       cwd: home,
       command: this.getCommand(),
@@ -303,10 +306,10 @@ export class MemoryReflector {
       timeoutMs: DEFAULT_TIMEOUT_MS,
     });
 
-    if (!result.ok || !result.text) {
+    if (!result.ok || !result.result) {
       throw new Error(result.error ?? 'condense: hidden session returned no text');
     }
-    const parsed = parseSummary(result.text);
+    const parsed = parseSummary(result.result);
     if (!parsed) throw new Error('condense: response contained no parseable summary');
     return parsed;
   }

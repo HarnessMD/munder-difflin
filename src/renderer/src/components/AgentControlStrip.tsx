@@ -21,7 +21,7 @@ import { isComposingKey } from '@shared/imeGuard';
  * obvious, and a row of three clear verbs needs no title above it.
  *
  * The 1:1 hold sits here too. It is a different KIND of control — the other two
- * restrain the AGENT, 1:1 restrains MICHAEL, and the agent keeps running and
+ * restrain the AGENT, 1:1 restrains THE ORCHESTRATOR, and the agent keeps running and
  * answering you — so that distinction now lives in its tooltip rather than in
  * the layout.
  */
@@ -103,10 +103,10 @@ export function AgentControlStrip({ agentId }: { agentId: string }) {
         </PixelButton>
         {/* Sits with them at the founder's call. It is a different KIND of
             control — the two above restrain the agent, this one restrains
-            Michael — so the tooltip carries that distinction now that the
+            the orchestrator — so the tooltip carries that distinction now that the
             grouping no longer does. */}
         <AgentHoldButton agentId={agentId} />
-        {/* v0.3.4: the auto-delivery switch moved to the god's Command Center
+        {/* v0.3.4: the auto-delivery switch moved to the orchestrator's Command Center
             header — ONE floor-wide control instead of a per-agent toggle. */}
         {snap?.autoDeliveryPaused && (
           <span style={{ fontSize: 11, color: 'var(--cth-ink-500)' }}>{t('agentControl.deliveryPaused')}</span>

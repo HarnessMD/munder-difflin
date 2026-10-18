@@ -279,3 +279,51 @@ describe('helpers', () => {
     expect(numberToHex(0x1a1320)).toBe('#1a1320');
   });
 });
+
+describe('validatePack: copy.orchestratorName', () => {
+  it('carries a good display name through', () => {
+    const r = validatePack(pack(baseManifest({ copy: { orchestratorName: ' Captain ' } })));
+    expect(codes(r, 'error')).toEqual([]);
+    expect(r.pack!.manifest.copy).toEqual({ orchestratorName: 'Captain' });
+  });
+
+  it('drops a bad one with a warning instead of rejecting the pack', () => {
+    for (const bad of ['', '   ', 'x'.repeat(41), 'line\nbreak', 42]) {
+      const r = validatePack(pack(baseManifest({ copy: { orchestratorName: bad as unknown as string } })));
+      expect(codes(r, 'error')).toEqual([]);
+      expect(codes(r, 'warn')).toContain('bad-copy');
+      expect(r.pack!.manifest.copy?.orchestratorName).toBeUndefined();
+    }
+  });
+});
+
+describe('validatePack: cast roster (cast/cast.json)', () => {
+  const roster = (v: unknown) => ({ 'cast/cast.json': enc(JSON.stringify(v)) });
+
+  it('accepts a roster whose sprites are present', () => {
+    const r = validatePack(pack(baseManifest(), baseMap(), {
+      ...roster([{ name: 'ada', displayName: 'Ada' }]),
+      'cast/sprites/ada.png': fakePng(108, 32),
+    }));
+    expect(codes(r)).toEqual([]);
+  });
+
+  it('warns (does not reject) for a missing sprite, a bad name, a non-array and bad JSON', () => {
+    const missing = validatePack(pack(baseManifest(), baseMap(), roster([{ name: 'ada' }])));
+    expect(codes(missing, 'warn')).toContain('cast-sprite-missing');
+    expect(missing.pack).not.toBeNull();
+
+    const badName = validatePack(pack(baseManifest(), baseMap(), roster([{ name: '../evil' }])));
+    expect(codes(badName, 'warn')).toContain('bad-cast');
+
+    expect(codes(validatePack(pack(baseManifest(), baseMap(), roster({ a: 1 }))), 'warn')).toContain('bad-cast');
+    const notJson = validatePack(pack(baseManifest(), baseMap(), { 'cast/cast.json': enc('{nope') }));
+    expect(codes(notJson, 'warn')).toContain('bad-cast');
+    expect(notJson.pack).not.toBeNull();
+  });
+
+  it('no longer reports the manifest cast field as unsupported', () => {
+    const r = validatePack(pack({ ...baseManifest(), cast: { roster: 'cast/cast.json', default: 'ada' } }));
+    expect(codes(r)).not.toContain('cast-unsupported');
+  });
+});

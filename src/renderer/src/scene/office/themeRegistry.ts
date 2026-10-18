@@ -24,19 +24,19 @@ export interface Tile { x: number; y: number; }
 export type Facing = 'up' | 'down' | 'left' | 'right';
 
 /** Kinds of small idle errands around the office (incl. plant watering).
- *  'smoke' is the boss special: cigar at the open window, god only. */
+ *  'smoke' is the boss special: cigar at the open window, orchestrator only. */
 export type ErrandKind =
   | 'water' | 'window' | 'dispenser' | 'fridge' | 'shelf' | 'bin' | 'smoke';
 
 /** One idle-errand anchor: a stand tile + facing, an `fx` tile for the ambient
- *  animation, a duration, and an optional god-only restriction. */
+ *  animation, a duration, and an optional orchestrator-only restriction. */
 export interface ErrandSpot {
   kind: ErrandKind;
   stand: Tile;
   facing: Facing;
   fx: Tile;
   duration: number;
-  godOnly?: boolean;
+  orchestratorOnly?: boolean;
 }
 
 /** One tileset atlas + its placement in the global gid space. `embedded` marks
@@ -82,6 +82,7 @@ export interface AnchorConfig {
   boards: Tile;
   clock: Tile;
 }
+export interface CameraBounds { x: number; y: number; width: number; height: number; }
 
 /** Theme palette. `background` is the canvas clear color; `noteColors` are the
  *  kanban note colors keyed by task status. */
@@ -124,7 +125,7 @@ export interface ThemeConfig {
   /** Ordered atlases — order matches both the texture load order and the map's
    *  tileset array (texture[i] ↔ tilesets[i]). */
   tilesets: TilesetEntry[];
-  /** Desk-claim order, by spawn-point name (seat 0 = god / desk-ceo). */
+  /** Desk-claim order, by spawn-point name (seat 0 = orchestrator / desk-ceo). */
   primarySeatNames: string[];
   /** Paired café table seats, in order. */
   cafeSeatNames: string[];
@@ -132,6 +133,8 @@ export interface ThemeConfig {
   cafeStands: ReadonlyArray<readonly [string, 'coffee' | 'vending']>;
   coffee: CoffeeConfig;
   anchors: AnchorConfig;
+  /** Optional tile-space action rectangle for auto-fit; absent fits the whole map. */
+  cameraBounds?: CameraBounds;
   errandSpots: ErrandSpot[];
   monitor: MonitorConfig;
   palette: PaletteConfig;
@@ -141,6 +144,8 @@ export interface ThemeConfig {
   /** Undefined when the pack has no chrome overrides at all (e.g. the default
    *  munder-difflin pack) — the loader/applier treats that as "restore base". */
   chrome?: ThemeChrome;
+  /** Suggested orchestrator/command name from the theme (manifest copy.orchestratorName). */
+  orchestratorName?: string;
 }
 
 /** Runtime registry of loaded themes, populated on demand by loadTheme. */

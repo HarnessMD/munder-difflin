@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * god authors a spawn request's `command` as a full command LINE, but the PTY
+ * orchestrator authors a spawn request's `command` as a full command LINE, but the PTY
  * layer takes one executable plus argv. The unsplit line made node-pty exec a
  * binary literally named `claude --model … --permission-mode …` → ENOENT → the
  * worker died in under a second WHILE its request archived as `.done`. A

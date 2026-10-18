@@ -16,7 +16,7 @@ export interface AgentNode {
   label: string;
   accent: AccentColorName;
   status: StatusKind;
-  isGod: boolean;
+  isOrchestrator: boolean;
   /** number of message edges touching this agent (drives node size) */
   degree: number;
 }
@@ -62,7 +62,7 @@ export interface MinimalAgent {
   name: string;
   accent: AccentColorName;
   status: StatusKind;
-  isGod?: boolean;
+  isOrchestrator?: boolean;
 }
 export interface MessageLogEntry {
   ts?: number;
@@ -139,7 +139,7 @@ export function buildGraph(
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];
 
-  // agent nodes — only those that actually appear, plus god, to avoid lone dots.
+  // agent nodes — only those that actually appear, plus orchestrator, to avoid lone dots.
   // We include every roster agent so the floor is fully represented.
   for (const a of agents) {
     nodes.push({
@@ -148,7 +148,7 @@ export function buildGraph(
       label: a.name,
       accent: a.accent,
       status: a.status,
-      isGod: !!a.isGod,
+      isOrchestrator: !!a.isOrchestrator,
       degree: degree.get(a.id) ?? 0
     });
   }

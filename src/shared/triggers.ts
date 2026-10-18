@@ -1,5 +1,5 @@
 /**
- * TRIGGERS — every way the God orchestrator gets woken up without a human typing.
+ * TRIGGERS — every way the orchestrator gets woken up without a human typing.
  *
  * This module is the single contract shared by main, preload and renderer. Four
  * trigger types live under one roof:
@@ -214,7 +214,7 @@ export const DEFAULT_ORG_TRIGGER: OrgTriggerConfig = {
 /** Copy shown under the org key field. Kept here so Settings and Triggers agree. */
 export const CLONE_NODE_BLURB =
   'Set an organisation key and your teammates can message your clone node — the copy of '
-  + 'Munder Difflin running on your machine. Each teammate runs their own, so an org key '
+  + 'Agent Stage running on your machine. Each teammate runs their own, so an org key '
   + 'is how two installs find each other.';
 
 /* ──────────────────────────── trigger history ────────────────────────────── */

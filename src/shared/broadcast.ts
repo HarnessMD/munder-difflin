@@ -7,7 +7,7 @@
 
 /** The subset of a registry agent that fan-out actually looks at. */
 export interface BroadcastCandidate {
-  /** Michael's prep assistant — send-only, drains no inbox. */
+  /** the orchestrator prep assistant — send-only, drains no inbox. */
   isAssistant?: boolean;
   /** PTY tab closed; the record is retained but the agent is not live. */
   archived?: boolean;
@@ -24,14 +24,14 @@ export interface BroadcastCandidate {
  * i.e. any CLI the presets don't know — silently never heard a broadcast, even
  * though a DIRECT message to that same agent was delivered fine. That asymmetry
  * was the bug: `deliver` already routes a hookless target through
- * `emitTerminalHandoff` (a terminal work order) and only bounces to the god when
+ * `emitTerminalHandoff` (a terminal work order) and only bounces to the orchestrator when
  * the renderer is unavailable. Fan-out now selects the same agents direct mail
  * can reach, and that existing per-target path decides HOW each one is served.
  *
  * The trade-off this accepts: with the renderer down, a broadcast to N hookless
- * agents produces N bounces to the god instead of silence. That is the same
+ * agents produces N bounces to the orchestrator instead of silence. That is the same
  * behaviour N direct messages already produce, and it is the loud failure —
- * nothing is dropped without the god being told.
+ * nothing is dropped without the orchestrator being told.
  */
 export function selectBroadcastTargets(
   agents: Record<string, BroadcastCandidate | undefined>,

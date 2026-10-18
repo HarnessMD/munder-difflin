@@ -33,6 +33,10 @@ import { setAppTheme } from '@/design/theme';
 
 /** Track created object URLs per theme to allow cleanup if needed. */
 const THEME_OBJECT_URLS = new Map<ThemeId, string[]>();
+/** One pack can be needed by the floor and a portrait at the same time. Sharing
+ * the in-flight load prevents the later caller from revoking the first caller's
+ * blob URLs before its images have decoded. */
+const THEME_LOADS = new Map<ThemeId, Promise<ThemeConfig>>();
 
 /** Parse a theme's raw Tiled JSON and patch its tileset array.
  *  `embedded` atlases keep the map's own inline metadata; the rest are replaced
@@ -253,6 +257,7 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
       maxCups: 0,
     },
     anchors: { ...manifest.anchors },
+    cameraBounds: manifest.cameraBounds,
     errandSpots: manifest.errandSpots.map((s) => ({ ...s })),
     monitor: {
       offTopLeftGid: manifest.monitor.offTopLeftGid,
@@ -265,6 +270,7 @@ function packPayloadToThemeConfig(payload: PackPayload, id: ThemeId): ThemeConfi
     cast,
     seatFacing: manifest.seats.facing ? { ...manifest.seats.facing } : undefined,
     chrome,
+    orchestratorName: manifest.copy?.orchestratorName,
   };
 
   return themeConfig;
@@ -329,7 +335,7 @@ export function applyThemeChrome(theme: ThemeConfig): void {
 
 /** Resolve a theme id to a renderable ThemeConfig. Async by design;
  *  loads disk pack via window.cth.loadThemePack(id) and caches in THEMES.
- *  Falls back to DEFAULT_THEME_ID ('munder-difflin') on any failure. */
+ *  Falls back to DEFAULT_THEME_ID ('plain') on any failure. */
 export async function loadTheme(id: ThemeId): Promise<ThemeConfig> {
   const normId = normalizeThemeId(id);
 
@@ -338,6 +344,22 @@ export async function loadTheme(id: ThemeId): Promise<ThemeConfig> {
   if (cached && isThemeRenderable(cached)) {
     return cached;
   }
+
+  const inFlight = THEME_LOADS.get(normId);
+  if (inFlight) return inFlight;
+
+  const load = loadThemeUncached(id, normId);
+  THEME_LOADS.set(normId, load);
+  try {
+    return await load;
+  } finally {
+    THEME_LOADS.delete(normId);
+  }
+}
+
+/** Load one uncached theme bundle. Call through `loadTheme` so concurrent
+ * consumers share this operation rather than revoking each other's blobs. */
+async function loadThemeUncached(id: ThemeId, normId: ThemeId): Promise<ThemeConfig> {
 
   // Attempt to load from disk
   if (typeof window !== 'undefined' && window.cth?.loadThemePack) {

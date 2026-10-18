@@ -29,9 +29,9 @@ import { Icon } from './Icon';
 import { DEFAULT_HERO, type HeroPayload } from '@shared/heroPayload';
 import { manualDownloadUrl, pendingVersion, reduceStatus, type UpdateStatus } from '@shared/updateState';
 
-const GITHUB_REPO_URL = 'https://github.com/chaitanyagiri/munder-difflin';
-const FOUNDERS_WALL_URL = 'https://munderdiffl.in/wall.html';
-const DISCORD_URL = 'https://discord.gg/SEDzP5ZPk5';
+const GITHUB_REPO_URL = 'https://github.com/jdell64/agent-stage';
+const FOUNDERS_WALL_URL = 'https://github.com/jdell64/agent-stage';
+const DISCORD_URL = 'https://github.com/jdell64/agent-stage';
 
 export function SettingsHeroCard() {
   const { t } = useTranslation();
@@ -92,7 +92,7 @@ export function SettingsHeroCard() {
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
             <span style={{
               fontFamily: 'var(--cth-font-display)', fontSize: 13, lineHeight: '20px', color: INK
-            }}>MUNDER DIFFLIN</span>
+            }}>AGENT STAGE</span>
             {version && (
               <span style={{
                 fontFamily: MONO, fontSize: 15, fontWeight: 700, color: INK
@@ -129,57 +129,7 @@ export function SettingsHeroCard() {
           }}>{hero.notice}</div>
         )}
 
-        {/* Pro announcement. Same block the release drop carries. */}
-        <div style={{
-          padding: '12px 14px',
-          background: 'var(--cth-lilac-light)',
-          border: `2px solid ${INK}`
-        }}>
-          <span style={{
-            display: 'inline-block', fontFamily: MONO, fontSize: 9, letterSpacing: '.18em',
-            textTransform: 'uppercase', padding: '2px 7px',
-            background: INK, color: 'var(--cth-paper-100)'
-          }}>{t('settingsHero.announcement')}</span>
-          <div style={{
-            marginTop: 8, fontFamily: MONO, fontSize: 14, fontWeight: 700, color: INK
-          }}>{t('settingsHero.proLaunch')}</div>
-          <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.5, color: 'var(--cth-ink-700)', maxWidth: '64ch' }}>
-            <b style={{ color: INK }}>{t('settingsHero.proCommunityFree')}</b>{' '}
-            {t('settingsHero.proParagraph')}
-          </div>
-        </div>
 
-        {/* Founders' Wall offer. */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
-          padding: '12px 14px',
-          background: INK, color: 'var(--cth-paper-100)',
-          marginTop: 2
-        }}>
-          <div style={{
-            fontFamily: MONO, fontSize: 30, fontWeight: 700, lineHeight: 0.9,
-            letterSpacing: '-.05em', color: 'var(--cth-lemon)', textAlign: 'center', flexShrink: 0
-          }}>
-            50<span style={{
-              display: 'block', fontSize: 8, letterSpacing: '.2em', fontWeight: 500,
-              color: 'var(--cth-paper-100)', opacity: 0.7, marginTop: 5
-            }}>% OFF</span>
-          </div>
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600 }}>{t('settingsHero.foundersWallTitle')}</div>
-            <div style={{ fontSize: 12, lineHeight: 1.45, opacity: 0.85, marginTop: 2 }}>
-              {t('settingsHero.foundersWallBody')}
-            </div>
-          </div>
-          <PixelButton variant="primary" size="sm" onClick={() => void window.cth.openExternal(FOUNDERS_WALL_URL)}>
-            {t('settingsHero.seeTheWall')}
-          </PixelButton>
-          {PLAN.upgrade && (
-            <PixelButton variant="secondary" size="sm" onClick={() => void window.cth.openExternal(PLAN.upgrade!.url)}>
-              {PLAN.upgrade.label}
-            </PixelButton>
-          )}
-        </div>
 
         {/* Sponsor — only when there is one. */}
         {SPONSOR && (

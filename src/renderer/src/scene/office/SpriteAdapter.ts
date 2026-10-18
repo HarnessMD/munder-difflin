@@ -1,23 +1,23 @@
 import { Texture, Rectangle } from 'pixi.js';
 
 export interface SpriteSheetConfig {
-  frameWidth: number;          // pixel width of one frame (LimeZu: 16)
-  frameHeight: number;         // pixel height of one frame (LimeZu: 32)
-  walkRow: number;             // which 32px row holds the walk frames (LimeZu: 1)
-  framesPerDirection: number;  // walk frames per direction in that row (LimeZu: 6)
+  frameWidth: number;          // pixel width of one frame (e.g. 16)
+  frameHeight: number;         // pixel height of one frame (e.g. 32)
+  walkRow: number;             // which 32px row holds the walk frames (e.g. 1)
+  framesPerDirection: number;  // walk frames per direction in that row (e.g. 6)
 }
 
 /**
- * Maps a LimeZu character walk sheet to the 3-row frame grid CharacterSprite
+ * Maps a character walk sheet to the 3-row frame grid CharacterSprite
  * expects. Ported from shahar061/the-office (office/characters/SpriteAdapter.ts).
  *
- * LimeZu walk row packs 4 directions, each with `framesPerDirection` frames,
+ * A walk row packs 4 directions, each with `framesPerDirection` frames,
  * in the order: right, up, left, down.
  *
  * Output: 3 rows (down, up, right) each with 7 frames:
  *   [walk1, walk2, walk3, type1, type2, read1, read2]
  * Left is rendered by horizontally flipping the "right" row at draw time.
- * Type/read frames reuse the idle (first walk) frame — LimeZu has no desk anims.
+ * Type/read frames reuse the idle (first walk) frame — walk sheets have no desk anims.
  */
 export class SpriteAdapter {
   private static readonly DIRECTION_GROUP = { down: 3, left: 2, up: 1, right: 0 };

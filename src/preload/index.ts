@@ -12,6 +12,8 @@ import type { HeroPayload } from '../shared/heroPayload';
 export type { HeroPayload } from '../shared/heroPayload';
 import type { ModelCatalog } from '../shared/modelCatalogPayload';
 export type { ModelCatalog, CatalogModel } from '../shared/modelCatalogPayload';
+import type { ModelsCatalog, ModelsRefreshRow } from '../shared/modelCatalog';
+export type { ModelsCatalog, ModelsRefreshRow } from '../shared/modelCatalog';
 import type { HookEvent } from '../shared/hookEvents';
 export type { HookEvent } from '../shared/hookEvents';
 import type { LocalSkill, CatalogSkill } from '../main/skills';
@@ -55,8 +57,8 @@ export interface HiveAgentMeta {
   role?: string;
   capabilities?: string[];
   cwd: string;
-  isGod?: boolean;
-  /** Michael's prep assistant — send-only; enriches prompts and forwards them. */
+  isOrchestrator?: boolean;
+  /** the orchestrator prep assistant — send-only; enriches prompts and forwards them. */
   isAssistant?: boolean;
 }
 
@@ -95,7 +97,7 @@ export interface VoiceMessage {
 }
 
 export interface HiveRegistry {
-  godId: string | null;
+  orchestratorId: string | null;
   /** `archived` agents have had their terminal closed — retained + flagged, not
    *  deleted; only live-PTY agents are 'active'. */
   agents: Record<string, HiveAgentMeta & {
@@ -121,7 +123,7 @@ export interface AgentDirectoryEntry {
   /** Whether `cwd` is an absolute, existing directory (spawn-usable). */
   cwdValid: boolean | null;
   archived: boolean;
-  isGod: boolean;
+  isOrchestrator: boolean;
   isAssistant: boolean;
   sessionId: string | null;
   /** Whether the agent has recorded non-trivial memory beyond the seed header. */
@@ -139,7 +141,7 @@ export interface AgentDirectoryEntry {
 }
 
 export interface AgentDirectory {
-  godId: string | null;
+  orchestratorId: string | null;
   agents: AgentDirectoryEntry[];
 }
 
@@ -162,7 +164,7 @@ export interface HiveTask {
   dependsOn: string[];
   priority: number;
   createdAt: string;
-  /** First-class human feedback: god appends {q}, the harness UI fills {a};
+  /** First-class human feedback: orchestrator appends {q}, the harness UI fills {a};
    *  the full history stays on the card. */
   humanQA?: HumanQA[];
   /** Outcome summary used for the Slack done-notification. */
@@ -176,7 +178,7 @@ export interface HiveTask {
 
 /** A message the router just delivered, with its resolved recipient ids. Drives
  *  the envelope-handoff animation on the office floor. `needsHuman` is set when
- *  the sender aimed at "human" (now routed to the god proxy) — cosmetic tint
+ *  the sender aimed at "human" (now routed to the orchestrator proxy) — cosmetic tint
  *  only; there is no approval queue. */
 export interface HiveRouteEvent {
   id: string;
@@ -271,10 +273,10 @@ export interface HarnessConfig {
   autoMode: boolean;
   defaultCommand: string;
   defaultModel?: string;
-  /** Which provider+model powers the GOD orchestrator ("Michael"). Default
+  /** Which provider+model powers the orchestrator (the orchestrator). Default
    *  'claude' / 'claude-opus-4-8'. Mirrors src/main/config.ts. */
-  godProvider?: AgentProvider;
-  godModel?: string;
+  orchestratorProvider?: AgentProvider;
+  orchestratorModel?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id. Mirrors
    *  src/main/config.ts. */
   mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -306,12 +308,12 @@ export interface HarnessConfig {
   freeflowEnabled?: boolean;
   groqApiKey?: string;
   freeflowModel?: string;
-  /** Realtime Michael voice loop — true ONLY while a session holds the mic
+  /** Realtime voice voice loop — true ONLY while a session holds the mic
    *  (renderer session sets it at start()/stop()); the main mic permission gate
    *  reads it. Default off. */
   realtimeVoiceEnabled?: boolean;
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
-   *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
+   *  Tuned in Settings → Realtime voice; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;
   costCapUsd?: number;
   costCapTokens?: number;
@@ -325,8 +327,10 @@ export interface HarnessConfig {
   terminalTheme?: 'light' | 'dark';
   /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
   tvShowOffices?: boolean;
-  /** Active office map/cast theme (honored only when tvShowOffices is on). */
+  /** Active theme pack id (falls back to 'plain'). tvShowOffices above is deprecated and ignored. */
   officeTheme?: string;
+  /** Extra folder scanned for theme packs. See docs/theming/THEMING.md. */
+  themesDir?: string;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn. API KEYS are NOT stored here —
    *  they live write-only in the secret broker. */
@@ -543,7 +547,7 @@ export interface CIRun {
   url: string;
 }
 
-/** One live god-triggered ephemeral worker, as shown in the Workers tab. */
+/** One live orchestrator-triggered ephemeral worker, as shown in the Workers tab. */
 export interface WorkerSnapshot {
   workerId: string;
   reqId: string;
@@ -758,7 +762,7 @@ const api = {
   hiveRenameAgent: (id: string, name: string): Promise<{ ok: boolean; name?: string; error?: string }> =>
     ipcRenderer.invoke('hive:renameAgent', id, name),
   /** Put an agent on hold (the human has them 1:1) or take it off. Held agents
-   *  keep running; Michael is told to stop routing work to them. */
+   *  keep running; the orchestrator is told to stop routing work to them. */
   hiveSetAgentHold: (id: string, hold: boolean): Promise<{ ok: boolean; onHold?: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:setAgentHold', id, hold),
   hiveBoard: (): Promise<string> => ipcRenderer.invoke('hive:board'),
@@ -768,12 +772,12 @@ const api = {
   hiveInbox: (id: string): Promise<HiveMessage[]> => ipcRenderer.invoke('hive:inbox', id),
   /** Voice read-layer: recent message CONTENT (inbox/outbox bodies), REDACTED in
    *  main. Pass { id } for one message, { agentId } to scope to one mailbox, or
-   *  {} for the whole floor. Backs Realtime Michael's get_messages. The renderer
+   *  {} for the whole floor. Backs Realtime voice's get_messages. The renderer
    *  never sees a raw body or a secret — stripping happens main-side. */
   hiveMessages: (opts?: { agentId?: string; id?: string; limit?: number; includeArchived?: boolean }): Promise<VoiceMessage[]> =>
     ipcRenderer.invoke('hive:messages', opts ?? {}),
   /** Consolidated per-agent directory (registry + telemetry + context), incl.
-   *  archived agents. Backs Realtime Michael's get_agent_detail / list_agents. */
+   *  archived agents. Backs Realtime voice's get_agent_detail / list_agents. */
   hiveAgentDirectory: (): Promise<AgentDirectory> => ipcRenderer.invoke('hive:agentDirectory'),
 
   // ─── Ephemeral workers (P4 — Slack-triggered isolated workers) ───────────
@@ -792,12 +796,15 @@ const api = {
   /** Settings hero payload — plan + sponsor, fetched from the repo and cached. */
   heroPayload: (force?: boolean): Promise<{ hero: HeroPayload; fetchedAt: number; stale: boolean }> =>
     ipcRenderer.invoke('hero:payload', force),
-  /** The remote model catalog — the agent model presets, fetched from the repo
-   *  and cached, so a new model needs a JSON edit rather than a release. A null
-   *  catalog means the renderer keeps the list compiled into the build. */
-  modelCatalog: (force?: boolean): Promise<{
-    catalog: ModelCatalog | null; fetchedAt: number; stale: boolean;
-  }> => ipcRenderer.invoke('models:catalog', force),
+  /** REFRESH-MODELS: the models file (userData/models.json), or null. A file read, never a lookup. */
+  modelCatalog: (): Promise<ModelsCatalog | null> => ipcRenderer.invoke('models:catalog'),
+  /** REFRESH-MODELS: the Settings button. Queries every provider, rewrites the file, returns the per-provider rows. */
+  refreshModels: (): Promise<{ file: ModelsCatalog; rows: ModelsRefreshRow[] }> => ipcRenderer.invoke('models:refresh'),
+  onModelCatalogChanged: (cb: (file: ModelsCatalog) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, file: ModelsCatalog) => cb(file);
+    ipcRenderer.on('models:catalogChanged', listener);
+    return () => ipcRenderer.removeListener('models:catalogChanged', listener);
+  },
   /** Skills already installed for the coding agents on this machine. */
   skillsLocal: (cwd?: string): Promise<LocalSkill[]> => ipcRenderer.invoke('skills:local', cwd),
   /** The browsable skills catalog (cached; `force` re-fetches). */
@@ -985,9 +992,9 @@ const api = {
   newFloor: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('window:newFloor'),
 
   // ─── Closing time (graceful shutdown via the hive) ─────────────────────────
-  /** Start the closing-time protocol: the god broadcasts shutdown, every worker
-   *  saves its memory and ACKs, the god concludes — then the app quits itself.
-   *  Resolves with ok:false (+ error) when no god agent is running. */
+  /** Start the closing-time protocol: the orchestrator broadcasts shutdown, every worker
+   *  saves its memory and ACKs, the orchestrator concludes — then the app quits itself.
+   *  Resolves with ok:false (+ error) when no orchestrator is running. */
   startClosingTime: (): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('app:startClosingTime'),
   /** Abort an in-progress closing time and tell the floor to resume work. */
@@ -1142,7 +1149,7 @@ const api = {
   hiveSetArchived: (id: string, archived: boolean): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:setArchived', id, archived),
 
-  // ─── Slack integration (Slack message → Michael's queue) ─────────────────────
+  // ─── Slack integration (Slack message → the orchestrator's queue) ─────────────────────
   /** Register a listener for inbound Slack messages; returns an unsubscribe fn.
    *  The message carries the thread coordinates needed to reply in-thread. */
   onSlackMessage: (cb: (msg: { text: string; channel: string; ts: string; thread_ts: string; autonomyPreamble?: string; files?: { path: string; name: string; mimetype: string }[] }) => void): (() => void) => {
@@ -1243,7 +1250,7 @@ const api = {
   /** The whole ledger, newest first (both directions, both sources). */
   listTriggerHistory: (): Promise<TriggerHistoryEntry[]> =>
     ipcRenderer.invoke('triggerHistory:list'),
-  /** Answer a held message. 'approved' RELEASES it to the hive (card + god
+  /** Answer a held message. 'approved' RELEASES it to the hive (card + orchestrator
    *  request, the same path an auto-allowed message takes); 'rejected' only flips
    *  the verdict. Deciding an already-decided entry is a no-op, never a second
    *  dispatch. Resolves to the updated row, or null when the id is gone. */
@@ -1301,7 +1308,7 @@ const api = {
     ipcRenderer.invoke('providerKey:has', backend),
   providerKeyClear: (backend: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('providerKey:clear', backend),
-  // Realtime Michael (voice orchestrator) — MAIN mints a short-lived EPHEMERAL token
+  // Realtime voice (voice orchestrator) — MAIN mints a short-lived EPHEMERAL token
   // from the BYOK OpenAI key; the real key NEVER crosses IPC. `realtimeHasOpenAiKey`
   // is a presence boolean only (gates the voice toggle, like providerKeyHas).
   realtimeHasOpenAiKey: (): Promise<boolean> =>
@@ -1313,7 +1320,7 @@ const api = {
     | { ok: false; error: string; code?: string }
   > => ipcRenderer.invoke('realtime:mintToken', req ?? {}),
   // rt-5 voice ACTIONS — the renderer holds NO policy; main (realtimeActions.ts) owns
-  // the tiering, two-step verbal confirm, hard allowlist, and michael-voice
+  // the tiering, two-step verbal confirm, hard allowlist, and orchestrator-voice
   // attribution. These just forward {verb,...args} and speak back `spoken`.
   realtimeAction: (
     payload: { verb: string } & Record<string, unknown>
@@ -1326,7 +1333,7 @@ const api = {
   realtimeActionCancel: (): Promise<{ ok: boolean; spoken: string; needsConfirm?: boolean }> =>
     ipcRenderer.invoke('realtime:action:cancel'),
   // rt-12 completion seam — a voice-dispatched task finished. `summary` is the
-  // human-speakable line Michael relays; the rest is context for a toast/log.
+  // human-speakable line the orchestrator relays; the rest is context for a toast/log.
   onRealtimeCompletion: (
     cb: (evt: { correlationId: string; kind: string; targetAgentId: string; taskId?: string; summary: string; completedAt: number; objective?: string }) => void
   ): (() => void) => {
@@ -1429,9 +1436,15 @@ const api = {
 
   // Themes (§2.7)
   listThemes: (): Promise<PackSummary[]> => ipcRenderer.invoke('themes:list'),
+  rescanThemes: (): Promise<PackSummary[]> => ipcRenderer.invoke('themes:rescan'),
   loadThemePack: (id: string): Promise<PackPayload | null> => ipcRenderer.invoke('themes:load', id),
   validateTheme: (id: string): Promise<{ valid: boolean; issues: Issue[] }> => ipcRenderer.invoke('themes:validate', id),
-  openThemesFolder: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('themes:openFolder')
+  openThemesFolder: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('themes:openFolder'),
+  themeOrchestratorName: (): Promise<string | null> => ipcRenderer.invoke('themes:orchestratorName'),
+
+  // Provider-usage endpoint (Settings "Test")
+  testUsageEndpoint: (cfg: { url: string; token?: string; timeoutMs?: number }): Promise<{ ok: boolean; summary?: string; error?: string }> =>
+    ipcRenderer.invoke('usage:test', cfg)
 };
 
 contextBridge.exposeInMainWorld('cth', api);

@@ -12,7 +12,7 @@ import { useRtl } from '@/i18n/useDirection';
 /**
  * ASK ME — first-class human feedback through the task system.
  *
- * Tasks the god can only move with the human's input sit here. An entry isn't
+ * Tasks the orchestrator can only move with the human's input sit here. An entry isn't
  * necessarily a question — it can be a TO-DO only the human can perform
  * (create an account, approve a purchase, provide credentials, test on a real
  * device). Each card shows the open ask, a place to respond (an answer, or a
@@ -23,7 +23,7 @@ import { useRtl } from '@/i18n/useDirection';
  * Sending an answer does two things:
  *   1. writes it into the card's humanQA entry in hive/tasks.json (the
  *      decision is documented ON the task, forever), and
- *   2. mails the god so it picks the answer up, unblocks the card, and the
+ *   2. mails the orchestrator so it picks the answer up, unblocks the card, and the
  *      work continues — no separate HumanQuestion.md side-channel anymore.
  */
 
@@ -88,9 +88,9 @@ export function AskMeTab() {
    *
    * Re-reads tasks.json first rather than writing this view's 5s-old snapshot,
    * because `hive:writeTasks` treats the incoming array as the card MEMBERSHIP:
-   * writing our snapshot back would delete any card the god added since the last
+   * writing our snapshot back would delete any card the orchestrator added since the last
    * poll. Re-locating the open question by its text also means an answer can
-   * never land on a different question the god swapped in underneath us — in
+   * never land on a different question the orchestrator swapped in underneath us — in
    * that case nothing is written and the draft is kept.
    */
 
@@ -116,9 +116,9 @@ export function AskMeTab() {
         : { ok: false };
       if (!result.ok) throw new Error('task changed before answer could be saved');
       setTasks(next);
-      // 2) Tell the god, so the card gets unblocked and work continues.
+      // 2) Tell the orchestrator, so the card gets unblocked and work continues.
       await window.cth.hiveSend({
-        to: 'god',
+        to: 'orchestrator',
         act: 'inform',
         subject: `HUMAN ANSWER on task "${task.title}"`,
         body: [
@@ -137,7 +137,7 @@ export function AskMeTab() {
   // open humanQA entry `dismissedAt` (no fabricated answer) so openQuestion()
   // stops returning it and the card leaves this view — the question itself stays
   // on the card, so the Q&A history is never dropped (protocol). The task stays
-  // blocked on the kanban; the god can re-ask by appending a fresh humanQA entry.
+  // blocked on the kanban; the orchestrator can re-ask by appending a fresh humanQA entry.
   const dismiss = async (task: HiveTask) => {
     const open = openQuestion(task);
     if (!open || sending === task.id) return;
@@ -221,7 +221,7 @@ export function AskMeTab() {
             </div>
 
             <div style={{ padding: 9, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {/* The question, rendered as markdown. The god writes these with
+              {/* The question, rendered as markdown. The orchestrator writes these with
                   emphasis, lists, `code` and links; as plain text the asterisks
                   and backticks were on screen literally. The card variant keeps
                   this card's mono face and turns a single newline into a break, so

@@ -4,15 +4,15 @@ import { PixelPanel } from './PixelPanel';
 import { PixelBadge, StatusKind } from './PixelBadge';
 import { useHasTerminalDraft } from './terminalPool';
 import { SpritePortrait } from './SpritePortrait';
-import { RealtimeMichaelToggle } from './RealtimeMichaelToggle';
+import { RealtimeVoiceToggle } from './RealtimeVoiceToggle';
 import { CostHud } from '@/realtime/CostHud';
 import { AccentColorName } from '@/design/tokens';
-import { OfficeCharacterName } from '@/scene/office/cast';
+import { CharacterName } from '@/scene/office/cast';
 import { AgentNameEditor } from './AgentNameEditor';
 
 export interface AgentCardProps {
   name: string;
-  character: OfficeCharacterName;
+  character: CharacterName;
   accent: AccentColorName;
   status: StatusKind;
   /** This agent's pty, if it has one. Only used to notice that the USER has
@@ -29,8 +29,8 @@ export interface AgentCardProps {
   contextLimit?: number;
   selected?: boolean;
   /** Your clone — gets a persistent accent frame + BOSS tag so it stands out.
-   *  (`isGod` / the `god` agent id stay as-is internally; this is display only.) */
-  isGod?: boolean;
+   *  (`isOrchestrator` / the `orchestrator` agent id stay as-is internally; this is display only.) */
+  isOrchestrator?: boolean;
   onClick?: () => void;
   /** Persists an inline display-name edit; identity and hive paths stay unchanged. */
   onRename?: (name: string) => Promise<{ ok: boolean; error?: string }>;
@@ -45,6 +45,8 @@ export interface AgentCardProps {
   /** Opens the note editor (the strip owns the editing overlay). When set, the
    *  card shows a small ✎ affordance on its note row. */
   onEditNote?: () => void;
+  /** Direct edit of this agent's portrait/character. */
+  onEditPortrait?: () => void;
 }
 
 const fmtK = (n: number): string => `${Math.round(n / 1000)}k`;
@@ -56,25 +58,25 @@ const fmtK = (n: number): string => `${Math.round(n / 1000)}k`;
  */
 export function AgentCard({
   name, character, accent, status, ptyId, project, action, progress = 0,
-  contextTokens, contextLimit, selected, isGod, onClick, onRename,
-  doingCount = 0, onTaskNoteClick, draggable, note, onEditNote
+  contextTokens, contextLimit, selected, isOrchestrator, onClick, onRename,
+  doingCount = 0, onTaskNoteClick, draggable, note, onEditNote, onEditPortrait
 }: AgentCardProps) {
   const { t } = useTranslation();
   const [hover, setHover] = useState(false);
   const typing = useHasTerminalDraft(ptyId);
   // IDENTITY and SELECTION are two different things, and conflating them is why
-  // selecting Michael appeared to do nothing.
+  // selecting the orchestrator appeared to do nothing.
   //
-  // The card used to pass `isGod || selected` into PixelPanel's 'active' variant,
+  // The card used to pass `isOrchestrator || selected` into PixelPanel's 'active' variant,
   // whose frame is `inset 1px + 3px accent + 5px ink` — five pixels of border in
   // the agent's OWN accent. Three problems in one: the selection cue changed
-  // colour per agent (the "blue halo" on a sky agent), it was invisible on god
-  // because god was framed unconditionally, and stacking the selection ring
+  // colour per agent (the "blue halo" on a sky agent), it was invisible on orchestrator
+  // because orchestrator was framed unconditionally, and stacking the selection ring
   // outside it made the boss card visibly fatter than its neighbours.
   //
-  // Now: god is marked by its SURFACE (see godSurface), everyone shares the same
+  // Now: orchestrator is marked by its SURFACE (see orchestratorSurface), everyone shares the same
   // 1px panel border, and selection is one accent-independent ring — identical on
-  // every card, god included.
+  // every card, orchestrator included.
 
   // The selected card wears an ink ring OUTSIDE its border. ink-900 rather than
   // an accent so the cue is identical on every agent, and it flips with the
@@ -92,32 +94,32 @@ export function AgentCard({
     ? t('agentCard.contextTitle', { used: fmtK(contextTokens), limit: fmtK(contextLimit), pct: Math.round((contextTokens / contextLimit) * 100) })
     : t('agentCard.contextGaugeTitle');
 
-  // ONE card size for every agent. God used to be 216x86 against everyone
+  // ONE card size for every agent. Orchestrator used to be 216x86 against everyone
   // else's 196x76, so the dock never lined up — and once the selection ring was
   // added outside its 5px accent frame, the boss card grew a visibly thicker
   // edge than any other. Distinction now comes from the card's SURFACE, not from
   // making its box bigger or its border heavier.
-  // 196 was too tight once god's row carried NAME + BOSS + status: the name
+  // 196 was too tight once orchestrator's row carried NAME + BOSS + status: the name
   // truncated to "MIC…" — the one word on the card that must never be the thing
   // that gets cut. Widened for every card so the dock stays uniform, with enough
   // slack that Talk's info mark (which only appears when the OpenAI key is
   // missing) has somewhere to sit rather than pushing the row apart.
   const width = 220;
   const height = 78;
-  const lift = (isGod ? -2 : 0) - (hover ? 1 : 0) - (selected ? 1 : 0);
-  /** God's distinction: a tinted surface plus a thin accent border all the way
+  const lift = (isOrchestrator ? -2 : 0) - (hover ? 1 : 0) - (selected ? 1 : 0);
+  /** Orchestrator's distinction: a tinted surface plus a thin accent border all the way
    *  around — NOT the 3px rule that used to sit on the top edge alone. That rule
    *  read as a stray yellow bar rather than as part of the card, and an edge
    *  treatment that only exists on one side always looks like a mistake or a
    *  progress bar. Same 1px geometry as every other card, so the box is
    *  unchanged and the selection ring still means exactly one thing everywhere. */
-  const godSurface: React.CSSProperties = isGod
+  const orchestratorSurface: React.CSSProperties = isOrchestrator
     ? {
         background: `var(--cth-${accent}-light)`,
         boxShadow: `inset 0 0 0 1px var(--cth-${accent})`
       }
     : {};
-  const dropShadow = isGod
+  const dropShadow = isOrchestrator
     ? `2px 3px 0 0 rgba(26,19,32,${hover ? 0.2 : 0.14})`
     : (hover ? '1px 2px 0 0 rgba(26,19,32,0.12)' : 'none');
   // Ring first so it sits tight to the card, then the existing drop shadow.
@@ -180,23 +182,28 @@ export function AgentCard({
       )}
       <PixelPanel
         variant="default"
-        style={{ height: '100%', padding: '6px 8px', ...godSurface }}
+        style={{ height: '100%', padding: '6px 8px', ...orchestratorSurface }}
         noPadding
       >
         <div style={{ display: 'flex', gap: 8, height: '100%' }}>
           {/* Portrait tile — vertically centred so the card reads calm and even. */}
-          <div style={{
-            width: 36, height: isGod ? 50 : 46, alignSelf: 'center',
-            // God's CARD is now accent-light, so the tile cannot be — it would
-            // vanish into its own background. Paper reads as an inset frame
-            // against the tint, which is what the tile is meant to look like.
-            background: isGod ? 'var(--cth-paper-100)' : `var(--cth-${accent}-light)`,
-            boxShadow: `inset 0 0 0 1px var(--cth-ink-${isGod ? '300' : '100'})`,
-            // Anchor the sprite's TOP: the 56px-tall portrait overflows this
-            // tile, and bottom-anchoring cropped the head — crop feet, not face.
-            display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden',
-            flexShrink: 0
-          }}>
+          <div
+            onClick={(e) => {
+              if (onEditPortrait) {
+                e.stopPropagation();
+                onEditPortrait();
+              }
+            }}
+            title={t('agentCard.editPortrait', { defaultValue: 'Edit character portrait' })}
+            style={{
+              width: 36, height: isOrchestrator ? 50 : 46, alignSelf: 'center',
+              background: isOrchestrator ? 'var(--cth-paper-100)' : `var(--cth-${accent}-light)`,
+              boxShadow: `inset 0 0 0 1px var(--cth-ink-${isOrchestrator ? '300' : '100'})`,
+              display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden',
+              flexShrink: 0,
+              cursor: onEditPortrait ? 'pointer' : undefined
+            }}
+          >
             <SpritePortrait character={character} scale={2} />
           </div>
 
@@ -216,7 +223,7 @@ export function AgentCard({
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
                   }}>{name.toUpperCase()}</span>
                 )}
-                {isGod && (
+                {isOrchestrator && (
                   <span style={{
                     fontFamily: 'var(--cth-font-display)', fontSize: 7, lineHeight: '11px',
                     background: `var(--cth-${accent})`, color: 'var(--cth-ink-900)',
@@ -240,9 +247,9 @@ export function AgentCard({
               }}
             >{infoLine}</div>
 
-            {/* God: voice on its own compact row. Workers: the private note row.
+            {/* Orchestrator: voice on its own compact row. Workers: the private note row.
                 Both sit ABOVE the gauge, so it is never covered. */}
-            {isGod ? (
+            {isOrchestrator ? (
               // Talk grows an info mark when the OpenAI key is missing, so this
               // row can hold three things instead of two. `overflow: hidden` is
               // the guard: the toggle's label shrinks first (it has minWidth:0),
@@ -255,7 +262,7 @@ export function AgentCard({
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <RealtimeMichaelToggle />
+                <RealtimeVoiceToggle />
                 <CostHud compact />
               </div>
             ) : (

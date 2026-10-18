@@ -1,14 +1,14 @@
 {
-  "name": "munder-difflin",
-  "version": "0.4.6",
+  "name": "agent-stage",
+  "version": "0.5.0",
   "private": true,
-  "description": "Clones for you and your team, working 24/7 — a free, local-first multi-agent harness that turns the CLI coding agent you already run into a clone of you, coordinating an office of agents on your machine.",
+  "description": "Agent Stage: an autonomous multi-agent office harness for Claude Code, Codex, and Antigravity.",
   "main": "out/main/index.js",
   "author": "Chaitanya Giri",
-  "homepage": "https://munderdiffl.in/",
+  "homepage": "https://github.com/jdell64/agent-stage",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chaitanyagiri/munder-difflin.git"
+    "url": "https://github.com/jdell64/agent-stage.git"
   },
   "scripts": {
     "dev": "electron-vite dev",
@@ -18,6 +18,8 @@
     "preview": "electron-vite preview",
     "postinstall": "electron-rebuild -f && node tools/ensure-pty-perms.cjs && node tools/patch-node-pty-conpty.cjs",
     "test:themes": "vitest run",
+    "theme:validate": "node scripts/theme-packs/validate.cjs",
+    "theme:new": "node scripts/theme-packs/new.cjs",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",

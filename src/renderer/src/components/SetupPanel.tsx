@@ -10,7 +10,7 @@
  * tool actually buys you.
  *
  * The primary action delegates rather than executes: installing software touches
- * the user's machine and can need a password, so the button SEEDS Michael's
+ * the user's machine and can need a password, so the button SEEDS the orchestrator's
  * dispatch box with an exact, verified-by-him contract instead of shelling out
  * from the renderer. The user still presses dispatch. That keeps a real
  * confirmation step in front of anything that writes outside the app.
@@ -131,16 +131,16 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
   }, []);
   useEffect(() => { void refresh(); }, [refresh]);
 
-  // Only ESSENTIALS are handed to Michael. Installing all eight engine CLIs
+  // Only ESSENTIALS are handed to the orchestrator. Installing all eight engine CLIs
   // because they happen to be listed would be a wild overreach of one click.
   const missingEssential = useMemo(
     () => (tools ?? []).filter((t) => !t.found && t.essential),
     [tools]
   );
   const readyCount = (tools ?? []).filter((t) => t.found).length;
-  const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const orchestratorName = useStore((s) => s.agents.find((a) => a.isOrchestrator)?.name) ?? 'the orchestrator';
 
-  const askMichael = () => {
+  const askOrchestrator = () => {
     if (missingEssential.length === 0) return;
     requestDispatchSeed(setupPrompt(missingEssential));
     requestCommandCenterTab('floor'); // the dispatch box lives on the monitor tab
@@ -174,17 +174,17 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
       }}>
         <div style={{ flex: 1, minWidth: 220, fontSize: 12, color: 'var(--cth-ink-700)', lineHeight: 1.5 }}>
           {missingEssential.length
-            ? t('setupPanel.askDesc', { count: missingEssential.length, godName })
+            ? t('setupPanel.askDesc', { count: missingEssential.length, orchestratorName })
             : t('setupPanel.allReady')}
         </div>
         <PixelButton
           variant="primary"
           size="md"
-          onClick={askMichael}
+          onClick={askOrchestrator}
           disabled={missingEssential.length === 0}
         >
           <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
-            <Icon name="sparkle" /> {t('setupPanel.askMichael', { godName })}
+            <Icon name="sparkle" /> {t('setupPanel.askOrchestrator', { orchestratorName })}
           </span>
         </PixelButton>
       </div>

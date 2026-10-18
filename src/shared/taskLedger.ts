@@ -1,7 +1,7 @@
 /**
  * Non-destructive edits to the task ledger (`hive/tasks.json`).
  *
- * The ledger is a HAND-WRITTEN file: the god appends whatever fields a card
+ * The ledger is a HAND-WRITTEN file: the orchestrator appends whatever fields a card
  * needs — `result` (the verbatim Slack reply posted back to the user), `repo`,
  * `scope`, `origin`, `deliverable`, `commit`, `blockedOn`, `notes` — none of
  * which the renderer's display model knows about. Several UI surfaces write the
@@ -46,7 +46,7 @@ function idOf(value: unknown): string | null {
  * shouldn't: writers here are partial models, so a missing key means "I don't
  * know about this", never "remove it".
  *
- * Entries without a string `id` (a malformed card the god hand-wrote) pass
+ * Entries without a string `id` (a malformed card the orchestrator hand-wrote) pass
  * through untouched — there is no key to merge them on, and dropping them would
  * lose data the same way this function exists to prevent.
  */

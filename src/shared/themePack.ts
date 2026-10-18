@@ -1,4 +1,5 @@
-// Theme pack contract + PURE validator (docs/theming/THEME-PACK-INVENTORY.md §2).
+import { sanitizeDisplayName } from './orchestratorIdentity';
+// Theme pack contract + PURE validator (docs/theming/THEMING.md §2).
 //
 // No fs, no Pixi, no Electron, no DOM: runs in main at scan time AND in the
 // renderer before the scene touches a pack, and is unit-testable under plain
@@ -13,9 +14,9 @@ export const PACK_ID_RE = /^[a-z0-9][a-z0-9-]{1,39}$/;
 /** Ids a pack may not use. `office` is the legacy alias for the first pack. */
 export const RESERVED_PACK_IDS: readonly string[] = ['office', 'default', 'none'];
 /** The built-in pack every fallback chain ends at. */
-export const DEFAULT_THEME_ID: ThemeId = 'munder-difflin';
+export const DEFAULT_THEME_ID: ThemeId = 'plain';
 /** Legacy ids rewritten on config load (§4 step 0). */
-export const LEGACY_THEME_ALIASES: Readonly<Record<string, ThemeId>> = { office: DEFAULT_THEME_ID };
+export const LEGACY_THEME_ALIASES: Readonly<Record<string, ThemeId>> = { office: 'munder-difflin' };
 
 /** Resolve a legacy alias; anything else passes through unchanged. */
 export function normalizeThemeId(id: string): ThemeId {
@@ -58,7 +59,7 @@ export interface ErrandSpot {
   facing: Facing;
   fx: Tile;
   duration: number;
-  godOnly?: boolean;
+  orchestratorOnly?: boolean;
 }
 export interface MonitorConfig {
   offTopLeftGid: number;
@@ -73,6 +74,8 @@ export interface CoffeeConfig {
   maxCups: number;
 }
 export interface AnchorConfig { calendar: Tile; boards: Tile; clock: Tile; }
+/** Optional tile-space action rectangle used by automatic camera fitting. */
+export interface CameraBounds { x: number; y: number; width: number; height: number; }
 
 // ─── on-disk shapes ─────────────────────────────────────────────────────────
 export interface Issue {
@@ -112,13 +115,14 @@ export interface PackManifest {
   };
   coffee?: CoffeeConfig;
   anchors: AnchorConfig;
+  cameraBounds?: CameraBounds;
   errandSpots: ErrandSpot[];
   monitor: MonitorConfig;
   palette: { background: string; noteColors: Record<string, string> };
   fonts?: { family: string; file: string; weight?: string; slot?: 'display' | 'ui' | 'mono' }[];
   chrome?: { tokens?: string; defaultMode?: 'light' | 'dark' };
   terminal?: string;
-  copy?: { appName?: string; godName?: string };
+  copy?: { appName?: string; orchestratorName?: string };
   cast?: { roster: string; default: string };
 }
 
@@ -391,7 +395,7 @@ export function validatePack(input: ValidateInput): ValidateResult {
   if (sp && Array.isArray(sp.objects)) {
     for (const o of sp.objects as unknown[]) if (isObj(o) && typeof o.name === 'string') spawnNames.add(o.name);
   }
-  if (!spawnNames.has('desk-ceo')) err('missing-desk-ceo', 'map.tmj', "spawn point 'desk-ceo' (god's seat) is required");
+  if (!spawnNames.has('desk-ceo')) err('missing-desk-ceo', 'map.tmj', "spawn point 'desk-ceo' (orchestrator's seat) is required");
   if (manifest.seats.primary[0] !== 'desk-ceo') err('bad-seats', 'seats.primary', "seats.primary[0] must be 'desk-ceo'");
   if (manifest.seats.primary.length < 2) err('bad-seats', 'seats.primary', 'seats.primary needs desk-ceo plus at least one more seat');
   const seatRefs: string[] = [
@@ -487,6 +491,13 @@ export function validatePack(input: ValidateInput): ValidateResult {
 
   const out: PackManifest = { ...manifest };
 
+  if (manifest.cameraBounds !== undefined) {
+    const b = manifest.cameraBounds;
+    const ok = isObj(b) && isInt(b.x) && isInt(b.y) && isInt(b.width) && isInt(b.height)
+      && b.width > 0 && b.height > 0 && b.x >= 0 && b.y >= 0 && b.x + b.width <= W && b.y + b.height <= H;
+    if (!ok) { warn('bad-camera-bounds', 'cameraBounds', 'cameraBounds must be an in-map tile rect; ignored'); delete out.cameraBounds; }
+  }
+
   const c = manifest.coffee;
   if (c !== undefined) {
     const okTiles = isObj(c) && [c.trayTile, c.sinkTile].every((t) => isTile(t) && inBounds(t as Tile)) &&
@@ -528,9 +539,36 @@ export function validatePack(input: ValidateInput): ValidateResult {
     if (!ok) { warn('bad-tokens', 'chrome.tokens', 'tokens.css ignored (missing, > 16 KB, url() or @import)'); out.chrome = { ...out.chrome, tokens: undefined }; }
     else tokensCss = css;
   }
-  if (manifest.cast !== undefined) {
-    warn('cast-unsupported', 'cast', 'disk casts are not loaded in this build; the default roster is used');
-    delete out.cast;
+  if (manifest.copy !== undefined) {
+    const raw = isObj(manifest.copy) ? manifest.copy : {};
+    const orchestratorName = sanitizeDisplayName(raw.orchestratorName);
+    const appName = isStr(raw.appName) && raw.appName.trim().length > 0 && raw.appName.length <= 60 ? raw.appName.trim() : undefined;
+    if (raw.orchestratorName !== undefined && !orchestratorName) {
+      warn('bad-copy', 'copy.orchestratorName', 'orchestratorName ignored (a plain string of 1-40 characters)');
+    }
+    out.copy = { ...(orchestratorName ? { orchestratorName } : {}), ...(appName ? { appName } : {}) };
+  }
+  // The roster is auto-detected from cast/cast.json (+ cast/sprites/<name>.png); the
+  // manifest `cast` field is not used. Check the file so a typo is reported, not silent.
+  delete out.cast;
+  const castBytes = input.files['cast/cast.json'];
+  if (castBytes) {
+    try {
+      const roster = JSON.parse(new TextDecoder('utf-8').decode(castBytes));
+      if (!Array.isArray(roster) || roster.length === 0) {
+        warn('bad-cast', 'cast/cast.json', 'must be a non-empty array; the built-in roster is used');
+      } else {
+        const bad = roster.findIndex((m) => !isObj(m) || !isStr(m.name) || !/^[a-z0-9_-]{1,32}$/i.test(m.name));
+        if (bad >= 0) warn('bad-cast', `cast/cast.json[${bad}]`, 'each member needs a "name" (letters, digits, - or _)');
+        for (const m of roster) {
+          if (isObj(m) && isStr(m.name) && !input.files[`cast/sprites/${m.name}.png`]) {
+            warn('cast-sprite-missing', `cast/sprites/${m.name}.png`, 'sprite missing; a drawn fallback is used for this member');
+          }
+        }
+      }
+    } catch {
+      warn('bad-cast', 'cast/cast.json', 'not valid JSON; the built-in roster is used');
+    }
   }
   if (tsFiles.length > 0 && !manifest.license) warn('no-license', 'license', 'pack uses tilesets but declares no license');
 

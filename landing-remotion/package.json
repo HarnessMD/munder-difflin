@@ -10,11 +10,11 @@
     "render:agents:mp4": "remotion render src/index.ts HowAgents ../docs/media/how-agents.mp4 --codec=h264",
     "render:mempalace:webm": "remotion render src/index.ts HowMemPalace ../docs/media/how-mempalace.webm --codec=vp8",
     "render:mempalace:mp4": "remotion render src/index.ts HowMemPalace ../docs/media/how-mempalace.mp4 --codec=h264",
-    "render:godhive:webm": "remotion render src/index.ts HowGodHive ../docs/media/how-god-hive.webm --codec=vp8",
-    "render:godhive:mp4": "remotion render src/index.ts HowGodHive ../docs/media/how-god-hive.mp4 --codec=h264",
+    "render:orchestratorhive:webm": "remotion render src/index.ts HowOrchestratorHive ../docs/media/how-orchestrator-hive.webm --codec=vp8",
+    "render:orchestratorhive:mp4": "remotion render src/index.ts HowOrchestratorHive ../docs/media/how-orchestrator-hive.mp4 --codec=h264",
     "render:hero:webm": "remotion render src/index.ts HeroFallback ../docs/media/hero.webm --codec=vp8",
     "render:hero:mp4": "remotion render src/index.ts HeroFallback ../docs/media/hero.mp4 --codec=h264",
-    "render:all": "npm run render:agents:webm && npm run render:agents:mp4 && npm run render:mempalace:webm && npm run render:mempalace:mp4 && npm run render:godhive:webm && npm run render:godhive:mp4"
+    "render:all": "npm run render:agents:webm && npm run render:agents:mp4 && npm run render:mempalace:webm && npm run render:mempalace:mp4 && npm run render:orchestratorhive:webm && npm run render:orchestratorhive:mp4"
   },
   "dependencies": {
     "@remotion/cli": "4.0.286",

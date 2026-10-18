@@ -45,7 +45,7 @@ A template is a preset that seeds an `IntegrationRecord`. Its fields (per spec �
 **Basic auth (Jira/Confluence)** is carried as a pre-encoded `header` value: the user
 pastes `Basic <base64("email:api_token")>` and the broker injects it verbatim under
 `Authorization`. A dedicated `basic` authType (paste email + token separately, broker
-does the base64) would be cleaner — flagged to god as a proposed enum addition.
+does the base64) would be cleaner — flagged to orchestrator as a proposed enum addition.
 
 **OAuth tools (Gmail / Google Calendar / Salesforce)** are **not registered in v1**:
 Jim's `IntegrationAuthType` has no `oauth2`, and OAuth refresh is a v1 non-goal (spec
@@ -156,7 +156,7 @@ needs a per-org instance host (`<instance>.my.salesforce.com`) the user supplies
   `src/shared/integrationTemplates.ts` (and its interface) was removed — **one type,
   one enum, one registry, no competing catalog**. Verified `typecheck:node` +
   `typecheck:web` exit 0.
-- **Flagged gaps (god → Jim, enum widening rather than forking the type):**
+- **Flagged gaps (orchestrator → Jim, enum widening rather than forking the type):**
   1. **OAuth (Gmail/Calendar/Salesforce):** no `oauth2` authType; v1 non-goal. The 3
      are documented (above) but unregistered. → add a broker-OAuth auth type, or defer.
   2. **Basic auth (Jira/Confluence):** works today as `header` + a pre-encoded
@@ -168,7 +168,7 @@ needs a per-org instance host (`<instance>.my.salesforce.com`) the user supplies
 - **Three `IntegrationTemplate` shapes still exist** across the tree (this file →
   conformed; Jim's `integrations.ts`; Ryan's renderer `registryClient.ts` mock). Full
   collapse to one needs Ryan's Settings UI to consume the shared templates — a
-  cross-agent step for god to sequence.
+  cross-agent step for orchestrator to sequence.
 - **Verify-on-wire before GA:** Jira enhanced JQL is migrating to
   `/rest/api/3/search/jql`; Notion `Notion-Version` advances periodically; pinned API
   versions (`v60.0`, `2022-06-28`, `v2`) re-check at integration time.

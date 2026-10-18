@@ -174,11 +174,11 @@ test('the win32 branch is genuinely platform-gated', () => {
 /** Everything about the injected hive prompt that breaks cmd.exe, in miniature:
  *  newlines, parentheses, embedded double quotes, a backslash run, `&`/`|`. */
 const HOSTILE_PROMPT = [
-  'You are "Michael" (god-1), an autonomous agent in a collaborating hive.',
-  'Your private workspace is C:\\Users\\Tester\\.munder\\hive\\agents\\god-1.',
+  'You are "the orchestrator" (orchestrator-1), an autonomous agent in a collaborating hive.',
+  'Your private workspace is C:\\Users\\Tester\\.munder\\hive\\agents\\orchestrator-1.',
   '',
   'HIVE PROTOCOL — follow it every task:',
-  '1. Read EVERY file in C:\\Users\\Tester\\.munder\\hive\\agents\\god-1\\inbox (messages',
+  '1. Read EVERY file in C:\\Users\\Tester\\.munder\\hive\\agents\\orchestrator-1\\inbox (messages',
   '   other agents sent you) & move handled ones to inbox\\.done.',
   '3. To ask another agent, write ONE message JSON into your outbox\\ (schema in',
   '   PROTOCOL.md) | NEVER write into another agent\'s folder.',
@@ -256,7 +256,7 @@ test('cmd.exe: the same prompt is destroyed — which is the bug', () => {
   // `|`, `(`, `)` are live metacharacters). Model cmd's toggling directly: `/s`
   // strips the outer pair, then every `"` flips state.
   const inner = firstStatement.slice('/d /s /c "'.length);
-  const atName = inner.indexOf('Michael');
+  const atName = inner.indexOf('the orchestrator');
   assert.ok(atName > 0);
   const quotesBefore = (inner.slice(0, atName).match(/"/g) || []).length;
   assert.equal(
@@ -313,7 +313,7 @@ test('a direct-executable shim resolves to the binary, with no interpreter', () 
 });
 
 test('the hive prompt survives a direct-executable shim, where cmd.exe destroys it', () => {
-  const prompt = 'You are "Michael" (god-1), an autonomous agent.\n\nHIVE PROTOCOL\n- inbox\n- outbox';
+  const prompt = 'You are "the orchestrator" (orchestrator-1), an autonomous agent.\n\nHIVE PROTOCOL\n- inbox\n- outbox';
   // What the fixed path does: spawn the binary with an ARRAY, escaped by node-pty.
   const line = argsToCommandLine('C:\\x\\opencode-ai\\bin\\opencode.exe', ['--prompt', prompt]);
   assert.ok(line.includes('HIVE PROTOCOL'), 'the protocol block reaches the child intact');

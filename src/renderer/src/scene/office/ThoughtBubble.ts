@@ -19,7 +19,9 @@ const MAX_WIDTH = 150;
 const FILL_COLOR = colors.cream[50];   // light cloud
 const OUTLINE_COLOR = colors.ink[900];
 const TEXT_COLOR = '#3d2e4a';           // ink-700
-const FONT_SIZE = 12;
+// Inner content is rendered at 2x then halved for pixel-crisp text. 20px here
+// therefore reads as a comfortable 10px on screen rather than the old 6px.
+const FONT_SIZE = 20;
 const RENDER_SCALE = 0.5;               // render at 2x, scale down for crispness
 const OFFSET_Y = -38;                   // a touch higher than the tool bubble
 const FADE_IN_DURATION = 0.15;
@@ -59,7 +61,7 @@ export class ThoughtBubble {
   // never renders below its designed 1:1 screen size; at zoom ≥ 1 it keeps
   // scaling with the world as before.
   private zoom = 1;
-  // World bounds (map size in px). An avatar near the map edge — Michael's CEO
+  // World bounds (map size in px). An avatar near the map edge — the orchestrator's CEO
   // room sits in the top-left corner — would otherwise push its cloud out of
   // the visible world. setPosition clamps the rect back inside, tooltip-style.
   private boundsW = 0;

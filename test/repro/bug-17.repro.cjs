@@ -122,7 +122,7 @@ function seedEstablishedInstall() {
       id: 'nightly-report',
       label: 'Nightly report',
       intervalMs: 86_400_000,
-      to: 'god',
+      to: 'orchestrator',
       body: 'report',
       enabled: true
     }]

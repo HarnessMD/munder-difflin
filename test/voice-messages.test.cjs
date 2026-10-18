@@ -100,7 +100,7 @@ function test(name, fn) {
 
 // ── fixtures ─────────────────────────────────────────────────────────────────
 const mk = (over) => ({
-  id: 'm1', conversation: 'c1', in_reply_to: null, from: 'kevin', to: 'god',
+  id: 'm1', conversation: 'c1', in_reply_to: null, from: 'kevin', to: 'orchestrator',
   act: 'inform', subject: 'status', body: 'all green', hops: 0,
   requires_reply: false, needs_human: false, created_at: '2026-06-27T09:00:00.000Z',
   ...over
@@ -114,7 +114,7 @@ const LOG = [
   { ts: 2, kind: 'message', from: 'kevin', agentId: 'kevin' },
   { ts: 3, kind: 'tasks', count: 12 },
   { ts: 4, kind: 'archive', agentId: 'creed' },
-  { ts: 5, kind: 'voice_action', actor: 'michael-voice' }
+  { ts: 5, kind: 'voice_action', actor: 'orchestrator-voice' }
 ];
 
 test('activity: last-N selection returns the N most recent', () => {
@@ -131,17 +131,17 @@ test('activity: log entries carry NO message body (metadata-only source)', () =>
 });
 
 // ===== MESSAGE RETRIEVAL =====================================================
-const A = mk({ id: 'a', from: 'kevin', to: 'god', subject: 'done', body: 'shipped', created_at: '2026-06-27T08:00:00.000Z' });
-const B = mk({ id: 'b', from: 'god', to: 'kevin', subject: 'next', body: 'pick up card x', created_at: '2026-06-27T09:30:00.000Z' });
-const C = mk({ id: 'c', from: 'pam', to: 'god', subject: 'review', body: 'looks good', created_at: '2026-06-27T07:00:00.000Z' });
+const A = mk({ id: 'a', from: 'kevin', to: 'orchestrator', subject: 'done', body: 'shipped', created_at: '2026-06-27T08:00:00.000Z' });
+const B = mk({ id: 'b', from: 'orchestrator', to: 'kevin', subject: 'next', body: 'pick up card x', created_at: '2026-06-27T09:30:00.000Z' });
+const C = mk({ id: 'c', from: 'pam', to: 'orchestrator', subject: 'review', body: 'looks good', created_at: '2026-06-27T07:00:00.000Z' });
 
 // A delivered message lives in BOTH the sender's outbox/.sent AND the recipient's
 // inbox/.done — the traversal sees it twice. Dedup must collapse to one.
 const TAGGED = [
   { msg: B, owner: 'kevin', direction: 'inbox', archived: false },
   { msg: A, owner: 'kevin', direction: 'outbox', archived: true },
-  { msg: A, owner: 'god', direction: 'inbox', archived: true },   // duplicate of A
-  { msg: C, owner: 'god', direction: 'inbox', archived: true }
+  { msg: A, owner: 'orchestrator', direction: 'inbox', archived: true },   // duplicate of A
+  { msg: C, owner: 'orchestrator', direction: 'inbox', archived: true }
 ];
 
 test('retrieval: by id returns exactly that one message', () => {

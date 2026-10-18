@@ -2,7 +2,7 @@
 
 > How Munder Difflin turns a room full of independent `claude`
 > processes into a collaborating, self-coordinating team with persistent memory,
-> a shared blackboard, and a "god" orchestrator that runs the floor.
+> a shared blackboard, and a "orchestrator" orchestrator that runs the floor.
 
 This document is the design source of truth for the agent-collaboration layer. It
 sits alongside [`SPEC.md`](./SPEC.md) (terminal/event plane) and
@@ -22,7 +22,7 @@ prompt, and a hook lifecycle. We layer four classic patterns on top:
 | Writing a requirement into another agent's file | **Stigmergy** — coordinating by modifying a shared environment |
 | A shared plan multiple agents edit | **Blackboard architecture** (Hearsay-II) |
 | "Check after finishing every task" | **Mailbox / actor model** — drain an inbox at a lifecycle point |
-| A "god" agent that runs the floor and clarifies for others | **Orchestrator / supervisor** (LangGraph-supervisor-style) |
+| A "orchestrator" agent that runs the floor and clarifies for others | **Orchestrator / supervisor** (LangGraph-supervisor-style) |
 
 The umbrella term is a **multi-agent system (MAS)** with **autonomous agent
 loops**. The closest academic analogue to this app is Stanford's *Generative
@@ -42,11 +42,11 @@ stream, retrieval, reflection, and planning.
    `agents/<id>/` directory. Cross-agent delivery happens by the **router**
    (main process) moving messages from a sender's `outbox/` into a recipient's
    `inbox/`. No file is ever written by two processes.
-3. **God-mode autonomy, native HITL.** A privileged **god agent** (lives in
+3. **Orchestrator-mode autonomy, native HITL.** A privileged **orchestrator** (lives in
    Michael's room) adjudicates cross-agent traffic. Routine requests
    (clarifications, data asks, plan tweaks) it resolves itself and the system
    keeps running fully autonomously. **Critical** items (destructive ops, spend,
-   scope changes, unresolvable conflicts) route to the god, who surfaces them to
+   scope changes, unresolvable conflicts) route to the orchestrator, who surfaces them to
    the human natively in his own Claude Code session — there is no separate
    approval queue. Tool-permission prompts are the HITL gate, and they're
    approvable remotely from a phone via `/remote-control`.
@@ -86,7 +86,7 @@ Design rules that make this robust:
 - **One JSON file per message**, written via temp-file + atomic `rename` — never
   a co-edited shared mailbox file (those conflict under git).
 - **Append-only** `log.jsonl`; consumers track their own cursor.
-- `board.md` is the one genuinely co-edited file — it goes through the god agent
+- `board.md` is the one genuinely co-edited file — it goes through the orchestrator
   (single scribe) to avoid conflicts.
 
 ---
@@ -102,20 +102,20 @@ LISP syntax. Seven semantic fields:
   "conversation":  "conv-7f3",                        // groups a thread
   "in_reply_to":   "<prev msgid> | null",
   "from":          "agent.researcher",
-  "to":            "agent.coder | god | broadcast",
+  "to":            "agent.coder | orchestrator | broadcast",
   "act":           "request | inform | propose | query | agree | refuse | done",
   "subject":       "short human-readable summary",
   "body":          "free text / markdown / structured payload",
   "hops":          3,            // ++ per reply; capped to kill ping-pong loops
   "requires_reply": true,        // only request/query/propose obligate a reply
-  "needs_human":   false,        // router/god may flip this to escalate
+  "needs_human":   false,        // router/orchestrator may flip this to escalate
   "created_at":    "ISO-8601"
 }
 ```
 
 Anti-livelock rules: only `request`/`query`/`propose` obligate a reply (pure
 `inform`/`done` are terminal); every reply increments `hops`; past a hop cap the
-god agent escalates instead of letting two agents loop forever; re-seeing a
+orchestrator escalates instead of letting two agents loop forever; re-seeing a
 processed `id` is a no-op (idempotent via cursor).
 
 ---
@@ -128,8 +128,8 @@ agent B mid-task needs something from agent C
         ▼
 ┌─────────────────────── main process (the harness) ───────────────────────┐
 │  Router watches every outbox/                                             │
-│    → deliver to agents/C/inbox/   (to:"human" → routed to the god proxy;  │
-│       the god surfaces critical calls natively in its own session)        │
+│    → deliver to agents/C/inbox/   (to:"human" → routed to the orchestrator proxy;  │
+│       the orchestrator surfaces critical calls natively in its own session)        │
 │    → append to log.jsonl → git commit (single committer, retry+backoff)   │
 └──────────────────────────────────────────────────────────────────────────┘
         │ delivered to C's inbox
@@ -146,16 +146,16 @@ an agent to the right station (replacing today's `mockEvents.ts` / PTY-scraping)
 
 ---
 
-## 6. The god agent (orchestrator)
+## 6. The orchestrator (orchestrator)
 
 A fixed, always-on agent seated at `desk-ceo` (Michael's room), `character:
-michael`, flagged `isGod`. It is an ordinary `claude` process — the *intelligence*
+michael`, flagged `isOrchestrator`. It is an ordinary `claude` process — the *intelligence*
 — while the main process is the *mechanism* (git, sockets, routing). It owns:
 
 - **Roster & routing** (`registry.json`): who exists, their capabilities, status.
 - **Adjudication**: read each outbound request; resolve routine ones itself
   (answer clarifications, route to the right specialist with a self-contained
-  task spec), escalate only critical ones. This is "god mode."
+  task spec), escalate only critical ones. This is "orchestrator mode."
 - **Blackboard scribe**: the single writer of `board.md`, so shared plans never
   conflict.
 - **Task ledger** (`tasks.json`): assign, track, retry, checkpoint.
@@ -175,10 +175,10 @@ is the primary control surface — tune the prompt, not the code.
   agent via `--settings`) + `Stop`-loop so agents drain their inbox automatically
   and keep running (guarded by `stop_hook_active` + cursor); hook events stream to
   the renderer to drive avatars.
-- **Phase 2 — God mode** ✅: the god agent auto-spawns into Michael's room
+- **Phase 2 — Orchestrator mode** ✅: the orchestrator auto-spawns into Michael's room
   (`desk-ceo` reserved) and, on a fresh spawn, is started with `/remote-control`
   (best-effort) plus an orientation prompt so it begins running the floor on its
-  own. The router routes `to:"human"` traffic to the god (the human's proxy);
+  own. The router routes `to:"human"` traffic to the orchestrator (the human's proxy);
   there is no separate approval queue — human-in-the-loop is native to each
   agent's Claude Code session (permission prompts, approvable remotely from a
   phone). Idle agents are woken when they hold unread inbox messages.
@@ -201,7 +201,7 @@ is the primary control surface — tune the prompt, not the code.
 | --- | --- |
 | `index.lock` corruption | Single committer (main process), retry+backoff, stale-lock cleanup |
 | Infinite Stop-hook loop | Guard on `stop_hook_active`; `hops` cap; `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` |
-| Two agents ping-ponging | Only request/query/propose obligate replies; hop cap → god escalates |
+| Two agents ping-ponging | Only request/query/propose obligate replies; hop cap → orchestrator escalates |
 | Reprocessing messages | Per-agent `cursor.json`; processed messages move to `inbox/.done/` |
 | `memory.md` unbounded growth | Phase 3 reflection/summarization |
 | Modifying the user's repo with hooks | Write hooks to `<cwd>/.claude/settings.local.json` (gitignored convention) |

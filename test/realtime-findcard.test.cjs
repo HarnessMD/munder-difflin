@@ -63,8 +63,8 @@ function findCard(tasks, ref) {
 // ── fixtures (same synthetic cards as bin/find-task.cjs --selftest) ──────────
 const TASKS = [
   { id: 'build-orchestrator-message-visibility-cli-ab12', title: 'Build orchestrator message-visibility CLI (hive-msg.cjs)', status: 'done' },
-  { id: 'rt-2-realtime-session', title: 'Realtime Michael 2: WebRTC session — mic capture, VAD, barge-in', status: 'done' },
-  { id: 'rt-3-toggle-ui', title: 'Realtime Michael 3: mic toggle + live state dot on AgentCard', status: 'done' },
+  { id: 'rt-2-realtime-session', title: 'Realtime voice 2: WebRTC session — mic capture, VAD, barge-in', status: 'done' },
+  { id: 'rt-3-toggle-ui', title: 'Realtime voice 3: mic toggle + live state dot on AgentCard', status: 'done' },
   { id: 'test-3-playwright-e2e', title: 'Test harness 3: Playwright _electron E2E config + launch fixture', status: 'todo' },
   { id: 'ondev-d-oss-model-catalog', title: 'On-device D: research the open-source model catalog', status: 'done' },
 ];
