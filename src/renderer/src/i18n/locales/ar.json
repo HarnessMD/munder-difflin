@@ -106,7 +106,21 @@
     "viewAnswersHistory": "افتح تفاصيل المهمة مع سجلّ الأسئلة والأجوبة كاملًا",
     "blockingDownstream": "يعطّل {{count}} مهمة لاحقة",
     "blockingDownstreamPlural": "يعطّل {{count}} مهام لاحقة",
-    "more": "… +{{count}} أخرى"
+    "more": "… +{{count}} أخرى",
+    "notSent": "لم يُرسل",
+    "gone": "تغيّر السؤال أو أُغلق بينما كنت تكتب.",
+    "goneKept": "ما كتبته، لتنسخه إن احتجت إليه:",
+    "failed": "إجابتك ما زالت في المربع. حاول مرة أخرى.",
+    "pickAny": "اختر ما شئت",
+    "asked": "سُئل {{when}}",
+    "recommended": "موصى به",
+    "notePlaceholder": "شيء آخر، أو ملاحظة (اختياري)… (Ctrl+Enter للإرسال)",
+    "answerWith": "أجب: {{choice}}",
+    "pickFirst": "اختر خيارًا أو اكتب ملاحظة",
+    "kind": {
+      "choose": "اختر",
+      "question": "سؤال"
+    }
   },
   "agentStrip": {
     "privateNote": "ملاحظة خاصة · {{name}}",

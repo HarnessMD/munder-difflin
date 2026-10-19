@@ -6,6 +6,7 @@ import type { LooksByTheme } from '@/scene/themes/looks';
 import type { StatusKind } from '@/components/PixelBadge';
 import type { AgentProvider } from '@shared/agentProvider';
 import type { HireManifest } from '@shared/hire';
+import type { HumanQAFields, QuestionRef } from '@shared/humanQuestion';
 import {
   EMPTY_HIRE_QUEUE,
   clearHireQueue,
@@ -173,6 +174,21 @@ export type SidebarTab = 'terminal' | 'messages' | 'traces' | 'git';
  *  don't see the "add agent" prompt before Michael has clocked in. */
 export type GodStatus = 'booting' | 'ready' | 'failed';
 
+/** One ASK ME card's state beside its draft. */
+export interface AskMeCardState {
+  /** The question the draft and picks belong to, and that entry as the card showed it. */
+  ref?: QuestionRef;
+  entry?: HumanQAFields;
+  /** Picked options, as indexes of entry.options. */
+  picks?: number[];
+  /** Not sent: 'gone', the question changed or closed first; 'failed', anything else. */
+  notSent?: 'gone' | 'failed';
+  /** What the person wrote for a question that changed or closed, to copy. */
+  kept?: string;
+  /** Closed elsewhere while written for: the card stays, read only, until dismissed. */
+  closed?: { title: string; assignee?: string };
+}
+
 interface State {
   agents: Agent[];
   /** Agents whose terminal was closed — retained + flagged, kept off the active
@@ -262,6 +278,10 @@ interface State {
    *  unmounts the ask-me view) doesn't eat a half-typed answer. */
   answerDrafts: Record<string, string>;
   setAnswerDraft: (taskId: string, text: string) => void;
+  /** ASK ME, per card, beside its draft: the question the draft and picks were
+   *  written for, the picks, and an answer that was not sent (Pam's P4). */
+  askMeCards: Record<string, AskMeCardState>;
+  setAskMeCard: (taskId: string, state: AskMeCardState | null) => void;
   /** Unsent composer drafts, per agent — so switching agents (which remounts the
    *  composer) doesn't eat what the user was typing. */
   drafts: Record<string, string>;
@@ -877,6 +897,13 @@ export const useStore = create<State>((set, get) => ({
   answerDrafts: {},
   setAnswerDraft: (taskId, text) =>
     set((s) => ({ answerDrafts: { ...s.answerDrafts, [taskId]: text } })),
+  askMeCards: {},
+  setAskMeCard: (taskId, state) =>
+    set((s) => {
+      const next = { ...s.askMeCards };
+      if (state) next[taskId] = state; else delete next[taskId];
+      return { askMeCards: next };
+    }),
   drafts: {},
   setDraft: (agentId, text) =>
     set((s) => ({ drafts: { ...s.drafts, [agentId]: text } })),

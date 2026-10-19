@@ -21,6 +21,7 @@ import type { Tile, Facing, ErrandKind, ErrandSpot } from './themeRegistry';
 import { StationFloor } from '../themes/StationFloor';
 import { isStationPack, listThemes, loadStationPack } from '../themes/themeCatalog';
 import type { LoadedPack } from '../themes/packs';
+import { openQuestionIndex } from '@shared/humanQuestion';
 
 // The map, tileset atlases, desk-claim order, errand spots, coffee-economy
 // tiles, prop anchors, monitor gids and palette all come from the active
@@ -1370,8 +1371,7 @@ function OfficeScene() {
           // tasks waiting on the HUMAN feed the ASK ME board's note count
           const newAsk = arr.filter((t) =>
             String(t?.status) === 'blocked'
-            && Array.isArray(t?.humanQA)
-            && t!.humanQA!.some((e) => e && typeof e.q === 'string' && !e.a)
+            && openQuestionIndex(t) >= 0
           ).length;
           if (newAsk !== askCount) {
             askCount = newAsk;

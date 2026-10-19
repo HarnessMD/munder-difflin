@@ -106,7 +106,21 @@
     "viewAnswersHistory": "open the task detail with the full Q&A history",
     "blockingDownstream": "BLOCKING {{count}} DOWNSTREAM TASK",
     "blockingDownstreamPlural": "BLOCKING {{count}} DOWNSTREAM TASKS",
-    "more": "… +{{count}} more"
+    "more": "… +{{count}} more",
+    "notSent": "not sent",
+    "gone": "The question changed or was closed while you were writing.",
+    "goneKept": "What you wrote, to copy if you still need it:",
+    "failed": "Your answer is still in the box. Try again.",
+    "pickAny": "PICK ANY",
+    "asked": "asked {{when}}",
+    "recommended": "RECOMMENDED",
+    "notePlaceholder": "Something else, or a note (optional)… (Ctrl+Enter to send)",
+    "answerWith": "answer: {{choice}}",
+    "pickFirst": "pick an option or write a note",
+    "kind": {
+      "choose": "CHOOSE",
+      "question": "QUESTION"
+    }
   },
   "agentStrip": {
     "privateNote": "PRIVATE NOTE · {{name}}",

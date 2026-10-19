@@ -106,7 +106,21 @@
     "viewAnswersHistory": "打开包含完整问答历史的任务详情",
     "blockingDownstream": "阻塞 {{count}} 个下游任务",
     "blockingDownstreamPlural": "阻塞 {{count}} 个下游任务",
-    "more": "… 还有 {{count}} 个"
+    "more": "… 还有 {{count}} 个",
+    "notSent": "未发送",
+    "gone": "你在输入时，这个问题已被修改或关闭。",
+    "goneKept": "你写的内容，需要时可以复制：",
+    "failed": "你的回答还在输入框里。请再试一次。",
+    "pickAny": "可多选",
+    "asked": "提问于 {{when}}",
+    "recommended": "推荐",
+    "notePlaceholder": "其他想法，或补充说明（可选）…（Ctrl+Enter 发送）",
+    "answerWith": "回答：{{choice}}",
+    "pickFirst": "选一个选项，或写下说明",
+    "kind": {
+      "choose": "选择",
+      "question": "问题"
+    }
   },
   "agentStrip": {
     "privateNote": "私人笔记 · {{name}}",
