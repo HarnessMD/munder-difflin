@@ -347,7 +347,7 @@ export interface HarnessConfig {
   tvShowOffices?: boolean;
   /** The floor theme of a project with no entry in officeThemeByHive (the one global
    *  theme from before themes were per project). Read with resolveProjectTheme. */
-  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts' | 'starhike';
   /** Each project's own floor theme, keyed by its home (projectThemeHomeKey). Saved
    *  only through setProjectTheme. */
   officeThemeByHive?: Record<string, ProjectThemeId>;
