@@ -642,7 +642,8 @@
       "antigravity": "Antigravity — Google Gemini",
       "qwen": "Qwen — runs a local Qwen model on your machine",
       "gemini": "Gemini CLI - Google Gemini",
-      "cursor": "Cursor Agent CLI — uses your Cursor credits (Luna, Composer, …)"
+      "cursor": "Cursor Agent CLI — uses your Cursor credits (Luna, Composer, …)",
+      "devin": "Devin CLI — local agent with SWE-2 models"
     },
     "home": {
       "descPlain": "Create a new, empty folder for the app to call home. Everything the app remembers — its own settings and your agents' memory — is stored here. Something like ~/HarnessAgents works well. We'll create it for you if it doesn't exist.",
