@@ -319,7 +319,7 @@ export interface HarnessConfig {
   /** Which office map/cast theme the pixel office renders. Only honored when
    *  `tvShowOffices` is on; otherwise the office theme is used. Unbuilt show
    *  themes fall back to 'office' in the loader. */
-  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts' | 'starhike';
   /** Settings, Graphics (shared/graphicsMode): Auto, GPU or CPU only. Read once
    *  before app ready; a change applies after a restart. Absent is Auto. */
   graphicsMode?: GraphicsMode;
