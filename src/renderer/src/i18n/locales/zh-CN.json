@@ -1513,6 +1513,7 @@
     "restartNeeded": "已保存。「{{mode}}」在重启后生效。",
     "restartNow": "立即重启",
     "confirm": "重启会停止 {{count}} 个正在运行的智能体。现在重启吗？",
+    "confirm_one": "重启会停止 1 个正在运行的智能体。现在重启吗？",
     "restart": "重启",
     "later": "稍后",
     "saveFailed": "无法保存图形设置，没有任何改变。"

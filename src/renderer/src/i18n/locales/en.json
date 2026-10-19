@@ -1513,7 +1513,7 @@
     "restartNeeded": "Saved. {{mode}} takes effect after a restart.",
     "restartNow": "restart now",
     "confirm": "Restarting stops {{count}} running agents. Restart now?",
-    "confirm_one": "Restarting stops {{count}} running agent. Restart now?",
+    "confirm_one": "Restarting stops 1 running agent. Restart now?",
     "restart": "restart",
     "later": "later",
     "saveFailed": "The Graphics setting could not be saved. Nothing changed."
