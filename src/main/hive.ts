@@ -43,6 +43,7 @@ import { preferredAgentRole } from '../shared/agentRole';
 import { mergeTaskLedger } from '../shared/taskLedger';
 import { expandTilde } from './fs';
 import { readJsonFile, writeRefusal } from './damagedFile';
+import { codexAgentConfig } from './codexAgentConfig';
 import { resolveGodName } from '../shared/godIdentity';
 
 /** The subset of HarnessConfig the hive consumes for the default-MCP merge.
@@ -2283,8 +2284,10 @@ export class HiveManager {
       // `codex app-server` → initialize → `hooks/list` reports the normalized
       // timeoutSec per event.
       const shim = this.shimPath();
-      let config = existsSync(join(userHome, 'config.toml'))
-        ? readFileSync(join(userHome, 'config.toml'), 'utf8') : '';
+      // Our copy turns the seed's plugins off and caps each tool output the
+      // model sees (codexAgentConfig); the person's own file is untouched.
+      let config = codexAgentConfig(existsSync(join(userHome, 'config.toml'))
+        ? readFileSync(join(userHome, 'config.toml'), 'utf8') : '');
       if (shim) {
         const events = ['PreToolUse', 'PostToolUse', 'Stop', 'SubagentStop',
           'SessionStart', 'UserPromptSubmit', 'PreCompact', 'PostCompact'];
