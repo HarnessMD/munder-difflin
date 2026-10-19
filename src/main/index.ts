@@ -1,3 +1,4 @@
+import './packThemes'; // theme packs join the project-theme catalogue before any config is read
 import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, powerMonitor, powerSaveBlocker, screen, shell, Notification } from 'electron';
 import { spawn } from 'node:child_process';
 import {
