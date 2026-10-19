@@ -39,6 +39,7 @@ import {
   type TerminalAutomationBlock
 } from './terminalAutomation';
 import { sanitizeTerminalSelection } from './terminalSelection';
+import { codexScreenHold, extractCodexScreen } from '@shared/codexScreen';
 import { terminalKeySequence } from './terminalKeys';
 import '@xterm/xterm/css/xterm.css';
 
@@ -413,11 +414,30 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
 }
 
 /** Whether queued automation can safely own this terminal's input line. A PTY
- * without a pooled terminal cannot have a user-opened local picker. */
-export function isTerminalAutomationSafe(ptyId: string, now = Date.now()): boolean {
+ * without a pooled terminal cannot have a user-opened local picker. For a Codex
+ * terminal (`codex`), its screen must also not be a startup, popup or transient
+ * screen (codexScreenHoldFor). */
+export function isTerminalAutomationSafe(ptyId: string, now = Date.now(), codex = false): boolean {
   const entry = pool.get(ptyId);
   if (!entry) return true;
+  if (codex && codexScreenHoldFor(ptyId) !== null) return false;
   return canAutomateTerminal(automationStateOf(entry, now), now);
+}
+
+/** R4: why automatic typing must wait on this Codex terminal's screen (shared/codexScreen),
+ * or null to type. Null too when there is no screen to read: a terminal never opened
+ * (its grid is not the PTY's, so the rows would not be Codex's) or exited. Then typing
+ * goes ahead as before. */
+export function codexScreenHoldFor(ptyId: string): string | null {
+  const entry = pool.get(ptyId);
+  if (!entry || !entry.opened || entry.exited) return null;
+  try {
+    const buf = entry.term.buffer.active;
+    const facts = extractCodexScreen((i) => buf.getLine(i)?.translateToString(true), buf.length, buf.baseY + buf.cursorY);
+    return codexScreenHold(facts);
+  } catch {
+    return null; // never let a buffer read break delivery
+  }
 }
 
 /** Characters a TUI paints around its input line that are not the user's text:
