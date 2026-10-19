@@ -840,8 +840,9 @@ export function useHive(config: HarnessConfig | null): void {
       // opened, holds delivery. Both blocks expire after half an hour, and when
       // one does we simply type after whatever is there — automation never
       // erases the user's text and never closes the user's menu.
-      // A Codex terminal must also not be showing its startup, a popup or a
-      // transient footer (codexScreenHoldFor): those wait, they never fail.
+      // A Codex terminal must also not be showing its startup, a popup, a /side
+      // conversation or a transient footer (codexScreenHoldFor): those wait,
+      // they never fail.
       if (!isTerminalAutomationSafe(target.ptyId, now, inferAgentProvider(target.command, target.provider) === 'codex')) return { sent: false };
       if (now - (lastFlush.current[target.id] ?? 0) < FLUSH_COOLDOWN_MS) return { sent: false };
       // Last gate before we type: re-check the message's delivery-time

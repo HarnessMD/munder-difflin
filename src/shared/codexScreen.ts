@@ -10,8 +10,11 @@
  *    or a `Resuming session…` / `Forking session…` line sits under it (trust,
  *    login and the update prompt come during startup);
  *  - a Codex popup or selection list at the bottom of the screen (trust, sign in,
- *    update, approvals, rate limits, model pickers): a key hint as one of the last
- *    two rows, a selected choice row above it, and a header row above the choices;
+ *    update, approvals, rate limits, model pickers, the import of another coding
+ *    agent's setup): a key hint as one of the last two rows, a selected choice row
+ *    (numbered, or a `[x]` toggle) above it, and a header row above the choices;
+ *  - a /side conversation: its empty composer shows `Ask a follow-up question`,
+ *    and a wake typed there goes into the side thread, not the agent's turn;
  *  - a transient footer a keystroke owns (`again to quit`, `esc close`, ...).
  * A screen it cannot name is typed into as before. The fork allowed only the exact
  * empty composer row; that model is Codex 0.157.1's, and on the 0.153 line a second
@@ -28,6 +31,8 @@
 export const CODEX_HEADER_TITLE = '>_ OpenAI Codex';
 /** Printed under the startup draft's header for a resume / fork. */
 export const CODEX_SESSION_STARTING = ['Resuming session…', 'Forking session…'] as const;
+/** The composer's placeholder while a /side conversation is open (SIDE_PLACEHOLDER). */
+export const CODEX_SIDE_PLACEHOLDER = 'Ask a follow-up question';
 /** Footer modes that are transient and owned by a keystroke. */
 export const CODEX_TRANSIENT_FOOTER = ['again to quit', 'to edit previous message', 'esc close'] as const;
 /** How many rows below the cursor are the footer, at most. */
@@ -116,9 +121,18 @@ const POPUP_HINT = [
   new RegExp(`^${POPUP_KEY} [a-z][a-z ]* · ${POPUP_KEY} [a-z][a-z ]*$`),
   new RegExp(`^Press ${POPUP_KEY} to continue$`)
 ];
-/** The SELECTED choice row, drawn at column 0 (`› 1. Yes, continue`), and any choice row. */
-const POPUP_SELECTED = /^› \d+\. \S/;
-const POPUP_CHOICE = /^(› | {2})\d+\. \S/;
+/** The list form, `↑/↓ to move, enter to select, c to customize` (the import screen): two or
+ *  more `<key> to <verb>` items. Prose has the same shape, so it counts on the LAST row only.
+ *  Its keys may be arrows or carry a modifier (`ctrl + c`). */
+const LIST_KEY_PART = '(?:[A-Za-z][A-Za-z0-9+-]*|[←↑→↓])';
+const LIST_KEY = `(?:(?:ctrl|alt|shift) \\+ )*${LIST_KEY_PART}(?:/${LIST_KEY_PART})*`;
+const LIST_ITEM = `${LIST_KEY} to [a-z][a-z ]*`;
+const POPUP_LIST_HINT = new RegExp(`^${LIST_ITEM}(?:, ${LIST_ITEM})+$`);
+/** A choice's lead: a number (`1. `) or a toggle with any mark (`[x] `, `[ ] `, `[✓] `, ...). */
+const CHOICE_LEAD = '(?:\\d+\\.|\\[[ xX✓✔•*]\\])';
+/** The SELECTED choice row, drawn at column 0 (`› 1. Yes, continue`, `› [x] MCP servers`), and any choice row. */
+const POPUP_SELECTED = new RegExp(`^› ${CHOICE_LEAD} \\S`);
+const POPUP_CHOICE = new RegExp(`^(› | {2})${CHOICE_LEAD} \\S`);
 /** A wrapped description of a choice is indented further than the header (4+ columns). */
 const POPUP_DESCRIPTION = /^ {4,}\S/;
 
@@ -130,6 +144,7 @@ export function codexPopup(f: CodexScreenFacts): string | null {
   for (let i = rows.length - 1; i >= Math.max(0, rows.length - 2); i -= 1) {
     if (POPUP_HINT.some((re) => re.test(rows[i].trim()))) { hint = i; break; }
   }
+  if (hint < 0 && rows.length > 0 && POPUP_LIST_HINT.test(rows[rows.length - 1].trim())) hint = rows.length - 1;
   if (hint < 0) return null;
   let selected = -1;
   for (let i = hint - 1; i >= 0; i -= 1) if (POPUP_SELECTED.test(rows[i])) { selected = i; break; }
@@ -144,12 +159,23 @@ export function codexPopup(f: CodexScreenFacts): string | null {
   return title.length > CODEX_POPUP_TEXT_MAX ? `${title.slice(0, CODEX_POPUP_TEXT_MAX - 1)}…` : title;
 }
 
+/** A /side conversation's empty composer: the lowest row at column 0 that starts with `› `
+ *  is the side placeholder. Text the person typed there hides it, and that screen is typed
+ *  into as before. */
+export function codexSideConversation(f: CodexScreenFacts): boolean {
+  for (let i = f.tail.length - 1; i >= 0; i -= 1) {
+    if (f.tail[i].startsWith('› ')) return f.tail[i] === `› ${CODEX_SIDE_PLACEHOLDER}`;
+  }
+  return false;
+}
+
 /** Why automatic typing must wait on this screen, or null to type. */
 export function codexScreenHold(f: CodexScreenFacts): string | null {
   if (f.header === 'LOADING') return 'startup';
   if (f.header === 'MODEL' && f.startingAfterHeader) return 'session-starting';
   const popup = codexPopup(f);
   if (popup) return `popup:${popup}`;
+  if (codexSideConversation(f)) return 'side-conversation';
   if (f.footer.some((row) => CODEX_TRANSIENT_FOOTER.some((t) => row.includes(t)))) return 'transient-footer';
   return null;
 }
