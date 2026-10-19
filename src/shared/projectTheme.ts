@@ -13,7 +13,8 @@ export type BuiltinProjectThemeId = 'office' | 'friends' | 'brooklyn99' | 'silic
 export type ProjectThemeId = string;
 
 export interface ProjectThemeSeed {
-  name: string;
+  /** Absent: the seed is a look only, and the person's own orchestrator keeps its nickname. */
+  name?: string;
   appearance: {
     bodyId: string;
     colors?: { skin?: string; shirt?: string; hair?: string };
@@ -127,12 +128,13 @@ export function projectThemeForHome(map: Record<string, ProjectThemeId> | undefi
   return Object.entries(map).find(([stored]) => projectThemeHomeKey(stored) === key)?.[1];
 }
 
-/** A pack's orchestrator seed, as its manifest declares it. */
+/** A pack's orchestrator seed, as its manifest declares it (the manifest's own rule): a
+ *  body id, and a name only when given, each a short non-blank string. */
 export function isProjectThemeSeed(value: unknown): value is ProjectThemeSeed {
   if (!value || typeof value !== 'object') return false;
-  const seed = value as ProjectThemeSeed;
-  return typeof seed.name === 'string' && seed.name.trim().length > 0
-    && !!seed.appearance && typeof seed.appearance.bodyId === 'string' && seed.appearance.bodyId.trim().length > 0;
+  const seed = value as { name?: unknown; appearance?: { bodyId?: unknown } };
+  const short = (v: unknown): boolean => typeof v === 'string' && v.trim().length > 0 && v.length <= 40;
+  return (seed.name === undefined || short(seed.name)) && !!seed.appearance && short(seed.appearance.bodyId);
 }
 
 /** The map after a home change. A move takes the project's entry to its new home; a fresh
