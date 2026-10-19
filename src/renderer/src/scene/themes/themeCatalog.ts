@@ -16,6 +16,8 @@ export interface ThemeEntry {
   label: string;
   sceneKind: 'office' | 'stations';
   builtIn: boolean;
+  /** A pack's art credit, for the picker. */
+  credit?: { text: string; url: string };
 }
 
 let packs: PackSummary[] | null = null;
@@ -32,13 +34,19 @@ function summaries(): PackSummary[] {
 export function listThemes(): ThemeEntry[] {
   return [
     { id: OFFICE_THEME_ID, label: 'Office', sceneKind: 'office', builtIn: true },
-    ...summaries().map((p) => ({ id: p.id, label: p.label, sceneKind: p.sceneKind, builtIn: false })),
+    ...summaries().map((p) => ({ id: p.id, label: p.label, sceneKind: p.sceneKind, builtIn: false, ...(p.credit ? { credit: p.credit } : {}) })),
   ];
 }
 
 /** True when `id` names a bundled stations pack. */
 export function isStationPack(id: string): boolean {
   return summaries().some((p) => p.id === id && p.sceneKind === 'stations');
+}
+
+/** The floor a saved theme draws: a bundled pack always, a TV-show map only
+ *  while the experimental flag is on, else the office. */
+export function floorSceneTheme(id: string, tvShowOffices: boolean | undefined): string {
+  return tvShowOffices || isStationPack(id) ? id : OFFICE_THEME_ID;
 }
 
 /** A pack's first-project seed (validated data), or null. Only for creating a

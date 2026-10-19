@@ -177,7 +177,7 @@
     "title": "Office Theme",
     "tvShow": "TV-show office themes",
     "experimental": "experimental",
-    "desc": "Re-skin the pixel office as a TV show. Switching starts a fresh cast.",
+    "desc": "Adds five TV show floors to the list above.",
     "current": "current",
     "soon": "soon",
     "notBuiltYet": "{{label}} isn't built yet — showing the office for now.",

@@ -148,7 +148,9 @@ export interface AppearanceSeed {
 }
 
 export interface ProjectDefaults {
-  orchestrator?: { name: string; appearance: AppearanceSeed };
+  /** The orchestrator's seed. `name` is optional: without it the seed is a look
+   *  only, so the person's own orchestrator keeps its nickname. */
+  orchestrator?: { name?: string; appearance: AppearanceSeed };
 }
 
 export interface PaletteSpec {
@@ -169,6 +171,8 @@ export interface ThemeManifest {
   spriteRenderer: SpriteRendererSpec;
   /** Informational: licence and provenance notes for the pack's art. */
   assets?: { license?: string; attribution?: string };
+  /** The art's credit line the theme picker shows: its words and an https link. */
+  credit?: { text: string; url: string };
   builder?: BuilderSpec;
   projectDefaults?: ProjectDefaults;
   /** Idle agents' coffee runs; without it idle agents only wander and chat. */
@@ -186,7 +190,7 @@ const ID_RE = /^[a-z0-9][a-z0-9-]{0,39}$/;
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 const COLOUR_RE = /^(#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6}|[a-z0-9][a-z0-9-]{0,39})$/;
 const TOP_KEYS = new Set(['schema', 'id', 'label', 'sceneKind', 'map', 'palette', 'stations', 'navigation', 'spriteRenderer',
-  'assets', 'builder', 'projectDefaults', 'coffee', 'text', '$comment']);
+  'assets', 'credit', 'builder', 'projectDefaults', 'coffee', 'text', '$comment']);
 const ROW_KEYS: Array<keyof SpriteRows> = ['down', 'up', 'left', 'right', 'sitDown', 'sitUp', 'sitLeft', 'sitRight'];
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -395,11 +399,11 @@ export function validateManifest(raw: unknown, packDir = ''): ManifestResult {
   if (raw.projectDefaults !== undefined) {
     const pd = raw.projectDefaults, o = isObj(pd) ? pd.orchestrator : undefined, a = isObj(o) ? o.appearance : undefined;
     const colorsOk = (c: unknown) => c === undefined || (isObj(c) && Object.entries(c).every(([k, v]) => ['skin', 'shirt', 'hair'].includes(k) && isStr(v, 40) && COLOUR_RE.test(v)));
-    if (!isObj(pd) || (o !== undefined && (!isObj(o) || !isStr(o.name, 40) || !isObj(a) || !isStr(a.bodyId, 40) || !colorsOk(a.colors)
+    if (!isObj(pd) || (o !== undefined && (!isObj(o) || (o.name !== undefined && !isStr(o.name, 40)) || !isObj(a) || !isStr(a.bodyId, 40) || !colorsOk(a.colors)
       || (a.presetId !== undefined && !isStr(a.presetId, 40))))) {
-      warn('"projectDefaults" is malformed and is ignored (expected { orchestrator: { name, appearance: { bodyId, colors?: { skin?, shirt?, hair? }, presetId? } } })');
+      warn('"projectDefaults" is malformed and is ignored (expected { orchestrator: { name?, appearance: { bodyId, colors?: { skin?, shirt?, hair? }, presetId? } } })');
     } else if (isObj(o) && isObj(a)) {
-      projectDefaults = { orchestrator: { name: o.name as string, appearance: {
+      projectDefaults = { orchestrator: { ...(o.name !== undefined ? { name: o.name as string } : {}), appearance: {
         bodyId: a.bodyId as string,
         ...(a.colors ? { colors: { ...(a.colors as Record<string, string>) } } : {}),
         ...(a.presetId ? { presetId: a.presetId as string } : {}),
@@ -434,6 +438,12 @@ export function validateManifest(raw: unknown, packDir = ''): ManifestResult {
     if (!isObj(raw.text) || !Object.values(raw.text).every(isPackPath)) warn('"text" must map names to pack-relative paths; ignored');
     else text = { ...(raw.text as Record<string, string>) };
   }
+  let credit: ThemeManifest['credit'];
+  if (raw.credit !== undefined) {
+    const c = raw.credit;
+    if (!isObj(c) || !isStr(c.text) || !isStr(c.url, 500) || !/^https:\/\/[^\s]+$/.test(c.url)) warn('"credit" must be {text, url} with an https url; ignored');
+    else credit = { text: c.text, url: c.url };
+  }
   let assets: ThemeManifest['assets'];
   if (raw.assets !== undefined) {
     if (!isObj(raw.assets) || !Object.values(raw.assets).every((v) => isStr(v, 2000))) warn('"assets" must map names to strings; ignored');
@@ -449,7 +459,7 @@ export function validateManifest(raw: unknown, packDir = ''): ManifestResult {
       kind: 'sheet', sheet: s.sheet as string, frameWidth: s.frameWidth as number, frameHeight: s.frameHeight as number,
       rows: Object.fromEntries(ROW_KEYS.map((k) => [k, rows[k]])) as unknown as SpriteRows,
     },
-    ...(assets ? { assets } : {}), ...(builder ? { builder } : {}),
+    ...(assets ? { assets } : {}), ...(credit ? { credit } : {}), ...(builder ? { builder } : {}),
     ...(projectDefaults ? { projectDefaults } : {}), ...(coffee ? { coffee } : {}), ...(text ? { text } : {}),
   };
   return { manifest, diagnostics: diags };
