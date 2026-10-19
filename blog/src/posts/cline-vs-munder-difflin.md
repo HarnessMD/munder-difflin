@@ -74,7 +74,7 @@ Pick Cline when one capable agent is enough and you want it close to your code.
 * **You want to choose your own model.** Cline takes keys from many providers, and Ollama or LM Studio if you want local models.
 * **You want one tool in many places.** The same engine runs in the editor, the terminal, CI, the desktop app and your own code through the SDK.
 
-If those cover you, Cline is the more direct fit. For other tools in this space, see our [OpenCode alternatives](/blog/opencode-alternatives/) and [Claude Code alternatives](/blog/claude-code-alternatives/).
+If those cover you, Cline is the more direct fit. Weighing it against a similar editor agent? Read [Kilo Code vs Cline](/blog/kilo-code-vs-cline/). For other tools in this space, see our [OpenCode alternatives](/blog/opencode-alternatives/) and [Claude Code alternatives](/blog/claude-code-alternatives/).
 
 ## When should you pick Munder Difflin?
 
