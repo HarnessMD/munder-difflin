@@ -1419,5 +1419,18 @@
     "hair": "Hair colour",
     "custom": "Custom colour",
     "presets": "Presets"
+  },
+  "projectTheme": {
+    "title": "CHOOSE A PROJECT THEME",
+    "intro": "The new project starts on this floor. You can change it later in Settings, and every agent comes along.",
+    "folder": "New project in {{path}}",
+    "starts": "{{god}} starts this project",
+    "captain": "{{god}} takes the captain's chair",
+    "office": "The original office floor",
+    "starhike": "The starship bridge",
+    "create": "create project",
+    "notEmpty": "Choose an empty folder for a new project.",
+    "unreadable": "The app could not open this folder. Choose another one.",
+    "errTag": "folder"
   }
 }

@@ -18,6 +18,7 @@ import { SettingsHeroCard } from './SettingsHeroCard';
 import { SetupPanel } from './SetupPanel';
 import { Icon } from './Icon';
 import { OfficeThemePicker } from './OfficeThemePicker';
+import { ProjectFolderError, ProjectThemeChoice, projectFolderError } from './ProjectThemeChoice';
 import { floorSceneTheme, resolveProjectTheme, type ProjectThemeId } from '@shared/projectTheme';
 import { McpDefaultsSettings } from './McpDefaultsSettings';
 import { IntegrationsRegistry } from './IntegrationsRegistry';
@@ -163,6 +164,23 @@ function clearLocalState(): void {
   } catch { /* noop */ }
 }
 
+/** The cth.* keys clearLocalState removes, to put back when main refuses the change. */
+function snapshotLocalState(): [string, string][] {
+  const kept: [string, string][] = [];
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      const v = k && k.startsWith('cth.') ? window.localStorage.getItem(k) : null;
+      if (k && v !== null) kept.push([k, v]);
+    }
+  } catch { /* noop */ }
+  return kept;
+}
+
+function restoreLocalState(kept: [string, string][]): void {
+  try { for (const [k, v] of kept) window.localStorage.setItem(k, v); } catch { /* noop */ }
+}
+
 // v0.3.4 redesign: six tabs, one topic each. 'AI Engines' folded into
 // Agents & Models; MCP + Slack + webhook + REST live together in Connections;
 // voice gets its own tab; Danger Zone became a red row at the bottom of General.
@@ -207,6 +225,10 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
   const [changeMode, setChangeMode] = useState<'move' | 'fresh'>('move');
   const [changeBusy, setChangeBusy] = useState(false);
   const [changeErr, setChangeErr] = useState('');
+  // Start fresh makes a new project: its floor (Pam's P2), and main's refusal of a
+  // folder that is not empty or cannot be read.
+  const [freshTheme, setFreshTheme] = useState<ProjectThemeId>('office');
+  const [changeFolderErr, setChangeFolderErr] = useState<'not-empty' | 'unreadable' | null>(null);
 
   // `notifications` is an optional field on the main-process config; the renderer
   // mirror type may not declare it yet, so read it defensively.
@@ -804,6 +826,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
     const res = await window.cth.chooseFolder();
     if (!res.ok) return; // cancelled - no-op
     setChangeMode('move'); // recommended default
+    setFreshTheme('office');
+    setChangeFolderErr(null);
     setChangeHome(res.path);
   };
 
@@ -815,12 +839,21 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
     // Moving copies the hive (incl. its .git) + palace, so the new home owns the
     // same renderer-side roster - keep localStorage. A 'fresh' home starts empty,
     // so clear the renderer cache to match.
-    if (changeMode === 'fresh') clearLocalState();
+    // Main may refuse the folder and keep this window, so the cache is put back then.
+    const kept = changeMode === 'fresh' ? snapshotLocalState() : null;
+    if (kept) clearLocalState();
     try {
-      const res = await window.cth.changeHome(changeHome, changeMode);
-      if (!res.ok) { setChangeErr(res.error ?? 'Could not change the home folder.'); setChangeBusy(false); }
+      const res = await window.cth.changeHome(changeHome, changeMode, changeMode === 'fresh' ? freshTheme : undefined);
+      if (!res.ok) {
+        if (kept) restoreLocalState(kept);
+        const refused = projectFolderError(res.error);
+        if (refused) setChangeFolderErr(refused);
+        else setChangeErr(res.error ?? 'Could not change the home folder.');
+        setChangeBusy(false);
+      }
       // ok === true never returns (the process relaunches).
     } catch (e) {
+      if (kept) restoreLocalState(kept);
       setChangeErr(e instanceof Error ? e.message : String(e));
       setChangeBusy(false);
     }
@@ -878,7 +911,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                     <button
                       key={value}
                       type="button"
-                      onClick={() => setChangeMode(value)}
+                      onClick={() => { setChangeMode(value); setChangeFolderErr(null); }}
                       disabled={changeBusy}
                       style={{
                         textAlign: 'left', cursor: changeBusy ? 'default' : 'pointer',
@@ -899,15 +932,21 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                 })}
               </div>
 
+              {/* Start fresh: the new project's floor, as the project picker offers it. */}
+              {changeMode === 'fresh' && (
+                <ProjectThemeChoice pick={freshTheme} onPick={(id) => { setFreshTheme(id); }} disabled={changeBusy} />
+              )}
+              {changeFolderErr && <ProjectFolderError error={changeFolderErr} />}
+
               {changeErr && (
                 <div style={{ fontSize: 12, lineHeight: '18px', color: '#6E1423' }}>{changeErr}</div>
               )}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <PixelButton variant="secondary" size="md" onClick={() => { setChangeHome(null); setChangeErr(''); }} disabled={changeBusy}>
+                <PixelButton variant="secondary" size="md" onClick={() => { setChangeHome(null); setChangeErr(''); setChangeFolderErr(null); }} disabled={changeBusy}>
                   {t('common.cancel')}
                 </PixelButton>
-                <PixelButton variant="primary" size="md" onClick={applyChangeHome} disabled={changeBusy}>
+                <PixelButton variant="primary" size="md" onClick={applyChangeHome} disabled={changeBusy || changeFolderErr !== null}>
                   {changeBusy ? t('settings.apply') : (changeMode === 'move' ? t('settings.moveAndRestart') : t('settings.switchAndRestart'))}
                 </PixelButton>
               </div>

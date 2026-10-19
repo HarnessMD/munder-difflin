@@ -1419,5 +1419,18 @@
     "hair": "发色",
     "custom": "自定义颜色",
     "presets": "预设"
+  },
+  "projectTheme": {
+    "title": "选择项目主题",
+    "intro": "新项目会从这个楼层开始。之后可以在设置里更改，所有智能体都会一起过去。",
+    "folder": "新项目位于 {{path}}",
+    "starts": "由 {{god}} 开启这个项目",
+    "captain": "{{god}} 坐上舰长席",
+    "office": "原来的办公室楼层",
+    "starhike": "星舰舰桥",
+    "create": "创建项目",
+    "notEmpty": "请为新项目选择一个空文件夹。",
+    "unreadable": "应用无法打开这个文件夹。请选择另一个文件夹。",
+    "errTag": "文件夹"
   }
 }
