@@ -68,7 +68,7 @@
         const lines = name.split("|");
         lines.forEach((s, j) => txt(piece, 0, 15 + (j - (lines.length - 1) / 2) * 50, s, { "text-anchor": "middle", "font-size": big ? 48 : 42, "font-weight": 700 }));
         const st = { on: false, at: -9 };
-        button(g, `${name.replace("|", " ")}: ${lic}`, () => { st.on = !st.on; st.at = api.now(); api.poke(); });
+        button(g, `${lines.join(" ")}: ${lic}`, () => { st.on = !st.on; st.at = api.now(); api.poke(); });
         return { piece, licT, cx, cy, lift: big ? 130 : 112, st, d: 0.5 + i * 0.85 };
       });
       return (t, now) => {
