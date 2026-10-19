@@ -10,6 +10,7 @@ import { Character, paintCup } from './Character';
 import { DeskScreen } from './DeskScreen';
 import { MessageEnvelope, type MessageAct } from './MessageEnvelope';
 import { hexToNumber, DEFAULT_CHARACTER } from './cast';
+import { breakEligible, cafeEligible, startCoffeeRest, tickCoffeeRest } from './coffeeGap';
 import { pickSoloLine, pickExchange, type BreakSpot } from './cafeteriaLines';
 import { colors } from '@/design/tokens';
 import { loadTheme, resolveThemeMap, themeTilesetUrls } from './themeLoader';
@@ -72,6 +73,8 @@ interface Runtime {
   cupCarryHome?: boolean;
   err?: ErrandRun;
   run?: CoffeeRun;
+  /** Seconds until the café may take this agent again (see coffeeGap.ts). */
+  coffeeRest?: number;
   /** When the current busy stretch (working/thinking/compacting) began. */
   busySince?: number;
 }
@@ -646,6 +649,7 @@ export function OfficeFloor() {
       // left mid-chat. Called when a break ends OR is interrupted by real work.
       const releaseBreak = (rt: Runtime): void => {
         if (!rt.brk) return;
+        startCoffeeRest(rt);              // no straight-back-to-coffee loop
         if (rt.brk.chat) {
           const p = runtimes.get(rt.brk.chat.partnerId);
           if (p?.brk) p.brk.chattingWith = undefined;
@@ -726,16 +730,11 @@ export function OfficeFloor() {
         });
       };
 
-      const breakEligible = (agent: Agent, rt: Runtime): boolean => {
-        if (agent.isGod || rt.brk || rt.err || rt.run || rt.cupCarryHome) return false;
-        if (agent.status !== 'idle' && agent.status !== 'success') return false;
-        return !rt.character.isSitting();   // already parked at a desk → leave it
-      };
-
       let cafeCooldown = 5;
       const updateCafeteria = (dt: number): void => {
         // Advance every in-progress break.
         for (const [id, rt] of runtimes) {
+          tickCoffeeRest(rt, dt);
           const b = rt.brk;
           if (!b) continue;
           if (b.phase === 'walking') {
@@ -786,7 +785,7 @@ export function OfficeFloor() {
         const candidates: Array<[Agent, Runtime]> = [];
         for (const agent of useStore.getState().agents) {
           const rt = runtimes.get(agent.id);
-          if (rt && breakEligible(agent, rt)) candidates.push([agent, rt]);
+          if (rt && cafeEligible(agent, rt)) candidates.push([agent, rt]);
         }
         if (candidates.length === 0) return;
         const [agent, rt] = candidates[Math.floor(Math.random() * candidates.length)];
