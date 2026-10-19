@@ -14,8 +14,10 @@
  *  end, and the middle is cut. The model's own policy still applies on top. */
 export const CODEX_TOOL_OUTPUT_TOKEN_LIMIT = 4000;
 
-/** A `[plugins.<name>]` table header (not an array of tables, not a sub-table). */
-const PLUGIN_TABLE = /^\s*\[\s*plugins\s*\.\s*("(?:[^"\\]|\\.)*"|'[^']*'|[A-Za-z0-9_@.-]+)\s*\]\s*(#.*)?$/;
+/** A `[plugins.<name>]` table header (not an array of tables, not a sub-table).
+ *  A bare TOML key is only [A-Za-z0-9_-]: a dot starts a dotted key (a sub-table
+ *  such as `[plugins.browser.settings]`), and a name with '@' must be quoted. */
+const PLUGIN_TABLE = /^\s*\[\s*plugins\s*\.\s*("(?:[^"\\]|\\.)*"|'[^']*'|[A-Za-z0-9_-]+)\s*\]\s*(#.*)?$/;
 const ANY_TABLE = /^\s*\[/;
 const ENABLED = /^(\s*)(["']?)enabled\2(\s*=\s*)(true|false)(\s*(#.*)?)$/;
 
