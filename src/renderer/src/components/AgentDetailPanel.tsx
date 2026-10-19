@@ -152,7 +152,7 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden',
           flexShrink: 0
         }}>
-          <SpritePortrait character={agent.character} scale={1} />
+          <SpritePortrait agent={{ id: agent.id, character: agent.character, appearanceByTheme: agent.appearanceByTheme }} scale={1} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', minWidth: 0, lineHeight: '14px' }}>
