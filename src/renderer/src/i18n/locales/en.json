@@ -1412,5 +1412,8 @@
     "panel": "{{where}} could not be shown. The rest of the app is fine.",
     "tryAgain": "Try again",
     "reload": "Reload the window"
+  },
+  "stationFloor": {
+    "packFailed": "{{name}} could not load, so The Office is showing instead. Every agent is still here."
   }
 }

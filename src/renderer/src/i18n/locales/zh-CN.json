@@ -1412,5 +1412,8 @@
     "panel": "无法显示{{where}}。应用的其他部分不受影响。",
     "tryAgain": "重试",
     "reload": "重新加载窗口"
+  },
+  "stationFloor": {
+    "packFailed": "{{name}} 无法加载，所以先显示 The Office。所有智能体都还在。"
   }
 }

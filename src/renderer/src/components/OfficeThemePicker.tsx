@@ -6,14 +6,14 @@ import { disposeTerminal } from './terminalPool';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
-import type { ThemeId } from '@/scene/office/themeRegistry';
+import type { BuiltinThemeId } from '@/scene/office/themeRegistry';
 
 // TV-show office themes (Phase 1 = the switch flow infra). Only `office` has a
 // real map+cast today; the five shows render via the loader's office fallback
 // until their content lands (Phase 2). `built: false` shows a "soon" tag and a
 // fallback note on switch, but the destructive switch flow still runs so the
 // whole pipeline (modal → delete cast → persist → re-seat) is exercisable now.
-interface ThemeMeta { id: ThemeId; label: string; blurb: string; built: boolean; swatch: string; }
+interface ThemeMeta { id: BuiltinThemeId; label: string; blurb: string; built: boolean; swatch: string; }
 const THEME_META: ThemeMeta[] = [
   { id: 'office',        label: 'The Office',         blurb: 'Dunder Mifflin — the original floor', built: true,  swatch: '#6b5a4a' },
   { id: 'friends',       label: 'Friends',            blurb: 'Central Perk coffee house',           built: false, swatch: '#9a5a32' },
@@ -29,8 +29,8 @@ const THEME_META: ThemeMeta[] = [
 export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
   const { t } = useTranslation();
   const [enabled, setEnabled] = useState(!!config.tvShowOffices);
-  const [current, setCurrent] = useState<ThemeId>((config.officeTheme as ThemeId) ?? 'office');
-  const [pending, setPending] = useState<ThemeId | null>(null);
+  const [current, setCurrent] = useState<BuiltinThemeId>((config.officeTheme as BuiltinThemeId) ?? 'office');
+  const [pending, setPending] = useState<BuiltinThemeId | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
 
@@ -54,14 +54,14 @@ export function OfficeThemePicker({ config }: { config: HarnessConfig }) {
   const nonGodAgents = () =>
     useStore.getState().agents.filter((a) => !a.isGod && !a.isAssistant);
 
-  const onSelect = (id: ThemeId) => {
+  const onSelect = (id: BuiltinThemeId) => {
     setNote('');
     if (busy || id === current) return;                 // no-op on the current theme
     if (nonGodAgents().length === 0) { void applyTheme(id); return; } // god-only → instant
     setPending(id);                                     // workers exist → confirm modal
   };
 
-  const applyTheme = async (id: ThemeId) => {
+  const applyTheme = async (id: BuiltinThemeId) => {
     setBusy(true);
     try {
       // Tear down every non-god agent through the EXISTING lifecycle (kill PTY →

@@ -18,6 +18,9 @@ import {
   installContextLossRecovery, planInitFailure, DEFAULT_MAX_INIT_RETRIES
 } from './glRecovery';
 import type { Tile, Facing, ErrandKind, ErrandSpot } from './themeRegistry';
+import { StationFloor } from '../themes/StationFloor';
+import { isStationPack, listThemes, loadStationPack } from '../themes/themeCatalog';
+import type { LoadedPack } from '../themes/packs';
 
 // The map, tileset atlases, desk-claim order, errand spots, coffee-economy
 // tiles, prop anchors, monitor gids and palette all come from the active
@@ -168,7 +171,54 @@ function firstWords(prompt: string | undefined, maxWords = 6, maxChars = 42): st
   return out;
 }
 
+/** The floor: the office scene, or a stations theme pack's scene when the
+ *  active theme is one. A pack that cannot be used (invalid manifest, missing
+ *  picture, malformed map, bad sprite sheet) shows the office with one line
+ *  over it (Pam's P1); the reasons go to the console. */
 export function OfficeFloor() {
+  const { t } = useTranslation();
+  const officeTheme = useStore((s) => s.officeTheme);
+  const wantsPack = isStationPack(officeTheme);
+  const [state, setState] = useState<{ id: string; pack: LoadedPack | null; failed: boolean } | null>(null);
+  useEffect(() => {
+    if (!wantsPack) { setState(null); return; }
+    let live = true;
+    setState(null);
+    loadStationPack(officeTheme).then(
+      ({ pack, diagnostics }) => {
+        if (!live) return;
+        const errors = diagnostics.filter((d) => d.level === 'error');
+        if (!pack) console.warn(`[OfficeFloor] theme "${officeTheme}" cannot be used; showing the office:\n` + errors.map((d) => '  ' + d.message).join('\n'));
+        setState({ id: officeTheme, pack, failed: !pack });
+      },
+      (e) => {
+        if (!live) return;
+        console.warn(`[OfficeFloor] theme "${officeTheme}" cannot be used; showing the office:`, e);
+        setState({ id: officeTheme, pack: null, failed: true });
+      },
+    );
+    return () => { live = false; };
+  }, [officeTheme, wantsPack]);
+  if (wantsPack && (!state || state.id !== officeTheme)) return <div style={{ width: '100%', height: '100%', background: hex(colors.ink[900]) }} />;
+  if (state?.pack) return <StationFloor pack={state.pack} />;
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <OfficeScene />
+      {state?.failed && (
+        <div role="status" style={{
+          position: 'absolute', top: 10, insetInlineStart: 10, insetInlineEnd: 10, padding: '6px 10px',
+          fontSize: 12, lineHeight: '16px', background: 'var(--cth-cream-100)', color: 'var(--cth-ink-700)',
+          boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', pointerEvents: 'none',
+        }}>
+          {t('stationFloor.packFailed', { name: listThemes().find((x) => x.id === state.id)?.label ?? state.id })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The office's own floor (unchanged; the pack dispatch above wraps it). */
+function OfficeScene() {
   const { t, i18n } = useTranslation();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
