@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
 import type { AgentProvider } from '../shared/agentProvider';
+import type { GraphicsMode, GraphicsStatusView } from '../shared/graphicsMode';
 import type { HireManifest } from '../shared/hire';
 export type { HireManifest } from '../shared/hire';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
@@ -1090,6 +1091,13 @@ const api = {
   /** Show a listed damaged file, or its copy, in the file manager, by name. */
   integrityReveal: (name: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('integrity:reveal', name),
+  /** Settings, Graphics: the mode in force, the saved one, Chromium's view, and
+   *  how many agent terminals a restart would stop. */
+  graphicsStatus: (): Promise<GraphicsStatusView> => ipcRenderer.invoke('graphics:status'),
+  /** Save the Graphics mode; it applies after a restart. */
+  setGraphicsMode: (mode: GraphicsMode): Promise<GraphicsStatusView> => ipcRenderer.invoke('graphics:setMode', mode),
+  /** Restart the app through the normal teardown, so a saved Graphics mode applies. */
+  restartForGraphics: (): Promise<void> => ipcRenderer.invoke('graphics:restart'),
 
   // ─── Scheduled missions (recurring auto-dispatch) ──────────────────────────
   listMissions: (): Promise<ScheduledMission[]> => ipcRenderer.invoke('missions:list'),

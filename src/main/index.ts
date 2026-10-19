@@ -14,11 +14,13 @@ import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellE
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
 import {
-  readConfig, writeConfig, setAgentTokenCap, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
+  readConfig, writeConfig, setAgentTokenCap, setGraphicsMode, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
   modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
 import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
 import { integrityIssues, integrityPath } from './damagedFile';
+import { applyGraphicsModeAtStartup, appliedGraphicsMode, graphicsStatus, logGraphicsWhenKnown, watchGpuReports } from './graphics';
+import type { GraphicsStatusView } from '../shared/graphicsMode';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
   getBranch, getStatus, getLog, getBranches, getAheadBehind, isRepo, getDiff, mainRepoRoot,
@@ -95,6 +97,14 @@ import {
 } from '../shared/codexRemote';
 
 const isDev = !!process.env.ELECTRON_RENDERER_URL;
+
+// Settings, Graphics: applied HERE, at module load, before app ready
+// (disableHardwareAcceleration does nothing later). A missing or damaged
+// config.json is Auto. CPU only turns hardware acceleration off for this run.
+const graphicsAtStartup = applyGraphicsModeAtStartup(app);
+// The GPU process's first report, noted before ready so none is missed; the
+// startup 'graphics' row waits for it, since the status reads software until then.
+watchGpuReports(app);
 
 // Keep the main process alive on an unexpected throw/rejection. The harness is a
 // multi-agent supervisor — a single stray throw (e.g. node-pty's ConPTY console
@@ -3562,6 +3572,25 @@ ipcMain.handle('integrity:reveal', (_evt, name: unknown) => {
   shell.showItemInFolder(p);
   return { ok: true };
 });
+// Settings, Graphics. The status is what is IN FORCE (the mode read before
+// ready, Chromium's GPU compositing) plus the saved mode; a saved change
+// applies after a restart, which goes through the normal teardown (the window
+// asks the person first when agents are running).
+function graphicsStatusView(): GraphicsStatusView {
+  let feature: Record<string, string> | null = null;
+  try { feature = app.getGPUFeatureStatus() as unknown as Record<string, string>; } catch { /* unknown */ }
+  return { ...graphicsStatus(readConfig(), feature), runningAgents: ptyManager.list().length };
+}
+ipcMain.handle('graphics:status', () => graphicsStatusView());
+ipcMain.handle('graphics:setMode', (_evt, mode: unknown) => {
+  setGraphicsMode(mode);
+  try { hive.appendLog({ kind: 'graphics-set', mode, applied: appliedGraphicsMode() }); } catch { /* best-effort */ }
+  return graphicsStatusView();
+});
+ipcMain.handle('graphics:restart', () => {
+  app.relaunch();
+  teardownAndQuit();
+});
 ipcMain.handle('hive:setArchived', (_evt, id: unknown, archived: unknown) => {
   if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
@@ -5406,6 +5435,8 @@ function onSystemResume(reason: string): void {
 }
 
 app.whenReady().then(() => {
+  // The startup 'graphics' row in the hive log, once Chromium knows (graphics.ts).
+  logGraphicsWhenKnown(app, graphicsAtStartup, (row) => hive.appendLog(row));
   // Realtime Michael mic-gate hygiene (rt-8 / Pam rt-10 nit): the voice session
   // opens the mic permission gate by persisting realtimeVoiceEnabled=true and
   // closes it on disconnect — but a hard crash/reload mid-session skips that

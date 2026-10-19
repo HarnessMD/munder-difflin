@@ -13,6 +13,7 @@ import { defaultMcpDefaults } from '../shared/mcpCatalog';
 import { MAX_AGENT_TOKEN_CAP } from '../shared/tokenCaps';
 import { expandTilde, normalizeHiveHome } from './fs';
 import { readJsonFile, writeRefusal } from './damagedFile';
+import { parseGraphicsMode, type GraphicsMode } from '../shared/graphicsMode';
 import type { IntegrationRecord } from '../shared/integrations';
 import {
   DEFAULT_CONTEXT_TRIGGER,
@@ -319,6 +320,9 @@ export interface HarnessConfig {
    *  `tvShowOffices` is on; otherwise the office theme is used. Unbuilt show
    *  themes fall back to 'office' in the loader. */
   officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  /** Settings, Graphics (shared/graphicsMode): Auto, GPU or CPU only. Read once
+   *  before app ready; a change applies after a restart. Absent is Auto. */
+  graphicsMode?: GraphicsMode;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn (config-injection or proxy
    *  upstream). API KEYS are NOT stored here — they live write-only in the secret
@@ -743,6 +747,13 @@ export function setAgentTokenCap(agentId: unknown, tokenCap: unknown): HarnessCo
     ...current,
     agentTokenCaps
   });
+}
+
+/** Save the Graphics mode; it applies after a restart. An unknown value throws. */
+export function setGraphicsMode(value: unknown): HarnessConfig {
+  const mode = parseGraphicsMode(value);
+  if (mode === null) throw new Error('invalid graphics mode');
+  return persistConfig({ ...readConfig(), graphicsMode: mode });
 }
 
 /** Wipe the persisted config back to first-run defaults so the app boots into
