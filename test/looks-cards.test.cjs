@@ -116,17 +116,29 @@ test('the Office, a pack that cannot load, another pack, and the Office cast pic
   assert.match(portrait, /const activeTheme = useStore\(\(s\) => s\.officeTheme\);/, 'the card reads the same theme as the floor');
 });
 
-test('the card: an agent card draws the agent\'s look in the same tile; the strip passes the agent\'s id and looks', () => {
+test('every portrait of an agent draws its look: the card, the detail header, the Command Center and focus mode; the strip passes the agent\'s id and looks', () => {
   const card = read(C + 'AgentCard.tsx');
   assert.match(card, /\{agentId !== undefined\s*\n\s*\? <SpritePortrait agent=\{\{ id: agentId, character, appearanceByTheme \}\} scale=\{2\} \/>\s*\n\s*: <SpritePortrait character=\{character\} scale=\{2\} \/>\}/);
   const strip = read(C + 'AgentStrip.tsx');
   assert.match(strip, /<AgentCard\s*\n\s*draggable\s*\n\s*agentId=\{a\.id\}\s*\n\s*appearanceByTheme=\{a\.appearanceByTheme\}/);
+  // the card and the floor never disagree, wherever the agent is drawn: the detail header, the
+  // Command Center header, its agent list and its archived list, and the focus mode sidebar row
+  const subject = (v) => `<SpritePortrait agent=\\{\\{ id: ${v}\\.id, character: ${v}\\.character, appearanceByTheme: ${v}\\.appearanceByTheme \\}\\} scale=\\{`;
+  const count = (src, re) => src.match(new RegExp(re, 'g'))?.length ?? 0;
+  assert.equal(count(read(C + 'AgentDetailPanel.tsx'), subject('agent') + '1\\} \\/>'), 1, 'the detail header');
+  const cc = read(C + 'CommandCenterPanel.tsx');
+  assert.equal(count(cc, subject('agent') + '1\\} \\/>'), 1, 'the Command Center header');
+  assert.equal(count(cc, subject('a') + '1\\} \\/>'), 2, 'its agent list and its archived list');
+  assert.equal(count(read(C + 'FullscreenTerminal.tsx'), subject('agent') + 'scale\\.portraitScale\\} \\/>'), 1, 'the focus mode sidebar row');
+  for (const f of ['AgentDetailPanel.tsx', 'CommandCenterPanel.tsx', 'FullscreenTerminal.tsx']) {
+    for (const el of read(C + f).match(/<SpritePortrait[\s\S]*?\/>/g)) assert.match(el, /\bagent=\{/, `${f}: ${el.slice(0, 80)}`);
+  }
   // Office cast pickers keep Office characters: every other SpritePortrait passes a character alone,
   // but for a new project's row, which shows the pack's seed look for its orchestrator
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : /\.tsx$/.test(e.name) ? [path.join(d, e.name)] : []);
   for (const f of walk(path.join(ROOT, 'src/renderer/src'))) {
     const rel = path.relative(ROOT, f);
-    for (const m of fs.readFileSync(f, 'utf8').matchAll(/<SpritePortrait\b[^>]*\bagent=/g)) assert.ok([C + 'AgentCard.tsx', C + 'ProjectThemeChoice.tsx'].includes(rel), `${rel}: ${m[0]}`);
+    for (const m of fs.readFileSync(f, 'utf8').matchAll(/<SpritePortrait\b[^>]*\bagent=/g)) assert.ok(['AgentCard.tsx', 'AgentDetailPanel.tsx', 'CommandCenterPanel.tsx', 'FullscreenTerminal.tsx', 'ProjectThemeChoice.tsx'].map((x) => C + x).includes(rel), `${rel}: ${m[0]}`);
   }
 });
 
