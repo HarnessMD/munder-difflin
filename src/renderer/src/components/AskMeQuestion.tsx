@@ -5,6 +5,7 @@ import { PixelButton } from './PixelButton';
 import { MarkdownPreview } from '@/markdown/MarkdownPreview';
 import { isComposingKey } from '@shared/imeGuard';
 import { composeAnswer, type HumanQAFields } from '@shared/humanQuestion';
+import { useRtl } from '@/i18n/useDirection';
 
 const HEADLINE_MAX = 140;
 const LIST_LINE = /^\s*(?:[-*+•]|\d+[.)])\s+/;
@@ -85,6 +86,8 @@ export interface AskMeQuestionProps {
  *  click on an option only picks; the button names the answer and sends it. */
 export function AskMeQuestion({ entry, draft, onDraft, picks, onPicks, onSend, sending, notSent, kept, closed }: AskMeQuestionProps) {
   const { t, i18n } = useTranslation();
+  // Content follows its own direction only in an Arabic window: an English card never flips.
+  const rtl = useRtl();
   const options = entry.options ?? [];
   const hasOptions = options.length > 0;
   const { headline, body } = splitHeadline(entry.q);
@@ -101,7 +104,7 @@ export function AskMeQuestion({ entry, draft, onDraft, picks, onPicks, onSend, s
   const keptBox = kept ? (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 13 }}>
       <span style={{ color: 'var(--cth-ink-700)' }}>{t('askMe.goneKept')}</span>
-      <div dir="auto" style={{
+      <div dir={rtl ? 'auto' : undefined} style={{
         padding: '6px 8px', background: 'var(--cth-paper-200)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)',
         whiteSpace: 'pre-wrap', userSelect: 'text', color: 'var(--cth-ink-900)',
       }}>{kept}</div>
@@ -128,12 +131,12 @@ export function AskMeQuestion({ entry, draft, onDraft, picks, onPicks, onSend, s
       </div>}
 
       {headline && (
-        <div dir="auto" style={{ fontSize: 15, lineHeight: '19px', fontWeight: 700, color: 'var(--cth-ink-900)' }}>
+        <div dir={rtl ? 'auto' : undefined} style={{ fontSize: 15, lineHeight: '19px', fontWeight: 700, color: 'var(--cth-ink-900)' }}>
           <MarkdownPreview source={headline} variant="card" />
         </div>
       )}
       {body && (
-        <div dir="auto" style={{ fontSize: 15, lineHeight: '19px', color: 'var(--cth-ink-900)' }}>
+        <div dir={rtl ? 'auto' : undefined} style={{ fontSize: 15, lineHeight: '19px', color: 'var(--cth-ink-900)' }}>
           <MarkdownPreview source={body} variant="card" />
         </div>
       )}
@@ -164,7 +167,7 @@ export function AskMeQuestion({ entry, draft, onDraft, picks, onPicks, onSend, s
                   boxShadow: 'inset 0 0 0 2px var(--cth-ink-500)',
                   background: on ? 'var(--cth-mint)' : 'var(--cth-paper-100)',
                 }} />
-                <span dir="auto" style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                <span dir={rtl ? 'auto' : undefined} style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
                   <span style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                     <b style={{ fontSize: 15, lineHeight: '18px' }}>{o.label}</b>
                     {entry.recommended === i && <Tag bg="var(--cth-lemon-light)">{t('askMe.recommended')}</Tag>}
@@ -185,7 +188,7 @@ export function AskMeQuestion({ entry, draft, onDraft, picks, onPicks, onSend, s
       ) : (
         <>
           <textarea
-            dir="auto"
+            dir={rtl ? 'auto' : undefined}
             value={draft}
             onChange={(e) => onDraft(e.target.value)}
             onKeyDown={(e) => { if (isComposingKey(e)) return; if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && answer && !sending) onSend(); }}
