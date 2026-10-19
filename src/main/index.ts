@@ -421,6 +421,16 @@ interface PreservedWorktree {
  *  sweep drains this: an entry is removed (worktree + scratch GC'd) only when the
  *  work is provably integrated, or when the worktree is already gone from disk. */
 const preservedWorktrees = new Map<string, PreservedWorktree>();
+/** Worktrees whose removal was refused this run (git.removeWorktree: not a
+ *  linked worktree, or a link inside could not be removed as a link). Each is
+ *  logged once to the hive log, and the GC sweep stops retrying it until the
+ *  app starts again. */
+const refusedWorktrees = new Set<string>();
+function noteRemovalRefused(wtPath: string, error: string | undefined): void {
+  if (refusedWorktrees.has(wtPath)) return;
+  refusedWorktrees.add(wtPath);
+  try { hive.appendLog({ kind: 'worktree-removal-refused', path: wtPath, error }); } catch { /* best-effort */ }
+}
 
 /**
  * Tear down everything tied to a PTY id: archive its hive agent, remove its
@@ -486,7 +496,7 @@ function teardownPty(id: string): void {
       void finalizeWorkerWorktree(wtPath, origCwd, worker);
     } else {
       void removeWorktree(origCwd, wtPath)
-        .then(r => { if (!r.ok) console.error('[worktree] removeWorktree failed:', r.error); })
+        .then(r => { if (!r.ok) { console.error('[worktree] removeWorktree failed:', r.error); if (r.refused) noteRemovalRefused(wtPath, r.error); } })
         .catch(e => console.error('[worktree] removeWorktree threw:', e));
     }
   }
@@ -548,7 +558,7 @@ async function finalizeWorkerWorktree(wtPath: string, origCwd: string, worker: W
       return;
     }
     const r = await removeWorktree(origCwd, wtPath);
-    if (!r.ok) { console.error('[worker] removeWorktree failed:', r.error); return; }
+    if (!r.ok) { console.error('[worker] removeWorktree failed:', r.error); if (r.refused) noteRemovalRefused(wtPath, r.error); return; }
     // Worktree is gone (clean/integrated at teardown), but DEFER its scratch-dir
     // cleanup to the throttled GC sweep rather than deleting it synchronously here:
     // HIVE_ROOT/agents/<id> holds the worker's memory.md and the MemPalace miner
@@ -4852,6 +4862,8 @@ async function gcPreservedWorktrees(): Promise<void> {
       // A worker id that is live again (reqId reuse) → never GC its worktree or
       // scratch out from under the new run; leave the stale entry for a later sweep.
       if (liveWorkers.has(e.workerId)) continue;
+      // A removal refused this run is not retried (logged once already).
+      if (refusedWorktrees.has(e.wtPath)) continue;
       // (a) Worktree already gone (removed at clean teardown, or god removed it by
       //     hand per the preserve note) → just reclaim the scratch dir + drop tracking.
       if (!existsSync(e.wtPath)) {
@@ -4868,7 +4880,7 @@ async function gcPreservedWorktrees(): Promise<void> {
       catch (err) { console.error('[worker gc] gc-safe check threw (keeping):', err); continue; }
       if (!safe.gc) continue; // keep — fail-safe
       const r = await removeWorktree(e.origCwd, e.wtPath);
-      if (!r.ok) { console.error(`[worker gc] removeWorktree failed (keeping ${e.workerId}):`, r.error); continue; }
+      if (!r.ok) { console.error(`[worker gc] removeWorktree failed (keeping ${e.workerId}):`, r.error); if (r.refused) noteRemovalRefused(e.wtPath, r.error); continue; }
       removeWorkerScratch(e.workerId);
       preservedWorktrees.delete(key);
       console.log(`[worker gc] reclaimed ${e.workerId} (${safe.detail})`);

@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process';
+import { promises as fsp } from 'node:fs';
+import { join } from 'node:path';
 import { openForRead, safeResolve } from './fs';
 
 /** Run git in `cwd` with `args`. Returns stdout text or an error. */
@@ -272,14 +274,99 @@ export async function addWorktree(
   return { ok: false, error: fallback.error };
 }
 
-/** Best-effort removal of an agent's worktree. Forced so a dirty tree doesn't
- *  block teardown; failures are surfaced but callers may ignore them. */
+/** The two removals unlinkLinksUnder uses, and how it reads (injectable for tests). */
+export interface LinkOps {
+  unlink: (p: string) => Promise<void>;
+  rmdir: (p: string) => Promise<void>;
+  readdir?: (p: string) => Promise<string[]>;
+  lstat?: (p: string) => Promise<{ isSymbolicLink(): boolean; isDirectory(): boolean }>;
+}
+const fsLinkOps: LinkOps = { unlink: (p) => fsp.unlink(p), rmdir: (p) => fsp.rmdir(p) };
+const errText = (e: unknown): string => e instanceof Error ? e.message : String(e);
+const gone = (e: unknown): boolean => (e as NodeJS.ErrnoException)?.code === 'ENOENT';
+
+/** Remove every symlink or junction under `root` as a LINK, never through it.
+ *  A junction is a folder link on Windows: unlink can refuse it, and a
+ *  NON-recursive rmdir then removes only the link. A folder or entry that cannot
+ *  be read may hold links, so it is a failure (the removal is refused), unless
+ *  it is already gone. Ported from Prozzta/guppyos 02d0d50b (MIT). */
+export async function unlinkLinksUnder(
+  root: string, ops: LinkOps = fsLinkOps
+): Promise<{ removed: number; failed: { path: string; error: string }[] }> {
+  let removed = 0;
+  const failed: { path: string; error: string }[] = [];
+  const readdir = ops.readdir ?? ((p: string) => fsp.readdir(p));
+  const lstat = ops.lstat ?? ((p: string) => fsp.lstat(p));
+  const stack = [root];
+  while (stack.length) {
+    const dir = stack.pop()!;
+    let names: string[] = [];
+    try { names = await readdir(dir); } catch (e) { if (!gone(e)) failed.push({ path: dir, error: errText(e) }); continue; }
+    for (const name of names) {
+      const p = join(dir, name);
+      let st;
+      try { st = await lstat(p); } catch (e) { if (!gone(e)) failed.push({ path: p, error: errText(e) }); continue; }
+      if (st.isSymbolicLink()) {
+        try { await ops.unlink(p); removed++; } catch {
+          try { await ops.rmdir(p); removed++; } catch (e) { failed.push({ path: p, error: errText(e) }); }
+        }
+      } else if (st.isDirectory()) stack.push(p);
+    }
+  }
+  return { removed, failed };
+}
+
+/** A folder as the file system resolves it (case folded on Windows), or null. */
+async function realKey(p: string): Promise<string | null> {
+  try {
+    const r = await fsp.realpath(p);
+    return process.platform === 'win32' ? r.toLowerCase() : r;
+  } catch { return null; }
+}
+
+/** Why `wtPath` must not be force removed as a worktree of the repository at
+ *  `cwd`, or null when it may be. It has to be a real folder (not itself a link,
+ *  and readable) that git lists as a LINKED worktree, never the main checkout.
+ *  A path already gone is left to git, as before. */
+async function removalRefusal(cwd: string, wtPath: string): Promise<string | null> {
+  let st;
+  try { st = await fsp.lstat(wtPath); } catch (e) { return gone(e) ? null : `it cannot be read (${errText(e)})`; }
+  if (st.isSymbolicLink()) return 'it is itself a link';
+  if (!st.isDirectory()) return 'it is not a folder';
+  const listed = await listWorktrees(cwd);
+  if ('error' in listed) return `git could not list the worktrees (${listed.error})`;
+  const want = await realKey(wtPath);
+  if (want === null) return 'it cannot be resolved';
+  // The first entry git lists is the main checkout.
+  for (const w of listed.slice(1)) if ((await realKey(w.path)) === want) return null;
+  return 'git does not list it as a linked worktree of this repository';
+}
+
+/** Removal of an agent's worktree. Forced so a dirty tree doesn't block
+ *  teardown; failures are surfaced but callers may ignore them.
+ *  Git for Windows' `worktree remove --force` deletes THROUGH a junction (a
+ *  linked node_modules was emptied that way), so every link inside goes first,
+ *  as a link. A path that is not a linked worktree of this repository, or a link
+ *  that cannot be removed, REFUSES the removal (`refused`): the error counts the
+ *  links already removed and no file or folder is deleted. */
 export async function removeWorktree(
-  cwd: string, wtPath: string
-): Promise<{ ok: boolean; error?: string }> {
+  cwd: string, wtPath: string, ops?: LinkOps
+): Promise<{ ok: boolean; error?: string; refused?: boolean; linksRemoved?: number }> {
+  const why = await removalRefusal(cwd, wtPath);
+  if (why) {
+    return { ok: false, refused: true, linksRemoved: 0, error: `refused: ${wtPath} was not removed because ${why}; nothing was touched` };
+  }
+  const links = await unlinkLinksUnder(wtPath, ops);
+  if (links.failed.length) {
+    const first = links.failed[0];
+    return {
+      ok: false, refused: true, linksRemoved: links.removed,
+      error: `refused: ${links.removed} link(s) removed as links, but ${links.failed.length} link(s) or folder(s) inside could not be removed or read, and --force would delete through them (${first.path}: ${first.error}); no file or folder was deleted`
+    };
+  }
   const res = await runGit(cwd, ['worktree', 'remove', '--force', wtPath]);
-  if (res.ok) return { ok: true };
-  return { ok: false, error: res.error };
+  if (res.ok) return { ok: true, linksRemoved: links.removed };
+  return { ok: false, error: res.error, linksRemoved: links.removed };
 }
 
 /** Does this worktree hold work that must NOT be auto-discarded? `keep` is true if
