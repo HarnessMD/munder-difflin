@@ -3,10 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { SpritePortrait } from './SpritePortrait';
+import { ThemeLookBuilder } from './ThemeLookBuilder';
 import { Icon } from './Icon';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
 import { OFFICE_CAST, DEFAULT_CHARACTER, type OfficeCharacterName } from '@/scene/office/cast';
+import { useThemeLooks } from '@/scene/themes/useThemeLooks';
+import { isStationPack } from '@/scene/themes/themeCatalog';
+import { draftToLook, startDraft, type LookDraft } from '@/scene/themes/looks';
 import { type AccentColorName } from '@/design/tokens';
 import type { HireManifest } from '@shared/hire';
 import { hireQueueProgress } from '@shared/hireQueue';
@@ -188,9 +192,22 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
   const initialProvider = inferAgentProvider(config.defaultCommand);
   const initialModel = isClaudeProvider(initialProvider) ? config.defaultModel : undefined;
 
-  const [name, setName] = useState(pendingHire?.name ?? 'Jim');
+  const officeTheme = useStore(s => s.officeTheme);
+  // On a pack's floor the name starts empty, so a preset may fill it (Pam's P3).
+  const [name, setName] = useState(pendingHire?.name ?? (isStationPack(officeTheme) ? '' : 'Jim'));
   const [character, setCharacter] = useState<OfficeCharacterName>(knownCharacter(pendingHire?.character));
   const [accent, setAccent] = useState<AccentColorName>(knownAccent(pendingHire?.accent));
+  // The active theme pack's look builder (only when the pack declares one) takes
+  // the Character row's place. The draft is per theme, so a theme change
+  // mid-dialog never saves a look made for another pack.
+  const looks = useThemeLooks(officeTheme);
+  const hasThemeLookBuilder = Boolean(looks?.builder);
+  // Never flash the Office grid while an active pack is still loading.
+  const showOfficeCharacterPicker = looks !== undefined && !hasThemeLookBuilder;
+  const [lookDraftState, setLookDraftState] = useState<{ themeId: string; draft: LookDraft } | null>(null);
+  const lookDraft = looks?.builder
+    ? (lookDraftState?.themeId === looks.themeId ? lookDraftState.draft : startDraft(looks.builder, looks.columns))
+    : null;
   const [cwd, setCwd] = useState<string>(config.registeredRepos[0] ?? '');
   // Local mirror of the registered projects so one added from here shows as a
   // quick-pick immediately (the `config` prop is a snapshot taken at open time).
@@ -455,6 +472,9 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
       name: name.trim(),
       character,
       accent,
+      // Saved even when untouched, on purpose: the hire looks as previewed (the
+      // pack default), not like the id-hash pick an unstyled spawn gets.
+      ...(looks && lookDraft ? { appearanceByTheme: { [looks.themeId]: draftToLook(lookDraft) } } : {}),
       description: description.trim() || 'a fresh harness',
       project: basename(projectCwd),
       tmuxTarget: '',
@@ -635,6 +655,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                   user field, it rides the imported hire manifest (banner above). */}
               <nav style={{ width: 168, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {SECTIONS.map((s, i) => {
+                  const hintKey = s.key === 'identity' && hasThemeLookBuilder ? 'addAgent.sections.identity.hintPack' : s.hintKey;
                   const active = section === s.key;
                   return (
                     <button
@@ -658,7 +679,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                         {tr(s.labelKey)}
                       </span>
                       <span style={{ fontFamily: 'var(--cth-font-ui)', fontSize: 11, color: 'var(--cth-ink-500)' }}>
-                        {tr(s.hintKey)}
+                        {tr(hintKey)}
                       </span>
                     </button>
                   );
@@ -683,6 +704,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                       />
                     </Row>
 
+                    {showOfficeCharacterPicker && (
                     <Row label={tr('addAgent.character')}>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {OFFICE_CAST.map(c => (
@@ -709,6 +731,18 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                         ))}
                       </div>
                     </Row>
+                    )}
+
+                    {looks && lookDraft && (
+                      <ThemeLookBuilder
+                        looks={looks}
+                        draft={lookDraft}
+                        character={character}
+                        onChange={(d) => setLookDraftState({ themeId: looks.themeId, draft: d })}
+                        // A preset names the agent only while the name is empty (Pam's P3).
+                        onPreset={(n) => { if (n && !name.trim()) setName(n); }}
+                      />
+                    )}
 
                     <Row label={tr('addAgent.color')}>
                       <div style={{ display: 'flex', gap: 6 }}>

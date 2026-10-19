@@ -177,7 +177,7 @@
     "title": "Office Theme",
     "tvShow": "TV-show office themes",
     "experimental": "experimental",
-    "desc": "Re-skin the pixel office as a TV show. Switching starts a fresh cast.",
+    "desc": "Adds five TV show floors to the list above.",
     "current": "current",
     "soon": "soon",
     "notBuiltYet": "{{label}} isn't built yet — showing the office for now.",
@@ -487,7 +487,8 @@
     "sections": {
       "identity": {
         "label": "Identity",
-        "hint": "name · character · color"
+        "hint": "name · character · color",
+        "hintPack": "name · look · color"
       },
       "workspace": {
         "label": "Workspace",
@@ -1405,5 +1406,26 @@
     "viewSource": "view source",
     "loading": "loading image…",
     "decodeFailed": "could not decode this image — the file may be corrupt or misnamed"
+  },
+  "error": {
+    "tag": "error",
+    "app": "The app hit an error and stopped drawing. Your agents keep running.",
+    "panel": "{{where}} could not be shown. The rest of the app is fine.",
+    "tryAgain": "Try again",
+    "reload": "Reload the window"
+  },
+  "stationFloor": {
+    "packFailed": "{{name}} could not load, so The Office is showing instead. Every agent is still here."
+  },
+  "looks": {
+    "title": "Look on {{theme}}",
+    "sub": "Only {{theme}} uses this look. On other floors this agent keeps its character.",
+    "body": "Body",
+    "colours": "Colours",
+    "skin": "Skin",
+    "shirt": "Shirt",
+    "hair": "Hair colour",
+    "custom": "Custom colour",
+    "presets": "Presets"
   }
 }

@@ -9,8 +9,13 @@ import { CostHud } from '@/realtime/CostHud';
 import { AccentColorName } from '@/design/tokens';
 import { OfficeCharacterName } from '@/scene/office/cast';
 import { AgentNameEditor } from './AgentNameEditor';
+import type { LooksByTheme } from '@/scene/themes/looks';
 
 export interface AgentCardProps {
+  /** Hive agent id: with it the portrait is this agent's look on a theme pack's floor. */
+  agentId?: string;
+  /** The agent's theme looks: with agentId, the portrait is that agent's look in the active theme. */
+  appearanceByTheme?: LooksByTheme;
   name: string;
   character: OfficeCharacterName;
   accent: AccentColorName;
@@ -55,7 +60,7 @@ const fmtK = (n: number): string => `${Math.round(n / 1000)}k`;
  * and a slim gauge pinned to the bottom edge. Nothing overlaps anything.
  */
 export function AgentCard({
-  name, character, accent, status, ptyId, project, action, progress = 0,
+  agentId, appearanceByTheme, name, character, accent, status, ptyId, project, action, progress = 0,
   contextTokens, contextLimit, selected, isGod, onClick, onRename,
   doingCount = 0, onTaskNoteClick, draggable, note, onEditNote
 }: AgentCardProps) {
@@ -197,7 +202,9 @@ export function AgentCard({
             display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden',
             flexShrink: 0
           }}>
-            <SpritePortrait character={character} scale={2} />
+            {agentId !== undefined
+              ? <SpritePortrait agent={{ id: agentId, character, appearanceByTheme }} scale={2} />
+              : <SpritePortrait character={character} scale={2} />}
           </div>
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>

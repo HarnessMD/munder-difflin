@@ -10,6 +10,7 @@ import { Character, paintCup } from './Character';
 import { DeskScreen } from './DeskScreen';
 import { MessageEnvelope, type MessageAct } from './MessageEnvelope';
 import { hexToNumber, DEFAULT_CHARACTER } from './cast';
+import { breakEligible, cafeEligible, startCoffeeRest, tickCoffeeRest } from './coffeeGap';
 import { pickSoloLine, pickExchange, type BreakSpot } from './cafeteriaLines';
 import { colors } from '@/design/tokens';
 import { loadTheme, resolveThemeMap, themeTilesetUrls } from './themeLoader';
@@ -17,6 +18,9 @@ import {
   installContextLossRecovery, planInitFailure, DEFAULT_MAX_INIT_RETRIES
 } from './glRecovery';
 import type { Tile, Facing, ErrandKind, ErrandSpot } from './themeRegistry';
+import { StationFloor } from '../themes/StationFloor';
+import { isStationPack, listThemes, loadStationPack } from '../themes/themeCatalog';
+import type { LoadedPack } from '../themes/packs';
 
 // The map, tileset atlases, desk-claim order, errand spots, coffee-economy
 // tiles, prop anchors, monitor gids and palette all come from the active
@@ -72,6 +76,8 @@ interface Runtime {
   cupCarryHome?: boolean;
   err?: ErrandRun;
   run?: CoffeeRun;
+  /** Seconds until the café may take this agent again (see coffeeGap.ts). */
+  coffeeRest?: number;
   /** When the current busy stretch (working/thinking/compacting) began. */
   busySince?: number;
 }
@@ -165,7 +171,54 @@ function firstWords(prompt: string | undefined, maxWords = 6, maxChars = 42): st
   return out;
 }
 
+/** The floor: the office scene, or a stations theme pack's scene when the
+ *  active theme is one. A pack that cannot be used (invalid manifest, missing
+ *  picture, malformed map, bad sprite sheet) shows the office with one line
+ *  over it (Pam's P1); the reasons go to the console. */
 export function OfficeFloor() {
+  const { t } = useTranslation();
+  const officeTheme = useStore((s) => s.officeTheme);
+  const wantsPack = isStationPack(officeTheme);
+  const [state, setState] = useState<{ id: string; pack: LoadedPack | null; failed: boolean } | null>(null);
+  useEffect(() => {
+    if (!wantsPack) { setState(null); return; }
+    let live = true;
+    setState(null);
+    loadStationPack(officeTheme).then(
+      ({ pack, diagnostics }) => {
+        if (!live) return;
+        const errors = diagnostics.filter((d) => d.level === 'error');
+        if (!pack) console.warn(`[OfficeFloor] theme "${officeTheme}" cannot be used; showing the office:\n` + errors.map((d) => '  ' + d.message).join('\n'));
+        setState({ id: officeTheme, pack, failed: !pack });
+      },
+      (e) => {
+        if (!live) return;
+        console.warn(`[OfficeFloor] theme "${officeTheme}" cannot be used; showing the office:`, e);
+        setState({ id: officeTheme, pack: null, failed: true });
+      },
+    );
+    return () => { live = false; };
+  }, [officeTheme, wantsPack]);
+  if (wantsPack && (!state || state.id !== officeTheme)) return <div style={{ width: '100%', height: '100%', background: hex(colors.ink[900]) }} />;
+  if (state?.pack) return <StationFloor pack={state.pack} />;
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <OfficeScene />
+      {state?.failed && (
+        <div role="status" style={{
+          position: 'absolute', top: 10, insetInlineStart: 10, insetInlineEnd: 10, padding: '6px 10px',
+          fontSize: 12, lineHeight: '16px', background: 'var(--cth-cream-100)', color: 'var(--cth-ink-700)',
+          boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', pointerEvents: 'none',
+        }}>
+          {t('stationFloor.packFailed', { name: listThemes().find((x) => x.id === state.id)?.label ?? state.id })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The office's own floor (unchanged; the pack dispatch above wraps it). */
+function OfficeScene() {
   const { t, i18n } = useTranslation();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
@@ -646,6 +699,7 @@ export function OfficeFloor() {
       // left mid-chat. Called when a break ends OR is interrupted by real work.
       const releaseBreak = (rt: Runtime): void => {
         if (!rt.brk) return;
+        startCoffeeRest(rt);              // no straight-back-to-coffee loop
         if (rt.brk.chat) {
           const p = runtimes.get(rt.brk.chat.partnerId);
           if (p?.brk) p.brk.chattingWith = undefined;
@@ -726,16 +780,11 @@ export function OfficeFloor() {
         });
       };
 
-      const breakEligible = (agent: Agent, rt: Runtime): boolean => {
-        if (agent.isGod || rt.brk || rt.err || rt.run || rt.cupCarryHome) return false;
-        if (agent.status !== 'idle' && agent.status !== 'success') return false;
-        return !rt.character.isSitting();   // already parked at a desk → leave it
-      };
-
       let cafeCooldown = 5;
       const updateCafeteria = (dt: number): void => {
         // Advance every in-progress break.
         for (const [id, rt] of runtimes) {
+          tickCoffeeRest(rt, dt);
           const b = rt.brk;
           if (!b) continue;
           if (b.phase === 'walking') {
@@ -786,7 +835,7 @@ export function OfficeFloor() {
         const candidates: Array<[Agent, Runtime]> = [];
         for (const agent of useStore.getState().agents) {
           const rt = runtimes.get(agent.id);
-          if (rt && breakEligible(agent, rt)) candidates.push([agent, rt]);
+          if (rt && cafeEligible(agent, rt)) candidates.push([agent, rt]);
         }
         if (candidates.length === 0) return;
         const [agent, rt] = candidates[Math.floor(Math.random() * candidates.length)];

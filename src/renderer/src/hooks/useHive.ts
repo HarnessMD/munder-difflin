@@ -405,6 +405,8 @@ export function useHive(config: HarnessConfig | null): void {
       // Synchronous guard (no await between check and set) → exactly one spawn.
       if (cancelled || godSpawning.current) return;
       godSpawning.current = true;
+      // The orchestrator's looks per theme pack are roster data: keep them across the respawn.
+      const godLooks = useStore.getState().agents.find((a) => a.id === GOD_ID)?.appearanceByTheme;
       useStore.getState().removeAgent(GOD_ID); // clear any stale restored entry
 
       // A prior rename (Edit Agent panel → renameAgent() → hive.ts's renameAgent())
@@ -454,6 +456,7 @@ export function useHive(config: HarnessConfig | null): void {
         provider: godProvider,
         model: godModel,
         isGod: true,
+        ...(godLooks ? { appearanceByTheme: godLooks } : {}),
         recentTextTs: Date.now()
       };
       useStore.getState().addAgent(god);
