@@ -12,6 +12,7 @@ import {
 import { defaultMcpDefaults } from '../shared/mcpCatalog';
 import { MAX_AGENT_TOKEN_CAP } from '../shared/tokenCaps';
 import { expandTilde, normalizeHiveHome } from './fs';
+import { readJsonFile, writeRefusal } from './damagedFile';
 import type { IntegrationRecord } from '../shared/integrations';
 import {
   DEFAULT_CONTEXT_TRIGGER,
@@ -585,16 +586,24 @@ function migrateTriggersV1(cfg: HarnessConfig): HarnessConfig {
   }
 }
 
+/** This run's last config read whole (a copy), for a config.json that is
+ *  damaged or cannot be read just now (damagedFile). */
+let lastGoodConfig: HarnessConfig | null = null;
+
 export function readConfig(): HarnessConfig {
   const p = configPath();
+  const read = readJsonFile(p, lastGoodConfig === null);
   // No file yet = a first run with nothing to migrate; the defaults ARE the
   // post-migration shape. Deliberately does not persist — a bare read must not
   // conjure a config.json before onboarding has written one.
-  if (!existsSync(p)) return withTriggerDefaults({ ...DEFAULTS });
+  if (read.kind === 'missing') return withTriggerDefaults({ ...DEFAULTS });
+  // Damaged (kept as it is, writes paused) or not readable just now: this run's
+  // last good config, never the defaults over the person's settings.
+  if (read.kind !== 'ok') return lastGoodConfig ? structuredClone(lastGoodConfig) : withTriggerDefaults({ ...DEFAULTS });
   try {
-    const raw = readFileSync(p, 'utf8');
-    const parsed = JSON.parse(raw);
-    return normalizeStoredHomes(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...parsed })));
+    const cfg = normalizeStoredHomes(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...read.value })));
+    lastGoodConfig = structuredClone(cfg);
+    return cfg;
   } catch {
     return withTriggerDefaults({ ...DEFAULTS });
   }
@@ -638,6 +647,14 @@ export function onConfigWritten(listener: ConfigWriteListener): () => void {
 
 function persistConfig(next: HarnessConfig): HarnessConfig {
   const p = configPath();
+  // A damaged config.json, or one that cannot be read just now, is never
+  // written over: the change is skipped and logged (once per spell), so a timer
+  // or an agent start carries on.
+  const refused = writeRefusal(p);
+  if (refused) {
+    if (refused.logged) console.error(`[config] not saved: config.json ${refused.why === 'damaged' ? `is damaged${refused.copy ? ` (copy: ${refused.copy})` : ''}` : `could not be read just now (${refused.error})`}; nothing was written`);
+    return readConfig();
+  }
   mkdirSync(dirname(p), { recursive: true });
   // Temp + rename: `rename` is atomic within a filesystem, so a crash mid-write
   // leaves either the old config.json or the new one, never half of either. A

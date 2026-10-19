@@ -42,6 +42,7 @@ import { selectBroadcastTargets } from '../shared/broadcast';
 import { preferredAgentRole } from '../shared/agentRole';
 import { mergeTaskLedger } from '../shared/taskLedger';
 import { expandTilde } from './fs';
+import { readJsonFile, writeRefusal } from './damagedFile';
 import { resolveGodName } from '../shared/godIdentity';
 
 /** The subset of HarnessConfig the hive consumes for the default-MCP merge.
@@ -791,7 +792,7 @@ export class HiveManager {
       lastSeen: Date.now()
     };
     if (meta.isGod) reg.godId = meta.id;
-    this.atomicWriteJson(join(root, 'registry.json'), reg);
+    this.saveRegistry(root, reg);
 
     this.appendLog({ kind: 'spawn', agentId: meta.id, name: meta.name, isGod: !!meta.isGod });
     // Only logs on an invalid cwd (rare) — not a per-spawn line, so no log spam.
@@ -1020,7 +1021,7 @@ export class HiveManager {
       if (agent.role === next) return { ok: true };
       agent.role = next;
       agent.lastSeen = Date.now();
-      this.writeJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
       writeFileSync(join(this.agentDir(id), 'identity.md'), this.identityText(agent), 'utf8');
       this.appendLog({ kind: 'role', agentId: id, role: next });
       this.commit(`hive: role ${id}`);
@@ -1045,7 +1046,7 @@ export class HiveManager {
       if (!agent || agent.archived === archived) return;
       agent.archived = archived;
       agent.lastSeen = Date.now();
-      this.atomicWriteJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
       this.appendLog({ kind: 'archive', agentId: id, archived });
       this.commit(`hive: ${archived ? 'archive' : 'unarchive'} ${id}`);
     } catch { /* best-effort — never crash a lifecycle handler */ }
@@ -1138,7 +1139,7 @@ export class HiveManager {
       if (!!agent.onHold === hold) return { ok: true, onHold: hold };
 
       agent.onHold = hold;
-      this.writeJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
 
       const fleetPath = join(root, 'fleet.json');
       if (existsSync(fleetPath)) {
@@ -1172,7 +1173,7 @@ export class HiveManager {
 
       const previousName = agent.name;
       agent.name = nextName;
-      this.writeJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
 
       // fleet.json is ephemeral and may not exist yet. When it does, keep its
       // display name in lockstep with the registry so rosterContext() is fresh.
@@ -1214,7 +1215,7 @@ export class HiveManager {
       if (!agent || agent.sessionId === sessionId) return; // unknown agent or unchanged → no write
       agent.sessionId = sessionId;
       agent.lastSeen = Date.now();
-      this.atomicWriteJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
       this.appendLog({ kind: 'session', agentId, sessionId });
       this.commit(`hive: session ${agentId}`);
     } catch { /* best-effort — never crash a hook handler */ }
@@ -1897,7 +1898,7 @@ export class HiveManager {
   registry(): Registry {
     const root = this.root();
     if (!root) return { godId: null, agents: {} };
-    return this.readJson<Registry>(join(root, 'registry.json'), { godId: null, agents: {} });
+    return this.readLedger(join(root, 'registry.json'), { godId: null, agents: {} } as Registry);
   }
   board(): string {
     const root = this.root();
@@ -1905,7 +1906,34 @@ export class HiveManager {
   }
   tasks(): unknown {
     const root = this.root();
-    return root ? this.readJson(join(root, 'tasks.json'), { tasks: [] }) : { tasks: [] };
+    return root ? this.readLedger(join(root, 'tasks.json'), { tasks: [] }) : { tasks: [] };
+  }
+
+  /** The last registry.json or tasks.json read whole this run, by path (a copy). */
+  private lastGood = new Map<string, unknown>();
+
+  /** Read registry.json or tasks.json (damagedFile). Damaged (kept as it is,
+   *  writes paused) or not readable just now: this run's last good value, a
+   *  copy so a caller's unsaved change never becomes it; with none, `empty`. */
+  private readLedger<T>(p: string, empty: T): T {
+    const read = readJsonFile(p, !this.lastGood.has(p));
+    if (read.kind === 'ok') { this.lastGood.set(p, structuredClone(read.value)); return read.value as T; }
+    if (read.kind === 'missing') return empty;
+    return this.lastGood.has(p) ? structuredClone(this.lastGood.get(p)) as T : empty;
+  }
+
+  /** Write registry.json, unless it is damaged or cannot be read just now:
+   *  then the write is skipped and logged once per spell, so a timer or an
+   *  agent start carries on. */
+  private saveRegistry(root: string, reg: Registry): boolean {
+    const p = join(root, 'registry.json');
+    const refused = writeRefusal(p);
+    if (refused) {
+      if (refused.logged) this.appendLog({ kind: 'write-skipped', file: 'registry.json', why: refused.why, error: refused.error, copy: refused.copy });
+      return false;
+    }
+    this.atomicWriteJson(p, reg);
+    return true;
   }
 
   /** Persist the task ledger to hive/tasks.json and commit it. Mirrors the
@@ -1926,9 +1954,20 @@ export class HiveManager {
     if (!root) return;
     this.ensureHive();
     const path = join(root, 'tasks.json');
-    const current = this.readJson<{ tasks?: unknown }>(path, { tasks: [] });
+    // A damaged board, or one that cannot be read just now, is never written
+    // over: the caller is told, and nothing is written.
+    const read = readJsonFile(path);
+    if (read.kind === 'damaged') {
+      this.appendLog({ kind: 'write-skipped', file: 'tasks.json', why: 'damaged', error: read.error, copy: read.copy });
+      throw new Error(`hive: tasks.json is damaged, so it is kept as it is${read.copy ? ` (copy: ${read.copy})` : ''} and nothing was written. Repair it, then try again`);
+    }
+    if (read.kind === 'unreadable') {
+      this.appendLog({ kind: 'write-skipped', file: 'tasks.json', why: 'read error', error: read.error });
+      throw new Error(`hive: tasks.json could not be read just now (${read.error}); nothing was written. Try again in a moment`);
+    }
+    const current = read.kind === 'ok' ? read.value as { tasks?: unknown } : { tasks: [] };
     const merged = mergeTaskLedger(current?.tasks, tasks);
-    this.writeJson(path, { tasks: merged });
+    this.atomicWriteJson(path, { tasks: merged });
     this.appendLog({ kind: 'tasks', count: merged.length });
     this.commit(`hive: tasks (${merged.length})`);
   }

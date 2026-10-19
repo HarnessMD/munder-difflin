@@ -18,6 +18,7 @@ import {
   modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
 import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
+import { integrityIssues, integrityPath } from './damagedFile';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
   getBranch, getStatus, getLog, getBranches, getAheadBehind, isRepo, getDiff, mainRepoRoot,
@@ -3527,19 +3528,39 @@ ipcMain.handle('hive:addTask', (_evt, task: unknown) => {
     return { ok: false, error: 'invalid task' };
   }
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
-  return { ok: hive.addTask(task as HiveTask) };
+  return taskWrite(() => hive.addTask(task as HiveTask));
 });
+/** A board write, with a refusal (tasks.json damaged, or not readable just now)
+ *  returned as its error rather than thrown, so the window can say so. */
+function taskWrite(write: () => boolean): { ok: boolean; error?: string } {
+  try { return { ok: write() }; } catch (e) { return { ok: false, error: e instanceof Error ? e.message : String(e) }; }
+}
 ipcMain.handle('hive:patchTask', (_evt, id: unknown, patch: unknown) => {
   if (typeof id !== 'string' || !id || !patch || typeof patch !== 'object' || Array.isArray(patch)) {
     return { ok: false, error: 'invalid task patch' };
   }
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
-  return { ok: hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>) };
+  return taskWrite(() => hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>));
 });
 ipcMain.handle('hive:deleteTask', (_evt, id: unknown) => {
   if (typeof id !== 'string' || !id) return { ok: false, error: 'invalid task id' };
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
-  return { ok: hive.deleteTask(id) };
+  return taskWrite(() => hive.deleteTask(id));
+});
+// Damaged sources of truth (damagedFile): config.json, registry.json and
+// tasks.json are each read first, so the list is current. Names only.
+ipcMain.handle('integrity:issues', () => {
+  readConfig();
+  if (hive.enabled()) { hive.registry(); hive.tasks(); }
+  return integrityIssues();
+});
+// Show a listed file (a damaged file or its copy) in the file manager. The
+// window names it; a path from the window is never used.
+ipcMain.handle('integrity:reveal', (_evt, name: unknown) => {
+  const p = typeof name === 'string' ? integrityPath(name) : null;
+  if (!p) return { ok: false, error: 'not a listed file' };
+  shell.showItemInFolder(p);
+  return { ok: true };
 });
 ipcMain.handle('hive:setArchived', (_evt, id: unknown, archived: unknown) => {
   if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
@@ -4485,9 +4506,9 @@ registerRealtimeActionIpc({
   hiveEnabled: () => hive.enabled(),
   hiveSend: (partial, from) => hive.send(partial, from),
   hiveTasks: () => hive.tasks(),
-  hiveAddTask: (task) => hive.addTask(task as HiveTask),
-  hivePatchTask: (id, patch) => hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>),
-  hiveDeleteTask: (id) => hive.deleteTask(id),
+  hiveAddTask: (task) => taskWrite(() => hive.addTask(task as HiveTask)).ok,
+  hivePatchTask: (id, patch) => taskWrite(() => hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>)).ok,
+  hiveDeleteTask: (id) => taskWrite(() => hive.deleteTask(id)).ok,
   hiveRegistry: () => hive.registry(),
   hiveLog: (event) => hive.appendLog(event),
   controlPause: (id, on) => control.pause(id, on),

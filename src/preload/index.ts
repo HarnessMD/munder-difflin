@@ -1083,6 +1083,13 @@ const api = {
   /** Atomically remove one named card from the latest main-process ledger. */
   hiveDeleteTask: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:deleteTask', id),
+  /** Damaged sources of truth (config.json, registry.json, tasks.json): each kept
+   *  as it is, with the name of its copy; writes to it pause. Names only. */
+  integrityIssues: (): Promise<Array<{ file: string; copy: string | null; error: string }>> =>
+    ipcRenderer.invoke('integrity:issues'),
+  /** Show a listed damaged file, or its copy, in the file manager, by name. */
+  integrityReveal: (name: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('integrity:reveal', name),
 
   // ─── Scheduled missions (recurring auto-dispatch) ──────────────────────────
   listMissions: (): Promise<ScheduledMission[]> => ipcRenderer.invoke('missions:list'),
