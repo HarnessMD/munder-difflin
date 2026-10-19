@@ -12,6 +12,7 @@ import {
 import { defaultMcpDefaults } from '../shared/mcpCatalog';
 import { MAX_AGENT_TOKEN_CAP } from '../shared/tokenCaps';
 import { expandTilde, normalizeHiveHome } from './fs';
+import { codexFolderKey } from './codexProjectLayers';
 import { isProjectThemeId, isStoredProjectThemeId, projectThemeForHome, projectThemeHomeKey, resolveProjectTheme, type ProjectThemeId, type ProjectThemeSave } from '../shared/projectTheme';
 import { readJsonFile, writeRefusal } from './damagedFile';
 import { parseGraphicsMode, type GraphicsMode } from '../shared/graphicsMode';
@@ -325,6 +326,11 @@ export interface HarnessConfig {
   /** Each project's own floor theme (shared/projectTheme), keyed by its home
    *  folder (projectThemeHomeKey). Set through setProjectThemeForHome only. */
   officeThemeByHive?: Record<string, ProjectThemeId>;
+  /** The folders the person allowed to start hive Codex agents although their
+   *  project `.codex` carries code (codexProjectLayers), by codexFolderKey, spelled
+   *  as in the main checkout so one OK covers its worktrees. Set through
+   *  setCodexFolderOk only. */
+  codexLayerOptIns?: string[];
   /** Settings, Graphics (shared/graphicsMode): Auto, GPU or CPU only. Read once
    *  before app ready; a change applies after a restart. Absent is Auto. */
   graphicsMode?: GraphicsMode;
@@ -769,6 +775,20 @@ export function setGraphicsMode(value: unknown): HarnessConfig {
   const mode = parseGraphicsMode(value);
   if (mode === null) throw new Error('invalid graphics mode');
   return persistConfig({ ...readConfig(), graphicsMode: mode });
+}
+
+/** Allow (or withdraw) one folder for hive Codex starts, then read it back. Withdraw
+ *  removes that folder's key. `saved` is false when config.json is damaged or not
+ *  readable just now (the change was skipped). */
+export function setCodexFolderOk(folder: string, allow: boolean): { saved: boolean; oks: string[] } {
+  const current = readConfig();
+  const key = codexFolderKey(expandTilde(folder));
+  const list = (Array.isArray(current.codexLayerOptIns) ? current.codexLayerOptIns : [])
+    .filter((k): k is string => typeof k === 'string' && !!k.trim() && codexFolderKey(k) !== key);
+  if (allow) list.push(key);
+  persistConfig({ ...current, codexLayerOptIns: list });
+  const oks = (readConfig().codexLayerOptIns ?? []).filter((k): k is string => typeof k === 'string');
+  return { saved: oks.some((k) => codexFolderKey(k) === key) === allow, oks };
 }
 
 /** Set one project's floor theme against the latest config on disk (the

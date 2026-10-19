@@ -14,7 +14,7 @@ import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellE
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
 import {
-  readConfig, writeConfig, setAgentTokenCap, setGraphicsMode, setProjectThemeForHome, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
+  readConfig, writeConfig, setAgentTokenCap, setGraphicsMode, setProjectThemeForHome, setCodexFolderOk, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
   modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
 import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
@@ -25,6 +25,7 @@ import { HistoryService } from './historyService';
 import { parseAnswerRequest } from './askMeAnswers';
 import { moveProjectTheme, resolveProjectTheme, type ProjectThemeSave } from '../shared/projectTheme';
 import { ReloadPolicy, type RecoveryNotice } from '../shared/viewRecovery';
+import { codexFolderKey, codexHold, codexProjectLayers, type CodexHold, type CodexHoldNotice } from './codexProjectLayers';
 import type { AnswerOutcome } from '../shared/humanQuestion';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
@@ -2715,7 +2716,63 @@ ipcMain.handle('pty:spawn', async (evt, opts: AgentSpawnOptions) => {
  *  it can ALSO be invoked by the god-triggered ephemeral-worker watcher (which has
  *  no renderer `evt`). `owner` is the window that should receive this PTY's output
  *  (null → the primary window). Behavior-identical to the prior inline handler. */
-async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
+// ── R3: hold a hive Codex start (codexProjectLayers) ─────────────────────────
+/** Held Codex starts for the window's card, one per agent and folder, newest last. */
+const codexHolds: CodexHoldNotice[] = [];
+function pushCodexHolds(): void {
+  for (const w of allWindows) {
+    if (w.isDestroyed() || w.webContents.isDestroyed()) continue;
+    try { w.webContents.send('codexHold:push', codexHolds.slice()); } catch { /* window tearing down */ }
+  }
+}
+/** Null to start; else the hold, kept for the card and logged. A check that
+ *  throws holds too (fail safe). */
+function codexStartHold(agentId: string, cwd: string): CodexHoldNotice | null {
+  let hold: CodexHold | null;
+  try {
+    const codexHome = hive.codexHomeOf(agentId) ?? join(hive.root() ?? '', 'agents', agentId, '.codex');
+    hold = codexHold(codexProjectLayers({ cwd, codexHome }), readConfig().codexLayerOptIns);
+  } catch (e) {
+    hold = { folderKey: codexFolderKey(cwd), folder: cwd, layers: [], unknown: [`the check failed (${e instanceof Error ? e.message : String(e)})`] };
+  }
+  if (!hold) return null;
+  const notice: CodexHoldNotice = { ...hold, agentId, at: Date.now() };
+  const same = codexHolds.findIndex((n) => n.agentId === agentId && n.folderKey === hold!.folderKey);
+  if (same >= 0) codexHolds.splice(same, 1);
+  codexHolds.push(notice);
+  while (codexHolds.length > 20) codexHolds.shift();
+  pushCodexHolds();
+  try { hive.appendLog({ kind: 'codex-hold', agent: agentId, folder: hold.folder, files: hold.layers.flatMap((l) => l.items.map((it) => it.file)), unknown: hold.unknown }); } catch { /* best-effort */ }
+  return notice;
+}
+ipcMain.handle('codexHold:list', () => codexHolds.slice());
+/** The card's Allow: records the held folder's key (one OK covers its worktrees);
+ *  the window then starts the held agents again. Only a folder held now. */
+ipcMain.handle('codexHold:allow', (_evt, folderKey: unknown) => {
+  if (typeof folderKey !== 'string' || !codexHolds.some((n) => n.folderKey === folderKey)) return { ok: false, error: 'that folder is not held' };
+  const { saved } = setCodexFolderOk(folderKey, true);
+  if (!saved) return { ok: false, error: 'not-saved' };
+  for (let i = codexHolds.length - 1; i >= 0; i--) if (codexHolds[i].folderKey === folderKey) codexHolds.splice(i, 1);
+  pushCodexHolds();
+  try { hive.appendLog({ kind: 'codex-folder-allowed', folder: folderKey }); } catch { /* best-effort */ }
+  return { ok: true };
+});
+ipcMain.handle('codexHold:dismiss', (_evt, at: unknown) => {
+  const i = codexHolds.findIndex((n) => n.at === at);
+  if (i >= 0) { codexHolds.splice(i, 1); pushCodexHolds(); }
+  return { ok: true };
+});
+/** Settings: the allowed folders, and withdrawing one (by its key). */
+ipcMain.handle('codexHold:allowed', () => (readConfig().codexLayerOptIns ?? []).filter((k): k is string => typeof k === 'string'));
+ipcMain.handle('codexHold:withdraw', (_evt, folderKey: unknown) => {
+  if (typeof folderKey !== 'string' || !folderKey.trim()) return { ok: false, error: 'invalid folder' };
+  const { saved } = setCodexFolderOk(folderKey, false);
+  if (!saved) return { ok: false, error: 'not-saved' };
+  try { hive.appendLog({ kind: 'codex-folder-withdrawn', folder: folderKey }); } catch { /* best-effort */ }
+  return { ok: true };
+});
+
+async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; codexHold?: CodexHoldNotice; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
   // ── cwd INGESTION — expand `~` exactly once, here ───────────────────────────
   // This is the single door every agent spawn comes through (`pty:spawn` IPC and
   // the god-triggered ephemeral-worker watcher), so it is where a user-typed
@@ -2807,6 +2864,17 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
       }
       syncKeepAwake();
       return res;
+    }
+  }
+  // R3: every hive Codex start (first, resume, respawn) passes
+  // --dangerously-bypass-hook-trust, so a project `.codex` that carries code would
+  // run unreviewed. Held until the person allows the folder. Checked on the cwd as
+  // given, before any worktree is made: a held start leaves nothing behind, and a
+  // worktree's folder maps to its main checkout anyway.
+  if (opts.hive && hive.enabled() && provider === 'codex') {
+    const held = codexStartHold(opts.hive.id, opts.cwd);
+    if (held) {
+      return { ok: false, error: `Codex start held: ${held.folder} has project .codex settings that would run unreviewed. Allow the folder to start it.`, codexHold: held };
     }
   }
   // Git isolation: when requested and the cwd is a real repo, give this agent

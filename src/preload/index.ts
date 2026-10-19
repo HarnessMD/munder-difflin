@@ -141,6 +141,23 @@ export interface AgentDirectoryEntry {
   contextPct: number | null;
 }
 
+/** R3: a held hive Codex start (main's CodexHoldNotice). `what` is an id the window
+ *  words; `detail` is data (names, or an error as given). */
+export interface CodexHoldView {
+  agentId: string;
+  at: number;
+  /** The key Allow records: the project folder, spelled as in the main checkout. */
+  folderKey: string;
+  folder: string;
+  layers: Array<{
+    dotCodex: string;
+    hooksFrom?: string;
+    items: Array<{ file: string; what: 'mcp-servers' | 'hooks' | 'rules' | 'unreadable' | 'does-not-parse' | 'confinement'; detail?: string }>;
+  }>;
+  /** What could not be checked (each counts as code that runs). */
+  unknown: string[];
+}
+
 export interface AgentDirectory {
   godId: string | null;
   agents: AgentDirectoryEntry[];
@@ -588,8 +605,23 @@ const api = {
   // ─── PTY ─────────────────────────────────────────────────────────────────
   /** `cwd` in the result is the TILDE-EXPANDED absolute path main actually spawned
    *  into — the renderer stores that, not the raw `~/…` the user typed. */
-  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> =>
+  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; codexHold?: CodexHoldView; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> =>
     ipcRenderer.invoke('pty:spawn', opts),
+  /** R3: hive Codex starts held because their folder's project `.codex` carries code
+   *  that would run unreviewed (codexHold on the spawn result too). */
+  codexHolds: (): Promise<CodexHoldView[]> => ipcRenderer.invoke('codexHold:list'),
+  onCodexHolds: (cb: (holds: CodexHoldView[]) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, holds: CodexHoldView[]) => cb(holds);
+    ipcRenderer.on('codexHold:push', listener);
+    return () => ipcRenderer.removeListener('codexHold:push', listener);
+  },
+  /** Allow a held folder (one OK covers its worktrees), then start the held agents
+   *  again. error 'not-saved': config.json is damaged or busy. */
+  codexHoldAllow: (folderKey: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('codexHold:allow', folderKey),
+  codexHoldDismiss: (at: number): Promise<{ ok: boolean }> => ipcRenderer.invoke('codexHold:dismiss', at),
+  /** Settings: the allowed folders, and withdrawing one. */
+  codexAllowedFolders: (): Promise<string[]> => ipcRenderer.invoke('codexHold:allowed'),
+  codexWithdrawFolder: (folderKey: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('codexHold:withdraw', folderKey),
   writePty: (id: string, data: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('pty:write', id, data),
   resizePty: (id: string, cols: number, rows: number): Promise<{ ok: boolean; error?: string }> =>
