@@ -2725,17 +2725,23 @@ function pushCodexHolds(): void {
     try { w.webContents.send('codexHold:push', codexHolds.slice()); } catch { /* window tearing down */ }
   }
 }
-/** Null to start; else the hold, kept for the card and logged. A check that
- *  throws holds too (fail safe). */
-function codexStartHold(agentId: string, cwd: string): CodexHoldNotice | null {
-  let hold: CodexHold | null;
+/** Null to start a hive Codex agent in `cwd`; else why it is held. `keyCwd` is the
+ *  folder the person started in when `cwd` is the worktree made from it: the OK and
+ *  the card stay keyed by that folder (spelled as in its main checkout). A check
+ *  that throws holds too (fail safe). */
+function codexStartCheck(agentId: string, cwd: string, keyCwd: string = cwd): CodexHold | null {
   try {
     const codexHome = hive.codexHomeOf(agentId) ?? join(hive.root() ?? '', 'agents', agentId, '.codex');
-    hold = codexHold(codexProjectLayers({ cwd, codexHome }), readConfig().codexLayerOptIns);
+    const report = codexProjectLayers({ cwd, codexHome });
+    if (keyCwd !== cwd) report.projectFolder = codexProjectLayers({ cwd: keyCwd, codexHome }).projectFolder;
+    return codexHold(report, readConfig().codexLayerOptIns);
   } catch (e) {
-    hold = { folderKey: codexFolderKey(cwd), folder: cwd, layers: [], unknown: [`the check failed (${e instanceof Error ? e.message : String(e)})`] };
+    return { folderKey: codexFolderKey(keyCwd), folder: keyCwd, layers: [], unknown: [`the check failed (${e instanceof Error ? e.message : String(e)})`] };
   }
-  if (!hold) return null;
+}
+/** A held start: kept for the card (one per agent and folder, newest last), pushed,
+ *  logged, and returned as spawnAgentCore's result. */
+function codexStartHeld(agentId: string, hold: CodexHold): { ok: false; error: string; codexHold: CodexHoldNotice } {
   const notice: CodexHoldNotice = { ...hold, agentId, at: Date.now() };
   const same = codexHolds.findIndex((n) => n.agentId === agentId && n.folderKey === hold!.folderKey);
   if (same >= 0) codexHolds.splice(same, 1);
@@ -2743,7 +2749,7 @@ function codexStartHold(agentId: string, cwd: string): CodexHoldNotice | null {
   while (codexHolds.length > 20) codexHolds.shift();
   pushCodexHolds();
   try { hive.appendLog({ kind: 'codex-hold', agent: agentId, folder: hold.folder, files: hold.layers.flatMap((l) => l.items.map((it) => it.file)), unknown: hold.unknown }); } catch { /* best-effort */ }
-  return notice;
+  return { ok: false, error: `Codex start held: ${hold.folder} has project .codex settings that would run unreviewed. Allow the folder to start it.`, codexHold: notice };
 }
 ipcMain.handle('codexHold:list', () => codexHolds.slice());
 /** The card's Allow: records the held folder's key (one OK covers its worktrees);
@@ -2869,13 +2875,12 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // R3: every hive Codex start (first, resume, respawn) passes
   // --dangerously-bypass-hook-trust, so a project `.codex` that carries code would
   // run unreviewed. Held until the person allows the folder. Checked on the cwd as
-  // given, before any worktree is made: a held start leaves nothing behind, and a
-  // worktree's folder maps to its main checkout anyway.
-  if (opts.hive && hive.enabled() && provider === 'codex') {
-    const held = codexStartHold(opts.hive.id, opts.cwd);
-    if (held) {
-      return { ok: false, error: `Codex start held: ${held.folder} has project .codex settings that would run unreviewed. Allow the folder to start it.`, codexHold: held };
-    }
+  // given, before any worktree is made, so the usual held start leaves nothing
+  // behind; a made worktree is checked once more below.
+  const codexHive = !!(opts.hive && hive.enabled() && provider === 'codex');
+  if (codexHive) {
+    const held = codexStartCheck(opts.hive!.id, opts.cwd);
+    if (held) return codexStartHeld(opts.hive!.id, held);
   }
   // Git isolation: when requested and the cwd is a real repo, give this agent
   // its own worktree on an `agent/<id>` branch so it can't clobber other agents'
@@ -2902,6 +2907,15 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
         const br = await getBranch(origCwd);
         const baseBranch = 'current' in br && br.current ? br.current : 'main';
         const wt = await addWorktree(origCwd, wtPath, baseBranch);
+        // R3, second check: the worktree holds the base branch's committed `.codex`, not
+        // the working tree checked above. Held: the worktree is taken back (as teardown
+        // does) before the card goes up, so an Allow starts again on a free path.
+        const held = wt.ok && codexHive ? codexStartCheck(opts.hive!.id, wtPath, origCwd) : null;
+        if (held) {
+          const r = await removeWorktree(origCwd, wtPath).catch((e: unknown) => ({ ok: false, error: String(e), refused: false }));
+          if (!r.ok) { console.error('[worktree] removeWorktree failed:', r.error); if (r.refused) noteRemovalRefused(wtPath, r.error); }
+          return codexStartHeld(opts.hive!.id, held);
+        }
         if (wt.ok) {
           opts.cwd = wtPath;
           worktreePaths.set(opts.id, wtPath);

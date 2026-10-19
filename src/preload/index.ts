@@ -142,7 +142,8 @@ export interface AgentDirectoryEntry {
 }
 
 /** R3: a held hive Codex start (main's CodexHoldNotice). `what` is an id the window
- *  words; `detail` is data (names, or an error as given). */
+ *  words; `detail` is data (names, a config key, or an error as given); `more` counts
+ *  the entries of agents/ or hooks/ past the first 20, on an item naming the folder. */
 export interface CodexHoldView {
   agentId: string;
   at: number;
@@ -152,7 +153,7 @@ export interface CodexHoldView {
   layers: Array<{
     dotCodex: string;
     hooksFrom?: string;
-    items: Array<{ file: string; what: 'mcp-servers' | 'hooks' | 'rules' | 'unreadable' | 'does-not-parse' | 'confinement'; detail?: string }>;
+    items: Array<{ file: string; what: 'mcp-servers' | 'hooks' | 'rules' | 'agents' | 'setting' | 'unreadable' | 'does-not-parse' | 'confinement'; detail?: string; more?: number }>;
   }>;
   /** What could not be checked (each counts as code that runs). */
   unknown: string[];

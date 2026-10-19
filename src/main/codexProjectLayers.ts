@@ -15,6 +15,13 @@
  * CODEX_HOME and the person's own ~/.codex (their global config, already loaded)
  * are not project layers. Whatever cannot be read counts as code that runs.
  *
+ * A layer carries code through config.toml, hooks.json, rules/, agents/ (a role
+ * file can carry mcp_servers) and hooks/; every entry of agents/ and hooks/ counts.
+ * Only sandbox_mode and approval_policy in config.toml are overridden by the
+ * agent's own --sandbox and --ask-for-approval; every other key can widen access
+ * or run code (shell_environment_policy sets the environment of every command,
+ * notify runs a program after every turn), so it counts and is named.
+ *
  * Ported from Prozzta/guppyos 02d0d50b (MIT): the TOML reader and the worktree
  * walk as written there; the trust and version model left out.
  */
@@ -240,11 +247,14 @@ const realFs: LayerFs = {
 };
 
 /** One thing a layer carries. `what` is an id the window words; `detail` is data
- *  (server or hook names, or the error as given). */
+ *  (server or hook names, a config key, or the error as given). An entry of agents/
+ *  or hooks/ is one item per file; past CODEX_FOLDER_LIST_MAX, one more item names
+ *  the folder and counts the rest (`more`). */
 export interface CodexLayerItem {
   file: string;
-  what: 'mcp-servers' | 'hooks' | 'rules' | 'unreadable' | 'does-not-parse' | 'confinement';
+  what: 'mcp-servers' | 'hooks' | 'rules' | 'agents' | 'setting' | 'unreadable' | 'does-not-parse' | 'confinement';
   detail?: string;
+  more?: number;
 }
 
 export interface CodexLayer {
@@ -274,7 +284,10 @@ export interface CodexLayerInput {
   fs?: LayerFs;
 }
 
-const CONFINE_KEYS = ['sandbox_mode', 'approval_policy', 'sandbox_workspace_write', 'permissions', 'default_permissions', 'shell_environment_policy'];
+/** The only config.toml keys the agent's own --sandbox and --ask-for-approval override. */
+const CONFINE_KEYS = ['sandbox_mode', 'approval_policy'];
+/** The most entries of agents/ or hooks/ listed one by one. */
+export const CODEX_FOLDER_LIST_MAX = 20;
 const stripVerbatim = (p: string): string => p.replace(/^\\\\\?\\(?!UNC\\)/, '');
 const asciiLower = (s: string): string => s.replace(/[A-Z]/g, (c) => c.toLowerCase());
 
@@ -366,6 +379,17 @@ export function codexProjectLayers(input: CodexLayerInput): CodexLayerReport {
     if (r.text === null) return null;
     try { return parseToml(r.text); } catch (e) { items.push({ file, what: 'does-not-parse', detail: (e as Error).message }); return null; }
   };
+  /** Every entry of a folder Codex loads code from (agents/, hooks/); an unreadable one counts. */
+  const entriesOf = (folder: string, what: 'agents' | 'hooks', items: CodexLayerItem[]): void => {
+    const st = stat(folder);
+    if (st === 'error') { items.push({ file: folder, what: 'unreadable' }); return; }
+    if (!st || !st.dir) return;
+    let list: string[];
+    try { list = fs.readdirSync(folder).slice().sort(); }
+    catch (e) { items.push({ file: folder, what: 'unreadable', detail: (e as Error).message }); return; }
+    for (const n of list.slice(0, CODEX_FOLDER_LIST_MAX)) items.push({ file: P.join(folder, n), what });
+    if (list.length > CODEX_FOLDER_LIST_MAX) items.push({ file: folder, what, more: list.length - CODEX_FOLDER_LIST_MAX });
+  };
 
   const layers: CodexLayer[] = [];
   for (const dir of ancestors.slice().reverse()) {
@@ -384,8 +408,13 @@ export function codexProjectLayers(input: CodexLayerInput): CodexLayerReport {
       if (st === 'error') items.push({ file: dotCodex, what: 'unreadable' });
       else {
         const cfg = configOf(dotCodex, items);
-        if (cfg && 'mcp_servers' in cfg) items.push({ file: P.join(dotCodex, 'config.toml'), what: 'mcp-servers', detail: names(cfg.mcp_servers) });
-        for (const k of CONFINE_KEYS) if (cfg && k in cfg) items.push({ file: P.join(dotCodex, 'config.toml'), what: 'confinement', detail: k });
+        const cfgFile = P.join(dotCodex, 'config.toml');
+        // hooks is listed by hooksOf below; every other key is named here.
+        for (const k of Object.keys(cfg ?? {})) {
+          if (k === 'mcp_servers') items.push({ file: cfgFile, what: 'mcp-servers', detail: names(cfg!.mcp_servers) });
+          else if (CONFINE_KEYS.includes(k)) items.push({ file: cfgFile, what: 'confinement', detail: k });
+          else if (k !== 'hooks') items.push({ file: cfgFile, what: 'setting', detail: k });
+        }
         const rulesDir = P.join(dotCodex, 'rules');
         const rst = stat(rulesDir);
         if (rst === 'error') items.push({ file: rulesDir, what: 'unreadable' });
@@ -394,14 +423,19 @@ export function codexProjectLayers(input: CodexLayerInput): CodexLayerReport {
             for (const n of fs.readdirSync(rulesDir)) if (n.endsWith('.rules')) items.push({ file: P.join(rulesDir, n), what: 'rules' });
           } catch (e) { items.push({ file: rulesDir, what: 'unreadable', detail: (e as Error).message }); }
         }
+        entriesOf(P.join(dotCodex, 'agents'), 'agents', items);
         // A worktree's own hooks count too: which copy Codex reads differs by version.
         hooksOf(dotCodex, cfg, items);
+        entriesOf(P.join(dotCodex, 'hooks'), 'hooks', items);
       }
     }
     if (hooksFrom && !own.some((h) => sameKey(hooksFrom!, h, platform))) {
       const hst = stat(hooksFrom);
       if (hst === 'error') items.push({ file: hooksFrom, what: 'unreadable' });
-      else if (hst && hst.dir) hooksOf(hooksFrom, configOf(hooksFrom, items), items);
+      else if (hst && hst.dir) {
+        hooksOf(hooksFrom, configOf(hooksFrom, items), items);
+        entriesOf(P.join(hooksFrom, 'hooks'), 'hooks', items);
+      }
     }
     if (items.length) layers.push({ dotCodex, ...(hooksFrom ? { hooksFrom } : {}), items });
   }
@@ -431,10 +465,11 @@ export interface CodexHold {
   unknown: string[];
 }
 
-/** Hold when a layer carries anything but confinement keys (code, command policy, a
- *  file that cannot be read or does not parse), or something could not be checked,
- *  unless the folder is allowed. Confinement keys alone start (the agent's own
- *  --sandbox and --ask-for-approval win). */
+/** Hold when a layer carries anything but sandbox_mode and approval_policy (code, any
+ *  other config key, an entry of agents/ or hooks/, a file that cannot be read or does
+ *  not parse), or something could not be checked, unless the folder is allowed. A
+ *  config.toml with those two keys alone starts (the agent's own --sandbox and
+ *  --ask-for-approval win). */
 export function codexHold(report: CodexLayerReport, oks: readonly string[] | undefined, platform: NodeJS.Platform = process.platform): CodexHold | null {
   const layers = report.layers
     .map((l) => ({ ...l, items: l.items.filter((it) => it.what !== 'confinement') }))
