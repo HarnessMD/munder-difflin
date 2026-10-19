@@ -14,7 +14,7 @@ import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellE
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
 import {
-  readConfig, writeConfig, setAgentTokenCap, setGraphicsMode, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
+  readConfig, writeConfig, setAgentTokenCap, setGraphicsMode, setProjectThemeForHome, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
   modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
 import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
@@ -23,6 +23,7 @@ import { applyGraphicsModeAtStartup, appliedGraphicsMode, graphicsStatus, logGra
 import type { GraphicsStatusView } from '../shared/graphicsMode';
 import { HistoryService } from './historyService';
 import { parseAnswerRequest } from './askMeAnswers';
+import { moveProjectTheme, resolveProjectTheme, type ProjectThemeSave } from '../shared/projectTheme';
 import type { AnswerOutcome } from '../shared/humanQuestion';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
@@ -3285,6 +3286,8 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   const newHome = resolve(expandTilde(p.newHome));
   const oldRaw = readConfig().harnessHome;
   const oldHome = oldRaw ? resolve(oldRaw) : null;
+  // Read before anything is copied in: a fresh home with no hive is a new project.
+  const blankProject = !existsSync(join(newHome, 'hive'));
 
   // Guard against same-folder / nested-folder (a move would self-copy forever).
   if (oldHome) {
@@ -3341,7 +3344,9 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   // Repoint config and relaunch so every service re-bootstraps against newHome.
   // (Identical recovery path to resetAll — relaunch is the clean re-bind.)
   allowQuit = true;
-  writeConfig({ harnessHome: newHome });
+  // The project's floor theme goes with it on a move (shared/projectTheme).
+  const officeThemeByHive = moveProjectTheme(readConfig().officeThemeByHive, { mode, oldHome, newHome, blankProject });
+  writeConfig({ harnessHome: newHome, officeThemeByHive });
   try { ptyManager.killAll(); } catch (e) { console.error('[changeHome] killAll:', e); }
   app.relaunch();
   app.exit(0);
@@ -3635,6 +3640,15 @@ ipcMain.handle('graphics:restart', () => {
   app.relaunch();
   teardownAndQuit();
 });
+/** The current project's floor theme: the Settings picker, and voice. Main reads,
+ *  merges and writes the map, so two windows cannot erase each other's choice; a
+ *  switch changes only how the floor looks, never the agents. */
+function chooseProjectTheme(theme: unknown): ProjectThemeSave {
+  const cfg = readConfig();
+  if (!cfg.harnessHome) return { ok: false, reason: 'no-home', theme: resolveProjectTheme(cfg, null) };
+  return setProjectThemeForHome(cfg.harnessHome, theme);
+}
+ipcMain.handle('config:setProjectTheme', (_evt, theme: unknown) => chooseProjectTheme(theme));
 ipcMain.handle('hive:setArchived', (_evt, id: unknown, archived: unknown) => {
   if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
@@ -4640,7 +4654,9 @@ registerRealtimeActionIpc({
     try { liveWebContents()?.send('realtime:enqueue', { agentId: id, text }); } catch { /* window gone */ }
   },
   getConfigValue: (key) => (readConfig() as unknown as Record<string, unknown>)[key],
-  patchConfig: (patch) => { writeConfig(patch as Partial<HarnessConfig>); }
+  patchConfig: (patch) => { writeConfig(patch as Partial<HarnessConfig>); },
+  getProjectTheme: () => { const c = readConfig(); return resolveProjectTheme(c, c.harnessHome ?? null); },
+  setProjectTheme: (theme) => chooseProjectTheme(theme)
 });
 
 // rt-12 seam: push detected completions to the live floor; bridge live-flag, queue

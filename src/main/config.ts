@@ -12,6 +12,7 @@ import {
 import { defaultMcpDefaults } from '../shared/mcpCatalog';
 import { MAX_AGENT_TOKEN_CAP } from '../shared/tokenCaps';
 import { expandTilde, normalizeHiveHome } from './fs';
+import { isProjectThemeId, isStoredProjectThemeId, projectThemeForHome, projectThemeHomeKey, resolveProjectTheme, type ProjectThemeId, type ProjectThemeSave } from '../shared/projectTheme';
 import { readJsonFile, writeRefusal } from './damagedFile';
 import { parseGraphicsMode, type GraphicsMode } from '../shared/graphicsMode';
 import type { IntegrationRecord } from '../shared/integrations';
@@ -316,10 +317,14 @@ export interface HarnessConfig {
    *  destructive switch flow). Default false = the picker is hidden and the
    *  office renders as today (zero behavior change). */
   tvShowOffices?: boolean;
-  /** Which office map/cast theme the pixel office renders. Only honored when
-   *  `tvShowOffices` is on; otherwise the office theme is used. Unbuilt show
-   *  themes fall back to 'office' in the loader. */
-  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts' | 'starhike';
+  /** The floor theme of a project with no entry in `officeThemeByHive`: the one
+   *  global theme from before themes were per project. The built-in TV-show maps
+   *  are honored only while `tvShowOffices` is on; unbuilt show themes fall back
+   *  to 'office' in the loader. */
+  officeTheme?: ProjectThemeId;
+  /** Each project's own floor theme (shared/projectTheme), keyed by its home
+   *  folder (projectThemeHomeKey). Set through setProjectThemeForHome only. */
+  officeThemeByHive?: Record<string, ProjectThemeId>;
   /** Settings, Graphics (shared/graphicsMode): Auto, GPU or CPU only. Read once
    *  before app ready; a change applies after a restart. Absent is Auto. */
   graphicsMode?: GraphicsMode;
@@ -633,6 +638,16 @@ function normalizeStoredHomes(cfg: HarnessConfig): HarnessConfig {
       .map((h) => expandTilde(h))
       .filter((h) => (seen.has(h) ? false : (seen.add(h), true)));
   }
+  if (cfg.officeThemeByHive && typeof cfg.officeThemeByHive === 'object' && !Array.isArray(cfg.officeThemeByHive)) {
+    const normalized: Record<string, ProjectThemeId> = {};
+    // An unregistered pack id is kept (the pack may be renamed or dropped in this build); only garbage is dropped.
+    for (const [home, theme] of Object.entries(cfg.officeThemeByHive)) {
+      if (home.trim() && isStoredProjectThemeId(theme)) normalized[projectThemeHomeKey(expandTilde(home))] = theme;
+    }
+    cfg.officeThemeByHive = normalized;
+  } else {
+    delete cfg.officeThemeByHive;
+  }
   return cfg;
 }
 
@@ -754,6 +769,25 @@ export function setGraphicsMode(value: unknown): HarnessConfig {
   const mode = parseGraphicsMode(value);
   if (mode === null) throw new Error('invalid graphics mode');
   return persistConfig({ ...readConfig(), graphicsMode: mode });
+}
+
+/** Set one project's floor theme against the latest config on disk (the
+ *  renderer's config is a snapshot), then read it back. A damaged config.json, or
+ *  one not readable just now, skips the save: the answer is 'not-saved', with the
+ *  theme still in force. */
+export function setProjectThemeForHome(harnessHome: string, theme: unknown): ProjectThemeSave {
+  const home = expandTilde(harnessHome);
+  const current = readConfig();
+  if (!isProjectThemeId(theme)) return { ok: false, reason: 'invalid', theme: resolveProjectTheme(current, home) };
+  const key = projectThemeHomeKey(home);
+  const map = { ...(current.officeThemeByHive ?? {}) };
+  for (const k of Object.keys(map)) if (projectThemeHomeKey(k) === key) delete map[k];
+  map[key] = theme;
+  persistConfig({ ...current, officeThemeByHive: map });
+  const after = readConfig();
+  return projectThemeForHome(after.officeThemeByHive, home) === theme
+    ? { ok: true, theme }
+    : { ok: false, reason: 'not-saved', theme: resolveProjectTheme(after, home) };
 }
 
 /** Wipe the persisted config back to first-run defaults so the app boots into

@@ -3,6 +3,7 @@ import type { AgentProvider } from '../shared/agentProvider';
 import type { GraphicsMode, GraphicsStatusView } from '../shared/graphicsMode';
 import type { HistoryPage, HistoryRequest } from '../shared/history';
 import type { AnswerOutcome, AnswerRequest } from '../shared/humanQuestion';
+import type { ProjectThemeId, ProjectThemeSave } from '../shared/projectTheme';
 import type { HireManifest } from '../shared/hire';
 export type { HireManifest } from '../shared/hire';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
@@ -326,8 +327,12 @@ export interface HarnessConfig {
   terminalTheme?: 'light' | 'dark';
   /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
   tvShowOffices?: boolean;
-  /** Active office map/cast theme (honored only when tvShowOffices is on). */
+  /** The floor theme of a project with no entry in officeThemeByHive (the one global
+   *  theme from before themes were per project). Read with resolveProjectTheme. */
   officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  /** Each project's own floor theme, keyed by its home (projectThemeHomeKey). Saved
+   *  only through setProjectTheme. */
+  officeThemeByHive?: Record<string, ProjectThemeId>;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn. API KEYS are NOT stored here —
    *  they live write-only in the secret broker. */
@@ -1106,6 +1111,9 @@ const api = {
   graphicsStatus: (): Promise<GraphicsStatusView> => ipcRenderer.invoke('graphics:status'),
   /** Save the Graphics mode; it applies after a restart. */
   setGraphicsMode: (mode: GraphicsMode): Promise<GraphicsStatusView> => ipcRenderer.invoke('graphics:setMode', mode),
+  /** The current project's floor theme, read back: 'not-saved' when config.json is
+   *  damaged or busy, with the theme still in force. Changes only how the floor looks. */
+  setProjectTheme: (theme: ProjectThemeId): Promise<ProjectThemeSave> => ipcRenderer.invoke('config:setProjectTheme', theme),
   /** Restart the app through the normal teardown, so a saved Graphics mode applies. */
   restartForGraphics: (): Promise<void> => ipcRenderer.invoke('graphics:restart'),
   /** The History tab: one page of an agent's conversation from its CLI's own

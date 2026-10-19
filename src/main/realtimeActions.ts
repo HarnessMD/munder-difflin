@@ -40,6 +40,7 @@ import type { ScheduledMission } from './config';
 import { inferAgentProvider } from '../shared/agentProvider';
 import { clearCommandForProvider } from '../shared/providerAutomation';
 import { resolveGodName } from '../shared/godIdentity';
+import { offeredProjectThemes, projectThemes, type ProjectThemeSave } from '../shared/projectTheme';
 
 export const VOICE_ACTOR = 'michael-voice';
 
@@ -88,6 +89,11 @@ export interface RealtimeActionDeps {
    *  raw patch. */
   getConfigValue(key: string): unknown;
   patchConfig(patch: Record<string, unknown>): void;
+  /** update_setting officeTheme: the current project's theme, and the per-project
+   *  switch the Settings picker uses (config:setProjectTheme), read back. Never
+   *  the global officeTheme key. */
+  getProjectTheme(): string;
+  setProjectTheme(theme: string): ProjectThemeSave;
 }
 
 /** The result every action / confirm / cancel returns to the renderer tool, which
@@ -139,7 +145,7 @@ const SETTING_POLICY: Record<string, {
   // soft: cosmetic / low-blast, instantly reversible
   notifications: { tier: 'soft', type: 'boolean' },
   tvShowOffices: { tier: 'soft', type: 'boolean' },
-  officeTheme: { tier: 'soft', type: 'string', values: ['office', 'friends', 'brooklyn99', 'siliconvalley', 'got', 'hogwarts', 'starhike'] },
+  // officeTheme is not a key here: it sets the current project's theme (setThemeByVoice).
   terminalTheme: { tier: 'soft', type: 'string', values: ['light', 'dark'] },
   freeflowEnabled: { tier: 'soft', type: 'boolean' },
   strongKeepalive: { tier: 'soft', type: 'boolean' },
@@ -602,6 +608,36 @@ function buildEditSchedule(
   };
 }
 
+/** "Switch the theme" by voice sets the CURRENT project's theme, through the
+ *  Settings picker's path (config:setProjectTheme), never the global officeTheme.
+ *  Only what the picker offers right now; matched by id or label. Soft: it changes
+ *  only how the floor looks, and every agent stays. A save that config.json could
+ *  not take (damaged, or not readable just now) is said as not saved. */
+const THEME_KEYS = new Set(['officeTheme', 'projectTheme', 'theme']);
+function setThemeByVoice(deps: RealtimeActionDeps, raw: unknown): ActionResult {
+  const want = normMatch(str(raw));
+  const themes = offeredProjectThemes(deps.getConfigValue('tvShowOffices') === true);
+  const names = themes.map((t) => t.label).join(', ');
+  if (!want) return { ok: false, spoken: `Which theme? The choices are: ${names}.` };
+  const hit = themes.find((t) => normMatch(t.id) === want || normMatch(t.label) === want);
+  if (!hit) {
+    const tvShow = projectThemes().find((t) => normMatch(t.id) === want || normMatch(t.label) === want);
+    if (tvShow) return { ok: false, spoken: `${tvShow.label} is a TV-show office, and TV-show offices are off in Settings. The choices are: ${names}.` };
+    return { ok: false, spoken: `There's no "${str(raw).trim()}" theme here. The choices are: ${names}.` };
+  }
+  const labelOf = (id: string): string => projectThemes().find((t) => t.id === id)?.label ?? id;
+  const old = deps.getProjectTheme();
+  if (old === hit.id) return { ok: true, spoken: `This project's theme is already ${hit.label}, nothing to change.` };
+  const saved = deps.setProjectTheme(hit.id);
+  if (!saved.ok) {
+    return { ok: false, spoken: saved.reason === 'not-saved'
+      ? `I couldn't save that: the settings file is damaged or busy, so this project stays on ${labelOf(saved.theme)}.`
+      : saved.reason === 'no-home' ? `I couldn't switch the theme: no project is open.` : `${hit.label} isn't available here.` };
+  }
+  attribute(deps, 'update_setting', 'project theme', { action: `${labelOf(old)} → ${hit.label}` });
+  return { ok: true, spoken: `Done, this project's theme is now ${hit.label} (was ${labelOf(old)}). Every agent stays.` };
+}
+
 // ─── propose: classify, allowlist-gate, run-or-stage ────────────────────────
 
 function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<string, unknown>): ActionResult {
@@ -728,6 +764,7 @@ function proposeDestructive(deps: RealtimeActionDeps, verb: string, a: Record<st
   // v0.3.4: settings, through the policy table ONLY.
   if (verb === 'update_setting') {
     const key = str(a.key) || str(a.setting) || str(a.name);
+    if (THEME_KEYS.has(key)) return setThemeByVoice(deps, a.value);
     const policy = SETTING_POLICY[key];
     if (!key) return { ok: false, spoken: 'Which setting should I change?' };
     if (!policy) {
