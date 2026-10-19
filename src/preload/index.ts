@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
 import type { AgentProvider } from '../shared/agentProvider';
 import type { GraphicsMode, GraphicsStatusView } from '../shared/graphicsMode';
+import type { HistoryPage, HistoryRequest } from '../shared/history';
 import type { HireManifest } from '../shared/hire';
 export type { HireManifest } from '../shared/hire';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
@@ -1098,6 +1099,9 @@ const api = {
   setGraphicsMode: (mode: GraphicsMode): Promise<GraphicsStatusView> => ipcRenderer.invoke('graphics:setMode', mode),
   /** Restart the app through the normal teardown, so a saved Graphics mode applies. */
   restartForGraphics: (): Promise<void> => ipcRenderer.invoke('graphics:restart'),
+  /** The History tab: one page of an agent's conversation from its CLI's own
+   *  transcript, by agent id (byte offset cursors; see shared/history). */
+  hiveHistory: (req: HistoryRequest): Promise<HistoryPage> => ipcRenderer.invoke('hive:history', req),
 
   // ─── Scheduled missions (recurring auto-dispatch) ──────────────────────────
   listMissions: (): Promise<ScheduledMission[]> => ipcRenderer.invoke('missions:list'),

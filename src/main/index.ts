@@ -21,6 +21,7 @@ import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTi
 import { integrityIssues, integrityPath } from './damagedFile';
 import { applyGraphicsModeAtStartup, appliedGraphicsMode, graphicsStatus, logGraphicsWhenKnown, watchGpuReports } from './graphics';
 import type { GraphicsStatusView } from '../shared/graphicsMode';
+import { HistoryService } from './historyService';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
   getBranch, getStatus, getLog, getBranches, getAheadBehind, isRepo, getDiff, mainRepoRoot,
@@ -3572,6 +3573,18 @@ ipcMain.handle('integrity:reveal', (_evt, name: unknown) => {
   shell.showItemInFolder(p);
   return { ok: true };
 });
+// The History tab: one page of an agent's conversation from its CLI's own
+// transcript, found by agent id alone (historyService); never a window path.
+const historyService = new HistoryService({
+  agent: (id) => {
+    const a = hive.registry().agents[id];
+    return a ? { provider: a.provider, cwd: a.cwd, sessionId: a.sessionId } : null;
+  },
+  transcriptPath: (id) => hookServer.transcriptPath(id),
+  codexHomeFor: (id) => hive.codexHomeOf(id),
+  geminiHome: () => join(homedir(), '.gemini')
+});
+ipcMain.handle('hive:history', (_evt, req: unknown) => historyService.page(req));
 // Settings, Graphics. The status is what is IN FORCE (the mode read before
 // ready, Chromium's GPU compositing) plus the saved mode; a saved change
 // applies after a restart, which goes through the normal teardown (the window

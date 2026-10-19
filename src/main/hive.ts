@@ -455,6 +455,13 @@ export class HiveManager {
   private agentDir(id: string): string {
     return join(this.root()!, 'agents', id);
   }
+  /** A hive Codex agent's own CODEX_HOME (installCodexHooks), or null when it
+   *  has none. For the History tab, which reads the agent's rollouts. */
+  codexHomeOf(id: string): string | null {
+    if (!this.root() || !id || basename(id) !== id || id === '.' || id === '..') return null;
+    const home = join(this.agentDir(id), '.codex');
+    return existsSync(home) ? home : null;
+  }
   /** IPC endpoint the cth-hook shim talks to (Phase 1 autonomy).
    *  On POSIX this is a Unix-domain socket file under the hive root. On Windows,
    *  Node's `net` IPC uses named pipes (a flat `\\.\pipe\` namespace, not the
