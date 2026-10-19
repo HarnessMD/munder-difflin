@@ -18,13 +18,13 @@ import {
   readConfig, writeConfig, setAgentTokenCap, setGraphicsMode, setProjectThemeForHome, setCodexFolderOk, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
   modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
-import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
+import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde, newProjectFolderState } from './fs';
 import { integrityIssues, integrityPath } from './damagedFile';
 import { applyGraphicsModeAtStartup, appliedGraphicsMode, graphicsStatus, logGraphicsWhenKnown, watchGpuReports } from './graphics';
 import type { GraphicsStatusView } from '../shared/graphicsMode';
 import { HistoryService } from './historyService';
 import { parseAnswerRequest } from './askMeAnswers';
-import { moveProjectTheme, resolveProjectTheme, type ProjectThemeSave } from '../shared/projectTheme';
+import { isProjectThemeId, moveProjectTheme, resolveProjectTheme, type ProjectThemeId, type ProjectThemeSave } from '../shared/projectTheme';
 import { ReloadPolicy, type RecoveryNotice } from '../shared/viewRecovery';
 import { codexFolderKey, codexHold, codexProjectLayers, type CodexHold, type CodexHoldNotice } from './codexProjectLayers';
 import type { AnswerOutcome } from '../shared/humanQuestion';
@@ -3430,7 +3430,7 @@ ipcMain.handle('config:ensureHome', (_evt, path: unknown) => {
 // re-binds against the new root. mode: 'move' copies the data (old kept as a
 // safety net), 'fresh' just re-points and bootstraps an empty home.
 ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
-  const p = (payload ?? {}) as { newHome?: unknown; mode?: unknown };
+  const p = (payload ?? {}) as { newHome?: unknown; mode?: unknown; projectTheme?: unknown };
   if (typeof p.newHome !== 'string' || !p.newHome) return { ok: false, error: 'invalid newHome' };
   const mode: 'move' | 'fresh' = p.mode === 'fresh' ? 'fresh' : 'move';
   // expandTilde BEFORE resolve: both UI callers feed a folder-dialog result
@@ -3443,6 +3443,17 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   const oldHome = oldRaw ? resolve(oldRaw) : null;
   // Read before anything is copied in: a fresh home with no hive is a new project.
   const blankProject = !existsSync(join(newHome, 'hive'));
+  // P2: a fresh project may come with the floor the person chose (a move keeps its
+  // own). It only starts a new project in an empty folder (nothing but .DS_Store), so
+  // it never lands on an existing project. Errors are ids the window words.
+  const chosen = mode === 'fresh' && p.projectTheme != null ? p.projectTheme : undefined;
+  let theme: ProjectThemeId | undefined;
+  if (chosen !== undefined) {
+    if (!isProjectThemeId(chosen)) return { ok: false, error: 'invalid-theme' };
+    theme = chosen;
+    const folder = await newProjectFolderState(newHome);
+    if (folder !== 'empty') return { ok: false, error: folder };
+  }
 
   // Guard against same-folder / nested-folder (a move would self-copy forever).
   if (oldHome) {
@@ -3499,8 +3510,9 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   // Repoint config and relaunch so every service re-bootstraps against newHome.
   // (Identical recovery path to resetAll — relaunch is the clean re-bind.)
   allowQuit = true;
-  // The project's floor theme goes with it on a move (shared/projectTheme).
-  const officeThemeByHive = moveProjectTheme(readConfig().officeThemeByHive, { mode, oldHome, newHome, blankProject });
+  // The project's floor theme goes with it on a move; a new project gets the one
+  // chosen for it (shared/projectTheme).
+  const officeThemeByHive = moveProjectTheme(readConfig().officeThemeByHive, { mode, oldHome, newHome, blankProject, theme });
   writeConfig({ harnessHome: newHome, officeThemeByHive });
   try { ptyManager.killAll(); } catch (e) { console.error('[changeHome] killAll:', e); }
   app.relaunch();

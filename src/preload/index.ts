@@ -709,9 +709,12 @@ const api = {
   /** Change the harness home folder. 'move' copies the existing hive + palace
    *  into the new folder (old kept as a safety net); 'fresh' just re-points and
    *  bootstraps an empty home. On success the app relaunches (never resolves);
-   *  on failure (e.g. copy error) returns { ok: false, error }. */
-  changeHome: (newHome: string, mode: 'move' | 'fresh'): Promise<{ ok: boolean; error?: string }> =>
-    ipcRenderer.invoke('config:changeHome', { newHome, mode }),
+   *  on failure (e.g. copy error) returns { ok: false, error }. `projectTheme`
+   *  (fresh only, P2): the new project's floor. The folder must then be missing or
+   *  empty (nothing but .DS_Store); else error is an id: 'not-empty', 'unreadable'
+   *  (the folder could not be read) or 'invalid-theme'. */
+  changeHome: (newHome: string, mode: 'move' | 'fresh', projectTheme?: ProjectThemeId): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('config:changeHome', { newHome, mode, ...(projectTheme !== undefined ? { projectTheme } : {}) }),
 
   // ─── Filesystem (sandboxed to cwd) ───────────────────────────────────────
   listDir: (root: string, rel: string): Promise<

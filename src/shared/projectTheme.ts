@@ -139,10 +139,11 @@ export function isProjectThemeSeed(value: unknown): value is ProjectThemeSeed {
 
 /** The map after a home change. A move takes the project's entry to its new home; a fresh
  * home that held no project drops any entry left there by an earlier project at that path,
- * so it shows the global theme like any new project. */
+ * so it shows the global theme like any new project, or the floor the person chose for it
+ * (`theme`, P2; ignored on a move). */
 export function moveProjectTheme(
   map: Record<string, ProjectThemeId> | undefined,
-  change: { mode: 'move' | 'fresh'; oldHome?: string | null; newHome: string; blankProject: boolean },
+  change: { mode: 'move' | 'fresh'; oldHome?: string | null; newHome: string; blankProject: boolean; theme?: ProjectThemeId },
 ): Record<string, ProjectThemeId> {
   const next = { ...(map ?? {}) };
   const newKey = projectThemeHomeKey(change.newHome);
@@ -154,6 +155,8 @@ export function moveProjectTheme(
     if (theme) next[newKey] = theme;
     return next;
   }
-  if (change.blankProject) for (const k of Object.keys(next)) if (projectThemeHomeKey(k) === newKey) delete next[k];
+  if (!change.blankProject) return next;
+  for (const k of Object.keys(next)) if (projectThemeHomeKey(k) === newKey) delete next[k];
+  if (isProjectThemeId(change.theme)) next[newKey] = change.theme;
   return next;
 }
