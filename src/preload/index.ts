@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'ele
 import type { AgentProvider } from '../shared/agentProvider';
 import type { GraphicsMode, GraphicsStatusView } from '../shared/graphicsMode';
 import type { HistoryPage, HistoryRequest } from '../shared/history';
+import type { AnswerOutcome, AnswerRequest } from '../shared/humanQuestion';
 import type { HireManifest } from '../shared/hire';
 export type { HireManifest } from '../shared/hire';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
@@ -1085,6 +1086,14 @@ const api = {
   /** Atomically remove one named card from the latest main-process ledger. */
   hiveDeleteTask: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:deleteTask', id),
+  /** Ask Me: answer or dismiss the question a card showed (questionRef), one
+   *  humanQA entry on the latest board; main sends the god's notice. 'gone': it
+   *  changed or closed first, and nothing was written. */
+  hiveAnswerQuestion: (req: AnswerRequest): Promise<AnswerOutcome> =>
+    ipcRenderer.invoke('hive:answerQuestion', req),
+  /** Several in ONE write (Dismiss all), one result each, in order. */
+  hiveAnswerQuestions: (reqs: AnswerRequest[]): Promise<AnswerOutcome[]> =>
+    ipcRenderer.invoke('hive:answerQuestions', reqs),
   /** Damaged sources of truth (config.json, registry.json, tasks.json): each kept
    *  as it is, with the name of its copy; writes to it pause. Names only. */
   integrityIssues: (): Promise<Array<{ file: string; copy: string | null; error: string }>> =>

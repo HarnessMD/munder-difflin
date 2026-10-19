@@ -22,6 +22,8 @@ import { integrityIssues, integrityPath } from './damagedFile';
 import { applyGraphicsModeAtStartup, appliedGraphicsMode, graphicsStatus, logGraphicsWhenKnown, watchGpuReports } from './graphics';
 import type { GraphicsStatusView } from '../shared/graphicsMode';
 import { HistoryService } from './historyService';
+import { parseAnswerRequest } from './askMeAnswers';
+import type { AnswerOutcome } from '../shared/humanQuestion';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
   getBranch, getStatus, getLog, getBranches, getAheadBehind, isRepo, getDiff, mainRepoRoot,
@@ -3558,6 +3560,35 @@ ipcMain.handle('hive:deleteTask', (_evt, id: unknown) => {
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
   return taskWrite(() => hive.deleteTask(id));
 });
+/** Ask Me (askMeAnswers): answer or dismiss the question each card showed, one
+ *  humanQA entry each, in one tasks.json write. An answer counts as sent once it
+ *  is saved: the god's notice follows, and a notice that fails is logged, never
+ *  reported as not sent. */
+function answerQuestions(raw: unknown[]): AnswerOutcome[] {
+  if (!hive.enabled()) return raw.map((): AnswerOutcome => ({ result: 'failed', error: 'hive disabled (no harnessHome)' }));
+  const reqs = raw.map(parseAnswerRequest);
+  let applied: ReturnType<typeof hive.answerQuestions>;
+  try {
+    applied = hive.answerQuestions(reqs);
+  } catch (e) {
+    const error = e instanceof Error ? e.message : String(e);
+    return reqs.map((r): AnswerOutcome => (r ? { result: 'failed', error } : { result: 'invalid' }));
+  }
+  return applied.map(({ result, notice }, i): AnswerOutcome => {
+    if (notice) {
+      try {
+        hive.send({ to: 'god', act: 'inform', subject: notice.subject, body: notice.body }, 'human');
+        analytics.trackMessageSent('hive');
+      } catch (e) {
+        hive.appendLog({ kind: 'answer-notice-failed', task: reqs[i]?.taskId, error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    return { result };
+  });
+}
+ipcMain.handle('hive:answerQuestion', (_evt, req: unknown) => answerQuestions([req])[0]);
+ipcMain.handle('hive:answerQuestions', (_evt, reqs: unknown) =>
+  Array.isArray(reqs) && reqs.length <= 500 ? answerQuestions(reqs) : []);
 // Damaged sources of truth (damagedFile): config.json, registry.json and
 // tasks.json are each read first, so the list is current. Names only.
 ipcMain.handle('integrity:issues', () => {
