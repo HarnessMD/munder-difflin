@@ -22,11 +22,14 @@ export interface ErrorBoundaryProps {
 interface State { error: Error | null }
 
 /** The one-shot flag App.tsx reads at start to skip the project picker (a project switch
- *  leaves it too): the reload lands back on the open project, and useHive keeps the agents
- *  that are still running instead of starting them again. */
+ *  leaves it too), for a reload main cannot do: the reload lands back on the open project,
+ *  and useHive keeps the agents that are still running instead of starting them again. */
 const SKIP_PICKER_ONCE = 'cth.skipHivePickerOnce';
 
+/** Reload through main, so the reloaded page opens on this project and says it was
+ *  restored (window.cth.recovering, takeRecoveryNotice); here only when that fails. */
 function reloadWindow(): void {
+  try { window.cth.reloadAfterError(); return; } catch { /* reload here */ }
   try { window.localStorage.setItem(SKIP_PICKER_ONCE, '1'); } catch { /* the picker shows first */ }
   window.location.reload();
 }

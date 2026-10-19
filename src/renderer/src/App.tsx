@@ -16,6 +16,7 @@ import { AddAgentModal } from '@/components/AddAgentModal';
 import { MichaelBooting } from '@/components/MichaelBooting';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
 import { HivePicker } from '@/components/HivePicker';
+import { IntegrityBanner, RecoveryNotice } from '@/components/FailureNotices';
 import { QuitWarningModal, type ClosingTimeState } from '@/components/QuitWarningModal';
 import { CompletionToast } from '@/realtime/CompletionToast';
 import { UpdateToast } from '@/components/UpdateToast';
@@ -64,8 +65,10 @@ export function App() {
   // Whether the user has passed the launch-time hive picker this session. Starts
   // true (skip the picker) right after a hive SWITCH — changeHome relaunches and
   // leaves a one-shot localStorage flag so we don't bounce back onto the picker for
-  // the hive we just chose. Also set true on onboarding completion (below).
+  // the hive we just chose. Also set true on onboarding completion (below), and
+  // when main has just reloaded this window: it lands back on the open project.
   const [hiveOpened, setHiveOpened] = useState<boolean>(() => {
+    if (window.cth.recovering) return true;
     try {
       if (window.localStorage.getItem('cth.skipHivePickerOnce')) {
         window.localStorage.removeItem('cth.skipHivePickerOnce');
@@ -262,14 +265,14 @@ export function App() {
 
   if (!config.onboardingComplete) {
     // Just-onboarded users go straight into the hive they set up — skip the picker.
-    return <OnboardingWizard onComplete={(next) => { setConfig(next); setHiveOpened(true); }} />;
+    return <><IntegrityBanner /><OnboardingWizard onComplete={(next) => { setConfig(next); setHiveOpened(true); }} /></>;
   }
 
   // Launch-time hive picker: on reopen, let the user open their current hive,
   // switch to a recent one, or open/create another. Skipped right after onboarding
   // and right after a switch-relaunch (see hiveOpened init).
   if (!hiveOpened) {
-    return <HivePicker config={config} onOpenCurrent={() => setHiveOpened(true)} />;
+    return <><IntegrityBanner /><HivePicker config={config} onOpenCurrent={() => setHiveOpened(true)} /></>;
   }
 
   return (
@@ -284,6 +287,10 @@ export function App() {
       {/* v0.3.4: background-update toast ("restart to update"); renders null until
           main's updater pushes a status. */}
       <UpdateToast />
+      {/* Pam's P7: the window was reloaded by itself (once, until OK), and a
+          settings, board or agent list file that cannot be read (until it reads). */}
+      <RecoveryNotice />
+      <IntegrityBanner />
       {/* Title bar */}
       <div
         className="cth-titlebar-drag"

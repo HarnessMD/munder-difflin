@@ -14,6 +14,7 @@ import {
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { CodexFoldersSetting } from './CodexHoldCard';
+import { useIntegrityIssues } from './FailureNotices';
 import { UpdatesSection } from './UpdatesSection';
 import { SettingsHeroCard } from './SettingsHeroCard';
 import { SetupPanel } from './SetupPanel';
@@ -273,6 +274,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
    *  time against the config on disk rather than staged as a whole array. */
   const [autoCompactPending, setAutoCompactPending] = useState<boolean | null>(null);
   const [saveBusy, setSaveBusy] = useState(false);
+  // While main holds config.json as damaged it takes no writes: Save says so and stays off.
+  const configPaused = useIntegrityIssues().some((issue) => issue.file === 'config.json');
   const [saveNote, setSaveNote] = useState('');
   // This project's floor theme. A picked card waits for Save like every setting
   // here; main stores it and reads it back, so the theme in force is main's answer.
@@ -2171,14 +2174,17 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                 display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8,
                 background: 'var(--cth-cream-50)'
               }}>
-                {saveNote && (
+                {configPaused && (
+                  <span role="status" style={{ fontSize: 12, color: 'var(--cth-ink-700)' }}>{t('integrity.saveBlocked')}</span>
+                )}
+                {saveNote && !configPaused && (
                   <span style={{ fontSize: 12, color: 'var(--cth-mint)' }}>{saveNote}</span>
                 )}
-                {dirty && !saveNote && (
+                {dirty && !saveNote && !configPaused && (
                   <span style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>{t('settings.unsavedChanges')}</span>
                 )}
                 <PixelButton variant="secondary" size="md" onClick={requestClose}>{t('settings.close')}</PixelButton>
-                <PixelButton variant="primary" size="md" onClick={() => void saveAll()} disabled={saveBusy}>
+                <PixelButton variant="primary" size="md" onClick={() => void saveAll()} disabled={saveBusy || configPaused}>
                   {saveBusy ? t('settings.saving') : t('common.save')}
                 </PixelButton>
               </div>

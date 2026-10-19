@@ -1478,5 +1478,24 @@
     "allow": "allow this folder and start",
     "notNow": "not now",
     "heldReason": "not started, waiting for your OK in Settings, Agents & Models"
+  },
+  "recovery": {
+    "title": "The window crashed and was reloaded at {{time}}.",
+    "body": "Your agents kept running. Terminal output from before the crash is not shown again; new output appears as usual.",
+    "ok": "OK"
+  },
+  "integrity": {
+    "paused": "paused",
+    "title": "{{file}} could not be read. Changes to it are paused.",
+    "body": "The app has not written over it and keeps a copy as {{copy}}. Fix the file or put a good copy back; changes start again on their own.",
+    "bodyNoCopy": "The app has not written over it. Fix the file or put a good copy back; changes start again on their own.",
+    "defaults": "Until then the app runs on default settings.",
+    "show": "show the file",
+    "saveBlocked": "Not saved: your settings file could not be read, so changes are paused.",
+    "file": {
+      "config": "Your settings (config.json)",
+      "tasks": "The task board (tasks.json)",
+      "registry": "The agent list (registry.json)"
+    }
   }
 }
