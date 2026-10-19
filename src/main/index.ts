@@ -24,6 +24,7 @@ import type { GraphicsStatusView } from '../shared/graphicsMode';
 import { HistoryService } from './historyService';
 import { parseAnswerRequest } from './askMeAnswers';
 import { moveProjectTheme, resolveProjectTheme, type ProjectThemeSave } from '../shared/projectTheme';
+import { ReloadPolicy, type RecoveryNotice } from '../shared/viewRecovery';
 import type { AnswerOutcome } from '../shared/humanQuestion';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
@@ -2328,6 +2329,67 @@ ipcMain.handle('hire:openFile', async () => {
  * window — cascades its position, and on close stops only its OWN terminals
  * while the app keeps running.
  */
+/** One shot "the view was restored" notices (shared/viewRecovery), by the
+ *  webContents that should show it; the reloaded page takes its own on mount. */
+const recoveryNotices = new Map<number, RecoveryNotice>();
+/** Asked once, synchronously, by the reloaded page's preload: true while this
+ *  window has a notice waiting, so the page opens on the live project rather
+ *  than the launch-time hive picker. */
+ipcMain.on('window:recoveringSync', (evt) => { evt.returnValue = recoveryNotices.has(evt.sender.id); });
+ipcMain.handle('window:takeRecoveryNotice', (evt) => {
+  const n = recoveryNotices.get(evt.sender.id) ?? null;
+  recoveryNotices.delete(evt.sender.id);
+  return n;
+});
+/** The root error boundary's "Reload the window", through main so the reloaded
+ *  page says it was restored. */
+ipcMain.on('window:reloadAfterError', (evt) => {
+  const wc = evt.sender;
+  if (wc.isDestroyed()) return;
+  recoveryNotices.set(wc.id, { at: Date.now(), reason: 'render-error', streak: 1 });
+  try { hive.appendLog({ kind: 'renderer-error-reload' }); } catch { /* best-effort */ }
+  wc.reload();
+});
+
+/** A window's view died. Its terminals live in main and keep running, so reload
+ *  it and leave the notice; a view that keeps dying (ReloadPolicy) stays down. A
+ *  view that exits cleanly, or dies while the app quits, is left alone. */
+function onViewGone(win: BrowserWindow, wc: Electron.WebContents, details: Electron.RenderProcessGoneDetails, isFloor: boolean, policy: ReloadPolicy): void {
+  if (details.reason === 'clean-exit' || allowQuit || win.isDestroyed() || wc.isDestroyed()) return;
+  const at = Date.now();
+  const { reload, streak } = policy.next(at);
+  try { hive.appendLog({ kind: 'render-process-gone', reason: details.reason, exitCode: details.exitCode, floor: isFloor, reload, streak }); } catch { /* best-effort */ }
+  if (!reload) return;
+  recoveryNotices.set(wc.id, { at, reason: details.reason, streak });
+  wc.reload();
+}
+
+/** This window's view cannot answer: it died (and stayed down), or is gone. */
+function viewGone(wc: Electron.WebContents): boolean {
+  try { return wc.isDestroyed() || wc.isCrashed(); } catch { return true; }
+}
+
+/** The quit warning, asked natively when the window's view cannot show its own
+ *  (it died and stayed down): the same choice the page's modal gives, so the
+ *  app can still be quit. */
+function askQuitNatively(win: BrowserWindow | null, ptyCount: number): void {
+  const opts: Electron.MessageBoxSyncOptions = {
+    type: 'warning',
+    buttons: ['Quit and stop agents', 'Cancel'],
+    defaultId: 1,
+    cancelId: 1,
+    message: `Quit Munder Difflin? ${ptyCount} running terminal${ptyCount === 1 ? '' : 's'} will be stopped.`,
+    detail: 'The window is not showing (its view stopped), so this is asked here instead.'
+  };
+  const choice = win && !win.isDestroyed() ? dialog.showMessageBoxSync(win, opts) : dialog.showMessageBoxSync(opts);
+  if (choice === 0) {
+    closingTime.cancel(); // a hard quit overrides a closing time in progress
+    teardownAndQuit();
+  } else {
+    abortPendingRestart();
+  }
+}
+
 function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   const isFloor = opts.floor === true;
 
@@ -2461,6 +2523,7 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
     const count = ptyManager.list().length;
     if (count === 0) return;
     e.preventDefault();
+    if (viewGone(wc)) { askQuitNatively(win, count); return; }
     win.focus();
     wc.send('app:closeRequested', { ptyCount: count });
   });
@@ -2475,6 +2538,9 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   win.webContents.on('did-start-navigation', (details) => {
     if (details.isMainFrame) rendererReadyForHires = false;
   });
+
+  const reloads = new ReloadPolicy();
+  wc.on('render-process-gone', (_e, details) => onViewGone(win, wc, details, isFloor, reloads));
 
   if (isDev && process.env.ELECTRON_RENDERER_URL) {
     win.loadURL(process.env.ELECTRON_RENDERER_URL);
@@ -5585,6 +5651,7 @@ app.on('before-quit', (e) => {
   if (count === 0) return;
   e.preventDefault();
   if (mainWindow) {
+    if (viewGone(mainWindow.webContents)) { askQuitNatively(mainWindow, count); return; }
     mainWindow.focus();
     mainWindow.webContents.send('app:closeRequested', { ptyCount: count });
   }

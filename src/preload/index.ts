@@ -4,6 +4,7 @@ import type { GraphicsMode, GraphicsStatusView } from '../shared/graphicsMode';
 import type { HistoryPage, HistoryRequest } from '../shared/history';
 import type { AnswerOutcome, AnswerRequest } from '../shared/humanQuestion';
 import type { ProjectThemeId, ProjectThemeSave } from '../shared/projectTheme';
+import type { RecoveryNotice } from '../shared/viewRecovery';
 import type { HireManifest } from '../shared/hire';
 export type { HireManifest } from '../shared/hire';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
@@ -1114,6 +1115,14 @@ const api = {
   /** The current project's floor theme, read back: 'not-saved' when config.json is
    *  damaged or busy, with the theme still in force. Changes only how the floor looks. */
   setProjectTheme: (theme: ProjectThemeId): Promise<ProjectThemeSave> => ipcRenderer.invoke('config:setProjectTheme', theme),
+  /** True when main has just reloaded this window after its view died (or after
+   *  reloadAfterError): open on the live project, not the launch hive picker.
+   *  Read once, as the page loads. */
+  recovering: ((): boolean => { try { return ipcRenderer.sendSync('window:recoveringSync') === true; } catch { return false; } })(),
+  /** The one shot "the view was restored" notice for this window, or null. Taking it clears it. */
+  takeRecoveryNotice: (): Promise<RecoveryNotice | null> => ipcRenderer.invoke('window:takeRecoveryNotice'),
+  /** The root error boundary's reload, through main so the reloaded page says it was restored. */
+  reloadAfterError: (): void => ipcRenderer.send('window:reloadAfterError'),
   /** Restart the app through the normal teardown, so a saved Graphics mode applies. */
   restartForGraphics: (): Promise<void> => ipcRenderer.invoke('graphics:restart'),
   /** The History tab: one page of an agent's conversation from its CLI's own
