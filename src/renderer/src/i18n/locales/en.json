@@ -236,6 +236,8 @@
       "keepAwakeDesc": "Blocks display sleep so schedules and terminals keep firing on time. Costs battery — best on AC.",
       "simpleMode": "Explain things simply",
       "simpleModeDesc": "Agents brief you in plain language instead of engineering shorthand.",
+      "graphics": "Graphics",
+      "graphicsDesc": "How the app draws terminals and the floor. Auto uses the graphics card (GPU) when it works and the processor (CPU) when it does not. Pick CPU only if the floor or terminals stay blank or flicker. Applies from the next start.",
       "notifications": "Notifications",
       "desktopNotifications": "Desktop notifications",
       "desktopNotificationsDesc": "Native toasts when an agent finishes or needs your input.",
@@ -1497,5 +1499,22 @@
       "tasks": "The task board (tasks.json)",
       "registry": "The agent list (registry.json)"
     }
+  },
+  "graphics": {
+    "auto": "Auto",
+    "gpu": "GPU",
+    "cpu": "CPU only",
+    "drawing": "Drawing with: {{what}}",
+    "onCpu": "the processor (CPU)",
+    "onCpuFallback": "the processor (CPU), because no graphics card worked",
+    "onGpuNoName": "the graphics card (GPU); its name is not known yet",
+    "unknown": "not known; the system has not said",
+    "restartNeeded": "Saved. {{mode}} takes effect after a restart.",
+    "restartNow": "restart now",
+    "confirm": "Restarting stops {{count}} running agents. Restart now?",
+    "confirm_one": "Restarting stops {{count}} running agent. Restart now?",
+    "restart": "restart",
+    "later": "later",
+    "saveFailed": "The Graphics setting could not be saved. Nothing changed."
   }
 }

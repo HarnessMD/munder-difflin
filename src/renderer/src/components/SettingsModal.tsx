@@ -15,6 +15,8 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { CodexFoldersSetting } from './CodexHoldCard';
 import { useIntegrityIssues } from './FailureNotices';
+import { GraphicsSetting, useGraphicsStatus } from './GraphicsSetting';
+import type { GraphicsMode } from '@shared/graphicsMode';
 import { UpdatesSection } from './UpdatesSection';
 import { SettingsHeroCard } from './SettingsHeroCard';
 import { SetupPanel } from './SetupPanel';
@@ -282,9 +284,14 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
   const [projectThemeNow, setProjectThemeNow] = useState<ProjectThemeId>(() => resolveProjectTheme(config, config.harnessHome));
   const [themePick, setThemePick] = useState<ProjectThemeId | null>(null);
   const [themeNotSaved, setThemeNotSaved] = useState(false);
+  // Graphics (Pam's P6): a picked mode waits for Save; main reads it back, and
+  // another mode than the pick means it was not saved.
+  const [graphics, setGraphics] = useGraphicsStatus();
+  const [graphicsPick, setGraphicsPick] = useState<GraphicsMode | null>(null);
+  const [graphicsNotSaved, setGraphicsNotSaved] = useState(false);
   /** True once a control that USED to persist on click has been changed. Only
    *  those need the close guard: the text fields always needed a Save. */
-  const dirty = Object.keys(pending).length > 0 || autoCompactPending !== null || themePick !== null;
+  const dirty = Object.keys(pending).length > 0 || autoCompactPending !== null || themePick !== null || graphicsPick !== null;
   const stage = (patch: Partial<HarnessConfig>): void =>
     setPending((prev) => ({ ...prev, ...patch }));
 
@@ -409,7 +416,15 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
         setThemeNotSaved(!res.ok);
         themeSaved = res.ok;
       }
-      if (themeSaved) {
+      let graphicsSaved = true;
+      if (graphicsPick !== null) {
+        const res = await window.cth.setGraphicsMode(graphicsPick).catch(() => null);
+        if (res) setGraphics(res);
+        graphicsSaved = res?.stored === graphicsPick;
+        setGraphicsNotSaved(!graphicsSaved);
+        setGraphicsPick(null);
+      }
+      if (themeSaved && graphicsSaved) {
         setSaveNote(t('settings.saved'));
         setTimeout(() => setSaveNote(''), 1800);
       }
@@ -1126,6 +1141,12 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               {arabicTerminal ? t('common.on') : t('common.off')}
                             </PixelButton>
                           </div>
+                          <GraphicsSetting
+                            status={graphics}
+                            pick={graphicsPick}
+                            onPick={(mode) => { setGraphicsPick(mode); setGraphicsNotSaved(false); }}
+                            notSaved={graphicsNotSaved}
+                          />
                         </div>
                       </div>
 

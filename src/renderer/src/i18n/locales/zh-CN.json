@@ -236,6 +236,8 @@
       "keepAwakeDesc": "阻止显示屏休眠，让计划任务和终端准时触发。更耗电——最好接电源。",
       "simpleMode": "用通俗方式解释",
       "simpleModeDesc": "智能体用日常语言而不是工程术语向你汇报。",
+      "graphics": "图形",
+      "graphicsDesc": "应用如何绘制终端和楼层。「自动」在显卡（GPU）可用时使用显卡，不可用时使用处理器（CPU）。如果楼层或终端一直空白或闪烁，请选「仅 CPU」。下次启动时生效。",
       "notifications": "通知",
       "desktopNotifications": "桌面通知",
       "desktopNotificationsDesc": "智能体完成或需要你输入时弹出系统通知。",
@@ -1497,5 +1499,21 @@
       "tasks": "任务看板（tasks.json）",
       "registry": "智能体列表（registry.json）"
     }
+  },
+  "graphics": {
+    "auto": "自动",
+    "gpu": "GPU",
+    "cpu": "仅 CPU",
+    "drawing": "当前绘制方式：{{what}}",
+    "onCpu": "处理器（CPU）",
+    "onCpuFallback": "处理器（CPU），因为显卡无法使用",
+    "onGpuNoName": "显卡（GPU），暂时还不知道名称",
+    "unknown": "未知，系统还没有报告",
+    "restartNeeded": "已保存。「{{mode}}」在重启后生效。",
+    "restartNow": "立即重启",
+    "confirm": "重启会停止 {{count}} 个正在运行的智能体。现在重启吗？",
+    "restart": "重启",
+    "later": "稍后",
+    "saveFailed": "无法保存图形设置，没有任何改变。"
   }
 }

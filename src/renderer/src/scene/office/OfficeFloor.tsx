@@ -22,6 +22,7 @@ import { StationFloor } from '../themes/StationFloor';
 import { isStationPack, listThemes, loadStationPack } from '../themes/themeCatalog';
 import type { LoadedPack } from '../themes/packs';
 import { openQuestionIndex } from '@shared/humanQuestion';
+import { floorPowerPreference, recordFloorRenderer } from '../graphicsProbe';
 
 // The map, tileset atlases, desk-claim order, errand spots, coffee-economy
 // tiles, prop anchors, monitor gids and palette all come from the active
@@ -298,7 +299,10 @@ function OfficeScene() {
     const init = async () => {
       // Load the active theme bundle (falls back to 'office' on a bad/absent bundle).
       const theme = await loadTheme(officeTheme);
+      // Graphics = GPU asks WebGL for the high-performance GPU; Auto and CPU only ask nothing.
+      const gfx = await floorPowerPreference();
       await app.init({
+        ...gfx,
         background: hexNum(theme.palette.background),
         antialias: false,
         roundPixels: true,
@@ -314,6 +318,7 @@ function OfficeScene() {
         height: host.clientHeight || 600,
       });
       if (mountIdRef.current !== mountId) { safeDestroy(app); return; }
+      recordFloorRenderer(app);   // the renderer really in use, for the Graphics line in Settings
       while (host.firstChild) host.removeChild(host.firstChild);
       host.appendChild(app.canvas);
 

@@ -32,6 +32,7 @@ import { BridgeTalk, EXCHANGE_HOLD_MS, exchangeSays, seatRole, stationRoles, typ
 import { activityThought, createSayCursor, type BubbleSay } from './bubbleModel';
 import { linePicker, type LinePicker } from './packLines';
 import type { MessageAct } from '../office/MessageEnvelope';
+import { floorPowerPreference, recordFloorRenderer } from '../graphicsProbe';
 import { coffeeProps, cupInHand, endedSays, freshSays, mugDepth, mugDx, mugPixels, pruneSaid, MUG_H, MUG_W, type CupPose } from './coffeeProps';
 
 /** One walk step at the longest tick (onTick clamps dt to 80 ms): ownChairKey's reach toward an own approach spot. */
@@ -162,7 +163,10 @@ export function StationFloor({ pack }: { pack: LoadedPack }) {
     const SM = pack.scene, R = pack.manifest.spriteRenderer, fw = R.frameWidth, fh = R.frameHeight;
 
     const init = async () => {
+      // Graphics = GPU asks WebGL for the high-performance GPU; Auto and CPU only ask nothing.
+      const gfx = await floorPowerPreference();
       await app.init({
+        ...gfx,
         background: pack.manifest.palette.background,
         antialias: false,
         // PERF-FLOOR-FILL-188: the canvas keeps the last frame, so a frame redraws only what changed.
@@ -174,6 +178,7 @@ export function StationFloor({ pack }: { pack: LoadedPack }) {
         height: host.clientHeight || 600,
       });
       if (mountIdRef.current !== mountId) { safeDestroy(app); return; }
+      recordFloorRenderer(app);   // the renderer really in use, for the Graphics line in Settings
       while (host.firstChild) host.removeChild(host.firstChild);
       host.appendChild(app.canvas);
       (app as any).__glRecovery = installContextLossRecovery(app.canvas, {
