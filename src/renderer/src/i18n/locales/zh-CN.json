@@ -487,7 +487,8 @@
     "sections": {
       "identity": {
         "label": "身份",
-        "hint": "名字 · 角色 · 颜色"
+        "hint": "名字 · 角色 · 颜色",
+        "hintPack": "名字 · 外观 · 颜色"
       },
       "workspace": {
         "label": "工作区",
@@ -1415,5 +1416,16 @@
   },
   "stationFloor": {
     "packFailed": "{{name}} 无法加载，所以先显示 The Office。所有智能体都还在。"
+  },
+  "looks": {
+    "title": "{{theme}} 中的外观",
+    "sub": "只有 {{theme}} 使用这个外观。在其他楼层，这个智能体保留原来的角色。",
+    "body": "体型",
+    "colours": "颜色",
+    "skin": "肤色",
+    "shirt": "上衣",
+    "hair": "发色",
+    "custom": "自定义颜色",
+    "presets": "预设"
   }
 }

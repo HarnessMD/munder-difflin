@@ -46,8 +46,9 @@ export interface Agent {
   character: OfficeCharacterName;
   accent: AccentColorName;
   /** This agent's look in each theme pack, by theme id (the Office uses
-   *  `character` and `accent`, which a look never replaces). Not saved with
-   *  the roster yet; without one an agent shows its pack's default look. */
+   *  `character` and `accent`, which a look never replaces). Durable: saved
+   *  with the roster, kept when the project switches theme and back. Without
+   *  one an agent shows its pack's default look. */
   appearanceByTheme?: LooksByTheme;
   /** persistent job / hire one-liner — same string as hive registry `role`.
    *  Live status belongs on `status` / `action`, never here. */
