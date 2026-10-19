@@ -1405,5 +1405,12 @@
     "viewSource": "view source",
     "loading": "loading image…",
     "decodeFailed": "could not decode this image — the file may be corrupt or misnamed"
+  },
+  "error": {
+    "tag": "error",
+    "app": "The app hit an error and stopped drawing. Your agents keep running.",
+    "panel": "{{where}} could not be shown. The rest of the app is fine.",
+    "tryAgain": "Try again",
+    "reload": "Reload the window"
   }
 }
