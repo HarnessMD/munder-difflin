@@ -5,6 +5,11 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import brandLogo from '@brand/logo.png?url';
 import './design/global.css';
 import './i18n';
+import { listThemes } from './scene/themes/themeCatalog';
+
+// The valid bundled theme packs join the project-theme catalogue (pickers, the per-project
+// theme) before first render: loading the catalogue registers them.
+listThemes();
 
 const favicon = document.createElement('link');
 favicon.rel = 'icon';

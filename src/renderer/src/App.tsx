@@ -31,7 +31,7 @@ import { FullscreenTerminal } from '@/components/FullscreenTerminal';
 import { TaskDetailOverlay } from '@/components/TaskDetailOverlay';
 import { IdePanel } from '@/ide/IdePanel';
 import { useHoldOptionToTalk } from '@/freeflow/holdOption';
-import { floorSceneTheme } from '@/scene/themes/themeCatalog';
+import { floorSceneTheme, resolveProjectTheme } from '@shared/projectTheme';
 import { useOrchestratorThemeLook } from '@/hooks/useOrchestratorThemeLook';
 import brandLogo from '@brand/logo.png?url';
 
@@ -110,9 +110,10 @@ export function App() {
       // show the voice button disabled-with-tooltip when Free Flow is on but no
       // Groq key is set (Settings keeps this in sync on save).
       useStore.getState().setHasGroqKey(!!c.groqApiKey);
-      // Mirror the active office theme so OfficeFloor renders it (a TV-show map
-      // only while the tvShowOffices flag is on; a pack always). Settings keeps this synced.
-      useStore.getState().setOfficeTheme(floorSceneTheme(c.officeTheme ?? 'office', c.tvShowOffices));
+      // Mirror this project's floor theme so OfficeFloor renders it: the project's own
+      // entry, else the global theme (a TV-show map only while the tvShowOffices flag
+      // is on; a pack always). Settings keeps this synced.
+      useStore.getState().setOfficeTheme(floorSceneTheme(resolveProjectTheme(c, c.harnessHome), c.tvShowOffices));
       // Mirror the triggers so Settings → Connections and the Command Center's
       // Triggers tab read one list, not two copies that drift — whichever surface
       // saves calls these same setters and the other repaints. No extra IPC: main

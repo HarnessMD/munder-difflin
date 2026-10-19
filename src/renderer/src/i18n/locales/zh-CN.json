@@ -180,18 +180,10 @@
     "desc": "在上面的列表里加入五个电视剧楼层。",
     "current": "当前",
     "soon": "即将推出",
-    "notBuiltYet": "{{label}} 尚未构建——暂时显示办公室。",
-    "switchAborted": "切换中止——终端无法关闭：{{error}}",
-    "confirmTitle": "切换到「{{label}}」？",
-    "startsFreshCast": "开启全新演员阵容",
-    "deleteCount": "你的 {{count}} 个当前智能体将被删除——它们的终端会关闭，进行中的工作会停止。",
-    "deleteCountPlural": "你的 {{count}} 个当前智能体将被删除——它们的终端会关闭，进行中的工作会停止。",
-    "onlyCarries": "只有 {{god}} 会保留。",
-    "stillWorking": "⚠ {{count}} 个智能体仍在工作。",
-    "stillWorkingPlural": "⚠ {{count}} 个智能体仍在工作。",
-    "cantUndo": "此操作无法撤销。",
-    "switching": "切换中…",
-    "deleteSwitch": "删除 {{count}} 个并切换"
+    "onSave": "按保存后切换",
+    "forProject": "{{project}} 的楼层。每个项目各用自己的楼层。",
+    "keepsAgents": "保存后，所有智能体都会移到 {{label}}。名字、记忆和工作都保留，只有外观改变。",
+    "notSaved": "未保存：现在无法读取你的设置文件，所以楼层没有改变。"
   },
   "settings": {
     "title": "设置",

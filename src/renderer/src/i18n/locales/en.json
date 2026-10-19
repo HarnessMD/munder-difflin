@@ -180,18 +180,10 @@
     "desc": "Adds five TV show floors to the list above.",
     "current": "current",
     "soon": "soon",
-    "notBuiltYet": "{{label}} isn't built yet — showing the office for now.",
-    "switchAborted": "Switch aborted — a terminal wouldn't close: {{error}}",
-    "confirmTitle": "SWITCH OFFICE TO \"{{label}}\"?",
-    "startsFreshCast": "STARTS A FRESH CAST",
-    "deleteCount": "Your {{count}} current agent will be deleted — their terminals close and any in-progress work stops.",
-    "deleteCountPlural": "Your {{count}} current agents will be deleted — their terminals close and any in-progress work stops.",
-    "onlyCarries": "Only {{god}} carries over.",
-    "stillWorking": "⚠ {{count}} agent is still working.",
-    "stillWorkingPlural": "⚠ {{count}} agents are still working.",
-    "cantUndo": "This can't be undone.",
-    "switching": "switching…",
-    "deleteSwitch": "delete {{count}} & switch"
+    "onSave": "switches on Save",
+    "forProject": "The floor for {{project}}. Each project keeps its own.",
+    "keepsAgents": "On Save, every agent moves to {{label}}. Names, memory and work stay; only the look changes.",
+    "notSaved": "Not saved: your settings file could not be read just now, so the floor did not change."
   },
   "settings": {
     "title": "SETTINGS",

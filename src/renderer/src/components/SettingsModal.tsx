@@ -18,6 +18,7 @@ import { SettingsHeroCard } from './SettingsHeroCard';
 import { SetupPanel } from './SetupPanel';
 import { Icon } from './Icon';
 import { OfficeThemePicker } from './OfficeThemePicker';
+import { floorSceneTheme, resolveProjectTheme, type ProjectThemeId } from '@shared/projectTheme';
 import { McpDefaultsSettings } from './McpDefaultsSettings';
 import { IntegrationsRegistry } from './IntegrationsRegistry';
 import { AiEnginesSettings } from './AiEnginesSettings';
@@ -250,9 +251,14 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
   const [autoCompactPending, setAutoCompactPending] = useState<boolean | null>(null);
   const [saveBusy, setSaveBusy] = useState(false);
   const [saveNote, setSaveNote] = useState('');
+  // This project's floor theme. A picked card waits for Save like every setting
+  // here; main stores it and reads it back, so the theme in force is main's answer.
+  const [projectThemeNow, setProjectThemeNow] = useState<ProjectThemeId>(() => resolveProjectTheme(config, config.harnessHome));
+  const [themePick, setThemePick] = useState<ProjectThemeId | null>(null);
+  const [themeNotSaved, setThemeNotSaved] = useState(false);
   /** True once a control that USED to persist on click has been changed. Only
    *  those need the close guard: the text fields always needed a Save. */
-  const dirty = Object.keys(pending).length > 0 || autoCompactPending !== null;
+  const dirty = Object.keys(pending).length > 0 || autoCompactPending !== null || themePick !== null;
   const stage = (patch: Partial<HarnessConfig>): void =>
     setPending((prev) => ({ ...prev, ...patch }));
 
@@ -366,8 +372,21 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
       await window.cth.updateConfig(patch);
       setPending({});
       setAutoCompactPending(null);
-      setSaveNote(t('settings.saved'));
-      setTimeout(() => setSaveNote(''), 1800);
+      let themeSaved = true;
+      if (themePick !== null) {
+        // On 'not-saved' (config.json damaged or busy) the old theme stays in force.
+        const res = await window.cth.setProjectTheme(themePick);
+        const cfg = await window.cth.getConfig();
+        setProjectThemeNow(res.theme);
+        useStore.getState().setOfficeTheme(floorSceneTheme(res.theme, cfg.tvShowOffices));
+        setThemePick(null);
+        setThemeNotSaved(!res.ok);
+        themeSaved = res.ok;
+      }
+      if (themeSaved) {
+        setSaveNote(t('settings.saved'));
+        setTimeout(() => setSaveNote(''), 1800);
+      }
     } catch (e) {
       setSaveNote(e instanceof Error ? e.message : String(e));
     } finally { setSaveBusy(false); }
@@ -1182,8 +1201,14 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                         </div>
                       </div>
 
-                      {/* Office Theme — TV-show office maps (experimental; flag tvShowOffices, default off) */}
-                      <OfficeThemePicker config={config} />
+                      {/* Office Theme: this project's floor (the TV-show maps behind the experimental flag tvShowOffices) */}
+                      <OfficeThemePicker
+                        config={config}
+                        current={projectThemeNow}
+                        pick={themePick}
+                        onPick={(id) => { setThemePick(id); setThemeNotSaved(false); }}
+                        notSaved={themeNotSaved}
+                      />
                     </>
                   )}
 

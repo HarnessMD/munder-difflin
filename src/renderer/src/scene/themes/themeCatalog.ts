@@ -5,6 +5,7 @@
 // and `themeProjectDefaults(id)`; applying a seed is the picker's business.
 
 import { OFFICE_THEME_ID, type ProjectDefaults, type BuilderSpec } from './manifest';
+import { registerPackThemes } from '@shared/projectTheme';
 import { catalogue, finishPack, readPack, type LoadedPack, type PackSummary } from './packs';
 import { bundledPacks } from './packSources';
 import { normPath, type Diagnostic } from './tiled';
@@ -26,6 +27,7 @@ function summaries(): PackSummary[] {
     const res = catalogue([...bundledPacks().values()]);
     for (const r of res.rejected) console.warn(`[themes] pack "${r.dir}" is not usable:\n` + r.diagnostics.map((d) => `  ${d.level}: ${d.message}`).join('\n'));
     packs = res.packs;
+    registerPackThemes(packs.map((p) => ({ id: p.id, label: p.label, orchestrator: p.projectDefaults?.orchestrator })));
   }
   return packs;
 }
@@ -41,12 +43,6 @@ export function listThemes(): ThemeEntry[] {
 /** True when `id` names a bundled stations pack. */
 export function isStationPack(id: string): boolean {
   return summaries().some((p) => p.id === id && p.sceneKind === 'stations');
-}
-
-/** The floor a saved theme draws: a bundled pack always, a TV-show map only
- *  while the experimental flag is on, else the office. */
-export function floorSceneTheme(id: string, tvShowOffices: boolean | undefined): string {
-  return tvShowOffices || isStationPack(id) ? id : OFFICE_THEME_ID;
 }
 
 /** A pack's first-project seed (validated data), or null. Only for creating a
