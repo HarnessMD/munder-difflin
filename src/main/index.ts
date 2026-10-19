@@ -31,7 +31,7 @@ import type { AnswerOutcome } from '../shared/humanQuestion';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
   getBranch, getStatus, getLog, getBranches, getAheadBehind, isRepo, getDiff, mainRepoRoot,
-  addWorktree, removeWorktree, worktreeHasUnintegratedWork, worktreeIsGcSafe,
+  addWorktree, removeWorktree, dropHeldAgentBranch, worktreeHasUnintegratedWork, worktreeIsGcSafe,
   getLogGraph, getCommitFiles, getFileAtRev, compareRefs, listWorktrees, checkoutRef
 } from './git';
 import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
@@ -2910,11 +2910,17 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
         const wt = await addWorktree(origCwd, wtPath, baseBranch);
         // R3, second check: the worktree holds the base branch's committed `.codex`, not
         // the working tree checked above. Held: the worktree is taken back (as teardown
-        // does) before the card goes up, so an Allow starts again on a free path.
+        // does) and the branch made for it deleted when nothing is on it, before the
+        // card goes up, so an Allow starts again in its own worktree.
         const held = wt.ok && codexHive ? codexStartCheck(opts.hive!.id, wtPath, origCwd) : null;
         if (held) {
+          const made = await getBranch(wtPath);
           const r = await removeWorktree(origCwd, wtPath).catch((e: unknown) => ({ ok: false, error: String(e), refused: false }));
           if (!r.ok) { console.error('[worktree] removeWorktree failed:', r.error); if (r.refused) noteRemovalRefused(wtPath, r.error); }
+          else {
+            const drop = await dropHeldAgentBranch(origCwd, wtPath, 'current' in made ? made.current : null, baseBranch);
+            if (drop.error) console.error('[worktree] held start: branch kept:', drop.error);
+          }
           return codexStartHeld(opts.hive!.id, held);
         }
         if (wt.ok) {

@@ -274,6 +274,23 @@ export async function addWorktree(
   return { ok: false, error: fallback.error };
 }
 
+/** After a held start's worktree is taken back: delete the branch the app made for
+ *  it, so the next start gets its own worktree again. `branch` is the worktree's
+ *  branch, read before the take back. Deleted only when it is the app's name for
+ *  that path, is not the base, and has nothing ahead of the base, counted against
+ *  the base and not HEAD (a detached main checkout's HEAD is not the base). A count
+ *  git cannot give keeps the branch. */
+export async function dropHeldAgentBranch(
+  cwd: string, wtPath: string, branch: string | null, baseBranch: string
+): Promise<{ deleted: boolean; error?: string }> {
+  if (!branch || branch !== agentBranchFor(wtPath) || branch === baseBranch) return { deleted: false };
+  const ahead = await runGit(cwd, ['rev-list', '--count', `${baseBranch}..${branch}`, '--']);
+  if (!ahead.ok) return { deleted: false, error: ahead.error };
+  if (ahead.stdout.trim() !== '0') return { deleted: false };
+  const del = await runGit(cwd, ['branch', '-D', branch]);
+  return del.ok ? { deleted: true } : { deleted: false, error: del.error };
+}
+
 /** The two removals unlinkLinksUnder uses, and how it reads (injectable for tests). */
 export interface LinkOps {
   unlink: (p: string) => Promise<void>;
