@@ -141,6 +141,7 @@
   },
   "sidebar": {
     "terminal": "terminal",
+    "history": "history",
     "git": "git",
     "messages": "messages",
     "traces": "traces"
@@ -1516,5 +1517,22 @@
     "restart": "restart",
     "later": "later",
     "saveFailed": "The Graphics setting could not be saved. Nothing changed."
+  },
+  "history": {
+    "prompt": "PROMPT",
+    "reply": "REPLY",
+    "start": "Start of this session",
+    "compacted": "Conversation compacted",
+    "checkpoint": "Context checkpoint",
+    "loadOlder": "Load older",
+    "jump": "Jump to latest",
+    "footer": "Read only, from {{engine}}'s own record of this session.",
+    "cut": "(cut short)",
+    "empty": "Nothing yet. History appears after the agent's first reply.",
+    "unsupported": "This engine keeps no record the app can read. The terminal is the only history.",
+    "readFailed": "History could not be read. The app tries again in a moment."
+  },
+  "where": {
+    "history": "History"
   }
 }

@@ -141,6 +141,7 @@
   },
   "sidebar": {
     "terminal": "终端",
+    "history": "历史",
     "git": "Git",
     "messages": "消息",
     "traces": "追踪"
@@ -1515,5 +1516,22 @@
     "restart": "重启",
     "later": "稍后",
     "saveFailed": "无法保存图形设置，没有任何改变。"
+  },
+  "history": {
+    "prompt": "提示",
+    "reply": "回复",
+    "start": "本次会话开始",
+    "compacted": "对话已压缩",
+    "checkpoint": "上下文检查点",
+    "loadOlder": "加载更早的",
+    "jump": "跳到最新",
+    "footer": "只读，来自 {{engine}} 自己的会话记录。",
+    "cut": "（已截断）",
+    "empty": "还没有内容。智能体第一次回复后，这里会显示历史。",
+    "unsupported": "这个引擎没有应用能读取的记录。终端是唯一的历史。",
+    "readFailed": "无法读取历史。应用稍后会再试一次。"
+  },
+  "where": {
+    "history": "历史"
   }
 }
