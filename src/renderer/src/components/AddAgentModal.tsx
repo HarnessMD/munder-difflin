@@ -4,6 +4,8 @@ import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { SpritePortrait } from './SpritePortrait';
 import { ThemeLookBuilder } from './ThemeLookBuilder';
+import { CodexHoldCard } from './CodexHoldCard';
+import type { CodexHoldView } from '../../../preload';
 import { Icon } from './Icon';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
@@ -261,6 +263,9 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
   const [folderNote, setFolderNote] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
+  // A Codex start main held: its card takes the error line's place until allowed or put off.
+  const [codexHold, setCodexHold] = useState<CodexHoldView | null>(null);
+  const [codexHoldError, setCodexHoldError] = useState<string | null>(null);
   // Which config section the left sidebar index is showing.
   const [section, setSection] = useState<SectionKey>('identity');
   // "Generate a hire with AI" helper — reveals a copy-paste prompt (item 7).
@@ -405,8 +410,28 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
     advanceHireReview();
   };
 
+  // Allow records the folder (one OK covers its worktrees), then the dialog starts
+  // the agent itself, so "allow this folder and start" holds. Not held any more
+  // (allowed in Settings meanwhile): start again; main holds it again if need be.
+  const allowCodexFolder = async () => {
+    if (!codexHold) return;
+    setBusy(true);
+    const r = await window.cth.codexHoldAllow(codexHold.folderKey).catch(() => ({ ok: false, error: 'not-saved' }));
+    setBusy(false);
+    if (!r.ok && r.error === 'not-saved') { setCodexHoldError(tr('settings.agentsModels.saveFailed')); return; }
+    void submit();
+  };
+  // Not now: the hold is put off and the dialog stays as it was.
+  const notNowCodexFolder = () => {
+    if (codexHold) void window.cth.codexHoldDismiss(codexHold.at).catch(() => undefined);
+    setCodexHold(null);
+    setCodexHoldError(null);
+  };
+
   const submit = async () => {
     setError(undefined);
+    setCodexHold(null);
+    setCodexHoldError(null);
     // A required field can live in a section the user hasn't opened, so jump to
     // the offending section as we surface the error — the field is never hidden.
     if (!name.trim()) { setError(tr('addAgent.errName')); setSection('identity'); return; }
@@ -447,6 +472,8 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
     });
     if (!spawnRes.ok) {
       setBusy(false);
+      // The folder's own Codex settings need the person's OK (Pam's P8): the card, not main's English reason.
+      if (spawnRes.codexHold) { setCodexHold(spawnRes.codexHold); return; }
       setError(spawnRes.error ?? 'spawn failed');
       return;
     }
@@ -1110,6 +1137,17 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                 )}
               </div>
             </div>
+
+            {codexHold && (
+              <CodexHoldCard
+                hold={codexHold}
+                agent={name.trim()}
+                busy={busy}
+                error={codexHoldError}
+                onAllow={() => void allowCodexFolder()}
+                onNotNow={notNowCodexFolder}
+              />
+            )}
 
             {error && (
               <div style={{

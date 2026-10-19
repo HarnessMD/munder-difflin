@@ -13,6 +13,7 @@ import {
 } from '@shared/triggers';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
+import { CodexFoldersSetting } from './CodexHoldCard';
 import { UpdatesSection } from './UpdatesSection';
 import { SettingsHeroCard } from './SettingsHeroCard';
 import { SetupPanel } from './SetupPanel';
@@ -1288,6 +1289,11 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                       <div style={{ height: 1, background: 'var(--cth-ink-300)' }} />
 
                       <AiEnginesSettings config={config} />
+
+                      <div style={{ height: 1, background: 'var(--cth-ink-300)' }} />
+
+                      {/* Codex folders: held starts waiting for an OK, and the folders allowed (Pam's P8) */}
+                      <CodexFoldersSetting />
 
                       <div style={{ height: 1, background: 'var(--cth-ink-300)' }} />
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import '@xterm/xterm/css/xterm.css';
 import { Icon } from './Icon';
+import { CodexHoldPane } from './CodexHoldCard';
 import { acquireTerminal, attachTerminal, detachTerminal, reflowTerminal, requestPtyResize } from './terminalPool';
 import {
   DEFAULT_TERMINAL_FONT_SIZE,
@@ -411,10 +412,14 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
           )}
         </div>
       </div>
-      <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
-        flex: 1, minHeight: 0,
-        padding: embedded ? '0 8px 8px' : 0
-      }} />
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
+          flex: 1, minHeight: 0,
+          padding: embedded ? '0 8px 8px' : 0
+        }} />
+        {/* A Codex start main held: the folder's OK, over this agent's terminal (Pam's P8) */}
+        <CodexHoldPane ptyId={ptyId} />
+      </div>
     </div>
   );
 }

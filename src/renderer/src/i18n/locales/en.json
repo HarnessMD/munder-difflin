@@ -367,7 +367,16 @@
     "saved": "Saved",
     "saving": "Saving…",
     "unsavedChanges": "unsaved changes",
-    "unsavedWarning": "You have unsaved settings. Close anyway and lose them?"
+    "unsavedWarning": "You have unsaved settings. Close anyway and lose them?",
+    "codexFolders": {
+      "waitingTitle": "Waiting for your OK",
+      "waitingDesc": "An agent tried to start in one of these folders. Each needs your OK first, so it did not start. Allow a folder only if you trust its repository.",
+      "allow": "allow",
+      "title": "Codex folders you allowed",
+      "desc": "A Codex agent in one of these folders runs the folder's own hooks, MCP servers and rules. Withdraw to stop that from its next start.",
+      "withdraw": "withdraw",
+      "empty": "None. A Codex agent whose folder has its own Codex settings waits for your OK before it starts."
+    }
   },
   "commandCenter": {
     "title": "COMMAND CENTER",
@@ -1432,5 +1441,28 @@
     "notEmpty": "Choose an empty folder for a new project.",
     "unreadable": "The app could not open this folder. Choose another one.",
     "errTag": "folder"
+  },
+  "codexLayer": {
+    "tag": "not started",
+    "title": "{{agent}} has not started. This folder has its own Codex settings.",
+    "body": "If {{agent}} starts here, Codex also loads these files from the repository, unreviewed. They can start MCP servers, run hooks and set command rules:",
+    "kind": {
+      "config": "settings, which can start MCP servers",
+      "hooks": "hooks, commands that run on the agent's events",
+      "rules": "command rules, which decide what it may run",
+      "agents": "agent files, which can start MCP servers and set an agent's instructions",
+      "hookFiles": "hook files, which can run commands",
+      "setting": "settings, some of which can run a program or change what commands can reach",
+      "unreadable": "the app could not open it, so it counts to be safe",
+      "doesNotParse": "the app could not read it as settings, so it counts to be safe"
+    },
+    "more": "and {{count}} more files",
+    "more_one": "and 1 more file",
+    "unreadable": "no settings files the app could read here; it counts the folder to be safe",
+    "allowAll": "allow these folders and start",
+    "trust": "Allow it only if you trust this repository. You can withdraw it in Settings, Agents & Models.",
+    "allow": "allow this folder and start",
+    "notNow": "not now",
+    "heldReason": "not started, waiting for your OK in Settings, Agents & Models"
   }
 }
