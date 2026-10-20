@@ -235,6 +235,11 @@ export function OfficeFloor() {
     appRef.current = app;
 
     const runtimes = new Map<string, Runtime>();
+    // Agents whose character is still being built (addCharacter awaits its
+    // frames). The sync loop re-runs on every store change, and without this a
+    // second pass in that window built a duplicate: the loser was shown but never
+    // updated, leaving an invisible avatar with its nameplate stuck at (0, 0).
+    const adding = new Set<string>();
     const seatClaims = new Set<number>();
     // In-flight message envelopes (sender desk → recipient desk). Capped so a
     // broadcast doesn't bury the floor in paper.
@@ -1378,6 +1383,16 @@ export function OfficeFloor() {
       (app as any).__taskBoardPoll = taskBoardPoll;
 
       const addCharacter = async (agent: Agent) => {
+        if (adding.has(agent.id)) return;
+        adding.add(agent.id);
+        try {
+          await buildCharacter(agent);
+        } finally {
+          adding.delete(agent.id);
+        }
+      };
+
+      const buildCharacter = async (agent: Agent) => {
         const charName = theme.cast.byName[agent.character] ? agent.character : theme.cast.defaultCharacter;
         const member = theme.cast.byName[charName];
         const seatIndex = claimSeat(agent);
