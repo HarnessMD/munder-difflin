@@ -55,6 +55,11 @@ export function ConferenceRoomTab() {
     const roster = seated
       .map((a) => `- ${a.name} (${a.id})`)
       .join('\n');
+    let schruteExtra = '';
+    try {
+      const cfg = await window.cth.getConfig();
+      if (cfg.schruteFarmsMode) schruteExtra = `\n\n${t('stage.schruteBrief')}`;
+    } catch { /* noop */ }
     const brief = [
       t('conferenceRoom.briefTitle'),
       '',
@@ -63,7 +68,8 @@ export function ConferenceRoomTab() {
       t('conferenceRoom.briefParticipants'),
       roster,
       '',
-      t('conferenceRoom.briefRules', { godName })
+      t('conferenceRoom.briefRules', { godName }),
+      schruteExtra
     ].join('\n');
 
     setBusy(true);

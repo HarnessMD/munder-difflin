@@ -9,6 +9,7 @@ import { MessageQueueComposer } from './MessageQueueComposer';
 import { TasksKanban } from './TasksKanban';
 import { AskMeTab } from './AskMeTab';
 import { ConferenceRoomTab } from './ConferenceRoomTab';
+import { StageTab } from './StageTab';
 import { TriggersTab } from './triggers/TriggersTab';
 import { TriggerHistoryTab } from './triggers/TriggerHistoryTab';
 import { WorkersTab } from './WorkersTab';
@@ -47,7 +48,7 @@ import { useRtl } from '@/i18n/useDirection';
 // Both the AskMe (#human) tab and the Triggers tab live here. Triggers replaced
 // the old Schedules tab: schedules are now one of four trigger types, and the
 // whole surface lives in ./triggers (see src/shared/triggers.ts for the contract).
-type CCTab = 'terminal' | 'floor' | 'tasks' | 'human' | 'conference' | 'triggers' | 'trigger-history'
+type CCTab = 'terminal' | 'floor' | 'tasks' | 'human' | 'conference' | 'stage' | 'triggers' | 'trigger-history'
   | 'memory' | 'graph' | 'activity' | 'skills' | 'workers';
 
 /** Fallback denominator for the per-agent token meter when no floor token budget
@@ -72,6 +73,7 @@ const TABS: { key: CCTab; labelKey: string; icon: Parameters<typeof Icon>[0]['na
   { key: 'tasks', labelKey: 'commandCenter.tabs.tasks', icon: 'check' },
   { key: 'human', labelKey: 'commandCenter.tabs.human', icon: 'bell' },
   { key: 'conference', labelKey: 'commandCenter.tabs.conference', icon: 'mcp' },
+  { key: 'stage', labelKey: 'commandCenter.tabs.stage', icon: 'sparkle' },
   { key: 'triggers', labelKey: 'commandCenter.tabs.triggers', icon: 'clock' },
   { key: 'trigger-history', labelKey: 'commandCenter.tabs.history', icon: 'ledger' },
   { key: 'memory', labelKey: 'commandCenter.tabs.memory', icon: 'sparkle' },
@@ -325,6 +327,7 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
         {tab === 'tasks' && <TasksKanban />}
         {tab === 'human' && <AskMeTab />}
         {tab === 'conference' && <ConferenceRoomTab />}
+        {tab === 'stage' && <StageTab />}
         {tab === 'triggers' && <TriggersTab />}
         {tab === 'trigger-history' && <TriggerHistoryTab />}
         {tab === 'memory' && (
@@ -566,9 +569,13 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
     const body = dispatchText.trim();
     if (!body) return;
     const suggested = dispatchTo ? agents.find((a) => a.id === dispatchTo) : undefined;
-    const full = suggested
+    let full = suggested
       ? `${body}\n\n${t('commandCenter.dispatchSuggestion', { name: suggested.name, id: suggested.id })}`
       : body;
+    try {
+      const cfg = await window.cth.getConfig();
+      if (cfg.schruteFarmsMode) full = `${full}\n\n${t('stage.schruteBrief')}`;
+    } catch { /* noop */ }
     const res = await window.cth.hiveSend(
       { to: 'god', act: 'request', subject: t('commandCenter.taskFromHuman'), body: full },
       'human'
