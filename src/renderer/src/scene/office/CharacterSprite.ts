@@ -11,11 +11,13 @@ const DIRECTION_ROW: Record<Direction, number> = {
   left: 2,
 };
 
+// Columns follow portraitArt's SCENE_FRAME: 0 stand, 1-2 steps, 3-4 typing,
+// 5-6 reading, 7 blink. Idle holds the standing frame and blinks once a cycle.
 const ANIM_FRAMES: Record<AnimState, number[]> = {
-  walk: [0, 1, 2, 1],
-  type: [0, 1, 2, 1],
-  read: [0, 1, 2, 1],
-  idle: [0],
+  walk: [1, 0, 2, 0],
+  type: [3, 4],
+  read: [5, 5, 6, 6],
+  idle: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7],
 };
 
 // Render characters a bit larger than their native 18×32 so heads/faces read

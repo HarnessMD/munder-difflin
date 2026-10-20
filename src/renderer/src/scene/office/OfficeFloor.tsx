@@ -1385,7 +1385,7 @@ export function OfficeFloor() {
           ?? mapRenderer.getSpawnPoint('entrance')
           ?? { x: 2, y: 2 };
         const waitTile = waitTiles[(seatIndex ?? 0) % waitTiles.length];
-        const frames = await theme.cast.getFrames(charName);
+        const frames = await theme.cast.getFrames(charName, { badge: colors.accent[agent.accent] });
         // Bail if the agent was removed (or scene torn down) while loading.
         if (mountIdRef.current !== mountId) return;
         if (!useStore.getState().agents.some((a) => a.id === agent.id)) {
@@ -1401,6 +1401,7 @@ export function OfficeFloor() {
           seatDirection: facingForSeat(seatTile),
           spawnTile: entrance, // walk in from the office door
           glowColor: hexNum(colors.accent[agent.accent]) ?? hexToNumber(member.shirt),
+          crowned: !!agent.isGod,
           onClick: (id) => useStore.getState().select(id),
         });
         character.show(charLayer);
