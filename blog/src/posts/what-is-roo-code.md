@@ -43,7 +43,7 @@ The company's own pages point the same way. roocode.com now redirects to [roomot
 
 ## Where did Roo Code come from, and who forked it?
 
-Roo Code came from Cline; two of its forks are ZooCode and Kilo. Roo Code's README names [Cline](https://cline.bot/) as the project "from where Roo Code originated", and points to ZooCode as "a fork started by the Roo Code community". Kilo's guide gives the second: "We started Kilo as a Roo fork in 2025."
+Roo Code came from Cline; two of its forks are ZooCode and Kilo. Roo Code's README names [Cline](https://cline.bot/) as the project "from where Roo Code originated", and points to ZooCode as "a fork started by the Roo Code community". Kilo's guide gives the second: "We started Kilo as a Roo fork in 2025." For agents to pick instead of Cline or Roo Code, see [Cline alternatives](/blog/cline-alternatives/).
 
 <figure class="mg" data-scene="tree"><img src="/blog/assets/media/what-is-roo-code/tree.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A family tree draws itself on a white page. A card labelled Cline appears at the top, a line grows down to a card labelled Roo Code, then the line branches to a card labelled ZooCode and a dashed card labelled Kilo Code."><figcaption>Cline to Roo Code to ZooCode, as Roo Code's own README tells it; the dashed Kilo Code branch is from Kilo's guide.</figcaption></figure>
 

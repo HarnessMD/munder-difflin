@@ -44,7 +44,7 @@ The Best for lines are our view.
 
 **3. Codex.** [Codex CLI](https://github.com/openai/codex) is "a coding agent from OpenAI that runs locally on your computer", with an IDE extension too. The CLI code is Apache 2.0. On OpenAI's [pricing page](https://learn.chatgpt.com/docs/pricing), Plus, $20 a month, is the first plan that lists the CLI and IDE extension. Best for: OpenAI models in the editor you already have. See [what is Codex](/blog/what-is-codex/).
 
-**4. Cline.** [Cline](https://github.com/cline/cline) calls itself "The open source coding agent in your IDE, terminal, & desktop." It is Apache 2.0. Its [pricing page](https://cline.bot/pricing) says "Cline is free for individual developers" on the Open Source plan. You pay for AI inference, with your own API keys or the Cline provider. Best for: an open agent inside VS Code.
+**4. Cline.** [Cline](https://github.com/cline/cline) calls itself "The open source coding agent in your IDE, terminal, & desktop." It is Apache 2.0. Its [pricing page](https://cline.bot/pricing) says "Cline is free for individual developers" on the Open Source plan. You pay for AI inference, with your own API keys or the Cline provider. Best for: an open agent inside VS Code. For the two side by side, see [Cursor vs Cline](/blog/cursor-vs-cline/).
 
 **5. OpenCode.** [OpenCode](https://opencode.ai/) is "The open source AI coding agent", under MIT. Its site says "Free models included or connect any model from any provider". Its [Go docs](https://opencode.ai/docs/go/) listed OpenCode Go at $10 a month. Best for: model freedom. See [what is OpenCode](/blog/what-is-opencode/).
 
