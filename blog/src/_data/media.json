@@ -5135,5 +5135,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "what-is-claude-duet": {
+    "title": "What Is Claude Duet? Anthropic's Proactive Agent App, Explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-claude-duet/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title Claude Duet in large ink type, the line Anthropic's proactive agent app, a Checked 22 Oct 2026 line, and a yellow sun rising behind a small fanned stack of white cards with a sky blue bell beside them.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-claude-duet/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
