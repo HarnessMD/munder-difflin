@@ -62,7 +62,7 @@ Barely: the repo is not archived, but its last commit on main landed on 22 May 2
 
 ## Which models can Aider and Claude Code use?
 
-Aider can use almost any model, and Claude Code is built for Claude only. Aider connects through LiteLLM to hundreds of models, including local ones through Ollama or any OpenAI compatible server. Claude Code runs Claude through Anthropic, Amazon Bedrock, Claude Platform on AWS, Google Cloud's Agent Platform or Microsoft Foundry, and Anthropic's [gateway docs](https://code.claude.com/docs/en/llm-gateway) say it "doesn't support routing Claude Code to non-Claude models through any gateway." People point it at Ollama anyway; our [Ollama and Claude Code guide](/blog/how-to-connect-ollama-to-claude-code/) covers what breaks when you do.
+Aider can use almost any model, and Claude Code is built for Claude only. Aider connects through LiteLLM to hundreds of models, including local ones through Ollama or any OpenAI compatible server. A bad LiteLLM release reached PyPI on 21 Oct 2026; see [the LiteLLM 1.107.0 compromise](/blog/litellm-1-107-0-compromise/) for who was exposed. Claude Code runs Claude through Anthropic, Amazon Bedrock, Claude Platform on AWS, Google Cloud's Agent Platform or Microsoft Foundry, and Anthropic's [gateway docs](https://code.claude.com/docs/en/llm-gateway) say it "doesn't support routing Claude Code to non-Claude models through any gateway." People point it at Ollama anyway; our [Ollama and Claude Code guide](/blog/how-to-connect-ollama-to-claude-code/) covers what breaks when you do.
 
 ## Is Aider cheaper than Claude Code?
 

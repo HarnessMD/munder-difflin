@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LiteLLM 1.107.0 Compromised on PyPI: How to Check and What to Rotate</title>
+<meta name="description" content="LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate." />
+<link rel="canonical" href="https://munderdiffl.in/blog/litellm-1-107-0-compromise/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="LiteLLM 1.107.0 Compromised on PyPI: How to Check and What to Rotate" />
+<meta property="og:description" content="LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate." />
+<meta property="og:url" content="https://munderdiffl.in/blog/litellm-1-107-0-compromise/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/litellm-1-107-0-compromise/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A pill reading Security, the title LiteLLM 1.107.0 in large ink type, the line What it steals and how to check, a Checked 21 Oct 2026 line, and a parcel box with a 1.107.0 tag whose yellow tape seal has split open." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-21T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Security" />
+<meta property="article:tag" content="Open Source" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="LiteLLM 1.107.0 Compromised on PyPI: How to Check and What to Rotate" />
+<meta name="twitter:description" content="LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/litellm-1-107-0-compromise/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A pill reading Security, the title LiteLLM 1.107.0 in large ink type, the line What it steals and how to check, a Checked 21 Oct 2026 line, and a parcel box with a 1.107.0 tag whose yellow tape seal has split open." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine",
+  "description": "LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate.",
+  "image": ["https://munderdiffl.in/blog/assets/media/litellm-1-107-0-compromise/hero.png"],
+  "datePublished": "2026-10-21T00:00:00.000Z",
+  "dateModified": "2026-10-21T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/litellm-1-107-0-compromise/" },
+  "keywords": "litellm 1.107.0, litellm compromised, litellm pypi malware, litellm 1.107.0 malware, cook.pth, litellm credential stealer, litellm docker image compromised",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/litellm-1-107-0-compromise/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine", "item": "https://munderdiffl.in/blog/litellm-1-107-0-compromise/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Which LiteLLM version was compromised?", "acceptedAnswer": { "@type": "Answer", "text": "litellm 1.107.0 on PyPI, uploaded on 21 Oct 2026 between 11:39 and 11:40 UTC. SafeDep reports that all seven wheels for Linux, macOS and Windows carry the implant, and BerriAI says PyPI quarantined the release. SafeDep and the public report on BerriAI's GitHub say 1.106.2, 1.107.0rc1 and 1.107.0rc2 are clean. BerriAI asks open source users to pin 1.106.2 or an explicit version published before the incident." } },
+    { "@type": "Question", "name": "Was the LiteLLM Docker image affected too?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, for a time. The public report on BerriAI's GitHub said at 13:23 UTC on 21 Oct 2026 that the latest, main-latest and main-stable tags of the LiteLLM images on GitHub's registry and Docker Hub still pointed to the 1.107.0 image. At 14:32 UTC a BerriAI contributor wrote that the malicious Docker images had been removed." } },
+    { "@type": "Question", "name": "How do I check if I installed LiteLLM 1.107.0?", "acceptedAnswer": { "@type": "Answer", "text": "Search from the shell, without starting Python, for cook.pth, cook.py and sitecustomize.py inside site-packages folders, and for a litellm-1.107.0.dist-info folder. Also look for /tmp/.pc_once_72129118c59f5636c0bb and /tmp/remote_code_loader.lock. The report on BerriAI's GitHub warns that any Python start, pip included, runs the payload again." } },
+    { "@type": "Question", "name": "Did Aider install the bad LiteLLM release?", "acceptedAnswer": { "@type": "Answer", "text": "Not on its own. On 21 Oct 2026 the aider-chat package on PyPI (version 0.86.2) pins litellm 1.81.10, so installing Aider pulls that version. An environment where litellm was upgraded separately on 21 Oct is a different case and should be checked." } },
+    { "@type": "Question", "name": "What should I rotate after installing LiteLLM 1.107.0?", "acceptedAnswer": { "@type": "Answer", "text": "Everything the host could reach: SSH keys, cloud credentials and instance roles, CI secrets, coding agent tokens, browser saved passwords, every provider key stored in a LiteLLM proxy database with its master and virtual keys, and the database password. The report on BerriAI's GitHub says to assume the theft succeeded if 1.107.0 was ever installed on a host with internet access." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine</h1>
+    <p class="dek">LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-21">Oct 21, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/litellm-1-107-0-compromise/hero.png" alt="Title card on white. A pill reading Security, the title LiteLLM 1.107.0 in large ink type, the line What it steals and how to check, a Checked 21 Oct 2026 line, and a parcel box with a 1.107.0 tag whose yellow tape seal has split open." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>If you installed litellm 1.107.0 from PyPI or pulled a floating LiteLLM Docker tag on 21 Oct 2026, treat that machine as compromised: clean it from the shell and rotate every secret it could reach. Facts here were checked on 21 Oct 2026 at about 16:20 UTC; BerriAI is still investigating.</p>
+<p>LiteLLM is the open source Python library and proxy that lets one piece of code call many model providers, and several coding tools build on it. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our <a href="/blog/security-for-ai-coding-agents/">security guide for AI coding agents</a> covers the wider habits and our <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup; this page covers one incident.</p>
+<h2 id="what-happened-to-litellm-11070" tabindex="-1">What happened to LiteLLM 1.107.0? <a class="anchor" href="#what-happened-to-litellm-11070" aria-hidden="true">#</a></h2>
+<p>A poisoned build of LiteLLM sat on PyPI for under two hours. <a href="https://safedep.io/litellm-pypi-compromise-credential-stealer-backdoor/">SafeDep’s analysis</a> of 21 Oct says the 1.107.0 wheels add three files to site-packages, and two of them “run when any Python process starts on the host, even one that never imports litellm.” The upstream GitHub source does not contain them. A <a href="https://github.com/BerriAI/litellm/issues/47826">public report on BerriAI’s GitHub</a>, opened at 12:06 UTC, set out the same findings, and a BerriAI contributor replied that the team is “treating this as SEV-0.”</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Time, 21 Oct 2026 (UTC)</th>
+<th>Event</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10:44</td>
+<td>Clean 1.106.2 uploaded to PyPI</td>
+<td>SafeDep, PyPI</td>
+</tr>
+<tr>
+<td>11:20 to 11:37</td>
+<td>Malicious 1.107.0 wheels built</td>
+<td>SafeDep</td>
+</tr>
+<tr>
+<td>11:39 to 11:40</td>
+<td>1.107.0 uploaded to PyPI</td>
+<td>SafeDep</td>
+</tr>
+<tr>
+<td>12:06</td>
+<td>Public report opened on BerriAI’s GitHub</td>
+<td>GitHub</td>
+</tr>
+<tr>
+<td>13:23</td>
+<td>Report status: removed from PyPI, Docker tags still infected</td>
+<td>GitHub</td>
+</tr>
+<tr>
+<td>13:50</td>
+<td>BerriAI: SEV-0, “PyPI quarantined 1.107.0”</td>
+<td>GitHub</td>
+</tr>
+<tr>
+<td>14:32</td>
+<td>BerriAI: “The malicious docker images have been removed”</td>
+<td>GitHub</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>How the release was built is not settled. SafeDep assesses “with moderate to high confidence” that BerriAI’s own private release pipeline built the wheels from an attacker modified source. The GitHub reporter says the evidence fits a build from a lookalike repository. At 14:32 BerriAI wrote: “We have not yet identified or locked down the method by which the threat actor published the malicious release.” On PyPI’s JSON listing at 16:20 UTC, the latest version is 1.106.2 and 1.107.0 is absent.</p>
+<figure class="mg" data-scene="window"><img src="/blog/assets/media/litellm-1-107-0-compromise/window.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A day timeline for 21 Oct 2026 in UTC slides in. A clean 1.106.2 package lands at 10:44. A 1.107.0 package lands at 11:40 and a highlighted band opens from there. A PyPI marker closes at 13:23 and a Docker marker closes at 14:32. A label reads Exposure window."><figcaption>The exposure window on 21 Oct 2026, from SafeDep's timeline and the report on BerriAI's GitHub.</figcaption></figure>
+<h2 id="what-does-the-malware-take" tabindex="-1">What does the malware take? <a class="anchor" href="#what-does-the-malware-take" aria-hidden="true">#</a></h2>
+<p>SafeDep describes two payloads. A file named <code>cook.pth</code> runs <code>cook.py</code>, a stealer that encrypts what it finds and sends it to a lookalike domain, <code>www.litellm[.]dev</code>. A <code>sitecustomize.py</code> file starts a background process that, every hour, reads a server address from a GitHub file, runs the stealer again and downloads and runs code from that server. SafeDep found that the GitHub account behind that address returned 404 at 13:40 UTC, so the backdoor now finds no server, but hosts that ran it earlier “could have received and run second-stage code.” The GitHub report adds that the file holding that address had been empty since 20 Oct 2026.</p>
+<p>What the stealer reads, per SafeDep’s table:</p>
+<ul>
+<li>SSH keys, shell history, GPG keys and TLS private keys.</li>
+<li>Cloud credentials for AWS, Azure and Google Cloud, Kubernetes and Docker configs, the GitHub CLI’s hosts file and ~/.netrc.</li>
+<li>CI secrets such as GitLab runner, Jenkins, Vault and Terraform files.</li>
+<li>Coding agent and editor tokens: Claude Code, Claude Desktop, Cursor, Windsurf, Copilot, VS Code <code>mcp.json</code>, Gemini CLI, Codex <code>auth.json</code>, Continue, Aider, Goose, opencode, Qwen, Crush, Kiro and Zed, plus a Hugging Face token.</li>
+<li>Saved browser passwords and history.</li>
+<li>Environment variables of its own process and of other processes.</li>
+<li>The provider API keys stored in a LiteLLM proxy database.</li>
+<li>AWS instance role credentials from the metadata service.</li>
+</ul>
+<figure class="mg" data-scene="magnet"><img src="/blog/assets/media/litellm-1-107-0-compromise/magnet.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A row of folders labelled SSH, Cloud, CI, Agent tokens, Browser and Proxy keys sits on a white shelf. A horseshoe magnet passes over them and small key shapes lift out of each folder into a locked box labelled Sent out. Tap a folder to see what it holds."><figcaption>What the stealer collects, grouped from SafeDep's table of modules (21 Oct 2026).</figcaption></figure>
+<h2 id="are-you-affected" tabindex="-1">Are you affected? <a class="anchor" href="#are-you-affected" aria-hidden="true">#</a></h2>
+<p>Match what you did on 21 Oct 2026 against each row:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>What you did</th>
+<th>Exposed?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pip or uv installed litellm 1.107.0, or an unpinned upgrade picked it up, between 11:39 UTC and its removal</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Pulled <a href="http://ghcr.io/berriai/litellm">ghcr.io/berriai/litellm</a>, litellm-database, litellm-non_root or <a href="http://docker.io/litellm/litellm">docker.io/litellm/litellm</a> by tag v1.107.0, latest, main-latest or main-stable before BerriAI removed them (by 14:32 UTC)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Installed 1.106.2, 1.107.0rc1 or 1.107.0rc2</td>
+<td>No, per SafeDep</td>
+</tr>
+<tr>
+<td>Installed aider-chat 0.86.2 without touching litellm</td>
+<td>No: it pins litellm 1.81.10</td>
+</tr>
+<tr>
+<td>BerriAI enterprise customer on the private registry</td>
+<td>No, per BerriAI</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Any tool that installs litellm without a pinned version could have pulled 1.107.0 in that window, so check the lock files of your own projects, not just the tools you know. A pip or uv cache, or a company package mirror, can still hold the release after PyPI removed it.</p>
+<h2 id="how-do-you-check-your-machine" tabindex="-1">How do you check your machine? <a class="anchor" href="#how-do-you-check-your-machine" aria-hidden="true">#</a></h2>
+<p>The GitHub report warns: “Any Python start in the affected environment runs <code>cook.pth</code> and <code>sitecustomize.py</code> again, and that includes running pip.” So check from the shell, with commands that do not start Python.</p>
+<pre class="language-bash"><code class="language-bash"><span class="token comment"># implant files in any site-packages or dist-packages folder (macOS and Linux)</span>
+<span class="token function">find</span> / <span class="token parameter variable">-path</span> <span class="token string">'*-packages/cook.pth'</span> <span class="token parameter variable">-o</span> <span class="token parameter variable">-path</span> <span class="token string">'*-packages/cook.py'</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">-o</span> <span class="token parameter variable">-path</span> <span class="token string">'*-packages/sitecustomize.py'</span> <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null
+
+<span class="token comment"># the 1.107.0 install record</span>
+<span class="token function">find</span> / <span class="token parameter variable">-type</span> d <span class="token parameter variable">-name</span> <span class="token string">'litellm-1.107.0.dist-info'</span> <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null
+
+<span class="token comment"># markers the malware leaves behind</span>
+<span class="token function">ls</span> <span class="token parameter variable">-la</span> /tmp/.pc_once_72129118c59f5636c0bb /tmp/remote_code_loader.lock <span class="token operator"><span class="token file-descriptor important">2</span>></span>/dev/null</code></pre>
+<p>The first marker means the stealer has already uploaded its data; the lock file means the backdoor process has run. The report adds that a missing marker “proves nothing”, because containers and temp folder cleanup remove it. A <code>sitecustomize.py</code> can also be legitimate, so look at the folder it sits in and compare it with the <code>litellm-1.107.0.dist-info</code> result.</p>
+<figure class="mg" data-scene="lens"><img src="/blog/assets/media/litellm-1-107-0-compromise/lens.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A magnifying glass moves along a folder tree that ends in a site-packages folder. Three files light up yellow inside it: cook.pth and two Python files, cook and sitecustomize, and a litellm-1.107.0.dist-info folder lights lilac. Two small tags below read /tmp marker and lock file. Tap the glass to step through the checks."><figcaption>The files and markers to look for, from SafeDep's indicators of compromise (21 Oct 2026).</figcaption></figure>
+<h2 id="what-should-you-do-if-you-find-it" tabindex="-1">What should you do if you find it? <a class="anchor" href="#what-should-you-do-if-you-find-it" aria-hidden="true">#</a></h2>
+<p>The remediation in the GitHub report, in order:</p>
+<ol>
+<li>From the shell, delete <code>cook.pth</code>, <code>cook.py</code> and <code>sitecustomize.py</code>, and their cached <code>.pyc</code> files, from every affected site-packages folder.</li>
+<li>Stop the detached Python process that holds <code>/tmp/remote_code_loader.lock</code>.</li>
+<li>Reinstall pinned to litellm 1.106.2, or better, rebuild the environment or image from scratch.</li>
+<li>If 1.107.0 was ever installed on a host with internet access, assume the data was sent.</li>
+<li>Rotate everything that host could reach: instance roles, every provider key in the LiteLLM proxy database plus the master and virtual keys, the database password, and any secret in the environment of any process. Our addition: SafeDep’s list includes coding agent token files, so revoke or rotate the tokens and API keys used by Claude Code, Codex and any other agent on that host.</li>
+<li>On AWS, check CloudTrail for <code>GetCallerIdentity</code> calls from the instance role around install time, then for use of that role’s credentials from outside your own infrastructure.</li>
+</ol>
+<p>BerriAI’s own advice to open source users is shorter: “please pin your version to 1.106.2 or any explicit version published prior to now.” It promised updates every two hours.</p>
+<p>Our view: the payload ran at Python start, not at import, so the lesson is to pin versions and review lock file changes before an upgrade lands on a machine that holds agent tokens. For the wider risk of agents with access to secrets, read <a href="/blog/the-lethal-trifecta-for-coding-agents/">the lethal trifecta for coding agents</a> and <a href="/blog/mcp-security-tool-poisoning/">MCP tool poisoning</a>.</p>
+<link rel="stylesheet" href="/blog/assets/media/litellm-1-107-0-compromise/motion.css"><script defer src="/blog/assets/media/litellm-1-107-0-compromise/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Which LiteLLM version was compromised?</p>
+          <p class="a">litellm 1.107.0 on PyPI, uploaded on 21 Oct 2026 between 11:39 and 11:40 UTC. SafeDep reports that all seven wheels for Linux, macOS and Windows carry the implant, and BerriAI says PyPI quarantined the release. SafeDep and the public report on BerriAI&#39;s GitHub say 1.106.2, 1.107.0rc1 and 1.107.0rc2 are clean. BerriAI asks open source users to pin 1.106.2 or an explicit version published before the incident.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Was the LiteLLM Docker image affected too?</p>
+          <p class="a">Yes, for a time. The public report on BerriAI&#39;s GitHub said at 13:23 UTC on 21 Oct 2026 that the latest, main-latest and main-stable tags of the LiteLLM images on GitHub&#39;s registry and Docker Hub still pointed to the 1.107.0 image. At 14:32 UTC a BerriAI contributor wrote that the malicious Docker images had been removed.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I check if I installed LiteLLM 1.107.0?</p>
+          <p class="a">Search from the shell, without starting Python, for cook.pth, cook.py and sitecustomize.py inside site-packages folders, and for a litellm-1.107.0.dist-info folder. Also look for /tmp/.pc_once_72129118c59f5636c0bb and /tmp/remote_code_loader.lock. The report on BerriAI&#39;s GitHub warns that any Python start, pip included, runs the payload again.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Did Aider install the bad LiteLLM release?</p>
+          <p class="a">Not on its own. On 21 Oct 2026 the aider-chat package on PyPI (version 0.86.2) pins litellm 1.81.10, so installing Aider pulls that version. An environment where litellm was upgraded separately on 21 Oct is a different case and should be checked.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What should I rotate after installing LiteLLM 1.107.0?</p>
+          <p class="a">Everything the host could reach: SSH keys, cloud credentials and instance roles, CI secrets, coding agent tokens, browser saved passwords, every provider key stored in a LiteLLM proxy database with its master and virtual keys, and the database password. The report on BerriAI&#39;s GitHub says to assume the theft succeeded if 1.107.0 was ever installed on a host with internet access.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/security/">Security</a><a class="tag" href="/blog/tags/open-source/">Open Source</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-happened-to-litellm-11070">What happened to LiteLLM 1.107.0?</a></li><li class="lvl-2"><a href="#what-does-the-malware-take">What does the malware take?</a></li><li class="lvl-2"><a href="#are-you-affected">Are you affected?</a></li><li class="lvl-2"><a href="#how-do-you-check-your-machine">How do you check your machine?</a></li><li class="lvl-2"><a href="#what-should-you-do-if-you-find-it">What should you do if you find it?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/agent-tools-today-2026-10-19/"><span class="k">← Older</span><span class="t">Agent Tools Today, 19 Oct 2026: DeepSeek Search API, Sphinx, OpenClaw 2026.10.5</span></a>
+      <span></span>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-code-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-15">Oct 15, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-best-practices/">Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs</a></h3>
+    <p class="dek">Nine Claude Code best practices from Anthropic&#39;s docs, checked 15 Oct 2026: give Claude a check, plan first, keep memory short, clear context, run in parallel.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-code-best-practices/" aria-label="Read: Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/ai-agent-use-cases-our-office/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/ai-agent-use-cases-our-office/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>8 min</span><span class="pin">Pinned</span>
+    </div>
+    <h3><a href="/blog/ai-agent-use-cases-our-office/">AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does</a></h3>
+    <p class="dek">We run our company on Munder Difflin. Every seat on our floor: what each AI agent does, how its work starts, what comes out, and how to copy it.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/ai-agent-use-cases-our-office/" aria-label="Read: AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-code-skills/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-skills/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-skills/">Claude Code Skills: What They Are, Where They Live and How to Write One</a></h3>
+    <p class="dek">Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-code-skills/" aria-label="Read: Claude Code Skills: What They Are, Where They Live and How to Write One">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
