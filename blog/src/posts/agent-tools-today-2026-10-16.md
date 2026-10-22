@@ -14,7 +14,7 @@ tags: ["Daily Brief", "Claude Code", "OpenCode", "MCP", "Open Source"]
 
 Agent tools today, 16 Oct 2026, in one line: Meta released the weights of an 816B parameter model "built for coding and agentic work", an office suite told agents how to write its documents, and OpenCode switched off session sharing. Every number was checked on 16 Oct. The edition before this one on the site is [13 Oct](/blog/agent-tools-today-2026-10-13/).
 
-[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
 
 <figure class="mg" data-scene="today"><img src="/blog/assets/media/agent-tools-today-2026-10-16/today.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A pop-up book opens on a white background and a card rises from the fold, reading Muse Spark Open, then three tabs unfold in front of it: 816B total, 42B active and 1M token context."><figcaption>Meta's Muse Spark Open, from its model card, checked 16 Oct 2026.</figcaption></figure>
 

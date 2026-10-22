@@ -15,14 +15,14 @@ faq:
   - q: "Can I use Claude Duet outside the US?"
     a: "Not yet. Anthropic's announcement of 21 Oct 2026 says the preview starts with Pro and Max users in the US, and the product page says Team and Enterprise plans are not included yet. The open source picks on this page have no region limit."
   - q: "Which Claude Duet alternative keeps working when my laptop is off?"
-    a: "Claude Cowork. Anthropic's help page says scheduled tasks run in the cloud with no device online. Munder Difflin, OpenClaw and Hermes Agent run on a machine you control, so that machine has to stay on, though Hermes Agent can live on a small server."
-  - q: "What is the best Claude Duet alternative for developers?"
-    a: "Munder Difflin, if your work is a codebase. It runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer, with schedules and Slack replies, while Duet is built for business apps like Gmail, QuickBooks and HubSpot."
+    a: "Claude Cowork. Anthropic's help page says scheduled tasks run in the cloud with no device online. Munder Difflin, OpenClaw and Hermes Agent run on a machine you control today, so that machine has to stay on, though Hermes Agent can live on a small server. The Munder Difflin Cloud Office, coming soon, keeps its agents working with your computer off."
+  - q: "Which Claude Duet alternative gives me a team of agents?"
+    a: "Munder Difflin. It runs a team of AI agents for all kinds of knowledge work, coding included: research, writing, analysis, ops and code, each agent with its own role, on schedules and Slack. Duet is one agent in one thread."
 ---
 
-The best Claude Duet alternatives today are Claude Cowork if you want Anthropic's cloud, and [Munder Difflin](https://harnessmd.com/download), OpenClaw or Hermes Agent if you want an agent on hardware you control. None of them has a waitlist.
+The best Claude Duet alternatives today are Claude Cowork if you want Anthropic's cloud, and [Munder Difflin](https://harnessmd.com/download), OpenClaw or Hermes Agent if you want agents on hardware you control today. None of them has a waitlist.
 
-Munder Difflin is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Claude Duet is Anthropic's proactive agent app, opened on 21 Oct 2026 as a research preview. New to it? Start with [What is Claude Duet?](/blog/what-is-claude-duet/). Every fact below comes from vendor pages opened on 22 Oct 2026.
+Munder Difflin is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Claude Duet is Anthropic's proactive agent app, opened on 21 Oct 2026 as a research preview. New to it? Start with [What is Claude Duet?](/blog/what-is-claude-duet/). Every fact below comes from vendor pages opened on 22 Oct 2026.
 
 ## Why look for a Claude Duet alternative?
 
@@ -43,7 +43,7 @@ This decides whether a closed laptop stops the work and who holds your files. Du
 
 **1. Claude Cowork.** [Cowork](/blog/what-is-claude-cowork/) is Anthropic's agent for longer work: you describe an outcome, step away and come back to finished documents, files or research. Its [help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says it is on paid plans (Pro, Max, Team, Enterprise), runs sessions remotely in the cloud, and that "scheduled tasks run in the cloud, with no device online." The difference from Duet: you start the work. Best for: Duet's cloud model without the waitlist.
 
-**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make. Its [README](https://github.com/HarnessMD/munder-difflin) says it works "with the subscriptions you already pay for, on their hourly limits." Agents act without a prompt through schedules, a Slack channel can feed work to Michael, the lead agent, and spend, scope changes and destructive steps come back to you for approval. The catch: agents run while your computer runs. Best for: a proactive team for your codebase. [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) compares the two in full.
+**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make. Its [README](https://github.com/HarnessMD/munder-difflin) says it works "with the subscriptions you already pay for, on their hourly limits." Agents act without a prompt through schedules, a Slack channel can feed work to Michael, the lead agent, and spend, scope changes and destructive steps come back to you for approval. Agents reach your other apps through MCP servers, skills and plugins you add. Today agents run while your computer runs; the Cloud Office, coming soon, keeps them working with it off. Best for: a proactive team for research, writing, analysis, ops and code. [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) compares the two in full.
 
 **3. OpenClaw.** [OpenClaw](https://github.com/openclaw/openclaw) is an open source (MIT) assistant that "runs on your own computer and meets you in the channels you already use": WhatsApp, Telegram, Slack, Discord, iMessage and more than 20 others. Best for: a personal assistant in your chat apps.
 
@@ -67,10 +67,10 @@ Our view: a schedule you wrote is less clever than Duet's judgment about what is
 
 ## Which Claude Duet alternative should you pick?
 
-Start from the work, not the feature list. If the work must go on with your laptop shut, pick Claude Cowork. If your day is a codebase, pick Munder Difflin. If you want an assistant inside WhatsApp or Telegram, pick OpenClaw, and if you want memory that learns, pick Hermes Agent.
+Start from the work, not the feature list. If the work must go on with your laptop shut, pick Claude Cowork. If you want a team of agents with different roles, pick Munder Difflin. If you want an assistant inside WhatsApp or Telegram, pick OpenClaw, and if you want memory that learns, pick Hermes Agent.
 
-<figure class="mg" data-scene="pick"><img src="/blog/assets/media/claude-duet-alternatives/pick.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A marble drops through three question gates on a white marble run: Must it work with your laptop shut?, Is your work a codebase? and Want it in WhatsApp or Telegram? Each Yes or No exit leads to a bin: Claude Cowork, Munder Difflin, OpenClaw or Hermes Agent. Steer the marble with the Yes and No buttons."><figcaption>Three questions that pick an alternative.</figcaption></figure>
+<figure class="mg" data-scene="pick"><img src="/blog/assets/media/claude-duet-alternatives/pick.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A marble drops through three question gates on a white marble run: Must it work with your laptop shut?, Want a team of agents, not one? and Want it in WhatsApp or Telegram? Each Yes or No exit leads to a bin: Claude Cowork, Munder Difflin, OpenClaw or Hermes Agent. Steer the marble with the Yes and No buttons."><figcaption>Three questions that pick an alternative.</figcaption></figure>
 
-Two more reads: [Build your own Claude Duet for your codebase](/blog/build-your-own-claude-duet/) walks through a free morning brief agent step by step, and [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/) covers OpenAI's version of the same idea. To set up Munder Difflin, follow the [install guide](/blog/how-to-install-and-use-munder-difflin/).
+Two more reads: [Build your own Claude Duet](/blog/build-your-own-claude-duet/) walks through a free morning brief agent step by step, and [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/) covers OpenAI's version of the same idea. To set up Munder Difflin, follow the [install guide](/blog/how-to-install-and-use-munder-difflin/).
 
 <link rel="stylesheet" href="/blog/assets/media/claude-duet-alternatives/motion.css"><script defer src="/blog/assets/media/claude-duet-alternatives/motion.js"></script>

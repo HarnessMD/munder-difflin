@@ -14,7 +14,7 @@ tags: ["Daily Brief", "Claude Code", "MCP", "Open Source"]
 
 Agent tools today, 22 Oct 2026, in one line: Anthropic shipped its first new API version since 2023, LayerFS reached 1.0 with a filesystem built for parallel agents, and BerriAI believes the LiteLLM attack ran through tokens kept in a proxy's logs. Every number was checked on 22 Oct. The last edition is [21 Oct](/blog/agent-tools-today-2026-10-21/).
 
-[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
 
 <figure class="mg" data-scene="today"><img src="/blog/assets/media/agent-tools-today-2026-10-22/today.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a stack of thin layers labelled Shared history sits at the bottom. Three clear sheets labelled Agent 1, Agent 2 and Agent 3 slide on top, and small marks appear on each. Agent 2's sheet presses down into the stack as a new commit, and the other two sheets lift away. Tap Commit to press another sheet down."><figcaption>How LayerFS gives each agent a workspace over shared history, drawn from its README on 22 Oct 2026.</figcaption></figure>
 

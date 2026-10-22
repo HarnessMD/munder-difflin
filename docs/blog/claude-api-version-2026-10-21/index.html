@@ -187,7 +187,7 @@
   <div class="post-wrap wrap">
     <div class="prose">
       <p>Claude API version 2026-10-21 is the first new Claude API version since 2023-06-01. Anthropic released it on 21 Oct 2026 with new major versions of every SDK. It removes <code>temperature</code>, <code>top_p</code> and <code>top_k</code>, rejects two odd message shapes, renames fields in the Admin API, and the new SDKs send your key in a different header.</p>
-<p>This page sums up Anthropic’s <a href="https://platform.claude.com/docs/en/api/versioning">versions page</a>, <a href="https://platform.claude.com/docs/en/api/migration-2026-10-21">migration guide</a> and API release notes, opened on 22 Oct 2026, with the Python changes in most detail. If you run coding agents rather than call the API yourself, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<p>This page sums up Anthropic’s <a href="https://platform.claude.com/docs/en/api/versioning">versions page</a>, <a href="https://platform.claude.com/docs/en/api/migration-2026-10-21">migration guide</a> and API release notes, opened on 22 Oct 2026, with the Python changes in most detail. If you would rather run a team of agents than call the API yourself, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Our <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
 <h2 id="what-changed-in-claude-api-version-2026-10-21" tabindex="-1">What changed in Claude API version 2026-10-21? <a class="anchor" href="#what-changed-in-claude-api-version-2026-10-21" aria-hidden="true">#</a></h2>
 <p>Three Messages API requests that used to work now return a 400 error, and each SDK has a new major version that sends <code>anthropic-version: 2026-10-21</code> by default. An SDK keeps the API version that was current when its major version came out, so code on an older SDK keeps sending 2023-06-01 until you upgrade.</p>
 <div class="table-scroll">
@@ -324,7 +324,7 @@ client<span class="token punctuation">.</span>messages<span class="token punctua
 
   <footer class="post-foot wrap"><div class="prevnext">
       <a class="pn prev" href="/blog/claude-duet-alternatives/"><span class="k">← Older</span><span class="t">Claude Duet Alternatives: 4 AI Agents You Can Use Today, No Waitlist</span></a>
-      <a class="pn next" href="/blog/build-your-own-claude-duet/"><span class="k">Newer →</span><span class="t">Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase</span></a>
+      <a class="pn next" href="/blog/build-your-own-claude-duet/"><span class="k">Newer →</span><span class="t">Build Your Own Claude Duet: A Free Morning Brief Agent</span></a>
     </div>
     <section class="related">
       <h2>Related in Guides</h2>
@@ -337,11 +337,11 @@ client<span class="token punctuation">.</span>messages<span class="token punctua
       <span class="dot" aria-hidden="true"></span>
       <span>4 min</span>
     </div>
-    <h3><a href="/blog/build-your-own-claude-duet/">Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase</a></h3>
-    <p class="dek">No Claude Duet invite? Build a proactive morning brief for your code in Munder Difflin: one agent, one schedule, and Slack replies. Free and open source.</p>
+    <h3><a href="/blog/build-your-own-claude-duet/">Build Your Own Claude Duet: A Free Morning Brief Agent</a></h3>
+    <p class="dek">No Claude Duet invite? Build a proactive morning brief in Munder Difflin: one agent, one schedule and Slack replies, with a codebase as the example.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/build-your-own-claude-duet/" aria-label="Read: Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase">Read →</a>
+      <a class="more" href="/blog/build-your-own-claude-duet/" aria-label="Read: Build Your Own Claude Duet: A Free Morning Brief Agent">Read →</a>
     </div>
   </div>
 </article>

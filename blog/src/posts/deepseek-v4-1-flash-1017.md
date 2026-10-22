@@ -23,7 +23,7 @@ faq:
 
 DeepSeek V4.1 Flash 1017 is an update to DeepSeek's V4.1 Flash model, released on 17 October 2026 with open weights under the MIT License. DeepSeek's release note promises "Stronger benchmark performance, faster task completion, and shorter outputs than the previous version". It now serves the deepseek-flash name in DeepSeek's API. Checked 17 Oct 2026.
 
-Open weight coding models need an agent to drive them. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our guide to [running it on open models](/blog/run-munder-difflin-on-open-models/) covers local runtimes and providers, and our [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+Open weight coding models need an agent to drive them. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Our guide to [running it on open models](/blog/run-munder-difflin-on-open-models/) covers local runtimes and providers, and our [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 ## What is DeepSeek V4.1 Flash 1017?
 

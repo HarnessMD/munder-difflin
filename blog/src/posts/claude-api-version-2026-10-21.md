@@ -24,7 +24,7 @@ faq:
 
 Claude API version 2026-10-21 is the first new Claude API version since 2023-06-01. Anthropic released it on 21 Oct 2026 with new major versions of every SDK. It removes `temperature`, `top_p` and `top_k`, rejects two odd message shapes, renames fields in the Admin API, and the new SDKs send your key in a different header.
 
-This page sums up Anthropic's [versions page](https://platform.claude.com/docs/en/api/versioning), [migration guide](https://platform.claude.com/docs/en/api/migration-2026-10-21) and API release notes, opened on 22 Oct 2026, with the Python changes in most detail. If you run coding agents rather than call the API yourself, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+This page sums up Anthropic's [versions page](https://platform.claude.com/docs/en/api/versioning), [migration guide](https://platform.claude.com/docs/en/api/migration-2026-10-21) and API release notes, opened on 22 Oct 2026, with the Python changes in most detail. If you would rather run a team of agents than call the API yourself, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Our [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 ## What changed in Claude API version 2026-10-21?
 

@@ -424,7 +424,7 @@
         return { g, cup, halo, x };
       });
       /* gates, question cards and exit labels */
-      const QS = ["Must it work with your laptop shut?", "Is your work a codebase?", "Want it in WhatsApp or Telegram?"];
+      const QS = ["Must it work with your laptop shut?", "Want a team of agents, not one?", "Want it in WhatsApp or Telegram?"];
       const cards = QS.map((q, i) => {
         /* the first card wraps so it stays clear of the buttons */
         const g = el("g", {}, svg), x = X[i] + 32, maxW = i === 0 ? 236 : 800 - 24 - x - 32;

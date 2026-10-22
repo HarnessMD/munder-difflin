@@ -1,7 +1,7 @@
 ---
-title: "Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase"
-seoTitle: "Build Your Own Claude Duet for Free: Morning Brief Agent for Developers"
-description: "No Claude Duet invite? Build a proactive morning brief for your code in Munder Difflin: one agent, one schedule, and Slack replies. Free and open source."
+title: "Build Your Own Claude Duet: A Free Morning Brief Agent"
+seoTitle: "Build Your Own Claude Duet for Free: A Morning Brief Agent Team"
+description: "No Claude Duet invite? Build a proactive morning brief in Munder Difflin: one agent, one schedule and Slack replies, with a codebase as the example."
 date: 2026-10-22
 category: guides
 categoryLabel: Guides
@@ -11,18 +11,18 @@ secondaryKeywords: ["claude duet for developers", "open source claude duet", "cl
 tags: ["Guides", "AI Agents", "Automation", "Claude Code"]
 faq:
   - q: "Is this the same as Claude Duet?"
-    a: "No. Claude Duet is Anthropic's app that works on business apps in its own virtual machine and decides by itself when to message you. This build copies one idea, a brief that comes to you first, for a codebase, on your own computer, on a clock you set."
+    a: "No. Claude Duet is Anthropic's app that works on business apps in its own virtual machine and decides by itself when to message you. This build copies one idea, a brief that comes to you first, with a team of agents on your own computer, on a clock you set."
   - q: "What do I need for this build?"
     a: "Munder Difflin, which is free, a coding CLI such as Claude Code with a subscription or key, and the GitHub CLI signed in to your account so the agent can read pull requests, runs and issues. Slack is optional."
   - q: "Does the brief run if my laptop is asleep?"
-    a: "No. Schedules run on your computer, so it has to be awake. Munder Difflin has a setting that keeps the computer awake while agents are live, and it works best on mains power."
+    a: "Not today. Schedules run on your computer, so it has to be awake, and Munder Difflin has a setting that keeps it awake while agents are live. The Munder Difflin Cloud Office, coming soon, keeps agents working with your computer off."
   - q: "Can I use Codex or Gemini CLI instead of Claude Code?"
     a: "Yes. Each agent picks its own engine when you add it, so the brief agent can run Codex, Gemini CLI, OpenCode or another supported CLI. The prompt stays the same."
 ---
 
-You can build your own Claude Duet for a codebase with one [Munder Difflin](https://harnessmd.com/download) agent, one daily schedule that asks it for a brief, and Slack for replies. It costs nothing beyond the coding subscription you already have.
+You can build your own Claude Duet with one [Munder Difflin](https://harnessmd.com/download) agent, one daily schedule that asks it for a brief, and Slack for replies. It costs nothing beyond the AI subscription you already have.
 
-Claude Duet, Anthropic's proactive agent app, opened as a US waitlist on 21 Oct 2026 and is built for business apps ([what is Claude Duet?](/blog/what-is-claude-duet/)). Its best idea, a brief that comes to you before you ask, works just as well for code. Munder Difflin is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Labels below match the app's source on 22 Oct 2026.
+Claude Duet, Anthropic's proactive agent app, opened as a US waitlist on 21 Oct 2026 and is built for business apps ([what is Claude Duet?](/blog/what-is-claude-duet/)). Its best idea, a brief that comes to you before you ask, works for any work a team of agents can gather: a research digest, a draft weekly report, or items from another app through an MCP server you add. This guide uses a codebase as the worked example. Munder Difflin is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Labels below match the app's source on 22 Oct 2026.
 
 ## What will this build do?
 
@@ -69,7 +69,7 @@ Want more than one repository? Add one brief agent per repository, each pointed 
 
 ## How do you answer the brief from Slack?
 
-Connect Slack once, then reply in a thread. Create the Slack app from the manifest the app gives you: under **Integrations** in Pro, or **Settings**, then **Connections** in Classic, press **Copy manifest**. Our [Slack guide](/blog/connect-slack-to-munder-difflin/) has every step. Pick Michael, the orchestrator, under **Who answers inbound messages**.
+Connect Slack once, then reply in a thread. Create the Slack app from the manifest the app gives you: press **Copy manifest** under **How to get these**. Our [Slack guide](/blog/connect-slack-to-munder-difflin/) has every step. Pick Michael, the orchestrator, as the agent that answers.
 
 Now write "Fix the failing check on main" in a channel the bot is in. The project's [README](https://github.com/HarnessMD/munder-difflin) says Michael "can spawn an ephemeral worker, reply in-thread, and tear it down."
 
@@ -79,6 +79,6 @@ Spend, scope changes and destructive steps still come back to you for approval, 
 
 ## What is still missing compared with Claude Duet?
 
-Judgment and the cloud. Duet decides what is urgent on its own and runs in a virtual machine with your laptop off. This build fires on your clock, on your awake computer, and sees only what its commands show. It works on your code, with any engine you pick, today, anywhere. For the full picture, read [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) and [scheduling agent missions](/blog/scheduling-autonomous-agent-missions/).
+Judgment, for now. Duet decides what is urgent on its own and runs in a virtual machine with your laptop off. This build fires on your clock, on your awake computer, and sees only what its commands show; the Cloud Office, coming soon, takes it off your computer. It works with any engine you pick, today, anywhere. For the full picture, read [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) and [scheduling agent missions](/blog/scheduling-autonomous-agent-missions/).
 
 <link rel="stylesheet" href="/blog/assets/media/build-your-own-claude-duet/motion.css"><script defer src="/blog/assets/media/build-your-own-claude-duet/motion.js"></script>

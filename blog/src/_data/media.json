@@ -5193,7 +5193,7 @@
     "inline": {}
   },
   "build-your-own-claude-duet": {
-    "title": "Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase",
+    "title": "Build Your Own Claude Duet: A Free Morning Brief Agent",
     "category": "guides",
     "hero": {
       "file": "assets/media/build-your-own-claude-duet/hero.png",
