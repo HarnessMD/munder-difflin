@@ -1,7 +1,16 @@
 import { closeSync, cpSync, existsSync, fstatSync, mkdirSync, openSync, readSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+// better-sqlite3, NOT node:sqlite — on purpose. node:sqlite only exists on the
+// Node >= 22 that Electron 39 embeds, but a better-sqlite3 binary is rebuilt
+// against the RUNNING Electron's ABI by electron-rebuild (the same one the
+// persist store uses, src/main/db.ts). Under Electron 32 — the version the
+// packaged 0.5.7 upstream actually ships — node:sqlite does not exist at all,
+// and importing it statically crashed the main process at boot (from the start).
+// The query API (prepare/all/get/close) is nearly identical; only constructor
+// naming differs (readOnly → readonly).
+import type BetterSqlite3 from 'better-sqlite3';
+import Database from 'better-sqlite3';
 import { estimateCostUsd, normalizeModel } from './pricing';
 import { expandTilde } from './fs';
 
@@ -358,11 +367,16 @@ function readFileUsage(dir: string, file: string): FileUsageEntry | null {
  */
 export function readOpencodeUsage(cwd: string, opts: ReadUsageOptions = {}): AgentUsage {
   const usage = zero();
-  let db: DatabaseSync | undefined;
+  let db: BetterSqlite3.Database | undefined;
   try {
     const dbPath = opts.dbPath ?? opencodeDbPath();
     if (!existsSync(dbPath)) return usage;
-    db = new DatabaseSync(dbPath, { readOnly: true });
+    // better-sqlite3's `readonly` (vs node:sqlite's `readOnly`) — a genuinely
+    // read-only handle: an opencode.db (or WAL) we must never mutate from here.
+    // The require() itself does NOT dlopen (only `new Database()` does), so a
+    // broken native module here degrades to zeroed usage — the same resilience
+    // the code already shows for a missing db file.
+    db = new Database(dbPath, { readonly: true });
 
     // `session_v2.directory` is stored POSIX-style even on Windows; the registry
     // holds native backslashes. Compare normalized, case-folded, no trailing sep.
