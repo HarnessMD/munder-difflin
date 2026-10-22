@@ -66,7 +66,7 @@
     build(svg) {
       txt(svg, 44, 62, "21 Oct 2026, UTC", { "font-size": 32, "font-weight": 700 });
       const X = (h, m) => 60 + ((h + m / 60 - 10) / 5) * 680, AY = 400, TOP = 190;
-      const xa = X(10, 44), xb = X(11, 40), xp = X(13, 23), xd = X(14, 32);
+      const xa = X(10, 44), xb = X(11, 40), xp = X(13, 23), xd = X(14, 20);
       const g = el("g", {}, svg);
       const yb = el("rect", { x: xb, y: TOP, width: 0, height: AY - TOP, fill: YEL, "fill-opacity": 0.5 }, g);
       const lb = el("rect", { x: xp, y: TOP, width: 0, height: AY - TOP, fill: LIL, "fill-opacity": 0.35 }, g);
@@ -96,7 +96,7 @@
         };
       };
       const A = pkg(xa, "1.106.2", "10:44", MINT, true), B = pkg(xb, "1.107.0", "11:40", YEL, false);
-      const P = mk(xp, "PyPI 13:23", YEL, 458, 140), D = mk(xd, "Docker 14:32", LIL, 508, 160);
+      const P = mk(xp, "PyPI 13:23", YEL, 458, 140), D = mk(xd, "Docker 14:20", LIL, 508, 160);
       return (t) => {
         const ax = io(seg(t, 0.3, 1.1));
         axis.setAttribute("d", ax > 0 ? `M60 ${AY} H${60 + 680 * ax}` : "");
