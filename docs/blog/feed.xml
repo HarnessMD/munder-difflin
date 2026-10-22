@@ -4,9 +4,17 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-21T00:00:00.000Z</updated>
+  <updated>2026-10-22T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>What Is Claude Duet? Anthropic&#39;s Proactive Agent App, Explained</title>
+    <link href="https://munderdiffl.in/blog/what-is-claude-duet/" />
+    <id>https://munderdiffl.in/blog/what-is-claude-duet/</id>
+    <published>2026-10-22T00:00:00.000Z</published>
+    <updated>2026-10-22T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Duet is Anthropic&#39;s proactive agent app, in research preview since 21 Oct 2026: who can join, how it works, what it asks first and its limits.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 21 Oct 2026: DeepInfer, Voxtral 3, Claude Code 2.1.305</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-21/" />
@@ -478,13 +486,5 @@
     <published>2026-10-05T00:00:00.000Z</published>
     <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Seven Claude Code alternatives checked on 5 Oct 2026: Codex CLI, OpenCode, Cursor, Gemini CLI, Cline, Pi and Aider, by licence, starting price and models.</summary>
-  </entry>
-  <entry>
-    <title>Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/codex-pricing/" />
-    <id>https://munderdiffl.in/blog/codex-pricing/</id>
-    <published>2026-10-05T00:00:00.000Z</published>
-    <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Codex pricing checked 5 Oct 2026: which ChatGPT plans include Codex, US prices from $0 to $500, how usage limits are counted, credits and API key rates.</summary>
   </entry>
 </feed>
