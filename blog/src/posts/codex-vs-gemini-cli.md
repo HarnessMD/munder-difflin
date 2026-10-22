@@ -28,7 +28,7 @@ Codex vs Gemini CLI in Oct 2026: pick Codex unless you already pay Google for a 
 
 <figure class="mg" data-scene="guestlist"><img src="/blog/assets/media/codex-vs-gemini-cli/guestlist.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A door marked Gemini CLI with a who can sign in list: paid Gemini API key, Vertex AI and Code Assist licence are ticked; free, Google AI Pro and Google AI Ultra are crossed out and move to an Antigravity CLI card dated 18 Jun 2026."><figcaption>Who Gemini CLI still serves, from Google's notice and the Gemini CLI README on 19 Oct 2026.</figcaption></figure>
 
-If you want both agents at once rather than one, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. More head to heads live in our [Comparisons hub](/blog/topics/comparisons/).
+If you want both agents at once rather than one, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More head to heads live in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## What are Codex and Gemini CLI?
 
@@ -86,7 +86,7 @@ Both run in the terminal; Codex reaches more places beyond it.
 Pick by the account you already pay for.
 
 - **Pick Codex** if you have a ChatGPT plan, or want one: Plus at $20 is the first plan with the CLI (19 Oct 2026).
-- **Pick Munder Difflin** if you want both at once: a free and open source desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer.
+- **Pick Munder Difflin** if you want both at once: a free and open source desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.
 - **Pick Gemini CLI** if your company already buys Gemini Code Assist or Vertex AI, or you pay for a Gemini API key.
 - **Pick Antigravity CLI** if you are on a free Google account or Google AI Pro or Ultra: that is where Google moved you.
 

@@ -14,7 +14,7 @@ tags: ["Daily Brief", "Claude Code", "MCP", "Open Source"]
 
 Agent tools today, 17 Oct 2026, in one line: Apple ran Meta's open weights model on four Mac Studios, a StarCraft benchmark put coding agents in their own CLIs, and Claude Code says standalone Claude Design is closing. Every number was checked on 17 Oct. The edition before this one on the site is [16 Oct](/blog/agent-tools-today-2026-10-16/).
 
-[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
 
 <figure class="mg" data-scene="today"><img src="/blog/assets/media/agent-tools-today-2026-10-17/today.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, four small boxes labelled Mac Studio sit in a row joined by a blue cable, their lights turn green, and a counter above them rolls up to 36, with the label tokens per second."><figcaption>Muse Spark Open on four Mac Studios, from Apple's machine learning research post of 15 Oct 2026.</figcaption></figure>
 

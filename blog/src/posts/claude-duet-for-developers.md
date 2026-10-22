@@ -17,12 +17,12 @@ faq:
   - q: "Does Claude Duet use the same limits as Claude Code?"
     a: "It shares your plan's usage limits with the rest of Claude during the research preview, and its background checks count toward them. Anthropic does not say how that sits next to heavy Claude Code use, so check your usage page in the first week."
   - q: "What should a developer use for a proactive agent on code?"
-    a: "A scheduled agent on your own repository. Munder Difflin runs coding agents such as Claude Code, Codex and Gemini CLI on your computer and can fire them on a schedule, for example a morning brief of pull requests, failing checks and new issues."
+    a: "A scheduled agent on your own repository. Munder Difflin runs a team of AI agents for all kinds of knowledge work, coding included, on engines such as Claude Code, Codex and Gemini CLI, and can fire them on a schedule, for example a morning brief of pull requests, failing checks and new issues."
 ---
 
 Claude Duet is not built for developers first. Anthropic made it for professionals and small business owners, and its examples are business apps. It can prototype and build web apps, but for work inside your repository, Claude Code is the better tool.
 
-This page compares Anthropic's [Claude Duet announcement](https://claude.com/resources/articles/claude-duet) of 21 Oct 2026 with its [Claude Code page](https://claude.com/product/claude-code), both opened on 22 Oct 2026. For a team of coding agents that also acts on a schedule, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer.
+This page compares Anthropic's [Claude Duet announcement](https://claude.com/resources/articles/claude-duet) of 21 Oct 2026 with its [Claude Code page](https://claude.com/product/claude-code), both opened on 22 Oct 2026. For a team of agents that also acts on a schedule and can work on your code, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.
 
 ## What can Claude Duet do with code?
 
@@ -62,6 +62,6 @@ As the morning assistant, not the engineer. Let Duet handle your inbox, calendar
 
 <figure class="mg" data-scene="day"><img src="/blog/assets/media/claude-duet-for-developers/day.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A day timeline from 08:00 to 08:00. A yellow band marks Claude Duet's morning brief with checks every few hours, a blue band marks Claude Code from 10:00 to 18:00 with you at the keyboard, and a mint band marks Munder Difflin's scheduled agents from 22:00 to 06:00. Drag the time to lift each band."><figcaption>One way to split a day between the three. The times are examples.</figcaption></figure>
 
-For the overnight part, [build your own Claude Duet](/blog/build-your-own-claude-duet/) sets up a morning brief of pull requests, failing checks and new issues in Munder Difflin. [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) compares the two directly, and [our office use cases](/blog/ai-agent-use-cases-our-office/) show what a team of coding agents does in a day.
+For the overnight part, [build your own Claude Duet](/blog/build-your-own-claude-duet/) sets up a morning brief of pull requests, failing checks and new issues in Munder Difflin. [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) compares the two directly, and [our office use cases](/blog/ai-agent-use-cases-our-office/) show what a team of agents does in a day.
 
 <link rel="stylesheet" href="/blog/assets/media/claude-duet-for-developers/motion.css"><script defer src="/blog/assets/media/claude-duet-for-developers/motion.js"></script>

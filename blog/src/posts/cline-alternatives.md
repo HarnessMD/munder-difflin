@@ -43,7 +43,7 @@ Cline is a good agent, so the reasons are about fit. It is Apache 2.0 on GitHub,
 
 **1. Kilo Code.** [Kilo Code](https://github.com/Kilo-Org/kilocode) is "an AI coding agent that meets you everywhere you work": VS Code, JetBrains and the CLI. Its README says you can use "500+ models, switch between them mid-task, and pay the model provider's rate with zero markup". MIT, 27,659 stars on 19 Oct 2026. Its pricing page lists Teams at $15 per user per month (19 Oct 2026). Best for: the closest swap. See [Kilo Code vs Cline](/blog/kilo-code-vs-cline/).
 
-**2. Munder Difflin.** This is what we make, and it is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It is not an editor extension. The [install guide](/blog/how-to-install-and-use-munder-difflin/) takes you from download to a first agent. Best for: splitting one job across several agents.
+**2. Munder Difflin.** This is what we make, and it is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It is not an editor extension. The [install guide](/blog/how-to-install-and-use-munder-difflin/) takes you from download to a first agent. Best for: splitting one job across several agents.
 
 **3. OpenCode.** [OpenCode](https://github.com/anomalyco/opencode) is "The open source AI coding agent", MIT licensed, with 217,436 stars and release v1.19.3 (16 Oct 2026) on 19 Oct 2026. It runs in the terminal and as a desktop app in beta for macOS, Windows and Linux. Its plan agent "Denies file edits by default". Best for: a terminal agent with an open licence. See [what is OpenCode](/blog/what-is-opencode/).
 

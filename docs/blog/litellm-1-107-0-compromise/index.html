@@ -187,7 +187,7 @@
   <div class="post-wrap wrap">
     <div class="prose">
       <p>If you installed litellm 1.107.0 from PyPI or pulled a floating LiteLLM Docker tag on 21 Oct 2026, treat that machine as compromised: clean it from the shell and rotate every secret it could reach. Updated on 22 Oct 2026 at about 04:00 UTC with BerriAI’s incident report; the investigation continues.</p>
-<p>LiteLLM is the open source Python library and proxy that lets one piece of code call many model providers. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our <a href="/blog/security-for-ai-coding-agents/">security guide for AI coding agents</a> covers the wider habits and our <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup; this page covers one incident.</p>
+<p>LiteLLM is the open source Python library and proxy that lets one piece of code call many model providers. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Our <a href="/blog/security-for-ai-coding-agents/">security guide for AI coding agents</a> covers the wider habits and our <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup; this page covers one incident.</p>
 <h2 id="what-happened-to-litellm-11070" tabindex="-1">What happened to LiteLLM 1.107.0? <a class="anchor" href="#what-happened-to-litellm-11070" aria-hidden="true">#</a></h2>
 <p>A poisoned build of LiteLLM sat on PyPI for under two hours. <a href="https://safedep.io/litellm-pypi-compromise-credential-stealer-backdoor/">SafeDep’s analysis</a> of 21 Oct says the 1.107.0 wheels add three files to site-packages, and two of them “run when any Python process starts on the host, even one that never imports litellm.” A <a href="https://github.com/BerriAI/litellm/issues/47826">public report on BerriAI’s GitHub</a> set out the same findings at 12:06 UTC.</p>
 <div class="table-scroll">
@@ -393,11 +393,11 @@
       <span class="dot" aria-hidden="true"></span>
       <span>4 min</span>
     </div>
-    <h3><a href="/blog/build-your-own-claude-duet/">Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase</a></h3>
-    <p class="dek">No Claude Duet invite? Build a proactive morning brief for your code in Munder Difflin: one agent, one schedule, and Slack replies. Free and open source.</p>
+    <h3><a href="/blog/build-your-own-claude-duet/">Build Your Own Claude Duet: A Free Morning Brief Agent</a></h3>
+    <p class="dek">No Claude Duet invite? Build a proactive morning brief in Munder Difflin: one agent, one schedule and Slack replies, with a codebase as the example.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/build-your-own-claude-duet/" aria-label="Read: Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase">Read →</a>
+      <a class="more" href="/blog/build-your-own-claude-duet/" aria-label="Read: Build Your Own Claude Duet: A Free Morning Brief Agent">Read →</a>
     </div>
   </div>
 </article>

@@ -63,10 +63,10 @@ Three small things. First, connect the apps you want Duet to watch in your Claud
 
 ## What can you use while you wait?
 
-Three things work today. Claude Cowork is in paid Claude plans now, and its [help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says scheduled tasks "run in the cloud, with no device online." [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer, with schedules and Slack. Claude Code covers work inside your repository.
+Three things work today. Claude Cowork is in paid Claude plans now, and its [help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says scheduled tasks "run in the cloud, with no device online." [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer, with schedules and Slack. Claude Code covers work inside your repository.
 
 <figure class="mg" data-scene="meanwhile"><img src="/blog/assets/media/claude-duet-waitlist/meanwhile.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Under While you wait, three doors open in turn. Claude Cowork: In paid Claude plans now. Munder Difflin: Free and open source, on your computer. Claude Code: For work inside your repo."><figcaption>Three things you can use today, checked on 22 Oct 2026.</figcaption></figure>
 
-Our view: if your work is code, you do not need to wait at all. [Build your own Claude Duet](/blog/build-your-own-claude-duet/) sets up a daily brief of pull requests, failing checks and new issues, and [Claude Duet alternatives](/blog/claude-duet-alternatives/) lists four proactive agents with no waitlist. To try Munder Difflin, follow the [install guide](/blog/how-to-install-and-use-munder-difflin/).
+Our view: if you want a team of agents, you do not need to wait at all. [Build your own Claude Duet](/blog/build-your-own-claude-duet/) sets up a daily brief of pull requests, failing checks and new issues, and [Claude Duet alternatives](/blog/claude-duet-alternatives/) lists four proactive agents with no waitlist. To try Munder Difflin, follow the [install guide](/blog/how-to-install-and-use-munder-difflin/).
 
 <link rel="stylesheet" href="/blog/assets/media/claude-duet-waitlist/motion.css"><script defer src="/blog/assets/media/claude-duet-waitlist/motion.js"></script>

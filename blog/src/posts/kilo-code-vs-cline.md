@@ -28,7 +28,7 @@ Kilo Code and Cline are free, open source coding agents that live in your editor
 
 <figure class="mg" data-scene="belts"><img src="/blog/assets/media/kilo-code-vs-cline/belts.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Two tool belts, one above the other. The Kilo Code belt fills its pouches with VS Code, JetBrains, CLI and cloud; the Cline belt fills VS Code, JetBrains, CLI, desktop app and SDK."><figcaption>Where each one runs, from each README on 19 Oct 2026.</figcaption></figure>
 
-If you would rather run several agents at once than one in your editor, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. More picks in our [Comparisons hub](/blog/topics/comparisons/).
+If you would rather run several agents at once than one in your editor, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More picks in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## What are Kilo Code and Cline?
 

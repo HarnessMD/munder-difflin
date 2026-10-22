@@ -28,7 +28,7 @@ Cursor vs Cline comes down to how you want to pay. Pick Cline for a free, Apache
 
 <figure class="mg" data-scene="menu"><img src="/blog/assets/media/cursor-vs-cline/menu.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Side by side, Cursor lists Plus with Grok 4.7, Grok 4.6, Grok 4.5 and Composer 2.5, then Premium and above with other labs at API list price; Cline lists inference at cost or BYOK, bring your own key."><figcaption>Which models each one lets you use, from Cursor's docs and Cline's pricing page on 19 Oct 2026.</figcaption></figure>
 
-If you would rather run several agents side by side than pick one, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. More head to heads live in our [Comparisons hub](/blog/topics/comparisons/).
+If you would rather run several agents side by side than pick one, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More head to heads live in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## What are Cursor and Cline?
 

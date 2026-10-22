@@ -14,7 +14,7 @@ tags: ["Daily Brief", "Claude Code", "MCP", "Open Source"]
 
 Agent tools today, 19 Oct 2026, in one line: DeepSeek opened its own web search to agents at $0.75 per 1,000 successful requests, a Git hook now quizzes you on your agent's code before a push, and OpenClaw's new release resumes interrupted turns after a Gateway restart. Every number was checked on 19 Oct. The last edition is [18 Oct](/blog/agent-tools-today-2026-10-18/).
 
-[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It shipped no release in the last 24 hours, so it is not in the lists below.
 
 <figure class="mg" data-scene="today"><img src="/blog/assets/media/agent-tools-today-2026-10-19/today.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a parcel labelled git push waits in front of a raised drawbridge. A card from Sphinx asks: What happens on the retry? When a check marked Understood appears, the bridge lowers and the parcel rolls across to a flag marked origin/main."><figcaption>How Sphinx pauses a push on a protected branch and asks one question about the diff, from the Sphinx site on 19 Oct 2026.</figcaption></figure>
 

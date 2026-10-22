@@ -23,7 +23,7 @@ faq:
 
 NanoClaw is a free, MIT licensed personal AI assistant that runs its agents inside Docker containers and answers you in chat apps such as WhatsApp, Telegram, Slack and Discord. Pick it over OpenClaw if you want a much smaller codebase; NanoClaw's website says it takes "An afternoon" to understand. Checked 17 Oct 2026.
 
-If your real work is code rather than chat, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our [OpenClaw alternatives](/blog/openclaw-alternatives/) page compares both with five other tools, and our [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+If you want a team of agents rather than one assistant in chat, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Our [OpenClaw alternatives](/blog/openclaw-alternatives/) page compares both with five other tools, and our [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 ## What is NanoClaw?
 

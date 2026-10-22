@@ -12,11 +12,11 @@ tags: ["Comparisons", "AI Agents", "Open Source", "Local-First"]
 ogImage: "https://munderdiffl.in/blog/assets/media/hermes-agent-alternatives/hero.png"
 faq:
   - q: "What is the best Hermes Agent alternative?"
-    a: "OpenClaw, if you want the same job: a personal assistant in your chat apps that you host yourself. It is MIT licensed, has the most stars of any agent here, and shipped v2026.10.5 on 18 Oct 2026. If your real work is code, Munder Difflin fits better."
+    a: "OpenClaw, if you want the same job: a personal assistant in your chat apps that you host yourself. It is MIT licensed, has the most stars of any agent here, and shipped v2026.10.5 on 18 Oct 2026. If you want a team of agents with different roles instead of one assistant, Munder Difflin fits better."
   - q: "Is there a free Hermes Agent alternative?"
     a: "Yes. OpenClaw, Munder Difflin, NanoClaw, ZeroClaw, nanobot and Goose are all free and open source, checked on 19 Oct 2026. You still bring a model: an API key, a subscription you already pay for, or a local model."
   - q: "Is there a Hermes Agent alternative for coding?"
-    a: "Goose handles code as one general agent with a desktop app and a CLI. Munder Difflin is built for it: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer."
+    a: "Goose handles code as one general agent with a desktop app and a CLI. Munder Difflin puts a team on it: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer."
   - q: "Is there a hosted Hermes Agent alternative?"
     a: "Claude is the hosted pick. Anthropic's help page says Cowork runs tasks in the cloud (in beta on Team and Enterprise plans) and that scheduled tasks do not need your computer to be awake. It needs a paid plan: Pro is $20 a month billed monthly."
   - q: "Can I move from OpenClaw to Hermes Agent?"
@@ -24,7 +24,7 @@ faq:
 thumb: "/blog/assets/media/hermes-agent-alternatives/hero.png"
 ---
 
-The best Hermes Agent alternative is OpenClaw if you want the same job done, a personal assistant in your chat apps, and [Munder Difflin](https://harnessmd.com/download) if your real work is code. NanoClaw, ZeroClaw, nanobot, Goose and Claude cover containers, one Rust binary, a Python core, a desktop app and a hosted option. Checked 19 Oct 2026.
+The best Hermes Agent alternative is OpenClaw if you want the same job done, a personal assistant in your chat apps, and [Munder Difflin](https://harnessmd.com/download) if you want a team of agents on one job. NanoClaw, ZeroClaw, nanobot, Goose and Claude cover containers, one Rust binary, a Python core, a desktop app and a hosted option. Checked 19 Oct 2026.
 
 <figure class="mg" data-scene="bento"><img src="/blog/assets/media/hermes-agent-alternatives/bento.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A bento box with seven compartments fills one name at a time. Six names sit in the larger part of the box marked free and open source, and Claude sits alone in a compartment marked hosted."><figcaption>Seven alternatives. Six are free and open source, one is hosted.</figcaption></figure>
 
@@ -36,7 +36,7 @@ Hermes Agent is Nous Research's MIT licensed personal agent. Its README says it 
 
 It costs nothing, so price is rarely the reason to switch. The reasons are about the job:
 
-- **It is one personal agent, not a team.** If your work is a codebase, you may want several coding agents working side by side.
+- **It is one personal agent, not a team.** If one agent is not enough, you may want a team of agents working side by side.
 - **You run it.** It installs on your computer or a server, with seven terminal backends from local and Docker to Modal and Daytona.
 - **You may want harder walls.** Some picks below run each agent in its own container or ask before medium risk actions by default.
 
@@ -44,7 +44,7 @@ It costs nothing, so price is rarely the reason to switch. The reasons are about
 
 **1. OpenClaw.** [OpenClaw](https://github.com/openclaw/openclaw) is the closest swap and the biggest project here: 392,413 stars on 19 Oct 2026, MIT licensed. Its README names Discord, iMessage, Slack, Teams, Telegram and WhatsApp "and 20+ more", with native apps for macOS, iOS, Android, Windows and Linux. Release v2026.10.5 (18 Oct) resumes interrupted turns "after a Gateway restart". The README also warns that "Tools run on the host for the main session unless you configure sandboxing". Best for: the same job, with more channels.
 
-**2. Munder Difflin.** This is what we make, and it is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The limits: it is for coding work, it does not answer your Telegram or run errands, and agents work while your computer is on. The [install guide](/blog/how-to-install-and-use-munder-difflin/) takes you from download to a first agent. Best for: people who used Hermes Agent mostly to get code written.
+**2. Munder Difflin.** This is what we make, and it is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The limits: it does not answer you in Telegram today, and agents work while your computer is on; the Cloud Office, coming soon, keeps them working with it off. The [install guide](/blog/how-to-install-and-use-munder-difflin/) takes you from download to a first agent. Best for: a team of agents with different roles, for research, writing, ops or code.
 
 **3. NanoClaw.** [NanoClaw](https://github.com/nanocoai/nanoclaw) (MIT) says agents "run in their own Linux containers with filesystem isolation, not merely behind permission checks". Its setup script installs Node, pnpm and Docker if they are missing and registers your Anthropic credential with a credential gateway. Chat channels such as Discord, Slack, Telegram and WhatsApp live on a separate branch. Our [NanoClaw explainer](/blog/what-is-nanoclaw/) covers setup. Best for: isolation first.
 
@@ -62,7 +62,7 @@ It costs nothing, so price is rarely the reason to switch. The reasons are about
 | --- | --- | --- | --- | --- |
 | Hermes Agent | Personal agent that learns | MIT | Free. | Your computer, a server, Docker or serverless backends |
 | OpenClaw | Personal assistant in your chats | MIT | Free. | Your own devices |
-| Munder Difflin | Team of coding agents | MIT | Free and open source. | Your own computer |
+| Munder Difflin | Team of AI agents for all knowledge work | MIT | Free and open source. | Your own computer |
 | NanoClaw | Assistant in containers | MIT | Free. | Docker on your machine |
 | ZeroClaw | Agent runtime, one Rust binary | MIT or Apache 2.0 | Free. | Your machine, or boards such as a Raspberry Pi |
 | nanobot | Python agent framework | MIT | Free. | Your computer or a server |
@@ -92,7 +92,7 @@ Claude is the one pick here where the agent work starts on a paid plan: on 19 Oc
 Pick by the job first, then by whose computer does the work.
 
 - **OpenClaw** if you want Hermes Agent's job with more channels and native phone apps.
-- **Munder Difflin** if the work is code and you want several agents on it at once.
+- **Munder Difflin** if you want several agents with different roles on one job.
 - **NanoClaw** if every agent should sit in its own container.
 - **ZeroClaw** if you want one Rust binary running as a service.
 - **nanobot** if you live in Python.
