@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude API 2026-10-21: temperature Removed, SDK 2.0 Changes (Oct 2026)</title>
+<meta name="description" content="Claude API version 2026-10-21 removes temperature, top_p and top_k and ships new SDK majors. What returns a 400 now, what breaks proxies, and how to upgrade." />
+<link rel="canonical" href="https://munderdiffl.in/blog/claude-api-version-2026-10-21/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Claude API 2026-10-21: temperature Removed, SDK 2.0 Changes (Oct 2026)" />
+<meta property="og:description" content="Claude API version 2026-10-21 removes temperature, top_p and top_k and ships new SDK majors. What returns a 400 now, what breaks proxies, and how to upgrade." />
+<meta property="og:url" content="https://munderdiffl.in/blog/claude-api-version-2026-10-21/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/claude-api-version-2026-10-21/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A pill reading API, the title Claude API 2026-10-21 in large ink type, the subtitle What breaks and how to upgrade, a Checked 22 Oct 2026 line, and a white envelope that a rubber stamp marks with the date 2026-10-21 in blue over a faded 2023-06-01 stamp." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-22T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Claude API" />
+<meta property="article:tag" content="Python" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Claude API 2026-10-21: temperature Removed, SDK 2.0 Changes (Oct 2026)" />
+<meta name="twitter:description" content="Claude API version 2026-10-21 removes temperature, top_p and top_k and ships new SDK majors. What returns a 400 now, what breaks proxies, and how to upgrade." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/claude-api-version-2026-10-21/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A pill reading API, the title Claude API 2026-10-21 in large ink type, the subtitle What breaks and how to upgrade, a Checked 22 Oct 2026 line, and a white envelope that a rubber stamp marks with the date 2026-10-21 in blue over a faded 2023-06-01 stamp." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude API Version 2026-10-21: What Breaks and How to Upgrade",
+  "description": "Claude API version 2026-10-21 removes temperature, top_p and top_k and ships new SDK majors. What returns a 400 now, what breaks proxies, and how to upgrade.",
+  "image": ["https://munderdiffl.in/blog/assets/media/claude-api-version-2026-10-21/hero.png"],
+  "datePublished": "2026-10-22T00:00:00.000Z",
+  "dateModified": "2026-10-22T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/claude-api-version-2026-10-21/" },
+  "keywords": "claude api 2026-10-21, anthropic-version 2026-10-21, anthropic python sdk 2.0, claude api temperature removed, anthropic temperature 400 error, anthropic sdk authorization bearer, anthropic api version migration",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/claude-api-version-2026-10-21/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Claude API Version 2026-10-21: What Breaks and How to Upgrade", "item": "https://munderdiffl.in/blog/claude-api-version-2026-10-21/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is temperature removed from the Claude API?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, in API version 2026-10-21. Anthropic's migration guide says a request that sends temperature, top_p or top_k returns a 400 error, even at the parameter's default value. Requests on 2023-06-01 keep working with them. The new SDK majors, such as Python 2.0.0, no longer have the three parameters." } },
+    { "@type": "Question", "name": "Which SDK versions use API version 2026-10-21?", "acceptedAnswer": { "@type": "Answer", "text": "Python SDK 2.0.0, TypeScript SDK 1.0.0, C# SDK 13.0.0, Go SDK 2.0.0, Java SDK 3.0.0, PHP SDK 1.0.0, Ruby SDK 2.0.0 and the ant CLI 2.0.0, per Anthropic's API release notes of 21 Oct 2026. Older SDK versions keep sending 2023-06-01." } },
+    { "@type": "Question", "name": "Do I have to upgrade to 2026-10-21 now?", "acceptedAnswer": { "@type": "Answer", "text": "Anthropic's versions page recommends the latest API version whenever possible, and it gives no end date for 2023-06-01 on 22 Oct 2026. The migration guide says a request that relies on a non default temperature can stay on 2023-06-01." } },
+    { "@type": "Question", "name": "Why does my proxy reject requests after upgrading the Anthropic SDK?", "acceptedAnswer": { "@type": "Answer", "text": "The new SDKs send your API key as Authorization: Bearer instead of the X-Api-Key header. A proxy or gateway that reads X-Api-Key finds no key. Change it to read Authorization, or set X-Api-Key yourself on the client, as Anthropic's migration guide shows." } },
+    { "@type": "Question", "name": "Does API version 2026-10-21 work on Amazon Bedrock?", "acceptedAnswer": { "@type": "Answer", "text": "Only for Claude 4.7 and later models. Anthropic's migration guide says calls to older models on Bedrock should stay on the SDK version or API version you use today, or move to a Claude 4.7 or later model first." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>Claude API Version 2026-10-21: What Breaks and How to Upgrade</h1>
+    <p class="dek">Claude API version 2026-10-21 removes temperature, top_p and top_k and ships new SDK majors. What returns a 400 now, what breaks proxies, and how to upgrade.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-22">Oct 22, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/claude-api-version-2026-10-21/hero.png" alt="Title card on white. A pill reading API, the title Claude API 2026-10-21 in large ink type, the subtitle What breaks and how to upgrade, a Checked 22 Oct 2026 line, and a white envelope that a rubber stamp marks with the date 2026-10-21 in blue over a faded 2023-06-01 stamp." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Claude API version 2026-10-21 is the first new Claude API version since 2023-06-01. Anthropic released it on 21 Oct 2026 with new major versions of every SDK. It removes <code>temperature</code>, <code>top_p</code> and <code>top_k</code>, rejects two odd message shapes, renames fields in the Admin API, and the new SDKs send your key in a different header.</p>
+<p>This page sums up Anthropic’s <a href="https://platform.claude.com/docs/en/api/versioning">versions page</a>, <a href="https://platform.claude.com/docs/en/api/migration-2026-10-21">migration guide</a> and API release notes, opened on 22 Oct 2026, with the Python changes in most detail. If you run coding agents rather than call the API yourself, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Our <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<h2 id="what-changed-in-claude-api-version-2026-10-21" tabindex="-1">What changed in Claude API version 2026-10-21? <a class="anchor" href="#what-changed-in-claude-api-version-2026-10-21" aria-hidden="true">#</a></h2>
+<p>Three Messages API requests that used to work now return a 400 error, and each SDK has a new major version that sends <code>anthropic-version: 2026-10-21</code> by default. An SDK keeps the API version that was current when its major version came out, so code on an older SDK keeps sending 2023-06-01 until you upgrade.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>SDK or tool</th>
+<th>First version on 2026-10-21</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td>1.0.0</td>
+</tr>
+<tr>
+<td>Go</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td>Java</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td>C#</td>
+<td>13.0.0</td>
+</tr>
+<tr>
+<td>PHP and Ruby</td>
+<td>1.0.0 and 2.0.0</td>
+</tr>
+<tr>
+<td>ant CLI</td>
+<td>2.0.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The release notes add that the new SDK and CLI versions are licensed under Apache 2.0 instead of MIT, and the versions page says 2026-10-21 runs on the Claude API, Claude Platform on AWS, Microsoft Foundry and Google Cloud. On Amazon Bedrock it covers Claude 4.7 and later models only.</p>
+<figure class="mg" data-scene="header"><img src="/blog/assets/media/claude-api-version-2026-10-21/header.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A request card shows the header anthropic-version 2023-06-01. The date flips to 2026-10-21, and eight small badges drop onto a shelf below: Python 2.0.0, TypeScript 1.0.0, Go 2.0.0, Java 3.0.0, C# 13.0.0, PHP 1.0.0, Ruby 2.0.0 and ant CLI 2.0.0. Tap a badge to see that it sends 2026-10-21."><figcaption>The SDK versions that send API version 2026-10-21, from Anthropic's API release notes (21 Oct 2026).</figcaption></figure>
+<h2 id="why-do-temperature-top-p-and-top-k-return-a-400" tabindex="-1">Why do temperature, top_p and top_k return a 400? <a class="anchor" href="#why-do-temperature-top-p-and-top-k-return-a-400" aria-hidden="true">#</a></h2>
+<p>They are removed. Anthropic’s migration guide says a request on 2026-10-21 that sends <code>temperature</code>, <code>top_p</code> or <code>top_k</code> “returns a 400 error, even at the parameter’s default value.” That covers Message Batch requests and token counting too.</p>
+<p>The fix is to delete the three parameters; the new SDK majors no longer have them:</p>
+<pre class="language-python"><code class="language-python"><span class="token comment"># anthropic 1.x sends 2023-06-01: temperature is accepted</span>
+client<span class="token punctuation">.</span>messages<span class="token punctuation">.</span>create<span class="token punctuation">(</span>model<span class="token operator">=</span><span class="token string">"claude-opus-5-5"</span><span class="token punctuation">,</span> max_tokens<span class="token operator">=</span><span class="token number">1024</span><span class="token punctuation">,</span>
+                       temperature<span class="token operator">=</span><span class="token number">1.0</span><span class="token punctuation">,</span> messages<span class="token operator">=</span>messages<span class="token punctuation">)</span>
+
+<span class="token comment"># anthropic 2.0 sends 2026-10-21 and has no temperature, top_p or top_k</span>
+client<span class="token punctuation">.</span>messages<span class="token punctuation">.</span>create<span class="token punctuation">(</span>model<span class="token operator">=</span><span class="token string">"claude-opus-5-5"</span><span class="token punctuation">,</span> max_tokens<span class="token operator">=</span><span class="token number">1024</span><span class="token punctuation">,</span>
+                       messages<span class="token operator">=</span>messages<span class="token punctuation">)</span></code></pre>
+<p>A request without them samples at the defaults, a <code>temperature</code> of 1.0, the same as a 2023-06-01 request that leaves them out. Models that already accept only the defaults, “such as Claude 4.7 and later models,” sample as before. On a model that accepts other values, such as Claude Sonnet 4.6, a request that lowered <code>temperature</code> for steadier output loses that effect, and the guide says: “No other setting replaces it.” Such a request can stay on 2023-06-01.</p>
+<figure class="mg" data-scene="dials"><img src="/blog/assets/media/claude-api-version-2026-10-21/dials.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A control panel has three dials labelled temperature, top_p and top_k. A request card with the dials attached gets a yellow stamp reading 400. The dials lift off the panel, the card goes again and gets a mint stamp reading 200, with a note that reads Defaults, temperature 1.0. Tap Remove to lift the dials yourself."><figcaption>Sampling parameters on API version 2026-10-21, from Anthropic's migration guide (21 Oct 2026).</figcaption></figure>
+<h2 id="what-other-requests-now-fail" tabindex="-1">What other requests now fail? <a class="anchor" href="#what-other-requests-now-fail" aria-hidden="true">#</a></h2>
+<p>Two message shapes, plus renamed fields outside the Messages API. A <code>document</code> block placed directly in an <code>assistant</code> message returns a 400; send documents in <code>user</code> messages instead. A <code>text</code> block with a non empty <code>citations</code> array in a <code>user</code> message, directly or inside a <code>search_result</code> block, also returns a 400. Citations on Claude’s own replies that you send back are still accepted.</p>
+<p>In the Admin API, API key entries no longer return <code>workspace_id</code> (use <code>scope.workspace_id</code>), RBAC roles return <code>display_name</code> instead of <code>name</code>, and rate limit entries return <code>group.type</code> instead of <code>group_type</code>. The Claude Enterprise Analytics reports drop <code>actor.email</code> for <code>actor.email_address</code>. Dashboards built on those fields need the new names.</p>
+<h2 id="what-changes-in-the-anthropic-python-sdk-20" tabindex="-1">What changes in the Anthropic Python SDK 2.0? <a class="anchor" href="#what-changes-in-the-anthropic-python-sdk-20" aria-hidden="true">#</a></h2>
+<p>Most code that writes messages as plain dicts needs no change. The main ones for Python, from the guide:</p>
+<ul>
+<li><code>MessageParam</code> is now a union of <code>UserMessageParam</code>, <code>AssistantMessageParam</code> and <code>SystemMessageParam</code>. Calling <code>MessageParam(role=&quot;user&quot;, content=&quot;Hello&quot;)</code> raises a <code>TypeError</code>; write the dict instead.</li>
+<li><code>client.models.list()</code> and <code>retrieve()</code> no longer take <code>betas</code>. Use <code>client.beta.models.list(betas=[...])</code>.</li>
+<li>The API key goes out as <code>Authorization: Bearer &lt;key&gt;</code>, not <code>X-Api-Key</code>.</li>
+<li>A client holds one credential. Passing both <code>api_key</code> and <code>auth_token</code> now raises a <code>ValueError</code>; version 1 sent both.</li>
+<li>With no credential in code, the client takes the first of <code>ANTHROPIC_API_KEY</code>, <code>ANTHROPIC_AUTH_TOKEN</code>, the profile <code>ANTHROPIC_PROFILE</code> names, the workload identity federation variables and the active profile on disk, and logs a warning when the first two are both set.</li>
+</ul>
+<h2 id="will-a-proxy-or-gateway-break" tabindex="-1">Will a proxy or gateway break? <a class="anchor" href="#will-a-proxy-or-gateway-break" aria-hidden="true">#</a></h2>
+<p>It will if it reads <code>X-Api-Key</code>. The Claude API accepts a key in either header, so code that talks to the API directly is fine. A company gateway, a logging proxy or a router that looks for <code>X-Api-Key</code> will see a request with no key once your app moves to the new SDK. Change it to read <code>Authorization</code>, or move the key back with the <code>auth</code> function on the HTTP client that the guide shows. If you relied on sending a gateway token and an API key together, the guide’s answer is to pass the token as <code>auth_token</code>, set <code>X-Api-Key</code> in <code>default_headers</code>, and have the gateway remove its <code>Authorization</code> header before it forwards the request. For a proxy of another kind, one that routes Claude Code to other providers, see our <a href="/blog/claude-code-router/">Claude Code Router guide</a>.</p>
+<figure class="mg" data-scene="key"><img src="/blog/assets/media/claude-api-version-2026-10-21/key.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A key token slides out of a slot labelled X-Api-Key and into a slot labelled Authorization Bearer on an envelope. The envelope reaches a gateway box that checks only the X-Api-Key slot and shows a yellow note reading No key found. Tap Fix gateway and the box checks the Authorization slot, turns mint and lets the envelope through to the Claude API."><figcaption>Why a gateway that reads X-Api-Key misses the key from the new SDKs, from Anthropic's migration guide (21 Oct 2026).</figcaption></figure>
+<h2 id="how-do-you-upgrade-safely" tabindex="-1">How do you upgrade safely? <a class="anchor" href="#how-do-you-upgrade-safely" aria-hidden="true">#</a></h2>
+<p>Do it in one release, as the guide’s steps say: upgrade the SDK, fix the breaking changes, test against 2026-10-21, ship together. In practice:</p>
+<ol>
+<li>Search your code for <code>temperature</code>, <code>top_p</code> and <code>top_k</code>, including Message Batch jobs and prompt templates that pass them through.</li>
+<li>Check any proxy, gateway or test double that reads <code>X-Api-Key</code>.</li>
+<li>Upgrade the package, such as <code>pip install &quot;anthropic&gt;=2.0.0&quot;</code>, and run your type checker for <code>MessageParam</code> and <code>betas</code> errors.</li>
+<li>Keep calls to older Bedrock models on your current SDK until they move to Claude 4.7 or later.</li>
+</ol>
+<p>Claude Code 2.1.307, released on 21 Oct, added a <code>/claude-api api-version</code> command to move Claude API code to 2026-10-21; its release notes do not say what it edits. Our view: the sampling change is the one most likely to slip through, because a call that sets <code>temperature</code> to its default looks harmless and still fails. For background on building agents on this API, read <a href="/blog/what-is-claude-agent-sdk/">what the Claude Agent SDK is</a>.</p>
+<link rel="stylesheet" href="/blog/assets/media/claude-api-version-2026-10-21/motion.css"><script defer src="/blog/assets/media/claude-api-version-2026-10-21/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is temperature removed from the Claude API?</p>
+          <p class="a">Yes, in API version 2026-10-21. Anthropic&#39;s migration guide says a request that sends temperature, top_p or top_k returns a 400 error, even at the parameter&#39;s default value. Requests on 2023-06-01 keep working with them. The new SDK majors, such as Python 2.0.0, no longer have the three parameters.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Which SDK versions use API version 2026-10-21?</p>
+          <p class="a">Python SDK 2.0.0, TypeScript SDK 1.0.0, C# SDK 13.0.0, Go SDK 2.0.0, Java SDK 3.0.0, PHP SDK 1.0.0, Ruby SDK 2.0.0 and the ant CLI 2.0.0, per Anthropic&#39;s API release notes of 21 Oct 2026. Older SDK versions keep sending 2023-06-01.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Do I have to upgrade to 2026-10-21 now?</p>
+          <p class="a">Anthropic&#39;s versions page recommends the latest API version whenever possible, and it gives no end date for 2023-06-01 on 22 Oct 2026. The migration guide says a request that relies on a non default temperature can stay on 2023-06-01.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Why does my proxy reject requests after upgrading the Anthropic SDK?</p>
+          <p class="a">The new SDKs send your API key as Authorization: Bearer instead of the X-Api-Key header. A proxy or gateway that reads X-Api-Key finds no key. Change it to read Authorization, or set X-Api-Key yourself on the client, as Anthropic&#39;s migration guide shows.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does API version 2026-10-21 work on Amazon Bedrock?</p>
+          <p class="a">Only for Claude 4.7 and later models. Anthropic&#39;s migration guide says calls to older models on Bedrock should stay on the SDK version or API version you use today, or move to a Claude 4.7 or later model first.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/claude-api/">Claude API</a><a class="tag" href="/blog/tags/python/">Python</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-changed-in-claude-api-version-2026-10-21">What changed in Claude API version 2026-10-21?</a></li><li class="lvl-2"><a href="#why-do-temperature-top-p-and-top-k-return-a-400">Why do temperature, top_p and top_k return a 400?</a></li><li class="lvl-2"><a href="#what-other-requests-now-fail">What other requests now fail?</a></li><li class="lvl-2"><a href="#what-changes-in-the-anthropic-python-sdk-20">What changes in the Anthropic Python SDK 2.0?</a></li><li class="lvl-2"><a href="#will-a-proxy-or-gateway-break">Will a proxy or gateway break?</a></li><li class="lvl-2"><a href="#how-do-you-upgrade-safely">How do you upgrade safely?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/what-is-claude-duet/"><span class="k">← Older</span><span class="t">What Is Claude Duet? Anthropic&#39;s Proactive Agent App, Explained</span></a>
+      <a class="pn next" href="/blog/agent-tools-today-2026-10-22/"><span class="k">Newer →</span><span class="t">Agent Tools Today, 22 Oct 2026: Claude API 2026-10-21, LayerFS 1.0, PHP2Shell</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/litellm-1-107-0-compromise/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/litellm-1-107-0-compromise/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-21">Oct 21, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/litellm-1-107-0-compromise/">LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine</a></h3>
+    <p class="dek">LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/litellm-1-107-0-compromise/" aria-label="Read: LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-code-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-code-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-15">Oct 15, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-code-best-practices/">Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs</a></h3>
+    <p class="dek">Nine Claude Code best practices from Anthropic&#39;s docs, checked 15 Oct 2026: give Claude a check, plan first, keep memory short, clear context, run in parallel.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-code-best-practices/" aria-label="Read: Claude Code Best Practices: 9 Habits From Anthropic&#39;s Docs">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/ai-agent-use-cases-our-office/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/ai-agent-use-cases-our-office/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-14">Oct 14, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>8 min</span><span class="pin">Pinned</span>
+    </div>
+    <h3><a href="/blog/ai-agent-use-cases-our-office/">AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does</a></h3>
+    <p class="dek">We run our company on Munder Difflin. Every seat on our floor: what each AI agent does, how its work starts, what comes out, and how to copy it.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/ai-agent-use-cases-our-office/" aria-label="Read: AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
