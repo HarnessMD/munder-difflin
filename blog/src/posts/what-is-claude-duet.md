@@ -71,7 +71,7 @@ The difference is who starts. Based on Anthropic's pages, opened on 22 Oct 2026:
 | Built for | Professionals and small business owners | "non-coding knowledge work" | "a bug fix, test, or multi-day migration" |
 | Where it runs | Its own virtual machine; app on iOS, Android and claude.ai | Desktop app, rolling out on web and mobile | Terminal, IDE, Slack or web; macOS, Linux and Windows |
 
-Our [Claude Cowork explainer](/blog/what-is-claude-cowork/) and [Cowork vs Claude Code](/blog/claude-cowork-vs-claude-code/) cover the other two. Our view: Duet is built to decide by itself when to talk to you, which is why the approval rules above matter more than the feature list. For agents that write code, our [office use cases](/blog/ai-agent-use-cases-our-office/) show what a team of coding agents does in a day.
+Our [Claude Cowork explainer](/blog/what-is-claude-cowork/) and [Cowork vs Claude Code](/blog/claude-cowork-vs-claude-code/) cover the other two. Can't get in yet? See the [Claude Duet waitlist](/blog/claude-duet-waitlist/), [Claude Duet alternatives](/blog/claude-duet-alternatives/), [Claude Duet for developers](/blog/claude-duet-for-developers/), [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) and how to [build your own Claude Duet](/blog/build-your-own-claude-duet/). Our view: Duet is built to decide by itself when to talk to you, which is why the approval rules above matter more than the feature list. For agents that write code, our [office use cases](/blog/ai-agent-use-cases-our-office/) show what a team of coding agents does in a day.
 
 ## What are Claude Duet's known limits?
 
