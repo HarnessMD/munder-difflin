@@ -102,8 +102,14 @@ export function usePtyParser(agentId: string) {
       }
     }
 
-    // The "esc to interrupt" footer is only shown while a turn is in progress.
-    const running = /esc to interrupt/i.test(text);
+    // A turn in progress, by the TUI's own footer:
+    //   Claude Code      → "esc to interrupt"
+    //   OpenCode (v2)    → "esc stop · Build · <model> · <tokens> (<%)>"
+    // Both only render while the model is generating (an idle OpenCode TUI shows
+    // different hints, and an idle Claude shows no footer at all). The parser
+    // used to know only the Claude form, so every OpenCode agent drifted to the
+    // 4s idle timer mid-turn and read "ocioso" while actively thinking.
+    const running = /esc\s+(?:to\s+interrupt|stop\b)/i.test(text);
 
     let lastTool: string | null = null;
     let lastArg: string | null = null;
@@ -139,7 +145,11 @@ export function usePtyParser(agentId: string) {
 
     // Actively running but no fresh tool line (model is thinking / streaming
     // prose) → keep the agent working at its desk, don't let it drift to idle.
-    if (running) {
+    // OpenCode's TUI also streams italic "Thinking: …" blocks between output
+    // bursts (its model's reasoning made visible) — a chunk carrying one is a
+    // mid-turn heartbeat even when no footer repainted this frame.
+    const thinking = /\bThinking:/i.test(text);
+    if (running || thinking) {
       cancelIdle();
       updateAgent(agentId, { status: 'working' });
       return;
