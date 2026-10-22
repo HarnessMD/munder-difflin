@@ -59,6 +59,11 @@ interface CoffeeRun {
 interface Runtime {
   character: Character;
   seatIndex: number | null;
+  /** The desk PIN this seat was claimed under (equal to agent.seat when the
+   *  pin won the claim, undefined for auto seating). Drives the re-seat check
+   *  in syncAgents: pin set/changed/cleared → the avatar drops and re-adds so
+   *  claimSeat re-runs with the new pin. */
+  pinnedSeat?: number;
   waitTile: Tile;
   charName: string;
   prevStatus?: string;
@@ -357,6 +362,9 @@ export function OfficeFloor() {
         }
       };
       addZoneSeats('boardroom');       // conference room overflow
+      // Publish how many desks this theme exposes — Edit Agent's desk picker
+      // ranges over this (0-based; seat 0 is Michael's room).
+      useStore.getState().setSeatCount(seatTiles.length);
       // The bottom-right open area is the cafeteria (break room) — see the
       // coffee-break director below. It is deliberately NOT added as overflow
       // desk seating, so the café tables stay free for breaks.
@@ -384,6 +392,20 @@ export function OfficeFloor() {
       // All other workers claim seats from 1 onward.
       const GOD_SEAT = 0;
       const claimSeat = (agent: Agent): number | null => {
+        // A per-agent DESK PIN (Edit Agent → Desk) beats every auto rule —
+        // including the god's reserved seat 0 — when the pinned seat is free
+        // and in range. An out-of-range or already-claimed pin degrades to the
+        // auto rules (loudly, so a typo'd pin is visible in devtools): a pin
+        // must never evict the agent currently sitting there.
+        const pin = agent.seat;
+        if (typeof pin === 'number' && Number.isInteger(pin)
+            && pin >= 0 && pin < seatTiles.length && !seatClaims.has(pin)) {
+          seatClaims.add(pin);
+          return pin;
+        }
+        if (pin != null) {
+          console.warn(`[office] desk pin ${pin} for ${agent.name} is out of range or taken — falling back to auto seating`);
+        }
         if (agent.isGod) { seatClaims.add(GOD_SEAT); return GOD_SEAT; }
         for (let i = 1; i < seatTiles.length; i++) {
           if (!seatClaims.has(i)) { seatClaims.add(i); return i; }
@@ -1410,6 +1432,9 @@ export function OfficeFloor() {
         });
         character.show(charLayer);
         const rt: Runtime = { character, seatIndex, waitTile, charName };
+        // Record WHICH desk pin this seat was claimed under, so a later pin
+        // change (set / moved / cleared) is detectable in syncAgents.
+        rt.pinnedSeat = typeof agent.seat === 'number' && agent.seat === seatIndex ? agent.seat : undefined;
         // Standard desks paint the 2×2 PC monitor two rows above the seat —
         // give those a DeskScreen (lights up while seated) and a cup spot
         // beside the monitor, exactly where the tileset's baked-in mug used
@@ -1586,6 +1611,14 @@ export function OfficeFloor() {
         for (const agent of agents) {
           const rt = runtimes.get(agent.id);
           if (!rt) void addCharacter(agent);
+          else if (agent.seat !== rt.pinnedSeat) {
+            // Desk pin set/changed/cleared → drop and re-add so claimSeat
+            // re-runs under the new pin (removeCharacter releases the old
+            // seat; addCharacter honours the new one). Nothing else in the
+            // avatar state depends on seat continuity, so the swap is safe.
+            removeCharacter(agent.id);
+            void addCharacter(agent);
+          }
           else {
             rt.character.setName(agent.name);
             applyState(agent, rt);

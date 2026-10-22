@@ -387,6 +387,12 @@ export function useHive(config: HarnessConfig | null): void {
       // Synchronous guard (no await between check and set) → exactly one spawn.
       if (cancelled || godSpawning.current) return;
       godSpawning.current = true;
+      // Capture the stale restored entry's DESK PIN before clearing it — the
+      // god object is rebuilt from scratch below, and without this his Edit
+      // Agent → Desk pin (persisted only in the renderer roster) would be
+      // lost on every respawn.
+      const prevGod = useStore.getState().agents.find((a) => a.id === GOD_ID);
+      const godSeat = prevGod?.seat;
       useStore.getState().removeAgent(GOD_ID); // clear any stale restored entry
 
       // A prior rename (Edit Agent panel → renameAgent() → hive.ts's renameAgent())
@@ -398,7 +404,15 @@ export function useHive(config: HarnessConfig | null): void {
 
       const godProvider = config.godProvider ?? 'claude';
       const godModel = config.godModel;
-      const command = buildSpawnCommand(config, godModel, godProvider);
+      // config.godCommand is a FULL override of the god's base spawn command
+      // (mirrors upstream 0.5.6+): it wins over godProvider/godModel entirely.
+      // Needed when the god's engine cannot take the preset's flags at all —
+      // e.g. the OpenCode desktop V2 CLI rejects `--model`, so
+      // buildSpawnCommand(config, godModel, 'opencode') emits an arg the CLI
+      // treats as fatal ("Unrecognized flag: --model"). The hive injection
+      // (OPENCODE_CONFIG_CONTENT, hooks plugin, --prompt seed) still applies on
+      // top — only the BASE command is overridden here.
+      const command = (config.godCommand ?? '').trim() || buildSpawnCommand(config, godModel, godProvider);
       const [exe, ...args] = tokenizeCommand(command.trim());
       const res = await window.cth.spawnPty({
         id: GOD_PTY,
@@ -435,6 +449,9 @@ export function useHive(config: HarnessConfig | null): void {
         command: command.trim(),
         provider: godProvider,
         model: godModel,
+        // Preserve the desk pin captured from the stale entry above; without
+        // it Michael's Edit Agent → Desk choice is dropped on every respawn.
+        seat: godSeat,
         isGod: true,
         recentTextTs: Date.now()
       };
