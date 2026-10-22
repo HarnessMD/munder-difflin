@@ -8,6 +8,22 @@
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
   <entry>
+    <title>Agent Tools Today, 22 Oct 2026: Claude API 2026-10-21, LayerFS 1.0, PHP2Shell</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-22/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-22/</id>
+    <published>2026-10-22T00:00:00.000Z</published>
+    <updated>2026-10-22T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 22 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>Claude API Version 2026-10-21: What Breaks and How to Upgrade</title>
+    <link href="https://munderdiffl.in/blog/claude-api-version-2026-10-21/" />
+    <id>https://munderdiffl.in/blog/claude-api-version-2026-10-21/</id>
+    <published>2026-10-22T00:00:00.000Z</published>
+    <updated>2026-10-22T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Claude API version 2026-10-21 removes temperature, top_p and top_k and ships new SDK majors. What returns a 400 now, what breaks proxies, and how to upgrade.</summary>
+  </entry>
+  <entry>
     <title>What Is Claude Duet? Anthropic&#39;s Proactive Agent App, Explained</title>
     <link href="https://munderdiffl.in/blog/what-is-claude-duet/" />
     <id>https://munderdiffl.in/blog/what-is-claude-duet/</id>
@@ -470,21 +486,5 @@
     <published>2026-10-05T00:00:00.000Z</published>
     <updated>2026-10-05T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 5 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>ASD-STE100 Prompting: Karpathy&#39;s 4 Tricks for Clearer AI Answers</title>
-    <link href="https://munderdiffl.in/blog/asd-ste100-prompting/" />
-    <id>https://munderdiffl.in/blog/asd-ste100-prompting/</id>
-    <published>2026-10-05T00:00:00.000Z</published>
-    <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Ask your AI to answer in ASD-STE100, the aerospace manual standard, about 80% of the way. Plus Karpathy&#39;s three other tricks: diagrams, HTML and video.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code Alternatives: 7 Coding Agents to Switch To</title>
-    <link href="https://munderdiffl.in/blog/claude-code-alternatives/" />
-    <id>https://munderdiffl.in/blog/claude-code-alternatives/</id>
-    <published>2026-10-05T00:00:00.000Z</published>
-    <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Seven Claude Code alternatives checked on 5 Oct 2026: Codex CLI, OpenCode, Cursor, Gemini CLI, Cline, Pi and Aider, by licence, starting price and models.</summary>
   </entry>
 </feed>

@@ -5146,5 +5146,28 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-10-22": {
+    "title": "Agent Tools Today, 22 Oct 2026: Claude API 2026-10-21, LayerFS 1.0, PHP2Shell",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "claude-api-version-2026-10-21": {
+    "title": "Claude API Version 2026-10-21: What Breaks and How to Upgrade",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-api-version-2026-10-21/hero.png",
+      "alt": "Title card on white. A pill reading API, the title Claude API 2026-10-21 in large ink type, the subtitle What breaks and how to upgrade, a Checked 22 Oct 2026 line, and a white envelope that a rubber stamp marks with the date 2026-10-21 in blue over a faded 2023-06-01 stamp.",
+      "prompt": "Title card: the hero scene in assets/media/claude-api-version-2026-10-21/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
