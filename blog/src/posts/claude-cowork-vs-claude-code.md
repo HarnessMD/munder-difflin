@@ -104,6 +104,7 @@ Pick by what you need handed back.
 - **A bug fix, feature or pull request:** Claude Code. [How to use Claude Code](/blog/how-to-use-claude-code/) gets you started.
 - **Both kinds of work:** one Pro plan, both tools.
 - **An assistant in your chat apps that you host yourself:** OpenClaw.
+- **An agent that comes to you first with a morning brief:** [Claude Duet](/blog/what-is-claude-duet/), in research preview since 21 Oct 2026.
 - **No terminal, ever:** Cowork. That is the point of it.
 
 <link rel="stylesheet" href="/blog/assets/media/claude-cowork-vs-claude-code/motion.css"><script defer src="/blog/assets/media/claude-cowork-vs-claude-code/motion.js"></script>
