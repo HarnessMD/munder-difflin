@@ -5169,5 +5169,60 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "claude-duet-alternatives": {
+    "title": "Claude Duet Alternatives: 4 AI Agents You Can Use Today, No Waitlist",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/claude-duet-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Claude Duet alternatives, the line Proactive agents with no waitlist and a Checked 22 Oct 2026 line. Beside them a queue of numbered tickets under a Waitlist sign, and four lanes that light up one by one, each tagged Open now.",
+      "prompt": "Title card: the hero scene in assets/media/claude-duet-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-duet-vs-munder-difflin": {
+    "title": "Claude Duet vs Munder Difflin: One Agent in the Cloud or a Team on Your Computer",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/claude-duet-vs-munder-difflin/hero.png",
+      "alt": "Title card on white. A pill reading Versus, the title Claude Duet vs Munder Difflin, the line One agent in the cloud, or a team on your computer and a Checked 22 Oct 2026 line. On the left a cloud holds one card; on the right four small terminal windows type, with a yellow vs chip between them.",
+      "prompt": "Title card: the hero scene in assets/media/claude-duet-vs-munder-difflin/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "build-your-own-claude-duet": {
+    "title": "Build Your Own Claude Duet: A Free Morning Brief Agent for Your Codebase",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/build-your-own-claude-duet/hero.png",
+      "alt": "Title card on white. A pill reading Guide, the title Build your own Claude Duet, the line A free morning brief for your codebase and a Checked 22 Oct 2026 line. A yellow sun rises behind a terminal that prints Morning brief, Pull requests, Checks and Issues, beside a calendar tile reading 08:00.",
+      "prompt": "Title card: the hero scene in assets/media/build-your-own-claude-duet/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-duet-for-developers": {
+    "title": "Is Claude Duet Good for Developers? What It Does With Code and What It Doesn't",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/claude-duet-for-developers/hero.png",
+      "alt": "Title card on white. A pill reading Developers, the title Is Claude Duet good for developers?, the line What it does with code, and what it doesn't and a Checked 22 Oct 2026 line. A balance scale holds an inbox tray on one pan and a code block on the other and settles level.",
+      "prompt": "Title card: the hero scene in assets/media/claude-duet-for-developers/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-duet-waitlist": {
+    "title": "Claude Duet Waitlist: Who Gets In First, and What to Use Meanwhile",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-duet-waitlist/hero.png",
+      "alt": "Title card on white. A pill reading Access, the title Claude Duet waitlist, the line Who gets in first, and what to use meanwhile and a Checked 22 Oct 2026 line. Envelopes move along a rail; one lifts out and opens to a card reading You're in.",
+      "prompt": "Title card: the hero scene in assets/media/claude-duet-waitlist/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
