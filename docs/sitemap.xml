@@ -40,6 +40,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://munderdiffl.in/blog/litellm-1-107-0-compromise/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://munderdiffl.in/blog/agent-tools-today-2026-10-19/</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -539,7 +545,7 @@
   </url>
   <url>
     <loc>https://munderdiffl.in/blog/codex-max-plan-tips/</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

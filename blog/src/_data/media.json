@@ -5124,5 +5124,16 @@
     },
     "inline": {},
     "youtube": []
+  },
+  "litellm-1-107-0-compromise": {
+    "title": "LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/litellm-1-107-0-compromise/hero.png",
+      "alt": "Title card on white. A pill reading Security, the title LiteLLM 1.107.0 in large ink type, the line What it steals and how to check, a Checked 21 Oct 2026 line, and a parcel box with a 1.107.0 tag whose yellow tape seal has split open.",
+      "prompt": "Title card: the hero scene in assets/media/litellm-1-107-0-compromise/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

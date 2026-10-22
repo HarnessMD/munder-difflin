@@ -32,6 +32,14 @@
     <summary>Cursor vs Cline, checked 19 Oct 2026: Cursor&#39;s new X Subscription plans, Cline&#39;s free open source agent, which models each lets you use and which to pick.</summary>
   </entry>
   <entry>
+    <title>LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine</title>
+    <link href="https://munderdiffl.in/blog/litellm-1-107-0-compromise/" />
+    <id>https://munderdiffl.in/blog/litellm-1-107-0-compromise/</id>
+    <published>2026-10-21T00:00:00.000Z</published>
+    <updated>2026-10-21T00:00:00.000Z</updated><category term="Guides" />
+    <summary>LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 19 Oct 2026: DeepSeek Search API, Sphinx, OpenClaw 2026.10.5</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-19/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-19/</id>
@@ -478,13 +486,5 @@
     <published>2026-10-05T00:00:00.000Z</published>
     <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
     <summary>Codex pricing checked 5 Oct 2026: which ChatGPT plans include Codex, US prices from $0 to $500, how usage limits are counted, credits and API key rates.</summary>
-  </entry>
-  <entry>
-    <title>How to Use Claude Code: Setup, First Task and the Commands That Matter</title>
-    <link href="https://munderdiffl.in/blog/how-to-use-claude-code/" />
-    <id>https://munderdiffl.in/blog/how-to-use-claude-code/</id>
-    <published>2026-10-05T00:00:00.000Z</published>
-    <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
-    <summary>How to use Claude Code, checked 5 Oct 2026: install it, sign in, run a first task, then the commands, shortcuts and habits a beginner needs.</summary>
   </entry>
 </feed>
