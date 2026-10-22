@@ -4,9 +4,33 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-19T00:00:00.000Z</updated>
+  <updated>2026-10-21T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 21 Oct 2026: DeepInfer, Voxtral 3, Claude Code 2.1.305</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-21/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-21/</id>
+    <published>2026-10-21T00:00:00.000Z</published>
+    <updated>2026-10-21T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 21 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>Cline Alternatives: 6 Picks and 2 Names to Skip (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/cline-alternatives/" />
+    <id>https://munderdiffl.in/blog/cline-alternatives/</id>
+    <published>2026-10-21T00:00:00.000Z</published>
+    <updated>2026-10-21T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Six Cline alternatives checked on 19 Oct 2026: Kilo Code, Munder Difflin, OpenCode, Codex, Claude Code and Cursor, plus two you can skip, by licence and price.</summary>
+  </entry>
+  <entry>
+    <title>Cursor vs Cline: A Paid Editor and an Open Source Agent Compared</title>
+    <link href="https://munderdiffl.in/blog/cursor-vs-cline/" />
+    <id>https://munderdiffl.in/blog/cursor-vs-cline/</id>
+    <published>2026-10-21T00:00:00.000Z</published>
+    <updated>2026-10-21T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Cursor vs Cline, checked 19 Oct 2026: Cursor&#39;s new X Subscription plans, Cline&#39;s free open source agent, which models each lets you use and which to pick.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 19 Oct 2026: DeepSeek Search API, Sphinx, OpenClaw 2026.10.5</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-19/" />
@@ -462,29 +486,5 @@
     <published>2026-10-05T00:00:00.000Z</published>
     <updated>2026-10-05T00:00:00.000Z</updated><category term="Guides" />
     <summary>How to use Claude Code, checked 5 Oct 2026: install it, sign in, run a first task, then the commands, shortcuts and habits a beginner needs.</summary>
-  </entry>
-  <entry>
-    <title>OpenClaw Alternatives: 7 Picks for Chat, Code and Cloud</title>
-    <link href="https://munderdiffl.in/blog/openclaw-alternatives/" />
-    <id>https://munderdiffl.in/blog/openclaw-alternatives/</id>
-    <published>2026-10-05T00:00:00.000Z</published>
-    <updated>2026-10-05T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Seven OpenClaw alternatives sorted by job: Hermes Agent, Munder Difflin, NanoClaw, ZeroClaw, nanobot, Goose and Claude. Licences and prices checked 5 Oct 2026.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 4 Oct 2026: You should Know, OpenClaw&#39;s Android Wait, Codex Wish List</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-04/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-04/</id>
-    <published>2026-10-04T00:00:00.000Z</published>
-    <updated>2026-10-04T00:00:00.000Z</updated><category term="News" />
-    <summary>The top 5 launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 4 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 3 Oct 2026: Claude Code Mods, OpenDots, Conductor Mobile</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-03/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-03/</id>
-    <published>2026-10-03T00:00:00.000Z</published>
-    <updated>2026-10-03T00:00:00.000Z</updated><category term="News" />
-    <summary>The top 5 launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 3 Oct 2026, each with its source.</summary>
   </entry>
 </feed>

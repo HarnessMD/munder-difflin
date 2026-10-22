@@ -5090,5 +5090,39 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "cursor-vs-cline": {
+    "title": "Cursor vs Cline: A Paid Editor and an Open Source Agent Compared",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/cursor-vs-cline/hero.png",
+      "alt": "Title card on white. A Comparisons pill, the title Cursor vs Cline in large ink type over a yellow underline, the line A paid editor and an open source agent, a Checked 19 Oct 2026 tag, and a pinwheel with yellow, blue, lilac and mint blades on a stick.",
+      "prompt": "Title card: the hero scene in assets/media/cursor-vs-cline/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "cline-alternatives": {
+    "title": "Cline Alternatives: 6 Picks and 2 Names to Skip (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/cline-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading 6 picks and 2 names to skip, the title Cline alternatives in large ink type over a yellow underline, a Checked 19 Oct 2026 line, and two dice: a big yellow die showing six and a small grey die showing two.",
+      "prompt": "Title card: the hero scene in assets/media/cline-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-10-21": {
+    "title": "Agent Tools Today, 21 Oct 2026: DeepInfer, Voxtral 3, Claude Code 2.1.305",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
   }
 }
