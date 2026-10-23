@@ -39,6 +39,8 @@ Claude Duet is Anthropic's new app in which Claude acts as a proactive agent. An
 | Where | Standalone app on iOS and Android, and on claude.ai |
 | Apps it can use | "over 6,000 connectors and plugins in the Claude Marketplace" |
 
+For the phones it runs on, using it on a computer and how the download works, see our [Claude Duet app guide](/blog/claude-duet-app/).
+
 ## How does Claude Duet work?
 
 It starts from your Claude account. Your memory, skills and connected apps carry over, and you talk to Duet in one ongoing thread, by typing or by voice. Each morning it sends a short brief on the most important items across your connected apps. During the day it checks those apps every few hours and messages you only when something needs you. Anthropic says it does not check nonstop "because checking nonstop would use up your plan's limits much faster," and you can tell it what you want to hear about and how often.
