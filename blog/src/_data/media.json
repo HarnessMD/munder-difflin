@@ -5258,5 +5258,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "black-october-php2shell": {
+    "title": "Black October: What PHP2Shell Is and How to Patch (Oct 2026)",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/black-october-php2shell/hero.png",
+      "alt": "Title card on white. A pill reading Security, the title Black October, the line What PHP2Shell is and how to patch and a Checked 23 Oct 2026 line. A white server rack with four slots labelled 8.5.12, 8.4.27, 8.3.36 and 8.2.35 lights a green tick beside each slot in turn.",
+      "prompt": "Title card: the hero scene in assets/media/black-october-php2shell/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
