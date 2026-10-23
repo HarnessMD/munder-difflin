@@ -5224,5 +5224,39 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-10-23": {
+    "title": "Agent Tools Today, 23 Oct 2026: Claude Duet, OpenAI CLI, Nvidia OpenShell",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "claude-duet-app": {
+    "title": "Claude Duet App: iPhone, Android and Web, and How to Get It",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-duet-app/hero.png",
+      "alt": "Title card on white. A pill reading App, the title Claude Duet app, the line iPhone, Android and web and a Checked 23 Oct 2026 line. A phone outline, a second phone outline and a browser window light up in turn, joined by a dotted line to a small card reading Claude Duet.",
+      "prompt": "Title card: the hero scene in assets/media/claude-duet-app/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "ai-agent-office-github": {
+    "title": "Open Source AI Agent Office Apps on GitHub (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/ai-agent-office-github/hero.png",
+      "alt": "Title card on white. A pill reading GitHub, the title AI agent office apps, the line Open source, on GitHub and a Checked 23 Oct 2026 line. An office floor plan seen from above, with desks labelled Research, Write and Review, sends small cards to a board in turn.",
+      "prompt": "Title card: the hero scene in assets/media/ai-agent-office-github/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

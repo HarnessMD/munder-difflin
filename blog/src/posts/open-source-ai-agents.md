@@ -94,7 +94,7 @@ Most top results list frameworks, and some have aged. As of 1 Oct 2026, Modal's 
 
 ## Which open source AI agent should you pick?
 
-Match the agent to the job.
+Match the agent to the job. For agent teams, see [agent office apps on GitHub](/blog/ai-agent-office-github/).
 
 * Pick **OpenClaw** if you want one assistant in your chat apps.
 * Pick **Munder Difflin** if you want several named agents with roles, each on the CLI you already use.
