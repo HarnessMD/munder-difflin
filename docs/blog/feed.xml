@@ -4,9 +4,41 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-22T00:00:00.000Z</updated>
+  <updated>2026-10-23T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 23 Oct 2026: Claude Duet, OpenAI CLI, Nvidia OpenShell</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-23/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-23/</id>
+    <published>2026-10-23T00:00:00.000Z</published>
+    <updated>2026-10-23T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 23 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>Open Source AI Agent Office Apps on GitHub (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/ai-agent-office-github/" />
+    <id>https://munderdiffl.in/blog/ai-agent-office-github/</id>
+    <published>2026-10-23T00:00:00.000Z</published>
+    <updated>2026-10-23T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Open source AI agent office apps on GitHub, checked 23 Oct 2026: ChatDev, Munder Difflin, OpenHands, CrewAI, AG2 and three more, with licences.</summary>
+  </entry>
+  <entry>
+    <title>Black October: What PHP2Shell Is and How to Patch (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/black-october-php2shell/" />
+    <id>https://munderdiffl.in/blog/black-october-php2shell/</id>
+    <published>2026-10-23T00:00:00.000Z</published>
+    <updated>2026-10-23T00:00:00.000Z</updated><category term="News" />
+    <summary>Black October is the scramble around PHP2Shell, two critical PHP flaws fixed on 21 Oct 2026. Who found them, the fixed versions and how to patch.</summary>
+  </entry>
+  <entry>
+    <title>Claude Duet App: iPhone, Android and Web, and How to Get It</title>
+    <link href="https://munderdiffl.in/blog/claude-duet-app/" />
+    <id>https://munderdiffl.in/blog/claude-duet-app/</id>
+    <published>2026-10-23T00:00:00.000Z</published>
+    <updated>2026-10-23T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Is there a Claude Duet app? Yes, on iPhone and Android, and on a computer it runs at claude.ai. Who can get it, how the download works, and the cost.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 22 Oct 2026: Claude API 2026-10-21, LayerFS 1.0, PHP2Shell</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-22/" />
@@ -454,37 +486,5 @@
     <published>2026-10-07T00:00:00.000Z</published>
     <updated>2026-10-07T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Gemini CLI vs Claude Code, checked 7 Oct 2026: whether Gemini CLI is still free, what each costs, licence, models, features and who should pick which.</summary>
-  </entry>
-  <entry>
-    <title>Hermes Agent vs OpenClaw: which self-hosted AI assistant to pick</title>
-    <link href="https://munderdiffl.in/blog/hermes-agent-vs-openclaw/" />
-    <id>https://munderdiffl.in/blog/hermes-agent-vs-openclaw/</id>
-    <published>2026-10-07T00:00:00.000Z</published>
-    <updated>2026-10-07T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Hermes Agent vs OpenClaw, checked 7 Oct 2026: licence, latest release, install, channels, models, memory, skills, security notes and who should pick which.</summary>
-  </entry>
-  <entry>
-    <title>OpenAI Decisions API: what it is, price and limits</title>
-    <link href="https://munderdiffl.in/blog/openai-decisions-api/" />
-    <id>https://munderdiffl.in/blog/openai-decisions-api/</id>
-    <published>2026-10-07T00:00:00.000Z</published>
-    <updated>2026-10-07T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>The OpenAI Decisions API is a beta endpoint that returns a probability, a pick or a score. Price, limits and how to call it, checked 7 Oct 2026.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 6 Oct 2026: OpenAI Text Watermarks, Reflection Beam, Cloudflare Web Search</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-06/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-06/</id>
-    <published>2026-10-06T00:00:00.000Z</published>
-    <updated>2026-10-06T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 6 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Claude Cowork vs Claude Code: Which One Do You Need?</title>
-    <link href="https://munderdiffl.in/blog/claude-cowork-vs-claude-code/" />
-    <id>https://munderdiffl.in/blog/claude-cowork-vs-claude-code/</id>
-    <published>2026-10-06T00:00:00.000Z</published>
-    <updated>2026-10-06T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Claude Cowork does office work, Claude Code writes software. What each is, where it runs, which plans include it and what it can touch, checked 6 Oct 2026.</summary>
   </entry>
 </feed>
