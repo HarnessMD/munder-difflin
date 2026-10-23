@@ -22,6 +22,13 @@ function loadGalleryValidator() {
 
 const validateInGallery = loadGalleryValidator();
 
+test('write-capable filesystem and git requests require consent without granting it', () => {
+  const result = validateHireManifest(manifest({ mcpServers: ['filesystem', 'git'] }));
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.consentRequired, ['filesystem', 'git']);
+  assert.equal(Object.hasOwn(result.manifest, 'mcpDefaults'), false);
+});
+
 function manifest(overrides = {}) {
   return {
     spec: 'munder-difflin/hire@1',
