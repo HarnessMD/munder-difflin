@@ -397,7 +397,8 @@
       "graph": "graph",
       "activity": "activity",
       "skills": "skills",
-      "workers": "workers"
+      "workers": "workers",
+      "conference": "conference"
     },
     "terminalFullscreen": "Terminal is open in fullscreen. Press Esc to bring it back.",
     "noTerminal": "{{name}} has no live terminal.",
@@ -1193,7 +1194,19 @@
     "uncapped": "uncapped",
     "preserved": "Preserved worktrees ({{count}})",
     "preservedIntro": "Finished workers whose worktree held un-integrated work — kept (never auto-discarded) and auto-reclaimed once the work lands in its base branch.",
-    "keptAgo": "kept {{age}} ago"
+    "keptAgo": "kept {{age}} ago",
+    "startTempTitle": "Start a temp",
+    "startTemp": "Start a temp from {{name}}",
+    "tempFor": "One job for {{name}}",
+    "tempObjective": "What should this worker do?",
+    "tempStart": "start temp",
+    "tempStarting": "starting…",
+    "tempCancel": "cancel",
+    "tempHint": "One job, then the worker closes.",
+    "tempStarted": "Temp started.",
+    "tempQueued": "Temp queued — waiting for a free seat.",
+    "tempFailed": "Could not start the temp.",
+    "tempNeedAgent": "Select a lasting agent first."
   },
   "memoryGraph": {
     "topics": "topics",
@@ -1405,5 +1418,25 @@
     "viewSource": "view source",
     "loading": "loading image…",
     "decodeFailed": "could not decode this image — the file may be corrupt or misnamed"
+  },
+  "conferenceRoom": {
+    "title": "CONFERENCE ROOM",
+    "lead": "Seat two to four clones. {{godName}} chairs the debate. When they agree, the board gets the plan. When they deadlock, Ask Me gets the question.",
+    "topicLabel": "What should they decide?",
+    "topicPlaceholder": "e.g. Pick the auth approach for the signup fix and split the work…",
+    "seatsLabel": "SEATS {{count}} / {{max}}",
+    "needMoreAgents": "Hire at least {{min}} lasting agents before you open a conference.",
+    "needSeats": "Pick {{min}} to {{max}} clones for the table.",
+    "start": "call the meeting",
+    "starting": "calling…",
+    "hint": "{{godName}} will chair. Deadlocks land on Ask Me.",
+    "started": "Meeting called — {{godName}} is seating {{count}} clones. Watch the terminal tab: the brief is in the inbox. If the chair stays quiet, the CLI is blocked (often low credits).",
+    "failed": "Could not call the meeting: {{error}}",
+    "mailSubject": "Conference: {{topic}}",
+    "briefTitle": "CONFERENCE ROOM",
+    "briefTopic": "Topic: {{topic}}",
+    "briefParticipants": "Participants (they stay in the debate until they agree on a plan):",
+    "briefRules": "Rules for you as chair ({{godName}}):\n1. Pull these agents into a debate on the topic. Prefer propose / agree / refuse mail between them.\n2. Hold competing new work for them while the conference is open, if you can.\n3. When they agree, write one parent task plus child tickets on the board for each concrete step, with assignees from the participants.\n4. If they deadlock for more than two rounds without agreement, block the parent task with humanQA asking the human to resolve the deadlock — do not invent a compromise yourself.\n5. Keep the subject line starting with Conference: so the floor can spot it.",
+    "watchTerminal": "Open {{godName}}'s terminal tab. He should wake on the Conference mail. If you see a credit or login error there, that is why the floor is still quiet."
   }
 }
