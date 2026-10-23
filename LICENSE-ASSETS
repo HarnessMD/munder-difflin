@@ -11,4 +11,11 @@ The Office cast sprites are not LimeZu art -- they are drawn procedurally in
 src/renderer/src/scene/office/portraitArt.ts and are covered by the MIT License
 like the rest of the source.
 
+The Star Hike floor art under themes/starhike/ (art/ and map/) is not LimeZu
+art and not MIT either. It is "Artwork by Prozzta" (https://github.com/Prozzta/guppyos),
+licensed under themes/starhike/LICENSE-ARTWORK.md, which permits editing and use
+in commercial and non-commercial projects, does not permit reselling or
+distributing the art itself, and REQUIRES the credit "Artwork by Prozzta" with a
+link to https://github.com/Prozzta/guppyos.
+
 See src/renderer/src/assets/ATTRIBUTION.md for details.

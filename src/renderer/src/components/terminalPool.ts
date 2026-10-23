@@ -39,6 +39,8 @@ import {
   type TerminalAutomationBlock
 } from './terminalAutomation';
 import { sanitizeTerminalSelection } from './terminalSelection';
+import { codexScreenHold, extractCodexScreen } from '@shared/codexScreen';
+import { createPtyResizeCoalescer, type Grid, type PtyResizeCoalescer } from './ptyResizeCoalescer';
 import { terminalKeySequence } from './terminalKeys';
 import '@xterm/xterm/css/xterm.css';
 
@@ -413,11 +415,30 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
 }
 
 /** Whether queued automation can safely own this terminal's input line. A PTY
- * without a pooled terminal cannot have a user-opened local picker. */
-export function isTerminalAutomationSafe(ptyId: string, now = Date.now()): boolean {
+ * without a pooled terminal cannot have a user-opened local picker. For a Codex
+ * terminal (`codex`), its screen must also not be a startup, popup or transient
+ * screen (codexScreenHoldFor). */
+export function isTerminalAutomationSafe(ptyId: string, now = Date.now(), codex = false): boolean {
   const entry = pool.get(ptyId);
   if (!entry) return true;
+  if (codex && codexScreenHoldFor(ptyId) !== null) return false;
   return canAutomateTerminal(automationStateOf(entry, now), now);
+}
+
+/** R4: why automatic typing must wait on this Codex terminal's screen (shared/codexScreen),
+ * or null to type. Null too when there is no screen to read: a terminal never opened
+ * (its grid is not the PTY's, so the rows would not be Codex's) or exited. Then typing
+ * goes ahead as before. */
+export function codexScreenHoldFor(ptyId: string): string | null {
+  const entry = pool.get(ptyId);
+  if (!entry || !entry.opened || entry.exited) return null;
+  try {
+    const buf = entry.term.buffer.active;
+    const facts = extractCodexScreen((i) => buf.getLine(i)?.translateToString(true), buf.length, buf.baseY + buf.cursorY);
+    return codexScreenHold(facts);
+  } catch {
+    return null; // never let a buffer read break delivery
+  }
 }
 
 /** Characters a TUI paints around its input line that are not the user's text:
@@ -852,10 +873,26 @@ export function reflowTerminal(ptyId: string): void {
     // Only poke the pty when the grid actually changed (every resize repaints
     // the TUI and pushes a frame into scrollback).
     if (entry.term.cols !== before.cols || entry.term.rows !== before.rows) {
-      window.cth.resizePty(ptyId, entry.term.cols, entry.term.rows);
+      requestPtyResize(ptyId, before, { cols: entry.term.cols, rows: entry.term.rows });
     }
     entry.term.refresh(0, Math.max(0, entry.term.rows - 1));
   } catch { /* host may not be sized yet */ }
+}
+
+// One coalescer per pty, so a burst of local fits reaches the pty as at most one resize,
+// and none at all if the grid settles back where it started. See ptyResizeCoalescer.ts
+// for why a pty resize is expensive (Codex replays its transcript).
+const resizeCoalescers = new Map<string, PtyResizeCoalescer>();
+
+/** A local xterm fit moved this pty's grid from `from` to `to`: tell the pty once it
+ *  settles. Every renderer-side pty resize goes through here. */
+export function requestPtyResize(ptyId: string, from: Grid, to: Grid): void {
+  let c = resizeCoalescers.get(ptyId);
+  if (!c) {
+    c = createPtyResizeCoalescer((g) => { void window.cth.resizePty(ptyId, g.cols, g.rows); });
+    resizeCoalescers.set(ptyId, c);
+  }
+  c.request(from, to);
 }
 
 /**
@@ -910,6 +947,8 @@ export function disposeTerminal(ptyId: string): void {
   try { entry.term.dispose(); } catch { /* noop */ }
   entry.host.remove();
   pool.delete(ptyId);
+  resizeCoalescers.get(ptyId)?.cancel(); // the pty is going away: a late resize has no target
+  resizeCoalescers.delete(ptyId);
 }
 
 // ─── v0.3.4: ⌘-click a path in terminal output ──────────────────────────────

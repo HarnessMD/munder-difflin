@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import type { AccentColorName } from '@/design/tokens';
 import type { OfficeCharacterName } from '@/scene/office/cast';
 import type { ThemeId } from '@/scene/office/themeRegistry';
+import type { LooksByTheme } from '@/scene/themes/looks';
 import type { StatusKind } from '@/components/PixelBadge';
 import type { AgentProvider } from '@shared/agentProvider';
 import type { HireManifest } from '@shared/hire';
+import type { HumanQAFields, QuestionRef } from '@shared/humanQuestion';
 import {
   EMPTY_HIRE_QUEUE,
   clearHireQueue,
@@ -44,6 +46,11 @@ export interface Agent {
   /** which Office character represents this agent on the floor */
   character: OfficeCharacterName;
   accent: AccentColorName;
+  /** This agent's look in each theme pack, by theme id (the Office uses
+   *  `character` and `accent`, which a look never replaces). Durable: saved
+   *  with the roster, kept when the project switches theme and back. Without
+   *  one an agent shows its pack's default look. */
+  appearanceByTheme?: LooksByTheme;
   /** persistent job / hire one-liner — same string as hive registry `role`.
    *  Live status belongs on `status` / `action`, never here. */
   description: string;
@@ -159,13 +166,28 @@ export interface QueuedMessage {
 // 'files' retired in v0.3.4 (the per-agent IDE button superseded it) — a
 // persisted 'files' selection falls back to 'terminal' on load. 'git' added in
 // v0.3.4: at-a-glance branch/status/log without opening the IDE.
-export type SidebarTab = 'terminal' | 'messages' | 'traces' | 'git';
+export type SidebarTab = 'terminal' | 'history' | 'messages' | 'traces' | 'git';
 
 /** Lifecycle of the god agent ("Michael") bootstrap on launch.
  *  'booting' until his PTY is confirmed live, then 'ready' (or 'failed' if the
  *  spawn errored). The empty-floor UI shows a loader while 'booting' so users
  *  don't see the "add agent" prompt before Michael has clocked in. */
 export type GodStatus = 'booting' | 'ready' | 'failed';
+
+/** One ASK ME card's state beside its draft. */
+export interface AskMeCardState {
+  /** The question the draft and picks belong to, and that entry as the card showed it. */
+  ref?: QuestionRef;
+  entry?: HumanQAFields;
+  /** Picked options, as indexes of entry.options. */
+  picks?: number[];
+  /** Not sent: 'gone', the question changed or closed first; 'failed', anything else. */
+  notSent?: 'gone' | 'failed';
+  /** What the person wrote for a question that changed or closed, to copy. */
+  kept?: string;
+  /** Closed elsewhere while written for: the card stays, read only, until dismissed. */
+  closed?: { title: string; assignee?: string };
+}
 
 interface State {
   agents: Agent[];
@@ -256,6 +278,10 @@ interface State {
    *  unmounts the ask-me view) doesn't eat a half-typed answer. */
   answerDrafts: Record<string, string>;
   setAnswerDraft: (taskId: string, text: string) => void;
+  /** ASK ME, per card, beside its draft: the question the draft and picks were
+   *  written for, the picks, and an answer that was not sent (Pam's P4). */
+  askMeCards: Record<string, AskMeCardState>;
+  setAskMeCard: (taskId: string, state: AskMeCardState | null) => void;
   /** Unsent composer drafts, per agent — so switching agents (which remounts the
    *  composer) doesn't eat what the user was typing. */
   drafts: Record<string, string>;
@@ -623,7 +649,7 @@ const initialSidebarWidth = (() => {
 const initialSidebarTab: SidebarTab = (() => {
   try {
     const v = window.localStorage.getItem(LS_SIDEBAR_TAB);
-    if (v === 'terminal' || v === 'messages' || v === 'traces' || v === 'git') return v;
+    if (v === 'terminal' || v === 'history' || v === 'messages' || v === 'traces' || v === 'git') return v;
   } catch { /* noop */ }
   return 'terminal';
 })();
@@ -871,6 +897,13 @@ export const useStore = create<State>((set, get) => ({
   answerDrafts: {},
   setAnswerDraft: (taskId, text) =>
     set((s) => ({ answerDrafts: { ...s.answerDrafts, [taskId]: text } })),
+  askMeCards: {},
+  setAskMeCard: (taskId, state) =>
+    set((s) => {
+      const next = { ...s.askMeCards };
+      if (state) next[taskId] = state; else delete next[taskId];
+      return { askMeCards: next };
+    }),
   drafts: {},
   setDraft: (agentId, text) =>
     set((s) => ({ drafts: { ...s.drafts, [agentId]: text } })),

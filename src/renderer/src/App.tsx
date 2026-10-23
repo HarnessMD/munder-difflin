@@ -16,6 +16,7 @@ import { AddAgentModal } from '@/components/AddAgentModal';
 import { MichaelBooting } from '@/components/MichaelBooting';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
 import { HivePicker } from '@/components/HivePicker';
+import { IntegrityBanner, RecoveryNotice } from '@/components/FailureNotices';
 import { QuitWarningModal, type ClosingTimeState } from '@/components/QuitWarningModal';
 import { CompletionToast } from '@/realtime/CompletionToast';
 import { UpdateToast } from '@/components/UpdateToast';
@@ -31,6 +32,8 @@ import { FullscreenTerminal } from '@/components/FullscreenTerminal';
 import { TaskDetailOverlay } from '@/components/TaskDetailOverlay';
 import { IdePanel } from '@/ide/IdePanel';
 import { useHoldOptionToTalk } from '@/freeflow/holdOption';
+import { floorSceneTheme, resolveProjectTheme } from '@shared/projectTheme';
+import { useOrchestratorThemeLook } from '@/hooks/useOrchestratorThemeLook';
 import brandLogo from '@brand/logo.png?url';
 
 // Injected at build time from package.json (see electron.vite.config.ts).
@@ -62,8 +65,10 @@ export function App() {
   // Whether the user has passed the launch-time hive picker this session. Starts
   // true (skip the picker) right after a hive SWITCH — changeHome relaunches and
   // leaves a one-shot localStorage flag so we don't bounce back onto the picker for
-  // the hive we just chose. Also set true on onboarding completion (below).
+  // the hive we just chose. Also set true on onboarding completion (below), and
+  // when main has just reloaded this window: it lands back on the open project.
   const [hiveOpened, setHiveOpened] = useState<boolean>(() => {
+    if (window.cth.recovering) return true;
     try {
       if (window.localStorage.getItem('cth.skipHivePickerOnce')) {
         window.localStorage.removeItem('cth.skipHivePickerOnce');
@@ -108,9 +113,10 @@ export function App() {
       // show the voice button disabled-with-tooltip when Free Flow is on but no
       // Groq key is set (Settings keeps this in sync on save).
       useStore.getState().setHasGroqKey(!!c.groqApiKey);
-      // Mirror the active office theme so OfficeFloor renders it (gated on the
-      // tvShowOffices flag; off = always the office). Settings keeps this synced.
-      useStore.getState().setOfficeTheme(c.tvShowOffices ? (c.officeTheme ?? 'office') : 'office');
+      // Mirror this project's floor theme so OfficeFloor renders it: the project's own
+      // entry, else the global theme (a TV-show map only while the tvShowOffices flag
+      // is on; a pack always). Settings keeps this synced.
+      useStore.getState().setOfficeTheme(floorSceneTheme(resolveProjectTheme(c, c.harnessHome), c.tvShowOffices));
       // Mirror the triggers so Settings → Connections and the Command Center's
       // Triggers tab read one list, not two copies that drift — whichever surface
       // saves calls these same setters and the other repaints. No extra IPC: main
@@ -192,6 +198,7 @@ export function App() {
   // hook) so Michael doesn't boot against the current home while the user may be
   // about to switch to a different one.
   useHive(hiveOpened ? config : null);
+  useOrchestratorThemeLook();
 
   // Pre-warm a persistent terminal for every live agent so its output is
   // buffered from spawn. Switching agents then re-attaches an already-rendered
@@ -258,14 +265,14 @@ export function App() {
 
   if (!config.onboardingComplete) {
     // Just-onboarded users go straight into the hive they set up — skip the picker.
-    return <OnboardingWizard onComplete={(next) => { setConfig(next); setHiveOpened(true); }} />;
+    return <><IntegrityBanner /><OnboardingWizard onComplete={(next) => { setConfig(next); setHiveOpened(true); }} /></>;
   }
 
   // Launch-time hive picker: on reopen, let the user open their current hive,
   // switch to a recent one, or open/create another. Skipped right after onboarding
   // and right after a switch-relaunch (see hiveOpened init).
   if (!hiveOpened) {
-    return <HivePicker config={config} onOpenCurrent={() => setHiveOpened(true)} />;
+    return <><IntegrityBanner /><HivePicker config={config} onOpenCurrent={() => setHiveOpened(true)} /></>;
   }
 
   return (
@@ -280,6 +287,10 @@ export function App() {
       {/* v0.3.4: background-update toast ("restart to update"); renders null until
           main's updater pushes a status. */}
       <UpdateToast />
+      {/* Pam's P7: the window was reloaded by itself (once, until OK), and a
+          settings, board or agent list file that cannot be read (until it reads). */}
+      <RecoveryNotice />
+      <IntegrityBanner />
       {/* Title bar */}
       <div
         className="cth-titlebar-drag"
