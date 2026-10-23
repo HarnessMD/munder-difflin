@@ -190,7 +190,64 @@ test('classifyHook: idle-waiting shapes are idle, other events are null', () => 
 });
 
 test('the nudge text matches the renderer guardrail exactly', () => {
-  // If the renderer's nudge wording ever changes, update WORKER_WAKE_NUDGE to match.
-  assert.equal(WORKER_WAKE_NUDGE.length > 100, true);
-  assert.match(WORKER_WAKE_NUDGE, /read your inbox/i);
+  // WORKER_WAKE_NUDGE is now derived FROM inboxNudgeText (hiveNudge.ts), so the
+  // two can never drift — this just pins that it's still a short, recognisable
+  // nudge, not the long restated-protocol prose it used to be.
+  assert.equal(WORKER_WAKE_NUDGE.length < 120, true, WORKER_WAKE_NUDGE);
+  assert.match(WORKER_WAKE_NUDGE, /inbox message/i);
+});
+
+test('in-flight: a nudge currently being delivered holds a second nudge for the same agent', () => {
+  const w = new WorkerWakeWatchdog();
+  w.noteSpawn('pty-alice', 0);
+  const now = 200_000;
+  const f = fact({ lastOutputAt: now - WORKER_WAKE_IDLE_MS - 1 });
+  // First beat: nothing in flight yet, alice is nudged.
+  assert.deepEqual(w.decide([f], now), ['alice']);
+  // Caller marks in-flight the moment delivery starts (before the async retry
+  // loop even runs) -- simulate a second beat firing before that delivery
+  // resolves, with NEW mail (a different id) on top of the old one. Without the
+  // in-flight gate this is exactly the shape that retypes a second full nudge
+  // over a first one still sitting unconfirmed in the input box.
+  w.markNudging('alice');
+  const laterFact = fact({ lastOutputAt: now - WORKER_WAKE_IDLE_MS - 1, inboxIds: ['mail-1', 'mail-2'] });
+  assert.equal(w.explain(laterFact, now + 1000), 'in-flight');
+  assert.deepEqual(w.decide([laterFact], now + 1000), []);
+  // Delivery resolves (confirmed or gave-up) -- caller clears in-flight. The
+  // ordinary per-worker cooldown from the FIRST nudge still applies (clearing
+  // in-flight doesn't bypass it) -- the hold reason shifts from 'in-flight' to
+  // 'cooldown', not straight to a second nudge.
+  w.clearNudging('alice');
+  assert.equal(w.explain(laterFact, now + 2000), 'cooldown');
+  assert.deepEqual(w.decide([laterFact], now + 2000), []);
+  // Once the cooldown elapses, the new mail (mail-2, never announced while
+  // in-flight) is free to be nudged.
+  assert.deepEqual(w.decide([laterFact], now + WORKER_WAKE_COOLDOWN_MS + 1), ['alice']);
+});
+
+test('3 agents nudged at once, one mid-task: only the idle two go out, and neither re-nudges while in flight', () => {
+  const w = new WorkerWakeWatchdog();
+  const now = 500_000;
+  w.noteSpawn('pty-a', 0);
+  w.noteSpawn('pty-b', 0);
+  w.noteSpawn('pty-c', 0);
+  const facts = [
+    fact({ agentId: 'agent-a', ptyId: 'pty-a', lastOutputAt: now - WORKER_WAKE_IDLE_MS - 1 }),
+    fact({ agentId: 'agent-b', ptyId: 'pty-b', lastOutputAt: now - WORKER_WAKE_IDLE_MS - 1 }),
+    // agent-c is mid-task: PTY output a second ago, well inside the idle window.
+    fact({ agentId: 'agent-c', ptyId: 'pty-c', lastOutputAt: now - 1000 })
+  ];
+  const nudged = w.decide(facts, now);
+  assert.deepEqual(new Set(nudged), new Set(['agent-a', 'agent-b']));
+  assert.equal(w.explain(facts[2], now), 'mid-turn');
+
+  // Both idle agents' deliveries are marked in-flight (as the real beat would).
+  w.markNudging('agent-a');
+  w.markNudging('agent-b');
+  // A beat firing moments later, mid-delivery, holds all three for different
+  // reasons -- neither idle agent gets a second nudge stacked on its first.
+  assert.deepEqual(w.decide(facts, now + 500), []);
+  assert.equal(w.explain(facts[0], now + 500), 'in-flight');
+  assert.equal(w.explain(facts[1], now + 500), 'in-flight');
+  assert.equal(w.explain(facts[2], now + 500), 'mid-turn');
 });
