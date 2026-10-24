@@ -488,6 +488,10 @@ export class HookServer {
     }
 
     if ((event === 'Stop' || event === 'SubagentStop') && agentId) {
+      // A turn boundary clears the per-turn loop state (the blind-bridge
+      // counter in particular): a loop cannot continue past Stop, and a long
+      // session's accumulation must not carry over into the next turn.
+      this.breaker?.recordTurnEnd(agentId);
       // Respect any upstream Stop hook that already re-entered this boundary.
       if (p.stop_hook_active) { this.emit(agentId, event, p); return {}; }
       // Never turn unread hive mail into a forced continuation at Stop. That old

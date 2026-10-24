@@ -107,6 +107,18 @@ const PROGRESS_TOOL_WINDOW_MS = 300_000;
  *  one-beat blip (inbox ack, statusline burst) never steers on its own. */
 const NO_PROGRESS_BEATS = 2;
 
+/** Consecutive tool calls that carried NO tool_input before the loop arm gives
+ *  up on this agent. A bridge that forwards the call args never reaches this
+ *  (the repeat arm sees the real command). A bridge that stopped forwarding
+ *  leaves the loop arm blind, so this backstop still catches a runaway — set
+ *  far above any normal turn's tool-call count. */
+const INPUTLESS_TOOL_LIMIT = 60;
+
+/** Where the blind-bridge counter WARNS (a steer label) before the hard limit.
+ *  A long but legitimate session can produce a burst of inputless calls, so it
+ *  gets an explicit warning halfway to the stop instead of a silent kill. */
+const INPUTLESS_WARN_LIMIT = 30;
+
 interface AgentBreakerState {
   level: BreakerLevel;
   reason: string;
@@ -114,6 +126,18 @@ interface AgentBreakerState {
   /** Consecutive identical tool calls (same name+input). */
   repeatKey: string | null;
   repeatCount: number;
+  /** Consecutive tool calls that carried NO tool_input. A bridge that never
+   *  forwards the call args leaves the loop arm blind (every call looks
+   *  distinct), so these are counted separately and trip on a high threshold —
+   *  a backstop for a bridge that stopped forwarding. Reset by ANY other
+   *  activity (a human prompt, reasoning output, a compaction or a turn end),
+   *  because only a run of nothing-but-blind-calls is the runaway shape. */
+  inputlessCount: number;
+  /** Has the mid-run warning already been emitted for THIS run of blind calls?
+   *  Without it the warn trip would fire again every time the level recovers,
+   *  re-sending the same steer message every couple of beats. Cleared with the
+   *  counter (any real activity starts a new run). */
+  inputlessWarned: boolean;
   /** Consecutive api_error / retry events with no intervening progress. */
   errorCount: number;
   /** Δoutput-based trips are exempt until this instant (compaction in flight,
@@ -159,6 +183,7 @@ export class CircuitBreaker {
     if (!s) {
       s = {
         level: 'healthy', reason: '', lastSample: null, repeatKey: null, repeatCount: 0,
+        inputlessCount: 0, inputlessWarned: false,
         errorCount: 0, compactingUntil: 0, lastDistinctToolAt: 0, lastUserPromptAt: 0,
         noProgressBeats: 0
       };
@@ -181,9 +206,26 @@ export class CircuitBreaker {
 
   /** A tool call ran. A NEW (name+input) key counts as forward progress (resets
    *  the repeat + error counters and stamps the distinct-tool clock the
-   *  no-progress arm reads); the SAME key in a row is the loop signal. */
+   *  no-progress arm reads); the SAME key in a row is the loop signal. A call
+   *  with NO observable input is always treated as distinct (see below). */
   recordToolUse(agentId: string, toolName: string | undefined, toolInput: unknown, now = Date.now()): void {
     const s = this.get(agentId);
+    // A call that carries NO observable input cannot be told apart from a repeat,
+    // so it must never accumulate a "loop". The opencode bridge's after-payload
+    // and the Pi bridge once shipped without forwarding tool_input, which
+    // collapsed EVERY consecutive same-NAME call — e.g. each bash command in a
+    // normal multi-step engineering turn — onto one key and tripped the loop arm
+    // on wholly different commands. Bias to progress: reset the repeat streak and
+    // refresh the distinct-tool clock exactly as a genuine distinct call does.
+    // The error storm is NOT cleared (a blind bridge must not erase a real one),
+    // and a long run of blind calls is still caught by the inputless backstop.
+    if (toolInput === undefined || toolInput === null) {
+      s.repeatKey = null;
+      s.repeatCount = 0;
+      s.inputlessCount += 1;
+      s.lastDistinctToolAt = now;
+      return;
+    }
     const key = this.toolKey(toolName, toolInput);
     if (key === s.repeatKey) {
       s.repeatCount += 1;
@@ -191,8 +233,37 @@ export class CircuitBreaker {
       s.repeatKey = key;
       s.repeatCount = 1;
       s.errorCount = 0; // a distinct tool call = progress; clear the error storm
+      this.clearInputless(s); // the bridge is forwarding the call args again
       s.lastDistinctToolAt = now;
     }
+  }
+
+  /** Zero the blind-bridge run: the counter AND the "already warned" flag. Any
+   *  real activity (a distinct tool call, a prompt, compaction, output growth, a
+   *  turn end) is the start of a new run, so the warning may be emitted again. */
+  private clearInputless(s: AgentBreakerState): void {
+    s.inputlessCount = 0;
+    s.inputlessWarned = false;
+  }
+
+  /** Any agent activity OTHER than an inputless tool call: a human prompt, a
+   *  compaction, reasoning output, a turn boundary. Resets the blind-bridge
+   *  counter — only an unbroken run of calls with no observable input is the
+   *  runaway shape, and a long reasoning turn (which produces no tool calls at
+   *  all, but does produce output) must not contribute to a stop. */
+  recordActivity(agentId: string): void {
+    this.clearInputless(this.get(agentId));
+  }
+
+  /** The agent's turn ended (Stop / SubagentStop). A loop cannot continue past
+   *  a turn boundary, so clear the per-turn loop state. Errors and the
+   *  cumulative sample baseline are left alone: an error storm that spans turns
+   *  is still a storm. */
+  recordTurnEnd(agentId: string): void {
+    const s = this.get(agentId);
+    this.clearInputless(s);
+    s.repeatKey = null;
+    s.repeatCount = 0;
   }
 
   /** An api_error / retry occurred (no forward progress). */
@@ -205,7 +276,9 @@ export class CircuitBreaker {
    *  that arm gains a way to see this work — the loop, error-storm, velocity
    *  and cap arms are unchanged. */
   recordUserPrompt(agentId: string, now = Date.now()): void {
-    this.get(agentId).lastUserPromptAt = now;
+    const s = this.get(agentId);
+    s.lastUserPromptAt = now;
+    this.clearInputless(s); // a live human turn is activity, not a blind loop
   }
 
   /** Compaction started (PreCompact hook). Exempt the Δoutput-based trips —
@@ -213,7 +286,9 @@ export class CircuitBreaker {
    *  is exactly the false-positive shape of upstream issue #109 (the harness's
    *  own auto-compact mission tripping its own breaker on idle agents). */
   recordCompactStart(agentId: string, now = Date.now()): void {
-    this.get(agentId).compactingUntil = now + COMPACT_GRACE_MS;
+    const s = this.get(agentId);
+    s.compactingUntil = now + COMPACT_GRACE_MS;
+    this.clearInputless(s); // compaction is activity, not a blind loop
   }
 
   /** Compaction finished (PostCompact, or any SessionStart). Shortens the
@@ -223,6 +298,7 @@ export class CircuitBreaker {
   recordCompactEnd(agentId: string, now = Date.now()): void {
     const s = this.get(agentId);
     if (s.compactingUntil > now) s.compactingUntil = now + POST_COMPACT_GRACE_MS;
+    this.clearInputless(s); // a session start / compaction end is a turn boundary
   }
 
   private toolKey(toolName: string | undefined, toolInput: unknown): string {
@@ -295,6 +371,17 @@ export class CircuitBreaker {
 
     for (const input of inputs) {
       const s = this.get(input.agentId);
+      // Reset the blind-bridge counter on activity that is NOT an inputless tool
+      // call. Two signals available here: coordination/file-mtime progress, and
+      // REASONING OUTPUT — a long turn thinking without tools produces output
+      // tokens and no tool calls, and must never count toward a stop. (A real
+      // blind loop emits tool calls, so its output-growth reset only fires when
+      // the agent is also doing other work — which is the activity we want to
+      // reward.) The hard limit still backstops a run of nothing but blind calls.
+      if (input.progressing) this.clearInputless(s);
+      if (input.sample && (!s.lastSample || input.sample.output > s.lastSample.output)) {
+        this.clearInputless(s);
+      }
       const trip = this.evaluate(
         input, s, cfg, nowMs,
         input.agentId === topSpender, cfg.costCapUsd,
@@ -338,6 +425,19 @@ export class CircuitBreaker {
     // (b) repeated identical tool calls
     if (s.repeatCount >= cfg.repeatedToolLimit) {
       return { tripping: true, reason: `looping: ${s.repeatCount}× identical tool call (${s.repeatKey?.split(':')[0] ?? '?'})` };
+    }
+    // (b2) a bridge that never forwards tool_input: the loop arm above cannot
+    // see a repeat, so a genuine runaway would be invisible. Count the blind
+    // calls and trip on a high threshold. The counter state is in the reason
+    // so an operator can see how close to the stop it is.
+    if (s.inputlessCount >= INPUTLESS_TOOL_LIMIT) {
+      return { tripping: true, reason: `looping: ${s.inputlessCount}× tool calls with no tool_input (the bridge is not forwarding the call args; hard limit ${INPUTLESS_TOOL_LIMIT})` };
+    }
+    // Warn once, halfway: a steer-labelled message before any hard stop. Only
+    // while healthy — once steered, the next beats are not re-steered, and a
+    // genuine blind loop escalates at the hard limit above.
+    if (s.inputlessCount >= INPUTLESS_WARN_LIMIT && s.level === 'healthy') {
+      return { tripping: true, reason: `warning: ${s.inputlessCount}× tool calls with no tool_input (the loop arm is blind; hard limit ${INPUTLESS_TOOL_LIMIT})` };
     }
     // (b) api_error storm
     if (s.errorCount >= cfg.errorStormLimit) {

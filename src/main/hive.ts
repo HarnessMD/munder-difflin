@@ -21,7 +21,8 @@
 import {
   existsSync, mkdirSync, readFileSync, writeFileSync, renameSync,
   readdirSync, statSync, lstatSync, realpathSync, rmSync, appendFileSync,
-  symlinkSync, unlinkSync, copyFileSync, cpSync, chmodSync
+  symlinkSync, unlinkSync, copyFileSync, cpSync, chmodSync,
+  openSync, closeSync, fsyncSync
 } from 'node:fs';
 import { join, dirname, basename, isAbsolute, relative } from 'node:path';
 import { homedir } from 'node:os';
@@ -203,6 +204,43 @@ export interface SpawnInjection {
 }
 
 const HOP_CAP = 12;
+
+/** Default cap on one outbox file. A message is a paragraph, not a payload: a
+ *  PowerShell `Get-Content -Raw | ConvertTo-Json` serialises the PSObject
+ *  WRAPPER, so a 15 KB body became a 3.8 MB file that DELIVERED fine and ate
+ *  the recipient's context. 256 KB is generous for a message and small enough
+ *  that a serialisation accident cannot flood a floor. Configurable because a
+ *  long brief or plan can legitimately approach it — see OUTBOX_MAX_BYTES_ENV. */
+const MAX_OUTBOX_FILE_BYTES = 256 * 1024;
+/** Override the outbox-file cap without rebuilding (bytes, positive integer). */
+const OUTBOX_MAX_BYTES_ENV = 'HIVE_OUTBOX_MAX_BYTES';
+
+/** How much of a rejected file is hashed for the stuck-rejection fingerprint.
+ *  A BOUNDED PREFIX, never the whole body, so the key cannot be inflated by a
+ *  large or attacker-controlled file. */
+const REJECT_FINGERPRINT_BYTES = 256;
+
+/** Hard cap on the stuck-rejection map (LRU). A file the router cannot move
+ *  aside is remembered so it is not re-reported every tick; an agent that
+ *  produces many such files must not grow main-process memory without bound. */
+const MAX_STUCK_REJECTIONS = 512;
+
+/** Rejection notices per sender per window. Every rejection is logged, but a
+ *  burst of malformed files must not flood the sender's inbox (and its context)
+ *  with one notice per file — the router would be manufacturing the flood it
+ *  is trying to end. */
+const REJECT_NOTICE_WINDOW_MS = 60_000;
+const REJECT_NOTICE_LIMIT = 3;
+/** Cap on the per-sender notice-rate bookkeeping map. */
+const MAX_REJECT_NOTICE_SENDERS = 512;
+
+/** The active outbox-file cap: an explicit positive env override, else the
+ *  default. Read per file so an operator can raise it without a restart. */
+function outboxFileCap(): number {
+  const raw = process.env[OUTBOX_MAX_BYTES_ENV];
+  const n = raw === undefined ? NaN : Number(raw);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : MAX_OUTBOX_FILE_BYTES;
+}
 
 function sleepSync(ms: number): void {
   const sab = new SharedArrayBuffer(4);
@@ -397,6 +435,17 @@ export class HiveManager {
   ) {}
 
   private routerTimer: NodeJS.Timeout | null = null;
+
+  /** Outbox files that were rejected but could NOT be quarantined (a Windows
+   *  file lock, a missing .sent dir). Keyed `<agentId>/<file>`, valued by the
+   *  file's content fingerprint, so the router skips an unchanged file instead
+   *  of re-rejecting it on every 1.5s tick — while a rewritten file is still
+   *  delivered. Bounded LRU: an unquarantinable-file storm must not leak. */
+  private stuckRejections = new Map<string, string>();
+
+  /** Per-sender rejection-notice rate limiting, so one agent's burst of broken
+   *  files cannot flood its own inbox with one inform per file. Bounded LRU. */
+  private rejectNotices = new Map<string, { windowStart: number; sent: number }>();
 
   /** The embedded OTLP collector's loopback URL, set by the main process once the
    *  collector is bound (telemetry.ts). null = telemetry off → no OTel env is
@@ -1844,6 +1893,7 @@ export class HiveManager {
     if (!root) return 0;
     const agentsDir = join(root, 'agents');
     if (!existsSync(agentsDir)) return 0;
+    const cap = outboxFileCap();
     let routed = 0;
     for (const id of readdirSync(agentsDir)) {
       const outbox = join(agentsDir, id, 'outbox');
@@ -1851,23 +1901,72 @@ export class HiveManager {
       for (const f of readdirSync(outbox)) {
         if (!f.endsWith('.json')) continue;
         const full = join(outbox, f);
+        let fingerprint = '';
         try {
-          const raw = readFileSync(full, 'utf8');
+          // Only regular files: readdirSync also yields directories, and a name
+          // is not a promise that the entry is a regular file. lstat, not stat,
+          // so a symlink is refused rather than followed — an outbox file must
+          // not be a window onto another agent's mailbox (or anything else).
+          if (!lstatSync(full).isFile()) continue;
+          const buf = readFileSync(full);
+          // Fingerprint of the CONTENT: a file we already rejected and could
+          // not quarantine is skipped until it changes, so a rejected file is
+          // never re-reported on every tick (a 1.5s rejection flood) — but a
+          // rewritten file is still delivered. Hash a bounded prefix, never the
+          // whole body.
+          fingerprint = `${buf.length}:${createHash('sha256').update(buf.subarray(0, REJECT_FINGERPRINT_BYTES)).digest('hex')}`;
+          const stuckKey = `${id}/${f}`;
+          if (this.stuckRejections.get(stuckKey) === fingerprint) {
+            // Refresh LRU position: a file that is still stuck is still the
+            // most recently seen one.
+            this.stuckRejections.delete(stuckKey);
+            this.stuckRejections.set(stuckKey, fingerprint);
+            continue;
+          }
+          // ── envelope gates: size, then encoding ──
+          if (buf.length > cap) {
+            this.rejectOutboxFile(
+              id, f, 'body-too-large',
+              `the file is ${buf.length} bytes (cap ${cap}) — split the body across more than one message, or raise ${OUTBOX_MAX_BYTES_ENV}`,
+              ''
+            );
+            this.quarantineOutboxFile(id, f, full, fingerprint);
+            continue;
+          }
+          if (buf.length >= 2 && ((buf[0] === 0xff && buf[1] === 0xfe) || (buf[0] === 0xfe && buf[1] === 0xff))) {
+            this.rejectOutboxFile(id, f, 'wrong-encoding', 'the file starts with a UTF-16 BOM — write it as UTF-8', '');
+            this.quarantineOutboxFile(id, f, full, fingerprint);
+            continue;
+          }
+          let raw: string;
+          try {
+            // A UTF-8 BOM makes JSON.parse throw, so a BOM'd file used to be
+            // quarantined like garbage. Strip it before parsing: the BOM is an
+            // encoding artefact, not a broken message. fatal:true means
+            // invalid UTF-8 is REJECTED instead of being decoded into U+FFFD
+            // noise, which would deliver a corrupted message.
+            raw = new TextDecoder('utf-8', { fatal: true }).decode(buf);
+            if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+          } catch {
+            this.rejectOutboxFile(id, f, 'wrong-encoding', 'the file is not valid UTF-8', '');
+            this.quarantineOutboxFile(id, f, full, fingerprint);
+            continue;
+          }
           let partial: Partial<HiveMessage>;
           try {
             partial = JSON.parse(raw) as Partial<HiveMessage>;
-          } catch {
+          } catch (err) {
             const repaired = repairLiteralLineBreaksInJsonStrings(raw);
             if (!repaired.changed) {
-              this.appendLog({ kind: 'drop', reason: 'malformed-json', from: id, file: f });
-              try { renameSync(full, join(outbox, '.sent', `bad-${f}`)); } catch { /* noop */ }
+              this.rejectOutboxFile(id, f, 'malformed-json', String((err as Error)?.message || err), raw);
+              this.quarantineOutboxFile(id, f, full, fingerprint);
               continue;
             }
             try {
               partial = JSON.parse(repaired.text) as Partial<HiveMessage>;
-            } catch {
-              this.appendLog({ kind: 'drop', reason: 'malformed-json', from: id, file: f });
-              try { renameSync(full, join(outbox, '.sent', `bad-${f}`)); } catch { /* noop */ }
+            } catch (err2) {
+              this.rejectOutboxFile(id, f, 'malformed-json', String((err2 as Error)?.message || err2), raw);
+              this.quarantineOutboxFile(id, f, full, fingerprint);
               continue;
             }
             this.appendLog({
@@ -1878,18 +1977,141 @@ export class HiveManager {
             });
           }
           const msg = this.normalize(partial, id);
+          // ── payload gates ──
+          // A body that is not a string is legal JSON but poison: the
+          // PSObject-wrapper serialisation above arrives as an object carrying
+          // the whole provider graph, and it DELIVERS. A `to` that is not a
+          // non-empty string bounces to god. Both are rejected here, loudly.
+          if (typeof msg.body !== 'string') {
+            this.rejectOutboxFile(id, f, 'body-not-string', `body is ${typeof msg.body}, not a string`, raw);
+            this.quarantineOutboxFile(id, f, full, fingerprint);
+            continue;
+          }
+          if (typeof msg.to !== 'string' || !msg.to.trim()) {
+            this.rejectOutboxFile(id, f, 'bad-recipient', `\`to\` is ${typeof msg.to}, not a non-empty string`, raw);
+            this.quarantineOutboxFile(id, f, full, fingerprint);
+            continue;
+          }
           msg.from = id; // sender is authoritative — the owning directory
+          // Recipient copy FIRST, then archive the sender's file: a crash
+          // between the two re-delivers (a duplicate) rather than losing mail.
           this.routeMessage(msg);
           renameSync(full, join(outbox, '.sent', f)); // archive, don't reprocess
+          this.stuckRejections.delete(`${id}/${f}`);
           routed++;
-        } catch {
-          // malformed file — quarantine so we don't spin on it
-          try { renameSync(full, join(outbox, '.sent', `bad-${f}`)); } catch { /* noop */ }
+        } catch (err) {
+          // malformed file — quarantine so we don't spin on it, and tell the sender
+          this.rejectOutboxFile(id, f, 'route-error', String((err as Error)?.message || err), '');
+          this.quarantineOutboxFile(id, f, full, fingerprint);
         }
       }
     }
     if (routed > 0) this.commit(`hive: routed ${routed} message(s)`);
     return routed;
+  }
+
+  /** Insert into a Map as most-recent and evict the oldest until at or below
+   *  `max`. Both rejection-tracking maps are written from the router hot path,
+   *  so an unbounded one would leak main-process memory for the life of the
+   *  app. Used instead of plain set() so the cap cannot be forgotten. */
+  private static rememberBounded<K, V>(map: Map<K, V>, key: K, value: V, max: number): void {
+    map.delete(key);
+    map.set(key, value);
+    while (map.size > max) {
+      const oldest = map.keys().next();
+      if (oldest.done) break;
+      map.delete(oldest.value);
+    }
+  }
+
+  /** Move a rejected outbox file aside so the router does not reprocess it on
+   *  every tick. Falls back to a unique suffix when the plain rename fails
+   *  (Windows file lock) and, if that fails too, records the file's
+   *  fingerprint so the router skips it instead of re-reporting the rejection
+   *  forever. */
+  private quarantineOutboxFile(agentId: string, file: string, full: string, fingerprint: string): void {
+    const outbox = dirname(full);
+    const sent = join(outbox, '.sent');
+    try {
+      if (!existsSync(sent)) mkdirSync(sent, { recursive: true });
+      renameSync(full, join(sent, `bad-${file}`));
+      this.stuckRejections.delete(`${agentId}/${file}`);
+      return;
+    } catch { /* fall through to the unique-suffix attempt */ }
+    try {
+      renameSync(full, join(sent, `bad-${file}-${Date.now()}`));
+      this.stuckRejections.delete(`${agentId}/${file}`);
+    } catch {
+      // The file is stuck in the outbox. Remember it so the router stops
+      // re-processing (and re-reporting) it every tick. If we never got as far
+      // as hashing the content (an early I/O error), fall back to a stat
+      // fingerprint; either way the entry is BOUNDED by the LRU cap.
+      let fp = fingerprint;
+      if (!fp) {
+        try { const st = statSync(full); fp = `${st.size}:${st.mtimeMs}`; } catch { fp = 'unknown'; }
+      }
+      HiveManager.rememberBounded(this.stuckRejections, `${agentId}/${file}`, fp, MAX_STUCK_REJECTIONS);
+      this.appendLog({ kind: 'drop', reason: 'quarantine-failed', from: agentId, file });
+    }
+  }
+
+  /** Tell the SENDER that one of their outbox files was never delivered.
+   *  Quarantining the file on its own leaves the sender believing it was heard:
+   *  a silently dropped dispatch is a stalled agent with no explanation. The
+   *  rejection lands in the sender's own inbox so they can fix the file and
+   *  resend, and it goes through the normal routeMessage path (archived and
+   *  hookless recipient rules included) rather than a parallel delivery route.
+   *  The durable log keeps the drop event only — parser context and the raw
+   *  payload stay out of it (see #430). */
+  private rejectOutboxFile(agentId: string, file: string, reason: string, detail: string, raw: string, now = Date.now()): void {
+    this.appendLog({ kind: 'drop', reason, from: agentId, file, rejected: true });
+    // Rate-limit the notice per sender. Every rejection is logged above; when
+    // a burst exceeds the limit the NOTICE is suppressed and the count logged,
+    // so a malformed-file storm cannot flood the sender's own inbox. The
+    // notice is addressed to the sender ONLY — an agent cannot use malformed
+    // outbox files to write into a third party's inbox.
+    const bucket = this.rejectNotices.get(agentId);
+    if (!bucket || now - bucket.windowStart >= REJECT_NOTICE_WINDOW_MS) {
+      HiveManager.rememberBounded(this.rejectNotices, agentId, { windowStart: now, sent: 0 }, MAX_REJECT_NOTICE_SENDERS);
+    }
+    const notice = this.rejectNotices.get(agentId)!;
+    if (notice.sent >= REJECT_NOTICE_LIMIT) {
+      this.appendLog({
+        kind: 'drop', reason: 'rejection-notice-suppressed', from: agentId, file,
+        rejected: true, noticesThisWindow: notice.sent
+      });
+      return;
+    }
+    notice.sent += 1;
+    const head = raw.slice(0, 240).replace(/\s+/g, ' ').trim();
+    const body = [
+      `Your outbox file \`${file}\` was **NOT delivered** (${reason}) and has been quarantined as \`bad-${file}\` in your own \`outbox/.sent\`.`,
+      '',
+      detail ? `The parser said: \`${detail}\`` : '',
+      head ? `First bytes of the file: \`${head}\`` : '',
+      '',
+      'The most common cause is a UTF-8 BOM at the start of the file (write it BOM-less) or a bad JSON escape / raw control character inside a string.',
+      reason === 'body-too-large'
+        ? `The cap is \`${OUTBOX_MAX_BYTES_ENV}\` (default ${MAX_OUTBOX_FILE_BYTES} bytes). Split the message or raise the cap before resending.`
+        : '',
+      'Fix the file and write it again — do not assume the original was heard.',
+      notice.sent >= REJECT_NOTICE_LIMIT
+        ? `Further rejections this minute are logged but not notified (limit ${REJECT_NOTICE_LIMIT}/${REJECT_NOTICE_WINDOW_MS / 1000}s per sender).`
+        : ''
+    ].filter((line) => line !== '').join('\n');
+    try {
+      // Only a registered agent has a routable inbox; without this guard the
+      // notice would bounce to god and turn one broken file into floor noise.
+      if (!this.registry().agents[agentId]) {
+        this.appendLog({ kind: 'drop', reason: 'rejection-unroutable', from: agentId, file, rejected: true });
+        return;
+      }
+      const msg = this.normalize(
+        { to: agentId, act: 'inform', subject: `Outbox message NOT delivered: ${file}`, body, requires_reply: false },
+        'harness'
+      );
+      this.routeMessage(msg);
+    } catch { /* noop — never let the rejection break the router */ }
   }
 
   // — read helpers (for IPC / UI) —
@@ -2799,8 +3021,26 @@ export class HiveManager {
   }
   private atomicWriteJson(p: string, data: unknown): void {
     const tmp = `${p}.tmp-${shortRand()}`;
-    writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+    const body = JSON.stringify(data, null, 2);
+    // Durability, not just atomicity: routeOnce writes the RECIPIENT copy of a
+    // message here before archiving the sender's file. writeFileSync alone only
+    // reaches the OS cache, so a crash could leave the delivered copy absent
+    // after the sender's file was already moved to .sent. fsync the temp file
+    // before the rename so the delivered bytes are on disk. A directory fsync
+    // (needed on POSIX to make the rename itself durable) is best-effort: it is
+    // unsupported on Windows, where the file data is already flushed.
+    const fd = openSync(tmp, 'w');
+    try {
+      writeFileSync(fd, body, 'utf8');
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
     renameSync(tmp, p);
+    try {
+      const dirFd = openSync(dirname(p), 'r');
+      try { fsyncSync(dirFd); } finally { closeSync(dirFd); }
+    } catch { /* directory fsync unsupported — file data is already durable */ }
   }
 
   // — git (single committer, retry + stale-lock recovery) —
@@ -3299,16 +3539,67 @@ function post(payload) {
     c.on('error', () => {});
   } catch (e) {}
 }
+// The call ARGS live on the BEFORE hook's output in OpenCode's plugin API; the
+// AFTER payload may not carry them at all. Cache them by callID so PostToolUse
+// can post a REAL tool_input. Without it the breaker's loop arm is blind, every
+// call looks inputless, and a normal multi-step turn reads as a runaway loop.
+// The cache is BOUNDED — LRU by count + a TTL, cleared on session.idle — so a
+// long session cannot grow it without limit. Keyed by callID (an identifier,
+// never the raw args) so the key itself is small and non-attacker-sized.
+const ARG_CACHE_MAX = 64;
+const ARG_CACHE_TTL_MS = 10 * 60 * 1000;
+const argCache = new Map();
+function rememberArgs(callID, args, now) {
+  argCache.delete(callID);
+  argCache.set(callID, { args: args, at: now });
+  // TTL sweep: Map iteration order is insertion order, so stale entries at the
+  // front are the ones to drop; stop at the first fresh one.
+  for (const entry of argCache) {
+    if (now - entry[1].at > ARG_CACHE_TTL_MS) argCache.delete(entry[0]); else break;
+  }
+  // Count cap: evict the least-recently-used entry (front).
+  while (argCache.size > ARG_CACHE_MAX) {
+    const oldest = argCache.keys().next();
+    if (oldest.done) break;
+    argCache.delete(oldest.value);
+  }
+}
+function recallArgs(callID) {
+  const entry = argCache.get(callID);
+  if (!entry) return undefined;
+  if (Date.now() - entry.at > ARG_CACHE_TTL_MS) {
+    argCache.delete(callID);
+    return undefined;
+  }
+  argCache.delete(callID);
+  argCache.set(callID, entry); // refresh LRU position
+  return entry.args;
+}
 export const HiveBridge = async () => {
   return {
     event: async (input) => {
-      try { if (input && input.event && input.event.type === 'session.idle') post({ hook_event_name: 'Stop' }); } catch (e) {}
+      try {
+        if (input && input.event && input.event.type === 'session.idle') {
+          argCache.clear(); // turn boundary: nothing outstanding is still live
+          post({ hook_event_name: 'Stop' });
+        }
+      } catch (e) {}
     },
-    'tool.execute.before': async (input) => {
-      try { post({ hook_event_name: 'PreToolUse', tool_name: input && (input.tool || input.name) }); } catch (e) {}
+    'tool.execute.before': async (input, output) => {
+      try {
+        const callID = input && input.callID;
+        const args = output && output.args;
+        if (callID) rememberArgs(callID, args, Date.now());
+        post({ hook_event_name: 'PreToolUse', tool_name: input && (input.tool || input.name), tool_input: args });
+      } catch (e) {}
     },
     'tool.execute.after': async (input) => {
-      try { post({ hook_event_name: 'PostToolUse', tool_name: input && (input.tool || input.name) }); } catch (e) {}
+      try {
+        const callID = input && input.callID;
+        const args = input && input.args !== undefined ? input.args : (callID ? recallArgs(callID) : undefined);
+        if (callID) argCache.delete(callID);
+        post({ hook_event_name: 'PostToolUse', tool_name: input && (input.tool || input.name), tool_input: args });
+      } catch (e) {}
     }
   };
 };
