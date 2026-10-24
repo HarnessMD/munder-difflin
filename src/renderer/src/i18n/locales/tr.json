@@ -1405,5 +1405,45 @@
     "viewSource": "kaynağı görüntüle",
     "loading": "görsel yükleniyor…",
     "decodeFailed": "bu görsel çözülemedi — dosya bozuk veya yanlış adlandırılmış olabilir"
+  },
+  "demoFloor": {
+    "headingTo": {
+      "shelf": "rafa gidiyor",
+      "terminal": "terminale gidiyor",
+      "web": "web'e gidiyor",
+      "board": "panoya gidiyor",
+      "mailbox": "posta kutusuna gidiyor",
+      "mcp": "MCP'ye gidiyor",
+      "desk": "masaya gidiyor"
+    },
+    "headingBackToDesk": "masaya dönüyor",
+    "awaiting": "bekliyor",
+    "doneWhatNext": "Bu iş bitti. Sırada ne var?",
+    "samples": {
+      "read": {
+        "what": "SPEC.md okunuyor",
+        "thought": "Uygulamaya dokunmadan önce durum makinesini doğrulamak için spesifikasyonu açıyorum."
+      },
+      "edit": {
+        "what": "PixelPanel.tsx düzenleniyor",
+        "thought": "Panel kenarlığı hesabını düzeltiyorum — iç çizgi, içe gömülü modda bir piksel kaymıştı."
+      },
+      "bash": {
+        "what": "testler çalışıyor",
+        "thought": "Devam etmeden önce bir şey bozulmadığından emin olmak için arayüz test takımını çalıştırıyorum."
+      },
+      "webFetch": {
+        "what": "belgeler getiriliyor",
+        "thought": "PreToolUse yükünün yapısını kontrol etmek için hook belgesini alıyorum — alan adlarını tam hatırlamıyorum."
+      },
+      "glob": {
+        "what": "skill dosyaları aranıyor",
+        "thought": "Eski betik yollarını bulmak için tüm skill dosyalarını tek tek listeliyorum."
+      },
+      "todoWrite": {
+        "what": "yapılacaklar panosu güncelleniyor",
+        "thought": "Kalan işi takip edebilmek için dört ayrı göreve bölüyorum."
+      }
+    }
   }
 }
