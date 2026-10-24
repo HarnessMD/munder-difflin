@@ -42,6 +42,42 @@ import { sanitizeTerminalSelection } from './terminalSelection';
 import { terminalKeySequence } from './terminalKeys';
 import '@xterm/xterm/css/xterm.css';
 
+/**
+ * Free-tier limit watchdog — "pull de chaves" (account rotation).
+ *
+ * The OpenCode engine, once an account's free quota is gone, prints
+ * "Free usage limit reached. Subscribe to OpenCode Go…" and refuses every
+ * subsequent request. The user usually has MORE accounts in the CLI's store, so
+ * instead of stalling the floor we announce the event ONCE per pty and let
+ * useHive (which owns agent state + respawn) rotate the active account.
+ *
+ * Kept here because this subscriber is the single tap on the raw pty stream
+ * for a terminal's whole lifetime — doing it in per-view parsers would fire
+ * multiple times whenever several views were mounted.
+ */
+const QUOTA_TAIL = new Map<string, string>();
+const QUOTA_LAST_HIT = new Map<string, number>();
+// The TUI may paint the sentence in colour (escape codes between glyphs) and may
+// hard-wrap it at the terminal width (a newline inside the phrase). Flatten both
+// before matching — the phrase itself is the only stable signal.
+const QUOTA_RE = /Free usage limit reached/i;
+const QUOTA_ANSI = /\u001b\[[0-9;?]*[ -/]*[@-~]|\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)|\u001b[@-Z\\-_]/g;
+const QUOTA_THROTTLE_MS = 60_000;
+
+function watchQuota(ptyId: string, chunk: string): void {
+  // The phrase may arrive split across chunk boundaries — keep a small tail.
+  const tail = ((QUOTA_TAIL.get(ptyId) ?? '') + chunk).slice(-400);
+  QUOTA_TAIL.set(ptyId, tail);
+  if (!QUOTA_RE.test(tail.replace(QUOTA_ANSI, '').replace(/[\r\n]+/g, ' '))) return;
+  const now = Date.now();
+  if (now - (QUOTA_LAST_HIT.get(ptyId) ?? 0) < QUOTA_THROTTLE_MS) return;
+  QUOTA_LAST_HIT.set(ptyId, now);
+  QUOTA_TAIL.delete(ptyId);
+  try {
+    window.dispatchEvent(new CustomEvent('hive:quota-hit', { detail: { ptyId } }));
+  } catch { /* non-DOM context (tests) — nothing to announce */ }
+}
+
 export interface TerminalEntry {
   /** The pty this terminal mirrors — needed to poke `resizePty` on a reflow. */
   ptyId: string;
@@ -187,6 +223,7 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
   entry.unsub.push(window.cth.onPtyData(ptyId, (rawChunk) => {
     const chunk = normalizePtyChunk(rawChunk);
     if (!chunk) return;
+    watchQuota(ptyId, chunk);
     const active = term.buffer.active;
     const follow = shouldFollowTerminalOutput(active.viewportY, active.baseY);
     term.write(chunk, () => {

@@ -129,7 +129,8 @@
     "terminal": "终端",
     "git": "Git",
     "messages": "消息",
-    "traces": "追踪"
+    "traces": "追踪",
+    "resizeTitle": "Drag to resize · double-click to reset"
   },
   "toolWaterfall": {
     "fresh": "新计 {{tokens}}t",
@@ -154,7 +155,8 @@
     "terminalTip": "在 {{cwd}} 中打开你的系统终端应用 —— 位于该智能体文件夹中的普通 shell，与该智能体自己的终端相互独立。",
     "openIde": "打开 IDE",
     "ide": "IDE",
-    "openTerminalAria": "在该智能体的文件夹中打开系统终端"
+    "openTerminalAria": "在该智能体的文件夹中打开系统终端",
+    "editAria": "Edit this agent"
   },
   "settingsHero": {
     "sponsoredBy": "赞助方",
@@ -171,7 +173,10 @@
     "foundersWallTitle": "在 Founders' Wall 上吗？",
     "foundersWallBody": "免费获得一个月的 Munder Difflin Pro，此后年度套餐享 5 折。仅限前 100 位上榜用户。",
     "seeTheWall": "查看榜单",
-    "joinDiscord": "加入 Discord"
+    "joinDiscord": "加入 Discord",
+    "downloadTitle": "Download the installer and replace the app yourself. Auto-update is in Updates below.",
+    "versionOut": "v{{v}} is out",
+    "downloadVersion": "download v{{pending}}"
   },
   "officeTheme": {
     "title": "办公室主题",
@@ -281,7 +286,12 @@
       "hardStopDesc": "触发时直接终止智能体，而不仅是约束。关闭 = 先引导（推荐）。",
       "killOnTrip": "触发即终止",
       "steerFirst": "先引导",
-      "saved": "已保存"
+      "saved": "已保存",
+      "whoCanAdd": "Who can add agents",
+      "orchSpawnOn": "{{godName}} can hire on his own. Every agent he starts spends tokens you did not approve.",
+      "orchSpawnOff": "Only you. {{godName}} can still ask, and his request waits in the queue instead of failing.",
+      "spawnBoth": "me and {{godName}}",
+      "spawnOnlyMe": "only me"
     },
     "memory": {
       "semanticMemory": "语义记忆",
@@ -472,7 +482,11 @@
     "openIssue": "GitHub Issue #{{num}}：{{title}}",
     "deliveryResumeAria": "恢复整个楼层的自动投递",
     "deliveryHoldAria": "暂停整个楼层的自动投递",
-    "openIdeAria": "打开 IDE"
+    "openIdeAria": "打开 IDE",
+    "logRestored": "{{name}} restored",
+    "logKilled": "stopped {{name}}",
+    "logReset": "reset {{name}}",
+    "logOpFailed": "{{op}} {{name}} refused: {{reason}}"
   },
   "addAgent": {
     "title": "添加智能体",
@@ -897,7 +911,9 @@
     "downloadManually": "手动下载",
     "downloadManuallyTitle": "下载 v{{version}} 安装程序并自行替换应用",
     "manualDownloadingTitle": "<b>v{{version}} 正在你的浏览器中下载。</b>",
-    "manualDownloadingBody": "下载完成后，退出本应用，将新版本覆盖安装到当前版本之上，重新打开并选择同一个项目。在 {{os}} 上："
+    "manualDownloadingBody": "下载完成后，退出本应用，将新版本覆盖安装到当前版本之上，重新打开并选择同一个项目。在 {{os}} 上：",
+    "readMore": "Read more",
+    "installAria": "Install the update"
   },
   "triggersTab": {
     "intro": "所有无需你输入就能启动工作的方式。",
@@ -1107,7 +1123,9 @@
     "ideTip": "打开 IDE：浏览并编辑 {{name}} 工作区中的文件，并将他们未提交的更改作为差异查看。",
     "openIdeAria": "打开 IDE",
     "openTerminalTip": "在 {{cwd}} 中打开你的系统终端应用 —— 位于该智能体文件夹中的普通 shell，与该智能体自己的终端相互独立。",
-    "openTerminalAria": "在该智能体的文件夹中打开系统终端"
+    "openTerminalAria": "在该智能体的文件夹中打开系统终端",
+    "settingsLabel": "Settings",
+    "privateNote": "PRIVATE NOTE"
   },
   "memoryPanel": {
     "pill": "🧠 记忆",
@@ -1210,7 +1228,8 @@
     "legendPropose": "提议",
     "legendAgreeDone": "同意/完成",
     "legendRefuse": "拒绝",
-    "legendInformTopic": "告知/主题"
+    "legendInformTopic": "告知/主题",
+    "emptyHint": "No messages logged yet — the hive is quiet. Agents shown as roster."
   },
   "integrations": {
     "errLabel": "请给它一个名称。",
@@ -1404,6 +1423,96 @@
     "viewSourceTitle": "在编辑器中打开 SVG 标记",
     "viewSource": "查看源码",
     "loading": "正在加载图片…",
-    "decodeFailed": "无法解码此图片——文件可能已损坏或扩展名有误"
+    "decodeFailed": "无法解码此图片——文件可能已损坏或扩展名有误",
+    "copyAbsoluteTitle": "Copy absolute path",
+    "copyPathBtn": "copy path"
+  },
+  "hivePicker": {
+    "title": "SELECT A HARNESS CONFIG",
+    "body": "A <strong>harness config</strong> is the folder where the app keeps everything for one workspace — its settings, your agents and their memory, tasks, triggers, and history. Each config is separate and self-contained, so you can run different setups side by side. Open the one you were working in, switch to another, or start a new one.",
+    "current": "CURRENT",
+    "open": "open",
+    "recent": "RECENT",
+    "switchTitle": "Switch to {{path}} (reloads the app)",
+    "switching": "switch →",
+    "opening": "opening…",
+    "openingBusy": "Opening {{name}} — the app will reload…",
+    "openExisting": "open existing config…",
+    "createNew": "create new config…",
+    "openFailed": "Could not open that folder."
+  },
+  "app": {
+    "autoModeOn": "auto mode on",
+    "autoModeOff": "auto mode off",
+    "darkModeAria": "Toggle dark mode",
+    "settingsAria": "Settings",
+    "focusModeAria": "Toggle focus mode",
+    "emptyFloor": "EMPTY FLOOR",
+    "wakingFloor": "WAKING THE FLOOR",
+    "noAgent": "NO AGENT SELECTED"
+  },
+  "agentAction": {
+    "reconnecting": "reconnecting…",
+    "archived": "archived",
+    "runningFloor": "running the floor",
+    "compacting": "compacting context",
+    "resumed": "resumed",
+    "thinking": "thinking",
+    "idle": "idle",
+    "readingInbox": "reading inbox",
+    "startingUp": "starting up",
+    "revived": "revived after sleep",
+    "awaiting": "awaiting",
+    "waitingYou": "waiting on you",
+    "waitingGod": "waiting on god",
+    "headingBack": "heading back to desk",
+    "recreating": "recreating terminal…",
+    "continuing": "continuing…"
+  },
+  "ptyView": {
+    "livePty": "live · pty {{ptyId}}",
+    "zoomOut": "Zoom out (Cmd -)",
+    "resetZoom": "Reset zoom (Cmd 0)",
+    "zoomIn": "Zoom in (Cmd +)",
+    "exitFocus": "Exit focus mode (Esc)"
+  },
+  "codeEditor": {
+    "copyAbsoluteTitle": "Copy absolute path",
+    "saveTitle": "Save (Cmd-S)",
+    "openIdeTitle": "Open in the IDE",
+    "openIdeAria": "Open in the IDE",
+    "copyPathBtn": "copy path",
+    "saveIdle": "save",
+    "saveSaved": "saved",
+    "saveError": "err"
+  },
+  "editAgent": {
+    "title": "EDIT AGENT"
+  },
+  "completionToast": {
+    "dismiss": "Dismiss",
+    "completed": "{{godName}} · completed"
+  },
+  "booting": {
+    "title": "CLOCKING IN"
+  },
+  "releaseDrop": {
+    "closeAria": "Close release notes",
+    "closeTitle": "Close (Esc)"
+  },
+  "nativeMenu": {
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "window": "Window",
+    "newFloor": "New Floor",
+    "undo": "Undo",
+    "redo": "Redo",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "selectAll": "Select All",
+    "quit": "Quit",
+    "close": "Close"
   }
 }

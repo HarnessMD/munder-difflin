@@ -30,7 +30,7 @@ import { readFileSync } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { readAgentUsage } from './transcript';
+import { readAgentUsage, readOpencodeUsage } from './transcript';
 import { normalizeModel } from './pricing';
 
 // ─── The locked cross-lane contract (do not change without re-agreeing) ───────
@@ -126,6 +126,10 @@ export interface TelemetryCollectorOptions {
    *  cwd (the common case for hive workers) pulls in every other agent's and
    *  every past session's history too. */
   resolveSessionId?: (agentId: string) => string | undefined;
+  /** Resolve the OpenCode SQLite the agents were actually spawned into.
+   *  Must agree with the spawn's `XDG_DATA_HOME`, or the read silently targets
+   *  a database that never held the agent (TSF-11). */
+  resolveOpencodeDb?: () => string | undefined;
 }
 
 export class TelemetryCollector {
@@ -136,6 +140,7 @@ export class TelemetryCollector {
   private readonly emit?: (channel: string, payload: unknown) => void;
   private readonly resolveCwd?: (agentId: string) => string | null;
   private readonly resolveSessionId?: (agentId: string) => string | undefined;
+  private readonly resolveOpencodeDb?: () => string | undefined;
 
   /** sessionId → running accumulation. */
   private readonly sessions = new Map<string, SessionAccum>();
@@ -155,6 +160,7 @@ export class TelemetryCollector {
     this.emit = opts.emit;
     this.resolveCwd = opts.resolveCwd;
     this.resolveSessionId = opts.resolveSessionId;
+    this.resolveOpencodeDb = opts.resolveOpencodeDb;
   }
 
   /** Bind the loopback OTLP listener. The handler is live the instant this
@@ -440,19 +446,47 @@ export class TelemetryCollector {
     const cwd = this.resolveCwd?.(agentId);
     if (!cwd) return null;
     const sessionId = this.resolveSessionId?.(agentId);
+
+    // OpenCode-backed agents keep their sessions in SQLite, not in Claude's
+    // `~/.claude/projects/<key>/*.jsonl`, so `readAgentUsage` finds no directory
+    // for them and every figure collapsed to zero (TSF-11). Try that layout first;
+    // it is a single indexed read and costs nothing when the DB is absent.
+    // When the session id is unknown, `readOpencodeUsage` falls back to the NEWEST
+    // session in that directory — never the whole directory, which is shared.
+    const u = readOpencodeUsage(cwd, {
+      ...(sessionId ? { sessionId } : {}),
+      ...(this.resolveOpencodeDb ? { dbPath: this.resolveOpencodeDb() } : {})
+    });
+    if (u.inputTokens || u.outputTokens || u.cacheReadTokens || u.cacheWriteTokens) {
+      return {
+        agentId,
+        sessionId: '',
+        // The REAL last-activity instant. `Date.now()` here would make every
+        // agent read as freshly active in `fleet.json`, which is why R1 could
+        // never see a stall: `lastActiveSecAgo` is computed from this stamp.
+        ts: u.lastActiveAt ?? Date.now(),
+        input: u.inputTokens,
+        output: u.outputTokens,
+        cacheRead: u.cacheReadTokens,
+        cacheCreation: u.cacheWriteTokens,
+        model: u.model ?? '',
+        usd: u.estimatedCostUsd
+      };
+    }
+
     if (!sessionId) return null;
-    const u = readAgentUsage(cwd, { sessionId });
-    if (!u.inputTokens && !u.outputTokens && !u.cacheReadTokens && !u.cacheWriteTokens) return null;
+    const c = readAgentUsage(cwd, { sessionId });
+    if (!c.inputTokens && !c.outputTokens && !c.cacheReadTokens && !c.cacheWriteTokens) return null;
     return {
       agentId,
       sessionId: '',
-      ts: Date.now(),
-      input: u.inputTokens,
-      output: u.outputTokens,
-      cacheRead: u.cacheReadTokens,
-      cacheCreation: u.cacheWriteTokens,
-      model: u.model ?? '',
-      usd: u.estimatedCostUsd
+      ts: c.lastActiveAt ?? Date.now(),
+      input: c.inputTokens,
+      output: c.outputTokens,
+      cacheRead: c.cacheReadTokens,
+      cacheCreation: c.cacheWriteTokens,
+      model: c.model ?? '',
+      usd: c.estimatedCostUsd
     };
   }
 
