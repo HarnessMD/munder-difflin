@@ -589,6 +589,12 @@ const api = {
     ipcRenderer.invoke('pty:redraw', id),
   killPty: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('pty:kill', id),
+  /** "Pull de chaves": after a free-tier limit error, switch the OpenCode CLI's
+   *  ACTIVE account to the next stored one (main runs `auth switch`). The
+   *  renderer respawns the affected agent afterwards so the new account takes
+   *  effect in that session. */
+  opencodeRotate: (exe: string): Promise<{ ok: boolean; account?: string; previous?: string; reason?: string }> =>
+    ipcRenderer.invoke('opencode:rotate', exe),
   listPtys: (): Promise<Array<{
     id: string;
     cwd: string;

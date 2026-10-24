@@ -10,6 +10,7 @@ import { join, resolve, sep, basename, dirname, isAbsolute } from 'node:path';
 import { homedir } from 'node:os';
 import { request as httpsRequest } from 'node:https';
 import { PtyManager, type SpawnOptions } from './pty';
+import { rotateOpencodeCredential } from './opencode-pool';
 import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellEnv';
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
@@ -3116,6 +3117,20 @@ ipcMain.handle('pty:kill', (_evt, id: string) => {
   return res;
 });
 ipcMain.handle('pty:list', () => ptyManager.list());
+
+// ─── IPC: OpenCode account rotation ("pull de chaves") ───────────────────────
+/** After the free-tier limit error, the renderer asks us to move the desktop
+ *  CLI's ACTIVE account to the next one in the store and reports the result.
+ *  The renderer owns the respawn (it holds the terminal + agent state); main
+ *  only performs the credential switch, because only main may run the CLI. */
+ipcMain.handle('opencode:rotate', async (_evt, exe: string) => {
+  try {
+    if (typeof exe !== 'string' || !exe.trim()) return { ok: false, reason: 'engine executable missing' };
+    return await rotateOpencodeCredential({ exe: exe.trim(), stateDir: app.getPath('userData') });
+  } catch (err) {
+    return { ok: false, reason: err instanceof Error ? err.message : String(err) };
+  }
+});
 
 // ─── IPC: analytics (the ONE renderer-facing seam) ──────────────────────────
 /** Count one human-sent message (TELEMETRY.md → `message_sent`). A COUNT, and

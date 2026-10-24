@@ -330,6 +330,15 @@ export function useHive(config: HarnessConfig | null): void {
   // mid-revive) within REVIVE_DEBOUNCE_MS is skipped. Set BEFORE the async spawn
   // so a re-entrant event can't race a second respawn for the same id.
   const reviving = useRef<Record<string, number>>({});
+  // The auto-revive respawn (effect #7) is the ONLY code path that knows how to
+  // restart an agent with its exact command/cwd/worktree/session. Effect #8
+  // (free-tier rotation) needs that same respawn but lives in a different
+  // effect, so #7 publishes its `revive` here.
+  const reviveRef = useRef<((deadId: string) => Promise<void>) | null>(null);
+  // One rotation at a time: several OpenCode agents can hit the limit within the
+  // same second, and they all describe the same exhausted account. Concurrent
+  // switches would fight over the DB flag (and could skip a fresh account).
+  const rotating = useRef(false);
   // Reactive so the assistant bootstrap (effect #1b) re-runs once Michael is ready.
   const godStatus = useStore((s) => s.godStatus);
   // Per-pty `lastOutputAt`, refreshed by the quiescence sweep (#2e) and read by
@@ -1257,10 +1266,75 @@ export function useHive(config: HarnessConfig | null): void {
       }
     };
 
+    // Publish the respawn so effect #8 (free-tier rotation) can restart the
+    // affected agent under the newly active account.
+    reviveRef.current = revive;
+
     return window.cth.onPowerResume?.((e) => {
       const dead = Array.isArray(e?.dead) ? e.dead : [];
       if (!dead.length) return; // healthy wake — nothing wedged, no-op
       for (const id of dead) void revive(id);
     });
+  }, [config?.onboardingComplete]);
+
+  // 8) Free-tier account rotation ("pull de chaves"). The OpenCode engine prints
+  //    "Free usage limit reached" once the ACTIVE account's free quota is gone,
+  //    then refuses every request in every agent on that account. `terminalPool`
+  //    sees that line in the pty stream (the one tap every terminal shares) and
+  //    dispatches `hive:quota-hit`. Here we ask main to switch the CLI's active
+  //    account to the next stored one, then respawn THIS agent so its TUI stops
+  //    showing the dead turn and picks up the new account.
+  //    Other OpenCode agents need no respawn: the service resolves the active
+  //    account per request, so their next message already uses the new one.
+  useEffect(() => {
+    if (!config?.onboardingComplete) return;
+
+    const mask = (email?: string): string =>
+      email && email.includes('@') ? email.replace(/^(.).*?(@.*)$/, '$1***$2') : (email ?? '');
+
+    const onQuotaHit = (evt: Event): void => {
+      const ptyId = (evt as CustomEvent<{ ptyId?: string }>).detail?.ptyId;
+      if (!ptyId) return;
+      if (rotating.current) return; // a switch is already in flight
+      const a = useStore.getState().agents.find((x) => x.ptyId === ptyId);
+      if (!a) return;
+      if (inferAgentProvider(a.command, a.provider) !== 'opencode') return;
+      const exe = tokenizeCommand((a.command ?? '').trim())[0];
+      if (!exe) return;
+
+      rotating.current = true;
+      const st = useStore.getState();
+      st.updateAgent(a.id, { action: 'limite do grátis — trocando de conta' });
+      st.pushFeed(a.id, '↻ Limite do tier grátis atingido — buscando outra conta…');
+
+      void (async () => {
+        try {
+          const res = await window.cth.opencodeRotate(exe);
+          const now = useStore.getState();
+          if (!res?.ok) {
+            now.pushFeed(a.id, `✖ Sem outra conta disponível: ${res?.reason ?? 'motivo desconhecido'}`);
+            now.updateAgent(a.id, { action: 'limite do grátis (pool esgotado)' });
+            return;
+          }
+          const who = mask(res.account);
+          now.pushFeed(
+            a.id,
+            `↻ Conta trocada para ${who}${res.previous ? ` (era ${mask(res.previous)})` : ''} — reiniciando o terminal…`
+          );
+          await reviveRef.current?.(ptyId);
+          useStore.getState().updateAgent(a.id, { action: `conta ${who}` });
+        } catch (err) {
+          useStore.getState().pushFeed(
+            a.id,
+            `✖ Falha ao trocar de conta: ${err instanceof Error ? err.message : String(err)}`
+          );
+        } finally {
+          rotating.current = false;
+        }
+      })();
+    };
+
+    window.addEventListener('hive:quota-hit', onQuotaHit);
+    return () => window.removeEventListener('hive:quota-hit', onQuotaHit);
   }, [config?.onboardingComplete]);
 }
