@@ -1405,5 +1405,45 @@
     "viewSource": "查看源码",
     "loading": "正在加载图片…",
     "decodeFailed": "无法解码此图片——文件可能已损坏或扩展名有误"
+  },
+  "demoFloor": {
+    "headingTo": {
+      "shelf": "前往书架",
+      "terminal": "前往终端",
+      "web": "前往网络",
+      "board": "前往看板",
+      "mailbox": "前往信箱",
+      "mcp": "前往 MCP",
+      "desk": "前往工位"
+    },
+    "headingBackToDesk": "返回工位",
+    "awaiting": "等待中",
+    "doneWhatNext": "这件完成了。接下来做什么？",
+    "samples": {
+      "read": {
+        "what": "正在读取 SPEC.md",
+        "thought": "先调出规格说明，在动手实现之前确认一下状态机。"
+      },
+      "edit": {
+        "what": "正在编辑 PixelPanel.tsx",
+        "thought": "修正面板边框的计算——内嵌模式下内描边偏了一个像素。"
+      },
+      "bash": {
+        "what": "正在运行测试",
+        "thought": "运行渲染端测试套件，确认继续之前没有引入回归。"
+      },
+      "webFetch": {
+        "what": "正在获取文档",
+        "thought": "拉取 hooks 文档，再核对一下 PreToolUse 负载的结构——字段名我记不太清了。"
+      },
+      "glob": {
+        "what": "正在搜索技能文件",
+        "thought": "列出所有技能文件，逐个检查是否有过时的脚本路径。"
+      },
+      "todoWrite": {
+        "what": "正在更新待办看板",
+        "thought": "把剩下的工作拆成四个独立任务，方便边做边跟踪。"
+      }
+    }
   }
 }
