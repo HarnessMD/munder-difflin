@@ -23,7 +23,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const loadTs = require('./load-ts.cjs');
 
-const { HiveManager } = loadTs('src/main/hive.ts');
+const { HiveManager, grokHookCommand } = loadTs('src/main/hive.ts');
 
 const POSIX = process.platform !== 'win32';
 const STRIPPED_PATH = '/usr/bin:/bin:/usr/sbin:/sbin';
@@ -81,7 +81,11 @@ function hookCommandsUnder(home) {
   return found.filter((c) => shim.test(c));
 }
 
-const usesLauncher = (cmd, launcher) => cmd.startsWith(launcher) || cmd.startsWith(`"${launcher}"`);
+// A PowerShell-run command (Grok on Windows) leads with the call operator `& `.
+const usesLauncher = (cmd, launcher) => {
+  const c = cmd.replace(/^& /, '');
+  return c.startsWith(launcher) || c.startsWith(`"${launcher}"`);
+};
 
 async function run(cmd, env) {
   return new Promise((resolve) => {
@@ -169,6 +173,58 @@ test('every hook installer routes through the launcher — none left on bare nod
   for (const shim of ['agy-hook.cjs', 'grok-hook.cjs', 'gemini-hook.cjs']) {
     assert.ok(commands.some((c) => c.includes(shim)), `${shim} installer produced no command`);
   }
+});
+
+test('grokHookCommand prefixes the PowerShell call operator on win32 only (#749)', () => {
+  const cmd = '"C:\h\hive-node.cmd" "C:\h\grok-hook.cjs"';
+  assert.equal(grokHookCommand(cmd, 'win32'), `& ${cmd}`);
+  assert.equal(grokHookCommand('node "C:\h\grok-hook.cjs"', 'win32'), '& node "C:\h\grok-hook.cjs"');
+  for (const platform of ['darwin', 'linux']) {
+    assert.equal(grokHookCommand('"/h/hive-node" "/h/grok-hook.cjs"', platform), '"/h/hive-node" "/h/grok-hook.cjs"');
+  }
+});
+
+function pwshPath() {
+  if (process.platform !== 'win32') return null;
+  const { spawnSync } = require('node:child_process');
+  const r = spawnSync('pwsh', ['-NoProfile', '-Command', 'exit 0'], { stdio: 'ignore' });
+  return r.status === 0 ? 'pwsh' : null;
+}
+
+test('Grok hook commands parse and run under PowerShell (#749)', { skip: !pwshPath() && 'needs pwsh on Windows', timeout: 20_000 }, async (t) => {
+  // Grok on Windows runs hooks via pwsh. Use a hive path with a space so the
+  // quoting matters as well as the call operator.
+  const { home, harness } = isolatedHomes(t, 'md-grok-pwsh-');
+  const root = `${harness} space`;
+  const hive = new HiveManager(() => root);
+  hive.ensureHive();
+  hive.installGrokHooks();
+
+  const config = JSON.parse(fs.readFileSync(path.join(home, '.grok', 'hooks', 'munder-hive.json'), 'utf8'));
+  const commands = Object.values(config.hooks).flatMap((ms) => ms.flatMap((m) => m.hooks.map((h) => h.command)));
+  assert.equal(commands.length, 8, 'every Grok lifecycle hook must be generated');
+  for (const c of commands) assert.ok(c.startsWith('& "'), c);
+
+  const runPwsh = (command) => new Promise((resolve) => {
+    // No AGENT_ID: the shim must exit 0 without touching any socket.
+    const env = { ...process.env };
+    delete env.AGENT_ID;
+    const child = spawn('pwsh', ['-NoProfile', '-NonInteractive', '-Command', command], { env, stdio: ['pipe', 'pipe', 'pipe'] });
+    let stderr = '';
+    child.stdout.resume();
+    child.stderr.on('data', (d) => { stderr += d; });
+    child.stdin.on('error', () => { /* shim may exit first */ });
+    child.stdin.end(JSON.stringify({ hookEventName: 'Stop', sessionId: 's1' }));
+    child.on('close', (code) => resolve({ code, stderr }));
+  });
+
+  // Negative control: the pre-fix shape is a PowerShell ParserError.
+  const before = await runPwsh(commands[0].slice(2));
+  assert.notEqual(before.code, 0, 'negative control: the unprefixed command must not parse');
+  assert.match(before.stderr, /Unexpected token|ParserError/);
+
+  const after = await runPwsh(commands[0]);
+  assert.equal(after.code, 0, `Grok hook failed under pwsh: ${after.stderr}`);
 });
 
 test('Codex hook commands survive a hive path containing spaces', { skip: !POSIX, timeout: 10_000 }, async (t) => {
