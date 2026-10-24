@@ -57,14 +57,18 @@ import '@xterm/xterm/css/xterm.css';
  */
 const QUOTA_TAIL = new Map<string, string>();
 const QUOTA_LAST_HIT = new Map<string, number>();
+// The TUI may paint the sentence in colour (escape codes between glyphs) and may
+// hard-wrap it at the terminal width (a newline inside the phrase). Flatten both
+// before matching — the phrase itself is the only stable signal.
 const QUOTA_RE = /Free usage limit reached/i;
+const QUOTA_ANSI = /\u001b\[[0-9;?]*[ -/]*[@-~]|\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)|\u001b[@-Z\\-_]/g;
 const QUOTA_THROTTLE_MS = 60_000;
 
 function watchQuota(ptyId: string, chunk: string): void {
   // The phrase may arrive split across chunk boundaries — keep a small tail.
   const tail = ((QUOTA_TAIL.get(ptyId) ?? '') + chunk).slice(-400);
   QUOTA_TAIL.set(ptyId, tail);
-  if (!QUOTA_RE.test(tail)) return;
+  if (!QUOTA_RE.test(tail.replace(QUOTA_ANSI, '').replace(/[\r\n]+/g, ' '))) return;
   const now = Date.now();
   if (now - (QUOTA_LAST_HIT.get(ptyId) ?? 0) < QUOTA_THROTTLE_MS) return;
   QUOTA_LAST_HIT.set(ptyId, now);
