@@ -122,3 +122,25 @@ test('session.idle clears the cache (a turn boundary leaves nothing outstanding)
   assert.equal(postToolUse(posts).at(-1).tool_input, undefined);
   assert.equal(posts.some((p) => p.hook_event_name === 'Stop'), true, 'idle must still post Stop');
 });
+
+test('args on the hook INPUT are read too, so a version skew cannot blind the breaker', async (t) => {
+  const { bridge, posts } = await loadPlugin(t);
+  // Some OpenCode builds put the call args on `input` rather than `output`
+  // for both hooks. A bridge that only read output.args would post
+  // tool_input undefined here, which reads as an inputless (blind) call.
+  await bridge['tool.execute.before']({ callID: 'i1', tool: 'bash', args: { command: 'pwd' } }, {});
+  await flush();
+  assert.deepEqual(posts.filter((p) => p.hook_event_name === 'PreToolUse').at(-1).tool_input, { command: 'pwd' });
+
+  await bridge['tool.execute.after']({ callID: 'i2', tool: 'bash', args: { command: 'ls' } }, {});
+  await flush();
+  assert.deepEqual(postToolUse(posts).at(-1).tool_input, { command: 'ls' });
+});
+
+test('a callID on the hook OUTPUT still correlates before and after', async (t) => {
+  const { bridge, posts } = await loadPlugin(t);
+  await bridge['tool.execute.before']({ tool: 'bash' }, { callID: 'o1', args: { command: 'git status' } });
+  await bridge['tool.execute.after']({ tool: 'bash' }, { callID: 'o1' });
+  await flush();
+  assert.deepEqual(postToolUse(posts).at(-1).tool_input, { command: 'git status' });
+});

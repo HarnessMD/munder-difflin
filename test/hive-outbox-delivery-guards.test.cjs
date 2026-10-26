@@ -14,7 +14,8 @@
  *   - an unparseable file is REJECTED BACK to its sender, through the normal
  *     inbox path, as a terminal `inform` (never `request` — replying to
  *     from='harness' bounces);
- *   - envelope guards: size (configurable), UTF-16, invalid UTF-8;
+ *   - envelope guards: size (configurable), UTF-16 (with or without a BOM),
+ *     invalid UTF-8;
  *   - payload guards: non-string body (the PSObject-wrapper trap), bad `to`;
  *   - a rejection notice is per-sender rate-limited, but every rejection is
  *     still logged;
@@ -149,6 +150,21 @@ test('a UTF-16 file is rejected as wrong-encoding', async (t) => {
   const [notice] = notices(hive);
   assert.match(notice.body, /wrong-encoding/);
   assert.equal(drops(hive, 'wrong-encoding').length, 1);
+});
+
+test('BOM-less UTF-16LE is wrong-encoding, not malformed-json', async (t) => {
+  const { hive, outbox } = await floor(t);
+  fs.writeFileSync(path.join(outbox, 'utf16-nobom.json'), Buffer.from(validMessage(), 'utf16le'));
+
+  assert.equal(hive.routeOnce(), 0);
+  const [notice] = notices(hive);
+  assert.ok(notice, 'the sender must be told');
+  assert.match(notice.body, /wrong-encoding/);
+  assert.match(notice.body, /UTF-16LE without a BOM/);
+  assert.equal(drops(hive, 'wrong-encoding').length, 1);
+  assert.equal(drops(hive, 'malformed-json').length, 0, 'it is an encoding problem, not bad JSON');
+  assert.equal(hive.inbox('god-1').length, 0);
+  assert.equal(fs.existsSync(path.join(outbox, '.sent', 'bad-utf16-nobom.json')), true);
 });
 
 test('invalid UTF-8 is rejected instead of delivered as U+FFFD noise', async (t) => {

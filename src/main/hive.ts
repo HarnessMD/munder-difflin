@@ -1982,6 +1982,14 @@ export class HiveManager {
             // noise, which would deliver a corrupted message.
             raw = new TextDecoder('utf-8', { fatal: true }).decode(buf);
             if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+            // BOM-less UTF-16LE is still valid UTF-8 (NUL bytes are legal), so
+            // the parse below would report malformed-json and the notice head
+            // would carry NULs. It is the same wrong encoding as a BOM'd file.
+            if (raw.includes('\u0000')) {
+              const q = this.quarantineOutboxFile(id, f, full, fingerprint);
+              this.rejectOutboxFile(id, f, 'wrong-encoding', 'the file looks like UTF-16LE without a BOM (NUL bytes), write it as UTF-8', '', q);
+              continue;
+            }
           } catch {
             const q = this.quarantineOutboxFile(id, f, full, fingerprint);
             this.rejectOutboxFile(id, f, 'wrong-encoding', 'the file is not valid UTF-8', '', q);
@@ -3615,10 +3623,13 @@ function post(payload) {
     c.on('error', () => {});
   } catch (e) {}
 }
-// The call ARGS live on the BEFORE hook's output in OpenCode's plugin API; the
-// AFTER payload may not carry them at all. Cache them by callID so PostToolUse
-// can post a REAL tool_input. Without it the breaker's loop arm is blind, every
-// call looks inputless, and a normal multi-step turn reads as a runaway loop.
+// The call ARGS live on the BEFORE hook's output in the documented OpenCode
+// plugin API, but some builds put them on the hook input instead, and the
+// AFTER payload may not carry them at all. Both shapes are read below so a
+// version skew cannot silently leave the breaker blind (its only signal is
+// tool_input). Cache them by callID so PostToolUse can post a REAL tool_input.
+// Without it every call looks inputless and a normal multi-step turn reads as
+// a runaway loop.
 // The cache is BOUNDED — LRU by count + a TTL, cleared on session.idle — so a
 // long session cannot grow it without limit. Keyed by callID (an identifier,
 // never the raw args) so the key itself is small and non-attacker-sized.
@@ -3663,16 +3674,19 @@ export const HiveBridge = async () => {
     },
     'tool.execute.before': async (input, output) => {
       try {
-        const callID = input && input.callID;
-        const args = output && output.args;
+        const callID = (input && input.callID) || (output && output.callID);
+        const args = (output && output.args !== undefined) ? output.args
+          : (input && input.args !== undefined) ? input.args : undefined;
         if (callID) rememberArgs(callID, args, Date.now());
         post({ hook_event_name: 'PreToolUse', tool_name: input && (input.tool || input.name), tool_input: args });
       } catch (e) {}
     },
-    'tool.execute.after': async (input) => {
+    'tool.execute.after': async (input, output) => {
       try {
-        const callID = input && input.callID;
-        const args = input && input.args !== undefined ? input.args : (callID ? recallArgs(callID) : undefined);
+        const callID = (input && input.callID) || (output && output.callID);
+        const args = (input && input.args !== undefined) ? input.args
+          : (output && output.args !== undefined) ? output.args
+          : (callID ? recallArgs(callID) : undefined);
         if (callID) argCache.delete(callID);
         post({ hook_event_name: 'PostToolUse', tool_name: input && (input.tool || input.name), tool_input: args });
       } catch (e) {}
