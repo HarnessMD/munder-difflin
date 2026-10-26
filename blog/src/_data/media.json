@@ -5336,5 +5336,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gpt-6-1-terra": {
+    "title": "GPT-6.1 Terra: Price, Specs and How to Use It in Codex (Oct 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gpt-6-1-terra/hero.png",
+      "alt": "Title card on white. GPT-6.1 Terra in large ink type, a Concepts pill, the line Price, specs and Codex setup, Checked 27 Oct 2026, and a white card with a picture, a pointer arrow and a pencil beside a yellow tag reading $1 in, $5 out",
+      "prompt": "Still of the hero scene in assets/media/gpt-6-1-terra/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
