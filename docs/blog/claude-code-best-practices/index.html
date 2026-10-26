@@ -205,7 +205,7 @@
 <p>Reference specific files, mention constraints and point to example patterns. Anthropic’s best practices page contrasts “fix the login bug” with a prompt that names the symptom, the likely location in <code>src/auth/</code> and a failing test to write first. Use <code>@</code> to reference files, paste screenshots, or pipe data in:</p>
 <pre class="language-bash"><code class="language-bash"><span class="token function">cat</span> error.log <span class="token operator">|</span> claude <span class="token parameter variable">-p</span> <span class="token string">"explain this error"</span></code></pre>
 <h2 id="4-what-should-go-in-claudemd" tabindex="-1">4. What should go in <code>CLAUDE.md</code>? <a class="anchor" href="#4-what-should-go-in-claudemd" aria-hidden="true">#</a></h2>
-<p>Only what Claude can’t infer from code and needs in every session: Bash commands, code style that differs from defaults, testing instructions, repo etiquette. Run <code>/init</code> for a starter file and <code>/context</code> to confirm Claude loaded it. For each line, Anthropic’s best practices page asks “Would removing this cause Claude to make mistakes?” If not, cut it. Anthropic’s <a href="https://code.claude.com/docs/en/memory">memory docs</a> say to target under 200 lines per file. Our view: a <code>CLAUDE.md</code> that reads like a policy manual gets read like one. See <a href="/blog/give-claude-code-long-term-memory/">give Claude Code long term memory</a>.</p>
+<p>Only what Claude can’t infer from code and needs in every session: Bash commands, code style that differs from defaults, testing instructions, repo etiquette. Run <code>/init</code> for a starter file and <code>/context</code> to confirm Claude loaded it. For each line, Anthropic’s best practices page asks “Would removing this cause Claude to make mistakes?” If not, cut it. Anthropic’s <a href="https://code.claude.com/docs/en/memory">memory docs</a> say to target under 200 lines per file. Our view: a <code>CLAUDE.md</code> that reads like a policy manual gets read like one. See <a href="/blog/give-claude-code-long-term-memory/">give Claude Code long term memory</a>. Our <a href="/blog/claude-md-best-practices/">CLAUDE.md best practices</a> page covers where each file lives and how <code>AGENTS.md</code> loads.</p>
 <figure class="mg" data-scene="clipboard"><img src="/blog/assets/media/claude-code-best-practices/clipboard.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A clipboard holds a short checklist of four lines. Each box ticks itself in turn, and a fifth, longer line fades out and is struck through before it can be ticked."><figcaption>Short beats long: Anthropic's memory docs say to target under 200 lines per file.</figcaption></figure>
 <h2 id="5-set-permissions-once-not-per-prompt" tabindex="-1">5. Set permissions once, not per prompt <a class="anchor" href="#5-set-permissions-once-not-per-prompt" aria-hidden="true">#</a></h2>
 <p>Pre-approve the tools you trust with <code>/permissions</code> and let sandboxed commands run without asking with <code>/sandbox</code>. Anthropic’s best practices page notes that with Claude Code v2.1.283 or later, auto mode is the built-in starting permission mode for interactive terminal and VS Code sessions, where a classifier model blocks only what looks risky. On earlier versions that applies only on Pro, Max and Team plans. See <a href="/blog/why-does-claude-code-keep-asking-for-permission/">why Claude Code keeps asking for permission</a>.</p>
@@ -349,6 +349,38 @@
       <h2>Related in Guides</h2>
       <div class="post-grid">
         <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-md-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-md-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-26">Oct 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/claude-md-best-practices/">CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)</a></h3>
+    <p class="dek">CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-md-best-practices/" aria-label="Read: CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/codex-computer-use/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-computer-use/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-26">Oct 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/codex-computer-use/">Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)</a></h3>
+    <p class="dek">Codex computer use lets the ChatGPT desktop app see and click apps on macOS and Windows. Setup, which plans get it, locked use and how Claude&#39;s compares.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/codex-computer-use/" aria-label="Read: Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
   <a class="thumb t-guides" href="/blog/cursor-pricing/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/cursor-pricing/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -361,38 +393,6 @@
     <div class="foot">
       <span class="tag kind">Guides</span>
       <a class="more" href="/blog/cursor-pricing/" aria-label="Read: Cursor Pricing (Oct 2026): Every Plan After the 12 Oct Change">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/claude-duet-app/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-duet-app/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-10-23">Oct 23, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/claude-duet-app/">Claude Duet App: iPhone, Android and Web, and How to Get It</a></h3>
-    <p class="dek">Is there a Claude Duet app? Yes, on iPhone and Android, and on a computer it runs at claude.ai. Who can get it, how the download works, and the cost.</p>
-    <div class="foot">
-      <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/claude-duet-app/" aria-label="Read: Claude Duet App: iPhone, Android and Web, and How to Get It">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/build-your-own-claude-duet/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/build-your-own-claude-duet/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-10-22">Oct 22, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>4 min</span>
-    </div>
-    <h3><a href="/blog/build-your-own-claude-duet/">Build Your Own Claude Duet: A Free Morning Brief Agent</a></h3>
-    <p class="dek">No Claude Duet invite? Build a proactive morning brief in Munder Difflin: one agent, one schedule and Slack replies, with a codebase as the example.</p>
-    <div class="foot">
-      <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/build-your-own-claude-duet/" aria-label="Read: Build Your Own Claude Duet: A Free Morning Brief Agent">Read →</a>
     </div>
   </div>
 </article>

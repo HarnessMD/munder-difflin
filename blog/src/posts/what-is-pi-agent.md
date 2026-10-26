@@ -107,7 +107,7 @@ Pi if you want an agent you reshape yourself, Claude Code for Anthropic's own ag
 
 **Pick Claude Code if** you're on a Claude plan and want Anthropic's agent with permissions built in.
 
-**Pick Codex CLI or OpenCode if** you want guard rails out of the box: approval modes in Codex, a read only Plan agent in OpenCode. Our [what is OpenCode](/blog/what-is-opencode/) explainer and [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) cover both.
+**Pick Codex CLI or OpenCode if** you want guard rails out of the box: approval modes in Codex, a read only Plan agent in OpenCode. Our [what is OpenCode](/blog/what-is-opencode/) explainer and [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) cover both. For seven more options, see [Pi agent alternatives](/blog/pi-agent-alternatives/).
 
 ## Can you run Pi agents inside Munder Difflin?
 
