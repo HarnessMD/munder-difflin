@@ -129,10 +129,15 @@ interface AgentBreakerState {
   /** Consecutive tool calls that carried NO tool_input. A bridge that never
    *  forwards the call args leaves the loop arm blind (every call looks
    *  distinct), so these are counted separately and trip on a high threshold —
-   *  a backstop for a bridge that stopped forwarding. Reset by ANY other
-   *  activity (a human prompt, reasoning output, a compaction or a turn end),
-   *  because only a run of nothing-but-blind-calls is the runaway shape. */
+   *  a backstop for a bridge that stopped forwarding. Reset by activity a blind
+   *  loop cannot produce (a sighted call, a human prompt, a compaction or a turn
+   *  end), because only a run of nothing-but-blind-calls is the runaway shape. */
   inputlessCount: number;
+  /** inputlessCount as of the previous breaker beat, so a beat can tell whether
+   *  the blind calls it is seeing are new since the last one. Output growth only
+   *  clears a run when NO new blind call landed in the interval: a real blind
+   *  loop grows output too, so growth alone must never erase it. */
+  inputlessAtLastBeat: number;
   /** Has the mid-run warning already been emitted for THIS run of blind calls?
    *  Without it the warn trip would fire again every time the level recovers,
    *  re-sending the same steer message every couple of beats. Cleared with the
@@ -183,7 +188,7 @@ export class CircuitBreaker {
     if (!s) {
       s = {
         level: 'healthy', reason: '', lastSample: null, repeatKey: null, repeatCount: 0,
-        inputlessCount: 0, inputlessWarned: false,
+        inputlessCount: 0, inputlessAtLastBeat: 0, inputlessWarned: false,
         errorCount: 0, compactingUntil: 0, lastDistinctToolAt: 0, lastUserPromptAt: 0,
         noProgressBeats: 0
       };
@@ -238,21 +243,14 @@ export class CircuitBreaker {
     }
   }
 
-  /** Zero the blind-bridge run: the counter AND the "already warned" flag. Any
-   *  real activity (a distinct tool call, a prompt, compaction, output growth, a
-   *  turn end) is the start of a new run, so the warning may be emitted again. */
+  /** Zero the blind-bridge run: the counter, the beat snapshot AND the
+   *  "already warned" flag. Any real activity (a sighted tool call, a prompt,
+   *  compaction or a turn end) is the start of a new run, so the warning may be
+   *  emitted again. */
   private clearInputless(s: AgentBreakerState): void {
     s.inputlessCount = 0;
+    s.inputlessAtLastBeat = 0;
     s.inputlessWarned = false;
-  }
-
-  /** Any agent activity OTHER than an inputless tool call: a human prompt, a
-   *  compaction, reasoning output, a turn boundary. Resets the blind-bridge
-   *  counter — only an unbroken run of calls with no observable input is the
-   *  runaway shape, and a long reasoning turn (which produces no tool calls at
-   *  all, but does produce output) must not contribute to a stop. */
-  recordActivity(agentId: string): void {
-    this.clearInputless(this.get(agentId));
   }
 
   /** The agent's turn ended (Stop / SubagentStop). A loop cannot continue past
@@ -372,16 +370,14 @@ export class CircuitBreaker {
     for (const input of inputs) {
       const s = this.get(input.agentId);
       // Reset the blind-bridge counter on activity that is NOT an inputless tool
-      // call. Two signals available here: coordination/file-mtime progress, and
-      // REASONING OUTPUT — a long turn thinking without tools produces output
-      // tokens and no tool calls, and must never count toward a stop. (A real
-      // blind loop emits tool calls, so its output-growth reset only fires when
-      // the agent is also doing other work — which is the activity we want to
-      // reward.) The hard limit still backstops a run of nothing but blind calls.
-      if (input.progressing) this.clearInputless(s);
-      if (input.sample && (!s.lastSample || input.sample.output > s.lastSample.output)) {
-        this.clearInputless(s);
-      }
+      // call. Coordination/file progress is one signal. REASONING OUTPUT is the
+      // other — but only when NO new blind call landed since the last beat: a
+      // real blind loop emits output tokens too, so clearing on growth alone
+      // made the backstop unreachable in exactly the case it exists for. A
+      // reasoning-only turn increments nothing, so it needs no clear at all.
+      const newBlindCalls = s.inputlessCount > s.inputlessAtLastBeat;
+      const outputGrew = !!input.sample && (!s.lastSample || input.sample.output > s.lastSample.output);
+      if (input.progressing || (outputGrew && !newBlindCalls)) this.clearInputless(s);
       const trip = this.evaluate(
         input, s, cfg, nowMs,
         input.agentId === topSpender, cfg.costCapUsd,
@@ -389,6 +385,7 @@ export class CircuitBreaker {
       );
       // remember the cumulative baseline for next beat's velocity diff
       if (input.sample) s.lastSample = input.sample;
+      s.inputlessAtLastBeat = s.inputlessCount;
 
       const ceiling: BreakerLevel = cfg.hardStop ? 'stopped' : 'constrained';
       let target = s.level;
@@ -433,10 +430,13 @@ export class CircuitBreaker {
     if (s.inputlessCount >= INPUTLESS_TOOL_LIMIT) {
       return { tripping: true, reason: `looping: ${s.inputlessCount}× tool calls with no tool_input (the bridge is not forwarding the call args; hard limit ${INPUTLESS_TOOL_LIMIT})` };
     }
-    // Warn once, halfway: a steer-labelled message before any hard stop. Only
-    // while healthy — once steered, the next beats are not re-steered, and a
-    // genuine blind loop escalates at the hard limit above.
-    if (s.inputlessCount >= INPUTLESS_WARN_LIMIT && s.level === 'healthy') {
+    // Warn once per run, halfway: a steer-labelled message before any hard stop.
+    // The warned flag is what makes it ONCE — without it the level recovers to
+    // healthy on the next beat and the same warning escalates again every other
+    // beat, re-sending an act=request steer for as long as the run lasts. Only
+    // while healthy; a genuine blind loop escalates at the hard limit above.
+    if (s.inputlessCount >= INPUTLESS_WARN_LIMIT && s.level === 'healthy' && !s.inputlessWarned) {
+      s.inputlessWarned = true;
       return { tripping: true, reason: `warning: ${s.inputlessCount}× tool calls with no tool_input (the loop arm is blind; hard limit ${INPUTLESS_TOOL_LIMIT})` };
     }
     // (b) api_error storm

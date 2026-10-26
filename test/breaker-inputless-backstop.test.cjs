@@ -11,9 +11,11 @@
  * Treating an inputless call as distinct fixes the false positive, but leaves
  * the loop arm BLIND for exactly those bridges, so a genuine runaway would be
  * invisible. This adds a high-threshold backstop with the reset semantics jim
- * asked for: ANY other activity (human prompt, reasoning output, compaction,
- * turn boundary) resets it, a warn is labelled before the hard stop, and the
- * counter state is in the reason.
+ * asked for: a sighted call, a human prompt, compaction, a turn boundary or a
+ * quiet interval with output growth resets it — but output growth alone never
+ * clears a run that contains NEW blind calls (a real loop emits output too), a
+ * warn is labelled ONCE before the hard stop, and the counter state is in the
+ * reason.
  */
 
 const test = require('node:test');
@@ -63,7 +65,21 @@ test('a warning is labelled at 30 blind calls, before the hard stop at 60', () =
   assert.match(warn.state.reason, /hard limit 60/);
 });
 
+test('the warning is emitted ONCE, not re-sent every other beat', () => {
+  const b = makeBreaker();
+  blind(b, 30);
+  const d1 = beat(b, null, false, T0);
+  assert.equal(d1.state.level, 'steering');
+  assert.equal(d1.action, 'steer');
+  const d2 = beat(b, null, false, T0 + BEAT);
+  assert.equal(d2.state.level, 'healthy', 'no second trip while the run is unchanged');
+  const d3 = beat(b, null, false, T0 + 2 * BEAT);
+  assert.equal(d3.state.level, 'healthy', `reason: ${d3.state.reason}`);
+  assert.equal(d3.action, 'none');
+});
+
 test('60 blind calls trip the hard backstop and the reason carries the counter state', () => {
+
   const b = makeBreaker();
   blind(b, 60);
   const d = beat(b, null, false, T0);
@@ -83,17 +99,28 @@ test('a human prompt resets the blind-call counter', () => {
   assert.equal(d.state.level, 'healthy', `reason: ${d.state.reason}`);
 });
 
-test('reasoning output (a long turn with no tool calls) resets the counter', () => {
+test('a blind loop that ALSO grows output still trips the hard backstop', () => {
   const b = makeBreaker();
   beat(b, sample(T0, 0), true, T0); // baseline sample
-  blind(b, 40);
-  // Reasoning grew the output between beats but emitted no tool call.
-  const d1 = beat(b, sample(T0 + BEAT, 500), false, T0 + BEAT);
-  assert.equal(d1.state.level, 'healthy', `reason: ${d1.state.reason}`);
-  blind(b, 10);
-  const d2 = beat(b, sample(T0 + 2 * BEAT, 500), false, T0 + 2 * BEAT);
-  assert.equal(d2.state.level, 'healthy', `reason: ${d2.state.reason}`);
+  blind(b, 60);
+  // The loop grows output between the beats too. That growth must NOT clear a
+  // run that contains new blind calls — otherwise a real loop is invisible.
+  const d = beat(b, sample(T0 + BEAT, 500), false, T0 + BEAT);
+  assert.match(d.state.reason, /no tool_input/, `reason: ${d.state.reason}`);
+  assert.notEqual(d.state.level, 'healthy');
 });
+
+test('reasoning output alone (no blind calls) never contributes a blind-call trip', () => {
+  const b = makeBreaker();
+  // A long thinking turn: output grows on every beat, no tool calls at all.
+  // Other arms (e.g. no-progress) are out of scope here; what matters is that
+  // the blind-call counter never accumulates without an inputless call.
+  for (let i = 0; i < 6; i++) {
+    const d = beat(b, sample(T0 + i * BEAT, i * 500), false, T0 + i * BEAT);
+    assert.doesNotMatch(d.state.reason, /no tool_input/, `beat ${i} reason: ${d.state.reason}`);
+  }
+});
+
 
 test('a turn boundary resets the counter and the repeat streak', () => {
   const b = makeBreaker();
