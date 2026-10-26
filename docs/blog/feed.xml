@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
   <title>Munder Difflin Blog</title>
-  <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
+  <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
   <updated>2026-10-26T00:00:00.000Z</updated>
@@ -16,6 +16,14 @@
     <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents from 23 to 26 Oct 2026, each with its source.</summary>
   </entry>
   <entry>
+    <title>CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/claude-md-best-practices/" />
+    <id>https://munderdiffl.in/blog/claude-md-best-practices/</id>
+    <published>2026-10-26T00:00:00.000Z</published>
+    <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
+    <summary>CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads.</summary>
+  </entry>
+  <entry>
     <title>Codex Alternatives: 7 Picks Beyond OpenAI&#39;s Agent (Oct 2026)</title>
     <link href="https://munderdiffl.in/blog/codex-alternatives/" />
     <id>https://munderdiffl.in/blog/codex-alternatives/</id>
@@ -24,12 +32,28 @@
     <summary>Seven Codex alternatives checked 26 Oct 2026: Claude Code, Munder Difflin, Copilot CLI, OpenCode, Goose, Cline and Cursor, with licences and prices.</summary>
   </entry>
   <entry>
+    <title>Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/codex-computer-use/" />
+    <id>https://munderdiffl.in/blog/codex-computer-use/</id>
+    <published>2026-10-26T00:00:00.000Z</published>
+    <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Codex computer use lets the ChatGPT desktop app see and click apps on macOS and Windows. Setup, which plans get it, locked use and how Claude&#39;s compares.</summary>
+  </entry>
+  <entry>
     <title>Cursor Pricing (Oct 2026): Every Plan After the 12 Oct Change</title>
     <link href="https://munderdiffl.in/blog/cursor-pricing/" />
     <id>https://munderdiffl.in/blog/cursor-pricing/</id>
     <published>2026-10-26T00:00:00.000Z</published>
     <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
     <summary>Cursor pricing as of 26 Oct 2026: Free, Plus $8, Premium $30, Super $100, Ultra $200, Teams seats, what changed on 12 Oct and what old plans keep.</summary>
+  </entry>
+  <entry>
+    <title>Pi Agent Alternatives: 7 Coding Agents to Try (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/pi-agent-alternatives/" />
+    <id>https://munderdiffl.in/blog/pi-agent-alternatives/</id>
+    <published>2026-10-26T00:00:00.000Z</published>
+    <updated>2026-10-26T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Seven Pi agent alternatives checked 26 Oct 2026: OpenCode, Munder Difflin, Claude Code, Codex CLI, Hermes Agent, Goose and Crush, with licences and prices.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 23 Oct 2026: Claude Duet, OpenAI CLI, Nvidia OpenShell</title>
@@ -461,30 +485,6 @@
     <id>https://munderdiffl.in/blog/cursor-alternatives/</id>
     <published>2026-10-08T00:00:00.000Z</published>
     <updated>2026-10-08T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Seven Cursor alternatives checked on 8 Oct 2026: Claude Code, Codex, Cline, OpenCode, Zed, Devin Desktop and GitHub Copilot, by licence and price.</summary>
-  </entry>
-  <entry>
-    <title>GPT-6 in ChatGPT: who gets it, when, and Intelligent UI</title>
-    <link href="https://munderdiffl.in/blog/gpt-6-intelligent-ui/" />
-    <id>https://munderdiffl.in/blog/gpt-6-intelligent-ui/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>GPT-6 with Intelligent UI in ChatGPT: Plus, Pro, Business and Enterprise from 7 Oct 2026, then Free and Go. Codex models are not changing in this release.</summary>
-  </entry>
-  <entry>
-    <title>Claude Agent SDK: what it is, languages, cost and limits</title>
-    <link href="https://munderdiffl.in/blog/what-is-claude-agent-sdk/" />
-    <id>https://munderdiffl.in/blog/what-is-claude-agent-sdk/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>The Claude Agent SDK is Claude Code as a Python and TypeScript library. Install commands, features, billing, licence and limits, checked 8 Oct 2026.</summary>
-  </entry>
-  <entry>
-    <title>ZCode: Z.ai&#39;s coding agent harness, explained</title>
-    <link href="https://munderdiffl.in/blog/what-is-zcode/" />
-    <id>https://munderdiffl.in/blog/what-is-zcode/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>ZCode is Z.ai&#39;s Apache-2.0 coding workspace: desktop app, browser view and terminal agent. How to install it, which models it lists, and what it costs.</summary>
+    <summary>Seven Cursor alternatives by licence and price: Claude Code, Codex, Cline, OpenCode, Zed, Devin Desktop and GitHub Copilot. Cursor plans rechecked 26 Oct 2026.</summary>
   </entry>
 </feed>

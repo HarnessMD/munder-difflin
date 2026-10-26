@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CLAUDE.md Best Practices (Oct 2026): 8 Rules From Anthropic&#39;s Docs</title>
+<meta name="description" content="CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads." />
+<link rel="canonical" href="https://munderdiffl.in/blog/claude-md-best-practices/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="CLAUDE.md Best Practices (Oct 2026): 8 Rules From Anthropic&#39;s Docs" />
+<meta property="og:description" content="CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads." />
+<meta property="og:url" content="https://munderdiffl.in/blog/claude-md-best-practices/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/claude-md-best-practices/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A pill reading Guide, the title CLAUDE.md best practices, the line What to write, where it lives, how long and a Checked 26 Oct 2026 line, beside a white sheet with five short ruled lines and a yellow mark labelled Under 200 lines." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-10-26T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="Memory" />
+<meta property="article:tag" content="Context" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="CLAUDE.md Best Practices (Oct 2026): 8 Rules From Anthropic&#39;s Docs" />
+<meta name="twitter:description" content="CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/claude-md-best-practices/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A pill reading Guide, the title CLAUDE.md best practices, the line What to write, where it lives, how long and a Checked 26 Oct 2026 line, beside a white sheet with five short ruled lines and a yellow mark labelled Under 200 lines." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)",
+  "description": "CLAUDE.md best practices from Anthropic's docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads.",
+  "image": ["https://munderdiffl.in/blog/assets/media/claude-md-best-practices/hero.png"],
+  "datePublished": "2026-10-26T00:00:00.000Z",
+  "dateModified": "2026-10-26T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/claude-md-best-practices/" },
+  "keywords": "claude md best practices, claude.md best practices, what to put in claude.md, claude.md example, claude.md vs agents.md, how long should claude.md be",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/claude-md-best-practices/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)", "item": "https://munderdiffl.in/blog/claude-md-best-practices/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How long should a `CLAUDE.md` file be?", "acceptedAnswer": { "@type": "Answer", "text": "Under 200 lines per file. Anthropic's memory docs say longer files use more context and reduce adherence, and that imports help you organise a long file but do not cut its context cost. Checked 26 Oct 2026." } },
+    { "@type": "Question", "name": "Does Claude Code read `AGENTS.md`?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, from Claude Code v2.1.277. By default it reads `AGENTS.md` only when there is no `CLAUDE.md` or `CLAUDE.local.md` in your working directory or above it. The Project instructions setting in /config can make it read both." } },
+    { "@type": "Question", "name": "Should `CLAUDE.md` be committed to git?", "acceptedAnswer": { "@type": "Answer", "text": "The project `CLAUDE.md`, yes: Anthropic's best practices page says to check it into git so your team can contribute. Keep personal notes in `CLAUDE.local.md` and add that file to `.gitignore`." } },
+    { "@type": "Question", "name": "Why does Claude ignore my `CLAUDE.md`?", "acceptedAnswer": { "@type": "Answer", "text": "Usually the file is too long or two lines disagree. Anthropic's docs say a rule gets lost in a long file and that Claude may pick one of two conflicting instructions arbitrarily. For a rule with no exceptions, use a hook." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)</h1>
+    <p class="dek">CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-10-26">Oct 26, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>4 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/claude-md-best-practices/hero.png" alt="Title card on white. A pill reading Guide, the title CLAUDE.md best practices, the line What to write, where it lives, how long and a Checked 26 Oct 2026 line, beside a white sheet with five short ruled lines and a yellow mark labelled Under 200 lines." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>The best <code>CLAUDE.md</code> is short, concrete and checked often: under 200 lines, only what Claude needs in every session, and hooks for anything that must never be skipped. These eight rules come from Anthropic’s <a href="https://code.claude.com/docs/en/memory">memory docs</a> and <a href="https://code.claude.com/docs/en/best-practices">best practices page</a>, read on 26 Oct 2026.</p>
+<p>Running several Claude Code agents? <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup. For habits beyond this file, see <a href="/blog/claude-code-best-practices/">Claude Code best practices</a>.</p>
+<h2 id="what-is-a-claudemd-file" tabindex="-1">What is a <code>CLAUDE.md</code> file? <a class="anchor" href="#what-is-a-claudemd-file" aria-hidden="true">#</a></h2>
+<p>A plain markdown file of instructions that Claude Code loads at the start of every session. The memory docs say each session “begins with a fresh context window”, and <code>CLAUDE.md</code> is how your build commands, conventions and rules carry over. Claude writes a second kind of memory itself, auto memory, from your corrections.</p>
+<p>One line matters more than the rest: Claude treats <code>CLAUDE.md</code> “as context, not enforced configuration”. It is advice Claude reads, not a lock.</p>
+<h2 id="where-should-claudemd-files-live" tabindex="-1">Where should <code>CLAUDE.md</code> files live? <a class="anchor" href="#where-should-claudemd-files-live" aria-hidden="true">#</a></h2>
+<p>Four places, loaded from broadest to most specific, per the memory docs on 26 Oct 2026:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Where</th>
+<th>Shared with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Managed policy</td>
+<td><code>/Library/Application Support/ClaudeCode/CLAUDE.md</code> on macOS</td>
+<td>Everyone in the organisation</td>
+</tr>
+<tr>
+<td>User</td>
+<td><code>~/.claude/CLAUDE.md</code></td>
+<td>Only you, every project</td>
+</tr>
+<tr>
+<td>Project</td>
+<td><code>./CLAUDE.md</code> or <code>./.claude/CLAUDE.md</code></td>
+<td>Your team, through git</td>
+</tr>
+<tr>
+<td>Local</td>
+<td><code>./CLAUDE.local.md</code>, added to <code>.gitignore</code></td>
+<td>Only you, this project</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Files above your working folder load at launch, and files in subfolders load when Claude touches a file there. They add up rather than replace each other, so the line closest to where you started Claude is read last.</p>
+<figure class="mg" data-scene="stack"><img src="/blog/assets/media/claude-md-best-practices/stack.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, four sheets of paper drop onto a pile one at a time, labelled Managed, User, Project and Local. Each sheet lands slightly offset so every label stays visible, and a small arrow beside the pile reads Read last at the top sheet."><figcaption>Instruction files load from broadest to most specific and add up, per Anthropic's memory docs on 26 Oct 2026.</figcaption></figure>
+<h2 id="what-should-go-in-claudemd" tabindex="-1">What should go in <code>CLAUDE.md</code>? <a class="anchor" href="#what-should-go-in-claudemd" aria-hidden="true">#</a></h2>
+<p>Facts Claude should hold in every session and cannot work out from the code. The memory docs name build commands, conventions, project layout and “always do X” rules, and say to add a line when:</p>
+<ul>
+<li>Claude makes the same mistake a second time.</li>
+<li>A code review catches something Claude should have known.</li>
+<li>You type the same correction you typed last session.</li>
+<li>A new teammate would need the same context.</li>
+</ul>
+<p>Write lines you could check. The docs give examples: “Use 2-space indentation” instead of “Format code properly”, and “Run <code>npm test</code> before committing” instead of “Test your changes”. Here is a short project file in that style:</p>
+<pre class="language-markdown"><code class="language-markdown"><span class="token title important"><span class="token punctuation">#</span> Build</span>
+<span class="token list punctuation">-</span> Run <span class="token code-snippet code keyword">`npm run build`</span> before you say a task is done.
+<span class="token list punctuation">-</span> Run <span class="token code-snippet code keyword">`npm test -- path/to/file`</span> for one test file, not the whole suite.
+
+<span class="token title important"><span class="token punctuation">#</span> Style</span>
+<span class="token list punctuation">-</span> TypeScript strict mode; no <span class="token code-snippet code keyword">`any`</span>.
+<span class="token list punctuation">-</span> API handlers live in <span class="token code-snippet code keyword">`src/api/handlers/`</span>.
+
+<span class="token title important"><span class="token punctuation">#</span> Rules</span>
+<span class="token list punctuation">-</span> Never edit files in <span class="token code-snippet code keyword">`generated/`</span>.</code></pre>
+<p>A procedure with many steps, or a rule for one corner of the repo, belongs in a <a href="/blog/claude-code-skills/">skill</a> or a path scoped rule.</p>
+<h2 id="how-long-should-claudemd-be" tabindex="-1">How long should <code>CLAUDE.md</code> be? <a class="anchor" href="#how-long-should-claudemd-be" aria-hidden="true">#</a></h2>
+<p>Under 200 lines per file. The docs say longer files “consume more context and reduce adherence”. Three tools keep it short:</p>
+<ul>
+<li><strong>Path scoped rules.</strong> Files in <code>.claude/rules/</code> with a <code>paths</code> field load only when Claude works on matching files.</li>
+<li><strong>Imports.</strong> <code>@path/to/file</code> pulls in another file, up to four hops deep. This organises a long file but does not cut its context cost.</li>
+<li><strong>HTML comments.</strong> Block comments are stripped before Claude sees the file, so notes for people cost no tokens.</li>
+</ul>
+<p>The best practices page asks of every line: “Would removing this cause Claude to make mistakes?” If not, cut it.</p>
+<figure class="mg" data-scene="gauge"><img src="/blog/assets/media/claude-md-best-practices/gauge.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A tall white measuring tube fills with blue lines of text up to a yellow mark labelled 200 lines. Extra lilac lines float off to the side into three small trays labelled Rules, Skills and Imports, and the tube level settles below the mark."><figcaption>Target under 200 lines per file; move the rest into rules or skills.</figcaption></figure>
+<h2 id="does-claude-code-read-agentsmd" tabindex="-1">Does Claude Code read <code>AGENTS.md</code>? <a class="anchor" href="#does-claude-code-read-agentsmd" aria-hidden="true">#</a></h2>
+<p>Yes, from v2.1.277, but not next to a <code>CLAUDE.md</code> by default. The memory docs say Claude reads <code>AGENTS.md</code> when you have no <code>CLAUDE.md</code>, <code>.claude/CLAUDE.md</code> or <code>CLAUDE.local.md</code> in your working folder or above it. Add any one of those and <code>AGENTS.md</code> stops loading.</p>
+<p>To keep one file for every agent, import <code>AGENTS.md</code> from <code>CLAUDE.md</code>, or set <strong>Project instructions</strong> in <code>/config</code> to <code>claude-md-and-agents-md</code> so Claude reads both. Codex, OpenCode and Pi all read <code>AGENTS.md</code>, so one shared file keeps a mixed team in step.</p>
+<figure class="mg" data-scene="junction"><img src="/blog/assets/media/claude-md-best-practices/junction.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A small blue cart rolls along a white rail toward a junction with two tracks, one to a card labelled Claude file and one to a card labelled Agents file. A yellow switch flips the cart toward the Agents file when the Claude file card fades out, then a third track appears labelled Both."><figcaption>By default Claude Code reads the shared agents file only when it finds no Claude file of its own, per Anthropic's memory docs on 26 Oct 2026.</figcaption></figure>
+<h2 id="how-do-you-keep-claudemd-up-to-date" tabindex="-1">How do you keep <code>CLAUDE.md</code> up to date? <a class="anchor" href="#how-do-you-keep-claudemd-up-to-date" aria-hidden="true">#</a></h2>
+<p>Treat it like code. The best practices page says to check it into git and review it when things go wrong. Run <code>/init</code> for a starter file, <code>/context</code> to confirm it loaded and <code>/memory</code> to list and open your memory files. From v2.1.283, <code>/doctor prompt-audit</code> looks for stale instructions, missing files and contradictions, and changes nothing until you say so.</p>
+<p>If one rule keeps slipping, the page suggests adding “IMPORTANT” to that line alone. If a rule must hold every time, the memory docs point to a PreToolUse hook instead; see <a href="/blog/claude-code-hooks-explained/">Claude Code hooks explained</a>.</p>
+<h2 id="claudemd-best-practices-at-a-glance-checked-26-oct-2026" tabindex="-1"><code>CLAUDE.md</code> best practices at a glance, checked 26 Oct 2026 <a class="anchor" href="#claudemd-best-practices-at-a-glance-checked-26-oct-2026" aria-hidden="true">#</a></h2>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>From</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Under 200 lines per file</td>
+<td>Memory docs</td>
+</tr>
+<tr>
+<td>Only what applies in every session</td>
+<td>Best practices page</td>
+</tr>
+<tr>
+<td>Concrete lines you could verify</td>
+<td>Memory docs</td>
+</tr>
+<tr>
+<td>Path scoped rules and skills for the rest</td>
+<td>Memory docs</td>
+</tr>
+<tr>
+<td>No two lines that disagree</td>
+<td>Memory docs</td>
+</tr>
+<tr>
+<td>Commit the project file, keep <code>CLAUDE.local.md</code> private</td>
+<td>Both pages</td>
+</tr>
+<tr>
+<td>Emphasis on the one line that slips, not many</td>
+<td>Best practices page</td>
+</tr>
+<tr>
+<td>Hooks for rules with no exceptions</td>
+<td>Both pages</td>
+</tr>
+</tbody>
+</table>
+</div>
+<link rel="stylesheet" href="/blog/assets/media/claude-md-best-practices/motion.css"><script defer src="/blog/assets/media/claude-md-best-practices/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">How long should a `CLAUDE.md` file be?</p>
+          <p class="a">Under 200 lines per file. Anthropic&#39;s memory docs say longer files use more context and reduce adherence, and that imports help you organise a long file but do not cut its context cost. Checked 26 Oct 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does Claude Code read `AGENTS.md`?</p>
+          <p class="a">Yes, from Claude Code v2.1.277. By default it reads `AGENTS.md` only when there is no `CLAUDE.md` or `CLAUDE.local.md` in your working directory or above it. The Project instructions setting in /config can make it read both.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Should `CLAUDE.md` be committed to git?</p>
+          <p class="a">The project `CLAUDE.md`, yes: Anthropic&#39;s best practices page says to check it into git so your team can contribute. Keep personal notes in `CLAUDE.local.md` and add that file to `.gitignore`.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Why does Claude ignore my `CLAUDE.md`?</p>
+          <p class="a">Usually the file is too long or two lines disagree. Anthropic&#39;s docs say a rule gets lost in a long file and that Claude may pick one of two conflicting instructions arbitrarily. For a rule with no exceptions, use a hook.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/memory/">Memory</a><a class="tag" href="/blog/tags/context/">Context</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-a-claudemd-file">What is a CLAUDE.md file?</a></li><li class="lvl-2"><a href="#where-should-claudemd-files-live">Where should CLAUDE.md files live?</a></li><li class="lvl-2"><a href="#what-should-go-in-claudemd">What should go in CLAUDE.md?</a></li><li class="lvl-2"><a href="#how-long-should-claudemd-be">How long should CLAUDE.md be?</a></li><li class="lvl-2"><a href="#does-claude-code-read-agentsmd">Does Claude Code read AGENTS.md?</a></li><li class="lvl-2"><a href="#how-do-you-keep-claudemd-up-to-date">How do you keep CLAUDE.md up to date?</a></li><li class="lvl-2"><a href="#claudemd-best-practices-at-a-glance-checked-26-oct-2026">CLAUDE.md best practices at a glance, checked 26 Oct 2026</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/codex-alternatives/"><span class="k">← Older</span><span class="t">Codex Alternatives: 7 Picks Beyond OpenAI&#39;s Agent (Oct 2026)</span></a>
+      <a class="pn next" href="/blog/agent-tools-today-2026-10-26/"><span class="k">Newer →</span><span class="t">Agent Tools Today, 26 Oct 2026: Kimi K3.1 Pro, Unified Claude Enterprise, ThinkRail</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/codex-computer-use/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-computer-use/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-26">Oct 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/codex-computer-use/">Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)</a></h3>
+    <p class="dek">Codex computer use lets the ChatGPT desktop app see and click apps on macOS and Windows. Setup, which plans get it, locked use and how Claude&#39;s compares.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/codex-computer-use/" aria-label="Read: Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/cursor-pricing/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/cursor-pricing/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-26">Oct 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/cursor-pricing/">Cursor Pricing (Oct 2026): Every Plan After the 12 Oct Change</a></h3>
+    <p class="dek">Cursor pricing as of 26 Oct 2026: Free, Plus $8, Premium $30, Super $100, Ultra $200, Teams seats, what changed on 12 Oct and what old plans keep.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/cursor-pricing/" aria-label="Read: Cursor Pricing (Oct 2026): Every Plan After the 12 Oct Change">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-duet-app/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-duet-app/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-23">Oct 23, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/claude-duet-app/">Claude Duet App: iPhone, Android and Web, and How to Get It</a></h3>
+    <p class="dek">Is there a Claude Duet app? Yes, on iPhone and Android, and on a computer it runs at claude.ai. Who can get it, how the download works, and the cost.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-duet-app/" aria-label="Read: Claude Duet App: iPhone, Android and Web, and How to Get It">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -59,7 +59,7 @@ Codex Cloud runs a task in its own workspace on OpenAI's machines. OpenAI's [clo
 
 ## What is Codex used for?
 
-Codex is used for the jobs you would hand a colleague with repo access: fixing a bug, building a feature, explaining an unfamiliar codebase or reviewing a pull request. The API key option, in the pricing page's words, is "great for automation in shared environments like CI." Codex Cloud suits work that outlasts your attention span.
+Codex is used for the jobs you would hand a colleague with repo access: fixing a bug, building a feature, explaining an unfamiliar codebase or reviewing a pull request. The API key option, in the pricing page's words, is "great for automation in shared environments like CI." Codex Cloud suits work that outlasts your attention span. To test apps that have no command line, the desktop app adds [computer use](/blog/codex-computer-use/).
 
 ## Is Codex free?
 

@@ -39,7 +39,7 @@
       el("path", { d: `M${PX} ${BASE - 46} L${PX - 78} ${BASE} M${PX} ${BASE - 46} L${PX + 78} ${BASE}`, stroke: INK, "stroke-width": 6, "stroke-linecap": "round", fill: "none" }, rack);
       el("rect", { x: 104, y: RAIL - 11, width: 592, height: 22, rx: 11, fill: YEL, stroke: INK, "stroke-width": 3 }, rack);
       HX.forEach((x) => el("path", { d: `M${x} ${RAIL + 11} V${RAIL + 30}`, stroke: INK, "stroke-width": 6, "stroke-linecap": "round" }, rack));
-      const LINES = ["Price: Individual $20, Pro Plus $60, Ultra $200 a month", "Licence: its public GitHub repo carried no licence", "Plan limits: Hobby is free with “Limited Agent requests”"];
+      const LINES = ["Price: Plus $8, Premium $30, Ultra $200 a month", "Licence: its public GitHub repo carried no licence", "Plan limits: Plus runs Grok models only"];
       const NAME = ["price", "licence", "plan limits"], COL = [YEL, LIL, SKY];
       let pinned = -1;
       const coats = HX.map((x, i) => {
@@ -66,7 +66,7 @@
           c.g.setAttribute("transform", `translate(${c.x + 130 * (1 - oc(q))} ${RAIL + 22 - 30 * (1 - q * q)}) rotate(${-lean + sw})`);
           c.g.setAttribute("opacity", seg(tt, 0, 0.15) * (1 - out));
         });
-        cap.textContent = pinned >= 0 ? LINES[pinned] : t > 7.6 && t < 10.6 ? "Hobby free; Individual $20, Pro Plus $60, Ultra $200 a month" : last < 0 || t >= 10.6 ? "Three reasons: price, licence and plan limits" : LINES[last];
+        cap.textContent = pinned >= 0 ? LINES[pinned] : t > 7.6 && t < 10.6 ? "Free $0; Plus $8, Premium $30, Ultra $200 a month" : last < 0 || t >= 10.6 ? "Three reasons: price, licence and plan limits" : LINES[last];
       };
     },
   };
@@ -83,7 +83,7 @@
       el("rect", { x: -76, y: -21, width: 152, height: 42, rx: 21, fill: MINT, stroke: INK, "stroke-width": 3 }, chip);
       txt(chip, 0, 7, "same height", { "text-anchor": "middle", "font-size": 20, "font-weight": 700 });
       el("rect", { x: 50, y: SH, width: 700, height: 16, rx: 8, fill: SOFT, stroke: INK, "stroke-width": 3 }, svg);
-      const book = (name, col, plan, right) => {
+      const book = (name, col, plan, right, price) => {
         const g = el("g", {}, svg), s = right ? -1 : 1, cx = (s * BW) / 2;
         el("rect", { x: right ? -BW : 0, y: -BH, width: BW, height: BH, rx: 10, fill: col, stroke: INK, "stroke-width": 3 }, g);
         el("path", { d: `M${cx - BW / 2} ${-BH + 26} h${BW} M${cx - BW / 2} ${-BH + 38} h${BW}`, stroke: INK, "stroke-width": 3 }, g);
@@ -91,11 +91,11 @@
         const p = el("g", {}, g);
         el("rect", { x: -58, y: -52, width: 116, height: 104, rx: 14, fill: "#fff", stroke: INK, "stroke-width": 3 }, p);
         txt(p, 0, -24, plan, { "text-anchor": "middle", "font-size": 19, "font-weight": 500 });
-        txt(p, 0, 12, "$20", { "text-anchor": "middle", "font-size": 34, "font-weight": 700 });
+        txt(p, 0, 12, price, { "text-anchor": "middle", "font-size": 34, "font-weight": 700 });
         txt(p, 0, 38, "a month", { "text-anchor": "middle", "font-size": 19, "font-weight": 500 });
         return { g, p, cx };
       };
-      const A = book(["Cursor"], SKY, "Individual", false), B = book(["Devin", "Desktop"], LIL, "Pro", true);
+      const A = book(["Cursor"], SKY, "Premium", false, "$30"), B = book(["Devin", "Desktop"], LIL, "Pro", true, "$20");
       const end = (right) => { const g = el("g", {}, svg); el("path", { d: `M0 0 V${-PL} a8 8 0 0 0 -16 0 V-16 H-112 a8 8 0 0 0 0 16 Z`, fill: BLUE, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round", transform: right ? "scale(-1 1)" : "" }, g); return g; };
       const EA = end(false), EB = end(true);
       const LBX = RX - BW / 2, LBY = 470;
@@ -124,7 +124,7 @@
         face.setAttribute("transform", `scale(1 ${Math.max(0.04, Math.min(Math.abs(Math.cos(Math.PI * u)), Math.abs(Math.cos(Math.PI * w))))})`);
         ft.textContent = side ? "Devin Desktop" : "Windsurf"; fr.setAttribute("fill", side ? YEL : "#fff");
         note.textContent = side ? "new name" : "old name";
-        cap.textContent = t < 3 || t >= 10.4 ? "Both are editors with agents built in" : t < 4.5 ? "Same shape" : t < 6.6 ? "Both list a plan at $20 a month: Cursor Individual, Devin Pro" : t < 8.4 ? "“Devin Desktop is the new name for Windsurf.”" : "We ran no test, so this is about shape and price";
+        cap.textContent = t < 3 || t >= 10.4 ? "Both are editors with agents built in" : t < 4.5 ? "Same shape" : t < 6.6 ? "Several labs’ models: Cursor Premium $30, Devin Pro $20" : t < 8.4 ? "“Devin Desktop is the new name for Windsurf.”" : "This is about shape, not quality";
       };
     },
   };
