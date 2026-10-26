@@ -111,6 +111,35 @@ test('an idle-waiting notification does NOT count as a HITL hold', () => {
   assert.deepEqual(w.decide([fact()], now), ['alice']);
 });
 
+test('a mixed permission and idle-waiting notification blocks nudges', () => {
+  const w = new WorkerWakeWatchdog();
+  w.noteSpawn('pty-alice', 0);
+  const now = 200_000;
+  w.noteHook(
+    'alice',
+    'Notification',
+    'Permission required — waiting for your input',
+    now - 1_000
+  );
+  assert.equal(w.explain(fact(), now), 'hitl');
+  assert.deepEqual(w.decide([fact()], now), []);
+});
+
+test('a structured blocking notification arms the HITL hold despite idle wording', () => {
+  const w = new WorkerWakeWatchdog();
+  w.noteSpawn('pty-alice', 0);
+  const now = 200_000;
+  w.noteHook(
+    'alice',
+    'Notification',
+    'waiting for your input',
+    now - 1_000,
+    'permission_prompt'
+  );
+  assert.equal(w.explain(fact(), now), 'hitl');
+  assert.deepEqual(w.decide([fact()], now), []);
+});
+
 test('the same inbox mail is not re-announced after the cooldown', () => {
   const w = new WorkerWakeWatchdog();
   w.noteSpawn('pty-alice', 0);
@@ -179,6 +208,47 @@ test('classifyHook: permission/approve/confirm shapes are needsHuman', () => {
   assert.equal(classifyHook('Notification', 'Claude needs your permission to use Bash.'), 'needsHuman');
   assert.equal(classifyHook('Notification', 'Approve tool use?'), 'needsHuman');
   assert.equal(classifyHook('Notification', 'confirm the change?'), 'needsHuman');
+  assert.equal(
+    classifyHook('Notification', 'Permission required — waiting for your input'),
+    'needsHuman'
+  );
+});
+
+test('classifyHook: known structured notification types are authoritative', () => {
+  for (const notificationType of [
+    'permission_prompt',
+    'elicitation_dialog',
+    'elicitation_url_dialog',
+    'agent_needs_input'
+  ]) {
+    assert.equal(
+      classifyHook('Notification', 'waiting for your input', notificationType),
+      'needsHuman',
+      notificationType
+    );
+  }
+
+  assert.equal(
+    classifyHook(
+      'Notification',
+      'Permission required — waiting for your input',
+      'idle_prompt'
+    ),
+    'idle'
+  );
+});
+
+test('classifyHook: unknown notification types fall back to message markers', () => {
+  assert.equal(classifyHook('Notification', 'permission required', 'future_type'), 'needsHuman');
+  assert.equal(classifyHook('Notification', 'waiting for your input', 'future_type'), 'idle');
+  assert.equal(classifyHook('Notification', '', 'future_type'), 'idle');
+});
+
+test('classifyHook: malformed runtime field values never throw', () => {
+  assert.doesNotThrow(() => classifyHook('Notification', 123));
+  assert.equal(classifyHook('Notification', null, 'permission_prompt'), 'needsHuman');
+  assert.equal(classifyHook('Notification', {}, 'idle_prompt'), 'idle');
+  assert.equal(classifyHook('Notification', 'permission required', {}), 'needsHuman');
 });
 
 test('classifyHook: idle-waiting shapes are idle, other events are null', () => {
