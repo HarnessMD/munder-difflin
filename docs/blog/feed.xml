@@ -4,9 +4,33 @@
   <subtitle>Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-23T00:00:00.000Z</updated>
+  <updated>2026-10-26T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 26 Oct 2026: Kimi K3.1 Pro, Unified Claude Enterprise, ThinkRail</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-26/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-26/</id>
+    <published>2026-10-26T00:00:00.000Z</published>
+    <updated>2026-10-26T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents from 23 to 26 Oct 2026, each with its source.</summary>
+  </entry>
+  <entry>
+    <title>Codex Alternatives: 7 Picks Beyond OpenAI&#39;s Agent (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/codex-alternatives/" />
+    <id>https://munderdiffl.in/blog/codex-alternatives/</id>
+    <published>2026-10-26T00:00:00.000Z</published>
+    <updated>2026-10-26T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Seven Codex alternatives checked 26 Oct 2026: Claude Code, Munder Difflin, Copilot CLI, OpenCode, Goose, Cline and Cursor, with licences and prices.</summary>
+  </entry>
+  <entry>
+    <title>Cursor Pricing (Oct 2026): Every Plan After the 12 Oct Change</title>
+    <link href="https://munderdiffl.in/blog/cursor-pricing/" />
+    <id>https://munderdiffl.in/blog/cursor-pricing/</id>
+    <published>2026-10-26T00:00:00.000Z</published>
+    <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Cursor pricing as of 26 Oct 2026: Free, Plus $8, Premium $30, Super $100, Ultra $200, Teams seats, what changed on 12 Oct and what old plans keep.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 23 Oct 2026: Claude Duet, OpenAI CLI, Nvidia OpenShell</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-23/" />
@@ -462,29 +486,5 @@
     <published>2026-10-08T00:00:00.000Z</published>
     <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
     <summary>ZCode is Z.ai&#39;s Apache-2.0 coding workspace: desktop app, browser view and terminal agent. How to install it, which models it lists, and what it costs.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 7 Oct 2026: Mistral Large 4, EmbeddingGemma 2, OpenAI Decisions API</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-07/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-07/</id>
-    <published>2026-10-07T00:00:00.000Z</published>
-    <updated>2026-10-07T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 7 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Codex vs Cursor: Which Should You Pick in 2026?</title>
-    <link href="https://munderdiffl.in/blog/codex-vs-cursor/" />
-    <id>https://munderdiffl.in/blog/codex-vs-cursor/</id>
-    <published>2026-10-07T00:00:00.000Z</published>
-    <updated>2026-10-07T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Codex vs Cursor, checked 7 Oct 2026: what each is, licence, paid plans from $8 a month, models, where each runs, and whether Codex works inside Cursor.</summary>
-  </entry>
-  <entry>
-    <title>Gemini CLI vs Claude Code: price, licence, models</title>
-    <link href="https://munderdiffl.in/blog/gemini-cli-vs-claude-code/" />
-    <id>https://munderdiffl.in/blog/gemini-cli-vs-claude-code/</id>
-    <published>2026-10-07T00:00:00.000Z</published>
-    <updated>2026-10-07T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Gemini CLI vs Claude Code, checked 7 Oct 2026: whether Gemini CLI is still free, what each costs, licence, models, features and who should pick which.</summary>
   </entry>
 </feed>

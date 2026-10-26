@@ -5269,5 +5269,39 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-10-26": {
+    "title": "Agent Tools Today, 26 Oct 2026: Kimi K3.1 Pro, Unified Claude Enterprise, ThinkRail",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "codex-alternatives": {
+    "title": "Codex Alternatives: 7 Picks Beyond OpenAI's Agent (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/codex-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Codex alternatives, the line 7 picks beyond OpenAI's agent and a Checked 26 Oct 2026 line. Seven small tiles named Claude Code, Munder Difflin, Copilot CLI, OpenCode, Goose, Cline and Cursor slide in under a grey tile labelled Codex.",
+      "prompt": "Title card: the hero scene in assets/media/codex-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "cursor-pricing": {
+    "title": "Cursor Pricing (Oct 2026): Every Plan After the 12 Oct Change",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/cursor-pricing/hero.png",
+      "alt": "Title card on white. A pill reading Pricing, the title Cursor pricing, the line Every plan after the 12 Oct change and a Checked 26 Oct 2026 line. Five price tags on a string, $0, $8, $30, $100 and $200, swing gently into place.",
+      "prompt": "Title card: the hero scene in assets/media/cursor-pricing/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
