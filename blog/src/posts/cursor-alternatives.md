@@ -28,7 +28,7 @@ This list is for people who use Cursor, or nearly did, and want something else. 
 
 ## Why look for a Cursor alternative?
 
-We see three reasons people look elsewhere: price, licence and plan limits. On 8 Oct 2026, [Cursor's pricing page](https://cursor.com/pricing) listed Hobby as free with "Limited Agent requests" and Individual at $20 a month. Its [models and pricing docs](https://cursor.com/docs/models-and-pricing) put Pro Plus at $60 and Ultra at $200 a month, and say that when you exceed your included monthly usage you add on-demand usage or upgrade.
+We see three reasons people look elsewhere: price, licence and plan limits. On 8 Oct 2026, [Cursor's pricing page](https://cursor.com/pricing) listed Hobby as free with "Limited Agent requests" and Individual at $20 a month. Its [models and pricing docs](https://cursor.com/docs/models-and-pricing) put Pro Plus at $60 and Ultra at $200 a month, and say that when you exceed your included monthly usage you add on-demand usage or upgrade. [Cursor pricing](/blog/cursor-pricing/) covers the 12 Oct changes.
 
 <figure class="mg" data-scene="rack"><img src="/blog/assets/media/cursor-alternatives/rack.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An empty coat rack with three hooks. Three coats swing in and hang up one by one, labelled price, licence and plan limits, and the rack leans a little further with each coat."><figcaption>Three reasons, one rack. Plans from Cursor's pricing page and docs, 8 Oct 2026.</figcaption></figure>
 
