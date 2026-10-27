@@ -106,7 +106,21 @@
     "viewAnswersHistory": "open the task detail with the full Q&A history",
     "blockingDownstream": "BLOCKING {{count}} DOWNSTREAM TASK",
     "blockingDownstreamPlural": "BLOCKING {{count}} DOWNSTREAM TASKS",
-    "more": "… +{{count}} more"
+    "more": "… +{{count}} more",
+    "notSent": "not sent",
+    "gone": "The question changed or was closed while you were writing.",
+    "goneKept": "What you wrote, to copy if you still need it:",
+    "failed": "Your answer is still in the box. Try again.",
+    "pickAny": "PICK ANY",
+    "asked": "asked {{when}}",
+    "recommended": "RECOMMENDED",
+    "notePlaceholder": "Something else, or a note (optional)… (Ctrl+Enter to send)",
+    "answerWith": "answer: {{choice}}",
+    "pickFirst": "pick an option or write a note",
+    "kind": {
+      "choose": "CHOOSE",
+      "question": "QUESTION"
+    }
   },
   "agentStrip": {
     "privateNote": "PRIVATE NOTE · {{name}}",
@@ -127,6 +141,7 @@
   },
   "sidebar": {
     "terminal": "terminal",
+    "history": "history",
     "git": "git",
     "messages": "messages",
     "traces": "traces"
@@ -177,21 +192,13 @@
     "title": "Office Theme",
     "tvShow": "TV-show office themes",
     "experimental": "experimental",
-    "desc": "Re-skin the pixel office as a TV show. Switching starts a fresh cast.",
+    "desc": "Adds five TV show floors to the list above.",
     "current": "current",
     "soon": "soon",
-    "notBuiltYet": "{{label}} isn't built yet — showing the office for now.",
-    "switchAborted": "Switch aborted — a terminal wouldn't close: {{error}}",
-    "confirmTitle": "SWITCH OFFICE TO \"{{label}}\"?",
-    "startsFreshCast": "STARTS A FRESH CAST",
-    "deleteCount": "Your {{count}} current agent will be deleted — their terminals close and any in-progress work stops.",
-    "deleteCountPlural": "Your {{count}} current agents will be deleted — their terminals close and any in-progress work stops.",
-    "onlyCarries": "Only {{god}} carries over.",
-    "stillWorking": "⚠ {{count}} agent is still working.",
-    "stillWorkingPlural": "⚠ {{count}} agents are still working.",
-    "cantUndo": "This can't be undone.",
-    "switching": "switching…",
-    "deleteSwitch": "delete {{count}} & switch"
+    "onSave": "switches on Save",
+    "forProject": "The floor for {{project}}. Each project keeps its own.",
+    "keepsAgents": "On Save, every agent moves to {{label}}. Names, memory and work stay; only the look changes.",
+    "notSaved": "Not saved: your settings file could not be read just now, so the floor did not change."
   },
   "settings": {
     "title": "SETTINGS",
@@ -230,6 +237,8 @@
       "keepAwakeDesc": "Blocks display sleep so schedules and terminals keep firing on time. Costs battery — best on AC.",
       "simpleMode": "Explain things simply",
       "simpleModeDesc": "Agents brief you in plain language instead of engineering shorthand.",
+      "graphics": "Graphics",
+      "graphicsDesc": "How the app draws terminals and the floor. Auto uses the graphics card (GPU) when it works and the processor (CPU) when it does not. Pick CPU only if the floor or terminals stay blank or flicker. Applies from the next start.",
       "notifications": "Notifications",
       "desktopNotifications": "Desktop notifications",
       "desktopNotificationsDesc": "Native toasts when an agent finishes or needs your input.",
@@ -375,7 +384,16 @@
     "saved": "Saved",
     "saving": "Saving…",
     "unsavedChanges": "unsaved changes",
-    "unsavedWarning": "You have unsaved settings. Close anyway and lose them?"
+    "unsavedWarning": "You have unsaved settings. Close anyway and lose them?",
+    "codexFolders": {
+      "waitingTitle": "Waiting for your OK",
+      "waitingDesc": "An agent tried to start in one of these folders. Each needs your OK first, so it did not start. Allow a folder only if you trust its repository.",
+      "allow": "allow",
+      "title": "Codex folders you allowed",
+      "desc": "A Codex agent in one of these folders runs the folder's own hooks, MCP servers and rules. Withdraw to stop that from its next start.",
+      "withdraw": "withdraw",
+      "empty": "None. A Codex agent whose folder has its own Codex settings waits for your OK before it starts."
+    }
   },
   "commandCenter": {
     "title": "COMMAND CENTER",
@@ -487,7 +505,8 @@
     "sections": {
       "identity": {
         "label": "Identity",
-        "hint": "name · character · color"
+        "hint": "name · character · color",
+        "hintPack": "name · look · color"
       },
       "workspace": {
         "label": "Workspace",
@@ -1405,5 +1424,115 @@
     "viewSource": "view source",
     "loading": "loading image…",
     "decodeFailed": "could not decode this image — the file may be corrupt or misnamed"
+  },
+  "error": {
+    "tag": "error",
+    "app": "The app hit an error and stopped drawing. Your agents keep running.",
+    "panel": "{{where}} could not be shown. The rest of the app is fine.",
+    "tryAgain": "Try again",
+    "reload": "Reload the window"
+  },
+  "stationFloor": {
+    "packFailed": "{{name}} could not load, so The Office is showing instead. Every agent is still here."
+  },
+  "looks": {
+    "title": "Look on {{theme}}",
+    "sub": "Only {{theme}} uses this look. On other floors this agent keeps its character.",
+    "body": "Body",
+    "colours": "Colours",
+    "skin": "Skin",
+    "shirt": "Shirt",
+    "hair": "Hair colour",
+    "custom": "Custom colour",
+    "presets": "Presets"
+  },
+  "projectTheme": {
+    "title": "CHOOSE A PROJECT THEME",
+    "intro": "The new project starts on this floor. You can change it later in Settings, and every agent comes along.",
+    "folder": "New project in {{path}}",
+    "starts": "{{god}} starts this project",
+    "captain": "{{god}} takes the captain's chair",
+    "office": "The original office floor",
+    "starhike": "The starship bridge",
+    "create": "create project",
+    "notEmpty": "Choose an empty folder for a new project.",
+    "unreadable": "The app could not open this folder. Choose another one.",
+    "errTag": "folder"
+  },
+  "codexLayer": {
+    "tag": "not started",
+    "title": "{{agent}} has not started. This folder has its own Codex settings.",
+    "body": "If {{agent}} starts here, Codex also loads these files from the repository, unreviewed. They can start MCP servers, run hooks and set command rules:",
+    "kind": {
+      "config": "settings, which can start MCP servers",
+      "hooks": "hooks, commands that run on the agent's events",
+      "rules": "command rules, which decide what it may run",
+      "agents": "agent files, which can start MCP servers and set an agent's instructions",
+      "hookFiles": "hook files, which can run commands",
+      "setting": "settings, some of which can run a program or change what commands can reach",
+      "unreadable": "the app could not open it, so it counts to be safe",
+      "doesNotParse": "the app could not read it as settings, so it counts to be safe"
+    },
+    "more": "and {{count}} more files",
+    "more_one": "and 1 more file",
+    "unreadable": "no settings files the app could read here; it counts the folder to be safe",
+    "allowAll": "allow these folders and start",
+    "trust": "Allow it only if you trust this repository. You can withdraw it in Settings, Agents & Models.",
+    "allow": "allow this folder and start",
+    "notNow": "not now",
+    "heldReason": "not started, waiting for your OK in Settings, Agents & Models"
+  },
+  "recovery": {
+    "title": "The window crashed and was reloaded at {{time}}.",
+    "body": "Your agents kept running. Terminal output from before the crash is not shown again; new output appears as usual.",
+    "ok": "OK"
+  },
+  "integrity": {
+    "paused": "paused",
+    "title": "{{file}} could not be read. Changes to it are paused.",
+    "body": "The app has not written over it and keeps a copy as {{copy}}. Fix the file or put a good copy back; changes start again on their own.",
+    "bodyNoCopy": "The app has not written over it. Fix the file or put a good copy back; changes start again on their own.",
+    "defaults": "Until then the app runs on default settings.",
+    "show": "show the file",
+    "saveBlocked": "Not saved: your settings file could not be read, so changes are paused.",
+    "file": {
+      "config": "Your settings (config.json)",
+      "tasks": "The task board (tasks.json)",
+      "registry": "The agent list (registry.json)"
+    }
+  },
+  "graphics": {
+    "auto": "Auto",
+    "gpu": "GPU",
+    "cpu": "CPU only",
+    "drawing": "Drawing with: {{what}}",
+    "onCpu": "the processor (CPU)",
+    "onCpuFallback": "the processor (CPU), because no graphics card worked",
+    "onGpuNoName": "the graphics card (GPU); its name is not known yet",
+    "unknown": "not known; the system has not said",
+    "restartNeeded": "Saved. {{mode}} takes effect after a restart.",
+    "restartNow": "restart now",
+    "confirm": "Restarting stops {{count}} running agents. Restart now?",
+    "confirm_one": "Restarting stops 1 running agent. Restart now?",
+    "restart": "restart",
+    "later": "later",
+    "saveFailed": "The Graphics setting could not be saved. Nothing changed."
+  },
+  "history": {
+    "prompt": "PROMPT",
+    "reply": "REPLY",
+    "start": "Start of this session",
+    "compacted": "Conversation compacted",
+    "checkpoint": "Context checkpoint",
+    "loadOlder": "Load older",
+    "jump": "Jump to latest",
+    "footer": "Read only, from {{engine}}'s own record of this session.",
+    "cut": "(cut short)",
+    "empty": "Nothing yet. History appears after the agent's first reply.",
+    "unsupported": "This engine keeps no record the app can read. The terminal is the only history.",
+    "readFailed": "History could not be read. The app tries again in a moment."
+  },
+  "where": {
+    "history": "History"
   }
 }

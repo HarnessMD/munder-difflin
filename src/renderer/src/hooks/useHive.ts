@@ -20,7 +20,7 @@ import { bridgeOf, providerPreset } from '../../../shared/agentProvider';
 import { isDurableRole, preferredAgentRole, roleForHiveSpawn } from '../../../shared/agentRole';
 import { inboxNudgeText } from '../../../shared/hiveNudge';
 import { resolveGodName } from '../../../shared/godIdentity';
-import { acquireTerminal, resetTerminal, isTerminalAutomationSafe } from '@/components/terminalPool';
+import { acquireTerminal, resetTerminal, isTerminalAutomationSafe, codexScreenHoldFor } from '@/components/terminalPool';
 import { canDeliverToAgent, deliverWithAcknowledgement, checkPrecondition } from './queueDelivery';
 import { OFFICE_CAST, DEFAULT_CHARACTER } from '@/scene/office/cast';
 
@@ -108,6 +108,23 @@ async function waitForTerminalReady(
   throw new Error(`PTY did not become ready within ${timeoutMs}ms: ${ptyId}`);
 }
 
+/** How long a write waits for a Codex screen that must not be typed into (its
+ *  startup, a popup such as folder trust, a transient footer) to clear. */
+const CODEX_SCREEN_WAIT_MS = 60_000;
+
+/** R4: read the Codex screen fresh before every write; wait while it is one that
+ *  must not be typed into, then fail rather than type into it. The person answers
+ *  a popup; the app never does. No screen to read: type as before. */
+async function waitForCodexScreen(ptyId: string): Promise<void> {
+  const started = Date.now();
+  for (;;) {
+    const hold = codexScreenHoldFor(ptyId);
+    if (hold === null) return;
+    if (Date.now() - started >= CODEX_SCREEN_WAIT_MS) throw new Error(`codex screen held (${hold}): ${ptyId}`);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+}
+
 /**
  * Type a line into an agent's Claude Code TUI and actually submit it.
  *
@@ -135,6 +152,7 @@ function submitToPty(
   const prev = writeChains.get(ptyId) ?? Promise.resolve();
   const next = prev.catch(() => { /* a failed prior write must not stall the chain */ }).then(async () => {
     await waitForTerminalReady(ptyId, provider);
+    if (provider === 'codex') await waitForCodexScreen(ptyId);
     // Bracketed paste (ESC[200~ … ESC[201~) only matters for MULTI-LINE text, so a
     // stray "\n" doesn't submit early (#24). Single-line text (nudges, slash
     // commands) is sent raw — some TUIs (Antigravity's agy) treat the paste
@@ -387,6 +405,8 @@ export function useHive(config: HarnessConfig | null): void {
       // Synchronous guard (no await between check and set) → exactly one spawn.
       if (cancelled || godSpawning.current) return;
       godSpawning.current = true;
+      // The orchestrator's looks per theme pack are roster data: keep them across the respawn.
+      const godLooks = useStore.getState().agents.find((a) => a.id === GOD_ID)?.appearanceByTheme;
       useStore.getState().removeAgent(GOD_ID); // clear any stale restored entry
 
       // A prior rename (Edit Agent panel → renameAgent() → hive.ts's renameAgent())
@@ -436,6 +456,7 @@ export function useHive(config: HarnessConfig | null): void {
         provider: godProvider,
         model: godModel,
         isGod: true,
+        ...(godLooks ? { appearanceByTheme: godLooks } : {}),
         recentTextTs: Date.now()
       };
       useStore.getState().addAgent(god);
@@ -822,7 +843,10 @@ export function useHive(config: HarnessConfig | null): void {
       // opened, holds delivery. Both blocks expire after half an hour, and when
       // one does we simply type after whatever is there — automation never
       // erases the user's text and never closes the user's menu.
-      if (!isTerminalAutomationSafe(target.ptyId, now)) return { sent: false };
+      // A Codex terminal must also not be showing its startup, a popup, a /side
+      // conversation or a transient footer (codexScreenHoldFor): those wait,
+      // they never fail.
+      if (!isTerminalAutomationSafe(target.ptyId, now, inferAgentProvider(target.command, target.provider) === 'codex')) return { sent: false };
       if (now - (lastFlush.current[target.id] ?? 0) < FLUSH_COOLDOWN_MS) return { sent: false };
       // Last gate before we type: re-check the message's delivery-time
       // precondition. A queue item is decided at enqueue time and delivered an

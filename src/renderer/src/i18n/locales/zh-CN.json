@@ -106,7 +106,21 @@
     "viewAnswersHistory": "打开包含完整问答历史的任务详情",
     "blockingDownstream": "阻塞 {{count}} 个下游任务",
     "blockingDownstreamPlural": "阻塞 {{count}} 个下游任务",
-    "more": "… 还有 {{count}} 个"
+    "more": "… 还有 {{count}} 个",
+    "notSent": "未发送",
+    "gone": "你在输入时，这个问题已被修改或关闭。",
+    "goneKept": "你写的内容，需要时可以复制：",
+    "failed": "你的回答还在输入框里。请再试一次。",
+    "pickAny": "可多选",
+    "asked": "提问于 {{when}}",
+    "recommended": "推荐",
+    "notePlaceholder": "其他想法，或补充说明（可选）…（Ctrl+Enter 发送）",
+    "answerWith": "回答：{{choice}}",
+    "pickFirst": "选一个选项，或写下说明",
+    "kind": {
+      "choose": "选择",
+      "question": "问题"
+    }
   },
   "agentStrip": {
     "privateNote": "私人笔记 · {{name}}",
@@ -127,6 +141,7 @@
   },
   "sidebar": {
     "terminal": "终端",
+    "history": "历史",
     "git": "Git",
     "messages": "消息",
     "traces": "追踪"
@@ -177,21 +192,13 @@
     "title": "办公室主题",
     "tvShow": "电视剧办公室主题",
     "experimental": "实验性",
-    "desc": "把像素办公室换皮成电视剧场景。切换会开启一套全新演员阵容。",
+    "desc": "在上面的列表里加入五个电视剧楼层。",
     "current": "当前",
     "soon": "即将推出",
-    "notBuiltYet": "{{label}} 尚未构建——暂时显示办公室。",
-    "switchAborted": "切换中止——终端无法关闭：{{error}}",
-    "confirmTitle": "切换到「{{label}}」？",
-    "startsFreshCast": "开启全新演员阵容",
-    "deleteCount": "你的 {{count}} 个当前智能体将被删除——它们的终端会关闭，进行中的工作会停止。",
-    "deleteCountPlural": "你的 {{count}} 个当前智能体将被删除——它们的终端会关闭，进行中的工作会停止。",
-    "onlyCarries": "只有 {{god}} 会保留。",
-    "stillWorking": "⚠ {{count}} 个智能体仍在工作。",
-    "stillWorkingPlural": "⚠ {{count}} 个智能体仍在工作。",
-    "cantUndo": "此操作无法撤销。",
-    "switching": "切换中…",
-    "deleteSwitch": "删除 {{count}} 个并切换"
+    "onSave": "按保存后切换",
+    "forProject": "{{project}} 的楼层。每个项目各用自己的楼层。",
+    "keepsAgents": "保存后，所有智能体都会移到 {{label}}。名字、记忆和工作都保留，只有外观改变。",
+    "notSaved": "未保存：现在无法读取你的设置文件，所以楼层没有改变。"
   },
   "settings": {
     "title": "设置",
@@ -230,6 +237,8 @@
       "keepAwakeDesc": "阻止显示屏休眠，让计划任务和终端准时触发。更耗电——最好接电源。",
       "simpleMode": "用通俗方式解释",
       "simpleModeDesc": "智能体用日常语言而不是工程术语向你汇报。",
+      "graphics": "图形",
+      "graphicsDesc": "应用如何绘制终端和楼层。「自动」在显卡（GPU）可用时使用显卡，不可用时使用处理器（CPU）。如果楼层或终端一直空白或闪烁，请选「仅 CPU」。下次启动时生效。",
       "notifications": "通知",
       "desktopNotifications": "桌面通知",
       "desktopNotificationsDesc": "智能体完成或需要你输入时弹出系统通知。",
@@ -375,7 +384,16 @@
     "saved": "已保存",
     "saving": "保存中…",
     "unsavedChanges": "有未保存的更改",
-    "unsavedWarning": "你有未保存的设置。仍要关闭并放弃这些更改吗？"
+    "unsavedWarning": "你有未保存的设置。仍要关闭并放弃这些更改吗？",
+    "codexFolders": {
+      "waitingTitle": "等待你同意",
+      "waitingDesc": "有智能体曾试图在其中一个文件夹中启动。每个文件夹都需要你先确认，所以它没有启动。只有在信任其代码仓库时才允许。",
+      "allow": "允许",
+      "title": "你允许的 Codex 文件夹",
+      "desc": "在这些文件夹里的 Codex 智能体会运行该文件夹自己的钩子、MCP 服务器和规则。撤回后，从它下次启动起不再运行。",
+      "withdraw": "撤回",
+      "empty": "没有。如果 Codex 智能体的文件夹有自己的 Codex 设置，它会等你同意后再启动。"
+    }
   },
   "commandCenter": {
     "title": "命令中心",
@@ -487,7 +505,8 @@
     "sections": {
       "identity": {
         "label": "身份",
-        "hint": "名字 · 角色 · 颜色"
+        "hint": "名字 · 角色 · 颜色",
+        "hintPack": "名字 · 外观 · 颜色"
       },
       "workspace": {
         "label": "工作区",
@@ -1405,5 +1424,115 @@
     "viewSource": "查看源码",
     "loading": "正在加载图片…",
     "decodeFailed": "无法解码此图片——文件可能已损坏或扩展名有误"
+  },
+  "error": {
+    "tag": "错误",
+    "app": "应用出错，停止了绘制。你的智能体仍在运行。",
+    "panel": "无法显示{{where}}。应用的其他部分不受影响。",
+    "tryAgain": "重试",
+    "reload": "重新加载窗口"
+  },
+  "stationFloor": {
+    "packFailed": "{{name}} 无法加载，所以先显示 The Office。所有智能体都还在。"
+  },
+  "looks": {
+    "title": "{{theme}} 中的外观",
+    "sub": "只有 {{theme}} 使用这个外观。在其他楼层，这个智能体保留原来的角色。",
+    "body": "体型",
+    "colours": "颜色",
+    "skin": "肤色",
+    "shirt": "上衣",
+    "hair": "发色",
+    "custom": "自定义颜色",
+    "presets": "预设"
+  },
+  "projectTheme": {
+    "title": "选择项目主题",
+    "intro": "新项目会从这个楼层开始。之后可以在设置里更改，所有智能体都会一起过去。",
+    "folder": "新项目位于 {{path}}",
+    "starts": "由 {{god}} 开启这个项目",
+    "captain": "{{god}} 坐上舰长席",
+    "office": "原来的办公室楼层",
+    "starhike": "星舰舰桥",
+    "create": "创建项目",
+    "notEmpty": "请为新项目选择一个空文件夹。",
+    "unreadable": "应用无法打开这个文件夹。请选择另一个文件夹。",
+    "errTag": "文件夹"
+  },
+  "codexLayer": {
+    "tag": "未启动",
+    "title": "{{agent}} 尚未启动。这个文件夹有自己的 Codex 设置。",
+    "body": "如果 {{agent}} 在这里启动，Codex 还会加载代码仓库里的这些文件，未经审查。它们可以启动 MCP 服务器、运行钩子、设定命令规则：",
+    "kind": {
+      "config": "设置，可以启动 MCP 服务器",
+      "hooks": "钩子，在智能体的事件发生时运行的命令",
+      "rules": "命令规则，决定它可以运行什么",
+      "agents": "智能体文件，可以启动 MCP 服务器并设置智能体的指令",
+      "hookFiles": "钩子文件，可以运行命令",
+      "setting": "设置，其中一些可以运行程序或改变命令能访问的内容",
+      "unreadable": "应用无法打开它，为安全起见计入",
+      "doesNotParse": "应用无法将其读取为设置，为安全起见计入"
+    },
+    "more": "还有 {{count}} 个文件",
+    "more_one": "还有 1 个文件",
+    "unreadable": "这里没有应用能读取的设置文件；为安全起见，仍把这个文件夹算在内",
+    "allowAll": "允许这些文件夹并启动",
+    "trust": "只有在信任这个代码仓库时才允许。之后可以在设置的「智能体与模型」中撤回。",
+    "allow": "允许此文件夹并启动",
+    "notNow": "暂不",
+    "heldReason": "未启动，正在设置的「智能体与模型」中等待你的确认"
+  },
+  "recovery": {
+    "title": "窗口在 {{time}} 崩溃，已重新加载。",
+    "body": "你的智能体一直在运行。崩溃前的终端输出不会再显示，新的输出照常出现。",
+    "ok": "好"
+  },
+  "integrity": {
+    "paused": "已暂停",
+    "title": "无法读取{{file}}，对它的更改已暂停。",
+    "body": "应用没有覆盖它，并保留了一份副本：{{copy}}。修好文件或放回一份完好的副本后，更改会自动恢复。",
+    "bodyNoCopy": "应用没有覆盖它。修好文件或放回一份完好的副本后，更改会自动恢复。",
+    "defaults": "在此之前，应用使用默认设置运行。",
+    "show": "显示文件",
+    "saveBlocked": "未保存：无法读取你的设置文件，所以更改已暂停。",
+    "file": {
+      "config": "你的设置文件（config.json）",
+      "tasks": "任务看板（tasks.json）",
+      "registry": "智能体列表（registry.json）"
+    }
+  },
+  "graphics": {
+    "auto": "自动",
+    "gpu": "GPU",
+    "cpu": "仅 CPU",
+    "drawing": "当前绘制方式：{{what}}",
+    "onCpu": "处理器（CPU）",
+    "onCpuFallback": "处理器（CPU），因为显卡无法使用",
+    "onGpuNoName": "显卡（GPU），暂时还不知道名称",
+    "unknown": "未知，系统还没有报告",
+    "restartNeeded": "已保存。「{{mode}}」在重启后生效。",
+    "restartNow": "立即重启",
+    "confirm": "重启会停止 {{count}} 个正在运行的智能体。现在重启吗？",
+    "confirm_one": "重启会停止 1 个正在运行的智能体。现在重启吗？",
+    "restart": "重启",
+    "later": "稍后",
+    "saveFailed": "无法保存图形设置，没有任何改变。"
+  },
+  "history": {
+    "prompt": "提示",
+    "reply": "回复",
+    "start": "本次会话开始",
+    "compacted": "对话已压缩",
+    "checkpoint": "上下文检查点",
+    "loadOlder": "加载更早的",
+    "jump": "跳到最新",
+    "footer": "只读，来自 {{engine}} 自己的会话记录。",
+    "cut": "（已截断）",
+    "empty": "还没有内容。智能体第一次回复后，这里会显示历史。",
+    "unsupported": "这个引擎没有应用能读取的记录。终端是唯一的历史。",
+    "readFailed": "无法读取历史。应用稍后会再试一次。"
+  },
+  "where": {
+    "history": "历史"
   }
 }
