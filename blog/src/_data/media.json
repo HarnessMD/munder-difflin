@@ -5181,6 +5181,17 @@
     },
     "inline": {}
   },
+  "claude-cowork-alternatives": {
+    "title": "Claude Cowork Alternatives: 6 AI Agents for Office Work, Free Picks Included",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/claude-cowork-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Claude Cowork alternatives, the line Six agents for office work and a Checked 27 Oct 2026 line. Beside them a white card labelled Claude Cowork with a small arrow to a fan of six small cards, the first two tinted yellow and lilac.",
+      "prompt": "Title card: the hero scene in assets/media/claude-cowork-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "claude-duet-vs-munder-difflin": {
     "title": "Claude Duet vs Munder Difflin: One Agent in the Cloud or a Team on Your Computer",
     "category": "comparisons",
@@ -5272,6 +5283,18 @@
   },
   "agent-tools-today-2026-10-26": {
     "title": "Agent Tools Today, 26 Oct 2026: Kimi K3.1 Pro, Unified Claude Enterprise, ThinkRail",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "agent-tools-today-2026-10-27": {
+    "title": "Agent Tools Today, 27 Oct 2026: GPT-6.1 Terra, Hob, Anthropic's S-1",
     "category": "news",
     "hero": {
       "file": "assets/media/agent-tools-today/hero.png",
