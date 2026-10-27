@@ -24,7 +24,7 @@ faq:
 
 Claude Cowork is Anthropic's agent for office work: you describe an outcome, Claude plans it, runs the steps in the background and hands back finished files. It comes with every paid Claude plan, from $20 a month (checked 3 Oct 2026), and not with the free one. Since 16 Sep 2026 it is being merged into normal Claude chat.
 
-Cowork is built for documents, spreadsheets and research. If your work is a codebase and you want several coding agents at once, that is a different tool: [Munder Difflin](https://harnessmd.com/download), free and open source, is a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [concepts hub](/blog/topics/concepts/) has more.
+Cowork is built for documents, spreadsheets and research. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and [Claude Cowork alternatives](/blog/claude-cowork-alternatives/) compares Munder Difflin with five other options.
 
 ## What is Claude Cowork?
 

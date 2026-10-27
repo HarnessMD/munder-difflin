@@ -88,7 +88,7 @@ The Claude Code rows come from its [permissions page](https://code.claude.com/do
 
 Yes, and on one subscription. Pro lists Claude Code on the pricing page and Cowork on the help page, so you do not pay twice. Our view: plenty of people should use both, one for the spec and the spreadsheet, the other for the code.
 
-If your work is code and you want more than one agent on it, that is a third kind of tool. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It does not run Cowork. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+If you want more than one agent on the work, that is a third kind of tool. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It does not run Cowork. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/), or see [Claude Cowork alternatives](/blog/claude-cowork-alternatives/).
 
 ## Claude Cowork vs OpenClaw: how do they differ?
 
