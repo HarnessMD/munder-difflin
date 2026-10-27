@@ -31,6 +31,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://munderdiffl.in/blog/pi-vs-claude-code/</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://munderdiffl.in/blog/agent-tools-today-2026-10-26/</loc>
     <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -728,7 +734,7 @@
   </url>
   <url>
     <loc>https://munderdiffl.in/blog/how-to-use-claude-code-plan-mode/</loc>
-    <lastmod>2026-09-29</lastmod>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -740,7 +746,7 @@
   </url>
   <url>
     <loc>https://munderdiffl.in/blog/codex-cli-vs-claude-code/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
