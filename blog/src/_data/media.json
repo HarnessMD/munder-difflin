@@ -5315,6 +5315,17 @@
     },
     "inline": {}
   },
+  "pi-vs-claude-code": {
+    "title": "Pi vs Claude Code: Price, Models and Permissions Compared (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/pi-vs-claude-code/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Pi vs Claude Code, the line Free harness or built in features? and a Checked 27 Oct 2026 line. Beside them two simple cards labelled Pi, tinted lilac, and Claude Code, tinted yellow, with a small vs chip between them.",
+      "prompt": "Title card: the hero scene in assets/media/pi-vs-claude-code/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "claude-md-best-practices": {
     "title": "CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)",
     "category": "guides",

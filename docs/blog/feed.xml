@@ -16,6 +16,14 @@
     <summary>GPT-6.1 Terra is OpenAI&#39;s fast new model for images, computer use and writing: price, specs and how to pick it in Codex, checked 27 Oct 2026.</summary>
   </entry>
   <entry>
+    <title>Pi vs Claude Code: Price, Models and Permissions Compared (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/pi-vs-claude-code/" />
+    <id>https://munderdiffl.in/blog/pi-vs-claude-code/</id>
+    <published>2026-10-27T00:00:00.000Z</published>
+    <updated>2026-10-27T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Pi vs Claude Code, checked 27 Oct 2026: Pi is free, MIT and works with 15+ providers; Claude Code is from $20 a month billed monthly, plan mode built in.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 26 Oct 2026: Kimi K3.1 Pro, Unified Claude Enterprise, ThinkRail</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-26/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-26/</id>
@@ -478,13 +486,5 @@
     <published>2026-10-08T00:00:00.000Z</published>
     <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Claude Code agent teams, checked 8 Oct 2026: what they are, the experimental setting that turns them on, how they differ from subagents, token cost and limits.</summary>
-  </entry>
-  <entry>
-    <title>Claude Haiku 5.5: price, benchmarks and where it fits</title>
-    <link href="https://munderdiffl.in/blog/claude-haiku-5-5/" />
-    <id>https://munderdiffl.in/blog/claude-haiku-5-5/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Haiku 5.5 is Anthropic&#39;s new small model. Its tiered price, Anthropic&#39;s own scores and how to pick it in Claude Code, checked 8 Oct 2026.</summary>
   </entry>
 </feed>
