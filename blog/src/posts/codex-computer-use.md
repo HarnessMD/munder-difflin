@@ -47,7 +47,7 @@ Four steps in the ChatGPT desktop app, from the docs:
 3. Turn on the Computer Use server and skill toggles, then select **Try now**.
 4. On macOS, grant **Screen Recording** so it can see apps and **Accessibility** so it can click, type and navigate.
 
-Then mention `@Computer` or an app, as in `@Chrome`, in your prompt and name the exact window or flow. The docs suggest GPT-6 Astra, where your model picker has it, for hard tasks that depend on screenshots.
+Then mention `@Computer` or an app, as in `@Chrome`, in your prompt and name the exact window or flow. The docs suggest GPT-6 Astra, where your model picker has it, for hard tasks that depend on screenshots. OpenAI's cheaper [GPT-6.1 Terra](/blog/gpt-6-1-terra/), released on 26 Oct 2026, is also aimed at computer use.
 
 ## Which plans include Codex computer use?
 
