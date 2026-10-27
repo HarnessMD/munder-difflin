@@ -311,6 +311,8 @@ export interface HarnessConfig {
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
    *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;
+  /** Stage → Schrute Farms Mode (threat model + rollback on new work). Default off. */
+  schruteFarmsMode?: boolean;
   costCapUsd?: number;
   costCapTokens?: number;
   agentTokenCaps?: Record<string, number>;
@@ -781,6 +783,18 @@ const api = {
   /** Manually stop a live ephemeral worker (safety-gated teardown; work preserved). */
   stopWorker: (workerId: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('workers:stop', workerId),
+  /** File one human spawn-request. The watcher starts it, or leaves it queued
+   *  when the worker cap is already full (`waiting`). */
+  enqueueWorker: (body: {
+    objective: string;
+    cwd: string;
+    command?: string;
+    provider?: string;
+    model?: string;
+    fromAgentId?: string;
+    fromAgentName?: string;
+  }): Promise<{ ok: true; id: string; waiting: boolean } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('workers:enqueue', body),
 
   // ─── Semantic memory (MemPalace CLI) ─────────────────────────────────────
   memoryStatus: (): Promise<MemoryStatus> => ipcRenderer.invoke('hive:memoryStatus'),
@@ -1080,6 +1094,9 @@ const api = {
     id: string,
     patch: Partial<Omit<HiveTask, 'id'>>
   ): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('hive:patchTask', id, patch),
+  /** Append a work-switch handoff note under hive/agents/<id>/handoff.md. */
+  writeHandoff: (agentId: string, markdown: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('hive:writeHandoff', agentId, markdown),
   /** Atomically remove one named card from the latest main-process ledger. */
   hiveDeleteTask: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:deleteTask', id),
