@@ -2398,6 +2398,9 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
 
 
   win.once('ready-to-show', () => win.show());
+  setTimeout(() => {
+    if (!win.isDestroyed() && !win.isVisible()) win.show();
+  }, 1200);
 
   // Never opens a window; hands the URL to the OS browser instead.
   //
