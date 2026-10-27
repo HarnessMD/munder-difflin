@@ -3526,6 +3526,32 @@ ipcMain.handle('hive:patchTask', (_evt, id: unknown, patch: unknown) => {
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
   return { ok: hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>) };
 });
+
+ipcMain.handle('hive:writeHandoff', (_evt, agentId: unknown, markdown: unknown) => {
+  if (typeof agentId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(agentId)) {
+    return { ok: false, error: 'bad agent id' };
+  }
+  if (typeof markdown !== 'string' || !markdown.trim() || markdown.length > 60_000) {
+    return { ok: false, error: 'bad handoff' };
+  }
+  const root = hive.root();
+  if (!root) return { ok: false, error: 'hive disabled (no harnessHome)' };
+  try {
+    const dir = join(root, 'agents', agentId);
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, 'handoff.md');
+    let prior = '';
+    try { prior = readFileSync(file, 'utf8'); } catch { /* first handoff */ }
+    const next = prior.trim()
+      ? `${markdown.trim()}\n\n---\n\n${prior.trim()}\n`
+      : `${markdown.trim()}\n`;
+    writeFileSync(file, next.slice(0, 80_000), 'utf8');
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+});
+
 ipcMain.handle('hive:deleteTask', (_evt, id: unknown) => {
   if (typeof id !== 'string' || !id) return { ok: false, error: 'invalid task id' };
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
@@ -5090,6 +5116,60 @@ ipcMain.handle('workers:list', (): { live: WorkerSnapshot[]; preserved: Preserve
  *  exit arrives the exit-handler's stale-id guard already misreads it as a
  *  reclaimed id and skips teardown — the worker would stay "live" in registry.json
  *  and fleet.json forever after this call. */
+
+/** Human-started temp worker. Files the same spawn-request JSON the watcher drains. */
+ipcMain.handle('workers:enqueue', (_evt, body: unknown) => {
+  const root = hive.root();
+  const dir = spawnRequestsDir();
+  if (!root || !dir) return { ok: false as const, error: 'hive disabled (no harnessHome)' };
+  if (!body || typeof body !== 'object') return { ok: false as const, error: 'bad request' };
+  const src = body as {
+    objective?: unknown;
+    cwd?: unknown;
+    command?: unknown;
+    provider?: unknown;
+    model?: unknown;
+    fromAgentId?: unknown;
+    fromAgentName?: unknown;
+  };
+  const objective = typeof src.objective === 'string' ? src.objective.trim() : '';
+  if (!objective || objective.length > 8000) return { ok: false as const, error: 'objective is required' };
+  const cwd = typeof src.cwd === 'string' ? expandTilde(src.cwd.trim()) : '';
+  if (!cwd) return { ok: false as const, error: 'cwd is required' };
+  try {
+    if (!statSync(cwd).isDirectory()) return { ok: false as const, error: 'cwd is not a folder' };
+  } catch {
+    return { ok: false as const, error: 'cwd not found' };
+  }
+  const command = typeof src.command === 'string' ? src.command.replace(/[\r\n]/g, ' ').trim().slice(0, 500) : '';
+  const model = typeof src.model === 'string' ? src.model.replace(/[\r\n]/g, '').trim().slice(0, 120) : '';
+  const provider = typeof src.provider === 'string' ? src.provider.replace(/[\r\n]/g, '').trim().slice(0, 40) : '';
+  const fromId = typeof src.fromAgentId === 'string' ? src.fromAgentId.replace(/[^\w.-]/g, '').slice(0, 80) : '';
+  const fromName = typeof src.fromAgentName === 'string'
+    ? src.fromAgentName.replace(/[\r\n]/g, ' ').trim().slice(0, 80)
+    : '';
+  const id = `h${randomBytes(4).toString('hex')}`;
+  const who = fromName || fromId || 'an agent';
+  const request: SpawnRequest = {
+    id,
+    objective: `[Started by ${who}${fromId ? ` (${fromId})` : ''} for one job.]\n\n${objective}`,
+    cwd,
+    isolate: true,
+    name: `Temp · ${who}`.slice(0, 80)
+  };
+  if (command) request.command = command;
+  if (model) request.model = model;
+  if (provider) request.provider = provider as AgentProvider;
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, `${id}.json`), JSON.stringify(request, null, 2), 'utf8');
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : String(e) };
+  }
+  const maxWorkers = Math.max(1, readConfig().maxConcurrentWorkers ?? 4);
+  return { ok: true as const, id, waiting: liveWorkers.size >= maxWorkers };
+});
+
 ipcMain.handle('workers:stop', (_evt, workerId: string): { ok: boolean; error?: string } => {
   if (typeof workerId !== 'string' || !workerId) return { ok: false, error: 'invalid worker id' };
   const rec = liveWorkers.get(workerId);
