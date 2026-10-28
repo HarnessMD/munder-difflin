@@ -5337,6 +5337,40 @@
     },
     "inline": {}
   },
+  "agent-tools-today-2026-10-28": {
+    "title": "Agent Tools Today, 28 Oct 2026: OpenCode 2.2, Entire, Hallmark",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "chatgpt-dots-vs-claude-cowork": {
+    "title": "ChatGPT Dots vs Claude Cowork: Plans, Price and Safety (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/chatgpt-dots-vs-claude-cowork/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title ChatGPT Dots vs Claude Cowork, the line Ongoing jobs or finished files? and a Checked 28 Oct 2026 line, beside a lilac ribbon bookmark and a yellow index card with a small vs chip between them.",
+      "prompt": "Title card: the hero scene in assets/media/chatgpt-dots-vs-claude-cowork/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "codex-vs-chatgpt": {
+    "title": "Codex vs ChatGPT: What Is the Difference? (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/codex-vs-chatgpt/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Codex vs ChatGPT, the line Coding agent or assistant? and a Checked 28 Oct 2026 line, beside two stacked trays labelled ChatGPT and Codex with a small vs chip.",
+      "prompt": "Title card: the hero scene in assets/media/codex-vs-chatgpt/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "gpt-6-1-terra": {
     "title": "GPT-6.1 Terra: Price, Specs and How to Use It in Codex (Oct 2026)",
     "category": "concepts",
