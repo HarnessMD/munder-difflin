@@ -96,6 +96,8 @@ Cowork is hosted and paid, OpenClaw is self-hosted and free. The [OpenClaw READM
 
 The trade is control against convenience. OpenClaw's README warns that "Tools run on the host for the main session unless you configure sandboxing". Cowork runs in Anthropic's isolated environment, on Anthropic's terms and plans. GitHub showed OpenClaw release v2026.9.8, dated 3 Oct, when we checked on 6 Oct 2026. Its README says it was built for Molty, a space lobster AI assistant. See [OpenClaw alternatives](/blog/openclaw-alternatives/) for more options.
 
+OpenAI's rival: [ChatGPT Dots vs Claude Cowork](/blog/chatgpt-dots-vs-claude-cowork/).
+
 ## Who should pick which?
 
 Pick by what you need handed back.

@@ -82,6 +82,8 @@ So you can try Codex for nothing, and the cloud integrations start at Plus. Our 
 
 No: ChatGPT is OpenAI's assistant, and Codex is the coding agent that ships with it. They share your account and the desktop app, and the pricing page says ChatGPT Work uses the same pricing, credits and usage limits as Codex. The difference is the job. ChatGPT answers in a conversation; Codex changes files in a repository. With an API key you can run the CLI without any ChatGPT plan.
 
+The full comparison: [Codex vs ChatGPT](/blog/codex-vs-chatgpt/).
+
 ## How does Codex compare with Claude Code?
 
 Codex and Claude Code do the same job; our view is that the plan you already pay for usually decides. Codex's CLI is open source under Apache-2.0 and the Free plan lists Codex in the desktop app. Claude Code is Anthropic's agent and, per Anthropic's [memory docs](https://code.claude.com/docs/en/memory), reads `CLAUDE.md` files and can read `AGENTS.md` too. We think neither wins for every repo. Our [Codex vs Claude Code comparison](/blog/codex-cli-vs-claude-code/) has a dated table, and [Codex vs Cursor](/blog/codex-vs-cursor/) covers the editor side. For seven other agents, see [Codex alternatives](/blog/codex-alternatives/).
