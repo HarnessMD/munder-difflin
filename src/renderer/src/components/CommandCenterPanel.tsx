@@ -479,6 +479,8 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
         name: a.name,
         cwd: a.cwd,
         provider,
+        worktreePath: a.worktreePath,
+        worktreeOrigin: a.worktreeOrigin,
         isGod: a.isGod,
         isAssistant: a.isAssistant,
         role: roleForHiveSpawn(a)
@@ -542,7 +544,10 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
               status: 'idle' as const,
               action: provider === previousProvider ? 'restarting…' : `switching to ${providerPreset(provider).label}…`
             };
-        updateAgent(a.id, patch);
+        updateAgent(a.id, {
+          ...patch, cwd: res.cwd ?? a.cwd, worktreePath: res.worktreePath, worktreeOrigin: res.worktreeOrigin,
+          ...(res.worktreeGone ? { action: 'worktree gone — using base repo' } : {})
+        });
       }
     } catch (error) {
       setRestartErrors((errors) => ({
