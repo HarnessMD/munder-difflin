@@ -4,9 +4,25 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-27T00:00:00.000Z</updated>
+  <updated>2026-10-29T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 29 Oct 2026: Gemini 4 Carbon, Copilot Connectors, OpenCode Goals</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-29/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-29/</id>
+    <published>2026-10-29T00:00:00.000Z</published>
+    <updated>2026-10-29T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 28 to 29 Oct 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Gemini 4 Carbon: Price, Access and How It Compares to Argon (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-carbon/" />
+    <id>https://munderdiffl.in/blog/gemini-4-carbon/</id>
+    <published>2026-10-29T00:00:00.000Z</published>
+    <updated>2026-10-29T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Gemini 4 Carbon is Google&#39;s new frontier model, so far for a group of cyber defenders: its launch price, who can use it and how it compares to Argon.</summary>
+  </entry>
   <entry>
     <title>GPT-6.1 Terra: Price, Specs and How to Use It in Codex (Oct 2026)</title>
     <link href="https://munderdiffl.in/blog/gpt-6-1-terra/" />
@@ -470,21 +486,5 @@
     <published>2026-10-08T00:00:00.000Z</published>
     <updated>2026-10-08T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 8 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code agent teams: what they are, how to use them</title>
-    <link href="https://munderdiffl.in/blog/claude-code-agent-teams/" />
-    <id>https://munderdiffl.in/blog/claude-code-agent-teams/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Code agent teams, checked 8 Oct 2026: what they are, the experimental setting that turns them on, how they differ from subagents, token cost and limits.</summary>
-  </entry>
-  <entry>
-    <title>Claude Haiku 5.5: price, benchmarks and where it fits</title>
-    <link href="https://munderdiffl.in/blog/claude-haiku-5-5/" />
-    <id>https://munderdiffl.in/blog/claude-haiku-5-5/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Haiku 5.5 is Anthropic&#39;s new small model. Its tiered price, Anthropic&#39;s own scores and how to pick it in Claude Code, checked 8 Oct 2026.</summary>
   </entry>
 </feed>

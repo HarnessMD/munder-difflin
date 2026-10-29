@@ -24,11 +24,13 @@ faq:
 
 Our view: Gemini 4 Argon is worth a test on your longest agent jobs, but the launch price is a countdown. Google put Gemini 4 Argon on general release on 13 October 2026 at $2 input and $10 output per 1M tokens through 30 November 2026. Checked 13 Oct 2026.
 
-New models drive coding agents. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Gemini 4 Argon is already in the app's model pickers for Antigravity and Cursor, added by a [pull request](https://github.com/HarnessMD/munder-difflin/pull/738) merged on 13 Oct 2026. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+New models end up inside the agents you run. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs engines such as Claude Code, Codex and Gemini CLI. Gemini 4 Argon is already in the app's model pickers for Antigravity and Cursor, added by a [pull request](https://github.com/HarnessMD/munder-difflin/pull/738) merged on 13 Oct 2026. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Gemini 4 Argon?
 
-Gemini 4 Argon is Google's newest top model, built for long jobs in coding, office work and security. Google's [developer post](https://blog.google/innovation-and-ai/technology/developers-tools/build-with-gemini-4-argon/) of 13 October 2026 calls it "our frontier model for complex workflows across real-world software engineering, enterprise knowledge work, and cybersecurity defense".
+Gemini 4 Argon is Google's top model on general release, built for long jobs in coding, office work and security. Google's [developer post](https://blog.google/innovation-and-ai/technology/developers-tools/build-with-gemini-4-argon/) of 13 October 2026 calls it "our frontier model for complex workflows across real-world software engineering, enterprise knowledge work, and cybersecurity defense".
+
+Announced 28 Oct 2026, Google's next frontier model: [Gemini 4 Carbon](/blog/gemini-4-carbon/).
 
 Google's posts do not say why it is called Argon. The element is a noble gas that reacts with almost nothing, which is not the sales pitch here.
 
