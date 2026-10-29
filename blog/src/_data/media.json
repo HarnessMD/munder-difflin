@@ -4815,6 +4815,29 @@
     },
     "inline": {}
   },
+  "agent-tools-today-2026-10-29": {
+    "title": "Agent Tools Today, 29 Oct 2026: Gemini 4 Carbon, Copilot Connectors, OpenCode Goals",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "gemini-4-carbon": {
+    "title": "Gemini 4 Carbon: Price, Access and How It Compares to Argon (Oct 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-carbon/hero.png",
+      "alt": "Title card on white. Gemini 4 Carbon in large ink type, a Concepts pill, the line Early access, Argon's price, Checked 29 Oct 2026, and two blocks labelled Argon and Carbon on a two step podium",
+      "prompt": "Still of the hero scene in assets/media/gemini-4-carbon/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "gemini-4-argon": {
     "title": "Gemini 4 Argon: Google's Flagship Model Shares a Name With a Gas That Barely Reacts",
     "category": "concepts",
