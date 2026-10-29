@@ -4,9 +4,33 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-27T00:00:00.000Z</updated>
+  <updated>2026-10-29T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>How to Run Mistral Large 4 Locally: Hardware, GGUF Sizes and vLLM (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/how-to-run-mistral-large-4/" />
+    <id>https://munderdiffl.in/blog/how-to-run-mistral-large-4/</id>
+    <published>2026-10-29T00:00:00.000Z</published>
+    <updated>2026-10-29T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Mistral Large 4 weights are out. Which file fits your memory, the llama.cpp and vLLM commands, the GPUs Mistral validated and the licence, checked 29 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>Mistral Large 4 vs Claude Opus 5.5: Price, Coding Scores and Open Weights (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/mistral-large-4-vs-claude-opus-5-5/" />
+    <id>https://munderdiffl.in/blog/mistral-large-4-vs-claude-opus-5-5/</id>
+    <published>2026-10-29T00:00:00.000Z</published>
+    <updated>2026-10-29T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Claude Opus 5.5 leads on coding scores; Mistral Large 4 costs about a tenth per output token and you can download it. Prices and scores, checked 29 Oct 2026.</summary>
+  </entry>
+  <entry>
+    <title>What Is Kimi K3.1 Pro? Price, Weights and How to Use It for Coding (Oct 2026)</title>
+    <link href="https://munderdiffl.in/blog/what-is-kimi-k3-1-pro/" />
+    <id>https://munderdiffl.in/blog/what-is-kimi-k3-1-pro/</id>
+    <published>2026-10-29T00:00:00.000Z</published>
+    <updated>2026-10-29T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Kimi K3.1 Pro is Moonshot&#39;s 1M context coding model, weights due by 4 Nov. Price, Terminal-Bench score and setup in Kimi Code, Codex and Claude Code.</summary>
+  </entry>
   <entry>
     <title>GPT-6.1 Terra: Price, Specs and How to Use It in Codex (Oct 2026)</title>
     <link href="https://munderdiffl.in/blog/gpt-6-1-terra/" />
@@ -462,29 +486,5 @@
     <published>2026-10-09T00:00:00.000Z</published>
     <updated>2026-10-09T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 9 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 8 Oct 2026: Claude Haiku 5.5, GPT-6 Intelligent UI, Docker Agent</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-08/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-08/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 8 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code agent teams: what they are, how to use them</title>
-    <link href="https://munderdiffl.in/blog/claude-code-agent-teams/" />
-    <id>https://munderdiffl.in/blog/claude-code-agent-teams/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Code agent teams, checked 8 Oct 2026: what they are, the experimental setting that turns them on, how they differ from subagents, token cost and limits.</summary>
-  </entry>
-  <entry>
-    <title>Claude Haiku 5.5: price, benchmarks and where it fits</title>
-    <link href="https://munderdiffl.in/blog/claude-haiku-5-5/" />
-    <id>https://munderdiffl.in/blog/claude-haiku-5-5/</id>
-    <published>2026-10-08T00:00:00.000Z</published>
-    <updated>2026-10-08T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Haiku 5.5 is Anthropic&#39;s new small model. Its tiered price, Anthropic&#39;s own scores and how to pick it in Claude Code, checked 8 Oct 2026.</summary>
   </entry>
 </feed>

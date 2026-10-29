@@ -4556,12 +4556,45 @@
     "inline": {},
     "youtube": []
   },
+  "how-to-run-mistral-large-4": {
+    "title": "How to Run Mistral Large 4 Locally: Hardware, GGUF Sizes and vLLM (Oct 2026)",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/how-to-run-mistral-large-4/hero.png",
+      "alt": "Title card on white. Run Mistral Large 4 in large ink type with the line From 256 GB of memory, three suitcases tagged 233 GB, 378 GB and 605 GB, and Checked 29 Oct 2026",
+      "prompt": "Still of the hero scene in assets/media/how-to-run-mistral-large-4/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "mistral-large-4-vs-claude-opus-5-5": {
+    "title": "Mistral Large 4 vs Claude Opus 5.5: Price, Coding Scores and Open Weights (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/mistral-large-4-vs-claude-opus-5-5/hero.png",
+      "alt": "Title card on white. Mistral Large 4 vs Claude Opus 5.5 in large ink type with the line Open weights or top scores, two taxi meters reading $2.10 and $20, and Checked 29 Oct 2026",
+      "prompt": "Still of the hero scene in assets/media/mistral-large-4-vs-claude-opus-5-5/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-kimi-k3-1-pro": {
+    "title": "What Is Kimi K3.1 Pro? Price, Weights and How to Use It for Coding (Oct 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-kimi-k3-1-pro/hero.png",
+      "alt": "Title card on white. Kimi K3.1 Pro in large ink type with the line 1M context, weights by 4 Nov, three high jump bars, and Checked 29 Oct 2026",
+      "prompt": "Still of the hero scene in assets/media/what-is-kimi-k3-1-pro/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "mistral-large-4": {
     "title": "Mistral Large 4 (Le Chonk): size, price, scores and weights",
     "category": "concepts",
     "hero": {
       "file": "assets/media/mistral-large-4/hero.png",
-      "alt": "Title card on white. Mistral Large 4 in large ink type with a lilac kettlebell labelled Le Chonk and the line Checked 6 Oct 2026",
+      "alt": "Title card on white. Mistral Large 4 in large ink type with a lilac kettlebell labelled Le Chonk and the line Checked 29 Oct 2026",
       "prompt": "Still of the hero scene in assets/media/mistral-large-4/motion.js.",
       "status": "ready"
     },
