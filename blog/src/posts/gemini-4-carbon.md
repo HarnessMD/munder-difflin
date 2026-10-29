@@ -24,7 +24,7 @@ faq:
 
 Gemini 4 Carbon is Google's new frontier model, announced 28 Oct 2026, and you cannot use it yet unless you are one of the cyber defenders in its first group. Google's post of 28 Oct 2026 says it will launch at Argon's introductory price, $2 input and $10 output per million tokens.
 
-New models end up inside the agents you run. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs engines such as Claude Code, Codex and Gemini CLI. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
+New models end up inside the agents you run. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs engines such as Claude Code, Codex and Gemini CLI. It does not offer Gemini 4 Carbon: on 29 Oct 2026 Google had published no Carbon model ID for developers. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Gemini 4 Carbon?
 
@@ -36,9 +36,9 @@ The post says Carbon is "built for sustained agentic workflows" and that Google'
 
 ## Who can use Gemini 4 Carbon?
 
-Only a small group for now. Google says that "starting this week" it will give Carbon to a subset of cyber defenders, then "gradually phase access to additional trusted partners" through its [Fairwind Program](https://deepmind.google/fairwind-program/). Developers, businesses and consumers come after that, "as soon as possible", with no date.
+Only a small group for now. Google says that "starting this week" it will give Carbon to a subset of cyber defenders, then "gradually phase access to additional trusted partners" through its [Fairwind Program](https://deepmind.google/fairwind-program/). Developers, businesses and consumers come after that, "as soon as possible", with no date. Until then nobody outside those groups can use it, in the Gemini API or anywhere else.
 
-Google says it is gathering feedback and working on guardrails first, and that it takes part in the U.S. government's voluntary process for testing models before release. On 29 Oct 2026 the Gemini API [pricing page](https://ai.google.dev/gemini-api/docs/pricing) listed Gemini 4 Argon but had no Carbon entry.
+Google says it is gathering feedback and working on guardrails first, and that it takes part in the U.S. government's voluntary process for testing models before release. On 29 Oct 2026 the Gemini API [models page](https://ai.google.dev/gemini-api/docs/models) and [pricing page](https://ai.google.dev/gemini-api/docs/pricing) listed Gemini 4 Argon but had no Carbon entry and no Carbon model ID.
 
 Argon followed the same path. Google's [developer post](https://blog.google/innovation-and-ai/technology/developers-tools/build-with-gemini-4-argon/) of 13 October 2026 opened it on the paid tier of the Gemini API in Google AI Studio and Android Studio, and to Google AI Ultra subscribers in AI Studio and Google Antigravity.
 
@@ -95,6 +95,7 @@ Our view: these are vendor numbers from one post, so read them as Google's claim
 | Launch price | $2 input and $10 output per 1M tokens, introductory |
 | Price after the introductory period | $4 input and $20 output per 1M tokens |
 | Cached input | 95% off the input price |
+| Public model ID | None published, checked 29 Oct 2026 |
 | In the Gemini API pricing page | Not yet |
 
 <link rel="stylesheet" href="/blog/assets/media/gemini-4-carbon/motion.css"><script defer src="/blog/assets/media/gemini-4-carbon/motion.js"></script>
