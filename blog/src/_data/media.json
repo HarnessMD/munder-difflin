@@ -3070,6 +3070,40 @@
     },
     "youtube": []
   },
+  "agent-tools-today-2026-10-30": {
+    "title": "Agent Tools Today, 30 Oct 2026: Mistral Large 4 Weights, Claude Code 2.1.314, Herdr App",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "what-is-instinct-ai": {
+    "title": "What Is Instinct AI? Access, Privacy and 6 Alternatives You Can Use Now (Oct 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-instinct-ai/hero.png",
+      "alt": "Title card on white. What is Instinct AI? in large ink type, a Concepts pill, the line Private beta, plus 6 alternatives, Checked 30 Oct 2026, and three small chat bubbles",
+      "prompt": "Still of the hero scene in assets/media/what-is-instinct-ai/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "meta-muse-alternatives": {
+    "title": "Meta Muse Alternatives: 7 Picks If Muse Isn't in Your Country or You Want Your Data Back (Oct 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/meta-muse-alternatives/hero.png",
+      "alt": "Title card on white. Meta Muse alternatives in large ink type, a Comparisons pill, the line 7 picks, open source and hosted, Checked 30 Oct 2026, and a small compass",
+      "prompt": "Still of the hero scene in assets/media/meta-muse-alternatives/motion.js.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",

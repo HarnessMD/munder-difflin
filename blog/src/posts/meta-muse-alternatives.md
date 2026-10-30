@@ -1,117 +1,100 @@
 ---
-title: "Meta Muse Alternatives: 7 Picks for People Who Can't (or Won't) Use Muse"
-seoTitle: "7 Best Meta Muse Alternatives in 2026 (Free and Open Source)"
-description: "Meta Muse is US only and trains on your chats by default. Seven alternatives, from open source agents that run on your own computer to hosted ones from OpenAI, Google and SpaceXAI."
+title: "Meta Muse Alternatives: 7 Picks If Muse Isn't in Your Country or You Want Your Data Back (Oct 2026)"
+seoTitle: "7 Best Meta Muse Alternatives (Oct 2026): Free and Open Source"
+description: "Meta Muse is in the US and Canada and trains on your chats by default. Seven alternatives, open source and hosted, with access and plans checked 30 Oct 2026."
 date: 2026-09-26
+updated: 2026-10-30
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
 primaryKeyword: "meta muse alternatives"
 secondaryKeywords: ["meta muse alternative", "open source meta muse alternative", "free meta muse alternative", "meta muse not available in my country", "apps like meta muse", "meta muse competitors"]
 tags: ["Comparisons", "AI Agents", "Open Source", "Local-First"]
-ogImage: "https://munderdiffl.in/blog/assets/media/meta-muse-alternatives/lead-still.png"
+ogImage: "https://munderdiffl.in/blog/assets/media/meta-muse-alternatives/hero.png"
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
   - q: "Why can't I use Meta Muse?"
-    a: "At launch on 8 September 2026 Muse was open only to people in the US aged 18 and over. Meta says more countries will be added over time but has not given dates."
+    a: "Muse launched in the US on 8 September 2026, and iPhone in Canada reported it reached Canada on 18 September. RuntimeWire reported on 23 October that a Meta executive said it was launching in Japan. Meta has not published a full country list or dates for other countries."
   - q: "Is there an open source alternative to Meta Muse?"
-    a: "Yes. OpenClaw is the closest: an open source personal assistant that runs on your own computer and replies in WhatsApp, Telegram, Slack, iMessage and more. For work agents rather than errands, Munder Difflin is free and open source and runs a team of agents on your machine."
+    a: "Yes. OpenClaw is the closest: an open source assistant, MIT licensed, that runs on your own computer and replies in WhatsApp, iMessage, Telegram, Slack and more than 20 other channels. Munder Difflin is a free and open source desktop app for a team of agents, and Hermes Agent and OpenMausBot are open source too."
   - q: "Does Meta Muse train on my data?"
-    a: "By default, yes. Meta's help page says Muse conversations can be used to train its models unless you turn that off in Settings, and that Meta removes details like names, emails and phone numbers first. Meta says Muse does not share your chats or VM data with its ad systems."
+    a: "By default, yes. Meta's help page, read 30 Oct 2026, says the setting that lets Meta use your Muse interactions to improve its models is on when you first use Muse, and you can turn it off in Settings under Data controls. Meta says Muse does not share your conversations or VM data with its ad systems."
   - q: "What is the best free alternative to Meta Muse?"
-    a: "For personal errands, OpenClaw and Hermes Agent are free and open source; you pay only for the AI model, or nothing with a local one. For work agents, Munder Difflin is free and uses the AI engines you already have."
-thumb: "/blog/assets/media/meta-muse-alternatives/lead-still.png"
+    a: "OpenClaw, Munder Difflin, Hermes Agent and OpenMausBot are free and open source. With OpenClaw, Hermes Agent and OpenMausBot you pay only for the AI model you connect; Munder Difflin uses engines such as Claude Code, Codex and Gemini CLI. Checked 30 Oct 2026."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>For a personal assistant you own, try OpenClaw. For a team of work agents on your own computer, try Munder Difflin. For a hosted assistant from a big lab, try ChatGPT Work, Gemini Spark, Grok Bot or Claude Cowork. For memory that grows with you, try Hermes Agent.</p></div>
+Our view: the best Meta Muse alternative depends on why you are leaving. Outside Muse's countries, start with OpenClaw, an open source assistant on your own computer. For a team of agents on your work, try Munder Difflin. For a hosted agent, Grok Bot, Gemini tasks and Claude Cowork are closest. Checked 30 Oct 2026.
 
-Meta Muse is one of the most talked about launches of the year. Within two weeks of its 8 September release, [CNBC reported](https://www.cnbc.com/2026/09/21/meta-muse-personal-ai-agent-downloads.html) the Muse app ranking ahead of ChatGPT on Apple's App Store.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. This page sits in our [Comparisons hub](/blog/topics/comparisons/).
 
-Plenty of people still can't use it, or don't want to. There are three common reasons:
+## Why look for a Meta Muse alternative?
 
-- **You live outside the US.** Muse launched for US users aged 18 and over only.
-- **You don't want Meta holding your inbox, calendar and bank data.** Muse trains on your chats by default unless you switch it off, according to [Meta's own help page](https://www.meta.com/help/artificial-intelligence/1047255454427887/). A WIRED reporter also found it [kept asking for more personal data](https://techbriefly.com/2026/09/21/meta-muse-ai-data-collection-scrutiny/).
-- **You want agents for your work, not your errands.** Muse is built for bookings, forms and shopping, not for writing code or running projects. For Meta's coding agent, see [Muse Code and Muse Wonder](/blog/muse-wonder/). Or read [Muse Code vs Claude Code](/blog/muse-code-vs-claude-code/).
+Three reasons come up most.
 
-Here are seven alternatives, and which reason each one solves.
+- **Muse is not in your country.** Meta's [launch post](https://about.fb.com/news/2026/09/introducing-muse/) of 8 Sep 2026 says Muse "is rolling out in the US". [iPhone in Canada](https://www.iphoneincanada.ca/2026/09/18/metas-muse-ai-agent-is-now-available-in-canada/) reported it reached Canada on 18 Sep, and [RuntimeWire](https://runtimewire.com/article/meta-muse-japan-launch-wang) reported that a Meta executive said it was launching in Japan on 23 Oct.
+- **You don't want Meta training on your chats.** Meta's [help page](https://www.meta.com/help/artificial-intelligence/1047255454427887/), read 30 Oct 2026, says the training setting "is on when you first use Muse". You can switch it off under Settings, Data controls.
+- **You want agents for your work.** Meta's launch post gives sending an email or booking travel as examples of what Muse does. For Meta's coding agent, see [Muse Code vs Claude Code](/blog/muse-code-vs-claude-code/).
 
-<figure class="lead-loop"><video autoplay muted loop playsinline preload="metadata" width="1360" height="764" poster="/blog/assets/media/meta-muse-alternatives/lead-still.png" aria-label="A looping animation. A Meta Muse card reads available in US only, 18 and over. Seven alternative cards deal in, tagged by where they run, and the Munder Difflin card flips into real footage of the app."><source src="/blog/assets/media/meta-muse-alternatives/lead.mp4" type="video/mp4"><img src="/blog/assets/media/meta-muse-alternatives/lead.gif" width="1360" height="764" alt="A looping animation. A Meta Muse card reads available in US only, 18 and over. Seven alternative cards deal in, tagged by where they run, and the Munder Difflin card flips into real footage of the app."></video><figcaption>Muse is US only for now. Three of the seven alternatives run on your own computer.</figcaption></figure>
-<style>.lead-loop{margin:1.4rem 0 .6rem;border:1px solid #D9CFE0;border-radius:16px;overflow:hidden;background:#FFF8E7}.lead-loop video,.lead-loop img{display:block;width:100%;height:auto;margin:0}.lead-loop figcaption{font:500 13px/1.5 "Space Grotesk",system-ui,sans-serif;color:#6B5878;padding:10px 16px 14px;margin:0;border-top:1px solid #D9CFE0;background:#FCFAF0}</style>
-<script>if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('.lead-loop video').forEach(function(v){v.removeAttribute('autoplay');v.pause();v.currentTime=0;v.load()})}</script>
+<figure class="mg" data-scene="globe"><img src="/blog/assets/media/meta-muse-alternatives/globe.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a simple globe turns and three pins drop one at a time: US with the date 8 Sep, Canada with 18 Sep, and Japan with 23 Oct and a small note Reported. The rest of the globe stays plain. Tapping a pin shows its source."><figcaption>Meta's launch post of 8 Sep 2026, iPhone in Canada on 18 Sep, and RuntimeWire on 23 Oct for Japan.</figcaption></figure>
 
-## The seven alternatives at a glance
+## What are the best Meta Muse alternatives?
+
+Seven, checked on 30 Oct 2026.
 
 | Alternative | Best for | Where it runs | Cost |
 | --- | --- | --- | --- |
 | OpenClaw | A personal assistant you own | Your computer | Free, open source |
-| Munder Difflin | A team of work agents | Your computer | Free, open source |
-| ChatGPT Work | Work inside ChatGPT | OpenAI's cloud and your desktop | Part of ChatGPT plans |
-| Gemini Spark | Gmail, Drive and Calendar users | Google's cloud | Google AI Pro and Ultra |
-| Grok Bot | Hosted agent teammates | Cursor's cloud, in the US | Plans from $20 a month |
-| Claude Cowork | Work in your own folders | Anthropic's servers by default | Paid Claude plan |
-| Hermes Agent | Memory that learns | Your laptop or a small server | Free, open source |
-
-Facts for the hosted products and the open source projects were checked on their official pages and GitHub repos in September 2026.
+| Munder Difflin | A team of agents for your work | Your computer | Free, open source |
+| Grok Bot | Hosted bots that keep working | One cloud computer per account | Premium, Super or Ultra on The X Subscription |
+| Gemini tasks | Gmail, Drive and Calendar users | Google's cloud and your Chrome | Google AI Pro or Ultra |
+| Claude Cowork | Documents, files and research | Anthropic's cloud, with local files on desktop | Paid Claude plan |
+| Hermes Agent | Memory that learns | Your laptop, a server or a sandbox | Free, open source |
+| OpenMausBot | A chat app of local bots | Your computer | Free, open source |
 
 ## 1. OpenClaw: the closest thing to Muse that you own
 
-[OpenClaw](https://github.com/openclaw/openclaw) is an open source personal assistant (MIT licence) that runs on your own computer. Like Muse inside WhatsApp, it replies where you already chat: WhatsApp, Telegram, Slack, iMessage and more than 20 other channels. Your state, memory and logins stay on your hardware, and you can swap models freely, local ones included. There is no paid tier.
+[OpenClaw](https://github.com/openclaw/openclaw) is "an open-source AI assistant that runs on your own computer", MIT licensed, with more than 390,000 stars on 30 Oct 2026. It replies in Discord, iMessage, Slack, Teams, Telegram, WhatsApp "and 20+ more". The catch, per its README: tools run on the host "unless you configure sandboxing", so set that up first.
 
-**Solves:** the US only limit and the data worry.
-**The catch:** by default tools run straight on your machine, so set up sandboxing before you hand it your accounts.
+## 2. Munder Difflin: a team of agents for your work
 
-## 2. Munder Difflin: a team of work agents on your own computer
+[Munder Difflin](https://harnessmd.com/download) is what we make. It runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI. Each agent has its own memory and inbox, and they share a task board. Work comes in from Slack and webhooks, and tools connect through MCP servers, skills and plugins. A Cloud Office and a mobile app are coming soon. The catch: agents run while your computer runs.
 
-[Munder Difflin](https://harnessmd.com/download) is what we make, and it answers the third reason. It will not book your travel. It gives you an office of AI agents for real work, mostly engineering: each agent is a terminal session running an engine you choose, such as Claude Code, Codex, Gemini CLI, Cursor or Grok's own CLI, or a local model through Ollama.
+## 3. Grok Bot: hosted bots that keep working
 
-Each agent gets a desk, an inbox, memory in plain markdown files and a shared task board. You can start work from Slack or a webhook, schedule missions, and talk to one lead agent instead of twelve. A circuit breaker stops any agent that loops or overspends. It runs on macOS, Windows and Linux, in any country, and it is free and open source.
+[Grok Bot's plans page](https://cursor.com/help/grok-bot/plans), read 30 Oct 2026, says it is included on Premium, Super and Ultra in The X Subscription, and on paid legacy Cursor plans. Its [FAQ](https://docs.x.ai/grok-bot/faq) says every Bot on an account shares "one persistent cloud computer", and closing your laptop does not stop a background turn. See [Meta Muse vs Grok Bot](/blog/meta-muse-vs-grok-bot/).
 
-**Solves:** all three reasons, if your need is work rather than errands.
-**The catch:** agents run while your computer runs. For overnight work, keep a machine awake, like a [Mac mini on your desk](/blog/run-munder-difflin-on-a-mac-mini/).
+## 4. Gemini tasks: for people who live in Google
 
-For how it compares with OpenAI's new always on agents, read [ChatGPT dots vs Munder Difflin](/blog/munder-difflin-vs-chatgpt-dots/).
+Google renamed Gemini Spark. Its [help page](https://support.google.com/gemini/answer/17094507), read 30 Oct 2026, says: "we renamed it Task to make it easier to understand." Tasks need a Google AI Pro or Ultra plan, a personal Google Account and an age of 18 or over, Keep Activity on and Personal Intelligence turned on, and for now are not available in the European Economic Area, Nigeria, Switzerland or the United Kingdom.
 
-## 3. ChatGPT Work: the hosted pick for work
+## 5. Claude Cowork: for documents, files and research
 
-ChatGPT Work is OpenAI's agent inside ChatGPT. Plugins connect it to Slack, Microsoft Teams, Google Drive, email and calendars. Scheduled Tasks run on a timer or when something happens, and you decide what needs your approval. In the Mac and Windows desktop app it can also work with your local files. It is available in the countries OpenAI supports.
+Anthropic's [Cowork guide](https://support.claude.com/en/articles/13345190-get-started-with-cowork), read 30 Oct 2026, lists it on the paid Pro, Max, Team and Enterprise plans. It "runs your sessions remotely in the cloud", keeps working when you close your laptop, and on desktop can read and write your local files.
 
-**Solves:** the US only limit.
-**The catch:** your work runs through OpenAI's cloud, and you need a ChatGPT plan that includes it.
+## 6. Hermes Agent: for memory that grows
 
-OpenAI added always on agents called dots on 29 Sep 2026, on Pro and Business Premium only. If those are out of reach too, see [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/).
+[Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is MIT licensed. Its README says it creates skills from experience, curates its own memory and talks over Telegram, Discord, Slack, WhatsApp and Signal. You pick the model provider and can switch with `hermes model`.
 
-## 4. Gemini Spark: for people who live in Google
+## 7. OpenMausBot: a chat app of local bots
 
-Gemini Spark suits you if your life already runs on Gmail, Drive and Calendar. Google says it keeps working with your phone and laptop off and checks with you before major actions. It comes with Google AI Pro and Ultra in select countries, plus select business users.
+[OpenMausBot](https://github.com/milind-soni/OpenMausBot) calls itself "The open-source Grok Bot alternative", and its README also names it an alternative to Meta Muse. Each bot is Claude or Codex running locally, with its own model and connected apps. Apache 2.0, and on GitHub trending on 30 Oct 2026.
 
-**Solves:** the US only limit, in the countries Google has opened.
-**The catch:** you are trading one big tech company for another.
+Two more to watch: [Instinct](/blog/what-is-instinct-ai/), a texting agent still in private beta, and OpenAI's dots, covered in [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/).
 
-## 5. Grok Bot: hosted teammates for your job
+<figure class="mg" data-scene="sliders"><img src="/blog/assets/media/meta-muse-alternatives/sliders.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a settings panel titled Muse shows one switch labelled Use my interactions to improve models. It starts On. A second line reads Settings, Data controls, and the switch slides to Off. Tapping the switch turns it back on or off."><figcaption>Meta's help page, read 30 Oct 2026: the training setting is on when you first use Muse, and you can turn it off under Data controls.</figcaption></figure>
 
-Grok Bot from SpaceXAI is the most direct rival to Muse, aimed at work instead of errands. Bots sign into your apps through a normal browser, hand jobs to each other and keep going with your laptop shut. It comes with SuperGrok and paid Cursor plans, starting at $20 a month. All the Bots on your account share one cloud computer in the US. See our [Meta Muse vs Grok Bot comparison](/blog/meta-muse-vs-grok-bot/) for the full picture.
+## How do you choose?
 
-**Solves:** the work reason.
-**The catch:** there is no model picker, and your data lives on US cloud computers.
+Start from the reason you are leaving.
 
-## 6. Claude Cowork: for work in your own folders
+- **Muse is not in your country.** OpenClaw or Hermes Agent, both open source on your own hardware.
+- **You don't want your chats used for training.** An open source pick with a model provider you choose, and read that provider's terms.
+- **You want agents for your work.** Claude Cowork if you prefer hosted, Munder Difflin for a team on your computer, or Gemini tasks if you live in Google.
 
-[Claude Cowork](https://support.claude.com/en/articles/13345190-get-started-with-cowork) needs a paid Claude plan. In the macOS or Windows desktop app, Claude works only inside the folders you choose and asks before deleting anything. By default the work runs on Anthropic's servers, which makes it closer to Muse than it looks, with a tighter fence around your files.
+<figure class="mg" data-scene="compass"><img src="/blog/assets/media/meta-muse-alternatives/compass.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a large compass card shows three directions: Not in my country, Keep my data, Agents for work. The needle swings to each in turn, and a small card under each names the picks: OpenClaw and Hermes Agent, open source picks, Claude Cowork and Munder Difflin. Tapping a direction points the needle there."><figcaption>Our picks by reason for leaving Muse, from the sources above, checked 30 Oct 2026.</figcaption></figure>
 
-**Solves:** the work reason, and part of the data worry.
-**The catch:** it is still a hosted service.
+Setup for Munder Difflin is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
-## 7. Hermes Agent: for memory that grows
-
-[Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is open source (MIT). It curates its own memory, writes new skills after hard tasks and runs scheduled jobs. You talk to it over Telegram, Discord, Slack, WhatsApp or Signal. It can live on your laptop or a cheap server, and one command switches between model providers.
-
-**Solves:** the US only limit and the data worry.
-**The catch:** you run it, so keeping it secure and updated is your job.
-
-## How to choose
-
-- **Want Muse, but you are outside the US?** Start with OpenClaw.
-- **Want errands handled but don't trust Meta with your data?** OpenClaw or Hermes Agent, with a local model if you want nothing to leave your machine.
-- **Want agents that do your work, not your shopping?** [Download Munder Difflin](https://harnessmd.com/download). It is free and open source. Our [install guide](/blog/how-to-install-and-use-munder-difflin/) walks you through it.
+<link rel="stylesheet" href="/blog/assets/media/meta-muse-alternatives/motion.css"><script defer src="/blog/assets/media/meta-muse-alternatives/motion.js"></script>
