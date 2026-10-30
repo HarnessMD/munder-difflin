@@ -54,6 +54,11 @@ export interface Agent {
   goal?: string;
   /** User-authored private note shown and edited from the roster-card hover. */
   note?: string;
+  /** Desk PIN — which floor seat this agent sits at (0 = Michael's room).
+   *  Set from Edit Agent; a pin beats every auto rule (first-free claim, the
+   *  god's reserved seat). Cleared = automatic first-free seat again. Durable
+   *  roster field: survives restarts, so a team keeps its desk layout. */
+  seat?: number;
   status: StatusKind;
   action: string;
   progress: number;
@@ -218,6 +223,10 @@ interface State {
   toolCounts: Record<string, number>;
   bumpToolCount: (id: string) => void;
   setGodStatus: (status: GodStatus) => void;
+  /** How many floor seats the live office map exposes — fed by OfficeFloor once
+   *  the theme's seat tiles are discovered, read by Edit Agent's desk picker. */
+  seatCount: number;
+  setSeatCount: (n: number) => void;
   select: (id: string) => void;
   updateAgent: (id: string, patch: Partial<Agent>) => void;
   /** Copy durable hive roles onto roster descriptions (and the reverse is a
@@ -695,6 +704,8 @@ export const useStore = create<State>((set, get) => ({
   bumpToolCount: (id) =>
     set((s) => ({ toolCounts: { ...s.toolCounts, [id]: (s.toolCounts[id] ?? 0) + 1 } })),
   setGodStatus: (status) => set({ godStatus: status }),
+  seatCount: 0,
+  setSeatCount: (n) => set((s) => s.seatCount === n ? s : { seatCount: Math.max(0, Math.floor(n)) }),
   select: (id) => set((s) => { persistAgents(s.agents, id); return { selectedId: id, ccTabRequest: null }; }),
   updateAgent: (id, patch) =>
     set((s) => {

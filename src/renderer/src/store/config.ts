@@ -70,6 +70,9 @@ export interface HarnessConfig {
    *  so an absent value reads as off. Mirrors src/main/config.ts. */
   orchestratorMaySpawn?: boolean;
   defaultCommand: string;
+  /** Optional FULL override of the GOD orchestrator's spawn command (mirrors
+   *  src/main/config.ts / upstream 0.5.6+). Wins over godProvider/godModel. */
+  godCommand?: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;
   /** Which provider+model powers the GOD orchestrator ("Michael"). Default

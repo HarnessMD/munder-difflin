@@ -69,6 +69,7 @@ const SHIPPED = {
     ["openai/gpt-5", "GPT-5 (OpenAI)"],
     ["openai/gpt-5-mini", "GPT-5 mini (OpenAI)"],
     ["openrouter/anthropic/claude-sonnet-4.5", "Claude Sonnet 4.5 (OpenRouter)"],
+    ["openrouter/free", "OpenRouter Free (free tier)"],
     ["google/gemini-2.5-pro", "Gemini 2.5 Pro (Google)"],
     ["local/llama3", "Local · OpenAI-compatible (set base-URL)"]
   ],

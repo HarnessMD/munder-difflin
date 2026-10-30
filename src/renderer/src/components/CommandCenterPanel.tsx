@@ -1276,6 +1276,12 @@ function ActivityTab() {
       case 'drain': return t('commandCenter.logDrain', { agent: e.agentId, count: e.count });
       case 'escalate': return t('commandCenter.logEscalate', { subject: e.subject ?? '' });
       case 'approval': return e.approve ? t('commandCenter.logApprovalGranted') : t('commandCenter.logApprovalDenied');
+      case 'restore': return t('commandCenter.logRestored', { name: e.name ?? e.agentId });
+      case 'kill': return t('commandCenter.logKilled', { name: e.name ?? e.agentId });
+      case 'reset': return t('commandCenter.logReset', { name: e.name ?? e.agentId });
+      case 'agent-op-failed': return t('commandCenter.logOpFailed', {
+        op: e.op ?? '', name: e.name ?? e.agentId ?? '', reason: e.reason ?? ''
+      });
       default: return JSON.stringify(e);
     }
   };
