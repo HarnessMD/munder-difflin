@@ -96,6 +96,6 @@ Names matter too. Meta's table this week listed Claude Opus 5.5 at 59.6 on Termi
 
 Our view: pick by job, not by logo. On Google's figures, Gemini 4 Argon suits long documents and, until December, tight budgets. Claude Opus 5.5 suits terminal work, and GPT-6 Astra leads the OSWorld-2.0 offline subset, one of the two computer use rows.
 
-Mixing models by task is covered in [model routing](/blog/do-more-with-less-model-routing/), and Google's own coding tool in [Gemini CLI vs Claude Code](/blog/gemini-cli-vs-claude-code/).
+Mixing models by task is covered in [model routing](/blog/do-more-with-less-model-routing/), and Google's own coding tool in [Gemini CLI vs Claude Code](/blog/gemini-cli-vs-claude-code/). For an open weight model against Opus, see [Mistral Large 4 vs Claude Opus 5.5](/blog/mistral-large-4-vs-claude-opus-5-5/).
 
 <link rel="stylesheet" href="/blog/assets/media/gemini-4-argon-vs-claude-opus-5-5/motion.css"><script defer src="/blog/assets/media/gemini-4-argon-vs-claude-opus-5-5/motion.js"></script>
