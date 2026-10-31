@@ -21,7 +21,7 @@ faq:
 
 Pi agent is Earendil's open source coding agent harness: a minimal, MIT licensed terminal agent that reads your repo, edits files and runs shell commands with the model provider you choose. You extend it with TypeScript extensions instead of waiting for features. Pi 1.0 shipped on 1 Oct 2026. Checked on pi.dev and GitHub on 2 Oct 2026.
 
-You can run Pi on its own, or use [Munder Difflin](https://harnessmd.com/download), free and open source, a desktop app that runs Pi agents in one office next to Claude Code and Codex, each in its own terminal. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup. If the word harness is new to you, start with [what is a multi-agent harness](/blog/what-is-a-multi-agent-harness/).
+You can run Pi on its own, or in [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Pi is one of its engines, next to Claude Code and Codex. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup. If the word harness is new to you, start with [what is a multi-agent harness](/blog/what-is-a-multi-agent-harness/).
 
 ## What is Pi agent?
 
@@ -105,7 +105,7 @@ Pi if you want an agent you reshape yourself, Claude Code for Anthropic's own ag
 
 **Pick Munder Difflin if** you'd rather not choose one: it runs Pi, Claude Code, Codex, OpenCode and eight more CLIs side by side on one floor.
 
-**Pick Claude Code if** you're on a Claude plan and want Anthropic's agent with permissions built in.
+**Pick Claude Code if** you're on a Claude plan and want Anthropic's agent with permissions built in. [Pi vs Claude Code](/blog/pi-vs-claude-code/) compares the two in detail.
 
 **Pick Codex CLI or OpenCode if** you want guard rails out of the box: approval modes in Codex, a read only Plan agent in OpenCode. Our [what is OpenCode](/blog/what-is-opencode/) explainer and [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) cover both. For seven more options, see [Pi agent alternatives](/blog/pi-agent-alternatives/).
 
