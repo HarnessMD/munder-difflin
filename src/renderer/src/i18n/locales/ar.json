@@ -1294,7 +1294,14 @@
     "awaitingAnswer": "بانتظار إجابتك — تبويب اسألني",
     "dependsOn": "يعتمد على",
     "assign": "إسناد",
-    "priority": "الأولوية {{level}}/5"
+    "priority": "الأولوية {{level}}/5",
+    "filterPlaceholder": "تصفية المهام…",
+    "filterAll": "الكل",
+    "filterBlocked": "يحتاج إجابة",
+    "filterAssigneeAll": "جميع المُسنَد إليهم",
+    "filterCount": "{{filtered}} من {{total}} مهمة",
+    "noMatchingTasks": "لا توجد مهام تطابق التصفية",
+    "clearFilter": "إزالة التصفية"
   },
   "queueComposer": {
     "recording": "● يسجّل — انقر إيقاف للتفريغ النصي",

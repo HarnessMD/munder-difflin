@@ -1294,7 +1294,14 @@
     "awaitingAnswer": "AWAITING YOUR ANSWER — ASK ME TAB",
     "dependsOn": "DEPENDS ON",
     "assign": "assign",
-    "priority": "Priority {{level}}/5"
+    "priority": "Priority {{level}}/5",
+    "filterPlaceholder": "Filter tasks…",
+    "filterAll": "all",
+    "filterBlocked": "needs answer",
+    "filterAssigneeAll": "all assignees",
+    "filterCount": "{{filtered}} of {{total}} tasks",
+    "noMatchingTasks": "No tasks match your filter",
+    "clearFilter": "clear filter"
   },
   "queueComposer": {
     "recording": "● recording — click stop to transcribe",

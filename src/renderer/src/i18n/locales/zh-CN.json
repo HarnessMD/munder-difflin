@@ -1294,7 +1294,14 @@
     "awaitingAnswer": "等待你的回答——「问我」标签页",
     "dependsOn": "依赖",
     "assign": "分配",
-    "priority": "优先级 {{level}}/5"
+    "priority": "优先级 {{level}}/5",
+    "filterPlaceholder": "筛选任务…",
+    "filterAll": "全部",
+    "filterBlocked": "等待回答",
+    "filterAssigneeAll": "所有被分配者",
+    "filterCount": "{{filtered}} / {{total}} 项任务",
+    "noMatchingTasks": "没有匹配筛选条件的任务",
+    "clearFilter": "清除筛选"
   },
   "queueComposer": {
     "recording": "● 录音中——点击停止转写",
