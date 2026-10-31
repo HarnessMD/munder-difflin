@@ -89,11 +89,11 @@
     },
   };
 
-  /* ---- 2. a crate rolls in on a trolley; its delivery slip says Coming soon twice while a calendar tears off days ---- */
+  /* ---- 2. a crate rolls in on a trolley; its delivery slip says Released twice while a calendar tears off days to 29 ---- */
   SC.crate = {
     dur: 11.2, still: 9,
     build(svg, api) {
-      txt(svg, 44, 62, "The weights are not out yet", { "font-size": 32, "font-weight": 700 });
+      txt(svg, 44, 62, "The weights are out", { "font-size": 32, "font-weight": 700 });
       txt(svg, 756, 60, "tap the crate", { "text-anchor": "end", "font-size": 20, fill: MUTE, "font-weight": 500 });
       el("path", { d: "M44 480 H756", stroke: INK, "stroke-width": 3, "stroke-linecap": "round" }, svg);
       /* tear-off calendar */
@@ -105,7 +105,7 @@
       el("path", { d: "M548 168 V128 Q548 112 564 112 H716 Q732 112 732 128 V168 Z", fill: SKY, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round" }, svg);
       txt(svg, 640, 156, "October", { "text-anchor": "middle", "font-size": 24, "font-weight": 700 });
       [594, 686].forEach((x) => el("rect", { x: x - 6, y: 96, width: 12, height: 26, rx: 6, fill: "#fff", stroke: INK, "stroke-width": 3 }, svg));
-      const notes = [["VentureBeat: Oct. 27", "#fff", 346, 6.3], ["Mistral: end of month", YEL, 398, 7.8]].map(([s, fill, y, at]) => ({ g: pill(svg, s, fill), y, at }));
+      const notes = [["Weights out", YEL, 346, 7]].map(([s, fill, y, at]) => ({ g: pill(svg, s, fill), y, at }));
       /* trolley and crate */
       const tr = el("g", {}, svg);
       el("path", { d: "M84 438 V262 Q84 236 60 236 H46", stroke: INK, "stroke-width": 6, fill: "none", "stroke-linecap": "round" }, tr);
@@ -121,11 +121,12 @@
       el("path", { d: "M-140 -110 H140", stroke: SOFT, "stroke-width": 3, "stroke-linecap": "round" }, cr);
       txt(cr, -140, -137, "weights", { "font-size": 22, "font-weight": 700 });
       txt(cr, -140, -69, "licence", { "font-size": 22, "font-weight": 700 });
-      const stamps = [[-144, -3], [-76, 2.5]].map(([y, rot]) => ({ g: pill(cr, "Coming soon", LIL, { rx: 10 }), y, rot }));
+      const stamps = [[-144, -3], [-76, 2.5]].map(([y, rot]) => ({ g: pill(cr, "Released", LIL, { rx: 10 }), y, rot }));
       el("rect", { x: -192, y: -269, width: 384, height: 276, rx: 18, fill: "none", stroke: INK, "stroke-width": 2, "stroke-dasharray": "3 7", class: "mg-ring" }, cr);
-      const cap = strip(svg, 512, 700);
+      const cap = strip(svg, 512, 740);
       let poked = -99;
-      button(cr, "The crate is closed. Weights and licence both read Coming soon.", () => { poked = api.now(); api.poke(); });
+      const OPEN = "The crate is open. Weights and licence were released on 29 Oct 2026.";
+      button(cr, OPEN, () => { poked = api.now(); api.poke(); });
       return (t, now) => {
         const w = now - poked, shake = w >= 0 && w < 0.9 ? Math.sin(w * 30) * 3 * (1 - w / 0.9) : 0;
         const roll = oc(seg(t, 0.3, 1.3)) - io(seg(t, 10.3, 11)), dx = -580 * (1 - roll);
@@ -133,47 +134,43 @@
         wheels.forEach((wh) => tf(wh.g, wh.x, 463, 1, (dx / 15) * 57.3));
         cr.setAttribute("transform", `translate(293 430) rotate(${shake})`);
         stamps.forEach((s, i) => { const k = seg(t, 1.8 + i * 0.7, 2.1 + i * 0.7); s.g.setAttribute("opacity", k <= 0 ? 0 : 1); tf(s.g, 76, s.y, 2.2 - 1.2 * ob(k), s.rot); });
-        let f = t < 3.2 || t > 10.6 ? 0 : Math.min(21, (t - 3.2) / 0.14);
-        if (t >= 7 && t <= 10.6) f = 21 + Math.min(4, (t - 7) / 0.15);
+        const f = t < 3.2 || t > 10.6 ? 0 : Math.min(23, (t - 3.2) / 0.15);
         const day = 6 + Math.floor(f), fr = f - Math.floor(f), moving = fr > 0 && day > 6;
         num.textContent = day; old.textContent = day - 1;
         leaf.setAttribute("transform", `translate(640 168) scale(1 ${moving ? 1 - seg(fr, 0, 0.8) : 0})`);
         leaf.setAttribute("opacity", moving ? 1 : 0);
         notes.forEach((n) => { const k = ob(seg(t, n.at, n.at + 0.35)) * (1 - seg(t, 10.3, 10.7)); tf(n.g, 640, n.y, cl(k, 0, 1.05)); n.g.setAttribute("opacity", k <= 0.01 ? 0 : 1); });
-        cap.textContent = w >= 0 && w < 3 ? "Not yet. You can only rent it through the API for now." : "Mistral's model page on 6 Oct 2026: both read Coming soon";
+        cap.textContent = w >= 0 && w < 3 ? OPEN : "Mistral's release post, 29 Oct 2026: weights and licence out";
       };
     },
   };
 
-  /* ---- 3. three price tags on a line; a pencil strikes the higher price and the lower one drops in ---- */
+  /* ---- 3. three price tags on a line; each price drops in; tap a tag for its 6 Oct price ---- */
   SC.tags = {
     dur: 11.6, still: 9,
     build(svg, api) {
       txt(svg, 44, 62, "Price per million tokens", { "font-size": 32, "font-weight": 700 });
-      txt(svg, 44, 98, "Mistral's model page, checked 6 Oct 2026", { "font-size": 20, "font-weight": 500, fill: MUTE });
+      txt(svg, 44, 98, "Mistral's release post, 29 Oct 2026", { "font-size": 20, "font-weight": 500, fill: MUTE });
       txt(svg, 756, 60, "tap a tag", { "text-anchor": "end", "font-size": 20, fill: MUTE, "font-weight": 500 });
       el("path", { d: "M40 142 Q400 166 760 142", stroke: INK, "stroke-width": 2.5, fill: "none", "stroke-linecap": "round" }, svg);
-      const IT = [["Input", "$0.68", "$1.36", YEL], ["Cached input", "$0.07", "$0.14", SKY], ["Output", "$2.09", "$4.18", MINT]];
-      const X = [150, 400, 650], LY = [148, 154, 148], S = (i) => 1.8 + i * 2;
-      const LINES = IT.map(([n, p, o]) => `${n}: ${p} listed, ${o} struck through`);
+      const IT = [["Input", "$0.70", "$0.68", YEL], ["Cached input", "$0.07", "$0.07", SKY], ["Output", "$2.10", "$2.09", MINT]];
+      const X = [150, 400, 650], LY = [148, 154, 148], S = (i) => 1.4 + i * 1.6;
+      const LINES = IT.map(([n, p]) => `${n}: ${p} per million tokens`);
+      const PIN = IT.map(([n, p, o]) => `${n}: ${p} on 29 Oct, ${o} on 6 Oct`);
+      const SUM = "Input $0.70, cached input $0.07, output $2.10";
       let pinned = -1;
       const tags = IT.map(([name, price, was, col], i) => {
         const g = el("g", {}, svg);
         el("rect", { x: -102, y: -2, width: 204, height: 327, rx: 22, fill: "none", stroke: INK, "stroke-width": 2, "stroke-dasharray": "3 7", class: "mg-ring" }, g);
         el("path", { d: "M-95 52 L-46 6 H46 L95 52 V302 Q95 318 79 318 H-79 Q-95 318 -95 302 Z", fill: col, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round" }, g);
         txt(g, 0, 96, name, { "text-anchor": "middle", "font-size": 24, "font-weight": 700 });
-        txt(g, 0, 156, was, { "text-anchor": "middle", "font-size": 34, "font-weight": 700 });
-        const strike = el("path", { stroke: INK, "stroke-width": 4, "stroke-linecap": "round", fill: "none" }, g);
+        const prev = pill(g, `${was} on 6 Oct`, "#fff"), tt = prev.querySelector("text"), tr = prev.querySelector("rect");
+        tt.setAttribute("font-size", 18); const tw = tt.getComputedTextLength() + 28; tr.setAttribute("x", -tw / 2); tr.setAttribute("width", tw);
         const plate = el("g", {}, g);
         el("rect", { x: -80, y: -40, width: 160, height: 80, rx: 16, fill: "#fff", stroke: INK, "stroke-width": 3 }, plate);
         txt(plate, 0, 17, price, { "text-anchor": "middle", "font-size": 48, "font-weight": 700 });
-        const pen = el("g", {}, g);
-        el("rect", { x: 16, y: -7, width: 60, height: 14, fill: BLUE, stroke: INK, "stroke-width": 2.5 }, pen);
-        el("rect", { x: 76, y: -7, width: 14, height: 14, rx: 3, fill: LIL, stroke: INK, "stroke-width": 2.5 }, pen);
-        el("path", { d: "M0 0 L16 -7 V7 Z", fill: "#fff", stroke: INK, "stroke-width": 2.5, "stroke-linejoin": "round" }, pen);
-        el("path", { d: "M0 0 L6 -2.6 V2.6 Z", fill: INK }, pen);
-        button(g, LINES[i], () => { pinned = i; poked[i] = api.now(); api.poke(); });
-        return { g, strike, plate, pen };
+        button(g, `${name}: ${price} on 29 Oct 2026, ${was} on 6 Oct 2026`, () => { pinned = i; poked[i] = api.now(); api.poke(); });
+        return { g, prev, plate };
       });
       const poked = [-99, -99, -99];
       X.forEach((x, i) => el("rect", { x: x - 8, y: LY[i] - 22, width: 16, height: 42, rx: 6, fill: LIL, stroke: INK, "stroke-width": 2.5, "pointer-events": "none" }, svg));
@@ -185,16 +182,14 @@
           const te = Math.max(0, t - 0.15 * i), w = now - poked[i];
           const a = 10 * Math.exp(-2.2 * te) * Math.sin(6 * te) + (w >= 0 && w < 3 ? 8 * Math.exp(-2.5 * w) * Math.sin(8 * w) : 0);
           k.g.setAttribute("transform", `translate(${X[i]} ${LY[i]}) rotate(${a})`);
-          const s = seg(t, S(i), S(i) + 0.55) * (1 - out), px = -58 + 116 * s;
-          k.strike.setAttribute("d", `M-58 148 L${px} ${148 - 8 * s}`); k.strike.setAttribute("opacity", s > 0 ? 1 : 0);
-          tf(k.pen, px, 148 - 8 * s, 1, -28 + Math.sin(t * 40) * 3 * (s > 0 && s < 1 ? 1 : 0));
-          k.pen.setAttribute("opacity", seg(t, S(i) - 0.25, S(i) - 0.1) * (1 - seg(t, S(i) + 0.6, S(i) + 0.75)));
-          const p = seg(t, S(i) + 0.75, S(i) + 1.15);
+          const o = poked[i] > -99 ? ob(seg(w, 0, 0.35)) : 0;
+          tf(k.prev, 0, 160, cl(o, 0, 1.1)); k.prev.setAttribute("opacity", o <= 0.01 ? 0 : 1);
+          const p = seg(t, S(i), S(i) + 0.4);
           tf(k.plate, 0, 250 - 80 * (1 - ob(p)));
           k.plate.setAttribute("opacity", seg(p, 0, 0.25) * (1 - out));
-          if (t >= S(i) + 0.3) last = i;
+          if (t >= S(i) + 0.1) last = i;
         });
-        cap.textContent = pinned >= 0 ? LINES[pinned] : t > 8.4 && t < 10.6 ? "The page did not say how long the lower prices last" : last < 0 || t >= 10.6 ? "A higher price was struck through beside each one" : LINES[last];
+        cap.textContent = pinned >= 0 ? PIN[pinned] : last < 0 || t >= 6.6 ? SUM : LINES[last];
       };
     },
   };
@@ -258,7 +253,7 @@
       el("path", { d: "M66 226 H606", stroke: YEL, "stroke-width": 14, "stroke-linecap": "round" }, svg);
       txt(svg, 64, 288, "Le Chonk: size, price, scores, weights", { "font-size": 25, "font-weight": 500, fill: MUTE });
       el("rect", { x: 64, y: 326, width: 290, height: 52, rx: 26, fill: SOFT }, svg);
-      txt(svg, 209, 360, "Checked 6 Oct 2026", { "text-anchor": "middle", "font-family": MONO, "font-size": 20, "font-weight": 700 });
+      txt(svg, 209, 360, "Checked 29 Oct 2026", { "text-anchor": "middle", "font-family": MONO, "font-size": 20, "font-weight": 700 });
       /* one chunky kettlebell */
       const k = el("g", { transform: "translate(776 396)" }, svg);
       el("ellipse", { cx: 0, cy: 96, rx: 118, ry: 10, fill: SOFT }, k);

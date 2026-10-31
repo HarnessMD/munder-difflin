@@ -88,13 +88,15 @@ The Claude Code rows come from its [permissions page](https://code.claude.com/do
 
 Yes, and on one subscription. Pro lists Claude Code on the pricing page and Cowork on the help page, so you do not pay twice. Our view: plenty of people should use both, one for the spec and the spreadsheet, the other for the code.
 
-If your work is code and you want more than one agent on it, that is a third kind of tool. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It does not run Cowork. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+If you want more than one agent on the work, that is a third kind of tool. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It does not run Cowork. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/), or see [Claude Cowork alternatives](/blog/claude-cowork-alternatives/).
 
 ## Claude Cowork vs OpenClaw: how do they differ?
 
 Cowork is hosted and paid, OpenClaw is self-hosted and free. The [OpenClaw README](https://github.com/openclaw/openclaw) says it is MIT licensed and "has no paid tier, hosted service, or token". It answers in chat apps: "Discord, iMessage, Slack, Teams, Telegram, WhatsApp, and 20+ more". Models are plugins, and the README names Claude, Codex and local models.
 
 The trade is control against convenience. OpenClaw's README warns that "Tools run on the host for the main session unless you configure sandboxing". Cowork runs in Anthropic's isolated environment, on Anthropic's terms and plans. GitHub showed OpenClaw release v2026.9.8, dated 3 Oct, when we checked on 6 Oct 2026. Its README says it was built for Molty, a space lobster AI assistant. See [OpenClaw alternatives](/blog/openclaw-alternatives/) for more options.
+
+OpenAI's rival: [ChatGPT Dots vs Claude Cowork](/blog/chatgpt-dots-vs-claude-cowork/).
 
 ## Who should pick which?
 
