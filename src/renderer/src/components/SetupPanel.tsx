@@ -152,7 +152,7 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 200 }}>
-          <div style={{ fontFamily: 'var(--cth-font-display)', fontSize: 12 }}>{t('setupPanel.title')}</div>
+          <div className="cth-settings-section-title" style={{ fontFamily: 'var(--cth-font-display)', fontSize: 12 }}>{t('setupPanel.title')}</div>
           <div style={{ fontSize: 12, color: 'var(--cth-ink-500)', marginTop: 2 }}>
             {tools === null
               ? t('setupPanel.checking')
@@ -193,7 +193,7 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
         if (rows.length === 0) return null;
         return (
           <div key={section.kind} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{
+            <div className="cth-small-label" style={{
               fontFamily: 'var(--cth-font-display)', fontSize: 10, letterSpacing: 0.5,
               color: 'var(--cth-ink-500)', textTransform: 'uppercase'
             }}>{t(section.titleKey)}</div>

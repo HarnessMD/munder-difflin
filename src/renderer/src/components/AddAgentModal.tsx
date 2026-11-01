@@ -649,7 +649,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                         display: 'flex', flexDirection: 'column', gap: 1
                       }}
                     >
-                      <span style={{
+                      <span className="cth-small-label" style={{
                         fontFamily: 'var(--cth-font-display)', fontSize: 9, lineHeight: '13px',
                         color: 'var(--cth-ink-900)', textTransform: 'uppercase',
                         display: 'flex', alignItems: 'baseline', gap: 6
@@ -1180,7 +1180,7 @@ const inputStyle: React.CSSProperties = {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <span style={{
+      <span className="cth-small-label" style={{
         fontFamily: 'var(--cth-font-display)',
         fontSize: 8, lineHeight: '12px',
         color: 'var(--cth-ink-700)',
