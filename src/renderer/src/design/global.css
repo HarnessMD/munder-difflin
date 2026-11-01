@@ -35,6 +35,19 @@ button, input, textarea, select {
   color: inherit;
 }
 
+/* A native <select> takes our text colour (ink, near-white in the dark theme) but Chromium
+   paints its box and its option popup from the UA scheme, which the rule above pins to
+   LIGHT: white text on a white surface. The dark theme therefore declares the dark UA
+   scheme, and every select and option takes its surface and text from the theme tokens,
+   so both themes read and match the other inputs (paper-100 + ink-900).
+   Ported from Prozzta/guppyos 02d0d50b (MIT). */
+:root[data-cth-theme='dark'] { color-scheme: dark; }
+select, option, optgroup {
+  background-color: var(--cth-paper-100);
+  color: var(--cth-ink-900);
+}
+option:disabled { color: var(--cth-ink-500); }
+
 /* Belt + suspenders for the caret: follow the ink, never the UA scheme. */
 input, textarea { caret-color: var(--cth-ink-900); }
 

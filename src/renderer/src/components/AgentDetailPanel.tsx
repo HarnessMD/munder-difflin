@@ -10,6 +10,8 @@ import { MessageQueueComposer } from './MessageQueueComposer';
 import { CommandCenterPanel } from './CommandCenterPanel';
 import { disposeTerminal } from './terminalPool';
 import { SidebarTabs } from './SidebarTabs';
+import { HistoryView } from './HistoryView';
+import { ErrorBoundary } from './ErrorBoundary';
 import { ThreadsPanel } from './ThreadsPanel';
 import { ToolWaterfall } from './ToolWaterfall';
 import { AgentControlStrip } from './AgentControlStrip';
@@ -150,7 +152,7 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden',
           flexShrink: 0
         }}>
-          <SpritePortrait character={agent.character} scale={1} />
+          <SpritePortrait agent={{ id: agent.id, character: agent.character, appearanceByTheme: agent.appearanceByTheme }} scale={1} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', minWidth: 0, lineHeight: '14px' }}>
@@ -271,6 +273,13 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
               {t('agentDetail.noPtyDesc')}
             </EmptyTab>
           )
+        )}
+
+        {sidebarTab === 'history' && (
+          // A History render error stays inside the tab (Pam's P5, the panel error box).
+          <ErrorBoundary key={agent.id} where={t('where.history')} recover="remount">
+            <HistoryView agentId={agent.id} />
+          </ErrorBoundary>
         )}
 
         {sidebarTab === 'git' && (

@@ -2,9 +2,12 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { SpritePortrait } from './SpritePortrait';
+import { ThemeLookBuilder } from './ThemeLookBuilder';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
 import { OFFICE_CAST, type OfficeCharacterName } from '@/scene/office/cast';
+import { useThemeLooks } from '@/scene/themes/useThemeLooks';
+import { draftToLook, readLook, startDraft, withLook, type LookDraft } from '@/scene/themes/looks';
 import { type AccentColorName } from '@/design/tokens';
 import {
   type AgentProvider,
@@ -36,6 +39,18 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
   const [name, setName] = useState(agent.name);
   const [character, setCharacter] = useState<OfficeCharacterName>(agent.character);
   const [accent, setAccent] = useState<AccentColorName>(agent.accent);
+  // The active theme pack's look: starts from the saved look (else the one the
+  // agent is shown with now) and is saved only once it is changed here.
+  const officeTheme = useStore((s) => s.officeTheme);
+  const looks = useThemeLooks(officeTheme);
+  const hasThemeLookBuilder = Boolean(looks?.builder);
+  // Never flash the Office grid while an active pack is still loading.
+  const showOfficeCharacterPicker = looks !== undefined && !hasThemeLookBuilder;
+  const [lookDraftState, setLookDraftState] = useState<{ key: string; draft: LookDraft } | null>(null);
+  const lookKey = looks ? `${agent.id}|${looks.themeId}` : '';
+  const lookDraft = looks?.builder
+    ? (lookDraftState?.key === lookKey ? lookDraftState.draft : startDraft(looks.builder, looks.columns, readLook(agent.appearanceByTheme?.[looks.themeId]), agent.id))
+    : null;
   const [provider, setProvider] = useState<AgentProvider>(
     inferAgentProvider(agent.command, agent.provider)
   );
@@ -82,6 +97,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
       name: trimmedName,
       character,
       accent,
+      ...(looks && lookDraftState?.key === lookKey ? { appearanceByTheme: withLook(agent.appearanceByTheme, looks.themeId, draftToLook(lookDraftState.draft)) } : {}),
       provider,
       model,
       command,
@@ -119,7 +135,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
               gap: 16, alignItems: 'start', minHeight: 260
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
-            <Section label="Identity" hint="name · character · color">
+            <Section label="Identity" hint={hasThemeLookBuilder ? 'name · look · color' : 'name · character · color'}>
               <Row label="Name">
                 <input
                   value={name}
@@ -130,6 +146,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
                 />
               </Row>
 
+              {showOfficeCharacterPicker && (
               <Row label="Character">
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {OFFICE_CAST.map((c) => {
@@ -163,6 +180,16 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
                   })}
                 </div>
               </Row>
+              )}
+
+              {looks && lookDraft && (
+                <ThemeLookBuilder
+                  looks={looks}
+                  draft={lookDraft}
+                  character={character}
+                  onChange={(d) => setLookDraftState({ key: lookKey, draft: d })}
+                />
+              )}
 
               <Row label="Color">
                 <div style={{ display: 'flex', gap: 6 }}>
