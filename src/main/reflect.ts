@@ -6,7 +6,7 @@
  * finds memory files that crossed a size/section threshold and rewrites them into
  * a bounded 3-region shape — pinned durable facts (never touched), one rolling
  * recursive summary, and the newest K verbatim sections — using a cheap headless
- * `claude -p` (Haiku) summarization of the evicted tail.
+ * provider-aware summarization of the evicted tail.
  *
  * Why in-process (Electron main), NOT launchd: launchd-spawned shells are blocked
  * by macOS TCC from `~/Documents`; only this process has the folder grant. So the
@@ -25,12 +25,11 @@ import {
   mkdirSync, copyFileSync, renameSync, openSync, fsyncSync, closeSync
 } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { runHiddenClaude } from './hiddenClaude';
+import { resolveReflectLaunch, runReflectSession, type ReflectAgent, type ReflectLaunch } from './reflectSession';
+import { limitResponse, limitRetryAt } from './reflectLimit';
 
 /** Total memory.md budget — mirrors the janitor's CONTEXT_BUDGET_BYTES (128 KB). */
 const BUDGET_BYTES = 131_072;
-/** Cheap tail-summarizer (DECIDED by god). The verify gate covers quality. */
-const CONDENSE_MODEL = 'claude-haiku-4-5';
 /** Hard cap so a wedged headless run can't stall the reflect loop. */
 const DEFAULT_TIMEOUT_MS = 180_000;
 
@@ -86,6 +85,12 @@ export interface ReflectSettings {
   /** Never condense a file smaller than this — both a "don't waste an LLM call"
    *  guard and the byte floor for the section-count trigger. */
   minBytes: number;
+  /** Explicit override; otherwise inherit the agent's CLI and model. */
+  provider?: ReflectAgent['provider'];
+  model?: string;
+  command?: string;
+  /** Initial unknown-reset quota backoff; grows to at most 24 hours. */
+  retryBackoffMs?: number;
 }
 
 /** A `## ` section: its heading line and the body text beneath it. */
@@ -107,6 +112,11 @@ export interface ReflectResult {
   reason: string;            // why (skipped/aborted/done), for logging + UI
   oldBytes?: number;
   newBytes?: number;
+  retryAt?: number;
+}
+
+class ReflectError extends Error {
+  constructor(public reason: string, detail: string) { super(detail); }
 }
 
 export class MemoryReflector {
@@ -115,10 +125,11 @@ export class MemoryReflector {
   /** True while a reflectNow() pass is in flight — serializes the loop (a slow
    *  LLM pass must not overlap the next interval tick), mirroring MemoryManager. */
   private reflecting = false;
+  private limits = new Map<string, { retryAt: number; attempts: number }>();
 
   /**
    * @param getHome      Lazily resolve harnessHome so reflection follows config.
-   * @param getCommand   The base `claude` command (only its binary name is used).
+   * @param getCommand   Legacy default command, used only without an agent recipe.
    * @param getMemoryEnv Extra env (the shared MemPalace path) merged into the call.
    * @param getSettings  Reflect tunables (interval + thresholds), read each tick.
    * @param appendLog    Sink for `condense`/`condense-abort` events (hive log.jsonl).
@@ -126,9 +137,10 @@ export class MemoryReflector {
   constructor(
     private getHome: () => string | null,
     private getCommand: () => string,
-    private getMemoryEnv: () => Record<string, string>,
+    private getMemoryEnv: (launch: ReflectLaunch) => Record<string, string>,
     private getSettings: () => ReflectSettings,
-    private appendLog: (event: Record<string, unknown>) => void
+    private appendLog: (event: Record<string, unknown>) => void,
+    private getAgent: (id: string) => ReflectAgent = () => ({})
   ) {}
 
   // — lifecycle (mirrors MemoryManager) —
@@ -213,6 +225,10 @@ export class MemoryReflector {
     if (evict.length === 0) {
       return { id, condensed: false, reason: 'nothing-to-evict', oldBytes };
     }
+    const launch = resolveReflectLaunch(s, this.getAgent(id), this.getCommand());
+    const limitKey = JSON.stringify([home, launch.provider, launch.command, launch.model]);
+    const prior = this.limits.get(limitKey);
+    if (prior && Date.now() < prior.retryAt) return { id, condensed: false, reason: 'rate-limited', retryAt: prior.retryAt, oldBytes };
 
     // 1) BACK UP first — a lossless cold copy makes every later step recoverable.
     const stamp = utcStamp();
@@ -225,13 +241,23 @@ export class MemoryReflector {
       return { id, condensed: false, reason: 'backup-failed', oldBytes };
     }
 
-    // 2) SUMMARIZE the (condensed + evicted) tail via headless Haiku.
+    // 2) SUMMARIZE with the chosen provider; never silently switch accounts.
     let summary: { condensed: string; hoist: string[] };
     try {
-      summary = await this.summarize(home, parsed.condensed, evict, parsed.pinned);
+      summary = await this.summarize(home, parsed.condensed, evict, parsed.pinned, launch);
+      this.limits.delete(limitKey);
     } catch (e) {
-      this.logAbort(id, 'summarize-failed', String(e));
-      return { id, condensed: false, reason: 'summarize-failed', oldBytes };
+      const reason = e instanceof ReflectError ? e.reason : 'summarize-failed';
+      let retryAt: number | undefined;
+      if (reason === 'rate-limited') {
+        const attempts = (prior?.attempts ?? 0) + 1;
+        const configured = typeof s.retryBackoffMs === 'number' && Number.isFinite(s.retryBackoffMs) ? s.retryBackoffMs : 3_600_000;
+        const delay = Math.min(86_400_000, Math.max(60_000, configured) * 2 ** Math.min(attempts - 1, 10));
+        retryAt = limitRetryAt(String(e), Date.now(), delay);
+        this.limits.set(limitKey, { retryAt, attempts });
+      }
+      this.logAbort(id, reason, String(e), { provider: launch.provider, model: launch.model, ...(retryAt ? { retryAt } : {}) });
+      return { id, condensed: false, reason, oldBytes, ...(retryAt ? { retryAt } : {}) };
     }
 
     // 3) REBUILD into the 3-region shape.
@@ -276,7 +302,7 @@ export class MemoryReflector {
   // — the headless LLM call (the only non-deterministic step) —
 
   private async summarize(
-    home: string, condensed: string | null, evict: Section[], pinned: string | null
+    home: string, condensed: string | null, evict: Section[], pinned: string | null, launch: ReflectLaunch
   ): Promise<{ condensed: string; hoist: string[] }> {
     const evictText = evict.map((s) => `${s.heading}\n${s.body}`).join('\n\n').trim();
     const prompt = [
@@ -293,21 +319,25 @@ export class MemoryReflector {
       pinned?.trim() || '(none)'
     ].join('\n');
 
-    const result = await runHiddenClaude(prompt, {
-      model: CONDENSE_MODEL,
+    const result = await runReflectSession(prompt, {
+      ...launch,
       cwd: home,
-      command: this.getCommand(),
-      // Pure text transform — must never touch the repo or shell out.
-      disallowedTools: ['Edit', 'Write', 'NotebookEdit', 'Bash'],
-      env: this.getMemoryEnv(),
+      env: this.getMemoryEnv(launch),
       timeoutMs: DEFAULT_TIMEOUT_MS,
     });
 
     if (!result.ok || !result.text) {
+      const limit = limitResponse(result.error ?? '');
+      if (limit) throw new ReflectError('rate-limited', limit);
+      if (result.reason) throw new ReflectError(result.reason, result.error ?? result.reason);
       throw new Error(result.error ?? 'condense: hidden session returned no text');
     }
     const parsed = parseSummary(result.text);
-    if (!parsed) throw new Error('condense: response contained no parseable summary');
+    if (!parsed) {
+      const limit = limitResponse(result.text);
+      if (limit) throw new ReflectError('rate-limited', limit);
+      throw new Error('condense: response contained no parseable summary');
+    }
     return parsed;
   }
 }
