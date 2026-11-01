@@ -22,6 +22,7 @@ import { inboxNudgeText } from '../../../shared/hiveNudge';
 import { resolveGodName } from '../../../shared/godIdentity';
 import { acquireTerminal, resetTerminal, isTerminalAutomationSafe } from '@/components/terminalPool';
 import { canDeliverToAgent, deliverWithAcknowledgement, checkPrecondition } from './queueDelivery';
+import { runWorkSwitchClear, type WorkStretch } from './workSwitchClear';
 import { OFFICE_CAST, DEFAULT_CHARACTER } from '@/scene/office/cast';
 
 const GOD_ID = 'god';
@@ -330,6 +331,8 @@ export function useHive(config: HarnessConfig | null): void {
   // mid-revive) within REVIVE_DEBOUNCE_MS is skipped. Set BEFORE the async spawn
   // so a re-entrant event can't race a second respawn for the same id.
   const reviving = useRef<Record<string, number>>({});
+  // Per lasting agent: when the current set of in-progress tasks started.
+  const workStretch = useRef<Record<string, WorkStretch>>({});
   // Reactive so the assistant bootstrap (effect #1b) re-runs once Michael is ready.
   const godStatus = useStore((s) => s.godStatus);
   // Per-pty `lastOutputAt`, refreshed by the quiescence sweep (#2e) and read by
@@ -1245,5 +1248,30 @@ export function useHive(config: HarnessConfig | null): void {
       if (!dead.length) return; // healthy wake — nothing wedged, no-op
       for (const id of dead) void revive(id);
     });
+  }, [config?.onboardingComplete]);
+
+  // Work-switch clear: after ~60 min on one task set, write handoff.md and queue a clear.
+  useEffect(() => {
+    if (!config?.onboardingComplete) return;
+    let stopped = false;
+    let running = false;
+    const tick = async (): Promise<void> => {
+      if (stopped || running) return;
+      running = true;
+      try {
+        await runWorkSwitchClear({
+          quietMs: ptyQuietMs,
+          quiesceMs: QUIESCE_IDLE_MS,
+          stretches: workStretch.current
+        });
+      } catch (err) {
+        console.error('[work-switch] clear failed', err);
+      } finally {
+        running = false;
+      }
+    };
+    void tick();
+    const timer = setInterval(() => { void tick(); }, 20_000);
+    return () => { stopped = true; clearInterval(timer); };
   }, [config?.onboardingComplete]);
 }
