@@ -444,9 +444,203 @@ function drawHeadBackBald(buf: Buf, r: Recipe): void {
   rect(buf, 7, 15, 9, 15, s.base);
 }
 
-function drawSceneBody(buf: Buf, r: Recipe, phase: number, back: boolean): void {
+// ─── arms, hands + held props (front / back views) ───────────────────────────
+// The torso's outer columns double as sleeves (x3/x14, or x2/x15 when heavy).
+// `arms` poses them: hanging with hands at the hips (swinging one pixel per walk
+// phase), typing (forearms forward, hands alternating on the keys), or reading
+// (both hands holding a page in front of the chest).
+type Arms = 'side' | 'typeA' | 'typeB' | 'read1' | 'read2';
+const PAPER: RGB = [244, 242, 234], INK: RGB = [150, 150, 160];
+
+function clear(buf: Buf, x: number, y: number): void {
+  if (x < 0 || x >= CUR_W || y < 0 || y >= CUR_H) return;
+  buf[(y * CUR_W + x) * 4 + 3] = 0;
+}
+
+function drawSceneArmsFront(buf: Buf, r: Recipe, arms: Arms, phase: number): void {
+  const skin = SKIN[r.skin], [, , sh] = shades(r.c1);
+  const L = r.heavy ? 2 : 3, R = r.heavy ? 15 : 14;
+  if (arms === 'side') {
+    // walk swing: the hand on the stepping side rides one pixel higher
+    set(buf, L, phase === 1 ? 24 : 25, skin.base);
+    set(buf, R, phase === 2 ? 24 : 25, skin.base);
+    return;
+  }
+  // forearms come forward: drop the lower sleeve, run it in toward the belly
+  for (let y = 22; y <= 24; y++) { clear(buf, L, y); clear(buf, R, y); }
+  if (arms === 'typeA' || arms === 'typeB') {
+    const [ly, ry] = arms === 'typeA' ? [22, 23] : [23, 22];
+    set(buf, L + 1, ly, sh); set(buf, L + 2, ly, sh); set(buf, 6, ly, skin.base); set(buf, 7, ly, skin.hi);
+    set(buf, R - 1, ry, sh); set(buf, R - 2, ry, sh); set(buf, 11, ry, skin.base); set(buf, 10, ry, skin.hi);
+    return;
+  }
+  // reading: a page held up in both hands, text lines shifting as it is read
+  rect(buf, 6, 20, 11, 23, PAPER);
+  const lines = arms === 'read1' ? [[7, 21, 10], [7, 22, 9]] : [[7, 21, 9], [7, 22, 10]];
+  for (const [x0, y, x1] of lines) for (let x = x0; x <= x1; x++) set(buf, x, y, INK);
+  set(buf, L + 1, 21, sh); set(buf, R - 1, 21, sh);
+  set(buf, 5, 22, skin.base); set(buf, 12, 22, skin.base);
+}
+
+function drawSceneArmsBack(buf: Buf, r: Recipe, arms: Arms): void {
+  const [, base, sh] = shades(r.c1);
+  const L = r.heavy ? 1 : 2, R = r.heavy ? 16 : 15;
+  if (arms === 'side') return;
+  // seen from behind, working arms read as elbows lifting off the torso
+  const left = arms === 'typeA' || arms === 'read1' || arms === 'read2';
+  const right = arms === 'typeB' || arms === 'read1' || arms === 'read2';
+  if (left) { set(buf, L, 21, base); set(buf, L, 22, sh); }
+  if (right) { set(buf, R, 21, base); set(buf, R, 22, sh); }
+}
+
+// ─── department badge (an ID card on a lanyard, in the agent's accent) ───────
+function drawBadgeFront(buf: Buf, badge: RGB): void {
+  const [hi, base, sh] = shades(badge);
+  set(buf, 7, 18, sh); set(buf, 6, 19, sh); set(buf, 6, 20, sh);
+  set(buf, 5, 21, hi); set(buf, 6, 21, base); set(buf, 5, 22, base); set(buf, 6, 22, sh);
+}
+function drawBadgeBack(buf: Buf, badge: RGB): void {
+  const [, , sh] = shades(badge);
+  for (const x of [7, 8, 9, 10]) set(buf, x, 17, sh);
+}
+
+function drawSceneBody(buf: Buf, r: Recipe, phase: number, back: boolean, arms: Arms = 'side', badge?: RGB): void {
   drawSceneTorso(buf, r, back);
   drawSceneLegs(buf, defaultPants(r), phase);
+  if (back) {
+    drawSceneArmsBack(buf, r, arms);
+    if (badge) drawBadgeBack(buf, badge);
+  } else {
+    if (badge) drawBadgeFront(buf, badge);
+    drawSceneArmsFront(buf, r, arms, phase);
+  }
+}
+
+// ─── side profile (facing right; the left view is this, mirrored) ────────────
+// A real profile instead of the front view reused: one eye, a nose that breaks
+// the silhouette, an ear, hair shaped from the side, and legs that stride.
+const SIDE_HEAD: [number, number, number][] = [
+  [2, 7, 10], [3, 6, 11], [4, 5, 12], [5, 5, 12], [6, 5, 12], [7, 5, 12], [8, 5, 12], [9, 5, 12],
+  [10, 5, 12], [11, 5, 12], [12, 5, 12], [13, 5, 12], [14, 5, 12], [15, 6, 12], [16, 7, 11],
+];
+
+function drawHeadSideSkin(buf: Buf, r: Recipe): void {
+  const s = SKIN[r.skin];
+  for (const [y, a, b] of SIDE_HEAD) rect(buf, a, y, b, y, s.base);
+  for (let y = 5; y <= 14; y++) set(buf, 5, y, s.sh);           // back of the skull in shade
+  for (let y = 6; y <= 9; y++) set(buf, 11, y, s.hi);           // forehead catching the light
+  set(buf, 13, 10, s.base); set(buf, 13, 11, s.sh);              // nose
+  rect(buf, 8, 9, 9, 11, s.sh); set(buf, 8, 10, s.line);         // ear
+  rect(buf, 8, 17, 10, 17, s.sh);                                // neck
+  if (r.heavy) {                                                 // fuller cheek + double chin
+    set(buf, 13, 13, s.base); set(buf, 13, 14, s.sh);
+    rect(buf, 8, 17, 11, 17, s.base); for (const x of [8, 9, 10, 11]) set(buf, x, 18, s.sh);
+  }
+}
+
+function drawFaceSide(buf: Buf, r: Recipe, blink: boolean): void {
+  const s = SKIN[r.skin];
+  if (blink) { set(buf, 11, 9, s.line); set(buf, 12, 9, s.line); }
+  else { set(buf, 12, 9, [250, 248, 244]); set(buf, 11, 9, [46, 38, 42]); }
+  if (r.lashes) set(buf, 12, 8, [54, 40, 48]);
+  const brow = r.brow ?? 'flat';
+  if (brow === 'flat') { set(buf, 10, 7, s.line); set(buf, 11, 7, s.line); }
+  else if (brow === 'angry') { set(buf, 10, 7, s.line); set(buf, 11, 8, s.line); }
+  else if (brow === 'raised') { set(buf, 10, 6, s.line); set(buf, 11, 6, s.line); }
+  else set(buf, 11, 7, s.line);
+  const mc: RGB = [158, 86, 80], mouth = r.mouth ?? 'neutral';
+  set(buf, 11, 14, mc); set(buf, 12, 14, mc);
+  if (mouth === 'smile' || mouth === 'grin') set(buf, 12, 13, mc);
+  if (mouth === 'grin') set(buf, 11, 13, [250, 248, 244]);
+  if (mouth === 'frown') set(buf, 12, 15, mc);
+  if (r.blush) set(buf, 11, 12, [235, 150, 140], 140);
+  if (r.facial) {
+    const [, base, fsh] = shades(r.hairc);
+    if (r.facial === 'mustache' || r.facial === 'mustacheSm') { set(buf, 12, 13, base); if (r.facial === 'mustache') set(buf, 11, 13, base); }
+    else if (r.facial === 'goatee') { set(buf, 11, 15, base); set(buf, 12, 15, base); set(buf, 12, 13, base); }
+    else for (const [x, y] of [[9, 14], [10, 15], [11, 15], [9, 13], [10, 14]] as const) set(buf, x, y, fsh, 150);
+  }
+}
+
+function drawHairSide(buf: Buf, r: Recipe): void {
+  const [hi, base, sh] = shades(r.hairc);
+  const a = r.hairargs ?? {};
+  if (r.hair === 'styleBald') {
+    const [shi] = shades(SKIN[r.skin].base, 1.1, 0.82);
+    for (const [x, y] of [[8, 2], [9, 2], [9, 3], [10, 3]] as const) set(buf, x, y, shi);
+    // just a low fringe behind the ear, thinner toward the crown
+    for (let y = a.recede ? 10 : 9; y <= 12; y++) { set(buf, 5, y, sh); set(buf, 6, y, base); }
+    set(buf, 7, 12, base);
+    return;
+  }
+  if (r.hair === 'styleRecede') {
+    for (let y = 4; y <= 11; y++) { set(buf, 5, y, base); set(buf, 6, y, base); }
+    for (let x = 5; x <= 9; x++) set(buf, x, 4, base);
+    for (let y = 5; y <= 8; y++) set(buf, 7, y, sh);
+    return;
+  }
+  // a cap of hair over the crown, down the back of the head, with a sideburn
+  const cap: [number, number, number][] = [[1, 7, 10], [2, 6, 11], [3, 5, 12], [4, 5, 12], [5, 5, 11]];
+  for (const [y, x0, x1] of cap) if (y > 1 || r.hair === 'styleCurly') rect(buf, x0, y, x1, y, base);
+  const backTo = r.hair === 'styleFrame' ? (a.length ?? 17) : r.hair === 'styleMessy' ? (a.length ?? 9) : 10;
+  for (let y = 6; y <= backTo; y++) { set(buf, 5, y, base); set(buf, 6, y, base); if (y <= 12) set(buf, 7, y, sh); }
+  if (r.hair === 'styleFrame') for (let y = 8; y <= backTo; y++) for (let d = 1; d <= (a.vol ?? 1); d++) set(buf, 5 - d, y, base);
+  set(buf, 8, 6, base); set(buf, 8, 7, sh);                                // sideburn
+  if (a.recede) { set(buf, 11, 5, SKIN[r.skin].base); set(buf, 10, 5, SKIN[r.skin].base); }
+  if (r.hair === 'styleFloppy') { set(buf, 12, 5, base); set(buf, 12, 6, base); set(buf, 11, 6, sh); }
+  if (r.hair === 'styleBun') { rect(buf, 3, 2, 4, 4, base); set(buf, 3, 2, hi); }
+  if (r.hair === 'styleSpiky' || r.hair === 'styleMessy') for (const x of [6, 8, 10]) set(buf, x, 1, base);
+  if (r.hair === 'styleCurly') for (const [x, y] of [[4, 5], [4, 7], [11, 1], [8, 1]] as const) set(buf, x, y, base);
+  for (let x = 7; x <= 10; x++) if (alphaAt(buf, x, 2)) set(buf, x, 2, hi);
+  if (a.part) set(buf, 10, 3, sh);
+}
+
+function drawGlassesSide(buf: Buf): void {
+  const frame: RGB = [60, 54, 62];
+  for (const x of [10, 11, 12]) { set(buf, x, 8, frame); set(buf, x, 10, frame); }
+  set(buf, 13, 9, frame); set(buf, 9, 9, frame);
+  set(buf, 12, 8, [236, 240, 246]);
+}
+
+function drawSceneSideBody(buf: Buf, r: Recipe, phase: number, arms: Arms, badge?: RGB): void {
+  const [hi, base, sh] = shades(r.c1);
+  const skin = SKIN[r.skin];
+  const x0 = r.heavy ? 5 : 6, x1 = r.heavy ? 12 : 11;
+  rect(buf, x0 + 1, 18, x1 - 1, 18, base);
+  rect(buf, x0, 19, x1, 24, base);
+  for (let y = 19; y <= 24; y++) set(buf, x0, y, sh);
+  // the garment's front edge (shirt, tie, cardigan opening, collar)
+  if (r.cloth === 'suit') { for (const y of [18, 19, 20]) set(buf, x1, y, [238, 238, 236]); if (r.tie) for (let y = 19; y <= 23; y++) set(buf, x1, y, r.tie); }
+  else if (r.cloth === 'dressshirt' && r.tie) for (let y = 18; y <= 23; y++) set(buf, x1, y, r.tie);
+  else if (r.cloth === 'cardigan') for (let y = 18; y <= 24; y++) set(buf, x1, y, r.c2 ? shades(r.c2)[1] : [235, 233, 226]);
+  else if (r.cloth === 'polo') { set(buf, x1 - 1, 18, hi); set(buf, x1, 19, hi); }
+  else set(buf, x1 - 1, 18, sh);
+  if (badge) { const [bhi, bbase] = shades(badge); set(buf, x1 - 1, 21, bhi); set(buf, x1 - 1, 22, bbase); }
+  // legs: together when standing, scissored when walking; the far leg in shade
+  const pants = defaultPants(r), [, pb, ps] = shades(pants);
+  const leg = (shift: number, c: RGB) => {
+    rect(buf, 8 + shift, 25, 9 + shift, 27, c);
+    rect(buf, 8 + shift * 2, 28, 9 + shift * 2, 30, c);
+    rect(buf, 8 + shift * 2, 31, 10 + shift * 2, 31, SHOE);
+  };
+  if (phase === 0) { rect(buf, 8, 25, 10, 30, pb); for (let y = 25; y <= 30; y++) set(buf, 8, y, ps); rect(buf, 8, 31, 11, 31, SHOE); }
+  else {
+    const fwd = phase === 1 ? 1 : -1;
+    leg(-fwd, ps);   // far leg
+    leg(fwd, pb);    // near leg
+  }
+  // the near arm: swings against the stride, or reaches forward to work
+  const ax = r.heavy ? 8 : 9;
+  if (arms === 'side') {
+    const swing = phase === 0 ? 0 : phase === 1 ? -1 : 1;
+    for (let y = 19; y <= 22; y++) set(buf, ax, y, sh);
+    set(buf, ax + swing, 23, sh); set(buf, ax + swing, 24, skin.base);
+  } else {
+    for (let y = 19; y <= 21; y++) set(buf, ax, y, sh);
+    const reach = arms === 'typeA' || arms === 'read1' ? 0 : 1;
+    set(buf, ax + 1, 22, sh); set(buf, ax + 2, 22, sh); set(buf, ax + 3, 22 - reach, skin.base);
+    if (arms === 'read1' || arms === 'read2') rect(buf, ax + 4, 18, ax + 4, 22, PAPER);
+  }
 }
 
 // ─── outline pass ────────────────────────────────────────────────────────────
@@ -509,11 +703,12 @@ const RECIPES: Record<OfficeCharacterName, Recipe> = {
 };
 
 /** The face/hair group (head → face → facial hair → hair → glasses), no clothing. */
-function drawHeadGroup(buf: Buf, r: Recipe): void {
+function drawHeadGroup(buf: Buf, r: Recipe, blink = false): void {
   const skinBase = SKIN[r.skin].base;
   drawHead(buf, r.skin);
   if (r.heavy) drawHeavyFace(buf, r.skin);
   drawFace(buf, r.skin, r.brow ?? 'flat', r.mouth ?? 'neutral', r.blush ?? false, r.lashes ?? false);
+  if (blink) for (const x of [5, 6, 10, 11]) set(buf, x, 9, SKIN[r.skin].line);
   if (r.facial) drawFacial(buf, r.facial, r.hairc);
   HAIR_FNS[r.hair](buf, r.hairc, skinBase, r.hairargs ?? {});
   if (r.glasses) drawGlasses(buf);
@@ -535,20 +730,32 @@ function compose(r: Recipe): Buf {
   return buf;
 }
 
-/** Full-body 18×32 scene sprite. `back=false` reuses the portrait's exact face. */
-function composeScene(r: Recipe, phase: number, back: boolean): Buf {
+type View = 'front' | 'back' | 'side';
+interface Pose { phase?: number; arms?: Arms; blink?: boolean; }
+
+/** Full-body 18×32 scene sprite. The front view reuses the portrait's exact face. */
+function composeScene(r: Recipe, view: View, pose: Pose, badge?: RGB): Buf {
   CUR_W = SCENE_W; CUR_H = SCENE_H;
   const buf = new Uint8ClampedArray(SCENE_W * SCENE_H * 4);
-  drawSceneBody(buf, r, phase, back);
-  if (back) drawHeadBack(buf, r);
-  else drawHeadGroup(buf, r);
+  const phase = pose.phase ?? 0, arms = pose.arms ?? 'side';
+  if (view === 'side') {
+    drawSceneSideBody(buf, r, phase, arms, badge);
+    drawHeadSideSkin(buf, r);
+    drawFaceSide(buf, r, pose.blink ?? false);
+    drawHairSide(buf, r);
+    if (r.glasses) drawGlassesSide(buf);
+  } else {
+    drawSceneBody(buf, r, phase, view === 'back', arms, badge);
+    if (view === 'back') drawHeadBack(buf, r);
+    else drawHeadGroup(buf, r, pose.blink ?? false);
+  }
   outlinePass(buf);
   return buf;
 }
 
 // ─── public render ───────────────────────────────────────────────────────────
 const bufCache = new Map<OfficeCharacterName, Buf>();
-const sceneCache = new Map<OfficeCharacterName, SceneFrames>();
+const sceneCache = new Map<string, SceneFrames>();
 
 function getBuf(name: OfficeCharacterName): Buf {
   let buf = bufCache.get(name);
@@ -559,18 +766,37 @@ function getBuf(name: OfficeCharacterName): Buf {
   return buf;
 }
 
-export interface SceneFrames { front: Buf[]; back: Buf[]; }
+/** Frames per view, in SCENE_FRAME order. `side` faces right. */
+export interface SceneFrames { front: Buf[]; back: Buf[]; side: Buf[]; }
 
-/** Walk-phase frames (stand, step-L, step-R) for the in-scene sprite, front + back. */
-export function sceneFrameBufs(name: OfficeCharacterName): SceneFrames {
-  let frames = sceneCache.get(name);
+/** Column order of every view's frame strip. Views without a distinct frame for
+ *  a slot (a blink seen from behind) repeat their standing frame there. */
+export const SCENE_FRAME = { stand: 0, stepL: 1, stepR: 2, type1: 3, type2: 4, read1: 5, read2: 6, blink: 7 } as const;
+
+export interface SceneFrameOptions {
+  /** Accent for the ID badge on a lanyard; omitted = no badge. */
+  badge?: RGB;
+}
+
+/** The in-scene sprite's frames: walk cycle, typing, reading and a blink, for
+ *  the front, back and side (right-facing) views. */
+export function sceneFrameBufs(name: OfficeCharacterName, opts: SceneFrameOptions = {}): SceneFrames {
+  const key = `${name}|${opts.badge?.join(',') ?? ''}`;
+  let frames = sceneCache.get(key);
   if (!frames) {
     const r = RECIPES[name] ?? RECIPES.jim;
-    frames = {
-      front: [composeScene(r, 0, false), composeScene(r, 1, false), composeScene(r, 2, false)],
-      back: [composeScene(r, 0, true), composeScene(r, 1, true), composeScene(r, 2, true)],
-    };
-    sceneCache.set(name, frames);
+    const strip = (view: View): Buf[] => [
+      composeScene(r, view, {}, opts.badge),
+      composeScene(r, view, { phase: 1 }, opts.badge),
+      composeScene(r, view, { phase: 2 }, opts.badge),
+      composeScene(r, view, { arms: 'typeA' }, opts.badge),
+      composeScene(r, view, { arms: 'typeB' }, opts.badge),
+      composeScene(r, view, { arms: 'read1' }, opts.badge),
+      composeScene(r, view, { arms: 'read2' }, opts.badge),
+      composeScene(r, view, { blink: view !== 'back' }, opts.badge),
+    ];
+    frames = { front: strip('front'), back: strip('back'), side: strip('side') };
+    sceneCache.set(key, frames);
   }
   return frames;
 }

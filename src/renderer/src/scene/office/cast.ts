@@ -7,7 +7,7 @@
 // sheets are no longer used for the cast. See assets/ATTRIBUTION.md.
 
 import { Texture } from 'pixi.js';
-import { paintPortrait, sceneFrameBufs, SCENE_W, SCENE_H } from './portraitArt';
+import { paintPortrait, sceneFrameBufs, SCENE_W, SCENE_H, type SceneFrameOptions } from './portraitArt';
 
 export type OfficeCharacterName =
   | 'michael' | 'jim' | 'pam' | 'dwight' | 'kevin' | 'angela'
@@ -52,7 +52,12 @@ export function hexToNumber(hex: string): number {
 }
 
 // ─── scene frames ────────────────────────────────────────────────────────────
-const frameCache = new Map<OfficeCharacterName, Texture[][]>();
+const frameCache = new Map<string, Texture[][]>();
+
+export interface CastFrameOptions {
+  /** 0xRRGGBB accent for the agent's lanyard ID badge (its department color). */
+  badge?: number;
+}
 
 function bufToTexture(buf: Uint8ClampedArray): Texture {
   const canvas = document.createElement('canvas');
@@ -67,23 +72,20 @@ function bufToTexture(buf: Uint8ClampedArray): Texture {
 }
 
 /**
- * Frame grid CharacterSprite expects: 3 rows (down, up, right) × 7 frames
- * [walk1, walk2, walk3, type1, type2, read1, read2]. We provide a front view
- * (down — and reused for the side row, so left/right walkers still show a face)
- * and a back view (up — agents seated facing their desk show their back). The
- * three walk frames are stand / step-left / step-right.
+ * Frame grid CharacterSprite expects: 3 rows (down, up, right) × 8 frames in
+ * portraitArt's SCENE_FRAME order [stand, stepL, stepR, type1, type2, read1,
+ * read2, blink]. Down is the front view, up the back view (agents seated facing
+ * their desk show their back) and right a true side profile, mirrored for left.
  */
-export async function getCastFrames(name: OfficeCharacterName): Promise<Texture[][]> {
-  const cached = frameCache.get(name);
+export async function getCastFrames(name: OfficeCharacterName, opts: CastFrameOptions = {}): Promise<Texture[][]> {
+  const key = `${name}|${opts.badge ?? ''}`;
+  const cached = frameCache.get(key);
   if (cached) return cached;
-  const { front, back } = sceneFrameBufs(name);
-  const toRow = (bufs: Uint8ClampedArray[]): Texture[] => {
-    const [stand, stepL, stepR] = bufs.map(bufToTexture);
-    return [stand, stepL, stepR, stand, stand, stand, stand];
-  };
-  const frontRow = toRow(front);
-  const frames: Texture[][] = [frontRow, toRow(back), frontRow]; // down, up, right
-  frameCache.set(name, frames);
+  const b = opts.badge;
+  const frameOpts: SceneFrameOptions = { badge: b == null ? undefined : [(b >> 16) & 255, (b >> 8) & 255, b & 255] };
+  const { front, back, side } = sceneFrameBufs(name, frameOpts);
+  const frames: Texture[][] = [front, back, side].map((bufs) => bufs.map(bufToTexture)); // down, up, right
+  frameCache.set(key, frames);
   return frames;
 }
 
