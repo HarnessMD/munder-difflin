@@ -59,6 +59,11 @@ interface CoffeeRun {
 interface Runtime {
   character: Character;
   seatIndex: number | null;
+  /** The desk PIN this seat was claimed under (equal to agent.seat when the
+   *  pin won the claim, undefined for auto seating). Drives the re-seat check
+   *  in syncAgents: pin set/changed/cleared → the avatar drops and re-adds so
+   *  claimSeat re-runs with the new pin. */
+  pinnedSeat?: number;
   waitTile: Tile;
   charName: string;
   prevStatus?: string;
@@ -144,12 +149,17 @@ function loadTexture(url: string): Promise<Texture> {
   });
 }
 
-/** What the agent is doing right now, for the thought cloud. Prefer the live
- *  `action` (e.g. "edit App.tsx", "bash npm test"), fall back to the prompt we
- *  gave it, then to a caller-supplied generic. Returns '' for the working state
- *  with nothing concrete yet — the bubble renders an animated "…" for that. */
-function liveActivity(agent: Agent, fallback = ''): string {
+import { actionKey } from '@/i18n/actionText';
+import type { TFunction } from 'i18next';
+
+/** What the agent is doing right now, for the thought cloud. Known fixed
+ *  status literals are localized via agentAction.*; live tool text (e.g.
+ *  "edit App.tsx", "bash npm test") and the prompt fallback pass through
+ *  untouched — translating those would be wrong, not more complete. */
+function liveActivity(agent: Agent, t: TFunction, fallback = ''): string {
   const action = (agent.action || '').trim();
+  const key = actionKey(action);
+  if (key) return t(key);
   if (action) return action;
   return firstWords(agent.lastPrompt) || fallback;
 }
@@ -352,6 +362,9 @@ export function OfficeFloor() {
         }
       };
       addZoneSeats('boardroom');       // conference room overflow
+      // Publish how many desks this theme exposes — Edit Agent's desk picker
+      // ranges over this (0-based; seat 0 is Michael's room).
+      useStore.getState().setSeatCount(seatTiles.length);
       // The bottom-right open area is the cafeteria (break room) — see the
       // coffee-break director below. It is deliberately NOT added as overflow
       // desk seating, so the café tables stay free for breaks.
@@ -379,6 +392,20 @@ export function OfficeFloor() {
       // All other workers claim seats from 1 onward.
       const GOD_SEAT = 0;
       const claimSeat = (agent: Agent): number | null => {
+        // A per-agent DESK PIN (Edit Agent → Desk) beats every auto rule —
+        // including the god's reserved seat 0 — when the pinned seat is free
+        // and in range. An out-of-range or already-claimed pin degrades to the
+        // auto rules (loudly, so a typo'd pin is visible in devtools): a pin
+        // must never evict the agent currently sitting there.
+        const pin = agent.seat;
+        if (typeof pin === 'number' && Number.isInteger(pin)
+            && pin >= 0 && pin < seatTiles.length && !seatClaims.has(pin)) {
+          seatClaims.add(pin);
+          return pin;
+        }
+        if (pin != null) {
+          console.warn(`[office] desk pin ${pin} for ${agent.name} is out of range or taken — falling back to auto seating`);
+        }
         if (agent.isGod) { seatClaims.add(GOD_SEAT); return GOD_SEAT; }
         for (let i = 1; i < seatTiles.length; i++) {
           if (!seatClaims.has(i)) { seatClaims.add(i); return i; }
@@ -1405,6 +1432,9 @@ export function OfficeFloor() {
         });
         character.show(charLayer);
         const rt: Runtime = { character, seatIndex, waitTile, charName };
+        // Record WHICH desk pin this seat was claimed under, so a later pin
+        // change (set / moved / cleared) is detectable in syncAgents.
+        rt.pinnedSeat = typeof agent.seat === 'number' && agent.seat === seatIndex ? agent.seat : undefined;
         // Standard desks paint the 2×2 PC monitor two rows above the seat —
         // give those a DeskScreen (lights up while seated) and a cup spot
         // beside the monitor, exactly where the tileset's baked-in mug used
@@ -1511,7 +1541,7 @@ export function OfficeFloor() {
           case 'thinking':
             c.setStatusGlyph('none');
             c.sitAtDesk(true);
-            c.showThought(liveActivity(agent), agent.carrying);
+            c.showThought(liveActivity(agent, t), agent.carrying);
             break;
           case 'waiting':
             // Parked at the desk awaiting god / another agent — not actively
@@ -1519,11 +1549,11 @@ export function OfficeFloor() {
             // agents that need the human).
             c.setStatusGlyph('none');
             c.sitAtDesk(false);
-            c.showThought(liveActivity(agent, t('office.activity.waiting')), agent.carrying);
+            c.showThought(liveActivity(agent, t, t('office.activity.waiting')), agent.carrying);
             break;
           case 'blocked':
             c.setStatusGlyph('blocked');
-            c.showThought(liveActivity(agent, t('office.activity.needsYou')));
+            c.showThought(liveActivity(agent, t, t('office.activity.needsYou')));
             c.walkToTile(rt.waitTile);
             break;
           case 'compacting':
@@ -1531,14 +1561,14 @@ export function OfficeFloor() {
             // so an agent compacting context reads as busy rather than frozen.
             c.setStatusGlyph('compacting');
             c.sitAtDesk(true);
-            c.showThought(liveActivity(agent, t('office.activity.compacting')));
+            c.showThought(liveActivity(agent, t, t('office.activity.compacting')));
             break;
           case 'looping':
             // #5C — circuit-breaker armed (#6): hold position with the spinning
             // warning glyph so a runaway agent is visible on the floor.
             c.setStatusGlyph('looping');
             c.sitAtDesk(false);
-            c.showThought(liveActivity(agent, t('office.activity.looping')));
+            c.showThought(liveActivity(agent, t, t('office.activity.looping')));
             break;
           case 'success':
             c.setStatusGlyph('success');
@@ -1560,14 +1590,14 @@ export function OfficeFloor() {
           default:
             c.setStatusGlyph('none');
             // The god runs the floor from its desk; everyone else wanders when idle.
-            if (agent.isGod) { c.sitAtDesk(true); c.showThought(liveActivity(agent, t('office.activity.runningFloor'))); }
+            if (agent.isGod) { c.sitAtDesk(true); c.showThought(liveActivity(agent, t, t('office.activity.runningFloor'))); }
             else if (finishedWork) {
               // Task done → a quick cheer on the spot, then back to roaming.
               c.startWandering();
               c.cheer();
               c.showThought(t(CHEER_KEYS[Math.floor(Math.random() * CHEER_KEYS.length)]));
             }
-            else { c.startWandering(); c.showThought(liveActivity(agent, t('office.activity.idle'))); }
+            else { c.startWandering(); c.showThought(liveActivity(agent, t, t('office.activity.idle'))); }
             break;
         }
       };
@@ -1581,6 +1611,14 @@ export function OfficeFloor() {
         for (const agent of agents) {
           const rt = runtimes.get(agent.id);
           if (!rt) void addCharacter(agent);
+          else if (agent.seat !== rt.pinnedSeat) {
+            // Desk pin set/changed/cleared → drop and re-add so claimSeat
+            // re-runs under the new pin (removeCharacter releases the old
+            // seat; addCharacter honours the new one). Nothing else in the
+            // avatar state depends on seat continuity, so the swap is safe.
+            removeCharacter(agent.id);
+            void addCharacter(agent);
+          }
           else {
             rt.character.setName(agent.name);
             applyState(agent, rt);

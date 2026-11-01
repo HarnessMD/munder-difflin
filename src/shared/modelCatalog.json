@@ -75,6 +75,7 @@
       { "id": "openai/gpt-5", "label": "GPT-5 (OpenAI)", "minAppVersion": null, "maxAppVersion": null },
       { "id": "openai/gpt-5-mini", "label": "GPT-5 mini (OpenAI)", "minAppVersion": null, "maxAppVersion": null },
       { "id": "openrouter/anthropic/claude-sonnet-4.5", "label": "Claude Sonnet 4.5 (OpenRouter)", "minAppVersion": null, "maxAppVersion": null },
+      { "id": "openrouter/free", "label": "OpenRouter Free (free tier)", "minAppVersion": null, "maxAppVersion": null },
       { "id": "google/gemini-2.5-pro", "label": "Gemini 2.5 Pro (Google)", "minAppVersion": null, "maxAppVersion": null },
       { "id": "local/llama3", "label": "Local · OpenAI-compatible (set base-URL)", "minAppVersion": null, "maxAppVersion": null }
     ],
