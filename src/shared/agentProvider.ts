@@ -59,6 +59,16 @@ export type BridgeDescriptor =
       inboxDelivery: 'terminal' | 'serve';
     };
 
+/** Provider-specific argv shape for granting access to directories outside cwd.
+ *  Kept declarative so Hive can resolve the policy while each CLI owns only its
+ *  flag syntax. */
+export interface DirectoryAccessDescriptor {
+  flag: string;
+  valueStyle: 'separate' | 'equals';
+  /** Optional paths that do not exist or cannot be inspected are omitted. */
+  requiresExisting?: boolean;
+}
+
 export interface AgentProviderPreset {
   id: AgentProvider;
   label: string;
@@ -105,6 +115,8 @@ export interface AgentProviderPreset {
    *  derives `{kind:'hooks'}` from their `hookBridge`. claude/custom leave it
    *  undefined (no bridge). Prefer `bridgeOf(provider)` over reading this directly. */
   bridge?: BridgeDescriptor;
+  /** How this CLI grants narrowly scoped access to paths outside its cwd. */
+  directoryAccess?: DirectoryAccessDescriptor;
   /** The model the GOD orchestrator ("Michael") defaults to when this provider
    *  powers it — surfaced as the picker default and the advisory "give Michael a
    *  longer-context, higher-capability model". `modelForRole` resolves the GOD
@@ -517,6 +529,9 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     supportsModel: true,
     modelFlag: '--model', // e.g. claude-sonnet-4.5 (default), gpt-5.4, or 'auto'
     hiveAware: false, // no --append-system-prompt/--settings; protocol rides in via -p
+    // Copilot restricts filesystem access to cwd even when tools are auto-approved.
+    // The Hive spawn path supplies only the protocol directories it actually needs.
+    directoryAccess: { flag: '--add-dir', valueStyle: 'equals', requiresExisting: true },
     initialPromptFlag: '-p', // copilot -p "<orchestrator/worker brief>" runs it non-interactively
     recommendedOrchestratorModel: 'claude-sonnet-4.5', // Copilot's default; user may pick gpt-5.4
     // Copilot supports session resume by id (`--resume=<id>`); attached only when a
@@ -604,6 +619,33 @@ export function normalizeAgentProvider(value: unknown): AgentProvider | undefine
 
 export function providerPreset(provider: AgentProvider): AgentProviderPreset {
   return AGENT_PROVIDER_PRESETS.find((p) => p.id === provider) ?? AGENT_PROVIDER_PRESETS[0];
+}
+
+export function directoryAccessOf(
+  provider: AgentProvider | undefined
+): DirectoryAccessDescriptor | undefined {
+  return providerPreset(provider ?? 'claude').directoryAccess;
+}
+
+/** Build directory-grant argv without shell joining. Each returned entry is one
+ *  token, including `--flag=value` CLIs where a path may contain spaces. */
+export function directoryArgsForProvider(
+  provider: AgentProvider | undefined,
+  dirs: readonly string[]
+): string[] {
+  const access = directoryAccessOf(provider);
+  if (!access || dirs.length === 0) return [];
+
+  switch (access.valueStyle) {
+    case 'equals':
+      return dirs.map((dir) => `${access.flag}=${dir}`);
+    case 'separate':
+      return dirs.flatMap((dir) => [access.flag, dir]);
+    default: {
+      const exhaustive: never = access.valueStyle;
+      return exhaustive;
+    }
+  }
 }
 
 export function isClaudeProvider(provider: AgentProvider | undefined): boolean {
