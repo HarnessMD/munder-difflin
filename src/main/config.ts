@@ -367,6 +367,9 @@ export interface HarnessConfig {
    *  auto-disconnect on idle — the spend cap remains the runaway guard. The user
    *  tunes this in Settings → Realtime Michael. */
   realtimeIdleDisconnectMs?: number;
+  /** Stage → Schrute Farms Mode: when on, Conference briefs and floor→god
+   *  dispatches append a threat-model + rollback requirement. Default off. */
+  schruteFarmsMode?: boolean;
 
   // ─── Generic inbound webhook + status API (LEGACY, single-endpoint) ─────────
   // Superseded by `webhookTriggers`, which allows many endpoints over one server
@@ -461,6 +464,7 @@ const DEFAULTS: HarnessConfig = {
   freeflowModel: 'whisper-large-v3-turbo',
   realtimeVoiceEnabled: false,
   realtimeIdleDisconnectMs: 180_000,
+  schruteFarmsMode: false,
   webhookEnabled: false,
   webhookSecret: undefined,
   webhookPort: undefined,

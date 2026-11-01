@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PixelButton } from './PixelButton';
-import { useStore } from '@/store/store';
+import { TempSpawnBox } from './TempSpawnBox';
+import { selectedAgent, useStore } from '@/store/store';
 
 /**
  * WORKERS — live god-triggered ephemeral Slack workers (the Phase-1 spawn loop):
@@ -67,6 +68,7 @@ function StatusBadge({ w }: { w: WorkerSnapshot }) {
 export function WorkersTab() {
   const { t } = useTranslation();
   const godName = useStore((s) => s.agents.find((a) => a.isGod)?.name) ?? 'the orchestrator';
+  const agent = useStore(selectedAgent) ?? null;
   const [data, setData] = useState<WorkersData | null>(null);
   const [stopping, setStopping] = useState<Record<string, boolean>>({});
 
@@ -93,6 +95,10 @@ export function WorkersTab() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '12px 14px 16px', overflow: 'auto' }}>
+      <div style={card}>
+        <span style={sectionHead}>{t('workersTab.startTempTitle')}</span>
+        <TempSpawnBox agent={agent} prominent />
+      </div>
       <div>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
           <span style={sectionHead}>{t('workersTab.liveWorkers')}</span>
