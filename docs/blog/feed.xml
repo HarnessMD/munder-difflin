@@ -4,9 +4,17 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-10-31T00:00:00.000Z</updated>
+  <updated>2026-11-01T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 1 Nov 2026: ChatGPT Share Link Takeover, Prospero, Orkas</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-01/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-01/</id>
+    <published>2026-11-01T00:00:00.000Z</published>
+    <updated>2026-11-01T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 29 Oct to 1 Nov 2026, each with its source and date.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 31 Oct 2026: Claude Code Extension Backdoor in Cursor, Claude Code 2.1.316, OpenCode 2.2.5</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-31/" />
@@ -478,13 +486,5 @@
     <published>2026-10-13T00:00:00.000Z</published>
     <updated>2026-10-13T00:00:00.000Z</updated><category term="Guides" />
     <summary>Gemini 4 Argon pricing, checked 13 Oct 2026: $2 input and $10 output per 1M tokens through 30 Nov, then $4 and $20. No free tier. Worked examples inside.</summary>
-  </entry>
-  <entry>
-    <title>Gemini 4 Argon vs Claude Opus 5.5 vs GPT-6 Astra: Google Published a Table It Does Not Fully Win</title>
-    <link href="https://munderdiffl.in/blog/gemini-4-argon-vs-claude-opus-5-5/" />
-    <id>https://munderdiffl.in/blog/gemini-4-argon-vs-claude-opus-5-5/</id>
-    <published>2026-10-13T00:00:00.000Z</published>
-    <updated>2026-10-13T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Google&#39;s own table: Gemini 4 Argon tops 13 of 19 rows, GPT-6 Astra 3 and Claude Opus 5.5 2. The coding rows split. List prices compared.</summary>
   </entry>
 </feed>
