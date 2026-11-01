@@ -94,6 +94,8 @@ export interface Agent {
   /** When git isolation is enabled, the dedicated worktree path the agent runs
    *  in (its own `agent/<id>` branch); undefined for shared-cwd agents. */
   worktreePath?: string;
+  /** Original repository retained across restart for a missing-worktree fallback. */
+  worktreeOrigin?: string;
   /** Live context size of the agent's Claude session (tokens), polled from its
    *  transcript. Drives the context gauge on the agent card. */
   contextTokens?: number;
