@@ -34,8 +34,11 @@ import {
 import {
   canAutomateTerminal,
   opensInteractiveTerminalUi,
+  SCROLLBACK_CLEAR_RESTORE_MS,
+  scrollbackRestoreLine,
   shouldFollowTerminalOutput,
   terminalAutomationBlock,
+  type ScrollbackClearAnchor,
   type TerminalAutomationBlock
 } from './terminalAutomation';
 import { sanitizeTerminalSelection } from './terminalSelection';
@@ -83,6 +86,15 @@ export interface TerminalEntry {
    * the OLD process carry the generation they were registered under, so they can
    * be recognised and dropped instead of corrupting the replacement. */
   generation: number;
+  /** Stick-to-bottom: true while the user is reading the live tail. Changed
+   *  only by the user's own scrolling (wheel, keys, scrollbar) and by the views'
+   *  explicit snap-to-bottom, never by output, so output queued before the user
+   *  scrolled up cannot yank them back down when it lands. */
+  followOutput: boolean;
+  /** Set when the program cleared the scrollback while the user was scrolled
+   *  up: where they were, and until when to put them back there while the
+   *  redraw lands (see SCROLLBACK_CLEAR_RESTORE_MS). */
+  scrollRestore: { anchor: ScrollbackClearAnchor; until: number } | null;
   webgl?: WebglAddon;
   /** Live Arabic/RTL rendering handles, present only while it is ON. Held so
    *  the mode can be switched off again without disposing the terminal. */
@@ -179,20 +191,79 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     inputDirtyAt: 0,
     automationSettleUntil: 0,
     lineBuf: '',
-    generation: 0
+    generation: 0,
+    followOutput: true,
+    scrollRestore: null
   };
+
+  // Stick-to-bottom follows the USER's scrolling. The follow decision used to be
+  // sampled when a chunk was queued and applied after xterm parsed it, so every
+  // chunk already in flight when the user scrolled up snapped them straight back
+  // to the bottom: a streaming reply could not be read. Now only the user's own
+  // scrolling changes it, and returning to the bottom resumes following.
+  const syncFollow = (): void => {
+    const active = term.buffer.active;
+    entry.followOutput = shouldFollowTerminalOutput(active.viewportY, active.baseY);
+    entry.scrollRestore = null;
+  };
+  // The wheel goes through xterm's buffer, not the DOM scrollTop. xterm's own
+  // wheel path only moves scrollTop and reads it back on the next scroll event;
+  // output that repaints in between writes scrollTop back to the old bottom and
+  // swallows that event, so a quick flick upward during a stream was simply lost.
+  // A program that tracks the mouse, or the alternate screen (no scrollback),
+  // still gets xterm's default handling.
+  let wheelLines = 0;
+  term.attachCustomWheelEventHandler((ev) => {
+    if (term.buffer.active.type !== 'normal' || term.modes.mouseTrackingMode !== 'none' || ev.deltaY === 0) return true;
+    const screenHeight = term.element?.querySelector('.xterm-screen')?.clientHeight ?? 0;
+    const rowPx = screenHeight > 0 ? screenHeight / term.rows : 16;
+    const perLine = ev.deltaMode === WheelEvent.DOM_DELTA_LINE ? 1 : ev.deltaMode === WheelEvent.DOM_DELTA_PAGE ? term.rows : 1 / rowPx;
+    wheelLines += ev.deltaY * perLine * (term.options.scrollSensitivity ?? 1);
+    const lines = Math.trunc(wheelLines);
+    wheelLines -= lines;
+    if (lines !== 0) term.scrollLines(lines);
+    syncFollow();
+    ev.preventDefault();
+    return false;
+  });
+  // Keys (PageUp, typing, which scrolls to the bottom) and scrollbar drags.
+  const onUserScroll = (): void => { requestAnimationFrame(syncFollow); };
+  host.addEventListener('keydown', onUserScroll, true);
+  host.addEventListener('pointerup', onUserScroll, true);
+
+  // CSI 3 J (clear scrollback) while the user is scrolled up: xterm clamps the
+  // viewport to line 0 and, because the user is still "scrolling", keeps it there
+  // while the redraw refills the buffer, so the view snaps to the top of the
+  // transcript. Remember where the reader was; the write callback below puts
+  // them back. Return false so xterm still clears.
+  term.parser.registerCsiHandler({ final: 'J' }, (params) => {
+    const active = term.buffer.active;
+    if (params[0] === 3 && !entry.followOutput && active.type === 'normal') {
+      entry.scrollRestore = {
+        anchor: entry.scrollRestore?.anchor ?? { viewportY: active.viewportY, baseY: active.baseY },
+        until: Date.now() + SCROLLBACK_CLEAR_RESTORE_MS
+      };
+    }
+    return false;
+  });
 
   // Subscribe to the pty stream ONCE for the terminal's whole lifetime, so the
   // buffer keeps filling even while this terminal isn't mounted in any view.
   entry.unsub.push(window.cth.onPtyData(ptyId, (rawChunk) => {
     const chunk = normalizePtyChunk(rawChunk);
     if (!chunk) return;
-    const active = term.buffer.active;
-    const follow = shouldFollowTerminalOutput(active.viewportY, active.baseY);
     term.write(chunk, () => {
-      if (follow) {
-        try { term.scrollToBottom(); } catch { /* terminal may be detaching */ }
-      }
+      try {
+        const restore = entry.scrollRestore;
+        if (restore && Date.now() <= restore.until) {
+          const { line, done } = scrollbackRestoreLine(term.buffer.active.baseY, restore.anchor);
+          term.scrollToLine(line);
+          if (done) entry.scrollRestore = null;
+        } else {
+          entry.scrollRestore = null;
+          if (entry.followOutput) term.scrollToBottom();
+        }
+      } catch { /* terminal may be detaching */ }
     });
     entry.onData?.(chunk);
   }));
