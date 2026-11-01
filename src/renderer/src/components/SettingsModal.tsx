@@ -1427,7 +1427,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   {/* CONNECTIONS — everything external (MCP + Slack + webhook + REST) */}
                   {activeSection === 'Connections' && (
                     <>
-                      <McpDefaultsSettings config={config} />
+                      <McpDefaultsSettings />
                       <div style={{ height: 1, background: 'var(--cth-ink-300)' }} />
                     </>
                   )}
