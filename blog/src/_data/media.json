@@ -3264,6 +3264,17 @@
     "inline": {},
     "youtube": []
   },
+  "deepseek-harness-alternatives": {
+    "title": "DeepSeek Harness Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/deepseek-harness-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title DeepSeek Harness alternatives, the line 6 picks by why you are leaving and a Checked 2 Nov 2026 line. Six small tiles named Claude Code, Munder Difflin, Codex CLI, OpenCode, Qwen Code and Pi slide in under a grey tile labelled DeepSeek Harness.",
+      "prompt": "Title card: the hero scene in assets/media/deepseek-harness-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",

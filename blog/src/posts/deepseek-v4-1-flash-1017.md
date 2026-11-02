@@ -57,7 +57,7 @@ DeepSeek's table compares the update with the previous Flash and with models it 
 
 DeepSeek notes: "We use the Claude Code harness for Terminal-Bench 4.0 and the Mini-SWE-V2 harness for DeepSWE v1.1." Of the eleven rows in its table, the update has the top score on four (DeepSWE v1.1, Automation-Bench, Agents' Last Exam and Apex Bench), Opus 5 on six, including Terminal-Bench 4.0 and ProgramBench, and GPT-5.6 Sol on one. These are DeepSeek's own numbers.
 
-DeepSeek's [release note](https://api-docs.deepseek.com/news/news261017) says the model "uses reinforcement learning with self-feedback to improve end-to-end project development" and is "Optimized for DeepSeek Harness, Tencent CodeBuddy, WorkBuddy, and more." On Hacker News, two posts about the release had more than 200 points each on 17 Oct.
+DeepSeek's [release note](https://api-docs.deepseek.com/news/news261017) says the model "uses reinforcement learning with self-feedback to improve end-to-end project development" and is "Optimized for DeepSeek Harness, Tencent CodeBuddy, WorkBuddy, and more." If you want the model without that tool, our page on [DeepSeek Harness alternatives](/blog/deepseek-harness-alternatives/) sorts the options. On Hacker News, two posts about the release had more than 200 points each on 17 Oct.
 
 ## How much does DeepSeek V4.1 Flash 1017 cost?
 
