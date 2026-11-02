@@ -21,9 +21,15 @@ const os = require('node:os');
 const path = require('node:path');
 const loadTs = require('./load-ts.cjs');
 
-const { extensionOf, imageMimeForPath, isImagePath, isSvgPath, formatBytes } = loadTs('src/shared/imageTypes.ts');
+const {
+  extensionOf, imageMimeForPath, isImagePath, isSvgPath, formatBytes,
+  imageMimeForFileName, imageMimeForDiskPath, isImageDiskPath, isSvgDiskPath
+} = loadTs('src/shared/imageTypes.ts');
 const { readFileBinary } = loadTs('src/main/fs.ts');
-const { resolveLocalImageRel, resolveRel } = loadTs('src/renderer/src/markdown/mdLinks.ts');
+const {
+  resolveLocalImageRel, resolveLocalImageSource, resolveMdLinkRel, decodeHrefPath, resolveRel
+} = loadTs('src/renderer/src/markdown/mdLinks.ts');
+const { settleImageRead } = loadTs('src/renderer/src/hooks/useWorkspaceImage.ts');
 
 // ─── extension → mime ───────────────────────────────────────────────────────
 
@@ -70,6 +76,37 @@ test('svg is flagged separately — it is the one image that is also source', ()
   assert.ok(isSvgPath('logo.svg'));
   assert.ok(isSvgPath('a/b/LOGO.SVG'));
   assert.equal(isSvgPath('logo.png'), false);
+});
+
+test('Object.prototype keys are not image extensions', () => {
+  // MIME_BY_EXT is a plain object literal, so an unguarded lookup of
+  // `constructor` hands back Object itself — `x.constructor` became an "image",
+  // and the mime the main process then stamped was a function that cannot cross
+  // IPC. Lower-casing means these two are the reachable ones.
+  for (const name of ['x.constructor', 'x.__proto__', 'x.hasownproperty']) {
+    assert.equal(imageMimeForPath(name), null, `${name} via the URL API`);
+    assert.equal(imageMimeForFileName(name), null, `${name} via the file-name API`);
+    assert.equal(isImagePath(name), false);
+    assert.equal(isImageDiskPath(name), false);
+  }
+});
+
+test('DISK paths keep `#` and `?` as part of the file name', () => {
+  // The URL API strips them as fragment/query; on disk they are just
+  // characters. A screenshot called `QA#1.png`, or any image under a `notes#1/`
+  // directory, must still open as an image in the IDE.
+  assert.equal(imageMimeForFileName('QA#1.png'), 'image/png');
+  assert.equal(imageMimeForFileName('cover.png?v=1'), null, 'its real extension is `png?v=1`');
+  assert.ok(isImageDiskPath('docs/QA#1.png'));
+  assert.ok(isImageDiskPath('notes#1/shot.png'));
+  assert.ok(isSvgDiskPath('notes#1\\logo.svg'), 'Windows separators count too');
+  assert.equal(isSvgDiskPath('notes#1/logo.png'), false);
+  // A workspace that lives under a `#` directory: the WHOLE absolute path is
+  // what the main process sees.
+  assert.equal(imageMimeForDiskPath('C:\\Users\\me\\C#work\\docs\\logo.svg'), 'image/svg+xml');
+  assert.equal(imageMimeForDiskPath('/home/me/C#work/docs/shot.PNG'), 'image/png');
+  assert.equal(imageMimeForDiskPath('C:\\v1.2\\report'), null, 'a dotted directory is not an extension');
+  assert.equal(imageMimeForDiskPath(''), null);
 });
 
 test('formatBytes reads like a status line', () => {
@@ -120,6 +157,116 @@ test('`..` can never climb above the workspace root textually', () => {
   // Not the security boundary (safeResolve is), but it must not even try.
   assert.equal(resolveRel('a/b/c.md', '../../../../../etc/passwd'), 'etc/passwd');
   assert.equal(resolveLocalImageRel('a/b.md', '../../../../x.png'), 'x.png');
+});
+
+// ─── percent-encoded sources ────────────────────────────────────────────────
+//
+// The resolver never sees what the author typed: react-markdown hands it the
+// URL AFTER `normalizeUri`, which percent-encodes spaces, backslashes and every
+// non-ASCII character, and turns a `%` that is not followed by two
+// alphanumerics into `%25`. So the inputs below come in two kinds — PARSER
+// OUTPUT (what the product actually receives) and DIRECT input (only reachable
+// by calling the resolver yourself, kept to pin the defensive edges).
+
+/** The `src` react-markdown passes to the `img` component for `markdown`. */
+async function srcOfMarkdownImage(markdown) {
+  const { default: ReactMarkdown } = await import('react-markdown');
+  const React = require('react');
+  const { renderToStaticMarkup } = require('react-dom/server');
+  let captured;
+  renderToStaticMarkup(React.createElement(ReactMarkdown, {
+    components: { img: ({ src }) => { captured = src; return null; } }
+  }, markdown));
+  return captured;
+}
+
+test('what the parser actually hands the resolver', async () => {
+  assert.equal(await srcOfMarkdownImage('![QA](<QA Shot.png>)'), 'QA%20Shot.png');
+  assert.equal(await srcOfMarkdownImage('![QA](QA%20Shot.png)'), 'QA%20Shot.png');
+  assert.equal(await srcOfMarkdownImage('![x](bad%2.png)'), 'bad%252.png', 'a lone `%` is re-encoded');
+  assert.equal(await srcOfMarkdownImage('![x](100%.png)'), '100%25.png');
+  assert.equal(await srcOfMarkdownImage('![x](bad%zz.png)'), 'bad%zz.png', 'kept: it LOOKS like an escape');
+  assert.equal(await srcOfMarkdownImage('![x](<img\\shot.png>)'), 'img%5Cshot.png');
+  // A colon BEFORE the first `/` reads as a scheme and react-markdown's
+  // urlTransform blanks the whole URL; after a `/` it survives untouched.
+  assert.equal(await srcOfMarkdownImage('![x](a:b.png)'), '');
+  assert.equal(await srcOfMarkdownImage('![x](shots/a:b.png)'), 'shots/a:b.png');
+});
+
+test('each URL segment is decoded exactly once', () => {
+  const base = 'docs/report.md';
+  assert.equal(resolveLocalImageRel(base, 'QA%20Shot.png'), 'docs/QA Shot.png');
+  assert.equal(resolveLocalImageRel(base, 'QA%2520Shot.png'), 'docs/QA%20Shot.png', 'never twice');
+  assert.equal(resolveLocalImageRel(base, '%E6%B8%AC%E8%A9%A6.png'), 'docs/測試.png');
+  assert.equal(resolveLocalImageRel(base, '100%25.png'), 'docs/100%.png');
+  assert.equal(resolveLocalImageRel(base, 'bad%252.png'), 'docs/bad%2.png');
+  assert.equal(resolveLocalImageRel(base, 'C++.png'), 'docs/C++.png', '`+` is not a form-encoded space');
+  assert.equal(resolveLocalImageRel(base, 'QA%20Shot.png?v=2#fig'), 'docs/QA Shot.png');
+  assert.equal(resolveLocalImageRel(base, '/docs/QA%20Shot.png'), 'docs/QA Shot.png');
+  assert.equal(resolveLocalImageRel(base, 'folder%20one/../QA%20Shot.png'), 'docs/QA Shot.png');
+});
+
+test('an encoded `#` is file-name data, judged by the DECODED extension', () => {
+  const base = 'docs/report.md';
+  assert.equal(resolveLocalImageRel(base, 'QA%231.png'), 'docs/QA#1.png');
+  assert.equal(resolveLocalImageRel(base, 'folder%23one/pic.png'), 'docs/folder#one/pic.png');
+  assert.deepEqual(resolveLocalImageSource(base, 'cover.png%23notes.txt'), { ok: false, reason: 'not-image' });
+  assert.deepEqual(resolveLocalImageSource(base, 'x.constructor'), { ok: false, reason: 'not-image' });
+});
+
+test('the document directory is a disk path and is never decoded', () => {
+  assert.equal(resolveLocalImageRel('notes%20literal/report.md', 'shot.png'), 'notes%20literal/shot.png');
+  assert.equal(resolveLocalImageRel('notes#1/report.md', 'QA%20Shot.png'), 'notes#1/QA Shot.png');
+});
+
+test('malformed encodings and shape-changing segments are refused with a reason', () => {
+  const base = 'docs/report.md';
+  for (const src of ['bad%zz.png', 'bad%FF.png', 'bad%E6%B8.png', 'bad%2.png' /* direct */]) {
+    assert.deepEqual(resolveLocalImageSource(base, src), { ok: false, reason: 'malformed-encoding' }, src);
+    assert.equal(resolveLocalImageRel(base, src), null);
+  }
+  for (const src of [
+    'x%2Fy.png', 'x%5Cy.png', '%2e%2e/outside.png', 'a/%2E/b.png', 'a%00b.png',
+    'img\\shot.png', '\\\\server\\share\\x.png' // direct: the parser encodes `\`
+  ]) {
+    assert.deepEqual(resolveLocalImageSource(base, src), { ok: false, reason: 'unsafe-segment' }, src);
+  }
+});
+
+test('a colon names the same file whether or not it was encoded', () => {
+  // Legal on macOS/Linux and readable there today; Windows drive and stream
+  // forms are confined by safeResolve in the main process, not here.
+  assert.equal(resolveLocalImageRel('docs/report.md', 'shots/a:b.png'), 'docs/shots/a:b.png');
+  assert.equal(resolveLocalImageRel('docs/report.md', 'shots/a%3Ab.png'), 'docs/shots/a:b.png');
+  // …while a leading `name:` is a scheme, encoded or not it never gets that far.
+  assert.deepEqual(resolveLocalImageSource('docs/report.md', 'a:b.png'), { ok: false, reason: 'remote' });
+});
+
+test('every refusal carries a reason the preview can show', () => {
+  const base = 'docs/report.md';
+  assert.deepEqual(resolveLocalImageSource(base, undefined), { ok: false, reason: 'empty' });
+  assert.deepEqual(resolveLocalImageSource(base, '   '), { ok: false, reason: 'empty' });
+  assert.deepEqual(resolveLocalImageSource(base, 'https://evil.example/t.png'), { ok: false, reason: 'remote' });
+  assert.deepEqual(resolveLocalImageSource(base, 'data:image/png;base64,AAAA'), { ok: false, reason: 'remote' });
+  assert.deepEqual(resolveLocalImageSource(base, './secrets.env'), { ok: false, reason: 'not-image' });
+  assert.deepEqual(resolveLocalImageSource(base, 'shot.png'), { ok: true, rel: 'docs/shot.png' });
+});
+
+test('decodeHrefPath keeps raw structure apart from decoded names', () => {
+  assert.deepEqual(decodeHrefPath('/a%20b/../c.png?x#y'), { ok: true, rooted: true, segments: ['', 'a b', '..', 'c.png'] });
+  assert.deepEqual(decodeHrefPath('%zz'), { ok: false, reason: 'malformed-encoding' });
+});
+
+test('relative markdown links decode the same way images do', () => {
+  const base = 'docs/report.md';
+  assert.equal(resolveMdLinkRel(base, 'my%20notes.md'), 'docs/my notes.md');
+  assert.equal(resolveMdLinkRel(base, 'my%20notes.md#intro'), 'docs/my notes.md');
+  assert.equal(resolveMdLinkRel(base, '../README.md'), 'README.md');
+  assert.equal(resolveMdLinkRel(base, '/guide/start.md'), 'guide/start.md', 'leading `/` is the workspace root, as for images');
+  assert.equal(resolveMdLinkRel(base, 'bad%zz.md'), null);
+  assert.equal(resolveMdLinkRel(base, 'x%2Fy.md'), null);
+  assert.equal(resolveMdLinkRel(base, 'https://example.com/a.md'), null);
+  assert.equal(resolveMdLinkRel(base, 'shot.png'), null, 'only markdown files open as markdown');
 });
 
 // ─── the binary read itself ─────────────────────────────────────────────────
@@ -239,4 +386,95 @@ test('unknown binary types still read, labelled octet-stream', async () => {
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+// ─── encoded sources, end to end ────────────────────────────────────────────
+
+/** A second, distinguishable "image": same PNG header, different trailing
+ *  bytes, so a test can tell WHICH file a read actually returned. */
+const OTHER_PNG = Buffer.concat([ONE_PIXEL_PNG, Buffer.from('other')]);
+
+test('a space-named image and its literal-%20 twin each read their OWN bytes', async () => {
+  // The collision is the whole point: before the fix `QA%20Shot.png` read the
+  // file literally named `QA%20Shot.png`, which `ok: true` alone cannot catch.
+  const { dir, root } = makeWorkspace();
+  try {
+    fs.writeFileSync(path.join(root, 'docs', 'QA Shot.png'), ONE_PIXEL_PNG);
+    fs.writeFileSync(path.join(root, 'docs', 'QA%20Shot.png'), OTHER_PNG);
+    for (const [src, expected] of [
+      ['QA%20Shot.png', ONE_PIXEL_PNG],
+      ['QA%2520Shot.png', OTHER_PNG],
+      ['QA%20Shot.png?v=2#fig', ONE_PIXEL_PNG],
+      ['/docs/QA%20Shot.png', ONE_PIXEL_PNG]
+    ]) {
+      const rel = resolveLocalImageRel('docs/report.md', src);
+      const res = await readFileBinary(root, rel);
+      assert.equal(res.ok, true, `${src}: ${res.ok ? '' : res.error}`);
+      assert.ok(Buffer.from(res.bytes).equals(expected), `${src} read the wrong file`);
+      assert.equal(res.mime, 'image/png');
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('names with `#`, `%`, `+` and CJK read back with an image mime', async () => {
+  const { dir, root } = makeWorkspace();
+  try {
+    for (const name of ['QA#1.png', '100%.png', 'C++.png', '測試截圖.png']) {
+      fs.writeFileSync(path.join(root, 'docs', name), ONE_PIXEL_PNG);
+    }
+    fs.mkdirSync(path.join(root, 'docs', 'folder#one'));
+    fs.writeFileSync(path.join(root, 'docs', 'folder#one', 'pic.png'), ONE_PIXEL_PNG);
+    for (const src of [
+      'QA%231.png', '100%25.png', 'C++.png',
+      '%E6%B8%AC%E8%A9%A6%E6%88%AA%E5%9C%96.png', 'folder%23one/pic.png'
+    ]) {
+      const res = await readFileBinary(root, resolveLocalImageRel('docs/report.md', src));
+      assert.equal(res.ok, true, `${src}: ${res.ok ? '' : res.error}`);
+      assert.equal(res.mime, 'image/png', `${src} must not fall back to octet-stream`);
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a workspace under a `#` directory still gets image mimes (svg included)', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cth-img-'));
+  const root = path.join(dir, 'C#work');
+  try {
+    fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'docs', 'shot.png'), ONE_PIXEL_PNG);
+    fs.writeFileSync(path.join(root, 'docs', 'logo.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
+    const png = await readFileBinary(root, 'docs/shot.png');
+    const svg = await readFileBinary(root, 'docs/logo.svg');
+    assert.equal(png.ok && png.mime, 'image/png');
+    // SVG is the one format the decoder will NOT sniff — a wrong mime here is a
+    // broken image, not a cosmetic label.
+    assert.equal(svg.ok && svg.mime, 'image/svg+xml');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ─── the renderer side of the read ──────────────────────────────────────────
+
+test('settleImageRead turns every failure into a result, never a throw', async () => {
+  const ok = { ok: true, bytes: new Uint8Array([1]), mime: 'image/png', path: '/x.png', size: 1 };
+  assert.deepEqual(await settleImageRead(() => Promise.resolve(ok)), ok);
+  assert.deepEqual(
+    await settleImageRead(() => Promise.resolve({ ok: false, error: 'ENOENT' })),
+    { ok: false, error: 'ENOENT' }
+  );
+  // Rejected IPC (e.g. a reply that could not be structured-cloned).
+  assert.deepEqual(
+    await settleImageRead(() => Promise.reject(new Error('could not be cloned'))),
+    { ok: false, error: 'could not be cloned' }
+  );
+  // SYNCHRONOUS throw — a missing bridge or a preload that throws on call. A
+  // trailing `.catch()` never sees this; inside an effect it would unmount the
+  // whole preview through the error boundary instead of showing a chip.
+  const missingBridge = await settleImageRead(() => { throw new TypeError('readBinary is not a function'); });
+  assert.deepEqual(missingBridge, { ok: false, error: 'readBinary is not a function' });
+  assert.deepEqual(await settleImageRead(() => { throw 'plain string'; }), { ok: false, error: 'plain string' });
 });

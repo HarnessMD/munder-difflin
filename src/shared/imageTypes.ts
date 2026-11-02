@@ -17,6 +17,14 @@
  * only ever used to label a `blob:` URL for the platform's own image decoder —
  * a mislabelled file simply fails to decode and shows the preview's error state,
  * it never becomes a script or a navigation.
+ *
+ * TWO KINDS OF INPUT, two families of functions. A markdown `src` is a URL:
+ * `?v=2` and `#fig` are cache-busters and fragments, not part of the name
+ * (`imageMimeForPath`, `isImagePath`, `isSvgPath`). A path from the file tree or
+ * from `fs` is a DISK path: `QA#1.png` is a perfectly good file name and a
+ * workspace can live under `C:\Users\me\C#work\` (`imageMimeForDiskPath`,
+ * `isImageDiskPath`, `isSvgDiskPath`). Feeding one kind to the other's API
+ * truncates the name at the `#` and silently loses the extension.
  */
 
 /** Extension (lower-case, no dot) → mime type. */
@@ -33,29 +41,56 @@ const MIME_BY_EXT: Readonly<Record<string, string>> = {
 };
 
 /**
- * Lower-cased extension of `p` without the dot, or '' when there is none.
+ * The mime for a bare lower-case extension, or null.
  *
- * Strips a `?query` / `#hash` first: markdown authored by an agent routinely
- * carries cache-busting suffixes (`./shot.png?v=2`), and treating `png?v=2` as
- * the extension would silently drop exactly the screenshots we want to render.
- * Only the LAST path segment is considered, so a dotted directory name
- * (`v1.2/report`) can never masquerade as an extension.
+ * OWN keys only. The table is a plain object literal, so an unguarded
+ * `MIME_BY_EXT['constructor']` hands back Object itself: `x.constructor` became
+ * an "image", and the "mime" the main process stamped onto it was a function
+ * that cannot cross IPC.
+ */
+function mimeForExtension(ext: string): string | null {
+  return Object.hasOwn(MIME_BY_EXT, ext) ? MIME_BY_EXT[ext] : null;
+}
+
+/** Lower-cased extension of a single file NAME (no separators), or ''. */
+function extensionOfFileName(fileName: string): string {
+  const dot = fileName.lastIndexOf('.');
+  if (dot < 0 || dot === fileName.length - 1) return '';
+  return fileName.slice(dot + 1).toLowerCase();
+}
+
+/**
+ * Last component of a disk path. Splits on BOTH separators: the main process
+ * hands over native Windows paths, the renderer uses `/`, and the answer has to
+ * be the same either way.
+ */
+function fileNameOfDiskPath(diskPath: string): string {
+  return diskPath.split(/[\\/]/).pop() ?? '';
+}
+
+/**
+ * Lower-cased extension of the URL path `p` without the dot, or '' when there
+ * is none.
+ *
+ * URL semantics: strips a `?query` / `#hash` first. Markdown authored by an
+ * agent routinely carries cache-busting suffixes (`./shot.png?v=2`), and
+ * treating `png?v=2` as the extension would silently drop exactly the
+ * screenshots we want to render. Only the LAST path segment is considered, so a
+ * dotted directory name (`v1.2/report`) can never masquerade as an extension.
+ * For a path from disk use the `*DiskPath` functions instead.
  */
 export function extensionOf(p: string): string {
   if (typeof p !== 'string') return '';
   const clean = p.split('#')[0].split('?')[0];
-  const base = clean.split('/').pop() ?? '';
-  const dot = base.lastIndexOf('.');
-  if (dot < 0 || dot === base.length - 1) return '';
-  return base.slice(dot + 1).toLowerCase();
+  return extensionOfFileName(clean.split('/').pop() ?? '');
 }
 
-/** The image mime for `p`, or null when the extension isn't a known image. */
+/** The image mime for the URL path `p`, or null when the extension isn't a known image. */
 export function imageMimeForPath(p: string): string | null {
-  return MIME_BY_EXT[extensionOf(p)] ?? null;
+  return mimeForExtension(extensionOf(p));
 }
 
-/** True when `p` names a raster or vector image we can render. */
+/** True when the URL path `p` names a raster or vector image we can render. */
 export function isImagePath(p: string): boolean {
   return imageMimeForPath(p) !== null;
 }
@@ -65,10 +100,38 @@ export function isImagePath(p: string): boolean {
  * Callers use this to keep a "view source" escape hatch: an .svg opens as a
  * picture (that's what you want 95% of the time) but must never become
  * un-editable, which is what routing every image straight to a read-only
- * preview would have done.
+ * preview would have done. URL semantics; see `isSvgDiskPath` for disk paths.
  */
 export function isSvgPath(p: string): boolean {
   return extensionOf(p) === 'svg';
+}
+
+/**
+ * The image mime for a single file NAME exactly as it is on disk — `#` and `?`
+ * included — or null. The markdown resolver calls this on the DECODED last
+ * segment, so `QA%231.png` is judged as `QA#1.png` and `cover.png%23notes.txt`
+ * by its real `.txt`.
+ */
+export function imageMimeForFileName(fileName: string): string | null {
+  if (typeof fileName !== 'string') return null;
+  return mimeForExtension(extensionOfFileName(fileName));
+}
+
+/** The image mime for a disk path (workspace-relative or absolute, either separator), or null. */
+export function imageMimeForDiskPath(diskPath: string): string | null {
+  if (typeof diskPath !== 'string') return null;
+  return imageMimeForFileName(fileNameOfDiskPath(diskPath));
+}
+
+/** True when the disk path names an image we can render. */
+export function isImageDiskPath(diskPath: string): boolean {
+  return imageMimeForDiskPath(diskPath) !== null;
+}
+
+/** `isSvgPath` for a disk path. */
+export function isSvgDiskPath(diskPath: string): boolean {
+  if (typeof diskPath !== 'string') return false;
+  return extensionOfFileName(fileNameOfDiskPath(diskPath)) === 'svg';
 }
 
 /** Human byte size for a status line: "864 B", "1.4 MB". */
