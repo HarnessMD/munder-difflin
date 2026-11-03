@@ -4,9 +4,25 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-02T00:00:00.000Z</updated>
+  <updated>2026-11-03T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 3 Nov 2026: Astra Edits Weights, Claude Code 2.1.317, Momentic Mo</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-03/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-03/</id>
+    <published>2026-11-03T00:00:00.000Z</published>
+    <updated>2026-11-03T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 2 to 3 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>T3 Code Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/t3-code-alternatives/" />
+    <id>https://munderdiffl.in/blog/t3-code-alternatives/</id>
+    <published>2026-11-03T00:00:00.000Z</published>
+    <updated>2026-11-03T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>T3 Code is free but very early by its own account. Six alternatives sorted by why you would leave, with agents and prices checked 3 Nov 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 2 Nov 2026: ChatGPT and Codex Shared Limits, Memdoor, T3 Code</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-02/" />
@@ -470,21 +486,5 @@
     <published>2026-10-14T00:00:00.000Z</published>
     <updated>2026-10-14T00:00:00.000Z</updated><category term="Guides" />
     <summary>Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.</summary>
-  </entry>
-  <entry>
-    <title>Muse Code vs Claude Code: Plans, Prices, Models and Where They Run</title>
-    <link href="https://munderdiffl.in/blog/muse-code-vs-claude-code/" />
-    <id>https://munderdiffl.in/blog/muse-code-vs-claude-code/</id>
-    <published>2026-10-14T00:00:00.000Z</published>
-    <updated>2026-10-14T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Muse Code vs Claude Code, checked 14 Oct 2026: the main plans and monthly prices, the models each runs, where each installs, and which one to pick.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 13 Oct 2026: Muse Wonder, GLM-Legal, the Codex Daemon Issue</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-13/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-13/</id>
-    <published>2026-10-13T00:00:00.000Z</published>
-    <updated>2026-10-13T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and plugins, multi agent moves, rising repos and arguments in coding agents on 13 Oct 2026, each with its source.</summary>
   </entry>
 </feed>

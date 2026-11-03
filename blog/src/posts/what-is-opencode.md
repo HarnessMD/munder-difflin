@@ -2,6 +2,7 @@
 title: "What Is OpenCode? Free, MIT Licensed, and What You Pay For"
 description: "OpenCode is a free, MIT licensed coding agent from Anomaly. The tool costs nothing; you pay for the model you connect, unless it is local or free."
 date: 2026-09-29
+updated: 2026-11-03
 category: concepts
 categoryLabel: Concepts
 type: Technical
@@ -12,7 +13,7 @@ faq:
   - q: "Is OpenCode free?"
     a: "The tool is free and MIT licensed. You pay the model provider you connect, unless you use a local model or one of the free models on OpenCode Zen. Zen itself is pay as you go, and OpenCode Go is an optional monthly subscription, checked on opencode.ai on 29 Sep 2026."
   - q: "Can OpenCode use my Claude Pro or Max subscription?"
-    a: "No. OpenCode's providers page says plugins for Claude Pro and Max exist and that Anthropic explicitly prohibits them, and OpenCode stopped bundling them as of 1.3.0. Claude models still work with an Anthropic API key, billed per token."
+    a: "OpenCode's providers page, read 3 Nov 2026, says of plugins for Claude Pro/Max models \"Anthropic explicitly prohibits this\", and OpenCode dropped them in 1.3.0. Its 2.2.3 notes (30 Oct 2026) add a Claude Agent provider using your Claude Code login. An Anthropic API key works, billed per token."
   - q: "Is OpenCode the same as Crush?"
     a: "No. Crush is Charm's agent, and it continues the archived Go project that was also called OpenCode, built by its original author. The OpenCode on opencode.ai is a separate TypeScript project from Anomaly. Crush is also licensed differently: its licence file is FSL 1.1 with an MIT future licence, not plain MIT."
   - q: "Does OpenCode run locally?"
@@ -23,7 +24,7 @@ faq:
 
 OpenCode is an open source AI coding agent made by Anomaly, the company behind the SST framework, released under the MIT licence. It reads your repo, edits files and runs commands from your terminal, a desktop app or your IDE, using any of 75+ model providers, local models included. Checked on opencode.ai and GitHub on 29 Sep 2026.
 
-You can run OpenCode on its own, or use [Munder Difflin](https://harnessmd.com/download), free and open source, a desktop app that runs OpenCode agents next to Claude Code and Codex, each in its own terminal. What the code does with OpenCode is further down, and the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+[Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It can run OpenCode agents next to Claude Code and Codex; the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 ## What is OpenCode?
 
@@ -35,7 +36,7 @@ The same binary does more than the chat screen. `opencode --help` on our machine
 
 ## Is OpenCode the same as Crush?
 
-No, and the name has belonged to two projects. The Go agent at `opencode-ai/opencode` is archived, and its README says it "has continued under the name Crush, developed by the original author and the Charm team." This page is about the TypeScript agent at opencode.ai, the one `npm install -g opencode-ai` installs. If a guide installs it with `go install github.com/opencode-ai/opencode@latest`, it is describing the older project.
+No, and the name has belonged to two projects. The Go agent at `opencode-ai/opencode` is archived, and its README says it "has continued under the name Crush, developed by the original author and the Charm team." This page is about the TypeScript agent at opencode.ai, the one `npm install -g opencode-ai` installs.
 
 ## How do I install OpenCode?
 
@@ -95,7 +96,9 @@ The tool is free, and the model is what you pay for. How each option bills, chec
 
 ## Can OpenCode use my Claude subscription?
 
-No. The [providers page](https://opencode.ai/docs/providers/) says plugins for Claude Pro and Max exist and "Anthropic explicitly prohibits this", and OpenCode stopped bundling them as of 1.3.0. Anthropic's [legal and compliance page](https://code.claude.com/docs/en/legal-and-compliance) says third party developers may not route requests through Free, Pro or Max plan credentials. Claude models still work through an Anthropic API key.
+The [providers page](https://opencode.ai/docs/providers/), read 3 Nov 2026, says of plugins for Claude Pro/Max models "Anthropic explicitly prohibits this"; OpenCode dropped them in 1.3.0. Anthropic's [legal page](https://code.claude.com/docs/en/legal-and-compliance) says third party developers may not route requests through Free, Pro, Max or Ultra plan credentials for their users, though this does not prevent "an end user from signing in to the unmodified Claude Code binary with their own Claude subscription".
+
+OpenCode's [v2.2.3 notes](https://github.com/anomalyco/opencode/releases/tag/v2.2.3) of 30 Oct 2026 add a built in Claude Agent provider: install Claude Code, run `claude auth login`, and pick Claude Agent in `/connect` "to use your Claude Code login and models". Anthropic's page does not name OpenCode.
 
 ## OpenCode vs Claude Code vs Codex CLI: which should you use?
 
@@ -125,6 +128,6 @@ Our [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/) comparison goes 
 
 Yes. In Munder Difflin 0.5.3, `src/shared/agentProvider.ts` lists OpenCode as an engine, with a comment naming anomalyco/opencode and ruling out the archived Go project. It starts the normal `opencode` interface in the agent's terminal and passes the brief with `--prompt`.
 
-It picks no model for you. `--model provider/model` goes on the command only when you choose one, so otherwise OpenCode uses whatever you configured. If `opencode` is missing, the app runs `npm install -g opencode-ai@latest` in that terminal, installing Node first when npm is absent and falling back to the official script, or Chocolatey on Windows, then relaunches the agent. Each agent gets an `OPENCODE_CONFIG_CONTENT` value that turns auto update off, and edit, bash and webfetch are set to allow only when the floor's Auto Mode is on.
+It picks no model for you. `--model provider/model` goes on the command only when you choose one, so otherwise OpenCode uses whatever you configured. If `opencode` is missing, the app installs it in that terminal, then relaunches the agent. Each agent gets an `OPENCODE_CONFIG_CONTENT` value that turns auto update off, and edit, bash and webfetch are set to allow only when the floor's Auto Mode is on.
 
 One limit: the code does not resume an OpenCode session after a respawn, it starts a fresh one. To run OpenCode on local models inside the app, see [run Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/).
