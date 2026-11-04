@@ -3,6 +3,7 @@ title: "OpenCode vs Claude Code: Licence, Price and Models Compared"
 seoTitle: "OpenCode vs Claude Code (Oct 2026): Price, Models, Licence"
 description: "OpenCode vs Claude Code, checked 6 Oct 2026: licence, price to start, models, where each runs, and whether a Claude subscription works in OpenCode."
 date: 2026-10-06
+updated: 2026-11-04
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
@@ -13,7 +14,7 @@ faq:
   - q: "Is OpenCode better than Claude Code?"
     a: "Neither wins outright. We think OpenCode is the better fit if you want open source code and a free choice of model, and Claude Code is the better fit if you already pay for a Claude plan. On 6 Oct 2026 OpenCode was MIT licensed and Claude Code's licence file said all rights reserved."
   - q: "Can I use my Claude subscription in OpenCode?"
-    a: "Not in a way either vendor supports. On 6 Oct 2026 OpenCode's providers page said plugins for Claude Pro and Max exist, that Anthropic explicitly prohibits this, and that OpenCode stopped bundling them as of 1.3.0. Anthropic's legal page says third party developers may not route requests through Free, Pro or Max plan credentials."
+    a: "OpenCode's providers page, read 4 Nov 2026, says of plugins for Claude Pro/Max models \"Anthropic explicitly prohibits this\", and OpenCode dropped them in 1.3.0. Its 2.2.3 notes (30 Oct 2026) add a Claude Agent provider using your Claude Code login. An Anthropic API key works, billed per token."
   - q: "Can I use Claude models in OpenCode?"
     a: "Yes, with a key you pay for by the token. The Anthropic section of OpenCode's providers page shows a Manually enter API Key option. OpenCode Zen also lists Claude models: Claude Opus 5.5 was $4.00 per 1M input tokens and $20.00 per 1M output tokens on 6 Oct 2026."
   - q: "Does OpenCode have free models?"
@@ -38,7 +39,7 @@ OpenCode is open and model neutral, and Claude Code is closed and built around C
 | Price to start (6 Oct 2026) | Free models; Go, $10 a month | Claude Pro, $20 a month |
 | Models | 75+ providers, local models included | Claude models |
 | Runs in | Terminal, desktop app, IDE extension | Terminal, IDE, desktop app, web |
-| Claude Pro or Max login | No | Yes |
+| Claude Pro or Max login | Through the Claude Agent provider (2.2.3, 30 Oct 2026), which uses your Claude Code login | Yes |
 | Anthropic API key | Yes | Yes |
 
 Sources: [opencode.ai](https://opencode.ai/), the [OpenCode repo](https://github.com/sst/opencode) (which GitHub now serves as anomalyco/opencode), [Anthropic's pricing page](https://claude.com/pricing), the [Claude Code docs](https://code.claude.com/docs/en/overview) and the [Claude Code repo](https://github.com/anthropics/claude-code).
@@ -78,13 +79,15 @@ OpenCode has model choice and open code. Claude Code has cloud features tied to 
 
 ## Can you use a Claude subscription in OpenCode?
 
-No, not in a way either vendor supports. OpenCode's [providers page](https://opencode.ai/docs/providers/) said on 6 Oct 2026: "There are plugins that allow you to use your Claude Pro/Max models with OpenCode. Anthropic explicitly prohibits this." It adds that older versions bundled those plugins, "but that is no longer the case as of 1.3.0".
+OpenCode's [providers page](https://opencode.ai/docs/providers/), read 4 Nov 2026, says: "There are plugins that allow you to use your Claude Pro/Max models with OpenCode. Anthropic explicitly prohibits this." It adds that older versions bundled those plugins, "but that is no longer the case as of 1.3.0".
 
-Anthropic's [legal page](https://code.claude.com/docs/en/legal-and-compliance) says it "does not permit third-party developers to offer Claude.ai login into their own applications, or to route requests through Free, Pro, or Max plan credentials on behalf of their users".
+Anthropic's [legal page](https://code.claude.com/docs/en/legal-and-compliance), read 4 Nov 2026, says it "does not permit third-party developers to offer Claude.ai login into their own applications, or to route requests through Free, Pro, Max, or Ultra plan credentials on behalf of their users", though this does not prevent "an end user from signing in to the unmodified Claude Code binary with their own Claude subscription".
+
+OpenCode's [v2.2.3 notes](https://github.com/anomalyco/opencode/releases/tag/v2.2.3) of 30 Oct 2026 add a built in Claude Agent provider: install Claude Code, run `claude auth login`, and pick Claude Agent in `/connect` "to use your Claude Code login and models". Anthropic's page does not name OpenCode.
 
 An Anthropic API key does work. The auth menu on the providers page shows "Manually enter API Key". Zen sells Claude too: on 6 Oct 2026 Claude Opus 5.5 was $4.00 per 1M input tokens and $20.00 per 1M output tokens. The key still cuts fine. The lock was changed.
 
-<figure class="mg" data-scene="keys"><img src="/blog/assets/media/opencode-vs-claude-code/keys.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three labelled keys take turns at a padlock marked OpenCode. The key labelled API key turns and the padlock opens. The key labelled ChatGPT Plus turns and it opens again. The key labelled Claude Pro and Max does not fit and swings back to its place."><figcaption>What OpenCode's providers page said about logins on 6 Oct 2026.</figcaption></figure>
+<figure class="mg" data-scene="keys"><img src="/blog/assets/media/opencode-vs-claude-code/keys.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three labelled keys take turns at a padlock marked OpenCode. The key labelled API key turns and the padlock opens. The key labelled ChatGPT Plus turns and it opens again. The key labelled Claude Pro and Max does not fit and swings back to its place."><figcaption>What OpenCode's providers page said about logins on 6 Oct 2026, before the 2.2.3 Claude Agent provider.</figcaption></figure>
 
 ## OpenCode vs Codex
 
