@@ -59,9 +59,9 @@ meetings, all running locally.
 **New here?** Start with the [install guide](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/), then
 [your first hour](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/), and see [every agent on our own floor](https://munderdiffl.in/blog/ai-agent-use-cases-our-office/).
 
-<sub><b>Launch offer:</b> Pro is free for everyone until Saturday 24 October 2026: download the app and sign in.
-After that the Pro annual plan is $150 USD, adjusted for purchasing power in different countries and as low as $100 a
-year. <a href="https://app.harnessmd.com/console/license">Get Pro</a></sub>
+<sub><b>Free Pro:</b> sign in and Pro is free for the first 10 million work tokens your agents use each month.
+After that Pro is $20 USD a month or $200 USD a year, adjusted for purchasing power in different countries and as low
+as $10 a month or $100 a year. <a href="https://app.harnessmd.com/console/license">Get Pro</a></sub>
 
 </div>
 
@@ -323,7 +323,7 @@ than sending you to a docs page.
 
 > [!NOTE]
 > **Status: v0.5.6. Capabilities, Integrations and Teams, and fewer tokens.**
-> **Pro is free for everyone until Saturday 24 October 2026**, as part of the launch: download the app and sign in.
+> **Pro is free for 10 million work tokens a month**: download the app and sign in. Then $20 a month or $200 a year.
 > These notes describe the 0.5.6 app on the [download page](https://harnessmd.com/download).
 > **Capabilities (Pro)**: a marketplace of 2,347 MCP servers, skills, plugins and tools from the public list
 > [HarnessMD/awesome-agent-capabilities](https://github.com/HarnessMD/awesome-agent-capabilities). We reviewed 622 of
@@ -417,9 +417,9 @@ You do still need at least one agent CLI on your machine. From 0.5.3 a missing C
 in the agent's terminal: Install runs the command, you sign in inside the app, and the agent starts.
 **Settings → Prerequisites** lists the rest.
 
-**Pro** adds Capabilities, agent files, Stapler and the new sidebar. As part of the launch it is free for everyone
-until Saturday 24 October 2026. After that the annual plan is $150 USD, adjusted for purchasing power, as low as
-$100 a year.
+**Pro** adds Capabilities, agent files, Stapler and the new sidebar. It is free for the first 10 million work
+tokens your agents use each month. After that it is $20 USD a month or $200 USD a year, adjusted for purchasing
+power, as low as $10 a month or $100 a year.
 [Get Pro](https://app.harnessmd.com/console/license)
 
 ### Build from source
