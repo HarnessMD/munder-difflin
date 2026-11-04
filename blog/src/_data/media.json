@@ -3298,6 +3298,40 @@
     },
     "inline": {}
   },
+  "agent-tools-today-2026-11-04": {
+    "title": "Agent Tools Today, 4 Nov 2026: Postman Plugins, Astra Critique, Claude Code 2.1.318",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {},
+    "youtube": []
+  },
+  "agent-desktop-alternatives": {
+    "title": "agent-desktop Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/agent-desktop-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title agent-desktop alternatives, the line 6 picks by why you are leaving and a Checked 4 Nov 2026 line. Six small tiles named Claude Code computer use, Munder Difflin, Codex computer use, Playwright MCP, Browser Use and Cua slide in under a grey tile labelled agent-desktop.",
+      "prompt": "Title card: the hero scene in assets/media/agent-desktop-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "worktrunk-alternatives": {
+    "title": "Worktrunk Alternatives: 6 Picks for Parallel AI Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/worktrunk-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Worktrunk alternatives, the line 6 picks by why you are leaving and a Checked 4 Nov 2026 line. Six small tiles named Plain git, Munder Difflin, Claude Squad, Orca, Emdash and Conductor slide in under a grey tile labelled Worktrunk.",
+      "prompt": "Title card: the hero scene in assets/media/worktrunk-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",

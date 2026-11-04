@@ -4,9 +4,33 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-03T00:00:00.000Z</updated>
+  <updated>2026-11-04T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>agent-desktop Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/agent-desktop-alternatives/" />
+    <id>https://munderdiffl.in/blog/agent-desktop-alternatives/</id>
+    <published>2026-11-04T00:00:00.000Z</published>
+    <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>agent-desktop is a free computer use CLI from Vercel Labs. Six alternatives by reason for leaving, with platforms and prices checked 4 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Agent Tools Today, 4 Nov 2026: Postman Plugins, Astra Critique, Claude Code 2.1.318</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-04/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-04/</id>
+    <published>2026-11-04T00:00:00.000Z</published>
+    <updated>2026-11-04T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 3 to 4 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Worktrunk Alternatives: 6 Picks for Parallel AI Agents (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/worktrunk-alternatives/" />
+    <id>https://munderdiffl.in/blog/worktrunk-alternatives/</id>
+    <published>2026-11-04T00:00:00.000Z</published>
+    <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Worktrunk alternatives checked 4 Nov 2026: plain git worktree, Munder Difflin, Claude Squad, Orca, Emdash and Conductor, sorted by why you would leave.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 3 Nov 2026: Astra Edits Weights, Claude Code 2.1.317, Momentic Mo</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-03/" />
@@ -462,29 +486,5 @@
     <published>2026-10-15T00:00:00.000Z</published>
     <updated>2026-10-15T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Seven OpenCode alternatives checked on 15 Oct 2026: Claude Code, Codex CLI, Gemini CLI, Kilo Code, Crush, Pi and Goose, by licence, models and release.</summary>
-  </entry>
-  <entry>
-    <title>AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does</title>
-    <link href="https://munderdiffl.in/blog/ai-agent-use-cases-our-office/" />
-    <id>https://munderdiffl.in/blog/ai-agent-use-cases-our-office/</id>
-    <published>2026-10-14T00:00:00.000Z</published>
-    <updated>2026-10-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>We run our company on Munder Difflin. Every seat on our floor: what each AI agent does, how its work starts, what comes out, and how to copy it.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code Router: What It Is, How It Works and How to Install It</title>
-    <link href="https://munderdiffl.in/blog/claude-code-router/" />
-    <id>https://munderdiffl.in/blog/claude-code-router/</id>
-    <published>2026-10-14T00:00:00.000Z</published>
-    <updated>2026-10-14T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Code Router, checked 14 Oct 2026: what the local gateway does, how to install it, which providers it lists, and what Anthropic says about it.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code Skills: What They Are, Where They Live and How to Write One</title>
-    <link href="https://munderdiffl.in/blog/claude-code-skills/" />
-    <id>https://munderdiffl.in/blog/claude-code-skills/</id>
-    <published>2026-10-14T00:00:00.000Z</published>
-    <updated>2026-10-14T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Claude Code skills, checked 14 Oct 2026: what a skill is, where skill folders live, a first skill file, how Claude picks one and how to share them.</summary>
   </entry>
 </feed>
