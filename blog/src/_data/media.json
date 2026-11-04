@@ -3332,6 +3332,17 @@
     },
     "inline": {}
   },
+  "antigravity-alternatives": {
+    "title": "Antigravity Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/antigravity-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Antigravity alternatives, the line 6 picks by why you are leaving and a Checked 4 Nov 2026 line. Six small tiles named Claude Code, Munder Difflin, Codex, Cursor, Cline and Zed slide in under a grey tile labelled Antigravity.",
+      "prompt": "Title card: the hero scene in assets/media/antigravity-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",

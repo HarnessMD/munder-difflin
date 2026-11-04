@@ -67,7 +67,7 @@
   "description": "OpenCode vs Claude Code, checked 6 Oct 2026: licence, price to start, models, where each runs, and whether a Claude subscription works in OpenCode.",
   "image": ["https://munderdiffl.in/blog/assets/media/opencode-vs-claude-code/hero.png"],
   "datePublished": "2026-10-06T00:00:00.000Z",
-  "dateModified": "2026-10-06T00:00:00.000Z",
+  "dateModified": "2026-11-04T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
   "publisher": {
     "@type": "Organization",
@@ -99,7 +99,7 @@
   "@type": "FAQPage",
   "mainEntity": [
     { "@type": "Question", "name": "Is OpenCode better than Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Neither wins outright. We think OpenCode is the better fit if you want open source code and a free choice of model, and Claude Code is the better fit if you already pay for a Claude plan. On 6 Oct 2026 OpenCode was MIT licensed and Claude Code's licence file said all rights reserved." } },
-    { "@type": "Question", "name": "Can I use my Claude subscription in OpenCode?", "acceptedAnswer": { "@type": "Answer", "text": "Not in a way either vendor supports. On 6 Oct 2026 OpenCode's providers page said plugins for Claude Pro and Max exist, that Anthropic explicitly prohibits this, and that OpenCode stopped bundling them as of 1.3.0. Anthropic's legal page says third party developers may not route requests through Free, Pro or Max plan credentials." } },
+    { "@type": "Question", "name": "Can I use my Claude subscription in OpenCode?", "acceptedAnswer": { "@type": "Answer", "text": "OpenCode's providers page, read 4 Nov 2026, says of plugins for Claude Pro/Max models \"Anthropic explicitly prohibits this\", and OpenCode dropped them in 1.3.0. Its 2.2.3 notes (30 Oct 2026) add a Claude Agent provider using your Claude Code login. An Anthropic API key works, billed per token." } },
     { "@type": "Question", "name": "Can I use Claude models in OpenCode?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, with a key you pay for by the token. The Anthropic section of OpenCode's providers page shows a Manually enter API Key option. OpenCode Zen also lists Claude models: Claude Opus 5.5 was $4.00 per 1M input tokens and $20.00 per 1M output tokens on 6 Oct 2026." } },
     { "@type": "Question", "name": "Does OpenCode have free models?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. OpenCode's Zen price list marked 12 models as Free on 6 Oct 2026, Big Pickle among them. The same page says each is available for a limited time, so the list will change. Your prompts still go to a hosted model." } },
     { "@type": "Question", "name": "Is OpenCode or Codex the better open source agent?", "acceptedAnswer": { "@type": "Answer", "text": "Both have open code: OpenCode is MIT and Codex is Apache 2.0, per GitHub on 6 Oct 2026. Codex is OpenAI's agent, and its README recommends signing in with a ChatGPT plan. OpenCode connects to many providers, and its site says you can log in with a ChatGPT Plus or Pro account there too." } }
@@ -234,7 +234,7 @@
 </tr>
 <tr>
 <td>Claude Pro or Max login</td>
-<td>No</td>
+<td>Through the Claude Agent provider (2.2.3, 30 Oct 2026), which uses your Claude Code login</td>
 <td>Yes</td>
 </tr>
 <tr>
@@ -266,10 +266,11 @@
 <li><strong>Claude Code:</strong> sessions that run in the browser with no local setup. Routines that run on a schedule in the cloud. Remote Control from your phone. A Slack integration that turns a bug report into a pull request.</li>
 </ul>
 <h2 id="can-you-use-a-claude-subscription-in-opencode" tabindex="-1">Can you use a Claude subscription in OpenCode? <a class="anchor" href="#can-you-use-a-claude-subscription-in-opencode" aria-hidden="true">#</a></h2>
-<p>No, not in a way either vendor supports. OpenCode’s <a href="https://opencode.ai/docs/providers/">providers page</a> said on 6 Oct 2026: “There are plugins that allow you to use your Claude Pro/Max models with OpenCode. Anthropic explicitly prohibits this.” It adds that older versions bundled those plugins, “but that is no longer the case as of 1.3.0”.</p>
-<p>Anthropic’s <a href="https://code.claude.com/docs/en/legal-and-compliance">legal page</a> says it “does not permit third-party developers to offer <a href="http://Claude.ai">Claude.ai</a> login into their own applications, or to route requests through Free, Pro, or Max plan credentials on behalf of their users”.</p>
+<p>OpenCode’s <a href="https://opencode.ai/docs/providers/">providers page</a>, read 4 Nov 2026, says: “There are plugins that allow you to use your Claude Pro/Max models with OpenCode. Anthropic explicitly prohibits this.” It adds that older versions bundled those plugins, “but that is no longer the case as of 1.3.0”.</p>
+<p>Anthropic’s <a href="https://code.claude.com/docs/en/legal-and-compliance">legal page</a>, read 4 Nov 2026, says it “does not permit third-party developers to offer <a href="http://Claude.ai">Claude.ai</a> login into their own applications, or to route requests through Free, Pro, Max, or Ultra plan credentials on behalf of their users”, though this does not prevent “an end user from signing in to the unmodified Claude Code binary with their own Claude subscription”.</p>
+<p>OpenCode’s <a href="https://github.com/anomalyco/opencode/releases/tag/v2.2.3">v2.2.3 notes</a> of 30 Oct 2026 add a built in Claude Agent provider: install Claude Code, run <code>claude auth login</code>, and pick Claude Agent in <code>/connect</code> “to use your Claude Code login and models”. Anthropic’s page does not name OpenCode.</p>
 <p>An Anthropic API key does work. The auth menu on the providers page shows “Manually enter API Key”. Zen sells Claude too: on 6 Oct 2026 Claude Opus 5.5 was $4.00 per 1M input tokens and $20.00 per 1M output tokens. The key still cuts fine. The lock was changed.</p>
-<figure class="mg" data-scene="keys"><img src="/blog/assets/media/opencode-vs-claude-code/keys.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three labelled keys take turns at a padlock marked OpenCode. The key labelled API key turns and the padlock opens. The key labelled ChatGPT Plus turns and it opens again. The key labelled Claude Pro and Max does not fit and swings back to its place."><figcaption>What OpenCode's providers page said about logins on 6 Oct 2026.</figcaption></figure>
+<figure class="mg" data-scene="keys"><img src="/blog/assets/media/opencode-vs-claude-code/keys.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three labelled keys take turns at a padlock marked OpenCode. The key labelled API key turns and the padlock opens. The key labelled ChatGPT Plus turns and it opens again. The key labelled Claude Pro and Max does not fit and swings back to its place."><figcaption>What OpenCode's providers page said about logins on 6 Oct 2026, before the 2.2.3 Claude Agent provider.</figcaption></figure>
 <h2 id="opencode-vs-codex" tabindex="-1">OpenCode vs Codex <a class="anchor" href="#opencode-vs-codex" aria-hidden="true">#</a></h2>
 <p>OpenCode is the neutral one, and Codex is OpenAI’s own agent. The <a href="https://github.com/openai/codex">Codex repo</a> is Apache 2.0, and its README recommends signing in with a ChatGPT plan. OpenAI’s <a href="https://learn.chatgpt.com/docs/pricing">pricing page</a> listed the CLI from Plus, $20 a month, on 6 Oct 2026. Our view: choose Codex if you only want OpenAI models, and OpenCode if you want to switch. <a href="/blog/codex-cli-vs-claude-code/">Codex vs Claude Code</a> compares the two lab agents.</p>
 <h2 id="who-should-pick-which" tabindex="-1">Who should pick which? <a class="anchor" href="#who-should-pick-which" aria-hidden="true">#</a></h2>
@@ -293,7 +294,7 @@
         
         <div class="qa">
           <p class="q">Can I use my Claude subscription in OpenCode?</p>
-          <p class="a">Not in a way either vendor supports. On 6 Oct 2026 OpenCode&#39;s providers page said plugins for Claude Pro and Max exist, that Anthropic explicitly prohibits this, and that OpenCode stopped bundling them as of 1.3.0. Anthropic&#39;s legal page says third party developers may not route requests through Free, Pro or Max plan credentials.</p>
+          <p class="a">OpenCode&#39;s providers page, read 4 Nov 2026, says of plugins for Claude Pro/Max models &quot;Anthropic explicitly prohibits this&quot;, and OpenCode dropped them in 1.3.0. Its 2.2.3 notes (30 Oct 2026) add a Claude Agent provider using your Claude Code login. An Anthropic API key works, billed per token.</p>
         </div>
         
         <div class="qa">
@@ -357,6 +358,22 @@
   </div>
 </article>
 <article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/antigravity-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/antigravity-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-04">Nov 4, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/antigravity-alternatives/">Antigravity Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)</a></h3>
+    <p class="dek">Antigravity has no bring your own key option for more rate limits and drops Claude 4.6 on 18 Nov. Six alternatives, prices checked 4 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/antigravity-alternatives/" aria-label="Read: Antigravity Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
   <a class="thumb t-comparisons" href="/blog/worktrunk-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/worktrunk-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -369,22 +386,6 @@
     <div class="foot">
       <span class="tag kind">Comparisons</span>
       <a class="more" href="/blog/worktrunk-alternatives/" aria-label="Read: Worktrunk Alternatives: 6 Picks for Parallel AI Agents (Nov 2026)">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/t3-code-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/t3-code-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-11-03">Nov 3, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/t3-code-alternatives/">T3 Code Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)</a></h3>
-    <p class="dek">T3 Code is free but very early by its own account. Six alternatives sorted by why you would leave, with agents and prices checked 3 Nov 2026.</p>
-    <div class="foot">
-      <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/t3-code-alternatives/" aria-label="Read: T3 Code Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)">Read →</a>
     </div>
   </div>
 </article>

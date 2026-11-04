@@ -63,7 +63,7 @@ An Antigravity agent launches `agy`, and auto mode adds `--dangerously-skip-perm
 
 ## Which should you pick, Claude Code or Antigravity?
 
-Pick Antigravity for a free start and visual, browser heavy work; pick Claude Code for terminal and CI work on the newest Claude models.
+Pick Antigravity for a free start and visual, browser heavy work; pick Claude Code for terminal and CI work on the newest Claude models. If you are leaving Antigravity for something else entirely, our [Antigravity alternatives](/blog/antigravity-alternatives/) page sorts six options by why you would switch.
 
 * **No budget, or just curious about agents:** Antigravity. Google's plans docs include the CLI and scheduled tasks on every plan.
 * **Frontend work you want to watch:** Antigravity 2.0 or the IDE, where a built in browser subagent runs interactive browser tests. Claude Code has a Chrome integration too.
