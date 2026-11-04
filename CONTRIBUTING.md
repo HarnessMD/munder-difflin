@@ -120,6 +120,40 @@ something visible will cost you more time than the screenshot would have.
    change is worth more than a clean one, and it usually saves a review round
    trip. This is asked for, not required.
 
+## Daily Copilot reviews (maintainers)
+
+The `Daily Copilot review` workflow requests reviews at **09:00 UTC daily**.
+GitHub schedules can be delayed. It can also be started from the Actions tab.
+It processes all open, non-draft, human-authored PRs, including fork PRs, and
+skips a PR if Copilot has reviewed its current head commit or a review is
+already pending. The first run includes the existing open backlog; there is
+no per-run review cap.
+
+Copilot posts its review findings and overview directly on each PR after
+the request completes. The workflow does not generate a second summary or
+approve or merge PRs. It never checks out or executes contributor code.
+
+Before enabling it, a maintainer must:
+
+1. Create a fine-grained personal access token **from the personal account
+   with Copilot Max**, selecting this repository under its resource owner,
+   with **Pull requests: Read and write** permission. Obtain organization
+   approval if required.
+2. Save it as the Actions repository secret `COPILOT_REVIEW_TOKEN` under
+   **Settings > Secrets and variables > Actions**. Never put the token in
+   a file, issue, PR, or comment. Rotate the secret before the token expires.
+3. Ensure repository/organization policies allow that account's Copilot
+   license to request reviews. Disable any overlapping automatic-review
+   ruleset if reviews should run only in the daily batch.
+
+Review usage is attributed to the requesting account by default, not the
+PR author. Organization billing overrides can change this. Bot-authored PRs
+are skipped because their reviews can be billed directly to the organization.
+Each review consumes AI credits; GitHub Actions usage may also apply. The
+workflow fails visibly if the secret is missing or any API request fails.
+Review requests can be accepted before Copilot later encounters a policy or
+credit limit, so check the PR timeline for completed reviews.
+
 ## Where the bar is
 
 We get more pull requests than we can review carefully, so the bar is high and
