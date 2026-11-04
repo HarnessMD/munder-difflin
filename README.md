@@ -60,8 +60,8 @@ meetings, all running locally.
 [your first hour](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/), and see [every agent on our own floor](https://munderdiffl.in/blog/ai-agent-use-cases-our-office/).
 
 <sub><b>Free Pro:</b> sign in and Pro is free for the first 10 million work tokens your agents use each month.
-After that Pro is $20 USD a month or $200 USD a year, adjusted for purchasing power in different countries and as low
-as $10 a month or $100 a year. <a href="https://app.harnessmd.com/console/license">Get Pro</a></sub>
+After that Pro is $20 USD for 30 days or $200 USD for 365 days, adjusted for purchasing power in different countries
+and as low as $10 for 30 days or $100 for 365 days. <a href="https://app.harnessmd.com/console/license">Get Pro</a></sub>
 
 </div>
 
@@ -323,7 +323,7 @@ than sending you to a docs page.
 
 > [!NOTE]
 > **Status: v0.5.6. Capabilities, Integrations and Teams, and fewer tokens.**
-> **Pro is free for 10 million work tokens a month**: download the app and sign in. Then $20 a month or $200 a year.
+> **Pro is free for 10 million work tokens a month**: download the app and sign in. Then $20 for 30 days or $200 for 365 days.
 > These notes describe the 0.5.6 app on the [download page](https://harnessmd.com/download).
 > **Capabilities (Pro)**: a marketplace of 2,347 MCP servers, skills, plugins and tools from the public list
 > [HarnessMD/awesome-agent-capabilities](https://github.com/HarnessMD/awesome-agent-capabilities). We reviewed 622 of
@@ -418,8 +418,8 @@ in the agent's terminal: Install runs the command, you sign in inside the app, a
 **Settings → Prerequisites** lists the rest.
 
 **Pro** adds Capabilities, agent files, Stapler and the new sidebar. It is free for the first 10 million work
-tokens your agents use each month. After that it is $20 USD a month or $200 USD a year, adjusted for purchasing
-power, as low as $10 a month or $100 a year.
+tokens your agents use each month. After that it is $20 USD for 30 days or $200 USD for 365 days, adjusted for
+purchasing power, as low as $10 for 30 days or $100 for 365 days.
 [Get Pro](https://app.harnessmd.com/console/license)
 
 ### Build from source

@@ -54,7 +54,7 @@ that coordinates itself on your own machine.
 
 ## Free and Pro
 
-The app is free. Pro is a paid plan, $20 USD a month or $200 USD a year adjusted for purchasing power, that adds
+The app is free. Pro is a paid plan, $20 USD for 30 days or $200 USD for 365 days adjusted for purchasing power, that adds
 Capabilities, agent files, the Pro sidebar (Tasks, Inbox, Automations, Memory, Capabilities,
 Integrations) and the Stapler, which records meetings with both sides of the call and sends
 messages, screenshots and files to any agent. Pro is free for the first 10 million work tokens
