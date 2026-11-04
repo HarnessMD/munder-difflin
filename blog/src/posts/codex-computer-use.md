@@ -91,6 +91,6 @@ Both drive real apps; they differ on platform and plan. Checked 26 Oct 2026 agai
 | How to turn on | Install the Computer Use plugin | Enable the `computer-use` MCP server in `/mcp` |
 | Background or headless | Background on macOS, locked use | No: needs an interactive session, not `-p` |
 
-Anthropic's docs add an order Claude follows: an MCP server first, then Bash, then Claude in Chrome for browser work, and computer use only when none of those fit. For a wider comparison, see [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/).
+Anthropic's docs add an order Claude follows: an MCP server first, then Bash, then Claude in Chrome for browser work, and computer use only when none of those fit. For a wider comparison, see [Codex CLI vs Claude Code](/blog/codex-cli-vs-claude-code/). For more computer use tools, including agent-desktop, which works with any agent, see our [agent-desktop alternatives](/blog/agent-desktop-alternatives/).
 
 <link rel="stylesheet" href="/blog/assets/media/codex-computer-use/motion.css"><script defer src="/blog/assets/media/codex-computer-use/motion.js"></script>
