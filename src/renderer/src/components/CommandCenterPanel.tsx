@@ -8,6 +8,7 @@ import { PtyTerminalView } from './PtyTerminalView';
 import { MessageQueueComposer } from './MessageQueueComposer';
 import { TasksKanban } from './TasksKanban';
 import { AskMeTab } from './AskMeTab';
+import { ConferenceRoomTab } from './ConferenceRoomTab';
 import { TriggersTab } from './triggers/TriggersTab';
 import { TriggerHistoryTab } from './triggers/TriggerHistoryTab';
 import { WorkersTab } from './WorkersTab';
@@ -46,7 +47,7 @@ import { useRtl } from '@/i18n/useDirection';
 // Both the AskMe (#human) tab and the Triggers tab live here. Triggers replaced
 // the old Schedules tab: schedules are now one of four trigger types, and the
 // whole surface lives in ./triggers (see src/shared/triggers.ts for the contract).
-type CCTab = 'terminal' | 'floor' | 'tasks' | 'human' | 'triggers' | 'trigger-history'
+type CCTab = 'terminal' | 'floor' | 'tasks' | 'human' | 'conference' | 'triggers' | 'trigger-history'
   | 'memory' | 'graph' | 'activity' | 'skills' | 'workers';
 
 /** Fallback denominator for the per-agent token meter when no floor token budget
@@ -70,6 +71,7 @@ const TABS: { key: CCTab; labelKey: string; icon: Parameters<typeof Icon>[0]['na
   { key: 'floor', labelKey: 'commandCenter.tabs.floor', icon: 'mcp' },
   { key: 'tasks', labelKey: 'commandCenter.tabs.tasks', icon: 'check' },
   { key: 'human', labelKey: 'commandCenter.tabs.human', icon: 'bell' },
+  { key: 'conference', labelKey: 'commandCenter.tabs.conference', icon: 'mcp' },
   { key: 'triggers', labelKey: 'commandCenter.tabs.triggers', icon: 'clock' },
   { key: 'trigger-history', labelKey: 'commandCenter.tabs.history', icon: 'ledger' },
   { key: 'memory', labelKey: 'commandCenter.tabs.memory', icon: 'sparkle' },
@@ -322,6 +324,7 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
         {tab === 'floor' && <FloorTab seed={dispatchSeed} />}
         {tab === 'tasks' && <TasksKanban />}
         {tab === 'human' && <AskMeTab />}
+        {tab === 'conference' && <ConferenceRoomTab />}
         {tab === 'triggers' && <TriggersTab />}
         {tab === 'trigger-history' && <TriggerHistoryTab />}
         {tab === 'memory' && (
