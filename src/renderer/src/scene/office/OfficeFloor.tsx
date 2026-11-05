@@ -1178,6 +1178,66 @@ export function OfficeFloor() {
       };
       drawAskBoard(0);
 
+      // ─── The conference table: boardroom zone → CONFERENCE ROOM tab ─────────
+      const boardroomZone = mapRenderer.getZone('boardroom');
+      if (boardroomZone) {
+        const confG = new Graphics();
+        confG.eventMode = 'static';
+        confG.cursor = 'pointer';
+        const confX = (boardroomZone.x + boardroomZone.width / 2) * tsB - 18;
+        const confY = (boardroomZone.y + boardroomZone.height / 2) * tsB - 10;
+        confG.position.set(confX, confY);
+        confG.zIndex = Math.floor(boardroomZone.y + boardroomZone.height / 2) * tsB;
+        confG.hitArea = { contains: (x: number, y: number) => x >= 0 && x <= 36 && y >= 0 && y <= 20 };
+        confG.on('pointertap', (ev) => {
+          ev.stopPropagation();
+          const st = useStore.getState();
+          const god = st.agents.find((a) => a.isGod);
+          if (god) st.select(god.id);
+          st.requestCommandCenterTab('conference');
+        });
+        confG.rect(2, 4, 32, 10).fill(0x5a4634);
+        confG.rect(4, 2, 28, 4).fill(0x7a6348);
+        confG.rect(6, 14, 3, 4).fill(0x3e2f24);
+        confG.rect(27, 14, 3, 4).fill(0x3e2f24);
+        charLayer.addChild(confG);
+      }
+
+      // ─── The Annex door: opens the Stage tab (sealed wing / floor shows) ────
+      // Prefer a zone named annex/warehouse; fall back beside the boardroom.
+      const annexZone = mapRenderer.getZone('annex')
+        ?? mapRenderer.getZone('warehouse')
+        ?? mapRenderer.getZone('storage');
+      {
+        const annexG = new Graphics();
+        annexG.eventMode = 'static';
+        annexG.cursor = 'pointer';
+        const ax = annexZone
+          ? (annexZone.x + annexZone.width / 2) * tsB - 10
+          : boardroomZone
+            ? (boardroomZone.x + boardroomZone.width) * tsB + 8
+            : 20 * tsB;
+        const ay = annexZone
+          ? (annexZone.y + annexZone.height / 2) * tsB - 14
+          : boardroomZone
+            ? boardroomZone.y * tsB + 4
+            : 4 * tsB;
+        annexG.position.set(ax, ay);
+        annexG.zIndex = 20 * tsB;
+        annexG.hitArea = { contains: (x: number, y: number) => x >= 0 && x <= 22 && y >= 0 && y <= 28 };
+        annexG.on('pointertap', (ev) => {
+          ev.stopPropagation();
+          const st = useStore.getState();
+          const godAgent = st.agents.find((a) => a.isGod);
+          if (godAgent) st.select(godAgent.id);
+          st.requestCommandCenterTab('stage');
+        });
+        annexG.rect(4, 0, 14, 26).fill(0x3a2f28);
+        annexG.rect(5, 1, 12, 24).fill(0x5c4a3a);
+        annexG.rect(14, 12, 2, 2).fill(0xd4a84b);
+        charLayer.addChild(annexG);
+      }
+
       // ─── Board choreography: every ledger move is ACTED on the floor ───────
       // Michael walks over and pins fresh cards; an assigned worker walks to
       // the TODO board, takes its note and carries it home; finishing carries
