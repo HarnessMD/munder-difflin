@@ -3343,6 +3343,39 @@
     },
     "inline": {}
   },
+  "agent-tools-today-2026-11-05": {
+    "title": "Agent Tools Today, 5 Nov 2026: Conductor Joins Meta, OpenAI to Buy Pierre, Gemini Training",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "roo-code-alternatives": {
+    "title": "Roo Code Alternatives: 6 Picks Now That Roo Code Is Shut Down (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/roo-code-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Roo Code alternatives, the line 6 picks now that Roo Code is shut down and a Checked 4 Nov 2026 line. Six small tiles named ZooCode, Munder Difflin, Cline, Kilo Code, Roomote and Claude Code slide in under a grey tile labelled Roo Code.",
+      "prompt": "Title card: the hero scene in assets/media/roo-code-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-cli-alternatives": {
+    "title": "Gemini CLI Alternatives: 6 Picks Now the Free Tier Has Moved (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-cli-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Gemini CLI alternatives, the line 6 picks now the free tier has moved and a Checked 4 Nov 2026 line. Six small tiles named Antigravity CLI, Munder Difflin, Claude Code, Codex CLI, OpenCode and Qwen Code slide in under a grey tile labelled Gemini CLI.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-cli-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",

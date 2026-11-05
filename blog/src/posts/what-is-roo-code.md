@@ -76,7 +76,7 @@ Pick a successor, then carry your settings across by hand where the guides say s
 
 ## What to use instead
 
-Roo Code's README points to ZooCode, covered above, and Cline. Here are five ways to go, Cline included, each with its own source:
+Roo Code's README points to ZooCode, covered above, and Cline. For six picks sorted by why you are leaving, with prices checked 4 Nov 2026, see [Roo Code alternatives](/blog/roo-code-alternatives/). Here are five ways to go, Cline included, each with its own source:
 
 1. **Cline.** Its [README](https://github.com/cline/cline) says "The open source coding agent in your IDE, terminal, & desktop." Apache 2.0; latest extension release v4.1.25 (16 Oct 2026). See [Cline vs Munder Difflin](/blog/cline-vs-munder-difflin/).
 2. **Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make, and it is not an editor extension. It is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
