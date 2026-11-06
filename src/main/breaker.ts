@@ -73,7 +73,7 @@ const actionFor = (l: BreakerLevel): BreakerAction =>
 
 /** Total tokens in a cumulative sample (all kinds), 0 when unknown. The figure
  *  for display and cost, and the one the floor budget (costCapTokens) sums. */
-const tokensOf = (s: AgentUsageSample | null): number =>
+export const tokensOf = (s: AgentUsageSample | null): number =>
   s ? s.input + s.output + s.cacheRead + s.cacheCreation : 0;
 
 /** Tokens an agent's own WORK put through the model — prompt input, generated
@@ -83,7 +83,7 @@ const tokensOf = (s: AgentUsageSample | null): number =>
  *  what the agent does (#189: 98.6% and 99.2% of the counted figure at the rows
  *  where two agents crossed a 4M cap, 4–6 minutes into a session). A per-agent
  *  BUDGET is tested against this; tokensOf() stays the display/cost figure. */
-const workTokensOf = (s: AgentUsageSample | null): number =>
+export const workTokensOf = (s: AgentUsageSample | null): number =>
   s ? s.input + s.output + s.cacheCreation : 0;
 
 const DEFAULTS = {
