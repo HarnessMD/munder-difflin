@@ -80,6 +80,7 @@ import {
   type AgentProvider
 } from '../shared/agentProvider';
 import { buildMissingCliScript, chooseInstallRung } from './cliInstall';
+import { prepareDevinPromptFile } from './devinPrompt';
 import { detectNodeVersion, nodeIsUsable, resolveNodeInstaller } from './nodeInstall';
 import { toolCatalog, type ToolStatus } from '../shared/toolCatalog';
 import { listLocalSkills, loadCatalog, installSkill, uninstallSkill, type LocalSkill } from './skills';
@@ -2775,6 +2776,11 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
   // seedDelivery:'type-into-tui') rather than passed on argv. Surfaced in the spawn
   // result so the renderer types it through the per-pty write-chain. (ondev-b)
   let seedPrompt: string | undefined;
+  // Devin uses `-- <initial prompt>`; all CLI options must precede that
+  // separator. Main-only hires also need the same auto-mode posture as GUI hires.
+  if (provider === 'devin') {
+    opts.args = argsWithAutoModeFlag(opts.args ?? [], readConfig().autoMode, provider);
+  }
   if (opts.hive && hive.enabled()) {
     try {
       const inj = await hive.ensureAgent(
@@ -2796,7 +2802,10 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
           extraWritableDirs: [memory.env().MEMPALACE_PALACE_PATH].filter((p): p is string => !!p)
         }
       );
-      opts.args = [...(opts.args ?? []), ...inj.args];
+      const injectedArgs = [...(opts.args ?? []), ...inj.args];
+      opts.args = provider === 'devin'
+        ? prepareDevinPromptFile(injectedArgs, opts.cwd, inj.env.AGENT_DIR)
+        : injectedArgs;
       seedPrompt = inj.seedPrompt;
       // A degraded spawn (proxy bridge never bound) is told to the user the same
       // way breaker escalations are: a native toast, gated on the notifications
@@ -2905,7 +2914,13 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
     const sid = typedSid || (opts.resume === true ? hive.lastSession(opts.hive.id) : undefined);
     if (sid && rf) {
       const args = opts.args ?? [];
-      if (!args.includes(rf)) { args.push(rf, sid); opts.args = args; didResume = true; }
+      if (!args.includes(rf)) {
+        const promptSeparator = preset.initialPromptFlag === '--' ? args.indexOf('--') : -1;
+        if (promptSeparator >= 0) args.splice(promptSeparator, 0, rf, sid);
+        else args.push(rf, sid);
+        opts.args = args;
+        didResume = true;
+      }
     } else if (sid && rsub) {
       // Subcommand form (Codex): `codex resume [OPTIONS] [SESSION_ID]` — the
       // subcommand MUST be argv[0], the id trails the flags. Codex indexes
