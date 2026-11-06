@@ -1839,6 +1839,45 @@ export class HiveManager {
     if (this.routerTimer) { clearInterval(this.routerTimer); this.routerTimer = null; }
   }
 
+  /** Report the stage, never the raw exception: JSON.parse errors can quote
+   *  message bodies and filesystem errors can expose absolute paths. */
+  private reportOutboxFailure(outbox: string, file: string, from: string,
+    reason: 'read-failed' | 'malformed-json' | 'normalize-failed' | 'route-failed' | 'archive-failed',
+    error: unknown): void {
+    const errorCode = (value: unknown): string | undefined => {
+      const code = (value as NodeJS.ErrnoException | null)?.code;
+      return typeof code === 'string' && /^E[A-Z0-9_]{1,30}$/.test(code) ? code : undefined;
+    };
+    this.appendLog({ kind: reason === 'malformed-json' ? 'drop' : 'outbox-error', reason, from, file, code: errorCode(error) });
+    try {
+      renameSync(join(outbox, file), join(outbox, '.sent', `bad-${file}`));
+    } catch (quarantineError) {
+      // The file stays pending for the next pass. Make the failed move visible,
+      // but do not send another inbox notification on every polling interval.
+      this.appendLog({ kind: 'outbox-error', reason: 'quarantine-failed', stage: reason, from, file, code: errorCode(quarantineError) });
+      return;
+    }
+
+    const outcome = reason === 'archive-failed'
+      ? 'Routing completed, but archiving failed; do not resend automatically.'
+      : reason === 'route-failed'
+        ? 'Routing failed; this message may have reached some recipients. Check delivery before resending.'
+        : 'This file was not routed. Correct the problem and publish a new outbox file.';
+    try {
+      // The owning directory is authoritative, including for invalid/spoofed
+      // JSON. Use normal routing so hookless providers get their usual handoff.
+      this.routeMessage(this.normalize({
+        to: from,
+        act: 'inform',
+        subject: '[outbox processing failed]',
+        body: `${reason}: ${JSON.stringify(file)}. ${outcome} The original is in ${JSON.stringify(join('outbox', '.sent', `bad-${file}`))}.`,
+        requires_reply: false
+      }, 'system'));
+    } catch (notificationError) {
+      this.appendLog({ kind: 'outbox-error', reason: 'notification-failed', stage: reason, from, file, code: errorCode(notificationError) });
+    }
+  }
+
   routeOnce(): number {
     const root = this.root();
     if (!root) return 0;
@@ -1851,25 +1890,19 @@ export class HiveManager {
       for (const f of readdirSync(outbox)) {
         if (!f.endsWith('.json')) continue;
         const full = join(outbox, f);
+        let stage: 'read-failed' | 'malformed-json' | 'normalize-failed' | 'route-failed' | 'archive-failed' = 'read-failed';
         try {
           const raw = readFileSync(full, 'utf8');
+          stage = 'malformed-json';
           let partial: Partial<HiveMessage>;
           try {
             partial = JSON.parse(raw) as Partial<HiveMessage>;
-          } catch {
+          } catch (parseError) {
             const repaired = repairLiteralLineBreaksInJsonStrings(raw);
             if (!repaired.changed) {
-              this.appendLog({ kind: 'drop', reason: 'malformed-json', from: id, file: f });
-              try { renameSync(full, join(outbox, '.sent', `bad-${f}`)); } catch { /* noop */ }
-              continue;
+              throw parseError;
             }
-            try {
-              partial = JSON.parse(repaired.text) as Partial<HiveMessage>;
-            } catch {
-              this.appendLog({ kind: 'drop', reason: 'malformed-json', from: id, file: f });
-              try { renameSync(full, join(outbox, '.sent', `bad-${f}`)); } catch { /* noop */ }
-              continue;
-            }
+            partial = JSON.parse(repaired.text) as Partial<HiveMessage>;
             this.appendLog({
               kind: 'outbox-repair',
               from: id,
@@ -1877,14 +1910,16 @@ export class HiveManager {
               repair: 'literal-line-break'
             });
           }
+          stage = 'normalize-failed';
           const msg = this.normalize(partial, id);
           msg.from = id; // sender is authoritative — the owning directory
+          stage = 'route-failed';
           this.routeMessage(msg);
+          stage = 'archive-failed';
           renameSync(full, join(outbox, '.sent', f)); // archive, don't reprocess
           routed++;
-        } catch {
-          // malformed file — quarantine so we don't spin on it
-          try { renameSync(full, join(outbox, '.sent', `bad-${f}`)); } catch { /* noop */ }
+        } catch (error) {
+          this.reportOutboxFailure(outbox, f, id, stage, error);
         }
       }
     }
