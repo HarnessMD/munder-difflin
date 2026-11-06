@@ -24,6 +24,8 @@ faq:
 
 Our view: keep Worktrunk if all you want is faster git worktrees, and switch when you want a window, a review screen or agents that work as a team. The main Worktrunk alternatives are plain git worktree, Munder Difflin, Claude Squad, Orca, Emdash and Conductor. Checked 4 Nov 2026.
 
+If you are weighing Emdash itself, now that its desktop app is Emdash Classic, see [Emdash alternatives](/blog/emdash-alternatives/).
+
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More pages like this sit in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## What is Worktrunk?
