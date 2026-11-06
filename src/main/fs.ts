@@ -3,7 +3,7 @@ import type { FileHandle } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
-import { imageMimeForPath } from '../shared/imageTypes';
+import { imageMimeForDiskPath } from '../shared/imageTypes';
 
 /**
  * Lexical containment — pure string math, no filesystem access.
@@ -261,7 +261,7 @@ export async function readFileBinary(root: string, rel: string, maxBytes = MAX_B
     return {
       ok: true,
       bytes,
-      mime: imageMimeForPath(abs) ?? 'application/octet-stream',
+      mime: imageMimeForDiskPath(abs) ?? 'application/octet-stream',
       path: abs,
       size: s.size
     };
