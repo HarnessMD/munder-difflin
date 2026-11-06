@@ -152,6 +152,7 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
 
     // Snap to bottom immediately on re-attach before fit settles
     try { entry.term.scrollToBottom(); } catch { /* not yet open */ }
+    entry.followOutput = true;
 
     // `scrollToEnd` is true only for the initial attach (switching agents /
     // toggling fullscreen) so we land on the most recent output. Re-parenting
@@ -201,6 +202,7 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
           // re-syncs the DOM scrollTop itself, atomically with its flag.
           entry.term.scrollLines(-1);
           entry.term.scrollToBottom();
+          entry.followOutput = true;
         } catch { /* noop */ }
       }
     };
