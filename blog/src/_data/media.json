@@ -3376,6 +3376,39 @@
     },
     "inline": {}
   },
+  "agent-tools-today-2026-11-06": {
+    "title": "Agent Tools Today, 6 Nov 2026: Claude Code Email Report, GPT-6 Astra on Safety Work, Crush Subagents",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "conductor-alternatives": {
+    "title": "Conductor Alternatives: 6 Picks Now That Conductor Is Joining Meta (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/conductor-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Conductor alternatives, the line 6 picks now that Conductor is joining Meta and a Checked 6 Nov 2026 line. Six small tiles named Orca, Munder Difflin, Emdash, T3 Code, Worktrunk and Claude Code slide in under a grey tile labelled Conductor.",
+      "prompt": "Title card: the hero scene in assets/media/conductor-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "windsurf-alternatives": {
+    "title": "Windsurf Alternatives: 6 Picks Now That Windsurf Is Devin Desktop (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/windsurf-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Windsurf alternatives, the line 6 picks now that Windsurf is Devin Desktop and a Checked 6 Nov 2026 line. Six small tiles named Cursor, Munder Difflin, Zed, GitHub Copilot, Cline and Claude Code slide in under a grey tile labelled Windsurf.",
+      "prompt": "Title card: the hero scene in assets/media/windsurf-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",

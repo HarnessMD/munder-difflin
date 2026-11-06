@@ -4,9 +4,33 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-05T00:00:00.000Z</updated>
+  <updated>2026-11-06T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 6 Nov 2026: Claude Code Email Report, GPT-6 Astra on Safety Work, Crush Subagents</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-06/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-06/</id>
+    <published>2026-11-06T00:00:00.000Z</published>
+    <updated>2026-11-06T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 5 to 6 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Conductor Alternatives: 6 Picks Now That Conductor Is Joining Meta (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/conductor-alternatives/" />
+    <id>https://munderdiffl.in/blog/conductor-alternatives/</id>
+    <published>2026-11-06T00:00:00.000Z</published>
+    <updated>2026-11-06T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Conductor is joining Meta and Conductor Cloud deletes data from 20 Nov. Six alternatives for parallel coding agents in worktrees, checked 6 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Windsurf Alternatives: 6 Picks Now That Windsurf Is Devin Desktop (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/windsurf-alternatives/" />
+    <id>https://munderdiffl.in/blog/windsurf-alternatives/</id>
+    <published>2026-11-06T00:00:00.000Z</published>
+    <updated>2026-11-06T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Windsurf is now Devin Desktop, made by Cognition. Six alternatives sorted by why you would leave, with prices checked 6 Nov 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 5 Nov 2026: Conductor Joins Meta, OpenAI to Buy Pierre, Gemini Training</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-05/" />
@@ -462,29 +486,5 @@
     <published>2026-10-17T00:00:00.000Z</published>
     <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
     <summary>NanoClaw explained on 17 Oct 2026: what the MIT licensed assistant does, how it differs from OpenClaw, how to install it and which models it works with.</summary>
-  </entry>
-  <entry>
-    <title>What Is Roo Code? The Archived VS Code Agent, Explained</title>
-    <link href="https://munderdiffl.in/blog/what-is-roo-code/" />
-    <id>https://munderdiffl.in/blog/what-is-roo-code/</id>
-    <published>2026-10-17T00:00:00.000Z</published>
-    <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Roo Code was an open source AI coding agent for VS Code. Its GitHub repo was archived in May 2026. What the pages say happened, and what to use now.</summary>
-  </entry>
-  <entry>
-    <title>What Is ZeroClaw? The Single Binary Agent Runtime in Rust, Explained</title>
-    <link href="https://munderdiffl.in/blog/what-is-zeroclaw/" />
-    <id>https://munderdiffl.in/blog/what-is-zeroclaw/</id>
-    <published>2026-10-17T00:00:00.000Z</published>
-    <updated>2026-10-17T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>ZeroClaw explained on 17 Oct 2026: what the Rust agent runtime does, how it keeps the agent in check, how to install it and which models it works with.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 16 Oct 2026: Muse Spark Open, Tiny Little Office, OpenCode Ends Sharing</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-16/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-16/</id>
-    <published>2026-10-16T00:00:00.000Z</published>
-    <updated>2026-10-16T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 16 Oct 2026, each with its source.</summary>
   </entry>
 </feed>
