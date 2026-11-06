@@ -36,6 +36,8 @@ A lot changed since we first wrote this in June. Claude Code grew its own agent 
 Nimbalyst, Conductor moved into the cloud, Vibe Kanban announced it is winding down, and Emdash arrived.
 Here is the current picture, checked on 10 September 2026.
 
+For a tool that takes coding agents from task to merged pull request, see [Orchestrator.inc vs Munder Difflin](/blog/orchestrator-inc-vs-munder-difflin/).
+
 <div class="callout note"><span class="ic">Fair warning</span><p>Munder Difflin is our own tool. Everything
 about the others comes from their own sites, READMEs and docs as of 10 September 2026, and every tool is
 linked so you can check it yourself.</p></div>

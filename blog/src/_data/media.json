@@ -3409,6 +3409,28 @@
     },
     "inline": {}
   },
+  "orchestrator-inc-vs-munder-difflin": {
+    "title": "Orchestrator.inc vs Munder Difflin: An Honest Comparison (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/orchestrator-inc-vs-munder-difflin/hero.png",
+      "alt": "Title card on white. A pill reading Versus, the title Orchestrator.inc vs Munder Difflin, the line An honest comparison and a Checked 6 Nov 2026 line. Two tiles slide in side by side, one labelled Orchestrator.inc and one labelled Munder Difflin.",
+      "prompt": "Title card: the hero scene in assets/media/orchestrator-inc-vs-munder-difflin/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "emdash-alternatives": {
+    "title": "Emdash Alternatives: 6 Tools for Parallel Coding Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/emdash-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Emdash alternatives, the line 6 tools for parallel coding agents and a Checked 6 Nov 2026 line. Six small tiles named Orca, Munder Difflin, Orchestrator.inc, T3 Code, Worktrunk and Claude Code slide in under a grey tile labelled Emdash.",
+      "prompt": "Title card: the hero scene in assets/media/emdash-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",
