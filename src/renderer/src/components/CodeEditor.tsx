@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -78,6 +79,7 @@ export interface CodeEditorProps {
 export function CodeEditor({
   root, filePath, onOpenInIde, onCopyPath
 }: CodeEditorProps) {
+  const { t } = useTranslation();
   const [content, setContent] = useState<string>('');
   const [originalContent, setOriginalContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -196,23 +198,23 @@ export function CodeEditor({
         {onCopyPath && (
           <button
             onClick={onCopyPath}
-            title="Copy absolute path"
+            title={t('codeEditor.copyAbsoluteTitle')}
             style={editorBtn}
-          >copy path</button>
+          >{t('codeEditor.copyPathBtn')}</button>
         )}
         <button
           onClick={save}
           disabled={!dirty || saveState === 'saving'}
-          title="Save (Cmd-S)"
+          title={t('codeEditor.saveTitle')}
           style={{ ...editorBtn, opacity: dirty ? 1 : 0.5 }}
         >
-          {saveState === 'saving' ? '...' : saveState === 'saved' ? 'saved' : saveState === 'error' ? 'err' : 'save'}
+          {saveState === 'saving' ? '...' : saveState === 'saved' ? t('codeEditor.saveSaved') : saveState === 'error' ? t('codeEditor.saveError') : t('codeEditor.saveIdle')}
         </button>
         {onOpenInIde && (
           <button
             onClick={onOpenInIde}
-            title="Open in the IDE"
-            aria-label="Open in the IDE"
+            title={t('codeEditor.openIdeTitle')}
+            aria-label={t('codeEditor.openIdeAria')}
             style={editorBtn}
           >
             <Icon name="code" />

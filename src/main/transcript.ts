@@ -1,7 +1,18 @@
 import { closeSync, cpSync, existsSync, fstatSync, mkdirSync, openSync, readSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+// better-sqlite3, NOT node:sqlite — on purpose. node:sqlite only exists on the
+// Node >= 22 that Electron 39 embeds, but a better-sqlite3 binary is rebuilt
+// against the RUNNING Electron's ABI by electron-rebuild (the same one the
+// persist store uses, src/main/db.ts). Under Electron 32 — the version the
+// packaged 0.5.7 upstream actually ships — node:sqlite does not exist at all,
+// and importing it statically crashed the main process at boot (from the start).
+// The query API (prepare/all/get/close) is nearly identical; only constructor
+// naming differs (readOnly → readonly).
+import type BetterSqlite3 from 'better-sqlite3';
+import Database from 'better-sqlite3';
 import { estimateCostUsd, normalizeModel } from './pricing';
+import { expandTilde } from './fs';
 
 /** Claude Code's project key: the absolute cwd with EVERY non-alphanumeric
  *  character turned into a dash — the leading slash and any dots included.
@@ -138,6 +149,13 @@ export interface AgentUsage {
   /** The most-recently-seen model id (normalized, e.g. `claude-opus-4-8`), or
    *  undefined if no priced record was found. Lets the UI label the row. */
   model?: string;
+  /** Epoch ms of the most recent assistant record this figure covers, or
+   *  undefined when nothing was found. `AgentUsageSample.ts` is stamped with
+   *  `Date.now()` by the fallback, which makes `lastActiveSecAgo` read as "just
+   *  now" even for a session that last did anything hours ago — the dashboard
+   *  reports every agent as freshly active and R1 can never detect a stall.
+   *  This carries the REAL activity instant so the caller can stamp with it. */
+  lastActiveAt?: number;
 }
 
 function zero(): AgentUsage {
@@ -151,6 +169,34 @@ export interface ReadUsageOptions {
    *  every `.jsonl` under the shared project dir. When unset, all are summed
    *  (the legacy behavior, used when the agent's session id isn't yet known). */
   sessionId?: string;
+  /**
+   * Explicit OpenCode SQLite to read. Set by the telemetry fallback so it
+   * resolves the SAME hive the agent was spawned into — see `opencodeDbPath`.
+   * Unset means the global default, which is correct only for an opencode the
+   * app did not spawn.
+   */
+  dbPath?: string;
+}
+
+/**
+ * The SQLite file an agent's OpenCode sessions actually land in (TSF-11, part 2).
+ *
+ * The spawn points `XDG_DATA_HOME` at `<harnessHome>/.opencode-data`
+ * (index.ts `applySpawnEnv`), so every harness agent writes to a per-hive
+ * database — NOT the user's global one. Reading `~/.local/share/opencode/
+ * opencode.db` opens a database that never saw the agent: the reader compiled,
+ * the suite passed, and the numbers stayed zero anyway. The two paths were
+ * silently different, which is why "ship the fix" alone fixed nothing.
+ *
+ * Both sides MUST call this, so they cannot drift again. `expandTilde` is the
+ * spawn's own (index.ts imports the same one), keeping `~` handling identical.
+ */
+export function opencodeDbPath(harnessHome?: string | null): string {
+  const home = harnessHome ? expandTilde(harnessHome) : '';
+  if (home) return path.join(home, '.opencode-data', 'opencode', 'opencode.db');
+  // No hive configured: a standalone opencode (and the operator's own
+  // interactive sessions) really do live here.
+  return path.join(os.homedir(), '.local', 'share', 'opencode', 'opencode.db');
 }
 
 /** Per-file incremental parse state for the usage cache. Transcripts are
@@ -297,6 +343,106 @@ function readFileUsage(dir: string, file: string): FileUsageEntry | null {
     for (const k of usageCache.keys()) { if (drop-- <= 0) break; usageCache.delete(k); }
   }
   return entry;
+}
+
+/** OpenCode persists session state in SQLite (`~/.local/share/opencode/opencode.db`),
+ *  NOT as `~/.claude/projects/<key>/*.jsonl`. Reading the Claude layout from an
+ *  OpenCode-backed agent therefore finds no directory at all, and every usage
+ *  figure collapses to zero — which is why `lastActiveSecAgo` and `tokens` read
+ *  null/0 for every OpenCode agent (TSF-11).
+ *
+ *  The mapping is `session_v2.directory` -> the agent's cwd, which is the SAME
+ *  key `projectKey(cwd)` already used; only the storage layer differs.
+ *
+ *  Two invariants this must keep, because both have bitten before:
+ *
+ *  1. NEVER sum a whole directory. That directory is SHARED by every agent that
+ *     ever ran there — the D11 note in telemetry.ts records a probe worker with
+ *     zero LLM calls being cited 143,369,766 tokens from it. With no session id
+ *     we read only the NEWEST session in the directory, never the union.
+ *  2. Aggregate in SQL, not in JS. `session_message.data` is multi-KB JSON and a
+ *     per-directory session holds ~17k rows; pulling them into JS to sum would
+ *     allocate tens of MB on a ~30s beat. Grouping by model in SQLite returns a
+ *     handful of rows and lets each model be priced with its own rate.
+ */
+export function readOpencodeUsage(cwd: string, opts: ReadUsageOptions = {}): AgentUsage {
+  const usage = zero();
+  let db: BetterSqlite3.Database | undefined;
+  try {
+    const dbPath = opts.dbPath ?? opencodeDbPath();
+    if (!existsSync(dbPath)) return usage;
+    // better-sqlite3's `readonly` (vs node:sqlite's `readOnly`) — a genuinely
+    // read-only handle: an opencode.db (or WAL) we must never mutate from here.
+    // The require() itself does NOT dlopen (only `new Database()` does), so a
+    // broken native module here degrades to zeroed usage — the same resilience
+    // the code already shows for a missing db file.
+    db = new Database(dbPath, { readonly: true });
+
+    // `session_v2.directory` is stored POSIX-style even on Windows; the registry
+    // holds native backslashes. Compare normalized, case-folded, no trailing sep.
+    const dir = cwd.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+
+    const sql = `
+      SELECT json_extract(m.data, '$.model.id')                  AS mid,
+             SUM(json_extract(m.data, '$.tokens.input'))         AS i,
+             SUM(json_extract(m.data, '$.tokens.output'))        AS o,
+             SUM(json_extract(m.data, '$.tokens.cache.read'))    AS cr,
+             SUM(json_extract(m.data, '$.tokens.cache.write'))   AS cw,
+             MAX(m.time_updated)                                  AS ts
+      FROM session_message m %s
+      WHERE m.type = 'assistant' %s
+      GROUP BY mid`;
+
+let rows: Row[];
+    if (opts.sessionId) {
+      rows = db.prepare(sql.replace('%s', '').replace('%s', 'AND m.session_id = ?'))
+        .all(opts.sessionId) as unknown as Row[];
+    } else {
+      // No live session id: the NEWEST session in that directory ONLY — see (1).
+      // Summing the whole directory is the D11 bug (143,369,766 tokens credited to
+      // a worker that made zero LLM calls), so resolve the session id first and
+      // filter on it. Never fall through to a directory-wide aggregate.
+      const newest = db.prepare(
+        `SELECT id FROM session_v2
+          WHERE lower(rtrim(directory, '/')) = ?
+          ORDER BY time_updated DESC LIMIT 1`).get(dir) as { id: string } | undefined;
+      if (!newest) return usage;
+      rows = db.prepare(sql.replace('%s', '').replace('%s', 'AND m.session_id = ?'))
+        .all(newest.id) as unknown as Row[];
+    }
+
+    let lastActiveAt: number | undefined;
+    let lastModel: string | undefined;
+    let lastTs = -1;
+    for (const r of rows) {
+      const i = Number(r.i ?? 0), o = Number(r.o ?? 0);
+      const cr = Number(r.cr ?? 0), cw = Number(r.cw ?? 0);
+      usage.inputTokens += i;
+      usage.outputTokens += o;
+      usage.cacheReadTokens += cr;
+      usage.cacheWriteTokens += cw;
+      // Per-model pricing: `cost` is 0 in the DB, the app prices by model id.
+      usage.estimatedCostUsd += estimateCostUsd(r.mid, {
+        inputTokens: i, outputTokens: o, cacheReadTokens: cr, cacheWriteTokens: cw,
+      });
+      const ts = Number(r.ts ?? 0);
+      if (ts > lastTs) { lastTs = ts; lastActiveAt = ts; if (r.mid) lastModel = r.mid; }
+    }
+    if (lastModel) usage.model = lastModel;
+    if (lastActiveAt) usage.lastActiveAt = lastActiveAt;
+    return usage;
+  } catch {
+    return zero();
+  } finally {
+    try { db?.close(); } catch { /* already closed / never opened */ }
+  }
+}
+
+interface Row {
+  mid: string | null;
+  i: number | null; o: number | null;
+  cr: number | null; cw: number | null;
+  ts: number | null;
 }
 
 /** Sum real token usage across Claude Code transcripts for `cwd`, pricing each

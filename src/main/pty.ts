@@ -220,8 +220,9 @@ const SHIM_SCRIPT_EXT = /\.(?:c|m)?js$/i;
  * PATH/candidate-dir resolution and cache.
  *
  * Returns null — meaning "fall back to the cmd.exe path" — for ANY shape that is
- * not fully understood: unknown interpreter, unexpanded `%VAR%` left in the target,
- * a relative target, extra interpreter flags we would otherwise silently drop, a
+ * not fully understood: unknown interpreter, an UNRESOLVABLE `%VAR%` left in the
+ * target (defined %VAR% environment variables ARE resolved — see expand), a
+ * relative target, extra interpreter flags we would otherwise silently drop, a
  * non-JS target, a file too large to be a shim, or plain garbage.
  */
 export function parseNpmCmdShim(shimPath: string, content: string): NpmShimTarget | null {
@@ -238,9 +239,27 @@ export function parseNpmCmdShim(shimPath: string, content: string): NpmShimTarge
 
   /** Expand a shim token's `%~dp0` / `%dp0%` (the shim's OWN directory, which cmd
    *  expands WITH a trailing backslash) into an absolute, normalized path. Any
-   *  other surviving `%` means a variable we did not model → refuse. */
+   *  other surviving `%` means a variable we did not model → refuse.
+   *
+   *  Exception: well-formed `%NAME%` environment variables ARE resolved —
+   *  against the ACTUAL environment of this process. A hand-authored shim (the
+   *  user's own `%APPDATA%\npm\opencode.cmd` edit is the live case) targets an
+   *  INSTALLED executable via `"%LOCALAPPDATA%\Programs\@opencodedesktop\
+   *  resources\opencode-cli.exe" %*` — one quoted token, a direct-executable
+   *  shape just below. Refusing every surviving `%VAR%` forced that shim down
+   *  the cmd.exe route, and cmd.exe's 8191-char ceiling gutted the multi-line
+   *  `--prompt` hive brief ("Linha de comando muito longa", exit 1). An env path
+   *  is no less trustworthy than the `%dp0%` expansion we already accept: cmd
+   *  itself would resolve it the same way at run time. A variable the
+   *  environment does not define is still refused (undefined vars stay `%`
+   * -marked and trip the refusal below), so an environment-based shape never
+   *  silently degrades. */
   const expand = (raw: string): string | null => {
     let s = raw.replace(/%~dp0%?|%dp0%/gi, `${dir}\\`);
+    s = s.replace(/%([A-Za-z0-9_]+)%/g, (varToken, name) => {
+      const value = process.env[name];
+      return typeof value === 'string' ? value : varToken;
+    });
     if (s.includes('%')) return null;
     if (!s.trim()) return null;
     // `<dir>\` + `\node_modules\…` produces a doubled separator that Windows

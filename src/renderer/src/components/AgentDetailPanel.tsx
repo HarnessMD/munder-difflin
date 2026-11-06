@@ -176,7 +176,7 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
           <span
             className="cth-tip cth-tip-wrap"
             data-tip={`Edit ${agent.name}: their name and face, which engine they run on, and the briefing that tells them what they are for.`}
-            aria-label="Edit this agent"
+            aria-label={t('agentDetail.editAria')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
           >
             <Icon name="edit" />{!compactHeader && ' edit'}

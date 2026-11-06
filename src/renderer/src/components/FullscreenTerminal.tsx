@@ -359,8 +359,8 @@ export function FullscreenTerminal({ config }: FullscreenTerminalProps) {
           <button
             className="cth-settings-btn"
             onClick={() => window.dispatchEvent(new CustomEvent('cth:open-settings'))}
-            title="Settings"
-            aria-label="Settings"
+            title={t('fullscreenTerminal.settingsLabel')}
+            aria-label={t('fullscreenTerminal.settingsLabel')}
             style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               width: 28, height: 28, padding: 0,
@@ -873,7 +873,7 @@ function SidebarRow({
             fontSize: noteLabelSize,
             lineHeight: `${Math.round(noteLabelSize * 1.5)}px`,
             color: 'var(--cth-ink-700)'
-          }}>PRIVATE NOTE</div>
+          }}>{t('fullscreenTerminal.privateNote')}</div>
           {/* A textarea, not an input: the note is a bullet list, so Enter has
               to make a new line rather than doing nothing. autoFocus is safe
               now that opening is an explicit click, not a pointer fly-by. */}

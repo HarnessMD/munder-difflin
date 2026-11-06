@@ -1,4 +1,5 @@
 import { PixelPanel } from '@/components/PixelPanel';
+import { useTranslation } from 'react-i18next';
 import { useResolvedGodName } from '@/hooks/useResolvedGodName';
 
 /**
@@ -12,6 +13,7 @@ import { useResolvedGodName } from '@/hooks/useResolvedGodName';
  * rather than assuming the default.
  */
 export function MichaelBooting() {
+  const { t } = useTranslation();
   const godName = useResolvedGodName();
   return (
     <div style={{
@@ -20,7 +22,7 @@ export function MichaelBooting() {
       pointerEvents: 'none'
     }}>
       <div style={{ pointerEvents: 'auto', width: 360 }}>
-        <PixelPanel variant="dialog" title="CLOCKING IN" noPadding>
+        <PixelPanel variant="dialog" title={t('booting.title')} noPadding>
           <div style={{
             padding: 20,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14

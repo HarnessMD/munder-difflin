@@ -202,6 +202,15 @@ export interface HarnessConfig {
   orchestratorMaySpawn: boolean;
   /** The command we run when spawning a new agent. */
   defaultCommand: string;
+  /** Optional FULL override of the GOD orchestrator's spawn command (mirrors
+   *  upstream 0.5.6+). Wins over godProvider/godModel entirely — the renderer's
+   *  god respawn uses it verbatim (tokens split like a shell line). Use it when
+   *  the god's engine needs a shape the preset cannot express, e.g. pointing at
+   *  the OpenCode desktop CLI's minimal TUI:
+   *  "C:\...\opencode-cli.exe mini". The hive injection (OPENCODE_CONFIG_CONTENT,
+   *  hooks plugin, --prompt seed) still applies on top — only the BASE command is
+   *  overridden. */
+  godCommand?: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;
   /** Which provider powers the GOD orchestrator ("Michael"). The persona is

@@ -25,6 +25,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { win32 } = require('node:path');
 const loadTs = require('./load-ts.cjs');
 
 const { parseNpmCmdShim, buildCmdCommandLine, PtyManager } = loadTs('src/main/pty.ts');
@@ -327,4 +328,45 @@ test('the hive prompt survives a direct-executable shim, where cmd.exe destroys 
 test('an interpreter-less shim pointing at a NON-executable is still refused', () => {
   const odd = DIRECT_EXE_SHIM.replace('opencode.exe', 'opencode.txt');
   assert.equal(parseNpmCmdShim('C:\\npm\\opencode.cmd', odd), null);
+});
+
+// The HAND-AUTHORED shim cased lived: %APPDATA%\npm\opencode.cmd rewritten to
+// target the OpenCode desktop app's CLI through %LOCALAPPDATA%. The exec line is
+// the "direct executable" shape; the only thing blocking it was expand() refusing
+// any surviving %VAR%. Resolving env vars turns this into CreateProcess's 32767
+// ceiling instead of cmd.exe's 8191 ("Linha de comando muito longa", exit 1).
+const HAND_EDITED_SHIM = [
+  '@ECHO off',
+  'REM Aponta para o binario do app de desktop OpenCode (V2).',
+  'REM O V2 nao e\' publicado no npm, entao so o app de desktop o fornece.',
+  '"%LOCALAPPDATA%\\Programs\\@opencodedesktop\\resources\\opencode-cli.exe" %*'
+].join('\r\n');
+
+test('a hand-authored %VAR% shim resolves the env var and executes direct', () => {
+  // Host-independent on purpose: the test DEFINES its own variable instead of
+  // relying on the host having %LOCALAPPDATA% — parseNpmCmdShim reads
+  // process.env at call time, matching what cmd would resolve at run time.
+  process.env.MD_TEST_SHIM_ROOT = 'C:\\Users\\r\\AppData\\Local';
+  try {
+    const shim = HAND_EDITED_SHIM.replace('%LOCALAPPDATA%', '%MD_TEST_SHIM_ROOT%');
+    const t = parseNpmCmdShim('C:\\Users\\r\\AppData\\Roaming\\npm\\opencode.cmd', shim);
+    assert.ok(t, 'a hand-edited V2-pointer shim must be understood');
+    assert.equal(t.interpreter, null, 'no interpreter — the CLI binary runs directly');
+    assert.equal(
+      t.scriptPath,
+      win32.normalize('C:\\Users\\r\\AppData\\Local\\Programs\\@opencodedesktop\\resources\\opencode-cli.exe'),
+      'the %VAR% token is expanded against the real environment'
+    );
+  } finally {
+    delete process.env.MD_TEST_SHIM_ROOT;
+  }
+});
+
+test('an UNDEFINED env var in a shim target is still refused, never resolved to garbage', () => {
+  const broken = HAND_EDITED_SHIM.replace('%LOCALAPPDATA%', '%MD_TEST_NO_SUCH_VAR_92%');
+  assert.equal(
+    parseNpmCmdShim('C:\\Users\\r\\AppData\\Roaming\\npm\\opencode.cmd', broken),
+    null,
+    'an undefined variable keeps the old refusal semantics'
+  );
 });
