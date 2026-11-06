@@ -1,5 +1,6 @@
 // Synthetic event stream so the avatars actually move while we wait on real tmux/hook wiring.
 
+import i18n from '@/i18n';
 import { useStore, type Agent, type StationKind, type ToolKind } from './store';
 
 const STATION_BY_TOOL: Record<ToolKind, StationKind> = {
@@ -13,41 +14,41 @@ const STATION_BY_TOOL: Record<ToolKind, StationKind> = {
 
 interface ToolSample {
   tool: ToolKind;
-  what: string;            // short — used as the action text
+  key: string;             // demoFloor.samples.<key>.what / .thought in the locales
   lines: string[];         // terminal stream output
-  thought: string;         // first-person assistant text, streamed in the sidebar
 }
+
+/** Short action text for the thought cloud, in the UI language. Read when the
+ *  agent is updated, so a language switch shows up on the next tick. */
+const what = (s: ToolSample) => i18n.t(`demoFloor.samples.${s.key}.what`);
+/** First-person assistant text, streamed in the sidebar. */
+const thought = (s: ToolSample) => i18n.t(`demoFloor.samples.${s.key}.thought`);
+const headingTo = (station: StationKind) => i18n.t(`demoFloor.headingTo.${station}`);
 
 const TOOL_SAMPLES: ToolSample[] = [
   {
-    tool: 'Read', what: 'reading SPEC.md',
-    lines: ['\x1b[36m● Read\x1b[0m SPEC.md', '   read 412 lines.'],
-    thought: "Pulling up the spec so I can confirm the state machine before touching the implementation."
+    tool: 'Read', key: 'read',
+    lines: ['\x1b[36m● Read\x1b[0m SPEC.md', '   read 412 lines.']
   },
   {
-    tool: 'Edit', what: 'editing PixelPanel.tsx',
-    lines: ['\x1b[36m● Edit\x1b[0m src/renderer/src/components/PixelPanel.tsx', '   +14 / -3'],
-    thought: "Tightening up the panel border math — the inner stroke was a pixel off in inset mode."
+    tool: 'Edit', key: 'edit',
+    lines: ['\x1b[36m● Edit\x1b[0m src/renderer/src/components/PixelPanel.tsx', '   +14 / -3']
   },
   {
-    tool: 'Bash', what: 'running tests',
-    lines: ['\x1b[36m● Bash\x1b[0m npm test', '   ✓ 24 passed'],
-    thought: "Running the renderer suite to make sure nothing regressed before I move on."
+    tool: 'Bash', key: 'bash',
+    lines: ['\x1b[36m● Bash\x1b[0m npm test', '   ✓ 24 passed']
   },
   {
-    tool: 'WebFetch', what: 'fetching docs',
-    lines: ['\x1b[36m● WebFetch\x1b[0m https://docs.example.com/hooks', '   ok 200 (1.2kb)'],
-    thought: "Grabbing the hooks doc to double-check the PreToolUse payload shape — my memory of the field names is hazy."
+    tool: 'WebFetch', key: 'webFetch',
+    lines: ['\x1b[36m● WebFetch\x1b[0m https://docs.example.com/hooks', '   ok 200 (1.2kb)']
   },
   {
-    tool: 'Glob', what: 'searching for skill files',
-    lines: ['\x1b[36m● Glob\x1b[0m **/*.skill.md', '   23 matches'],
-    thought: "Enumerating all the skill files so I can walk each one and look for stale script paths."
+    tool: 'Glob', key: 'glob',
+    lines: ['\x1b[36m● Glob\x1b[0m **/*.skill.md', '   23 matches']
   },
   {
-    tool: 'TodoWrite', what: 'updating the todo board',
-    lines: ['\x1b[36m● TodoWrite\x1b[0m 4 items'],
-    thought: "Splitting the remaining work into four discrete tasks so I can track them as I go."
+    tool: 'TodoWrite', key: 'todoWrite',
+    lines: ['\x1b[36m● TodoWrite\x1b[0m 4 items']
   }
 ];
 
@@ -73,7 +74,7 @@ function stepAgent(agent: Agent) {
       const station = STATION_BY_TOOL[sample.tool];
       updateAgent(agent.id, {
         status: 'thinking',
-        action: `heading to ${station}`,
+        action: headingTo(station),
         currentStation: station,
         progress: 1
       });
@@ -93,10 +94,10 @@ function stepAgent(agent: Agent) {
     const sample = pickSample();
     updateAgent(agent.id, {
       status: 'working',
-      action: sample.what,
+      action: what(sample),
       carrying: tool,
       progress: Math.min(agent.progress + 1, 8),
-      recentAssistantText: sample.thought,
+      recentAssistantText: thought(sample),
       recentTextTs: Date.now()
     });
     sample.lines.forEach(l => pushFeed(agent.id, l));
@@ -108,7 +109,7 @@ function stepAgent(agent: Agent) {
     if (Math.random() < 0.5) {
       updateAgent(agent.id, {
         status: 'thinking',
-        action: 'heading back to desk',
+        action: i18n.t('demoFloor.headingBackToDesk'),
         currentStation: 'desk',
         progress: Math.min(agent.progress + 1, 8)
       });
@@ -118,7 +119,7 @@ function stepAgent(agent: Agent) {
       const station = STATION_BY_TOOL[sample.tool];
       updateAgent(agent.id, {
         status: 'thinking',
-        action: `heading to ${station}`,
+        action: headingTo(station),
         currentStation: station,
         progress: Math.min(agent.progress + 1, 8)
       });
@@ -160,9 +161,9 @@ export function startMockLoop() {
       if (a.status === 'thinking' && a.currentStation === 'desk' && Math.random() < 0.4) {
         updateAgent(a.id, {
           status: 'idle',
-          action: 'awaiting',
+          action: i18n.t('demoFloor.awaiting'),
           carrying: undefined,
-          recentAssistantText: 'Done with that one. What next?',
+          recentAssistantText: i18n.t('demoFloor.doneWhatNext'),
           recentTextTs: Date.now()
         });
       }
