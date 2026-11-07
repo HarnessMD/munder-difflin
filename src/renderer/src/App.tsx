@@ -98,6 +98,7 @@ export function App() {
   // Initial config load
   useEffect(() => {
     let cancelled = false;
+    if (!window.cth?.getConfig) return;
     window.cth.getConfig().then(c => {
       if (cancelled) return;
       setConfig(c);

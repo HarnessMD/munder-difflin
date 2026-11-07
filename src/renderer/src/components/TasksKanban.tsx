@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
@@ -121,6 +121,10 @@ export function TasksKanban() {
   const { t } = useTranslation();
   const agents = useStore((s) => s.agents);
   const [tasks, setTasks] = useState<HiveTask[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [assigneeFilter, setAssigneeFilter] = useState<'all' | 'unassigned' | string>('all');
+  const [onlyNeedsHuman, setOnlyNeedsHuman] = useState(false);
+
   // Detail view: cards show just the title — clicking one opens the full
   // breakdown as an APP-WIDE overlay over the office floor (see
   // TaskDetailOverlay) — the content grows (contracts, deps, human Q&A), so it
@@ -154,68 +158,217 @@ export function TasksKanban() {
   /** Resolve an assignee id to a display name — falls back to the restorable
    *  roster so a done card keeps its author's name even after that worker's
    *  terminal is gone, then to the raw id. */
-  const nameFor = (id?: string): string | undefined =>
+  const nameFor = useCallback((id?: string): string | undefined =>
     id
       ? (agents.find((a) => a.id === id)?.name
         ?? restorableAgents.find((a) => a.id === id)?.name
         ?? id)
-      : undefined;
+      : undefined,
+    [agents, restorableAgents]
+  );
+
+  const availableAssignees = useMemo(() => {
+    const set = new Set<string>();
+    for (const task of tasks) {
+      if (task.assignee) set.add(task.assignee);
+    }
+    return Array.from(set).sort((a, b) => (nameFor(a) ?? a).localeCompare(nameFor(b) ?? b));
+  }, [tasks, nameFor]);
+
+  const filteredTasks = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return tasks.filter((task) => {
+      if (assigneeFilter === 'unassigned') {
+        if (task.assignee) return false;
+      } else if (assigneeFilter !== 'all') {
+        if (task.assignee !== assigneeFilter) return false;
+      }
+
+      if (onlyNeedsHuman && !waitsOnHuman(task)) {
+        return false;
+      }
+
+      if (q) {
+        const titleMatch = task.title?.toLowerCase().includes(q);
+        const idMatch = task.id?.toLowerCase().includes(q);
+        const descMatch = task.description?.toLowerCase().includes(q);
+        const aName = nameFor(task.assignee)?.toLowerCase();
+        const assigneeMatch = aName ? aName.includes(q) : false;
+        if (!titleMatch && !idMatch && !descMatch && !assigneeMatch) return false;
+      }
+
+      return true;
+    });
+  }, [tasks, searchQuery, assigneeFilter, onlyNeedsHuman, nameFor]);
+
+  const isFiltered = !!searchQuery.trim() || assigneeFilter !== 'all' || onlyNeedsHuman;
 
   return (
     <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', background: 'var(--cth-paper-200)', position: 'relative' }}>
-      {/* Toolbar — read-only: the god is the ledger's writer. New work enters
-          through the dispatch box (which mails the god), not by the human
-          inserting cards the orchestrator never heard about. */}
+      {/* Toolbar — search, filters, task count, and hint */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', flexShrink: 0,
+        display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, padding: '8px 10px', flexShrink: 0,
         borderBottom: '1px solid var(--cth-ink-300)'
       }}>
-        <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 9, color: 'var(--cth-ink-500)' }}>
-          {t('kanban.count', { count: tasks.length })}
-        </span>
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--cth-ink-300)' }}>
-          {t('kanban.newWorkHint')}
+        {/* Search Input */}
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', minWidth: 140, flex: '1 1 180px', maxWidth: 240 }}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Escape') setSearchQuery(''); }}
+            placeholder={t('kanban.filterPlaceholder')}
+            style={{
+              width: '100%',
+              padding: '4px 22px 4px 8px',
+              fontFamily: 'var(--cth-font-ui)',
+              fontSize: 12,
+              background: 'var(--cth-paper-100)',
+              color: 'var(--cth-ink-900)',
+              border: 'none',
+              boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
+              borderRadius: 2,
+              outline: 'none'
+            }}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              title={t('kanban.clearFilter')}
+              aria-label={t('kanban.clearFilter')}
+              style={{
+                position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)',
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'var(--cth-ink-500)'
+              }}
+            >
+              <Icon name="x" />
+            </button>
+          )}
+        </div>
+
+        {/* Assignee filter dropdown */}
+        <select
+          value={assigneeFilter}
+          onChange={(e) => setAssigneeFilter(e.target.value)}
+          aria-label={t('kanban.filterAssigneeAll')}
+          style={{
+            padding: '4px 8px',
+            fontFamily: 'var(--cth-font-ui)',
+            fontSize: 12,
+            background: 'var(--cth-paper-100)',
+            color: 'var(--cth-ink-900)',
+            border: 'none',
+            boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
+            borderRadius: 2,
+            cursor: 'pointer'
+          }}
+        >
+          <option value="all">{t('kanban.filterAssigneeAll')}</option>
+          <option value="unassigned">{t('kanban.unassigned')}</option>
+          {availableAssignees.map((id) => (
+            <option key={id} value={id}>
+              {nameFor(id) ?? id}
+            </option>
+          ))}
+        </select>
+
+        {/* Quick filter chip for Needs Human Answer */}
+        <button
+          onClick={() => setOnlyNeedsHuman((prev) => !prev)}
+          title={t('kanban.needsYouTitle')}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            padding: '3px 8px',
+            fontFamily: 'var(--cth-font-ui)',
+            fontSize: 11,
+            fontWeight: 500,
+            cursor: 'pointer',
+            border: 'none',
+            borderRadius: 2,
+            background: onlyNeedsHuman ? 'var(--cth-coral)' : 'var(--cth-paper-100)',
+            color: onlyNeedsHuman ? 'var(--cth-paper-100)' : 'var(--cth-ink-700)',
+            boxShadow: onlyNeedsHuman
+              ? 'inset 0 0 0 1px var(--cth-ink-900)'
+              : 'inset 0 0 0 1px var(--cth-ink-300)'
+          }}
+        >
+          <span style={{ fontWeight: 700 }}>?</span>
+          <span>{t('kanban.filterBlocked')}</span>
+        </button>
+
+        {/* Task counts */}
+        <span style={{
+          fontFamily: 'var(--cth-font-display)', fontSize: 9, color: 'var(--cth-ink-500)',
+          marginLeft: 'auto', whiteSpace: 'nowrap'
+        }}>
+          {isFiltered
+            ? t('kanban.filterCount', { filtered: filteredTasks.length, total: tasks.length })
+            : t('kanban.count', { count: tasks.length })}
         </span>
       </div>
 
-      {/* Columns */}
-      <div style={{
-        flex: 1, minHeight: 0, display: 'flex', gap: 8, padding: 10, overflowX: 'auto'
-      }}>
-        {COLUMNS.map((col) => {
-          const cards = tasks.filter((t) => t.status === col.key);
-          return (
-            <div key={col.key} style={{
-              flex: '1 1 0', minWidth: 170, display: 'flex', flexDirection: 'column',
-              background: 'var(--cth-cream-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
-            }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px 4px',
-                background: col.accent, boxShadow: 'inset 0 -1px 0 var(--cth-ink-900)',
-                fontFamily: 'var(--cth-font-display)', fontSize: 9, color: 'var(--cth-ink-900)'
+      {/* Columns or Empty Match State */}
+      {isFiltered && filteredTasks.length === 0 ? (
+        <div style={{
+          flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: 12, padding: 24, textAlign: 'center'
+        }}>
+          <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 10, color: 'var(--cth-ink-700)' }}>
+            {t('kanban.noMatchingTasks')}
+          </span>
+          <PixelButton
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setSearchQuery('');
+              setAssigneeFilter('all');
+              setOnlyNeedsHuman(false);
+            }}
+          >
+            {t('kanban.clearFilter')}
+          </PixelButton>
+        </div>
+      ) : (
+        <div style={{
+          flex: 1, minHeight: 0, display: 'flex', gap: 8, padding: 10, overflowX: 'auto'
+        }}>
+          {COLUMNS.map((col) => {
+            const cards = filteredTasks.filter((t) => t.status === col.key);
+            return (
+              <div key={col.key} style={{
+                flex: '1 1 0', minWidth: 170, display: 'flex', flexDirection: 'column',
+                background: 'var(--cth-cream-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
               }}>
-                {t(col.labelKey)}
-                <span style={{ marginLeft: 'auto', fontSize: 11, fontFamily: 'var(--cth-font-ui)' }}>{cards.length}</span>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px 4px',
+                  background: col.accent, boxShadow: 'inset 0 -1px 0 var(--cth-ink-900)',
+                  fontFamily: 'var(--cth-font-display)', fontSize: 9, color: 'var(--cth-ink-900)'
+                }}>
+                  {t(col.labelKey)}
+                  <span style={{ marginLeft: 'auto', fontSize: 11, fontFamily: 'var(--cth-font-ui)' }}>{cards.length}</span>
+                </div>
+                <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {cards.length === 0 && (
+                    <div style={{ fontSize: 12, color: 'var(--cth-ink-300)', textAlign: 'center', padding: '8px 0' }}>—</div>
+                  )}
+                  {cards.map((t) => (
+                    <TaskCard
+                      key={t.id}
+                      task={t}
+                      accent={col.accent}
+                      assigneeName={nameFor(t.assignee)}
+                      onOpen={() => openTaskDetail(t.id)}
+                      onDismiss={() => dismissTask(t.id)}
+                    />
+                  ))}
+                </div>
               </div>
-              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {cards.length === 0 && (
-                  <div style={{ fontSize: 12, color: 'var(--cth-ink-300)', textAlign: 'center', padding: '8px 0' }}>—</div>
-                )}
-                {cards.map((t) => (
-                  <TaskCard
-                    key={t.id}
-                    task={t}
-                    accent={col.accent}
-                    assigneeName={nameFor(t.assignee)}
-                    onOpen={() => openTaskDetail(t.id)}
-                    onDismiss={() => dismissTask(t.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
