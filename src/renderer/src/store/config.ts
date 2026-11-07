@@ -16,6 +16,7 @@ import type {
 import { isNewer } from '@shared/updateState';
 import modelCatalog from '@shared/modelCatalog.json';
 import type { CatalogModel, ModelCatalog } from '@shared/modelCatalogPayload';
+import type { McpDefaultsMap } from '@shared/mcpCatalog';
 
 export {
   AGENT_PROVIDER_PRESETS,
@@ -78,7 +79,7 @@ export interface HarnessConfig {
   godModel?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id (mirrors
    *  src/main/config.ts; seeded from MCP_CATALOG). */
-  mcpDefaults?: { [id: string]: { enabled: boolean } };
+  mcpDefaults?: McpDefaultsMap;
   semanticMemory: boolean;
   embeddingModel: 'minilm' | 'embeddinggemma';
   missions?: ScheduledMission[];

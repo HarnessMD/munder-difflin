@@ -839,13 +839,17 @@
     "title": "Default MCP servers",
     "desc": "These servers are merged into each new agent's session settings. Safe servers are on by default; write/secret servers are off until you consent. Changes take effect on the next agent spawn — running agents are not affected.",
     "toggleNote": "{{id}}: {{state}}",
-    "couldNotSave": "could not save",
+    "couldNotSave": "Could not confirm the save. Refresh MCP settings before trying again.",
+    "couldNotLoad": "Cannot confirm MCP settings. Check or repair config.json, then refresh. Consent changes are disabled until settings can be read.",
+    "loading": "loading…",
+    "unavailable": "unknown",
+    "refresh": "Refresh MCP settings",
     "tiers": {
       "safeReadonly": "Safe & Read-Only (on by default)",
       "write": "Write Access (consent required)",
       "secret": "Requires Secret / API Key (consent required)",
       "safeReadonlyNote": "These servers read data only, need no secrets, and are scoped to the agent workspace. They are enabled for every new agent.",
-      "writeNote": "These servers can mutate state beyond the workspace. Off by default — enable only after reviewing.",
+      "writeNote": "These servers can write or modify state, including workspace files and Git history. Off by default; explicit consent is required. Older grants may require renewed consent.",
       "secretNote": "These servers require an API key or credentials. Off by default — add your credentials and enable after consent."
     }
   },
