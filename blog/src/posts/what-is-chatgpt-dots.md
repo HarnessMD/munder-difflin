@@ -1,9 +1,9 @@
 ---
-title: "What Is ChatGPT Dots? OpenAI's Always On Agents Explained"
-seoTitle: "ChatGPT Dots: What They Do, Price and Who Can Get One"
-description: "A ChatGPT dot is an always on agent with its own cloud computer. Needs Pro (from $100 a month) or Business Premium, not Plus. Not on Pro in the UK or EU."
+title: "What Is ChatGPT Dots? Who Gets a Dot, What It Costs, What It Does"
+seoTitle: "ChatGPT Dots Explained: Who Gets One and What It Costs"
+description: "A ChatGPT dot is an always on agent with its own cloud computer. You get one on Pro (from $100 a month, Nov 2026) or Business Premium. Plus has none."
 date: 2026-09-30
-updated: 2026-10-03
+updated: 2026-11-07
 category: concepts
 categoryLabel: Concepts
 type: Non-technical

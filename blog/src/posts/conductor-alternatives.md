@@ -24,6 +24,8 @@ faq:
 
 Our view: Emdash is the closest Conductor alternative for local work, and Orca is the one if you relied on Conductor Cloud. Conductor is joining Meta, has stopped new sign ups, and starts deleting Cloud data on 20 Nov 2026, so export first. Checked 6 Nov 2026.
 
+Paradev, formerly Superset, also calls itself a Conductor alternative, and our [Paradev alternatives](/blog/paradev-alternatives/) page compares six tools like it.
+
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More pages like this sit in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## What is happening to Conductor?
