@@ -1039,6 +1039,8 @@ export function useHive(config: HarnessConfig | null): void {
         project,
         tmuxTarget: '',
         cwd: rec.cwd,
+        worktreePath: rec.worktreePath,
+        worktreeOrigin: rec.worktreeOrigin,
         status: 'idle',
         action: 'starting up',
         progress: 0,
@@ -1189,10 +1191,8 @@ export function useHive(config: HarnessConfig | null): void {
       if (!a) return;
       try {
         const cfg = await window.cth.getConfig();
-        // Isolated agents run inside their worktree (a.cwd is the base repo); re-enter
-        // it if it still exists, else fall back to the base cwd — same as restoreTeam.
-        let cwd = a.cwd;
-        if (a.worktreePath && (await window.cth.gitIsRepo(a.worktreePath))) cwd = a.worktreePath;
+        // Main resolves isolation using the persisted registry/roster origin.
+        const cwd = a.cwd;
         await window.cth.killPty(deadId);
         // Soft-reset the pooled xterm in place (no-op if none): re-arm input and
         // clear the stale frame so the revived TUI paints clean — like the button.
@@ -1225,11 +1225,14 @@ export function useHive(config: HarnessConfig | null): void {
           isolate: false,
           // Reattach the agent's prior session so no context is lost on revive.
           resume: true,
-          hive
+          hive: { ...hive, worktreePath: a.worktreePath, worktreeOrigin: a.worktreeOrigin }
         });
         if (res.ok) {
           reviving.current[deadId] = Date.now(); // re-stamp so the debounce covers the spawn
-          useStore.getState().updateAgent(a.id, { status: 'idle', action: 'revived after sleep' });
+          useStore.getState().updateAgent(a.id, {
+            cwd: res.cwd ?? cwd, worktreePath: res.worktreePath, worktreeOrigin: res.worktreeOrigin,
+            status: 'idle', action: res.worktreeGone ? 'worktree gone — using base repo' : 'revived after sleep'
+          });
         } else {
           delete reviving.current[deadId]; // let a later power:resume retry it
           console.error('[autorevive] respawn failed for', a.id, res.error);
