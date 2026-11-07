@@ -107,8 +107,10 @@ export async function getLog(cwd: string, n: number): Promise<GitCommit[] | { er
     const [sha, parents, subject, author, atime, refs] = rec.split(fsep);
     if (!sha) continue;
     out.push({
-      sha,
-      shortSha: sha.slice(0, 7),
+      // format: inserts a newline between records, after our separator. Keep
+      // it out of the revision id (as getLogGraph already does).
+      sha: sha.trim(),
+      shortSha: sha.trim().slice(0, 7),
       parents: parents.split(' ').filter(Boolean),
       subject: subject ?? '',
       author: author ?? '',
