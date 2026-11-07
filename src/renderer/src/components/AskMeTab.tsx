@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PixelButton } from './PixelButton';
 import { PixelBadge } from './PixelBadge';
-import { useStore } from '@/store/store';
-import { MarkdownPreview } from '@/markdown/MarkdownPreview';
-import { type HiveTask, type HumanQA, openQuestion, waitsOnHuman } from './TasksKanban';
+import { useStore, type AskMeCardState } from '@/store/store';
+import { type HiveTask, openQuestion, waitsOnHuman } from './TasksKanban';
 import { compareByNewestAsk } from './askMeOrder';
-import { isComposingKey } from '@shared/imeGuard';
-import { useRtl } from '@/i18n/useDirection';
+import { AskMeQuestion } from './AskMeQuestion';
+import { composeAnswer, normalizeHumanQA, questionRef, type AnswerOutcome, type QuestionRef } from '@shared/humanQuestion';
 
 /**
  * ASK ME — first-class human feedback through the task system.
@@ -20,11 +18,11 @@ import { useRtl } from '@/i18n/useDirection';
  * tasks stuck waiting on this one — so "why isn't X done?" reads as "ah,
  * because I still owe something here."
  *
- * Sending an answer does two things:
- *   1. writes it into the card's humanQA entry in hive/tasks.json (the
- *      decision is documented ON the task, forever), and
- *   2. mails the god so it picks the answer up, unblocks the card, and the
- *      work continues — no separate HumanQuestion.md side-channel anymore.
+ * Sending an answer goes through main (hiveAnswerQuestion), which writes it into
+ * the card's humanQA entry in hive/tasks.json (the decision is documented ON the
+ * task, forever) and mails the god, so the card gets unblocked and the work goes
+ * on. Main names the question by what the card showed, so an answer never lands
+ * on a question the god changed or closed meanwhile (Pam's P4: "not sent").
  */
 
 const POLL_MS = 5000;
@@ -34,6 +32,12 @@ function parse(raw: unknown): HiveTask[] {
     ? (raw as { tasks: HiveTask[] }).tasks
     : [];
   return list.filter((t) => !!t && typeof t === 'object');
+}
+
+/** The same question as the card showed: text, stamp, place and option labels. */
+function sameRef(a: QuestionRef, b: QuestionRef): boolean {
+  const la = a.labels ?? [], lb = b.labels ?? [];
+  return a.q === b.q && a.askedAt === b.askedAt && a.nth === b.nth && la.length === lb.length && la.every((l, i) => l === lb[i]);
 }
 
 /** All tasks transitively waiting on `id` (dependents chain), cycle-safe. */
@@ -46,20 +50,28 @@ function dependentsTree(id: string, all: HiveTask[], seen = new Set<string>()): 
 
 export function AskMeTab() {
   const { t: translate } = useTranslation();
-  const rtl = useRtl();
   const agents = useStore((s) => s.agents);
   const restorable = useStore((s) => s.restorableAgents);
   const [tasks, setTasks] = useState<HiveTask[]>([]);
   // Drafts live in the STORE (keyed by task id) — switching tabs unmounts this
-  // view, and a half-typed answer must survive the round trip.
+  // view, and a half-typed answer must survive the round trip. So do the picks
+  // and an answer that was not sent (askMeCards).
   const drafts = useStore((s) => s.answerDrafts);
   const setAnswerDraft = useStore((s) => s.setAnswerDraft);
+  const cards = useStore((s) => s.askMeCards);
+  const setAskMeCard = useStore((s) => s.setAskMeCard);
   const openTaskDetail = useStore((s) => s.openTaskDetail);
   const [sending, setSending] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  // The board before the last poll: a card that left it still has its title.
+  const prev = useRef<HiveTask[]>([]);
 
-  const refresh = useCallback(async () => {
-    try { setTasks(parse(await window.cth.hiveTasks())); } catch { /* keep last good */ }
+  const refresh = useCallback(async (): Promise<HiveTask[] | null> => {
+    try {
+      const next = parse(await window.cth.hiveTasks());
+      setTasks((cur) => { prev.current = cur; return next; });
+      return next;
+    } catch { return null; /* keep last good */ }
   }, []);
 
   useEffect(() => {
@@ -67,6 +79,36 @@ export function AskMeTab() {
     timer.current = setInterval(refresh, POLL_MS);
     return () => { if (timer.current) clearInterval(timer.current); };
   }, [refresh]);
+
+  // A question that changed or closed under what the person wrote (Pam's P4).
+  // Changed: the box empties and what they wrote shows below, read only, to copy,
+  // until they send. Closed: the card stays, read only, until they dismiss it. An
+  // empty box with no picks just leaves, as before.
+  useEffect(() => {
+    const { askMeCards, answerDrafts } = useStore.getState();
+    for (const [id, st] of Object.entries(askMeCards)) {
+      const cur = tasks.find((x) => x.id === id);
+      const now = cur && waitsOnHuman(cur) ? questionRef(cur) : null;
+      if (st.closed) {
+        // Asked again: what they wrote shows under the new question instead.
+        if (now) setAskMeCard(id, { notSent: 'gone', ...(st.kept ? { kept: st.kept } : {}) });
+        continue;
+      }
+      if (st.ref ? now && sameRef(now, st.ref) : now) continue;
+      const wrote = st.ref ? composeAnswer(st.entry?.options, st.picks ?? [], answerDrafts[id] ?? '') : null;
+      const kept = wrote ?? st.kept;
+      if (wrote) setAnswerDraft(id, '');
+      if (!kept) { setAskMeCard(id, null); continue; }
+      if (now) { setAskMeCard(id, { notSent: 'gone', kept }); continue; }
+      const known = cur ?? prev.current.find((x) => x.id === id);
+      const open = known ? openQuestion(known) : undefined;
+      const entry = st.entry ?? (open ? normalizeHumanQA(open) ?? undefined : undefined);
+      setAskMeCard(id, {
+        notSent: 'gone', kept, ...(entry ? { entry } : {}),
+        closed: { title: known?.title ?? id, ...(known?.assignee ? { assignee: known.assignee } : {}) }
+      });
+    }
+  }, [tasks, setAskMeCard, setAnswerDraft]);
 
   const nameFor = (id?: string): string | undefined =>
     id ? (agents.find((a) => a.id === id)?.name ?? restorable.find((a) => a.id === id)?.name ?? id) : undefined;
@@ -81,93 +123,138 @@ export function AskMeTab() {
   const waiting = tasks
     .filter(waitsOnHuman)
     .sort((a, b) => compareByNewestAsk(openQuestion(a), openQuestion(b)));
+  const waitingIds = new Set(waiting.map((t) => t.id));
+  const closedCards = Object.entries(cards).filter(([id, st]) => st.closed && !waitingIds.has(id));
+  // A closed card keeps its place (Pam's P4): one list, ranked by its question's
+  // ask like the open ones; a tie keeps the board's own order.
+  const boardOrder = (id: string): number => {
+    const i = tasks.findIndex((x) => x.id === id);
+    return i >= 0 ? i : tasks.length + prev.current.findIndex((x) => x.id === id);
+  };
+  const rows: Array<{ id: string; task?: HiveTask; st?: AskMeCardState; ask?: { askedAt?: string } }> = [
+    ...waiting.map((t) => ({ id: t.id, task: t, ask: openQuestion(t) })),
+    ...closedCards.map(([id, st]) => ({ id, st, ask: st.entry }))
+  ].sort((a, b) => compareByNewestAsk(a.ask, b.ask) || boardOrder(a.id) - boardOrder(b.id));
 
-  /**
-   * Apply `patch` to the OPEN humanQA entry of one card, on the RAW ledger.
-   * Returns whether it landed.
-   *
-   * Re-reads tasks.json first rather than writing this view's 5s-old snapshot,
-   * because `hive:writeTasks` treats the incoming array as the card MEMBERSHIP:
-   * writing our snapshot back would delete any card the god added since the last
-   * poll. Re-locating the open question by its text also means an answer can
-   * never land on a different question the god swapped in underneath us — in
-   * that case nothing is written and the draft is kept.
-   */
+  /** Note which question a draft or a pick was made for, the first time. */
+  const record = (task: HiveTask, picks?: number[]) => {
+    const ref = questionRef(task);
+    const open = openQuestion(task);
+    if (!ref || !open) return;
+    const st = useStore.getState().askMeCards[task.id];
+    const same = !!st?.ref && sameRef(st.ref, ref);
+    setAskMeCard(task.id, {
+      ...(st ?? {}),
+      ref,
+      entry: normalizeHumanQA(open) ?? { q: open.q },
+      picks: picks ?? (same ? st?.picks ?? [] : [])
+    });
+  };
 
   const sendAnswer = async (task: HiveTask) => {
-    const text = (drafts[task.id] ?? '').trim();
+    if (sending) return;
     const open = openQuestion(task);
-    if (!text || !open || sending) return;
+    const entry = open ? normalizeHumanQA(open) : null;
+    const { askMeCards, answerDrafts } = useStore.getState();
+    const st = askMeCards[task.id];
+    const ref = st?.ref ?? questionRef(task);
+    if (!entry || !ref) return;
+    const picks = st?.ref ? st.picks ?? [] : [];
+    const text = composeAnswer(entry.options, picks, answerDrafts[task.id] ?? '');
+    if (!text) return;
     setSending(task.id);
+    let out: AnswerOutcome;
     try {
-      // 1) Document the answer ON the card.
-      const next = tasks.map((t) => {
-        if (t.id !== task.id) return t;
-        const qa = (t.humanQA ?? []).map((e) =>
-          e === open || (e.q === open.q && !e.a)
-            ? { ...e, a: text, answeredAt: new Date().toISOString() }
-            : e
-        );
-        return { ...t, humanQA: qa };
+      out = await window.cth.hiveAnswerQuestion({
+        taskId: task.id, ref, answer: { text, ...(entry.options?.length ? { chosen: picks } : {}) }
       });
-      const updated = next.find((candidate) => candidate.id === task.id);
-      const result = updated
-        ? await window.cth.hivePatchTask(task.id, { humanQA: updated.humanQA })
-        : { ok: false };
-      if (!result.ok) throw new Error('task changed before answer could be saved');
-      setTasks(next);
-      // 2) Tell the god, so the card gets unblocked and work continues.
-      await window.cth.hiveSend({
-        to: 'god',
-        act: 'inform',
-        subject: `HUMAN ANSWER on task "${task.title}"`,
-        body: [
-          `The human answered the open question on task ${task.id} ("${task.title}"):`,
-          `Q: ${open.q}`,
-          `A: ${text}`,
-          'The answer is also recorded in the card\'s humanQA. Act on it, unblock the card, and continue the work.'
-        ].join('\n')
-      }, 'human');
+    } catch { out = { result: 'failed' }; }
+    if (out.result === 'ok') {
       setAnswerDraft(task.id, '');
-    } catch { /* leave the draft so the user can retry */ }
+      setAskMeCard(task.id, null);
+      await refresh();
+    } else if (out.result === 'gone') {
+      // Changed or closed first: the next board shows which (the effect above).
+      setAskMeCard(task.id, { ...(st ?? {}), ref, entry, picks, notSent: undefined });
+      const next = await refresh();
+      const cur = next?.find((x) => x.id === task.id);
+      const now = cur && waitsOnHuman(cur) ? questionRef(cur) : null;
+      if (!next || (now && sameRef(now, ref))) setAskMeCard(task.id, { ...(st ?? {}), ref, entry, picks, notSent: 'failed' });
+    } else {
+      // The box keeps the answer and the picks.
+      setAskMeCard(task.id, { ...(st ?? {}), ref, entry, picks, notSent: 'failed' });
+    }
     setSending(null);
   };
 
-  // Dismiss the open ask off the ASK ME board WITHOUT answering it. We mark the
-  // open humanQA entry `dismissedAt` (no fabricated answer) so openQuestion()
-  // stops returning it and the card leaves this view — the question itself stays
-  // on the card, so the Q&A history is never dropped (protocol). The task stays
-  // blocked on the kanban; the god can re-ask by appending a fresh humanQA entry.
+  // Dismiss the open ask off the ASK ME board WITHOUT answering it. Main marks
+  // the open humanQA entry `dismissedAt` (no fabricated answer), so it stops
+  // being the open question and the card leaves this view — the question itself
+  // stays on the card, so the Q&A history is never dropped (protocol). The task
+  // stays blocked on the kanban; the god can re-ask by appending a fresh entry.
   const dismiss = async (task: HiveTask) => {
-    const open = openQuestion(task);
-    if (!open || sending === task.id) return;
-    const next = tasks.map((t) => {
-      if (t.id !== task.id) return t;
-      const qa = (t.humanQA ?? []).map((e) =>
-        e === open || (e.q === open.q && !e.a && !e.dismissedAt)
-          ? { ...e, dismissedAt: new Date().toISOString() }
-          : e
-      );
-      return { ...t, humanQA: qa };
-    });
-    setTasks(next); // optimistic — the card disappears immediately
-    try {
-      const updated = next.find((candidate) => candidate.id === task.id);
-      const result = updated
-        ? await window.cth.hivePatchTask(task.id, { humanQA: updated.humanQA })
-        : { ok: false };
-      if (!result.ok) throw new Error('task changed before ask could be dismissed');
-    } catch {
-      setTasks(tasks); // restore on failure so the user can retry
-    }
+    const ref = questionRef(task);
+    if (!ref || sending === task.id) return;
+    setSending(task.id);
+    const out: AnswerOutcome = await window.cth.hiveAnswerQuestion({ taskId: task.id, ref, dismiss: true })
+      .catch(() => ({ result: 'failed' as const }));
+    if (out.result === 'ok') setAskMeCard(task.id, null);
+    setSending(null);
+    await refresh();
   };
+
+  // A closed card leaves only when the person says so; nothing is written.
+  const dropClosed = (id: string) => {
+    setAskMeCard(id, null);
+    setAnswerDraft(id, '');
+  };
+
+  const cardStyle = { background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)', display: 'flex', flexDirection: 'column' } as const;
+  // header: title + assignee + dismiss
+  const header = (id: string, title: string, assignee: string | undefined, onDismiss: () => void, busy: boolean) => (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8, padding: '6px 9px',
+      background: 'var(--cth-lilac-light, #ece2f5)', boxShadow: 'inset 0 -1px 0 var(--cth-ink-700)'
+    }}>
+      <button
+        onClick={() => openTaskDetail(id)}
+        title={translate('askMe.openDetail')}
+        style={{
+          border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, textAlign: 'left',
+          fontFamily: 'var(--cth-font-mono)', fontSize: 15, color: 'var(--cth-ink-900)',
+          flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+        }}
+      >
+        {title}
+      </button>
+      {nameFor(assignee) && <PixelBadge status="blocked" label={nameFor(assignee)!} />}
+      {/* Dismiss — clears this ask off the board without answering it.
+          The card's Q&A history is preserved (the question stays on the
+          card, just marked dismissed). */}
+      <button
+        onClick={onDismiss}
+        disabled={busy}
+        title={translate('askMe.dismissTitle')}
+        aria-label={translate('askMe.dismissAria')}
+        style={{
+          flexShrink: 0, width: 18, height: 18, padding: 0, marginLeft: 2,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+          border: 'none', cursor: busy ? 'default' : 'pointer',
+          background: 'transparent', color: 'var(--cth-ink-500)',
+          fontFamily: 'var(--cth-font-ui)', fontSize: 13
+        }}
+        onMouseEnter={(e) => { if (!busy) e.currentTarget.style.color = 'var(--cth-coral)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--cth-ink-500)'; }}
+      >✕</button>
+    </div>
+  );
 
   return (
     // Body text is set in the mono face (VT323) — the same readable font the
     // memory viewer uses. Pixelify Sans (font-ui) is too chunky for prose like
     // questions and answers. Display/badge bits keep their explicit faces.
     <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', background: 'var(--cth-paper-200)', padding: 10, display: 'flex', flexDirection: 'column', gap: 10, fontFamily: 'var(--cth-font-mono)' }}>
-      {waiting.length === 0 && (
+      {waiting.length === 0 && closedCards.length === 0 && (
         <div style={{ textAlign: 'center', padding: '24px 12px', color: 'var(--cth-ink-500)', fontSize: 12 }}>
           {translate('askMe.emptyTitle')}<br />
           <span style={{ fontSize: 11, color: 'var(--cth-ink-300)' }}>
@@ -175,86 +262,56 @@ export function AskMeTab() {
           </span>
         </div>
       )}
-      {waiting.map((t) => {
+      {rows.map((row) => {
+        // Closed while written for: read only, with what was written, until dismissed.
+        if (!row.task) {
+          const st = row.st!;
+          return (
+            <div key={`closed-${row.id}`} style={cardStyle}>
+              {header(row.id, st.closed!.title, st.closed!.assignee, () => dropClosed(row.id), false)}
+              <div style={{ padding: 9, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <AskMeQuestion
+                  entry={st.entry ?? { q: '' }}
+                  draft=""
+                  onDraft={() => undefined}
+                  picks={[]}
+                  onPicks={() => undefined}
+                  onSend={() => undefined}
+                  sending={false}
+                  notSent="gone"
+                  kept={st.kept}
+                  closed
+                />
+              </div>
+            </div>
+          );
+        }
+        const t = row.task;
         const open = openQuestion(t)!;
+        const entry = normalizeHumanQA(open) ?? { q: open.q };
+        const ref = questionRef(t);
+        const st = cards[t.id];
+        // Picks made for another question never carry over (the effect above moves them out).
+        const picks = st?.ref && ref && sameRef(st.ref, ref) ? st.picks ?? [] : [];
         const stuck = dependentsTree(t.id, tasks);
         return (
-          <div key={t.id} style={{
-            background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)',
-            display: 'flex', flexDirection: 'column'
-          }}>
-            {/* header: title + assignee */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8, padding: '6px 9px',
-              background: 'var(--cth-lilac-light, #ece2f5)', boxShadow: 'inset 0 -1px 0 var(--cth-ink-700)'
-            }}>
-              <button
-                onClick={() => openTaskDetail(t.id)}
-                title={translate('askMe.openDetail')}
-                style={{
-                  border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, textAlign: 'left',
-                  fontFamily: 'var(--cth-font-mono)', fontSize: 15, color: 'var(--cth-ink-900)',
-                  flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                }}
-              >
-                {t.title}
-              </button>
-              {nameFor(t.assignee) && <PixelBadge status="blocked" label={nameFor(t.assignee)!} />}
-              {/* Dismiss — clears this ask off the board without answering it.
-                  The card's Q&A history is preserved (the question stays on the
-                  card, just marked dismissed). */}
-              <button
-                onClick={() => void dismiss(t)}
-                disabled={sending === t.id}
-                title={translate('askMe.dismissTitle')}
-                aria-label={translate('askMe.dismissAria')}
-                style={{
-                  flexShrink: 0, width: 18, height: 18, padding: 0, marginLeft: 2,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
-                  border: 'none', cursor: sending === t.id ? 'default' : 'pointer',
-                  background: 'transparent', color: 'var(--cth-ink-500)',
-                  fontFamily: 'var(--cth-font-ui)', fontSize: 13
-                }}
-                onMouseEnter={(e) => { if (sending !== t.id) e.currentTarget.style.color = 'var(--cth-coral)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--cth-ink-500)'; }}
-              >✕</button>
-            </div>
+          <div key={t.id} style={cardStyle}>
+            {header(t.id, t.title, t.assignee, () => void dismiss(t), sending === t.id)}
 
             <div style={{ padding: 9, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {/* The question, rendered as markdown. The god writes these with
-                  emphasis, lists, `code` and links; as plain text the asterisks
-                  and backticks were on screen literally. The card variant keeps
-                  this card's mono face and turns a single newline into a break, so
-                  a question with no markdown in it looks exactly as it did. */}
-              <div dir={rtl ? 'auto' : undefined} style={{ fontSize: 15, lineHeight: '19px', color: 'var(--cth-ink-900)' }}>
-                <MarkdownPreview source={open.q} variant="card" />
-              </div>
-
-              {/* answer box */}
-              <textarea
-                dir={rtl ? 'auto' : undefined}
-                value={drafts[t.id] ?? ''}
-                onChange={(e) => setAnswerDraft(t.id, e.target.value)}
-                onKeyDown={(e) => { if (isComposingKey(e)) return; if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) void sendAnswer(t); }}
-                rows={3}
-                placeholder={translate('askMe.answerPlaceholder')}
-                style={{
-                  width: '100%', boxSizing: 'border-box', padding: '6px 8px', resize: 'vertical',
-                  background: 'var(--cth-paper-100)', border: 'none',
-                  boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)',
-                  fontFamily: 'var(--cth-font-mono)', fontSize: 15, lineHeight: '18px',
-                  color: 'var(--cth-ink-900)', outline: 'none'
-                }}
+              <AskMeQuestion
+                entry={entry}
+                draft={drafts[t.id] ?? ''}
+                onDraft={(v) => { record(t); setAnswerDraft(t.id, v); }}
+                picks={picks}
+                onPicks={(p) => record(t, p)}
+                onSend={() => void sendAnswer(t)}
+                sending={sending === t.id}
+                notSent={st?.notSent}
+                kept={st?.kept}
               />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <PixelButton
-                  variant="primary" size="sm"
-                  disabled={!(drafts[t.id] ?? '').trim() || sending === t.id}
-                  onClick={() => void sendAnswer(t)}
-                >
-                  {sending === t.id ? translate('askMe.sending') : translate('askMe.respond')}
-                </PixelButton>
-                {(t.humanQA?.filter((e) => e.a).length ?? 0) > 0 && (
+              {(t.humanQA?.filter((e) => e.a).length ?? 0) > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <button
                     onClick={() => openTaskDetail(t.id)}
                     title={translate('askMe.viewAnswersHistory')}
@@ -271,8 +328,8 @@ export function AskMeTab() {
                         : translate('askMe.viewAnswersPlural', { count: n });
                     })()}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* the cascade: what's stuck behind this answer */}
               {stuck.length > 0 && (

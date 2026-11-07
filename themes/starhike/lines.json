@@ -1,0 +1,1288 @@
+{
+ "$comment": "Bubble lines for the Star Hike pack: what the crew says, by category and role, with {done} slots.",
+ "lines": {
+  "water": [
+   "watering the herb rack 🌿",
+   "the grow bay is thirsty",
+   "these ferns love the hum",
+   "a drop for the basil",
+   "Doc says talk to them",
+   "grow bay check, all green",
+   "the mint is taking over",
+   "a little water, anyone?"
+  ],
+  "window": [
+   "looking out the port 🍃",
+   "just watching the stars",
+   "nice nebula today",
+   "nothing out there. good.",
+   "space: still very big",
+   "the view never gets old",
+   "a bit of recycled air",
+   "counting comets again"
+  ],
+  "dispenser": [
+   "getting some water 💧",
+   "hydration first",
+   "staying sharp for the deploy",
+   "water, fresh from the tap",
+   "the galley tap works today",
+   "half a cup, half a break",
+   "refilling before my shift",
+   "a glass of plain water"
+  ],
+  "fridge": [
+   "anything good in the galley?",
+   "who took my soup?",
+   "just looking…",
+   "chicken soup, again?",
+   "whose yoghurt is this?",
+   "someone labelled it mine",
+   "that cake is for Friday",
+   "the fridge hums in C sharp"
+  ],
+  "shelf": [
+   "checking the ship's manuals 📚",
+   "any new star charts?",
+   "so much good data",
+   "reading up on the backlog",
+   "the handbook, part 9",
+   "chess openings, chapter 2",
+   "where's the wiring guide?",
+   "cataloguing the herb rack"
+  ],
+  "bin": [
+   "into the recycler 🗑️",
+   "console cleanup day",
+   "tidying up the station",
+   "recycling old printouts",
+   "out with the clutter",
+   "crumbs everywhere…",
+   "clean desk, clear head",
+   "clearing the briefing room"
+  ],
+  "smoke": [
+   "the bridge runs itself 🚬",
+   "captain's break.",
+   "thinking big thoughts 🚬",
+   "Helm, keep her steady",
+   "five minutes off the chair",
+   "a quiet moment by the port",
+   "command is lonely, Doc",
+   "staring at the stars 🚬"
+  ],
+  "suckUp": [
+   "{done} tasks done, Captain!",
+   "{done} tasks logged, sir. 🥺",
+   "brilliant call, Captain!",
+   "I was JUST about to say that!",
+   "great jacket, Captain",
+   "all stations ready, sir! 💪",
+   "best captain in the sector.",
+   "aye aye, sir! right away!",
+   "your briefings inspire us",
+   "we'd follow you anywhere, sir"
+  ],
+  "gossip": [
+   "has he ever read a manual?",
+   "another 'briefing' for an hour…",
+   "he cc's EVERYONE",
+   "he took credit for MY fix",
+   "he rewrote my ticket again",
+   "he argued with the coffee machine",
+   "third reorg this month",
+   "he renamed the channels again",
+   "he says 'quick sync' a lot",
+   "he skipped the tests. again."
+  ],
+  "cheer": [
+   "done! ✔",
+   "task complete",
+   "that's a wrap",
+   "full speed, go 🚀",
+   "another one logged",
+   "neat. done.",
+   "logged and filed",
+   "holding steady, task done",
+   "ship it!",
+   "sent it over",
+   "all lights green"
+  ],
+  "brewing": [
+   "brewing a fresh one ☕",
+   "galley: coffee, black ☕",
+   "grinding the beans ☕",
+   "one coffee, strong ☕",
+   "pour over, slow and calm ☕",
+   "coffee, ship's blend ☕",
+   "one cup, extra strong ☕",
+   "requesting coffee ☕"
+  ],
+  "refill": [
+   "a quick refill ☕",
+   "top it up, please ☕",
+   "one more for the shift ☕",
+   "refill, same as before ☕",
+   "recharging the mug ☕",
+   "again, please ☕",
+   "second cup, it's a deploy ☕",
+   "refuelling ☕"
+  ],
+  "washing": [
+   "washing the mug",
+   "a hot rinse for the mug",
+   "scrubbing my cup",
+   "scrubbing the crumbs off",
+   "clean per galley rules",
+   "clean mug, clean ship",
+   "Doc says wash it twice",
+   "rinsing the grounds out"
+  ],
+  "noCleanMugs": [
+   "no clean mugs left…",
+   "all mugs in the sink…",
+   "mug supply: zero, Captain",
+   "scanners find no mugs",
+   "who took all the mugs?",
+   "the mugs… are gone, Cap",
+   "mug shortage in the galley",
+   "Engineering, I need more mugs!"
+  ],
+  "coffee": [
+   "mmm, fresh one ☕",
+   "the good beans today",
+   "just one more cup",
+   "the machine never gets it right…",
+   "neat. needs sugar.",
+   "it's coffee, Cap, but…",
+   "tastes like engine oil",
+   "better than the station's coffee",
+   "fuel for the brain",
+   "Engineering brewed this one",
+   "scanners say: still hot"
+  ],
+  "pinTask": [
+   "pinning a new task 📌",
+   "new orders from the Captain 📌",
+   "logging a new job 📌",
+   "posting to the duty roster",
+   "a new assignment, sir",
+   "adding it to the board",
+   "brief posted 📌",
+   "top priority, pinned"
+  ],
+  "takeTask": [
+   "grabbing my task",
+   "I'll take this one, sir",
+   "assignment accepted",
+   "on my way, Captain",
+   "reporting for duty",
+   "this one's mine",
+   "setting a course for it",
+   "understood. on it."
+  ],
+  "archiveTask": [
+   "filing it as done ✔",
+   "logging it complete ✔",
+   "into the ship's records ✔",
+   "job log: closed",
+   "archived, dated today",
+   "filed with the rest ✔",
+   "entered in the log",
+   "records updated, sir"
+  ],
+  "blockedTask": [
+   "this one is stuck 😤",
+   "jammed in place 😤",
+   "dead in the water 😤",
+   "blocked. not ideal.",
+   "the hatch won't open",
+   "we're caught in a web",
+   "need clearance first",
+   "going round in circles 😤"
+  ],
+  "working": [
+   "running the analysis",
+   "scanning…",
+   "calculating, Captain",
+   "computing a solution",
+   "processing at full speed",
+   "rerouting the pipeline",
+   "checking the readings",
+   "compiling the data",
+   "tracing the circuits",
+   "working the problem"
+  ],
+  "idle": [
+   "idle",
+   "standing by",
+   "awaiting orders",
+   "all quiet on the bridge",
+   "nothing on the scanners",
+   "holding position",
+   "at your service, sir",
+   "ready when you are",
+   "on standby, Captain"
+  ],
+  "waiting": [
+   "waiting",
+   "awaiting a reply",
+   "calling… no answer yet",
+   "standing by for data",
+   "waiting on the lift",
+   "the signal is slow, sir",
+   "holding for clearance",
+   "message in transit"
+  ],
+  "needsYou": [
+   "needs you",
+   "Captain to the bridge!",
+   "requesting orders, sir",
+   "your decision, Captain",
+   "need your sign off",
+   "Captain, a word?",
+   "awaiting your command",
+   "priority call for you"
+  ],
+  "compacting": [
+   "compacting context",
+   "compressing the logs",
+   "condensing the memory banks",
+   "tidying the computer",
+   "packing the data drives",
+   "stowing old records",
+   "clearing the memory core",
+   "archiving to the core"
+  ],
+  "looping": [
+   "looping: breaker armed",
+   "caught in a loop",
+   "déjà vu, Captain",
+   "this feels familiar…",
+   "something is repeating",
+   "we've been here before",
+   "circuits in a loop",
+   "loop detected! does not compute"
+  ],
+  "blocked": [
+   "blocked",
+   "hatch sealed, can't proceed",
+   "something's holding us",
+   "not ideal",
+   "access denied, sir",
+   "we're stuck out here",
+   "cannot comply",
+   "no way through",
+   "need a new course"
+  ],
+  "success": [
+   "success",
+   "task complete",
+   "neat results",
+   "as planned",
+   "all systems nominal",
+   "it worked, Captain!",
+   "target reached",
+   "textbook, Science",
+   "right on target"
+  ],
+  "error": [
+   "error",
+   "all hands, alert!",
+   "engine trouble!",
+   "systems failing!",
+   "it does not compute",
+   "the engine's overheating!",
+   "we've lost power!",
+   "malfunction in the galley",
+   "status check, now!",
+   "scanners are offline"
+  ],
+  "runningTheFloor": [
+   "running the floor",
+   "commanding the bridge",
+   "captain on the bridge",
+   "the bridge is mine",
+   "eyes on every station",
+   "keeping her steady",
+   "running a tight ship",
+   "all hands, report"
+  ],
+  "breakCoffee": [
+   "coffee from the galley",
+   "ten minutes, then scans",
+   "Engineering's brew is strong",
+   "crew mess coffee",
+   "need this before the deploy",
+   "one cup, then full speed",
+   "this isn't real coffee",
+   "caffeine: the sensible choice"
+  ],
+  "breakVending": [
+   "the machine ate my token",
+   "soup, hold the soup",
+   "one hot chocolate, please",
+   "is this decaf?",
+   "it gave me two biscuits…",
+   "the slot is out of order",
+   "press the green button, Cap",
+   "machine jammed again"
+  ],
+  "breakSnack": [
+   "oat bar snack",
+   "chicken sandwich, again",
+   "Doc says eat greens",
+   "ship snacks are bland",
+   "spice cake!",
+   "don't feed the plants",
+   "nutrient bar #4",
+   "tastes like the last one"
+  ],
+  "breakTable": [
+   "chess, anyone?",
+   "Science always wins chess",
+   "leave soon?",
+   "heard about the new crew?",
+   "games night in the mess",
+   "karaoke in the mess tonight",
+   "who brought the cards?",
+   "anyone seen the doctor?"
+  ],
+  "captain": [
+   "Note to self: more coffee.",
+   "Ahead, full speed.",
+   "Let's go.",
+   "Science, report.",
+   "Doc, I need you here.",
+   "Engineering, more power!",
+   "Get headquarters on the line.",
+   "All hands, alert.",
+   "Every task counts.",
+   "I declare a day off!",
+   "Send it over, Engineering.",
+   "Ship it. Now.",
+   "Stand by, everyone.",
+   "Captain to all stations.",
+   "We'll find a way."
+  ],
+  "science": [
+   "Interesting.",
+   "That's odd.",
+   "The data says…",
+   "Let me check that.",
+   "The numbers disagree.",
+   "A curious reading.",
+   "Measure twice, ship once.",
+   "Checks the readout twice.",
+   "Noted.",
+   "Let me run the numbers."
+  ],
+  "medical": [
+   "Rest your eyes, please.",
+   "Just tired, Cap.",
+   "Hold still, this won't hurt",
+   "Doctor's orders: water.",
+   "Stretch every hour!",
+   "Pass me the scanner.",
+   "Take two of these",
+   "Med bay to the bridge",
+   "I prescribe a nap."
+  ],
+  "engineering": [
+   "She's running hot!",
+   "I need more time, Captain",
+   "The fans are screaming!",
+   "Full power, all lines",
+   "Engine room, all green",
+   "Engineering to bridge",
+   "Patching the pipeline",
+   "Give me ten minutes",
+   "She's a fine ship"
+  ],
+  "helm": [
+   "Course set, sir.",
+   "Helm answering.",
+   "Full speed, sir.",
+   "Full stop, sir.",
+   "Evasive turn!",
+   "Hard about!",
+   "Steady as she goes.",
+   "Holding orbit.",
+   "Coffee at 0600, anyone?"
+  ],
+  "navigation": [
+   "Coordinates plotted.",
+   "Course two-one-zero.",
+   "Shortest route found.",
+   "Plotting a short cut, sir",
+   "Star charts updated.",
+   "Navigation ready.",
+   "Approaching the planet.",
+   "Heading two-seven-four."
+  ],
+  "comms": [
+   "Channel open.",
+   "Incoming message, sir.",
+   "No response, Captain.",
+   "Line open, Captain.",
+   "The signal is noisy today",
+   "Headquarters is calling.",
+   "Message passed on, sir.",
+   "They're calling us.",
+   "Busy line, Captain."
+  ],
+  "exchanges": [
+   [
+    "Interesting.",
+    "…you said that already."
+   ],
+   [
+    "Rest your eyes, please…",
+    "…we know, Doc."
+   ],
+   [
+    "She's running hot, Cap!",
+    "she's a coffee machine."
+   ],
+   [
+    "That's odd.",
+    "it's a SANDWICH, Science."
+   ],
+   [
+    "Channel open.",
+    "it's the canteen, Comms."
+   ],
+   [
+    "Send me over.",
+    "the lift is down.",
+    "…I'll walk."
+   ],
+   [
+    "All hands, alert!",
+    "the coffee's cold.",
+    "…all hands, alert."
+   ],
+   [
+    "Who's the new crew?",
+    "an intern.",
+    "…oh no."
+   ],
+   [
+    "Day off tomorrow?",
+    "Captain said maybe.",
+    "…so no."
+   ],
+   [
+    "Moth in the vent.",
+    "just one?",
+    "…for now."
+   ],
+   {
+    "lines": [
+     "Science, status?",
+     "The board is all green.",
+     "…check it again."
+    ],
+    "roles": [
+     "captain",
+     "science",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Engineering, how long to compact?",
+     "Ten minutes, Captain.",
+     "Make it five.",
+     "…it's already done."
+    ],
+    "roles": [
+     "captain",
+     "engineering",
+     "captain",
+     "engineering"
+    ]
+   },
+   {
+    "lines": [
+     "Review crew to the code.",
+     "Who's going?",
+     "…the new intern.",
+     "Of course."
+    ],
+    "roles": [
+     "captain",
+     "crew",
+     "captain",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Audit report, Science?",
+     "Zero MUSTs, Captain.",
+     "Run it again."
+    ],
+    "roles": [
+     "captain",
+     "science",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Incoming call, Captain.",
+     "Put it through.",
+     "It's a merge conflict."
+    ],
+    "roles": [
+     "comms",
+     "captain",
+     "comms"
+    ]
+   },
+   {
+    "lines": [
+     "This coffee is ship-strong.",
+     "Meaning?",
+     "No feelings left."
+    ],
+    "roles": [
+     "crew",
+     "crew",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Ship off the bow!",
+     "Are they hostile?",
+     "They want our coffee."
+    ],
+    "roles": [
+     "helm",
+     "captain",
+     "helm"
+    ]
+   },
+   {
+    "lines": [
+     "Scanners detect a typo.",
+     "Where?",
+     "Line 32."
+    ],
+    "roles": [
+     "science",
+     "captain",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Heading two-one-zero.",
+     "Why that way?",
+     "The canteen, sir."
+    ],
+    "roles": [
+     "navigation",
+     "captain",
+     "navigation"
+    ]
+   },
+   {
+    "lines": [
+     "Cap, the tests are green!",
+     "All of them?",
+     "…sixteen skipped."
+    ],
+    "roles": [
+     "crew",
+     "captain",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Med bay, I need a doctor!",
+     "What's wrong?",
+     "Paper cut. From a ticket."
+    ],
+    "roles": [
+     "crew",
+     "medical",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "I'm not running the linter!",
+     "Lint it anyway, Doc."
+    ],
+    "roles": [
+     "medical",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Strange ship on the scanner!",
+     "All hands, alert!",
+     "…it's the cleaning bot."
+    ],
+    "roles": [
+     "helm",
+     "captain",
+     "helm"
+    ]
+   },
+   {
+    "lines": [
+     "All hands, alert!",
+     "Why?",
+     "Someone moved my mug."
+    ],
+    "roles": [
+     "captain",
+     "crew",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Bugs on the task board.",
+     "How many?",
+     "More than yesterday."
+    ],
+    "roles": [
+     "crew",
+     "science",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Go!",
+     "Go where, sir?",
+     "…the coffee machine."
+    ],
+    "roles": [
+     "captain",
+     "helm",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Anything ahead, Helm?",
+     "A meeting. Dead ahead.",
+     "Evasive turn!"
+    ],
+    "roles": [
+     "captain",
+     "helm",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Data says ship it.",
+     "Doc says rest it.",
+     "The Captain says…",
+     "…more coffee."
+    ],
+    "roles": [
+     "science",
+     "medical",
+     "science",
+     "medical"
+    ]
+   },
+   {
+    "lines": [
+     "Channel open to headquarters.",
+     "What do they want?",
+     "A status report. Again."
+    ],
+    "roles": [
+     "comms",
+     "captain",
+     "comms"
+    ]
+   },
+   {
+    "lines": [
+     "The engine is humming.",
+     "That's the fridge, Engineering."
+    ],
+    "roles": [
+     "engineering",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Who left soup in the machine?",
+     "Not a useful question.",
+     "…it was Science."
+    ],
+    "roles": [
+     "crew",
+     "science",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Leave approved!",
+     "Really?",
+     "After the audit."
+    ],
+    "roles": [
+     "captain",
+     "crew",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "She can't take more tasks!",
+     "How many, Engineering?",
+     "…one more, Captain."
+    ],
+    "roles": [
+     "engineering",
+     "captain",
+     "engineering"
+    ]
+   },
+   {
+    "lines": [
+     "Bridge log: Tuesday.",
+     "It's Thursday, sir.",
+     "Log it late."
+    ],
+    "roles": [
+     "captain",
+     "crew",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Scanners read zero bugs.",
+     "Impossible.",
+     "Scanners are offline."
+    ],
+    "roles": [
+     "science",
+     "captain",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Plot a course for lunch.",
+     "Fast or scenic?",
+     "Fast. It's soup day."
+    ],
+    "roles": [
+     "captain",
+     "navigation",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Comms, any messages?",
+     "Fourteen. All \"urgent\".",
+     "Mark them read."
+    ],
+    "roles": [
+     "captain",
+     "comms",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Darts at lunch, anyone?",
+     "With real darts?",
+     "With coffee stirrers."
+    ],
+    "roles": [
+     "helm",
+     "crew",
+     "helm"
+    ]
+   },
+   {
+    "lines": [
+     "Very odd.",
+     "What is?",
+     "Meetings about meetings."
+    ],
+    "roles": [
+     "science",
+     "crew",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Doctor, I feel compacted.",
+     "Lie down. Forget a bit.",
+     "…who are you?"
+    ],
+    "roles": [
+     "crew",
+     "medical",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Hull alert in the galley!",
+     "How bad?",
+     "A sticky note fell off."
+    ],
+    "roles": [
+     "engineering",
+     "captain",
+     "engineering"
+    ]
+   },
+   {
+    "lines": [
+     "The rival ship is calling.",
+     "What do they say?",
+     "\"Your build is weak.\""
+    ],
+    "roles": [
+     "comms",
+     "captain",
+     "comms"
+    ]
+   },
+   {
+    "lines": [
+     "Brace yourselves!",
+     "We're braced, sir.",
+     "Brace MORE."
+    ],
+    "roles": [
+     "captain",
+     "helm",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Navigation, ETA?",
+     "Five minutes.",
+     "In ship time?",
+     "…also five."
+    ],
+    "roles": [
+     "captain",
+     "navigation",
+     "captain",
+     "navigation"
+    ]
+   },
+   {
+    "lines": [
+     "Review crew, gear up.",
+     "Gear?",
+     "Set to \"nitpick\"."
+    ],
+    "roles": [
+     "captain",
+     "crew",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Doctor, the build is sick.",
+     "I treat people, not CI!",
+     "Try off and on again."
+    ],
+    "roles": [
+     "captain",
+     "medical",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Science, what are the odds?",
+     "Of what?",
+     "A calm Friday deploy.",
+     "I would rather not say."
+    ],
+    "roles": [
+     "captain",
+     "science",
+     "captain",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Engineering to bridge.",
+     "Go ahead.",
+     "The kettle's ready."
+    ],
+    "roles": [
+     "engineering",
+     "captain",
+     "engineering"
+    ]
+   },
+   {
+    "lines": [
+     "Queued for the build.",
+     "Again?",
+     "Big builds, sir. Big."
+    ],
+    "roles": [
+     "crew",
+     "captain",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Who pinned this task?",
+     "The Captain.",
+     "…it's a coffee order."
+    ],
+    "roles": [
+     "crew",
+     "crew",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Plant on the console!",
+     "Don't water it!",
+     "…I watered it.",
+     "It has a name now."
+    ],
+    "roles": [
+     "crew",
+     "crew",
+     "crew",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Build passed.",
+     "First try?",
+     "…third try."
+    ],
+    "roles": [
+     "science",
+     "captain",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "You don't nap, right?",
+     "Correct.",
+     "Your eyes are closed.",
+     "Thinking."
+    ],
+    "roles": [
+     "crew",
+     "science",
+     "crew",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Plot a course home.",
+     "We are home, sir.",
+     "Then plot coffee."
+    ],
+    "roles": [
+     "captain",
+     "navigation",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Doc, he's not answering!",
+     "He's on a break, Cap.",
+     "…a long one?",
+     "Coffee, then soup."
+    ],
+    "roles": [
+     "captain",
+     "medical",
+     "captain",
+     "medical"
+    ]
+   },
+   {
+    "lines": [
+     "The audit found a NIT.",
+     "All hands, alert!",
+     "It's a typo, sir.",
+     "…half alert."
+    ],
+    "roles": [
+     "science",
+     "captain",
+     "science",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Comms, message to all.",
+     "Saying what, sir?",
+     "Who took my stapler?"
+    ],
+    "roles": [
+     "captain",
+     "comms",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Full speed, Helm!",
+     "We're docked, sir.",
+     "Full speed docked."
+    ],
+    "roles": [
+     "captain",
+     "helm",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Who's on the night shift?",
+     "Nobody, sir.",
+     "Then who's typing?"
+    ],
+    "roles": [
+     "captain",
+     "crew",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Scanners detect coffee.",
+     "Where?",
+     "My mug. Empty now."
+    ],
+    "roles": [
+     "science",
+     "crew",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "The machine made soup.",
+     "I ordered toast.",
+     "It's toast soup."
+    ],
+    "roles": [
+     "crew",
+     "crew",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Comms, any good news?",
+     "Only after the merge.",
+     "…we'll be here a while."
+    ],
+    "roles": [
+     "crew",
+     "comms",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Status check!",
+     "One mug, chipped.",
+     "…all hands, mourn."
+    ],
+    "roles": [
+     "captain",
+     "engineering",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "New crew on the bridge.",
+     "Intern?",
+     "Lead dev. Lucky us."
+    ],
+    "roles": [
+     "crew",
+     "captain",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Diagnosis, Doc?",
+     "Too many tabs open.",
+     "Prognosis?",
+     "Close forty."
+    ],
+    "roles": [
+     "captain",
+     "medical",
+     "captain",
+     "medical"
+    ]
+   },
+   {
+    "lines": [
+     "Helm, evasive turn!",
+     "From what, sir?",
+     "The weekly sync."
+    ],
+    "roles": [
+     "captain",
+     "helm",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Headquarters wants an update.",
+     "Tell them: fine.",
+     "Everything is fine?",
+     "…tell them: fine."
+    ],
+    "roles": [
+     "comms",
+     "captain",
+     "comms",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "The grow bay ferns wilted.",
+     "Did you water them?",
+     "With coffee."
+    ],
+    "roles": [
+     "crew",
+     "science",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Course set, sir.",
+     "To where?",
+     "The task board.",
+     "…go."
+    ],
+    "roles": [
+     "helm",
+     "captain",
+     "helm",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Give me full power!",
+     "She's at half!",
+     "Then double coffee."
+    ],
+    "roles": [
+     "captain",
+     "engineering",
+     "captain"
+    ]
+   },
+   {
+    "lines": [
+     "Science, tell a joke.",
+     "A NIT walks into a bar.",
+     "And?",
+     "It was not blocking."
+    ],
+    "roles": [
+     "captain",
+     "science",
+     "captain",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Scanning the backlog.",
+     "How deep?",
+     "Twelve pages of tickets."
+    ],
+    "roles": [
+     "science",
+     "captain",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Cake on the bridge?",
+     "Not allowed.",
+     "It's for science.",
+     "…carry on."
+    ],
+    "roles": [
+     "crew",
+     "science",
+     "crew",
+     "science"
+    ]
+   },
+   {
+    "lines": [
+     "Who compacted my notes?",
+     "The ship did.",
+     "…what was I saying?"
+    ],
+    "roles": [
+     "crew",
+     "crew",
+     "crew"
+    ]
+   },
+   {
+    "lines": [
+     "Course plotted to the mess.",
+     "Shortest route?",
+     "Past the coffee machine.",
+     "Sensible."
+    ],
+    "roles": [
+     "navigation",
+     "science",
+     "navigation",
+     "science"
+    ]
+   }
+  ]
+ }
+}

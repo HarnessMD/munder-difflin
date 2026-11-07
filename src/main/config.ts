@@ -12,6 +12,10 @@ import {
 import { defaultMcpDefaults } from '../shared/mcpCatalog';
 import { MAX_AGENT_TOKEN_CAP } from '../shared/tokenCaps';
 import { expandTilde, normalizeHiveHome } from './fs';
+import { codexFolderKey } from './codexProjectLayers';
+import { isProjectThemeId, isStoredProjectThemeId, projectThemeForHome, projectThemeHomeKey, resolveProjectTheme, type ProjectThemeId, type ProjectThemeSave } from '../shared/projectTheme';
+import { readJsonFile, writeRefusal } from './damagedFile';
+import { parseGraphicsMode, type GraphicsMode } from '../shared/graphicsMode';
 import type { IntegrationRecord } from '../shared/integrations';
 import {
   DEFAULT_CONTEXT_TRIGGER,
@@ -314,10 +318,22 @@ export interface HarnessConfig {
    *  destructive switch flow). Default false = the picker is hidden and the
    *  office renders as today (zero behavior change). */
   tvShowOffices?: boolean;
-  /** Which office map/cast theme the pixel office renders. Only honored when
-   *  `tvShowOffices` is on; otherwise the office theme is used. Unbuilt show
-   *  themes fall back to 'office' in the loader. */
-  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  /** The floor theme of a project with no entry in `officeThemeByHive`: the one
+   *  global theme from before themes were per project. The built-in TV-show maps
+   *  are honored only while `tvShowOffices` is on; unbuilt show themes fall back
+   *  to 'office' in the loader. */
+  officeTheme?: ProjectThemeId;
+  /** Each project's own floor theme (shared/projectTheme), keyed by its home
+   *  folder (projectThemeHomeKey). Set through setProjectThemeForHome only. */
+  officeThemeByHive?: Record<string, ProjectThemeId>;
+  /** The folders the person allowed to start hive Codex agents although their
+   *  project `.codex` carries code (codexProjectLayers), by codexFolderKey, spelled
+   *  as in the main checkout so one OK covers its worktrees. Set through
+   *  setCodexFolderOk only. */
+  codexLayerOptIns?: string[];
+  /** Settings, Graphics (shared/graphicsMode): Auto, GPU or CPU only. Read once
+   *  before app ready; a change applies after a restart. Absent is Auto. */
+  graphicsMode?: GraphicsMode;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn (config-injection or proxy
    *  upstream). API KEYS are NOT stored here — they live write-only in the secret
@@ -585,16 +601,24 @@ function migrateTriggersV1(cfg: HarnessConfig): HarnessConfig {
   }
 }
 
+/** This run's last config read whole (a copy), for a config.json that is
+ *  damaged or cannot be read just now (damagedFile). */
+let lastGoodConfig: HarnessConfig | null = null;
+
 export function readConfig(): HarnessConfig {
   const p = configPath();
+  const read = readJsonFile(p, lastGoodConfig === null);
   // No file yet = a first run with nothing to migrate; the defaults ARE the
   // post-migration shape. Deliberately does not persist — a bare read must not
   // conjure a config.json before onboarding has written one.
-  if (!existsSync(p)) return withTriggerDefaults({ ...DEFAULTS });
+  if (read.kind === 'missing') return withTriggerDefaults({ ...DEFAULTS });
+  // Damaged (kept as it is, writes paused) or not readable just now: this run's
+  // last good config, never the defaults over the person's settings.
+  if (read.kind !== 'ok') return lastGoodConfig ? structuredClone(lastGoodConfig) : withTriggerDefaults({ ...DEFAULTS });
   try {
-    const raw = readFileSync(p, 'utf8');
-    const parsed = JSON.parse(raw);
-    return normalizeStoredHomes(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...parsed })));
+    const cfg = normalizeStoredHomes(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...read.value })));
+    lastGoodConfig = structuredClone(cfg);
+    return cfg;
   } catch {
     return withTriggerDefaults({ ...DEFAULTS });
   }
@@ -620,6 +644,16 @@ function normalizeStoredHomes(cfg: HarnessConfig): HarnessConfig {
       .map((h) => expandTilde(h))
       .filter((h) => (seen.has(h) ? false : (seen.add(h), true)));
   }
+  if (cfg.officeThemeByHive && typeof cfg.officeThemeByHive === 'object' && !Array.isArray(cfg.officeThemeByHive)) {
+    const normalized: Record<string, ProjectThemeId> = {};
+    // An unregistered pack id is kept (the pack may be renamed or dropped in this build); only garbage is dropped.
+    for (const [home, theme] of Object.entries(cfg.officeThemeByHive)) {
+      if (home.trim() && isStoredProjectThemeId(theme)) normalized[projectThemeHomeKey(expandTilde(home))] = theme;
+    }
+    cfg.officeThemeByHive = normalized;
+  } else {
+    delete cfg.officeThemeByHive;
+  }
   return cfg;
 }
 
@@ -638,6 +672,14 @@ export function onConfigWritten(listener: ConfigWriteListener): () => void {
 
 function persistConfig(next: HarnessConfig): HarnessConfig {
   const p = configPath();
+  // A damaged config.json, or one that cannot be read just now, is never
+  // written over: the change is skipped and logged (once per spell), so a timer
+  // or an agent start carries on.
+  const refused = writeRefusal(p);
+  if (refused) {
+    if (refused.logged) console.error(`[config] not saved: config.json ${refused.why === 'damaged' ? `is damaged${refused.copy ? ` (copy: ${refused.copy})` : ''}` : `could not be read just now (${refused.error})`}; nothing was written`);
+    return readConfig();
+  }
   mkdirSync(dirname(p), { recursive: true });
   // Temp + rename: `rename` is atomic within a filesystem, so a crash mid-write
   // leaves either the old config.json or the new one, never half of either. A
@@ -726,6 +768,46 @@ export function setAgentTokenCap(agentId: unknown, tokenCap: unknown): HarnessCo
     ...current,
     agentTokenCaps
   });
+}
+
+/** Save the Graphics mode; it applies after a restart. An unknown value throws. */
+export function setGraphicsMode(value: unknown): HarnessConfig {
+  const mode = parseGraphicsMode(value);
+  if (mode === null) throw new Error('invalid graphics mode');
+  return persistConfig({ ...readConfig(), graphicsMode: mode });
+}
+
+/** Allow (or withdraw) one folder for hive Codex starts, then read it back. Withdraw
+ *  removes that folder's key. `saved` is false when config.json is damaged or not
+ *  readable just now (the change was skipped). */
+export function setCodexFolderOk(folder: string, allow: boolean): { saved: boolean; oks: string[] } {
+  const current = readConfig();
+  const key = codexFolderKey(expandTilde(folder));
+  const list = (Array.isArray(current.codexLayerOptIns) ? current.codexLayerOptIns : [])
+    .filter((k): k is string => typeof k === 'string' && !!k.trim() && codexFolderKey(k) !== key);
+  if (allow) list.push(key);
+  persistConfig({ ...current, codexLayerOptIns: list });
+  const oks = (readConfig().codexLayerOptIns ?? []).filter((k): k is string => typeof k === 'string');
+  return { saved: oks.some((k) => codexFolderKey(k) === key) === allow, oks };
+}
+
+/** Set one project's floor theme against the latest config on disk (the
+ *  renderer's config is a snapshot), then read it back. A damaged config.json, or
+ *  one not readable just now, skips the save: the answer is 'not-saved', with the
+ *  theme still in force. */
+export function setProjectThemeForHome(harnessHome: string, theme: unknown): ProjectThemeSave {
+  const home = expandTilde(harnessHome);
+  const current = readConfig();
+  if (!isProjectThemeId(theme)) return { ok: false, reason: 'invalid', theme: resolveProjectTheme(current, home) };
+  const key = projectThemeHomeKey(home);
+  const map = { ...(current.officeThemeByHive ?? {}) };
+  for (const k of Object.keys(map)) if (projectThemeHomeKey(k) === key) delete map[k];
+  map[key] = theme;
+  persistConfig({ ...current, officeThemeByHive: map });
+  const after = readConfig();
+  return projectThemeForHome(after.officeThemeByHive, home) === theme
+    ? { ok: true, theme }
+    : { ok: false, reason: 'not-saved', theme: resolveProjectTheme(after, home) };
 }
 
 /** Wipe the persisted config back to first-run defaults so the app boots into

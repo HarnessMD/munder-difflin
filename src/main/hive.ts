@@ -41,7 +41,11 @@ import { MCP_CATALOG } from '../shared/mcpCatalog';
 import { selectBroadcastTargets } from '../shared/broadcast';
 import { preferredAgentRole } from '../shared/agentRole';
 import { mergeTaskLedger } from '../shared/taskLedger';
+import type { AnswerRequest } from '../shared/humanQuestion';
+import { applyAnswers, type AppliedAnswer } from './askMeAnswers';
 import { expandTilde } from './fs';
+import { readJsonFile, writeRefusal } from './damagedFile';
+import { codexAgentConfig } from './codexAgentConfig';
 import { resolveGodName } from '../shared/godIdentity';
 
 /** The subset of HarnessConfig the hive consumes for the default-MCP merge.
@@ -453,6 +457,13 @@ export class HiveManager {
   private agentDir(id: string): string {
     return join(this.root()!, 'agents', id);
   }
+  /** A hive Codex agent's own CODEX_HOME (installCodexHooks), or null when it
+   *  has none. For the History tab, which reads the agent's rollouts. */
+  codexHomeOf(id: string): string | null {
+    if (!this.root() || !id || basename(id) !== id || id === '.' || id === '..') return null;
+    const home = join(this.agentDir(id), '.codex');
+    return existsSync(home) ? home : null;
+  }
   /** IPC endpoint the cth-hook shim talks to (Phase 1 autonomy).
    *  On POSIX this is a Unix-domain socket file under the hive root. On Windows,
    *  Node's `net` IPC uses named pipes (a flat `\\.\pipe\` namespace, not the
@@ -791,7 +802,7 @@ export class HiveManager {
       lastSeen: Date.now()
     };
     if (meta.isGod) reg.godId = meta.id;
-    this.atomicWriteJson(join(root, 'registry.json'), reg);
+    this.saveRegistry(root, reg);
 
     this.appendLog({ kind: 'spawn', agentId: meta.id, name: meta.name, isGod: !!meta.isGod });
     // Only logs on an invalid cwd (rare) — not a per-spawn line, so no log spam.
@@ -1020,7 +1031,7 @@ export class HiveManager {
       if (agent.role === next) return { ok: true };
       agent.role = next;
       agent.lastSeen = Date.now();
-      this.writeJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
       writeFileSync(join(this.agentDir(id), 'identity.md'), this.identityText(agent), 'utf8');
       this.appendLog({ kind: 'role', agentId: id, role: next });
       this.commit(`hive: role ${id}`);
@@ -1045,7 +1056,7 @@ export class HiveManager {
       if (!agent || agent.archived === archived) return;
       agent.archived = archived;
       agent.lastSeen = Date.now();
-      this.atomicWriteJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
       this.appendLog({ kind: 'archive', agentId: id, archived });
       this.commit(`hive: ${archived ? 'archive' : 'unarchive'} ${id}`);
     } catch { /* best-effort — never crash a lifecycle handler */ }
@@ -1138,7 +1149,7 @@ export class HiveManager {
       if (!!agent.onHold === hold) return { ok: true, onHold: hold };
 
       agent.onHold = hold;
-      this.writeJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
 
       const fleetPath = join(root, 'fleet.json');
       if (existsSync(fleetPath)) {
@@ -1172,7 +1183,7 @@ export class HiveManager {
 
       const previousName = agent.name;
       agent.name = nextName;
-      this.writeJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
 
       // fleet.json is ephemeral and may not exist yet. When it does, keep its
       // display name in lockstep with the registry so rosterContext() is fresh.
@@ -1214,7 +1225,7 @@ export class HiveManager {
       if (!agent || agent.sessionId === sessionId) return; // unknown agent or unchanged → no write
       agent.sessionId = sessionId;
       agent.lastSeen = Date.now();
-      this.atomicWriteJson(join(root, 'registry.json'), reg);
+      this.saveRegistry(root, reg);
       this.appendLog({ kind: 'session', agentId, sessionId });
       this.commit(`hive: session ${agentId}`);
     } catch { /* best-effort — never crash a hook handler */ }
@@ -1584,7 +1595,7 @@ export class HiveManager {
       : '';
     const godLine = meta.isGod
       ? 'You are the GOD / ORCHESTRATOR of this hive — your job is to ORCHESTRATE, not to implement: maintain live situational awareness and delegate the work. (1) AWARENESS — always know what is going on: keep an accurate picture of every agent (active vs archived/idle), the task board, and all in-flight work; drain your inbox continually and triage every other agent\'s requests, answering clarifications so the team runs autonomously. (2) DELEGATE — decompose work and fan it out to the hive agents via their inboxes (route messages and assign owners; do not do their jobs); do NOT take on grunt implementation yourself. Stay aware of who is already on the floor and delegate OPPORTUNISTICALLY: BEFORE you spawn anything, CHECK THE LIVE ROSTER (active agents in registry.json + their state in fleet.json) and prefer routing to an EXISTING agent that fits — above all when the request names one ("ask Pam to…", "have Jim…"), route to that agent instead of reflexively creating a new one. Reuse an idle or already-running agent whose role matches; only spawn a fresh agent when no existing one is a sensible fit, and say that you checked. One capable owner beats a duplicate. (3) OWN ONLY THE IMPORTANT, high-leverage things — task decomposition, dispatch decisions, sign-offs, conflict resolution, branch integration, and final QA — and remain the sole scribe of board.md. You are otherwise fully autonomous — there is NO separate approval queue. For the genuinely critical (destructive actions, spending real money, scope changes, unresolvable conflicts), ask the human directly in your own session and let the tool-permission prompt gate the action; the human approves natively, including remotely from their phone via /remote-control. Keep the team unblocked. When you DISPATCH a task, write it as a 4-part contract so the agent can run autonomously: (1) OBJECTIVE — the concrete goal; (2) OUTPUT — the expected deliverable/format; (3) TOOLS — what to use or avoid, and any references to read instead of re-deriving; (4) BOUNDARIES — scope limits + the definition of done. Pass references (file paths, message ids, board sections), not pasted content — keep dispatches short.'
-        + ` MONITOR the floor by reading ${inRoot('fleet.json')} (live per-agent tokens, cost, status, last tool, breaker level, inbox backlog) and ${inRoot('registry.json')} — note that running 'claude agents' will NOT list your hive's sibling agents. A full Claude Code command reference is at ${inRoot('COMMANDS.md')} (slash commands act ONLY on your own session; CLI commands run in your shell and can target the fleet). You periodically receive scheduler / "Heartbeat" standup requests — on each, review every agent via fleet.json, re-engage anyone stalled, over-budget, or breaker-armed, and keep board.md and tasks.json accurate. In tasks.json, ALWAYS set each task's "assignee" to the worker's agent id the moment you dispatch it, and NEVER clear it on status changes — a done card must still say who did the work (the human reads the board by who-did-what). HUMAN FEEDBACK is first-class in the ledger: when a task can only proceed with the human's input — a QUESTION to answer OR an ACTION only the human can perform (create an account, approve a purchase, provide credentials/screenshots, test on their device) — set its status to "blocked" and append the concrete ask to the card's "humanQA" array (push {"q":"...","askedAt":"<iso>"}; phrase actions as clear to-dos; keep every past entry — the history documents the card's decisions). WRITE THE ASK SHORT AND IN MARKDOWN. The human reads it on a CARD, not in a terminal, so an ask longer than a short paragraph plus its options (roughly 700 characters) is a report, not a question — cut the narrative, keep the decision. Open with ONE **bold** sentence saying exactly what you need from them; put paths, commands, values and identifiers in \`backticks\`; give each option or step its own "-" bullet or "1." number; leave a blank line between paragraphs (a single newline is a line break, so each option stays on its own line). When the ask originates in another agent's report, REWRITE it into that shape — never paste the report body in as the question, and never make the human read the investigation to find the decision. The harness surfaces open questions on the office floor's ASK ME board; the human's answer lands in the same entry ("a") AND arrives as an inbox message to you — read it, act on it, and unblock the card so work continues. Do NOT park human questions in separate files (no HumanQuestion.md) and never sit waiting on the human in your own session. Steward the token budget.`
+        + ` MONITOR the floor by reading ${inRoot('fleet.json')} (live per-agent tokens, cost, status, last tool, breaker level, inbox backlog) and ${inRoot('registry.json')} — note that running 'claude agents' will NOT list your hive's sibling agents. A full Claude Code command reference is at ${inRoot('COMMANDS.md')} (slash commands act ONLY on your own session; CLI commands run in your shell and can target the fleet). You periodically receive scheduler / "Heartbeat" standup requests — on each, review every agent via fleet.json, re-engage anyone stalled, over-budget, or breaker-armed, and keep board.md and tasks.json accurate. In tasks.json, ALWAYS set each task's "assignee" to the worker's agent id the moment you dispatch it, and NEVER clear it on status changes — a done card must still say who did the work (the human reads the board by who-did-what). HUMAN FEEDBACK is first-class in the ledger: when a task can only proceed with the human's input — a QUESTION to answer OR an ACTION only the human can perform (create an account, approve a purchase, provide credentials/screenshots, test on their device) — set its status to "blocked" and append the concrete ask to the card's "humanQA" array (push {"q":"...","askedAt":"<iso>"}; phrase actions as clear to-dos; keep every past entry — the history documents the card's decisions). For a CHOICE add "options":[{"label":"...","detail":"..."}] (at most 8), "recommended":<position of the one you suggest, 0 for the first> and "multi":true only when several may be picked; the card shows them as buttons plus a note, and "a" comes back with the picked labels. Never edit an entry's q or options once asked: append a new entry, because an answer to a question that changed is refused. WRITE THE ASK SHORT AND IN MARKDOWN. The human reads it on a CARD, not in a terminal, so an ask longer than a short paragraph plus its options (roughly 700 characters) is a report, not a question — cut the narrative, keep the decision. Open with ONE **bold** sentence saying exactly what you need from them; put paths, commands, values and identifiers in \`backticks\`; give each option or step its own "-" bullet or "1." number; leave a blank line between paragraphs (a single newline is a line break, so each option stays on its own line). When the ask originates in another agent's report, REWRITE it into that shape — never paste the report body in as the question, and never make the human read the investigation to find the decision. The harness surfaces open questions on the office floor's ASK ME board; the human's answer lands in the same entry ("a") AND arrives as an inbox message to you — read it, act on it, and unblock the card so work continues. Do NOT park human questions in separate files (no HumanQuestion.md) and never sit waiting on the human in your own session. Steward the token budget.`
       : meta.isAssistant
       ? `You are ${godNameForPrompt}'s PREP ASSISTANT. You will be handed short, possibly vague instructions (each begins with "ENRICH TASK:"). For each one: (1) figure out which project it concerns and cd into the most relevant repo — you start in ${godNameForPrompt}'s home directory; (2) gather concrete context READ-ONLY (exact file paths, current state, relevant code, conventions, active branch, gotchas) — NEVER modify, create, or delete files; (3) rewrite the instruction into ONE clear, self-contained prompt that ${godNameForPrompt} can execute autonomously, preserving the user's original intent without inventing scope. Then deliver it: write ONE message JSON into your outbox with "to":"god", "act":"request", a short subject, and the finished prompt as the body. Do NOT perform the task yourself — your only output is the improved prompt sent to ${godNameForPrompt}.`
       : 'For anything ambiguous, cross-cutting, or needing sign-off, address a message to "god".';
@@ -1897,7 +1908,7 @@ export class HiveManager {
   registry(): Registry {
     const root = this.root();
     if (!root) return { godId: null, agents: {} };
-    return this.readJson<Registry>(join(root, 'registry.json'), { godId: null, agents: {} });
+    return this.readLedger(join(root, 'registry.json'), { godId: null, agents: {} } as Registry);
   }
   board(): string {
     const root = this.root();
@@ -1905,7 +1916,34 @@ export class HiveManager {
   }
   tasks(): unknown {
     const root = this.root();
-    return root ? this.readJson(join(root, 'tasks.json'), { tasks: [] }) : { tasks: [] };
+    return root ? this.readLedger(join(root, 'tasks.json'), { tasks: [] }) : { tasks: [] };
+  }
+
+  /** The last registry.json or tasks.json read whole this run, by path (a copy). */
+  private lastGood = new Map<string, unknown>();
+
+  /** Read registry.json or tasks.json (damagedFile). Damaged (kept as it is,
+   *  writes paused) or not readable just now: this run's last good value, a
+   *  copy so a caller's unsaved change never becomes it; with none, `empty`. */
+  private readLedger<T>(p: string, empty: T): T {
+    const read = readJsonFile(p, !this.lastGood.has(p));
+    if (read.kind === 'ok') { this.lastGood.set(p, structuredClone(read.value)); return read.value as T; }
+    if (read.kind === 'missing') return empty;
+    return this.lastGood.has(p) ? structuredClone(this.lastGood.get(p)) as T : empty;
+  }
+
+  /** Write registry.json, unless it is damaged or cannot be read just now:
+   *  then the write is skipped and logged once per spell, so a timer or an
+   *  agent start carries on. */
+  private saveRegistry(root: string, reg: Registry): boolean {
+    const p = join(root, 'registry.json');
+    const refused = writeRefusal(p);
+    if (refused) {
+      if (refused.logged) this.appendLog({ kind: 'write-skipped', file: 'registry.json', why: refused.why, error: refused.error, copy: refused.copy });
+      return false;
+    }
+    this.atomicWriteJson(p, reg);
+    return true;
   }
 
   /** Persist the task ledger to hive/tasks.json and commit it. Mirrors the
@@ -1926,9 +1964,20 @@ export class HiveManager {
     if (!root) return;
     this.ensureHive();
     const path = join(root, 'tasks.json');
-    const current = this.readJson<{ tasks?: unknown }>(path, { tasks: [] });
+    // A damaged board, or one that cannot be read just now, is never written
+    // over: the caller is told, and nothing is written.
+    const read = readJsonFile(path);
+    if (read.kind === 'damaged') {
+      this.appendLog({ kind: 'write-skipped', file: 'tasks.json', why: 'damaged', error: read.error, copy: read.copy });
+      throw new Error(`hive: tasks.json is damaged, so it is kept as it is${read.copy ? ` (copy: ${read.copy})` : ''} and nothing was written. Repair it, then try again`);
+    }
+    if (read.kind === 'unreadable') {
+      this.appendLog({ kind: 'write-skipped', file: 'tasks.json', why: 'read error', error: read.error });
+      throw new Error(`hive: tasks.json could not be read just now (${read.error}); nothing was written. Try again in a moment`);
+    }
+    const current = read.kind === 'ok' ? read.value as { tasks?: unknown } : { tasks: [] };
     const merged = mergeTaskLedger(current?.tasks, tasks);
-    this.writeJson(path, { tasks: merged });
+    this.atomicWriteJson(path, { tasks: merged });
     this.appendLog({ kind: 'tasks', count: merged.length });
     this.commit(`hive: tasks (${merged.length})`);
   }
@@ -1965,6 +2014,17 @@ export class HiveManager {
     if (next.length === tasks.length) return false;
     this.writeTasks(next);
     return true;
+  }
+
+  /** Answer or dismiss Ask Me questions (askMeAnswers) against the latest
+   *  on-disk ledger, in ONE write. Throws like writeTasks when the board is
+   *  damaged or cannot be read just now. */
+  answerQuestions(reqs: Array<AnswerRequest | null>): AppliedAnswer[] {
+    const ledger = this.tasks() as { tasks?: unknown };
+    const tasks = Array.isArray(ledger?.tasks) ? ledger.tasks : [];
+    const applied = applyAnswers(tasks, reqs, new Date().toISOString());
+    if (applied.changed) this.writeTasks(applied.tasks as HiveTask[]);
+    return applied.outcomes;
   }
   memory(id: string): string {
     const p = join(this.agentDir(id), 'memory.md');
@@ -2244,8 +2304,10 @@ export class HiveManager {
       // `codex app-server` → initialize → `hooks/list` reports the normalized
       // timeoutSec per event.
       const shim = this.shimPath();
-      let config = existsSync(join(userHome, 'config.toml'))
-        ? readFileSync(join(userHome, 'config.toml'), 'utf8') : '';
+      // Our copy turns the seed's plugins off and caps each tool output the
+      // model sees (codexAgentConfig); the person's own file is untouched.
+      let config = codexAgentConfig(existsSync(join(userHome, 'config.toml'))
+        ? readFileSync(join(userHome, 'config.toml'), 'utf8') : '');
       if (shim) {
         const events = ['PreToolUse', 'PostToolUse', 'Stop', 'SubagentStop',
           'SessionStart', 'UserPromptSubmit', 'PreCompact', 'PostCompact'];
@@ -3018,6 +3080,13 @@ card \`"status": "blocked"\` and appends the ask to its \`humanQA\` array:
 The harness shows the open ask on the ASK ME board and in the ASK ME tab, and the human's reply lands
 in the same entry as \`"a"\` plus an inbox message to god. Every past entry stays on the card — that
 trail is the decision history.
+
+For a choice, put the options on the entry and the card shows them as buttons with a note field:
+\`"options"\` (up to 8, each \`{ "label": "...", "detail": "..." }\`, detail optional), \`"recommended"\`
+(the position of the one you suggest, 0 for the first) and \`"multi": true\` when several may be picked
+(otherwise one). The answer's \`"a"\` holds the picked labels and any note, and \`"chosen"\` their
+positions. Never change an entry's \`q\` or options once asked: append a new entry instead, because an
+answer to a question that changed is refused. A card marked done asks nothing.
 
 **Write the ask short, and in markdown.** The card renders it, so plain-text asterisks and backticks
 show up literally, and a card is not a terminal — an ask longer than a short paragraph plus its

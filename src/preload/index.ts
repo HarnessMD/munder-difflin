@@ -1,5 +1,10 @@
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
 import type { AgentProvider } from '../shared/agentProvider';
+import type { GraphicsMode, GraphicsStatusView } from '../shared/graphicsMode';
+import type { HistoryPage, HistoryRequest } from '../shared/history';
+import type { AnswerOutcome, AnswerRequest } from '../shared/humanQuestion';
+import type { ProjectThemeId, ProjectThemeSave } from '../shared/projectTheme';
+import type { RecoveryNotice } from '../shared/viewRecovery';
 import type { HireManifest } from '../shared/hire';
 export type { HireManifest } from '../shared/hire';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
@@ -134,6 +139,24 @@ export interface AgentDirectoryEntry {
   contextTokens: number | null;
   contextLimit: number | null;
   contextPct: number | null;
+}
+
+/** R3: a held hive Codex start (main's CodexHoldNotice). `what` is an id the window
+ *  words; `detail` is data (names, a config key, or an error as given); `more` counts
+ *  the entries of agents/ or hooks/ past the first 20, on an item naming the folder. */
+export interface CodexHoldView {
+  agentId: string;
+  at: number;
+  /** The key Allow records: the project folder, spelled as in the main checkout. */
+  folderKey: string;
+  folder: string;
+  layers: Array<{
+    dotCodex: string;
+    hooksFrom?: string;
+    items: Array<{ file: string; what: 'mcp-servers' | 'hooks' | 'rules' | 'agents' | 'setting' | 'unreadable' | 'does-not-parse' | 'confinement'; detail?: string; more?: number }>;
+  }>;
+  /** What could not be checked (each counts as code that runs). */
+  unknown: string[];
 }
 
 export interface AgentDirectory {
@@ -323,8 +346,12 @@ export interface HarnessConfig {
   terminalTheme?: 'light' | 'dark';
   /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
   tvShowOffices?: boolean;
-  /** Active office map/cast theme (honored only when tvShowOffices is on). */
-  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  /** The floor theme of a project with no entry in officeThemeByHive (the one global
+   *  theme from before themes were per project). Read with resolveProjectTheme. */
+  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts' | 'starhike';
+  /** Each project's own floor theme, keyed by its home (projectThemeHomeKey). Saved
+   *  only through setProjectTheme. */
+  officeThemeByHive?: Record<string, ProjectThemeId>;
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn. API KEYS are NOT stored here —
    *  they live write-only in the secret broker. */
@@ -579,8 +606,23 @@ const api = {
   // ─── PTY ─────────────────────────────────────────────────────────────────
   /** `cwd` in the result is the TILDE-EXPANDED absolute path main actually spawned
    *  into — the renderer stores that, not the raw `~/…` the user typed. */
-  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> =>
+  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; codexHold?: CodexHoldView; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> =>
     ipcRenderer.invoke('pty:spawn', opts),
+  /** R3: hive Codex starts held because their folder's project `.codex` carries code
+   *  that would run unreviewed (codexHold on the spawn result too). */
+  codexHolds: (): Promise<CodexHoldView[]> => ipcRenderer.invoke('codexHold:list'),
+  onCodexHolds: (cb: (holds: CodexHoldView[]) => void): (() => void) => {
+    const listener = (_e: IpcRendererEvent, holds: CodexHoldView[]) => cb(holds);
+    ipcRenderer.on('codexHold:push', listener);
+    return () => ipcRenderer.removeListener('codexHold:push', listener);
+  },
+  /** Allow a held folder (one OK covers its worktrees), then start the held agents
+   *  again. error 'not-saved': config.json is damaged or busy. */
+  codexHoldAllow: (folderKey: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('codexHold:allow', folderKey),
+  codexHoldDismiss: (at: number): Promise<{ ok: boolean }> => ipcRenderer.invoke('codexHold:dismiss', at),
+  /** Settings: the allowed folders, and withdrawing one. */
+  codexAllowedFolders: (): Promise<string[]> => ipcRenderer.invoke('codexHold:allowed'),
+  codexWithdrawFolder: (folderKey: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('codexHold:withdraw', folderKey),
   writePty: (id: string, data: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('pty:write', id, data),
   resizePty: (id: string, cols: number, rows: number): Promise<{ ok: boolean; error?: string }> =>
@@ -667,9 +709,12 @@ const api = {
   /** Change the harness home folder. 'move' copies the existing hive + palace
    *  into the new folder (old kept as a safety net); 'fresh' just re-points and
    *  bootstraps an empty home. On success the app relaunches (never resolves);
-   *  on failure (e.g. copy error) returns { ok: false, error }. */
-  changeHome: (newHome: string, mode: 'move' | 'fresh'): Promise<{ ok: boolean; error?: string }> =>
-    ipcRenderer.invoke('config:changeHome', { newHome, mode }),
+   *  on failure (e.g. copy error) returns { ok: false, error }. `projectTheme`
+   *  (fresh only, P2): the new project's floor. The folder must then be missing or
+   *  empty (nothing but .DS_Store); else error is an id: 'not-empty', 'unreadable'
+   *  (the folder could not be read) or 'invalid-theme'. */
+  changeHome: (newHome: string, mode: 'move' | 'fresh', projectTheme?: ProjectThemeId): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('config:changeHome', { newHome, mode, ...(projectTheme !== undefined ? { projectTheme } : {}) }),
 
   // ─── Filesystem (sandboxed to cwd) ───────────────────────────────────────
   listDir: (root: string, rel: string): Promise<
@@ -1083,6 +1128,42 @@ const api = {
   /** Atomically remove one named card from the latest main-process ledger. */
   hiveDeleteTask: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('hive:deleteTask', id),
+  /** Ask Me: answer or dismiss the question a card showed (questionRef), one
+   *  humanQA entry on the latest board; main sends the god's notice. 'gone': it
+   *  changed or closed first, and nothing was written. */
+  hiveAnswerQuestion: (req: AnswerRequest): Promise<AnswerOutcome> =>
+    ipcRenderer.invoke('hive:answerQuestion', req),
+  /** Several in ONE write (Dismiss all), one result each, in order. */
+  hiveAnswerQuestions: (reqs: AnswerRequest[]): Promise<AnswerOutcome[]> =>
+    ipcRenderer.invoke('hive:answerQuestions', reqs),
+  /** Damaged sources of truth (config.json, registry.json, tasks.json): each kept
+   *  as it is, with the name of its copy; writes to it pause. Names only. */
+  integrityIssues: (): Promise<Array<{ file: string; copy: string | null; error: string }>> =>
+    ipcRenderer.invoke('integrity:issues'),
+  /** Show a listed damaged file, or its copy, in the file manager, by name. */
+  integrityReveal: (name: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('integrity:reveal', name),
+  /** Settings, Graphics: the mode in force, the saved one, Chromium's view, and
+   *  how many agent terminals a restart would stop. */
+  graphicsStatus: (): Promise<GraphicsStatusView> => ipcRenderer.invoke('graphics:status'),
+  /** Save the Graphics mode; it applies after a restart. */
+  setGraphicsMode: (mode: GraphicsMode): Promise<GraphicsStatusView> => ipcRenderer.invoke('graphics:setMode', mode),
+  /** The current project's floor theme, read back: 'not-saved' when config.json is
+   *  damaged or busy, with the theme still in force. Changes only how the floor looks. */
+  setProjectTheme: (theme: ProjectThemeId): Promise<ProjectThemeSave> => ipcRenderer.invoke('config:setProjectTheme', theme),
+  /** True when main has just reloaded this window after its view died (or after
+   *  reloadAfterError): open on the live project, not the launch hive picker.
+   *  Read once, as the page loads. */
+  recovering: ((): boolean => { try { return ipcRenderer.sendSync('window:recoveringSync') === true; } catch { return false; } })(),
+  /** The one shot "the view was restored" notice for this window, or null. Taking it clears it. */
+  takeRecoveryNotice: (): Promise<RecoveryNotice | null> => ipcRenderer.invoke('window:takeRecoveryNotice'),
+  /** The root error boundary's reload, through main so the reloaded page says it was restored. */
+  reloadAfterError: (): void => ipcRenderer.send('window:reloadAfterError'),
+  /** Restart the app through the normal teardown, so a saved Graphics mode applies. */
+  restartForGraphics: (): Promise<void> => ipcRenderer.invoke('graphics:restart'),
+  /** The History tab: one page of an agent's conversation from its CLI's own
+   *  transcript, by agent id (byte offset cursors; see shared/history). */
+  hiveHistory: (req: HistoryRequest): Promise<HistoryPage> => ipcRenderer.invoke('hive:history', req),
 
   // ─── Scheduled missions (recurring auto-dispatch) ──────────────────────────
   listMissions: (): Promise<ScheduledMission[]> => ipcRenderer.invoke('missions:list'),
