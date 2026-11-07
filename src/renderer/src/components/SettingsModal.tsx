@@ -940,6 +940,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                     return (
                       <button
                         key={section}
+                        className="cth-small-label"
                         type="button"
                         onClick={() => setActiveSection(section)}
                         style={{
@@ -992,7 +993,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Home folder */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.general.homeFolder')}
                         </div>
                         <div style={{ display: 'flex', gap: 12, fontSize: 13, lineHeight: '20px', alignItems: 'center' }}>
@@ -1008,7 +1009,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Environment — settings that used to be trapped in onboarding */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.general.environment')}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1071,7 +1072,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Language — app UI language (i18n) */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.general.language')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1098,7 +1099,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Desktop notifications toggle */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.general.notifications')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1124,7 +1125,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Scheduled auto-compact (compact-maintenance mission) */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.general.maintenance')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1197,7 +1198,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   {activeSection === 'Agents & Models' && (
                     <>
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.agentsModels.defaultModel')}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -1229,7 +1230,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Advanced */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.agentsModels.advanced')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1250,7 +1251,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   {activeSection === 'Autonomy & Budgets' && (
                     <>
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.autonomy.autonomy')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1292,7 +1293,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Circuit breaker — the FULL unit (v0.3.4: all fields have UI) */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.autonomy.breaker')}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1367,7 +1368,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   {activeSection === 'Memory & Knowledge' && (
                     <>
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.memory.semanticMemory')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1387,7 +1388,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Knowledge Graph — enterprise multimodal context for agents */}
                       <div>
-                        <div style={sectionHead}>
+                        <div className="cth-small-label" style={sectionHead}>
                           {t('settings.memory.kg')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1443,7 +1444,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Slack integration */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={sectionHeadTight}>
+                        <div className="cth-small-label" style={sectionHeadTight}>
                           {t('settings.connections.slack')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1618,7 +1619,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                           in the Triggers tab lands here without a refetch (and the
                           other way round). */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={sectionHeadTight}>
+                        <div className="cth-small-label" style={sectionHeadTight}>
                           {t('settings.connections.webhooks')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1814,7 +1815,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                       {/* Organisation trigger — teammates messaging this clone node.
                           Persisted + mirrored; no transport reads the key yet. */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={sectionHeadTight}>
+                        <div className="cth-small-label" style={sectionHeadTight}>
                           {t('settings.connections.organisation')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1900,7 +1901,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                     <>
                       {/* Free Flow (voice dictation) */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={sectionHeadTight}>
+                        <div className="cth-small-label" style={sectionHeadTight}>
                           {t('settings.voice.freeFlow')}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -1974,7 +1975,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
 
                       {/* Realtime Michael — voice device selection (rt-8) */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={sectionHeadTight}>
+                        <div className="cth-small-label" style={sectionHeadTight}>
                           {t('settings.voice.realtime')}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1999,7 +2000,7 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                           background: 'var(--cth-paper-100)',
                           boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
                         }}>
-                          <span style={sectionHeadFlush}>
+                          <span className="cth-small-label" style={sectionHeadFlush}>
                             {t('settings.voice.openaiKey')}
                           </span>
                           <span style={{ fontSize: 12, lineHeight: '17px', color: 'var(--cth-ink-700)' }}>
