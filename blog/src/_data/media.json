@@ -3442,6 +3442,28 @@
     },
     "inline": {}
   },
+  "paradev-alternatives": {
+    "title": "Paradev Alternatives: 6 Tools for Running Coding Agents in Parallel (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/paradev-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Paradev alternatives, the line 6 tools for running coding agents in parallel and a Checked 7 Nov 2026 line. Six small tiles named Orca, Munder Difflin, Orchestrator.inc, Emdash Classic, T3 Code and Claude Code slide in under a grey tile labelled Paradev.",
+      "prompt": "Title card: the hero scene in assets/media/paradev-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "perplexity-teammates-vs-munder-difflin": {
+    "title": "Perplexity Teammates vs Munder Difflin: Hosted Agents or Your Own Computer (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/perplexity-teammates-vs-munder-difflin/hero.png",
+      "alt": "Title card on white. A pill reading Compared, the title Perplexity Teammates vs Munder Difflin, the line Hosted agents or your own computer and a Checked 7 Nov 2026 line. Two tiles named Perplexity Teammates and Munder Difflin slide in side by side.",
+      "prompt": "Title card: the hero scene in assets/media/perplexity-teammates-vs-munder-difflin/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",
