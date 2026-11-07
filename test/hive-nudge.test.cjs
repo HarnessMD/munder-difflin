@@ -55,12 +55,16 @@ test('the nudge names the messages that prompted it', () => {
   assert.match(text, /2026-08-19T17-10-00-000Z-broadcast-retro-rule/);
 });
 
-test('the nudge keeps the pending inbox authoritative, not the id list', () => {
-  // A nudge suppressed by the one-pending rule leaves its ids unnamed, so an
-  // agent that stopped at the list would miss that mail entirely.
-  const text = inboxNudgeText(['msg-1']);
-  assert.match(text, /authoritative/);
-  assert.match(text, /inbox\/\.done\//);
+test('the nudge is one short line -- the standing instructions live in the system prompt, not here', () => {
+  // The full "inbox is authoritative / move to inbox/.done/ / act autonomously"
+  // prose used to be restated in every nudge. It now lives exactly once, in each
+  // agent's system prompt at spawn (hive.ts's HIVE PROTOCOL block / PROTOCOL.md) --
+  // repeating it here only gave a slow/occluded PTY more text to swallow mid-type,
+  // and more duplicated text sitting in the input box on a stuck retry. A nudge
+  // with a long id list still carries ids (tested below); the FIXED prose portion
+  // must stay short regardless.
+  const text = inboxNudgeText([]);
+  assert.equal(text.length < 120, true, `nudge prose too long (${text.length} chars): ${text}`);
 });
 
 test('a nudge with no ids is still a well-formed nudge', () => {

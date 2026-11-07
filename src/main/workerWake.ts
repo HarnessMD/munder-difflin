@@ -32,9 +32,13 @@
  * No electron import — unit-testable (mirrors ControlRegistry).
  */
 
-/** The exact nudge the renderer's inbox-wake loop would have typed. */
-export const WORKER_WAKE_NUDGE =
-  'You have new hive inbox message(s) — read your inbox, act on them now, and move handled ones to inbox/.done/. Act autonomously; only message god if you genuinely need a decision.';
+import { inboxNudgeText } from '../shared/hiveNudge';
+
+/** The exact nudge the renderer's inbox-wake loop would have typed, with no ids
+ *  named (a watchdog nudge always names its ids; this is the shape for doc/test
+ *  purposes). Single source of truth: `inboxNudgeText` — see hiveNudge.ts for why
+ *  it is kept to one short line. */
+export const WORKER_WAKE_NUDGE = inboxNudgeText([]);
 
 /** No PTY output for this long = genuinely idle (renderer QUIESCE_IDLE_MS). */
 export const WORKER_WAKE_IDLE_MS = 12_000;
@@ -144,7 +148,8 @@ export interface WorkerWakeFacts {
 export type WorkerWakeHold =
   | 'god' | 'no-mail' | 'no-pty'
   | 'delivery-paused' | 'paused' | 'halted'
-  | 'booting' | 'mid-turn' | 'boot-grace' | 'hitl' | 'announced' | 'cooldown';
+  | 'booting' | 'mid-turn' | 'boot-grace' | 'hitl' | 'announced' | 'cooldown'
+  | 'in-flight';
 
 /** The inbox ids that count as mail: non-empty strings only. */
 function liveInboxIds(f: WorkerWakeFacts): Set<string> {
@@ -203,6 +208,30 @@ export class WorkerWakeWatchdog {
   /** agentId → when its hold was last reported, so the beat logs a held worker
    *  once per cooldown instead of every 15 s. */
   private lastHoldReportAt = new Map<string, number>();
+  /** Agents with a nudge delivery CURRENTLY in flight (typed, possibly stuck and
+   *  retrying its Enter keystroke, not yet confirmed or given up on). The caller
+   *  marks/clears this around its own async deliverNudge() call — decide() must
+   *  never start a second delivery for an agent whose first one hasn't resolved,
+   *  or a stuck delivery's unsubmitted text gets a SECOND full nudge typed on top
+   *  of it the moment new mail arrives (the exact "retries retype the full text,
+   *  duplicating it" failure this set exists to prevent). */
+  private nudging = new Set<string>();
+
+  /** Mark a delivery as started for this agent. Call before awaiting deliverNudge. */
+  markNudging(agentId: string): void {
+    this.nudging.add(agentId);
+  }
+
+  /** Mark a delivery as finished (confirmed, gave-up, or errored) — call in a
+   *  `finally` around deliverNudge so a throw can never leave an agent wedged
+   *  as permanently in-flight. */
+  clearNudging(agentId: string): void {
+    this.nudging.delete(agentId);
+  }
+
+  isNudging(agentId: string): boolean {
+    return this.nudging.has(agentId);
+  }
 
   /** Record a PTY spawn so its boot sequence is left alone. */
   noteSpawn(ptyId: string, at = Date.now()): void {
@@ -243,6 +272,7 @@ export class WorkerWakeWatchdog {
     this.hookSeenAt.delete(agentId);
     this.lastTurnHookAt.delete(agentId);
     this.lastHoldReportAt.delete(agentId);
+    this.nudging.delete(agentId);
     if (ptyId) this.spawnedAt.delete(ptyId);
   }
 
@@ -259,6 +289,7 @@ export class WorkerWakeWatchdog {
     if (f.autoDeliveryPaused) return 'delivery-paused';
     if (f.paused) return 'paused';
     if (f.halted) return 'halted';
+    if (this.nudging.has(f.agentId)) return 'in-flight';
     const stalled = this.isStalled(f, now);
     if (f.lastOutputAt <= 0 && !stalled) return 'booting'; // never produced output → still booting
     if (now - f.lastOutputAt < WORKER_WAKE_IDLE_MS && !stalled) return 'mid-turn';
