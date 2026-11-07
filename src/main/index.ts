@@ -28,6 +28,7 @@ import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
 import { HiveManager, type AgentMeta, type HiveMessage, type HiveTask } from './hive';
 import { HookServer } from './hooks';
 import { CircuitBreaker, type BreakerInput } from './breaker';
+import { sendBreakerNotice, type BreakerNoticeAction } from './breakerNotice';
 import { CumulativeSampleGate, type UsageProvider } from './usage';
 import { MemoryManager } from './memory';
 import { KnowledgeManager } from './knowledge';
@@ -1191,6 +1192,15 @@ function breakerToast(title: string, body: string): void {
   catch { /* unsupported platform */ }
 }
 
+function reportBreakerNoticeError(name: string, action: BreakerNoticeAction, agentId: string, error: unknown): void {
+  console.error('[breaker beat]', { action, agentId }, error);
+  try {
+    hive.appendLog({ kind: 'breaker-notice-send-error', action, agentId });
+  } catch {}
+  breakerToast(`${name}: circuit breaker notice send failed`,
+    `Could not complete the ${action} notice send. Delivery is unconfirmed; check the agent before taking further action.`);
+}
+
 /** One circuit-breaker beat: pull a fresh usage sample per active agent, append
  *  it to the durable cost ledger (the SOLE durable cost store), tick the breaker,
  *  emit each BreakerState on control:breakerState (Seam 2), and enforce any
@@ -1261,13 +1271,14 @@ function runBreakerBeat(progressWindowMs: number): void {
     if (d.action === 'none') continue;
     const name = reg.agents[d.state.agentId]?.name ?? d.state.agentId;
     const reason = d.state.reason;
-    if (d.action === 'steer') {
-      hive.send({ to: d.state.agentId, act: 'request', subject: 'Circuit breaker: steer',
-        body: `Automated guardrail: ${reason}. Re-check your approach — if you're looping or stuck, STOP repeating, summarize what you've tried, and ask god for direction.` }, 'breaker');
-    } else if (d.action === 'constrain') {
-      hive.send({ to: d.state.agentId, act: 'request', subject: 'Circuit breaker: constrain',
-        body: `Automated guardrail escalated: ${reason}. Stop active work now: switch to read-only/plan, write a short plan of your next step, and send it to god for sign-off BEFORE running more tools.` }, 'breaker');
-      breakerToast(`${name} constrained`, reason);
+    if (d.action === 'steer' || d.action === 'constrain') {
+      try {
+        sendBreakerNotice(hive, d.action, d.state.agentId, reason);
+      } catch (error) {
+        reportBreakerNoticeError(name, d.action, d.state.agentId, error);
+        continue;
+      }
+      if (d.action === 'constrain') breakerToast(`${name} constrained`, reason);
     } else if (d.action === 'stop') {
       const ptyId = ptyForAgent(d.state.agentId);
       if (ptyId) { try { ptyManager.kill(ptyId); } catch { /* already gone */ } teardownPty(ptyId); }
