@@ -32,6 +32,7 @@ import { CumulativeSampleGate, type UsageProvider } from './usage';
 import { MemoryManager } from './memory';
 import { KnowledgeManager } from './knowledge';
 import { MemoryReflector, type ReflectSettings } from './reflect';
+import type { ReflectAgent, ReflectLaunch } from './reflectSession';
 import { PersistStore } from './db';
 import { readAgentUsage, readContextTokens, seedSessionTranscript, resolveSessionCwd } from './transcript';
 import { listIssues, listCIRuns } from './github';
@@ -327,17 +328,66 @@ function reflectSettings(): ReflectSettings {
     byteTriggerPct: c.reflectByteTriggerPct ?? 50,
     sectionTrigger: c.reflectSectionTrigger ?? 50,
     recentKeep: c.reflectRecentKeep ?? 12,
-    minBytes: c.reflectMinBytes ?? 16_384
+    minBytes: c.reflectMinBytes ?? 16_384,
+    provider: c.reflectProvider,
+    model: c.reflectModel,
+    command: c.reflectCommand,
+    retryBackoffMs: c.reflectRetryBackoffMs
   };
 }
+
+/** Registry owns provider identity; the durable roster owns the exact command
+ *  and model. A global defaultCommand must not override an OpenCode worker. */
+function reflectAgent(id: string): ReflectAgent {
+  const cfg = readConfig();
+  const meta = hive.registry().agents[id];
+  const floor = roster.read();
+  const card = [...(floor?.agents ?? []), ...(floor?.restorable ?? []), ...(floor?.archived ?? [])]
+    .find((entry): entry is { id: string; provider?: AgentProvider; command?: string; model?: string } =>
+      !!entry && typeof entry === 'object' && (entry as { id?: unknown }).id === id);
+  const command = typeof card?.command === 'string' ? card.command : undefined;
+  const provider = meta?.provider ?? inferAgentProvider(command ?? cfg.defaultCommand, card?.provider);
+  return {
+    provider,
+    command: card?.provider === provider || !card?.provider ? command : undefined,
+    model: (!card?.provider || card.provider === provider) && typeof card?.model === 'string' ? card.model
+      : meta?.isGod && cfg.godProvider === provider ? cfg.godModel : cfg.providerDefaultModels?.[provider]
+  };
+}
+
+function reflectEnv(launch: ReflectLaunch): Record<string, string> {
+  const env = { ...memory.env() };
+  if (launch.provider !== 'opencode') return env;
+  const cfg = readConfig();
+  const prefix = launch.model?.split('/')[0].toLowerCase();
+  const backend = prefix === 'gemini' ? 'google' : prefix;
+  // Only hand this hidden process the model backend's key. With a CLI-default
+  // model it uses OpenCode's own saved credentials, not every broker secret.
+  if (backend && BACKEND_KEY_ENV[backend]) {
+    const key = integrations.getSecret(providerKeyRef(backend));
+    if (key) {
+      env[BACKEND_KEY_ENV[backend]] = key;
+      if (backend === 'google') env.GOOGLE_GENERATIVE_AI_API_KEY = key;
+    }
+  }
+  const baseURL = cfg.providerBaseUrls?.opencode;
+  if (baseURL && prefix === 'local') {
+    const model = launch.model?.slice(6) || 'local';
+    env.OPENCODE_CONFIG_CONTENT = JSON.stringify({
+      provider: { local: { npm: '@ai-sdk/openai-compatible', name: 'Local (self-hosted)', options: { baseURL }, models: { [model]: { name: model } } } }
+    });
+  }
+  return env;
+}
 // Finishes the janitor's missing condense half: bounds each agent's memory.md
-// (Haiku tail-summary, backup→verify→atomic-swap) so it never grows unbounded.
+// (provider-aware tail-summary, backup→verify→atomic-swap).
 const reflector = new MemoryReflector(
   () => readConfig().harnessHome,
   () => readConfig().defaultCommand ?? 'claude',
-  () => memory.env(),
+  reflectEnv,
   reflectSettings,
-  (event) => { try { hive.appendLog(event); } catch { /* best-effort */ } }
+  (event) => { try { hive.appendLog(event); } catch { /* best-effort */ } },
+  reflectAgent
 );
 // Durable harness state (SQLite, main process). Phase A: window bounds (kv) +
 // net-new command history. Opened in whenReady, closed in the teardown blocks.

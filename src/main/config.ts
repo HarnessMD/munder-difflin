@@ -417,6 +417,13 @@ export interface HarnessConfig {
   /** Never condense a file smaller than this; also the section-trigger byte floor.
    *  DECIDED: 16 KB. */
   reflectMinBytes?: number;
+  /** Optional explicit condense CLI override (otherwise inherit each agent). */
+  reflectProvider?: AgentProvider;
+  reflectModel?: string;
+  /** CLI binary/path, not an arbitrary shell command. */
+  reflectCommand?: string;
+  /** Unknown-reset quota backoff, default one hour; repeated failures grow it. */
+  reflectRetryBackoffMs?: number;
 }
 
 const DEFAULTS: HarnessConfig = {
