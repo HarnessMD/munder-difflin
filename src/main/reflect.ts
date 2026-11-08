@@ -41,7 +41,7 @@ const PINNED_HEADING = '## 📌 Durable facts (pinned — never condensed)';
 const CONDENSED_HEADING = '## 🗜 Condensed history';
 const RECENT_HEADING = '## Recent';
 
-0/** Line-oriented output protocol. The prompt and parser share these literals so
+/** Line-oriented output protocol. The prompt and parser share these literals so
  *  the contract cannot drift without changing both sides together. */
 const CONDENSED_MARKER = '<<<CONDENSED>>>';
 const HOIST_MARKER = '<<<HOIST>>>';
