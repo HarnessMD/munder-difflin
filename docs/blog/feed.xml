@@ -24,6 +24,14 @@
     <summary>Claude Fable 5.2 is Anthropic&#39;s model for the hardest technical work. Its price as of 9 Nov 2026, fast mode, Mythos 5.2 and when to pick it.</summary>
   </entry>
   <entry>
+    <title>Claude Sheets, Whiteboards and Data: what launched on 10 Nov 2026</title>
+    <link href="https://munderdiffl.in/blog/claude-sheets-whiteboards-data/" />
+    <id>https://munderdiffl.in/blog/claude-sheets-whiteboards-data/</id>
+    <published>2026-11-10T00:00:00.000Z</published>
+    <updated>2026-11-10T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Sheets and Whiteboards launched in beta on 10 Nov 2026 and Dashboards became Claude Data. What each does, which plans get it, admin defaults.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 9 Nov 2026: Orca Git Graph, Goodbye Claude for Pi, Goldman Pulls Claude Code</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-09/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-09/</id>
@@ -478,13 +486,5 @@
     <published>2026-10-22T00:00:00.000Z</published>
     <updated>2026-10-22T00:00:00.000Z</updated><category term="Guides" />
     <summary>How to join the Claude Duet waitlist, who qualifies first (US Pro and Max), what Anthropic says about timing, and three things you can use while you wait.</summary>
-  </entry>
-  <entry>
-    <title>What Is Claude Duet? Anthropic&#39;s Proactive Agent App, Explained</title>
-    <link href="https://munderdiffl.in/blog/what-is-claude-duet/" />
-    <id>https://munderdiffl.in/blog/what-is-claude-duet/</id>
-    <published>2026-10-22T00:00:00.000Z</published>
-    <updated>2026-10-22T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Duet is Anthropic&#39;s proactive agent app, in research preview since 21 Oct 2026: who can join, how it works, what it asks first and its limits.</summary>
   </entry>
 </feed>

@@ -5818,5 +5818,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "claude-sheets-whiteboards-data": {
+    "title": "Claude Sheets, Whiteboards and Data: what launched on 10 Nov 2026",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-sheets-whiteboards-data/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title Claude Sheets, Whiteboards and Data, the line What launched and who gets it, and a Checked 10 Nov 2026 line. A small easel, seed tray and barometer sit in a row underneath.",
+      "prompt": "Title card: the hero scene in assets/media/claude-sheets-whiteboards-data/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
