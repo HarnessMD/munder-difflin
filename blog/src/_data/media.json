@@ -3475,6 +3475,28 @@
     },
     "inline": {}
   },
+  "agent-tools-today-2026-11-09": {
+    "title": "Agent Tools Today, 9 Nov 2026: Orca Git Graph, Goodbye Claude for Pi, Goldman Pulls Claude Code",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "paperclip-alternatives": {
+    "title": "Paperclip Alternatives: 6 Tools for Running a Team of AI Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/paperclip-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Paperclip alternatives, the line 6 tools for running a team of AI agents and a Checked 9 Nov 2026 line. Six small tiles named AionUi, Munder Difflin, LobeHub, Orchestrator.inc, Omnigent and Herdr slide in under a grey tile labelled Paperclip.",
+      "prompt": "Title card: the hero scene in assets/media/paperclip-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",
