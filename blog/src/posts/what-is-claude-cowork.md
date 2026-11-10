@@ -52,7 +52,7 @@ Cowork became generally available on 9 Apr 2026, after a research preview that s
 | 12 Aug 2026 | The Chrome side panel becomes Cowork | [Anthropic blog](https://claude.com/blog/cowork-chrome-side-panel) |
 | 16 Sep 2026 | Cowork and chat start merging into one Claude | [Anthropic blog](https://claude.com/blog/cowork-is-now-claude) |
 
-That last row matters most. In the merged app you ask for what you need and Claude decides whether it is a quick answer or a task. Anthropic says the rollout goes to Pro and Max over the coming weeks, with Team and Free plans to follow, and that Enterprise admins get at least 30 days of notice.
+That last row matters most. In the merged app you ask for what you need and Claude decides whether it is a quick answer or a task. Anthropic says the rollout goes to Pro and Max over the coming weeks, with Team and Free plans to follow, and that Enterprise admins get at least 30 days of notice. On 10 Nov 2026 Anthropic added [Claude Sheets, Whiteboards and Data](/blog/claude-sheets-whiteboards-data/).
 
 {% img "note-1" %}
 
