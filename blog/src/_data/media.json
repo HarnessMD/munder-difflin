@@ -3530,6 +3530,17 @@
     },
     "inline": {}
   },
+  "claude-fable-5-2": {
+    "title": "Claude Fable 5.2: price, fast mode, Mythos 5.2 and when to pick it",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-fable-5-2/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title Claude Fable 5.2, the line Price, fast mode and when to pick it, and a Checked 10 Nov 2026 line. Two small identical mugs labelled Fable 5.2 and Mythos 5.2 sit underneath.",
+      "prompt": "Title card: the hero scene in assets/media/claude-fable-5-2/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",

@@ -18,7 +18,7 @@ Agent tools today, 10 Nov 2026, in one line: Anthropic released Claude Fable 5.2
 
 ## Top launch
 
-1. **Claude Fable 5.2 and Mythos 5.2.** Anthropic's page, dated 9 Nov, says the two "are the same underlying model", and that Fable "has strong cybersecurity and biology safeguards to guard against misuse, which allows us to make it available to all users." They "generate outputs up to 30% faster than Claude Fable 5.1 and Claude Mythos 5.1", the vendor's own figures, at "$8 per million input tokens and $40 per million output tokens" as of 9 Nov. 431 points and 732 comments on [Hacker News](https://news.ycombinator.com/item?id=50429068) by 10 Nov. [Source](https://www.anthropic.com/claude-fable-and-mythos-5-2)
+1. **Claude Fable 5.2 and Mythos 5.2.** Anthropic's page, dated 9 Nov, says the two "are the same underlying model", and that Fable "has strong cybersecurity and biology safeguards to guard against misuse, which allows us to make it available to all users." They "generate outputs up to 30% faster than Claude Fable 5.1 and Claude Mythos 5.1", the vendor's own figures, at "$8 per million input tokens and $40 per million output tokens" as of 9 Nov. 431 points and 732 comments on [Hacker News](https://news.ycombinator.com/item?id=50429068) by 10 Nov. Our page on [Claude Fable 5.2](/blog/claude-fable-5-2/) has the prices and when to pick it. [Source](https://www.anthropic.com/claude-fable-and-mythos-5-2)
 
 ## Top 2 skills, MCP servers and plugins
 
