@@ -16,6 +16,14 @@
     <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 9 to 10 Nov 2026, each with its source and date.</summary>
   </entry>
   <entry>
+    <title>Claude Fable 5.2: price, fast mode, Mythos 5.2 and when to pick it</title>
+    <link href="https://munderdiffl.in/blog/claude-fable-5-2/" />
+    <id>https://munderdiffl.in/blog/claude-fable-5-2/</id>
+    <published>2026-11-10T00:00:00.000Z</published>
+    <updated>2026-11-10T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Fable 5.2 is Anthropic&#39;s model for the hardest technical work. Its price as of 9 Nov 2026, fast mode, Mythos 5.2 and when to pick it.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 9 Nov 2026: Orca Git Graph, Goodbye Claude for Pi, Goldman Pulls Claude Code</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-09/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-09/</id>
@@ -478,13 +486,5 @@
     <published>2026-10-22T00:00:00.000Z</published>
     <updated>2026-10-22T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Claude Duet is Anthropic&#39;s proactive agent app, in research preview since 21 Oct 2026: who can join, how it works, what it asks first and its limits.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 21 Oct 2026: DeepInfer, Voxtral 3, Claude Code 2.1.305</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-21/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-21/</id>
-    <published>2026-10-21T00:00:00.000Z</published>
-    <updated>2026-10-21T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 21 Oct 2026, each with its source.</summary>
   </entry>
 </feed>
