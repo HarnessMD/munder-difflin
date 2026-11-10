@@ -4,9 +4,17 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-09T00:00:00.000Z</updated>
+  <updated>2026-11-10T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 10 Nov 2026: Claude Fable 5.2, an Opus 5.5 Nerf Thread, Orca&#39;s Phone Agents Tab</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-10/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-10/</id>
+    <published>2026-11-10T00:00:00.000Z</published>
+    <updated>2026-11-10T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 9 to 10 Nov 2026, each with its source and date.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 9 Nov 2026: Orca Git Graph, Goodbye Claude for Pi, Goldman Pulls Claude Code</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-09/" />
@@ -14,6 +22,22 @@
     <published>2026-11-09T00:00:00.000Z</published>
     <updated>2026-11-09T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 8 to 9 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>AionUi Alternatives: 5 Apps for Running Teams of AI Agents (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/aionui-alternatives/" />
+    <id>https://munderdiffl.in/blog/aionui-alternatives/</id>
+    <published>2026-11-09T00:00:00.000Z</published>
+    <updated>2026-11-09T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>AionUi is a free Apache 2.0 desktop app over Claude Code, Codex and 20+ agent CLIs. Five alternatives, from Orca to Paperclip, checked 9 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Claude Code Privacy: Your Email Address, Saved Rules and Secrets</title>
+    <link href="https://munderdiffl.in/blog/claude-code-privacy-and-secrets/" />
+    <id>https://munderdiffl.in/blog/claude-code-privacy-and-secrets/</id>
+    <published>2026-11-09T00:00:00.000Z</published>
+    <updated>2026-11-09T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Two Claude Code privacy stories hit Hacker News in Nov 2026. What 2.1.317 changed, where Don&#39;t Ask Again saves rules, and how to deny .env reads.</summary>
   </entry>
   <entry>
     <title>Paperclip Alternatives: 6 Tools for Running a Team of AI Agents (Nov 2026)</title>
@@ -462,29 +486,5 @@
     <published>2026-10-21T00:00:00.000Z</published>
     <updated>2026-10-21T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 21 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Cline Alternatives: 6 Picks and 2 Names to Skip (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/cline-alternatives/" />
-    <id>https://munderdiffl.in/blog/cline-alternatives/</id>
-    <published>2026-10-21T00:00:00.000Z</published>
-    <updated>2026-10-21T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Six Cline alternatives checked on 19 Oct 2026: Kilo Code, Munder Difflin, OpenCode, Codex, Claude Code and Cursor, plus two you can skip, by licence and price.</summary>
-  </entry>
-  <entry>
-    <title>Cursor vs Cline: A Paid Editor and an Open Source Agent Compared</title>
-    <link href="https://munderdiffl.in/blog/cursor-vs-cline/" />
-    <id>https://munderdiffl.in/blog/cursor-vs-cline/</id>
-    <published>2026-10-21T00:00:00.000Z</published>
-    <updated>2026-10-21T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Cursor vs Cline, checked 19 Oct 2026: Cursor&#39;s new X Subscription plans, Cline&#39;s free open source agent, which models each lets you use and which to pick.</summary>
-  </entry>
-  <entry>
-    <title>LiteLLM 1.107.0 Compromise: What It Steals and How to Check Your Machine</title>
-    <link href="https://munderdiffl.in/blog/litellm-1-107-0-compromise/" />
-    <id>https://munderdiffl.in/blog/litellm-1-107-0-compromise/</id>
-    <published>2026-10-21T00:00:00.000Z</published>
-    <updated>2026-10-21T00:00:00.000Z</updated><category term="Guides" />
-    <summary>LiteLLM 1.107.0 on PyPI carried a credential stealer and a backdoor on 21 Oct 2026: who was exposed, how to check without Python, and what to rotate.</summary>
   </entry>
 </feed>
