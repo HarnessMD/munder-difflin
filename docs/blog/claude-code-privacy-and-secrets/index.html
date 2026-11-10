@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude Code Privacy: Your Email Address and Saved Secrets</title>
+<meta name="description" content="Two Claude Code privacy stories hit Hacker News in Nov 2026. What 2.1.317 changed, where Don&#39;t Ask Again saves rules, and how to deny .env reads." />
+<link rel="canonical" href="https://munderdiffl.in/blog/claude-code-privacy-and-secrets/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Claude Code Privacy: Your Email Address and Saved Secrets" />
+<meta property="og:description" content="Two Claude Code privacy stories hit Hacker News in Nov 2026. What 2.1.317 changed, where Don&#39;t Ask Again saves rules, and how to deny .env reads." />
+<meta property="og:url" content="https://munderdiffl.in/blog/claude-code-privacy-and-secrets/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/claude-code-privacy-and-secrets/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A pill reading Guide, the title Claude Code privacy, the line Your email address, saved rules and secrets and a Checked 9 Nov 2026 line. Three small cards reading 2.1.317, settings.local.json and Read(./.env) slide in on the right." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-09T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="Security" />
+<meta property="article:tag" content="Privacy" />
+<meta property="article:tag" content="Guardrails" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Claude Code Privacy: Your Email Address and Saved Secrets" />
+<meta name="twitter:description" content="Two Claude Code privacy stories hit Hacker News in Nov 2026. What 2.1.317 changed, where Don&#39;t Ask Again saves rules, and how to deny .env reads." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/claude-code-privacy-and-secrets/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A pill reading Guide, the title Claude Code privacy, the line Your email address, saved rules and secrets and a Checked 9 Nov 2026 line. Three small cards reading 2.1.317, settings.local.json and Read(./.env) slide in on the right." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Claude Code Privacy: Your Email Address, Saved Rules and Secrets",
+  "description": "Two Claude Code privacy stories hit Hacker News in Nov 2026. What 2.1.317 changed, where Don't Ask Again saves rules, and how to deny .env reads.",
+  "image": ["https://munderdiffl.in/blog/assets/media/claude-code-privacy-and-secrets/hero.png"],
+  "datePublished": "2026-11-09T00:00:00.000Z",
+  "dateModified": "2026-11-09T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/claude-code-privacy-and-secrets/" },
+  "keywords": "claude code privacy, claude code secrets, claude code don't ask again, claude code email address, claude code settings.local.json, claude code deny env file",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/claude-code-privacy-and-secrets/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Claude Code Privacy: Your Email Address, Saved Rules and Secrets", "item": "https://munderdiffl.in/blog/claude-code-privacy-and-secrets/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Does Claude Code send my email address to websites?", "acceptedAnswer": { "@type": "Answer", "text": "A user reported in issue 107757, on 5 Nov 2026, that Claude Code sent their email address in the User-Agent header during web searches. Claude Code 2.1.317, released 3 Nov 2026, added a check that asks before a web or shell tool call sends your account email address to the network. Update to 2.1.317 or later; the report itself lists 2.1.318." } },
+    { "@type": "Question", "name": "Where does Claude Code save Don't Ask Again approvals?", "acceptedAnswer": { "@type": "Answer", "text": "In .claude/settings.local.json at the root of the git repository, as an allow rule. Approvals for Bash commands and WebFetch domains are saved for future sessions. A file edit approval is not saved and lasts until the session ends." } },
+    { "@type": "Question", "name": "How do I remove a saved Claude Code permission rule?", "acceptedAnswer": { "@type": "Answer", "text": "Run /permissions. The dialog lists every permission rule and the settings file it came from, and you can remove a rule there, even while Claude is working." } },
+    { "@type": "Question", "name": "How do I stop Claude Code reading my .env file?", "acceptedAnswer": { "@type": "Answer", "text": "Add Read deny rules such as Read(./.env) and Read(./.env.*) under permissions.deny in a settings file. They cover Claude's file tools and commands like cat, but not a script that opens files itself, so turn on the sandbox for a block that every process obeys." } },
+    { "@type": "Question", "name": "Is .claude/settings.local.json committed to git?", "acceptedAnswer": { "@type": "Answer", "text": "Not by default. The first time Claude Code writes the file, it adds **/.claude/settings.local.json to your global git excludes. If you created the file by hand, add it to .gitignore yourself." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>Claude Code Privacy: Your Email Address, Saved Rules and Secrets</h1>
+    <p class="dek">Two Claude Code privacy stories hit Hacker News in Nov 2026. What 2.1.317 changed, where Don&#39;t Ask Again saves rules, and how to deny .env reads.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-09">Nov 9, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/claude-code-privacy-and-secrets/hero.png" alt="Title card on white. A pill reading Guide, the title Claude Code privacy, the line Your email address, saved rules and secrets and a Checked 9 Nov 2026 line. Three small cards reading 2.1.317, settings.local.json and Read(./.env) slide in on the right." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Two Claude Code stories ran on Hacker News: one says Claude Code sent a user’s email address to websites, the other says “Don’t Ask Again” exposes passwords in public GitHub files. The one thing to do: update to Claude Code 2.1.317 or later, then open <code>/permissions</code> and remove any saved rule with a secret in it. Checked 9 Nov 2026.</p>
+<p>Below is what each says and what Anthropic’s own release notes and docs say to change. If constant prompts are your real problem, start with <a href="/blog/why-does-claude-code-keep-asking-for-permission/">why Claude Code keeps asking for permission</a>.</p>
+<p>We make <a href="https://harnessmd.com/download">Munder Difflin</a>, free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.</p>
+<h2 id="what-happened-with-claude-code-and-email-addresses" tabindex="-1">What happened with Claude Code and email addresses? <a class="anchor" href="#what-happened-with-claude-code-and-email-addresses" aria-hidden="true">#</a></h2>
+<p>A user reported that Claude Code put their email address in a request header sent to websites during web searches. The Hacker News post <a href="https://news.ycombinator.com/item?id=50385272">Claude Code sends your email address to websites</a>, from 5 Nov 2026, had 1,603 points and 533 comments on 9 Nov. It links <a href="https://github.com/anthropics/claude-code/issues/107757">issue 107757</a> on Anthropic’s Claude Code repository.</p>
+<p>The reporter’s claim, in their words: Claude Code “divulged my email to arbitrary 3rd parties in the <code>User-Agent</code> request header while conducting web searches without my permission.” The report lists version 2.1.318 on macOS. On 9 Nov the issue was still open, with more than 100 comments.</p>
+<h2 id="which-claude-code-version-has-the-email-check" tabindex="-1">Which Claude Code version has the email check? <a class="anchor" href="#which-claude-code-version-has-the-email-check" aria-hidden="true">#</a></h2>
+<p>Version 2.1.317 or later. Anthropic’s <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.317">v2.1.317 release notes</a>, published 3 Nov 2026, list this line word for word: “Added a check that asks before a web or shell tool call sends your account email address to the network”. The newest release on 9 Nov was <a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.319">v2.1.319</a>, from 6 Nov.</p>
+<figure class="mg" data-scene="postcard"><img src="/blog/assets/media/claude-code-privacy-and-secrets/postcard.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A postcard slides across a desk toward a slot and stops when a card pops up reading Send your email address? with two buttons, Allow and Deny. Tap Deny and the postcard slides back to the desk."><figcaption>Claude Code 2.1.317 added a check that asks before a web or shell tool call sends your account email address. Release notes, 3 Nov 2026.</figcaption></figure>
+<p>One reply on the issue, posted on 5 Nov, speaks as “we”: “We introduced a built-in mod called <code>cc-plugin-privacy</code> to deterministically block this behavior in v2.1.317 and later”. It adds that the mod “is enabled by default, you can turn it off via <code>/plugins</code>”. GitHub marks the author as a contributor to the repository, and the page doesn’t say they work at Anthropic. Note that the report lists 2.1.318, a later release than 2.1.317.</p>
+<p>Our view: update and leave that mod on.</p>
+<h2 id="what-is-the-dont-ask-again-story" tabindex="-1">What is the “Don’t Ask Again” story? <a class="anchor" href="#what-is-the-dont-ask-again-story" aria-hidden="true">#</a></h2>
+<p>It is a Hacker News post titled <a href="https://news.ycombinator.com/item?id=50407882">Claude Code’s “Don’t Ask Again” exposes passwords in 1,122 public GitHub files</a>, posted 7 Nov 2026 and on 596 points on 9 Nov. It links a write up by Apiiro, on <a href="http://apiiro.com">apiiro.com</a>. We cover only its title here.</p>
+<p>By the fortieth prompt of the day, “don’t ask again” is the most tempting button on the screen, so it helps to know what it writes down.</p>
+<h2 id="where-does-dont-ask-again-save-your-approvals" tabindex="-1">Where does “Don’t ask again” save your approvals? <a class="anchor" href="#where-does-dont-ask-again-save-your-approvals" aria-hidden="true">#</a></h2>
+<p>In <code>.claude/settings.local.json</code> at the root of the git repository. The <a href="https://code.claude.com/docs/en/permissions">permissions docs</a> say: “When you choose “Yes, and don’t ask again” and the approval saves permanently, such as for a Bash command or a WebFetch domain, Claude Code saves the rule to <code>.claude/settings.local.json</code> at the root of the git repository”. The rule then applies to future sessions anywhere in that repository, worktrees included. A file edit approval is not saved; it lasts until the session ends.</p>
+<p>Approving a compound command saves “a separate rule for each subcommand that requires approval”, up to 5 rules. Our view: a saved Bash rule is built from the command text, so a command with a password typed into it can leave that password in the file.</p>
+<figure class="mg" data-scene="typewriter"><img src="/blog/assets/media/claude-code-privacy-and-secrets/typewriter.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A typewriter types the line Bash(npm test *) onto a sheet headed settings.local.json, and the sheet rolls up to show the typed line. Tap the sheet and it rolls back down and the line types again."><figcaption>Yes, and don't ask again saves a Bash rule to .claude/settings.local.json at the repository root. Claude Code docs, checked 9 Nov 2026.</figcaption></figure>
+<p>The file is meant to stay out of git. The <a href="https://code.claude.com/docs/en/settings">settings docs</a> say that the first time Claude Code writes it, “it adds <code>**/.claude/settings.local.json</code> to your global git excludes file”. But: “If you created the file by hand and Claude Code hasn’t written to it yet, add it to <code>.gitignore</code> yourself.” And the <a href="https://code.claude.com/docs/en/permissions">permissions docs</a> say that when the file is tracked in git, Claude Code “treats it as repository-supplied instead and holds its rules until you trust the folder.”</p>
+<h2 id="how-do-you-review-and-remove-saved-rules" tabindex="-1">How do you review and remove saved rules? <a class="anchor" href="#how-do-you-review-and-remove-saved-rules" aria-hidden="true">#</a></h2>
+<p>Run <code>/permissions</code>. The docs say: “The dialog lists all permission rules and the <code>settings.json</code> file each rule comes from.” You can add or remove a rule there, even while Claude is working. Rules are checked deny first, then ask, then allow, so a matching deny always wins.</p>
+<p>A short routine we think is worth five minutes:</p>
+<ul>
+<li>Open <code>/permissions</code> and read every allow rule.</li>
+<li>Remove any rule with a password, token or key inside it.</li>
+<li>Change that secret, since it sat in a file on your disk.</li>
+<li>Make sure <code>.claude/settings.local.json</code> is not tracked in your repository.</li>
+</ul>
+<h2 id="how-do-you-keep-env-files-out-of-reach" tabindex="-1">How do you keep .env files out of reach? <a class="anchor" href="#how-do-you-keep-env-files-out-of-reach" aria-hidden="true">#</a></h2>
+<p>Add <code>Read</code> deny rules. This is the docs’ own example for <code>~/.claude/settings.json</code>, which lets your lint and test commands run without asking “and stop it reading <code>.env</code> files” (<a href="https://code.claude.com/docs/en/settings">Settings</a>):</p>
+<pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"$schema"</span><span class="token operator">:</span> <span class="token string">"https://json.schemastore.org/claude-code-settings.json"</span><span class="token punctuation">,</span>
+  <span class="token property">"permissions"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"allow"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token string">"Bash(npm run lint)"</span><span class="token punctuation">,</span>
+      <span class="token string">"Bash(npm run test *)"</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token property">"deny"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token string">"Read(./.env)"</span><span class="token punctuation">,</span>
+      <span class="token string">"Read(./.env.*)"</span>
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>A <code>Read</code> deny rule also blocks the Edit and Write tools on that path, and it covers file commands Claude Code recognizes in Bash, “such as <code>cat</code>, <code>head</code>, <code>tail</code>, <code>sed</code>, and <code>tee</code>” (<a href="https://code.claude.com/docs/en/permissions#read-and-edit">Read and Edit rules</a>). It has limits, in the docs’ words: the rules “don’t apply to a command that reads files without naming them, such as <code>grep -r pattern .</code> run from the directory that holds the file”, or to “a Python or Node script that opens files itself”. For a block every process obeys, the docs point you to the sandbox. And a <code>.claudeignore</code> file “has no effect, so move its entries into <code>Read</code> deny rules.”</p>
+<figure class="mg" data-scene="strainer"><img src="/blog/assets/media/claude-code-privacy-and-secrets/strainer.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Small file cards pour into a kitchen strainer; cards named notes and README pass through, while the card named .env stays in the mesh under the words Read(./.env) denied. Tap the strainer and it shakes, and the .env card still stays."><figcaption>A Read deny rule such as Read(./.env) blocks Claude's file tools and recognized commands like cat. Claude Code docs, checked 9 Nov 2026.</figcaption></figure>
+<h2 id="which-permission-mode-should-you-use" tabindex="-1">Which permission mode should you use? <a class="anchor" href="#which-permission-mode-should-you-use" aria-hidden="true">#</a></h2>
+<p>For a repository with secrets nearby, Manual mode, which the docs call <code>default</code>: it “Prompts for permission on first use of each tool”. The <a href="https://code.claude.com/docs/en/permissions#permission-modes">modes table</a> lists six modes:</p>
+<ul>
+<li><code>default</code>: prompts on first use of each tool.</li>
+<li><code>acceptEdits</code>: accepts file edits and common file commands in the working directory.</li>
+<li><code>plan</code>: reads and explores but doesn’t edit your source files.</li>
+<li><code>auto</code>: a background classifier checks actions such as shell commands and network requests.</li>
+<li><code>dontAsk</code>: denies every call that would otherwise prompt.</li>
+<li><code>bypassPermissions</code>: skips prompts, except for the actions no mode auto approves.</li>
+</ul>
+<p>To change the mode new sessions start in, set <code>defaultMode</code> in a settings file. Our view: pick the mode for the task, but write the deny rules before you need them.</p>
+<h2 id="where-to-read-next" tabindex="-1">Where to read next <a class="anchor" href="#where-to-read-next" aria-hidden="true">#</a></h2>
+<p>For the wider picture, read <a href="/blog/security-for-ai-coding-agents/">security for AI coding agents</a>, <a href="/blog/agent-security-and-sandboxing/">agent security and sandboxing</a> and the <a href="/blog/claude-code-max-plan-tips/">Claude Code Max plan tips</a>. Our <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers the desktop app.</p>
+<link rel="stylesheet" href="/blog/assets/media/claude-code-privacy-and-secrets/motion.css"><script defer src="/blog/assets/media/claude-code-privacy-and-secrets/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Does Claude Code send my email address to websites?</p>
+          <p class="a">A user reported in issue 107757, on 5 Nov 2026, that Claude Code sent their email address in the User-Agent header during web searches. Claude Code 2.1.317, released 3 Nov 2026, added a check that asks before a web or shell tool call sends your account email address to the network. Update to 2.1.317 or later; the report itself lists 2.1.318.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Where does Claude Code save Don&#39;t Ask Again approvals?</p>
+          <p class="a">In .claude/settings.local.json at the root of the git repository, as an allow rule. Approvals for Bash commands and WebFetch domains are saved for future sessions. A file edit approval is not saved and lasts until the session ends.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I remove a saved Claude Code permission rule?</p>
+          <p class="a">Run /permissions. The dialog lists every permission rule and the settings file it came from, and you can remove a rule there, even while Claude is working.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I stop Claude Code reading my .env file?</p>
+          <p class="a">Add Read deny rules such as Read(./.env) and Read(./.env.*) under permissions.deny in a settings file. They cover Claude&#39;s file tools and commands like cat, but not a script that opens files itself, so turn on the sandbox for a block that every process obeys.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is .claude/settings.local.json committed to git?</p>
+          <p class="a">Not by default. The first time Claude Code writes the file, it adds **/.claude/settings.local.json to your global git excludes. If you created the file by hand, add it to .gitignore yourself.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/security/">Security</a><a class="tag" href="/blog/tags/privacy/">Privacy</a><a class="tag" href="/blog/tags/guardrails/">Guardrails</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-happened-with-claude-code-and-email-addresses">What happened with Claude Code and email addresses?</a></li><li class="lvl-2"><a href="#which-claude-code-version-has-the-email-check">Which Claude Code version has the email check?</a></li><li class="lvl-2"><a href="#what-is-the-dont-ask-again-story">What is the “Don’t Ask Again” story?</a></li><li class="lvl-2"><a href="#where-does-dont-ask-again-save-your-approvals">Where does “Don’t ask again” save your approvals?</a></li><li class="lvl-2"><a href="#how-do-you-review-and-remove-saved-rules">How do you review and remove saved rules?</a></li><li class="lvl-2"><a href="#how-do-you-keep-env-files-out-of-reach">How do you keep .env files out of reach?</a></li><li class="lvl-2"><a href="#which-permission-mode-should-you-use">Which permission mode should you use?</a></li><li class="lvl-2"><a href="#where-to-read-next">Where to read next</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/paperclip-alternatives/"><span class="k">← Older</span><span class="t">Paperclip Alternatives: 6 Tools for Running a Team of AI Agents (Nov 2026)</span></a>
+      <a class="pn next" href="/blog/aionui-alternatives/"><span class="k">Newer →</span><span class="t">AionUi Alternatives: 5 Apps for Running Teams of AI Agents (Nov 2026)</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/how-to-run-mistral-large-4/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-run-mistral-large-4/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-29">Oct 29, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/how-to-run-mistral-large-4/">How to Run Mistral Large 4 Locally: Hardware, GGUF Sizes and vLLM (Oct 2026)</a></h3>
+    <p class="dek">Mistral Large 4 weights are out. Which file fits your memory, the llama.cpp and vLLM commands, the GPUs Mistral validated and the licence, checked 29 Oct 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/how-to-run-mistral-large-4/" aria-label="Read: How to Run Mistral Large 4 Locally: Hardware, GGUF Sizes and vLLM (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/claude-md-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-md-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-26">Oct 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/claude-md-best-practices/">CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)</a></h3>
+    <p class="dek">CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/claude-md-best-practices/" aria-label="Read: CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/codex-computer-use/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/codex-computer-use/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-10-26">Oct 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/codex-computer-use/">Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)</a></h3>
+    <p class="dek">Codex computer use lets the ChatGPT desktop app see and click apps on macOS and Windows. Setup, which plans get it, locked use and how Claude&#39;s compares.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/codex-computer-use/" aria-label="Read: Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

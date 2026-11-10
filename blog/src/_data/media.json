@@ -3497,6 +3497,39 @@
     },
     "inline": {}
   },
+  "claude-code-privacy-and-secrets": {
+    "title": "Claude Code Privacy: Your Email Address, Saved Rules and Secrets",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/claude-code-privacy-and-secrets/hero.png",
+      "alt": "Title card on white. A pill reading Guide, the title Claude Code privacy, the line Your email address, saved rules and secrets and a Checked 9 Nov 2026 line. Three small cards reading 2.1.317, settings.local.json and Read(./.env) slide in on the right.",
+      "prompt": "Title card: the hero scene in assets/media/claude-code-privacy-and-secrets/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "aionui-alternatives": {
+    "title": "AionUi Alternatives: 5 Apps for Running Teams of AI Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/aionui-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title AionUi alternatives, the line 5 apps for running teams of AI agents and a Checked 9 Nov 2026 line. Five small tiles named Orca, Munder Difflin, OpenWork, Claude Cowork and Paperclip slide in under a grey tile labelled AionUi.",
+      "prompt": "Title card: the hero scene in assets/media/aionui-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-10": {
+    "title": "Agent Tools Today, 10 Nov 2026: Claude Fable 5.2, an Opus 5.5 Nerf Thread, Orca's Phone Agents Tab",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
   "the-hook-shim-pattern": {
     "title": "The Hook Shim Pattern: Wiring Agent Hooks to a Live Process",
     "category": "internals",
