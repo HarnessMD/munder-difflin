@@ -37,7 +37,7 @@ The human-approval layer without a deterministic monitor fails against approval 
 This paper makes three critical points about defending tool-using agents:
 
 1. **Deterministic enforcement beats prompt engineering.** No matter how clever your prompt, if the model processes injected instructions from data, you need enforcement outside the model.
-2. **The task-bound monitor is the gold standard.** It holds severe actions at 0% attack success even under adaptive attacks in simulation. The cost? VM resources, maintenance, and residual risks from secrets accessible inside the VMs and permitted network access.
+2. **The task-bound monitor is the gold standard.** It holds severe actions at 0% attack success even under adaptive attacks in simulation. The trade-off? You must precisely define the allowed action space — anything outside it is blocked, which means your monitor's specification becomes as critical as the model itself.
 3. **Layer defense, but prioritize determinism.** Human approval + taint tracking reduces residual harm by 62%, but only when paired with a deterministic monitor. Without it, approval spamming defeats human review.
 
 [arxiv.org/abs/2611.11571](https://arxiv.org/abs/2611.11571)
