@@ -5829,5 +5829,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-11-11": {
+    "title": "Agent Tools Today, 11 Nov 2026: Claude Sheets and Whiteboards, AlphaProof Code, Strands Decider",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-browse-vs-agent-browser": {
+    "title": "OpenCode Browse vs agent-browser: Your Browser or a CLI (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/opencode-browse-vs-agent-browser/hero.png",
+      "alt": "Title card on white. A pill reading Versus, the title OpenCode Browse vs agent-browser, the line Two browser tools for coding agents and a Checked 11 Nov 2026 line. Two small puzzle trays labelled Browse and agent-browser sit underneath.",
+      "prompt": "Title card: the hero scene in assets/media/opencode-browse-vs-agent-browser/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "turnstone-alternatives": {
+    "title": "Turnstone Alternatives: 5 Tools Like Turnstone for AI Teammates (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/turnstone-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Turnstone alternatives, the line 5 tools like Turnstone for AI teammates and a Checked 11 Nov 2026 line. Five small tiles named Claude Cowork, Munder Difflin, Grok Bot, Perplexity Teammates and OpenClaw slide in under a grey tile labelled Turnstone.",
+      "prompt": "Title card: the hero scene in assets/media/turnstone-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

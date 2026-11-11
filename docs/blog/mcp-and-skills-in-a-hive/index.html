@@ -196,6 +196,7 @@ thing you want is a harness that makes you redo all of it per agent. The good ne
 design principle that makes a hive practical is that <strong>every agent is a genuine Claude Code session</strong>,
 so your existing setup is inherited, not replaced. This post explains exactly how that works and how to
 scope tools when you want different agents to have different capabilities.</p>
+<p>If you want your agents to drive a browser, <a href="/blog/opencode-browse-vs-agent-browser/">OpenCode Browse vs agent-browser</a> compares an MCP server that uses your own browser with a CLI that runs its own.</p>
 <h2 id="why-inheritance-is-automatic" tabindex="-1">Why inheritance is automatic <a class="anchor" href="#why-inheritance-is-automatic" aria-hidden="true">#</a></h2>
 <p>Start from what a hive agent actually <em>is</em>. When the harness spawns an agent, it doesn’t reimplement
 Claude or run some stripped-down clone. It launches the real <code>claude</code> CLI in your project directory,

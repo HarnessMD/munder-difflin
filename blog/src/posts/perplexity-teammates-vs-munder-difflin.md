@@ -24,6 +24,8 @@ faq:
 
 Our view: pick Perplexity Teammates if you already pay for Max and want hosted agents that watch ongoing work in their own browsers, and Munder Difflin if you want a team of agents for all kinds of knowledge work, coding included, on your own computer. Checked 7 Nov 2026.
 
+If Turnstone is on your list too, see [Turnstone alternatives](/blog/turnstone-alternatives/).
+
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Other matchups live in the [Comparisons hub](/blog/topics/comparisons/).
 
 ## What are Perplexity Teammates?
