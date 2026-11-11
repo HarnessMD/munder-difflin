@@ -16,6 +16,14 @@
     <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 10 to 11 Nov 2026, each with its source and date.</summary>
   </entry>
   <entry>
+    <title>Maxxwell Alternatives: 5 Tools for Running Many Coding Agents at Once (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/maxxwell-alternatives/" />
+    <id>https://munderdiffl.in/blog/maxxwell-alternatives/</id>
+    <published>2026-11-11T00:00:00.000Z</published>
+    <updated>2026-11-11T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Maxxwell, from YC startup Rindler, runs coding agents in one window under an orchestrator. Five alternatives, from Orca to Agent Deck, checked 11 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>OpenCode Browse vs agent-browser: Your Browser or a CLI (Nov 2026)</title>
     <link href="https://munderdiffl.in/blog/opencode-browse-vs-agent-browser/" />
     <id>https://munderdiffl.in/blog/opencode-browse-vs-agent-browser/</id>
@@ -24,12 +32,28 @@
     <summary>OpenCode Browse lets agents drive your signed in browser over MCP; agent-browser is a Rust CLI with its own Chrome. Setup, licence and picks, 11 Nov 2026.</summary>
   </entry>
   <entry>
+    <title>Reason Machines Alternatives: 5 Tools Like Reason for Team Coding Agents (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/reason-machines-alternatives/" />
+    <id>https://munderdiffl.in/blog/reason-machines-alternatives/</id>
+    <published>2026-11-11T00:00:00.000Z</published>
+    <updated>2026-11-11T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Reason Machines runs coding agents that work beside Claude Code and Codex. Five alternatives, from Devin to Cursor Cloud Agents, checked 11 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>Turnstone Alternatives: 5 Tools Like Turnstone for AI Teammates (Nov 2026)</title>
     <link href="https://munderdiffl.in/blog/turnstone-alternatives/" />
     <id>https://munderdiffl.in/blog/turnstone-alternatives/</id>
     <published>2026-11-11T00:00:00.000Z</published>
     <updated>2026-11-11T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Turnstone runs AI teammates on the subscriptions you already pay for, on a Mac. Five alternatives, from Claude Cowork to OpenClaw, checked 11 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>What is NVIDIA OpenShell? The agent sandbox, explained</title>
+    <link href="https://munderdiffl.in/blog/what-is-nvidia-openshell/" />
+    <id>https://munderdiffl.in/blog/what-is-nvidia-openshell/</id>
+    <published>2026-11-11T00:00:00.000Z</published>
+    <updated>2026-11-11T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>NVIDIA OpenShell runs AI agents in a sandbox with file, network and credential policy. What it is, how to install it, what v0.1.8 changed, alternatives.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 10 Nov 2026: Claude Fable 5.2, an Opus 5.5 Nerf Thread, Orca&#39;s Phone Agents Tab</title>
@@ -462,29 +486,5 @@
     <published>2026-10-22T00:00:00.000Z</published>
     <updated>2026-10-22T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 22 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>Build Your Own Claude Duet: A Free Morning Brief Agent</title>
-    <link href="https://munderdiffl.in/blog/build-your-own-claude-duet/" />
-    <id>https://munderdiffl.in/blog/build-your-own-claude-duet/</id>
-    <published>2026-10-22T00:00:00.000Z</published>
-    <updated>2026-10-22T00:00:00.000Z</updated><category term="Guides" />
-    <summary>No Claude Duet invite? Build a proactive morning brief in Munder Difflin: one agent, one schedule and Slack replies, with a codebase as the example.</summary>
-  </entry>
-  <entry>
-    <title>Claude API Version 2026-10-21: What Breaks and How to Upgrade</title>
-    <link href="https://munderdiffl.in/blog/claude-api-version-2026-10-21/" />
-    <id>https://munderdiffl.in/blog/claude-api-version-2026-10-21/</id>
-    <published>2026-10-22T00:00:00.000Z</published>
-    <updated>2026-10-22T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Claude API version 2026-10-21 removes temperature, top_p and top_k and ships new SDK majors. What returns a 400 now, what breaks proxies, and how to upgrade.</summary>
-  </entry>
-  <entry>
-    <title>Claude Duet Alternatives: 4 AI Agents You Can Use Today, No Waitlist</title>
-    <link href="https://munderdiffl.in/blog/claude-duet-alternatives/" />
-    <id>https://munderdiffl.in/blog/claude-duet-alternatives/</id>
-    <published>2026-10-22T00:00:00.000Z</published>
-    <updated>2026-10-22T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Claude Duet is waitlisted and US only. Four proactive agents you can run today, sorted by where they run: a vendor&#39;s cloud or hardware you control.</summary>
   </entry>
 </feed>

@@ -84,6 +84,6 @@ Our view: it depends on what fills your day. Pick Orchestrator.inc if most of it
 
 Pick Munder Difflin if you want one orchestrator running a team across research, writing, ops and code, with work arriving from Slack or webhooks, on your own computer.
 
-Both run Claude Code and Codex, so starting with one does not lock you out of the other. For other matchups, read [Orca vs Munder Difflin](/blog/orca-vs-munder-difflin/) or our [Conductor alternatives](/blog/conductor-alternatives/) roundup.
+Both run Claude Code and Codex, so starting with one does not lock you out of the other. For other matchups, read [Orca vs Munder Difflin](/blog/orca-vs-munder-difflin/) or our [Conductor alternatives](/blog/conductor-alternatives/) roundup. If you are weighing Reason Machines too, our [Reason Machines alternatives](/blog/reason-machines-alternatives/) page sets it against five other tools.
 
 <link rel="stylesheet" href="/blog/assets/media/orchestrator-inc-vs-munder-difflin/motion.css"><script defer src="/blog/assets/media/orchestrator-inc-vs-munder-difflin/motion.js"></script>

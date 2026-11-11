@@ -5862,5 +5862,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "reason-machines-alternatives": {
+    "title": "Reason Machines Alternatives: 5 Tools Like Reason for Team Coding Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/reason-machines-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Reason Machines alternatives, the line 5 tools like Reason for team coding agents and a Checked 11 Nov 2026 line. Five small tiles named Devin, Munder Difflin, OpenAI Codex cloud, Claude Code on the web and Cursor Cloud Agents slide in under a grey tile labelled Reason Machines.",
+      "prompt": "Title card: the hero scene in assets/media/reason-machines-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "maxxwell-alternatives": {
+    "title": "Maxxwell Alternatives: 5 Tools for Running Many Coding Agents at Once (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/maxxwell-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Maxxwell alternatives, the line 5 tools for running many coding agents at once and a Checked 11 Nov 2026 line. Five small tiles named Orca, Munder Difflin, Paradev, AionUi and Agent Deck slide in under a grey tile labelled Maxxwell.",
+      "prompt": "Title card: the hero scene in assets/media/maxxwell-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-nvidia-openshell": {
+    "title": "What is NVIDIA OpenShell? The agent sandbox, explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-nvidia-openshell/hero.png",
+      "alt": "Title card on white. A pill reading Explainer, the title What is NVIDIA OpenShell?, the line The agent sandbox, explained and a Checked 11 Nov 2026 line. Under it a small glass terrarium holds a sprout labelled Agent.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-nvidia-openshell/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
