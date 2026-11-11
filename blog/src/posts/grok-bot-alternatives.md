@@ -28,27 +28,21 @@ The best Grok Bot alternatives are ChatGPT dots for another always on agent with
 
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.
 
-By Grok Bot we mean SpaceXAI's agent app, hosted by Cursor, not the Grok chatbot on X.
-
 ## What is Grok Bot?
 
-Grok Bot is a team of AI agents, called Bots, that work on a cloud computer of their own. SpaceXAI [announced it in beta](https://x.ai/news/introducing-grok-bot) on 11 Aug 2026. A Bot signs into your tools, works across apps and websites, and comes back when it needs your approval. SpaceXAI's FAQ says closing the app, laptop or phone does not stop a background turn or routine.
-
-The pitch is a chief of staff Bot on top with a specialist for each lane: inbox, expenses, recruiting, bug fixes. That is a [multi agent harness](/blog/what-is-a-multi-agent-harness/), hosted for you.
-
-[Cursor's Grok Bot plans page](https://cursor.com/help/grok-bot/plans) says access comes with every paid individual Cursor plan and Cursor Teams. Cursor's Individual plan started at $20 a month on 30 Sep 2026. Desktop builds cover macOS, Windows and Linux, with apps for iPhone and Android. [Grok Bot pricing](/blog/grok-bot-pricing/) walks through every tier.
+Grok Bot is a team of AI agents, called Bots, that work on a cloud computer of their own. SpaceXAI [announced it in beta](https://x.ai/news/introducing-grok-bot) on 11 Aug 2026. Bots sign into your tools and ask for approval when needed: a [multi agent harness](/blog/what-is-a-multi-agent-harness/), hosted for you. SpaceXAI's FAQ says closing the app does not stop a background turn or routine. [Cursor's Grok Bot plans page](https://cursor.com/help/grok-bot/plans) says access comes with every paid individual Cursor plan and Cursor Teams; [Grok Bot pricing](/blog/grok-bot-pricing/) has every tier.
 
 ## Why look for a Grok Bot alternative?
 
 People leave over where it runs, what each Bot can reach and who picks the model, all set out in SpaceXAI's [security FAQ](https://docs.x.ai/grok-bot/security-faq) (read 30 Sep 2026).
 
-**It only runs in Cursor's cloud, in the United States today.** On premises and bring your own image deployments are not supported. Each user gets an isolated microVM. If you'd rather keep work on your desk, read [why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/).
+**It only runs in Cursor's cloud, in the United States today.** No on premises or bring your own image deployments. See [why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/).
 
 {% img "note-1" %}
 
-**Every Bot shares one computer.** The security FAQ tells you to treat a login or file on that computer as available to every Bot you run, and the general [Grok Bot FAQ](https://docs.x.ai/grok-bot/faq) says plainly not to use separate Bots as a security boundary. Your errands Bot's shop login is your recruiting Bot's too. Auto Review checks shell commands and plugin calls, but not every side effect, memory writes included.
+**Every Bot shares one computer.** The security FAQ says to treat its logins and files as every Bot's, and the [Grok Bot FAQ](https://docs.x.ai/grok-bot/faq) says separate Bots are no security boundary.
 
-**Cursor picks the model.** There is no model picker. Enterprise teams can set an allowlist, and onboarding warns that Grok Bot may not follow it. A helper that reads the open web, holds your logins and can send email is the risky mix called [the lethal trifecta](/blog/the-lethal-trifecta-for-coding-agents/).
+**Cursor picks the model.** Enterprise allowlists exist, but onboarding warns Grok Bot may not follow them. A helper that reads the open web, holds your logins and sends email is [the lethal trifecta](/blog/the-lethal-trifecta-for-coding-agents/).
 
 {% img "note-2" %}
 
@@ -56,60 +50,58 @@ People leave over where it runs, what each Bot can reach and who picks the model
 
 Nine, each tagged with where it runs: four in a vendor's cloud, one hosted with a local mode, and four on hardware you control.
 
-**1. ChatGPT dots (OpenAI's cloud).** The closest match. OpenAI launched dots on 29 Sep 2026: an always on agent with its own cloud computer and browser, plugins for over 4,000 apps, scheduled tasks, and a read only background mode that looks for ways to help. At launch you get one primary dot, not a team. Your first dot comes with Pro or Business Premium, and personal Pro skips the EEA, Switzerland and the UK. Our [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/) list asks the same question from OpenAI's side.
+**1. ChatGPT dots (OpenAI's cloud).** The closest match, launched 29 Sep 2026, with plugins for over 4,000 apps. See [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/).
 
 **2. Munder Difflin (your computer).** [Munder Difflin](https://harnessmd.com/download) is what we make. It is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Each agent runs on an engine you choose, such as Claude Code, Codex or Gemini CLI. A Slack message or a webhook can start work, and skills, plugins and MCP servers add what your agents can reach. Agents work while your computer is on; the Cloud Office, where work goes on with your computer off, is coming soon. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
-**3. ChatGPT Work (OpenAI's cloud, or your desktop).** Work is ChatGPT's agent for longer jobs. OpenAI's [Work help page](https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex) says it runs in the cloud for eligible paid plans, can use local files in the desktop app with your permission, and can run on a schedule or when a Gmail, Slack or GitHub event fires. Unlike Grok Bot, it has a model picker.
+**3. ChatGPT Work (OpenAI's cloud, or your desktop).** OpenAI's [Work help page](https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex) says it runs in the cloud, can use local files in the desktop app and can start on a schedule or a Gmail, Slack or GitHub event.
 
-**4. Claude Cowork (Anthropic's cloud).** Anthropic's [Cowork help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says the work runs on Anthropic's servers in an isolated environment (in beta), scheduled tasks don't need your computer awake, and Claude asks before permanently deleting files. Since 16 Sep 2026 Anthropic has been folding Cowork into the main Claude app, Pro and Max first. It is on paid Claude plans; Claude Pro was $20 a month, billed monthly, on 30 Sep 2026.
+**4. Claude Cowork (Anthropic's cloud).** Anthropic's [Cowork help page](https://support.claude.com/en/articles/13345190-get-started-with-cowork) says it runs on Anthropic's servers (in beta) and scheduled tasks don't need your computer awake.
 
-**5. Gemini Spark (Google's cloud and your Chrome).** Google's [Spark help page](https://support.google.com/gemini/answer/17094507) says it needs Google AI Pro or Ultra, a personal Google account and an age of 18 or over, and asks before sending messages, changing data or buying things. If your device goes off mid task, Spark might finish in a remote browser.
+**5. Gemini Spark (Google's cloud and your Chrome).** Google's [Spark help page](https://support.google.com/gemini/answer/17094507) says it needs Google AI Pro or Ultra and might finish in a remote browser if your device goes off.
 
-**6. Meta Muse (Meta's cloud).** On 29 Sep 2026 [Meta called Muse](https://about.fb.com/news/2026/09/introducing-muse-small-business/) "a personal AI agent available in the US and Canada". It runs in a dedicated virtual machine, keeps working after you close the app, and is free for most use. Meta's subscriptions page listed Power at $20 a month and Max at $100 on 30 Sep 2026. See [Meta Muse vs Grok Bot](/blog/meta-muse-vs-grok-bot/).
+**6. Meta Muse (Meta's cloud).** On 29 Sep 2026 [Meta called Muse](https://about.fb.com/news/2026/09/introducing-muse-small-business/) "a personal AI agent available in the US and Canada". Meta's subscriptions page listed Power at $20 a month and Max at $100 on 30 Sep 2026. See [Meta Muse vs Grok Bot](/blog/meta-muse-vs-grok-bot/).
 
-**7. OpenClaw (your computer).** [OpenClaw](https://github.com/openclaw/openclaw) is the closest thing to a personal assistant you own. It answers in WhatsApp, Telegram, Slack, iMessage and 20+ other channels, keeps state, memory and credentials on your hardware, and treats models, local ones included, as swappable plugins. There is no paid tier. The catch: tools run straight on your machine in the main session unless you set up sandboxing.
+**7. OpenClaw (your computer).** [OpenClaw](https://github.com/openclaw/openclaw) is a personal assistant you own, answering in WhatsApp, Telegram, Slack, iMessage and 20+ other channels. The catch: tools run straight on your machine in the main session unless you set up sandboxing.
 
-**8. Hermes Agent (your computer or server).** [Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is the pick if memory matters most. It curates its own memory, writes skills after complex tasks, runs cron jobs and talks over Telegram, Slack, WhatsApp or Signal. `hermes model` switches between providers such as OpenRouter, OpenAI or your own endpoint.
+**8. Hermes Agent (your computer or server).** [Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is the pick if memory matters most: it curates its own memory and writes skills after complex tasks.
 
-**9. NanoClaw (your computer, in containers).** [NanoClaw](https://github.com/nanocoai/nanoclaw) is the direct fix for Grok Bot's shared computer. Each agent group gets its own Linux container and memory and sees only the folders you mount. It runs on Anthropic's Claude Agent SDK by default and needs Docker.
+**9. NanoClaw (your computer, in containers).** [NanoClaw](https://github.com/nanocoai/nanoclaw) is the direct fix for Grok Bot's shared computer: each agent group gets its own Linux container and sees only the folders you mount.
 
 ## How do the Grok Bot alternatives compare?
 
-The split that matters is whether work carries on with your laptop shut. Vendor pages and GitHub releases were read on 30 Sep 2026 (OpenClaw v2026.9.7, Hermes Agent v2026.9.24, NanoClaw v2.4.0).
+The split that matters is whether work carries on with your laptop shut. Versions read on 30 Sep 2026: OpenClaw v2026.9.7, Hermes Agent v2026.9.24, NanoClaw v2.4.0.
 
-| Agent | Runs on | Works with laptop shut | Model choice | Who can get it | Price to start |
+| Agent | Runs on | Laptop shut | Models | Access | Price |
 | --- | --- | --- | --- | --- | --- |
-| Grok Bot | Cursor's cloud, US | Yes | No, Cursor picks | Paid Cursor plans or linked SuperGrok | Cursor Individual, $20/month on 30 Sep 2026. |
-| ChatGPT dots | OpenAI's cloud computer | Yes | OpenAI models | Pro outside EEA, Switzerland, UK; Business Premium | ChatGPT Pro, $100/month on 30 Sep 2026. |
+| Grok Bot | Cursor's cloud, US | Yes | Cursor picks | Paid Cursor, linked SuperGrok | Cursor Individual, $20/month on 30 Sep 2026. |
+| ChatGPT dots | OpenAI's cloud | Yes | OpenAI | Pro (not EEA, Switzerland, UK), Business Premium | ChatGPT Pro, $100/month on 30 Sep 2026. |
 | Munder Difflin | Your computer | While your computer is on; Cloud Office coming soon | Yes, an engine per agent | Anyone on macOS, Windows, Linux | Free and open source. |
-| ChatGPT Work | OpenAI's cloud or your desktop | Yes, for cloud tasks | OpenAI models, with a picker | Eligible paid ChatGPT plans | Included in eligible paid ChatGPT plans. |
-| Claude Cowork | Anthropic's cloud | Yes | Claude models | Paid Claude plans | Claude Pro, $20/month on 30 Sep 2026. |
-| Gemini Spark | Google's cloud and your device | Partly, via a remote browser | Google models | Google AI Pro or Ultra; not EEA, Switzerland, UK, Nigeria | Google AI Pro, price varies by country. |
-| Meta Muse | Meta's cloud VM | Yes | Meta models | US and Canada | Free tier. |
-| OpenClaw | Your computer | Only if it stays on | Yes, hosted or local | Anyone | Free and open source (MIT). |
-| Hermes Agent | Your computer or server | On a server, yes | Yes, any provider | Anyone | Free and open source (MIT). |
-| NanoClaw | Containers on your computer | Only if it stays on | Claude by default, others as add ons | Anyone with Docker | Free and open source (MIT). |
+| ChatGPT Work | OpenAI's cloud or desktop | Cloud tasks | OpenAI, with picker | Eligible paid plans | Included. |
+| Claude Cowork | Anthropic's cloud | Yes | Claude | Paid Claude plans | Claude Pro, $20/month on 30 Sep 2026. |
+| Gemini Spark | Google's cloud, your device | Partly | Google | AI Pro or Ultra; not EEA, Switzerland, UK, Nigeria | Google AI Pro, varies by country. |
+| Meta Muse | Meta's cloud VM | Yes | Meta | US and Canada | Free tier. |
+| OpenClaw | Your computer | If on | Any, local too | Anyone | Free, MIT. |
+| Hermes Agent | Your computer or server | On a server | Any provider | Anyone | Free, MIT. |
+| NanoClaw | Containers on your computer | If on | Claude by default | Docker users | Free, MIT. |
 
 ## Is there a free or open source Grok Bot alternative?
 
-Yes: OpenClaw, Munder Difflin, Hermes Agent and NanoClaw are all free and open source. The software costs nothing, but a model still does. Munder Difflin drives the CLIs you already have, so the Claude or ChatGPT subscription you pay for today does the work.
-
-The trade is setup and uptime: you need a machine that stays on, or a small server, and security becomes your job. Meta Muse is the only hosted pick with a free tier, and only in North America.
+Yes: OpenClaw, Munder Difflin, Hermes Agent and NanoClaw are all free and open source. The software costs nothing, but a model still does. Munder Difflin drives the CLIs you already have, so the Claude or ChatGPT subscription you pay for today does the work. You also need an always on machine, and security is your job.
 
 ## Gemini Spark vs Grok Bot: which is better?
 
-Grok Bot is better for most people outside Google's world, and Spark is better if your day already happens in Gmail and Calendar. Grok Bot gives you several Bots on a persistent cloud computer. Spark is one personal agent in the Gemini app that works from your device, falling back to a remote browser when the device goes off, and it is closed to the EEA, Switzerland, the UK, Nigeria and work or school accounts.
+Grok Bot is better for most people outside Google's world, and Spark is better if your day already happens in Gmail and Calendar. Grok Bot runs several Bots on a persistent cloud computer; Spark is one agent, closed to work or school accounts.
 
 ## Is Grok Bot worth it?
 
-Grok Bot is worth it if you want almost no setup and are fine with the cloud. A team of helpers that works with the lid shut is hard to build yourself. Look elsewhere if you need your data outside the United States, a model you choose, or a wall between one helper and the next.
+Grok Bot is worth it if you want almost no setup and are fine with the cloud. Look elsewhere for data outside the United States, a model you choose, or walls between helpers.
 
-- **Pick ChatGPT dots** if you want the same always on idea from OpenAI and one agent is enough.
+- **Pick ChatGPT dots** for one always on OpenAI agent.
 - **Pick Munder Difflin** if you want a team of agents for research, writing, ops or code, each on the engine that suits it, on your own computer.
-- **Pick Claude Cowork** for reports, files and research in the cloud.
-- **Pick Gemini Spark** if Google apps are your office and you live outside Europe.
+- **Pick Claude Cowork** for cloud reports, files and research.
+- **Pick Gemini Spark** if you live in Google apps, outside Europe.
 - **Pick Meta Muse** for a free hosted agent in the US or Canada.
-- **Pick OpenClaw, Hermes Agent or NanoClaw** if memory, logins and the model must sit on hardware you own.
+- **Pick OpenClaw, Hermes Agent or NanoClaw** to keep everything on your own hardware.
 
 Grok Bot's shared computer is a bit like Dunder Mifflin's shared fridge: fine until someone labels nothing and eats your lunch.

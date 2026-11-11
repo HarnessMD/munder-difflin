@@ -66,7 +66,7 @@ Claude Code has [plan mode](/blog/how-to-use-claude-code-plan-mode/) as a permis
 
 ## Which is safer to let loose on a repo?
 
-Claude Code checks actions before they run; Pi does not ask. Pi's README is direct: "Pi does not include a built-in permission system for restricting filesystem, process, network, or credential access." It suggests three ways to box it in: the Gondolin extension, which routes tools into a local Linux micro VM, plain Docker, or an OpenShell sandbox.
+Claude Code checks actions before they run; Pi does not ask. Pi's README is direct: "Pi does not include a built-in permission system for restricting filesystem, process, network, or credential access." It suggests three ways to box it in: the Gondolin extension, which routes tools into a local Linux micro VM, plain Docker, or an OpenShell sandbox. Our [OpenShell explainer](/blog/what-is-nvidia-openshell/) covers how that sandbox checks files, network calls and credentials against a policy.
 
 Claude Code's permission modes run from Manual, which asks before most edits and commands, to auto, where a classifier reviews actions instead of you; since v2.1.283, new terminal and VS Code sessions start in auto. Neither one replaces a container for untrusted work.
 
