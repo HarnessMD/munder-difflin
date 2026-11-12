@@ -1139,7 +1139,7 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
       <p class="lede" data-r style="--d:2">Your office can look like anything. Visualise your agents however you want and design them a home. Simulations are deterministic: once designed, they run without using tokens.</p>
     </div>
     <figure class="looks" data-r style="--d:3">
-      <video id="officeLooks" data-src="media/office-looks.mp4" poster="media/office-looks-poster.jpg" preload="none" muted playsinline loop controls width="1280" height="720"
+      <video id="officeLooks" poster="media/office-looks-poster.jpg" preload="none" muted playsinline loop controls width="1280" height="720"
              aria-label="Recorded in the app: the Simulation menu switches the same office between looks, from a great hall of study desks to a ship"></video>
       <figcaption>Recorded in the app. Pick a simulation and the same team moves in.</figcaption>
     </figure>
@@ -1457,7 +1457,7 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
   (function () {
     var v = document.getElementById('officeLooks'); if (!v) return;
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var load = function () { if (v.getAttribute('src')) return; v.src = v.getAttribute('data-src'); v.load(); };
+    var load = function () { if (v.getAttribute('src')) return; v.src = 'media/office-looks.mp4'; v.load(); };
     if (!('IntersectionObserver' in window)) { load(); return; }
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
