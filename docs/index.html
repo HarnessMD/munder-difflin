@@ -778,6 +778,19 @@ button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:trans
   .lineup{height:110px;margin-top:56px}
   }
 @media (max-width:389px){.gh .stars svg{display:none}}
+/* THE HERO ON A PHONE (founder, 13 Nov 2026): no Sign in beside the two buttons (it is in the header), the
+   platforms as one quiet row of icons with no words, a bigger headline that keeps its two lines, a smaller lede. */
+@media (max-width:700px){
+  .hero-signin{display:none}
+  .hero .h1{font-size:min(calc((100vw - 20px) / 7.15),64px);max-width:none;margin:26px calc(10px - var(--gut)) 0}
+  .hero .hl{white-space:nowrap}
+  .hero .lede{font-size:15px;line-height:1.5;margin-top:20px}
+  .plats{flex-wrap:nowrap;gap:6px;margin-top:18px}
+  .plats-lab{display:none}
+  .plats .chip{height:30px;width:38px;padding:0;gap:0;justify-content:center}
+  .plats .pl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .plats svg{width:15px;height:15px}
+}
 @media (max-width:374px){.icon-btn.gh{display:none}.nm-more .nm-gh{display:flex}}
 .foot .brand{display:flex}
 @media (max-height:860px) and (min-width:1025px){.pin .lede{display:none}.pin .h2{font-size:clamp(34px,4vw,56px)!important}}
@@ -998,16 +1011,16 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
     <p class="lede" data-r style="--d:2">Use subscriptions you already pay for to run agents in your personal simulation. Works with most providers like Claude, ChatGPT, Grok, Gemini and more. Give your agents your computer or rent one from us.</p>
     <div class="cta-row" data-r style="--d:3">
       <a class="btn btn-acc" data-dl data-mag href="https://harnessmd.com/download"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5.5 8.5L10 13l4.5-4.5M4 17h12"/></svg><span data-dl-label>Download</span></a>
-      <a class="btn btn-line" data-mag href="https://harnessmd.com/signin">Sign in</a>
+      <a class="btn btn-line hero-signin" data-mag href="https://harnessmd.com/signin">Sign in</a>
       <a class="btn btn-line" href="#film" data-mag><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 4.6v10.8c0 .6.7 1 1.2.7l8.4-5.4c.5-.3.5-1 0-1.3L7.7 3.9c-.5-.3-1.2.1-1.2.7z"/></svg>Watch it run</a>
     </div>
     <div class="plats" data-r style="--d:4">
-      <span>Use agents on</span>
-      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.9zM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>Mac</span>
-      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5l7.4-1v7.1H3zm8.3-1.1L21 3v8.6h-9.7zM3 12.5h7.4v7.1L3 18.5zm8.3 0H21V21l-9.7-1.4z"/></svg>Windows</span>
-      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.2 0-3.4 1.9-3.4 4.4 0 1.6.4 2.7-.6 4.1C6.8 12.1 5 14.6 5 17.3c0 .9.2 1.6.6 2.2-.6.4-1 .9-1 1.5h14.8c0-.6-.4-1.1-1-1.5.4-.6.6-1.3.6-2.2 0-2.7-1.8-5.2-3-6.8-1-1.4-.6-2.5-.6-4.1C15.4 3.9 14.2 2 12 2z"/></svg>Linux</span>
-      <span class="chip later" tabindex="0" data-tip="Releasing in v0.6.x" aria-label="iOS, releasing in v0.6.x"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.9zM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>iOS</span>
-      <span class="chip later" tabindex="0" data-tip="Releasing in v0.6.x" aria-label="Android, releasing in v0.6.x"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 18.5a8.5 8.5 0 0117 0z"/><path d="M7.3 11.2L5.4 8M16.7 11.2L18.6 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.6" cy="15" r="1.15" fill="#fff"/><circle cx="15.4" cy="15" r="1.15" fill="#fff"/></svg>Android</span>
+      <span class="plats-lab">Use agents on</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.9zM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg><span class="pl">Mac</span></span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5l7.4-1v7.1H3zm8.3-1.1L21 3v8.6h-9.7zM3 12.5h7.4v7.1L3 18.5zm8.3 0H21V21l-9.7-1.4z"/></svg><span class="pl">Windows</span></span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.2 0-3.4 1.9-3.4 4.4 0 1.6.4 2.7-.6 4.1C6.8 12.1 5 14.6 5 17.3c0 .9.2 1.6.6 2.2-.6.4-1 .9-1 1.5h14.8c0-.6-.4-1.1-1-1.5.4-.6.6-1.3.6-2.2 0-2.7-1.8-5.2-3-6.8-1-1.4-.6-2.5-.6-4.1C15.4 3.9 14.2 2 12 2z"/></svg><span class="pl">Linux</span></span>
+      <span class="chip later" tabindex="0" data-tip="Releasing in v0.6.x" aria-label="iOS, releasing in v0.6.x"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.9zM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg><span class="pl">iOS</span></span>
+      <span class="chip later" tabindex="0" data-tip="Releasing in v0.6.x" aria-label="Android, releasing in v0.6.x"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 18.5a8.5 8.5 0 0117 0z"/><path d="M7.3 11.2L5.4 8M16.7 11.2L18.6 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.6" cy="15" r="1.15" fill="#fff"/><circle cx="15.4" cy="15" r="1.15" fill="#fff"/></svg><span class="pl">Android</span></span>
     </div>
   </div>
 
