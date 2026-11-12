@@ -5928,5 +5928,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "what-is-a2ui": {
+    "title": "What is A2UI? Google's A2UI 1.0, explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-a2ui/hero.png",
+      "alt": "Title card on white. A pill reading Explainer, the title What is A2UI?, the line Google's A2UI 1.0, explained and a Checked 12 Nov 2026 line. Three tiles named Agent, A2UI and Your app slide in from the right, joined by arrows.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-a2ui/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
