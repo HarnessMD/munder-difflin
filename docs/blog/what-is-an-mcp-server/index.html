@@ -189,6 +189,7 @@
     <div class="prose">
       <div class="callout tldr"><span class="ic">TL;DR</span><p>An <strong>MCP server</strong> is a small program that hands an AI agent tools, data or prompt templates over the <strong>Model Context Protocol</strong>, an open standard. The agent's app (the <strong>host</strong>) opens a <strong>client</strong> connection to each server it uses, the two talk in JSON-RPC over stdio or Streamable HTTP, and the server answers with whatever it was built to expose. One server, many hosts, no custom glue code.</p></div>
 <p>An MCP server is a small program that gives an AI agent access to something it doesn’t have built in: a database, an issue tracker, a browser, your files. It speaks the Model Context Protocol, an open standard, so any compliant AI application can connect the same way, without custom code to wire each one up.</p>
+<p>Google’s A2UI 1.0, released 11 Nov 2026, has web and Flutter renderers that work inside MCP Apps, as our <a href="/blog/what-is-a2ui/">A2UI explainer</a> covers; to run several agents side by side, see our <a href="/blog/herdr-alternatives/">Herdr alternatives</a> guide.</p>
 <p>If you already use one AI coding CLI, this layer matters more once you run several agents at once in a <a href="/blog/what-is-a-multi-agent-harness/">multi-agent harness</a>, because each agent reaches its databases and issue trackers through the servers it has been given, and which agent gets which server becomes your call.</p>
 <h2 id="what-is-an-mcp-server" tabindex="-1">What is an MCP server? <a class="anchor" href="#what-is-an-mcp-server" aria-hidden="true">#</a></h2>
 <p>It’s a program that exposes tools, data or prompt templates to an AI application over the Model Context Protocol. The protocol’s own site describes it as an open standard for connecting AI applications to external systems (checked 11 Sep 2026, <a href="https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro">modelcontextprotocol.io</a>). Anthropic open sourced MCP on 25 November 2024 (checked 11 Sep 2026, <a href="https://www.anthropic.com/news/model-context-protocol">Introducing the Model Context Protocol</a>), and it’s grown well past Anthropic’s own tools since: the protocol’s own site names ChatGPT, Visual Studio Code and Cursor among the applications that support it.</p>
@@ -292,6 +293,22 @@ Commands:
       <h2>Related in Concepts</h2>
       <div class="post-grid">
         <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-a2ui/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-a2ui/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-12">Nov 12, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-a2ui/">What is A2UI? Google&#39;s A2UI 1.0, explained</a></h3>
+    <p class="dek">A2UI 1.0 is Google&#39;s stable open protocol for agents that answer with native screens. What it is, what 1.0 adds, and how it fits MCP Apps and AG-UI.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-a2ui/" aria-label="Read: What is A2UI? Google&#39;s A2UI 1.0, explained">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
   <a class="thumb t-concepts" href="/blog/what-is-nvidia-openshell/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-nvidia-openshell/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -320,22 +337,6 @@ Commands:
     <div class="foot">
       <span class="tag kind">Concepts</span>
       <a class="more" href="/blog/claude-fable-5-2/" aria-label="Read: Claude Fable 5.2: price, fast mode, Mythos 5.2 and when to pick it">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/claude-sheets-whiteboards-data/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/claude-sheets-whiteboards-data/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-11-10">Nov 10, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/claude-sheets-whiteboards-data/">Claude Sheets, Whiteboards and Data: what launched on 10 Nov 2026</a></h3>
-    <p class="dek">Claude Sheets and Whiteboards launched in beta on 10 Nov 2026 and Dashboards became Claude Data. What each does, which plans get it, admin defaults.</p>
-    <div class="foot">
-      <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/claude-sheets-whiteboards-data/" aria-label="Read: Claude Sheets, Whiteboards and Data: what launched on 10 Nov 2026">Read →</a>
     </div>
   </div>
 </article>
