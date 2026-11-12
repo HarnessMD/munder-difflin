@@ -4,9 +4,33 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-11T00:00:00.000Z</updated>
+  <updated>2026-11-12T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 12 Nov 2026: AWS Emulator, Gemini Decisions API, Agents and a Maya Site</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-12/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-12/</id>
+    <published>2026-11-12T00:00:00.000Z</published>
+    <updated>2026-11-12T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 11 to 12 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Gemini Decisions API vs OpenAI Decisions API: Price, Inputs and Limits</title>
+    <link href="https://munderdiffl.in/blog/gemini-decisions-api-vs-openai-decisions-api/" />
+    <id>https://munderdiffl.in/blog/gemini-decisions-api-vs-openai-decisions-api/</id>
+    <published>2026-11-12T00:00:00.000Z</published>
+    <updated>2026-11-12T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Gemini Decisions API vs OpenAI Decisions API: both list $0.10 per 1M input tokens. Inputs, models, status, limits and which to pick, checked 12 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/marblism-alternatives/" />
+    <id>https://munderdiffl.in/blog/marblism-alternatives/</id>
+    <published>2026-11-12T00:00:00.000Z</published>
+    <updated>2026-11-12T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Marblism sells seven named AI employees to businesses. Five alternatives, from Sintra to Claude Cowork, with prices checked 12 Nov 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 11 Nov 2026: Claude Sheets and Whiteboards, AlphaProof Code, Strands Decider</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-11/" />
@@ -462,29 +486,5 @@
     <published>2026-10-23T00:00:00.000Z</published>
     <updated>2026-10-23T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Open source AI agent office apps on GitHub, checked 23 Oct 2026: ChatDev, Munder Difflin, OpenHands, CrewAI, AG2 and three more, with licences.</summary>
-  </entry>
-  <entry>
-    <title>Black October: What PHP2Shell Is and How to Patch (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/black-october-php2shell/" />
-    <id>https://munderdiffl.in/blog/black-october-php2shell/</id>
-    <published>2026-10-23T00:00:00.000Z</published>
-    <updated>2026-10-23T00:00:00.000Z</updated><category term="News" />
-    <summary>Black October is the scramble around PHP2Shell, two critical PHP flaws fixed on 21 Oct 2026. Who found them, the fixed versions and how to patch.</summary>
-  </entry>
-  <entry>
-    <title>Claude Duet App: iPhone, Android and Web, and How to Get It</title>
-    <link href="https://munderdiffl.in/blog/claude-duet-app/" />
-    <id>https://munderdiffl.in/blog/claude-duet-app/</id>
-    <published>2026-10-23T00:00:00.000Z</published>
-    <updated>2026-10-23T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Is there a Claude Duet app? Yes, on iPhone and Android, and on a computer it runs at claude.ai. Who can get it, how the download works, and the cost.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 22 Oct 2026: Claude API 2026-10-21, LayerFS 1.0, PHP2Shell</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-22/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-22/</id>
-    <published>2026-10-22T00:00:00.000Z</published>
-    <updated>2026-10-22T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 22 Oct 2026, each with its source.</summary>
   </entry>
 </feed>

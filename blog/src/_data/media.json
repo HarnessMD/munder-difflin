@@ -5895,5 +5895,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-11-12": {
+    "title": "Agent Tools Today, 12 Nov 2026: AWS Emulator, Gemini Decisions API, Agents and a Maya Site",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-decisions-api-vs-openai-decisions-api": {
+    "title": "Gemini Decisions API vs OpenAI Decisions API: Price, Inputs and Limits",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-decisions-api-vs-openai-decisions-api/hero.png",
+      "alt": "Title card on white. A pill reading Versus, the title Gemini Decisions API vs OpenAI Decisions API, the line Price, inputs and limits side by side and a Checked 12 Nov 2026 line. A blue card named Gemini Decisions API and a lilac card named OpenAI Decisions API slide in side by side with a yellow vs badge between them.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-decisions-api-vs-openai-decisions-api/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "marblism-alternatives": {
+    "title": "Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/marblism-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Marblism alternatives, the line 5 tools like Marblism for AI employees and a Checked 12 Nov 2026 line. Five small tiles named Sintra, Munder Difflin, Lindy, Grok Bot and Claude Cowork slide in under a grey tile labelled Marblism.",
+      "prompt": "Title card: the hero scene in assets/media/marblism-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
