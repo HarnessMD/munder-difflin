@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Munder Difflin mark">
+  <title>Munder Difflin mark</title>
+  <defs>
+    <style>
+      .m { font-family: Impact, "Anton", "Arial Narrow", sans-serif; font-weight: 900; fill: #F4F1EA; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" rx="0" fill="#6E1423"/>
+  <rect x="8" y="8" width="240" height="240" fill="none" stroke="#4A0D17" stroke-width="8"/>
+  <text class="m" x="128" y="118" text-anchor="middle" font-size="150" textLength="170" lengthAdjust="spacingAndGlyphs">M</text>
+  <text class="m" x="128" y="228" text-anchor="middle" font-size="150" textLength="170" lengthAdjust="spacingAndGlyphs">D</text>
+</svg>
