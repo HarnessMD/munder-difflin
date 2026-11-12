@@ -695,8 +695,11 @@ footer{border-top-color:#2E2438}
 .btn.primary:active{transform:translateY(1px) scale(.985)}
 
 /* ---- the hero screen: the real office, recorded with the season on ---- */
-.screen.hw-office{aspect-ratio:1942/1340;background:#1B1524;border-color:var(--ink)}
+.screen.hw-office{aspect-ratio:16/9;background:#1B1524;border-color:var(--ink)}
 .screen.hw-office video{background:#1B1524}
+.looks{margin:34px auto 0;max-width:960px}
+.looks video{display:block;width:100%;height:auto;aspect-ratio:16/9;border:1px solid var(--ink);border-radius:18px;background:var(--paper-2)}
+.looks figcaption{font-family:var(--mono);font-size:.76rem;color:var(--muted);margin-top:12px}
 .vload{background:linear-gradient(180deg,transparent 45%,rgba(27,21,36,.85))}
 .vl-t{color:#F1E8F7}
 .sound .hw-play{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent-ink);color:var(--accent)}
@@ -863,9 +866,9 @@ footer{border-top-color:#2E2438}
       <a class="txt" href="#pricing">Pricing</a>
       <a class="txt" href="https://munderdiffl.in/blog/" target="_blank" rel="noopener">Blog</a>
       <a class="txt" href="https://discord.gg/SEDzP5ZPk5" target="_blank" rel="noopener">Discord</a>
-      <a class="txt" href="https://harnessmd.com/signin">Sign in</a>
       <!-- Star count: GitHub API on 2026-09-09 said 6,686. Every .starct on the page is written correct and then refreshed live; see updateStars(). -->
       <a class="btn sm" href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span></a>
+      <a class="btn sm" href="https://harnessmd.com/signin">Sign in</a>
       <a class="btn primary sm" href="https://harnessmd.com/download"><svg class="hw-pk hw-x" viewBox="0 0 48 40" aria-hidden="true"><use href="#hw-pk"/></svg> Download</a>
     </div>
     <button type="button" class="hw-toggle" id="hwToggle" role="switch" aria-checked="true" aria-label="Halloween version" title="Halloween version"><span class="hw-tg-ic"><svg viewBox="0 0 48 40" aria-hidden="true"><use href="#hw-pk"/></svg></span><span class="hw-tg-l">Halloween</span><span class="hw-tg-track" aria-hidden="true"><i></i></span></button>
@@ -908,20 +911,21 @@ footer{border-top-color:#2E2438}
     <p class="lead"><strong>Free, open source and performant</strong> multi-agent harness, works with your existing subscriptions (uses hourly limits).</p>
     <div class="btn-row">
       <a class="btn primary lg" href="https://harnessmd.com/download"><span class="hw-n">⤓</span><svg class="hw-pk hw-x" viewBox="0 0 48 40" aria-hidden="true"><use href="#hw-pk"/></svg> Download free</a>
+      <a class="btn lg" href="https://harnessmd.com/signin">Sign in</a>
       <a class="btn lg" href="#story">See a day at the office</a>
     </div>
     <p class="meta">A desktop app for macOS, Windows and Linux that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The app is free. <a href="#pricing">Pro is a paid plan</a>, $20 for 30 days or $150 for 365 days, checked out at harnessmd.com with Razorpay.</p>
 
     <figure class="cinema" id="cinema">
       <div class="screen hw-office" id="screen">
-        <video id="launchVideo" poster="media/office-halloween-poster.jpg" data-office="media/office-halloween.mp4" data-office-poster="media/office-halloween-poster.jpg" data-film="./media/munder-difflin-053.mp4" data-film-poster="./media/munder-difflin-053-poster.jpg" preload="auto" autoplay playsinline muted loop
-               aria-label="The Munder Difflin office after dark, recorded in the app with the Halloween season on: the whole cast in costume at their desks, red wall lamps, pumpkins and cobwebs">
-          <source src="media/office-halloween.mp4" type="video/mp4">
+        <video id="launchVideo" poster="media/office-real-poster.jpg" data-office="media/office-real.mp4" data-office-poster="media/office-real-poster.jpg" data-film="./media/munder-difflin-053.mp4" data-film-poster="./media/munder-difflin-053-poster.jpg" preload="auto" autoplay playsinline muted loop
+               aria-label="The real Munder Difflin office at work, recorded in the app: agents at their desks on the floor, and the Simulation picker switching the office to a space station and a ship">
+          <source src="media/office-real.mp4" type="video/mp4">
         </video>
         <div class="vload" id="vload"><span class="vl-face" id="vlFace"></span><span class="vl-t">Opening the office</span><i class="vl-bar"><b id="vlBar"></b></i></div>
         <button type="button" class="sound" id="soundBtn" hidden><span class="sp-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></span><span class="hw-x">Watch launch video</span><span class="hw-n">Watch with sound</span><small>0:54</small></button>
       </div>
-      <figcaption><span class="hw-x">Launching Halloween theme in the office, characters</span><span class="hw-n">The 0.5.3 launch video. One shotted with Munder Difflin and Opus 5.5.</span></figcaption>
+      <figcaption><span class="hw-x">See the real office at work.</span><span class="hw-n">The 0.5.3 launch video. One shotted with Munder Difflin and Opus 5.5.</span></figcaption>
     </figure>
 
     <div class="floorline" aria-hidden="true">
@@ -1178,6 +1182,11 @@ footer{border-top-color:#2E2438}
         <div class="mode-t"><span class="chip on">Pro</span><h3>Pro</h3><p>The office in a sidebar, one screen at a time: orchestrator, agents, tasks, inbox, automations, memory, capabilities and integrations in one window, with the Stapler floating over everything you do.</p></div>
       </div>
     </div>
+    <figure class="looks" data-rv>
+      <video id="officeLooks" data-src="media/office-looks.mp4" poster="media/office-looks-poster.jpg" preload="none" muted playsinline loop controls width="1280" height="720"
+             aria-label="Recorded in the app: the Simulation picker switches the same office between looks, from a library to a space station, a ship and more"></video>
+      <figcaption>One office, many looks: pick a simulation and the same team moves in.</figcaption>
+    </figure>
     <div class="soon" data-rv>
       <div style="grid-column:1/-1"><span class="chip on">New in 0.5.6</span><b>Capabilities, Integrations and Teams.</b> 2,347 MCP servers, skills and tools to install from a public list. Slack, webhooks, apps and keys in one place. Your office talks to your teammates' offices.</div>
       <div><span class="chip">Coming</span><b>Remote control from an app.</b> Your office, from wherever you are.</div>
@@ -1250,6 +1259,7 @@ footer{border-top-color:#2E2438}
     <p>Download Munder Difflin, hire your first clone, and come back to finished work.</p>
     <div class="btn-row" style="justify-content:center">
       <a class="btn primary lg" href="https://harnessmd.com/download"><span class="hw-n">⤓</span><svg class="hw-pk hw-x" viewBox="0 0 48 40" aria-hidden="true"><use href="#hw-pk"/></svg> Download free</a>
+      <a class="btn lg ghost" href="https://harnessmd.com/signin">Sign in</a>
       <a class="btn lg ghost" href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span> on GitHub</a>
     </div>
     <div class="nightfloor" aria-hidden="true">
@@ -1696,6 +1706,23 @@ function O({l:t,c:e,h:s}){let n=s*Math.PI/180,r=e*Math.cos(n),o=e*Math.sin(n),c=
 
 
 <script>
+  /* ---- the office looks player (13 Nov 2026): preload none, so the 5 MB file is fetched only when the player
+     nears the screen; then it plays muted while in view and pauses when it leaves. Reduced motion: poster and controls only. ---- */
+  (function () {
+    var v = document.getElementById('officeLooks'); if (!v) return;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var load = function () { if (v.getAttribute('src')) return; v.src = v.getAttribute('data-src'); v.load(); };
+    if (!('IntersectionObserver' in window)) { load(); return; }
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { load(); if (!reduce && v.paused) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } }
+        else if (!v.paused) v.pause();
+      });
+    }, { rootMargin: '200px 0px' }).observe(v);
+  })();
+</script>
+
+<script>
   /* ---- Anonymous site analytics (PostHog) ------------------------------------
      The posture here is the CORRECTED one, not the one that was live on the site
      before 10 Sep 2026. docs/privacy.html promises readers that this site sets no
@@ -1746,6 +1773,78 @@ function O({l:t,c:e,h:s}){let n=s*Math.PI/180,r=e*Math.cos(n),o=e*Math.sin(n),c=
         if (!a) return;
         window.posthog.capture('support_clicked', { tier: a.getAttribute('data-support'), surface: 'landing' });
       }, true);
+
+      /* Landing page events (13 Nov 2026, launch). Same posture as above: autocapture stays off, and every
+         property is a page fact (which button, which section, which video, a percentage), never a person.
+         The full list of names and properties is in the pull request that added them. */
+      var ph = function (name, props) { try { props = props || {}; props.surface = 'landing'; window.posthog.capture(name, props); } catch (e) {} };
+      var seen = {};
+      var once = function (key, name, props) { if (seen[key]) return; seen[key] = 1; ph(name, props); };
+      var place = function (el) {
+        if (el.closest('.nav-drawer')) return 'drawer';
+        if (el.closest('nav')) return 'nav';
+        if (el.closest('.hero')) return 'hero';
+        var sec = el.closest('section[id]');
+        return sec ? sec.id : 'other';
+      };
+      document.addEventListener('click', function (ev) {
+        var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+        if (!a || a.hasAttribute('data-support')) return;
+        var href = a.getAttribute('href') || '', where = place(a), u;
+        if (href.charAt(0) === '#') { ph('nav_clicked', { target: href.slice(1) || 'top', button: where }); return; }
+        try { u = new URL(a.href, location.href); } catch (e) { return; }
+        var host = u.hostname.replace(/^www\./, ''), path = u.pathname;
+        if (host === 'harnessmd.com' && path.indexOf('/download') === 0) {
+          ph('download_clicked', { button: where });
+          if (where === 'pricing') ph('plan_clicked', { plan: 'free', action: 'download' });
+        } else if (host === 'harnessmd.com' && path.indexOf('/signin') === 0) {
+          ph('signin_clicked', { button: where });
+        } else if (host === 'harnessmd.com' && path.indexOf('/pro') === 0) {
+          ph('plan_clicked', { plan: 'pro', action: 'checkout', button: where });
+        } else if (path.indexOf('/pricing') === 0) {
+          ph('plan_clicked', { plan: 'pricing_page', action: 'open', button: where });
+        } else if (path.indexOf('/blog') === 0) {
+          ph('outbound_clicked', { dest: 'blog', button: where });
+        } else if (host !== location.hostname.replace(/^www\./, '')) {
+          var dest = /(^|\.)github\.com$/.test(host) ? 'github' : /discord\.(gg|com)$/.test(host) ? 'discord' : /producthunt\.com$/.test(host) ? 'producthunt' : /trendshift\.io$/.test(host) ? 'trendshift' : host;
+          ph('outbound_clicked', { dest: dest, button: where });
+        } else {
+          ph('nav_clicked', { target: path, button: where });
+        }
+      }, true);
+
+      /* videos: the hero plays the office recording (or the launch film), and the office looks player sits in Pick your view */
+      var vname = function (v) { if (v.id === 'officeLooks') return 'office_looks'; return (v.currentSrc || '').indexOf('munder-difflin-053') >= 0 ? 'launch_film' : 'hero_office'; };
+      ['launchVideo', 'officeLooks'].forEach(function (id) {
+        var v = document.getElementById(id); if (!v) return;
+        var last = 0;
+        var played = function () { var n = vname(v); once('play:' + n, 'video_play', { video: n }); };
+        var finished = function () { var n = vname(v); once('end:' + n, 'video_finished', { video: n }); };
+        v.addEventListener('play', played);
+        v.addEventListener('ended', finished);
+        v.addEventListener('timeupdate', function () { var t = v.currentTime; if (v.loop && v.duration && last > v.duration - 1.5 && t + 1 < last) finished(); last = t; });
+        if (!v.paused) played();
+      });
+      var sb = document.getElementById('soundBtn');
+      if (sb) sb.addEventListener('click', function () { once('sound:launch_film', 'video_sound_on', { video: 'launch_film', button: 'hero_sound' }); });
+
+      /* sections: one event per section, the first time it crosses the middle of the screen */
+      if ('IntersectionObserver' in window) {
+        var sio = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (!e.isIntersecting) return; sio.unobserve(e.target); ph('section_reached', { section: e.target.id || 'hero' }); });
+        }, { rootMargin: '-45% 0px -45% 0px' });
+        Array.prototype.slice.call(document.querySelectorAll('header.hero, section[id]')).forEach(function (el) { sio.observe(el); });
+      }
+
+      /* scroll depth: 25, 50, 75 and 100 percent, once each */
+      var hit = {};
+      var depth = function () {
+        var h = document.documentElement.scrollHeight - window.innerHeight; if (h <= 0) return;
+        var pc = window.scrollY / h * 100;
+        [25, 50, 75, 100].forEach(function (m) { if (!hit[m] && pc >= m - 0.5) { hit[m] = 1; ph('scroll_depth', { percent: m }); } });
+      };
+      window.addEventListener('scroll', depth, { passive: true });
+      depth();
     };
     document.head.appendChild(s);
   })();
@@ -1802,10 +1901,10 @@ function O({l:t,c:e,h:s}){let n=s*Math.PI/180,r=e*Math.cos(n),o=e*Math.sin(n),c=
     var office = v.getAttribute('data-office');
     if (office && v.currentSrc.indexOf(office) < 0 && !v.controls) { v.poster = v.getAttribute('data-office-poster') || v.poster; v.src = office; v.load(); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
   }
-  /* The office recording is 1942 by 1340 and the launch video is 16:9. When the video plays in the season,
+  /* The office recording (1280 by 720 since 13 Nov 2026) and the launch video are both 16:9. When the video plays in the season,
      the screen keeps its height and grows wider to the video's shape, as far as the window allows. */
   var cinema = $('#cinema'), scr = $('#screen'), filmMode = false;
-  var OFFICE_AR = 1942 / 1340, FILM_AR = 16 / 9;
+  var OFFICE_AR = 16 / 9, FILM_AR = 16 / 9;
   function fitScreen(animate) {
     if (!cinema || !scr) return;
     var par = cinema.parentElement, cs = getComputedStyle(par);
