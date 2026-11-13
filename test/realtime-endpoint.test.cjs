@@ -14,11 +14,18 @@ const {
   DEFAULT_REALTIME_BASE_URL,
   SDP_RELAY_URL,
   checkRealtimeBaseUrl,
+  isCustomRealtimeBase,
   isPrivateHost,
   realtimeCallsUrl,
   relaySdpFetch
 } = loadTs('src/shared/realtimeEndpoint.ts');
-const { mintToken, exchangeSdp } = loadTs('src/main/realtimeHttp.ts');
+const {
+  mintToken,
+  exchangeSdp,
+  realtimeKey,
+  OPENAI_KEY_REF,
+  REALTIME_SERVER_KEY_REF
+} = loadTs('src/main/realtimeHttp.ts');
 
 const KEY = 'sk-test-0123456789';
 const OFFER = 'v=0\r\no=- 1 2 IN IP4 127.0.0.1\r\ns=-\r\n';
@@ -68,11 +75,23 @@ test('http:// is accepted only for this computer and private network hosts', () 
     'http://100.100.1.1:8080/v1',
     'http://169.254.10.10/v1',
     'http://[::1]:8080/v1',
-    'http://[fd12:3456::1]:8080/v1'
+    'http://[fd12:3456::1]:8080/v1',
+    'http://nas:8080/v1',
+    'http://nas.lan:8080/v1',
+    'http://nas.home.arpa/v1',
+    'http://voice.internal/v1'
   ]) {
     assert.equal(checkRealtimeBaseUrl(url).ok, true, url);
   }
-  for (const url of ['http://api.openai.com/v1', 'http://8.8.8.8/v1', 'http://172.32.0.1/v1', 'http://192.169.0.1/v1', 'http://100.128.0.1/v1']) {
+  for (const url of [
+    'http://api.openai.com/v1',
+    'http://8.8.8.8/v1',
+    'http://172.32.0.1/v1',
+    'http://192.169.0.1/v1',
+    'http://100.128.0.1/v1',
+    'http://lan.example.com/v1',
+    'http://example.com.local.evil.io/v1'
+  ]) {
     const r = checkRealtimeBaseUrl(url);
     assert.equal(r.ok, false, url);
     assert.equal(r.problem, 'insecure', url);
@@ -88,6 +107,35 @@ test('a base URL that is not a plain http(s) address is refused with its reason'
   assert.equal(checkRealtimeBaseUrl('https://example.com/v1?x=1').problem, 'query');
   assert.equal(checkRealtimeBaseUrl('https://example.com/v1#frag').problem, 'query');
   assert.match(checkRealtimeBaseUrl('ftp://x/v1').error, /^Voice base URL refused: /);
+});
+
+test('a pasted endpoint is cut back to its base URL', () => {
+  for (const tail of ['/realtime/calls', '/realtime/calls/', '/realtime/client_secrets', '/realtime/sessions', '/realtime']) {
+    assert.deepEqual(checkRealtimeBaseUrl(`http://192.168.1.20:8080/v1${tail}`), { ok: true, url: 'http://192.168.1.20:8080/v1' }, tail);
+  }
+  assert.deepEqual(checkRealtimeBaseUrl('https://api.openai.com/v1/realtime/calls'), { ok: true, url: DEFAULT_REALTIME_BASE_URL });
+});
+
+test('a custom server is any base URL other than OpenAI, an invalid one included', () => {
+  assert.equal(isCustomRealtimeBase(undefined), false);
+  assert.equal(isCustomRealtimeBase('https://api.openai.com/v1/'), false);
+  assert.equal(isCustomRealtimeBase('http://192.168.1.20:8080/v1'), true);
+  assert.equal(isCustomRealtimeBase('not a url'), true);
+});
+
+test('the OpenAI key goes only to OpenAI; a custom server gets its own key or none', () => {
+  const secrets = (map) => (ref) => map[ref];
+  const OPENAI = 'sk-openai-real';
+  const SERVER = 'local-server-key';
+  // OpenAI's address: the OpenAI key, and it is required.
+  assert.deepEqual(realtimeKey(true, secrets({ [OPENAI_KEY_REF]: OPENAI })), { ok: true, key: OPENAI });
+  const none = realtimeKey(true, secrets({ [REALTIME_SERVER_KEY_REF]: SERVER }));
+  assert.equal(none.ok, false);
+  assert.equal(none.code, 'no_key');
+  // A custom server: its own key when set, otherwise nothing, never the OpenAI key.
+  assert.deepEqual(realtimeKey(false, secrets({ [OPENAI_KEY_REF]: OPENAI, [REALTIME_SERVER_KEY_REF]: SERVER })), { ok: true, key: SERVER });
+  assert.deepEqual(realtimeKey(false, secrets({ [OPENAI_KEY_REF]: OPENAI })), { ok: true, key: '' });
+  assert.deepEqual(realtimeKey(false, secrets({})), { ok: true, key: '' });
 });
 
 test('the model rides on /realtime/calls only when the key is used directly', () => {
@@ -144,6 +192,22 @@ test('direct mode: the SDP offer goes to <base>/realtime/calls?model= with the k
   assert.equal(s.seen[0].headers.authorization, `Bearer ${KEY}`);
   assert.equal(s.seen[0].headers['content-type'], 'application/sdp');
   assert.equal(s.seen[0].body, OFFER);
+  await s.close();
+});
+
+test('a server without auth: no key means no Authorization header, on the mint and the SDP', async () => {
+  const s = await stub({
+    '/v1/realtime/client_secrets': (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ value: 'ek_open' }));
+    }
+  });
+  const mint = await mintToken({ key: '', base: s.base, model: 'm', direct: false, isDefaultBase: false });
+  assert.equal(mint.ok, true);
+  const sdp = await exchangeSdp({ sdp: OFFER, base: s.base, model: 'gpt-realtime', direct: true, bearer: '' });
+  assert.deepEqual(sdp, { ok: true, sdp: ANSWER, location: '/v1/realtime/calls/call_123' });
+  assert.equal(s.seen.length, 2);
+  for (const r of s.seen) assert.equal(r.headers.authorization, undefined, r.url);
   await s.close();
 });
 

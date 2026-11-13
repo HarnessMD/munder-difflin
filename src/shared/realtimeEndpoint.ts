@@ -23,18 +23,25 @@ export type RealtimeBaseUrlCheck =
 const PROBLEM_TEXT: Record<RealtimeBaseUrlProblem, string> = {
   invalid: 'it is not a valid URL',
   scheme: 'it must start with https:// (or http:// for a private network address)',
-  insecure: 'http:// is allowed only for this computer or a private network address; use https://',
+  insecure: 'http:// is allowed only for this computer or a private network address; use https:// or the server\'s IP address',
   credentials: 'it must not contain a user name or password',
   query: 'it must not end in a query (?…) or a fragment (#…)'
 };
 
+/** Name suffixes only a local network resolves: mDNS `.local`, the home-network
+ *  `.home.arpa` (RFC 8375), and the common router and private-DNS `.lan`/`.internal`. */
+const PRIVATE_NAME_SUFFIXES = ['.localhost', '.local', '.lan', '.home.arpa', '.internal'];
+
 /** True for this computer and private network addresses: the only hosts plain
  *  http:// is accepted for. Covers localhost, 127/8, 10/8, 172.16/12, 192.168/16,
  *  link-local 169.254/16, carrier-grade NAT 100.64/10 (Tailscale and similar),
- *  `.local` mDNS names, and IPv6 loopback, unique-local and link-local addresses. */
+ *  single-label names (`nas`), local-only name suffixes (`nas.lan`, `nas.local`),
+ *  and IPv6 loopback, unique-local and link-local addresses. */
 export function isPrivateHost(hostname: string): boolean {
   const h = hostname.toLowerCase().replace(/^\[|\]$/g, '');
-  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local')) return true;
+  if (h === 'localhost' || PRIVATE_NAME_SUFFIXES.some((s) => h.endsWith(s))) return true;
+  // A name with no dot resolves only through the local network's own DNS.
+  if (/^[a-z0-9-]+$/.test(h) && !/^\d+$/.test(h)) return true;
   const v4 = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if (v4) {
     const a = Number(v4[1]);
@@ -52,8 +59,12 @@ export function isPrivateHost(hostname: string): boolean {
   return /^f[cd][0-9a-f]{2}:/.test(h) || /^fe[89ab][0-9a-f]:/.test(h);
 }
 
+/** Endpoint paths a user may paste by mistake; the base is what comes before them. */
+const PASTED_ENDPOINT = /\/realtime(?:\/(?:calls|client_secrets|sessions))?\/*$/;
+
 /** Check a base URL as typed. Blank means the default. On success `url` is the
- *  normalized form: no trailing slash, so `${url}/realtime/calls` is always right. */
+ *  normalized form: no trailing slash, and no pasted `/realtime/...` endpoint, so
+ *  `${url}/realtime/calls` is always right. */
 export function checkRealtimeBaseUrl(raw: string | null | undefined): RealtimeBaseUrlCheck {
   const text = (raw ?? '').trim();
   if (!text) return { ok: true, url: DEFAULT_REALTIME_BASE_URL };
@@ -72,7 +83,14 @@ export function checkRealtimeBaseUrl(raw: string | null | undefined): RealtimeBa
   if (u.protocol === 'http:' && !isPrivateHost(u.hostname)) return refuse('insecure');
   if (u.username || u.password) return refuse('credentials');
   if (u.search || u.hash) return refuse('query');
-  return { ok: true, url: `${u.origin}${u.pathname}`.replace(/\/+$/, '') };
+  return { ok: true, url: `${u.origin}${u.pathname}`.replace(PASTED_ENDPOINT, '').replace(/\/+$/, '') };
+}
+
+/** True when Talk is set to a server other than OpenAI. An invalid URL counts: main
+ *  refuses it at connect with its own message, which beats a silently dead button. */
+export function isCustomRealtimeBase(raw: string | null | undefined): boolean {
+  const checked = checkRealtimeBaseUrl(raw);
+  return !checked.ok || checked.url !== DEFAULT_REALTIME_BASE_URL;
 }
 
 /** The endpoints under a (normalized) base URL. */

@@ -1310,6 +1310,14 @@ const api = {
   // is a presence boolean only (gates the voice toggle, like providerKeyHas).
   realtimeHasOpenAiKey: (): Promise<boolean> =>
     ipcRenderer.invoke('realtime:hasKey'),
+  // The self-hosted voice server's own key (Settings → Voice), write-only the same
+  // way: set, clear, and a presence boolean. The OpenAI key never goes to that server.
+  realtimeServerKeySet: (key: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('realtime:serverKey:set', key),
+  realtimeServerKeyHas: (): Promise<boolean> =>
+    ipcRenderer.invoke('realtime:serverKey:has'),
+  realtimeServerKeyClear: (): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('realtime:serverKey:clear'),
   realtimeMintToken: (
     req?: { model?: string }
   ): Promise<

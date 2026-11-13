@@ -276,6 +276,11 @@ interface State {
    *  window.cth.realtimeHasOpenAiKey(). */
   hasOpenAiKey: boolean;
   setHasOpenAiKey: (has: boolean) => void;
+  /** True when Talk points at a self-hosted server (Settings → Voice base URL). Such
+   *  a server needs no OpenAI key (its own key is optional), so the voice toggle is
+   *  live without one. Set by App from config on load and on every config change. */
+  realtimeCustomServer: boolean;
+  setRealtimeCustomServer: (custom: boolean) => void;
   /** Mirror of the active office theme (set by App on config load + by Settings
    *  on switch). OfficeFloor depends on this and rebuilds the scene on change. */
   officeTheme: ThemeId;
@@ -880,6 +885,8 @@ export const useStore = create<State>((set, get) => ({
   setHasGroqKey: (has) => set({ hasGroqKey: has }),
   hasOpenAiKey: false,
   setHasOpenAiKey: (has) => set({ hasOpenAiKey: has }),
+  realtimeCustomServer: false,
+  setRealtimeCustomServer: (custom) => set({ realtimeCustomServer: custom }),
   officeTheme: 'office',
   setOfficeTheme: (theme) => set({ officeTheme: theme }),
   webhookTriggers: [],

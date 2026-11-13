@@ -22,7 +22,7 @@ import { McpDefaultsSettings } from './McpDefaultsSettings';
 import { IntegrationsRegistry } from './IntegrationsRegistry';
 import { AiEnginesSettings } from './AiEnginesSettings';
 import { REALTIME_MODEL } from '@shared/realtimePricing';
-import { checkRealtimeBaseUrl, DEFAULT_REALTIME_BASE_URL } from '@shared/realtimeEndpoint';
+import { checkRealtimeBaseUrl, DEFAULT_REALTIME_BASE_URL, isCustomRealtimeBase } from '@shared/realtimeEndpoint';
 import { RealtimeDevicePicker } from '@/realtime/DevicePicker';
 import { CostHud } from '@/realtime/CostHud';
 import {
@@ -544,6 +544,35 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
   );
   const [voiceModel, setVoiceModel] = useState<string>((config as HarnessConfig).realtimeModel ?? '');
   const voiceBaseCheck = checkRealtimeBaseUrl(voiceBaseUrl);
+  const voiceCustomServer = isCustomRealtimeBase(voiceBaseUrl);
+  // The custom server's own key: write-only, saved at once like the OpenAI key above.
+  // The OpenAI key is never sent to a custom server, so this is the only key it sees.
+  const [voiceServerKey, setVoiceServerKey] = useState('');
+  const [hasVoiceServerKey, setHasVoiceServerKey] = useState(false);
+  const [voiceServerKeyNote, setVoiceServerKeyNote] = useState('');
+  const saveVoiceServerKey = async (): Promise<void> => {
+    const key = voiceServerKey.trim();
+    if (!key) return;
+    try {
+      const r = await window.cth.realtimeServerKeySet(key);
+      if (r.ok) {
+        setVoiceServerKey('');
+        setHasVoiceServerKey(true);
+        setVoiceServerKeyNote('');
+      } else setVoiceServerKeyNote(r.error ?? t('settings.voice.couldNotSave'));
+    } catch (e) {
+      setVoiceServerKeyNote(e instanceof Error ? e.message : String(e));
+    }
+  };
+  const clearVoiceServerKey = async (): Promise<void> => {
+    try {
+      const r = await window.cth.realtimeServerKeyClear();
+      if (r.ok) { setHasVoiceServerKey(false); setVoiceServerKeyNote(''); }
+      else setVoiceServerKeyNote(r.error ?? t('settings.voice.couldNotSave'));
+    } catch (e) {
+      setVoiceServerKeyNote(e instanceof Error ? e.message : String(e));
+    }
+  };
 
   // Re-seed every editable field from the on-disk config when the modal opens.
   // App's `config` prop is loaded once and never refreshed after a save, so
@@ -572,6 +601,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
       setVoiceSkipMint((c as HarnessConfig).realtimeSkipTokenMint === true);
       setVoiceModel((c as HarnessConfig).realtimeModel ?? '');
     }).catch(() => { /* keep prop-seeded values */ });
+    window.cth.realtimeServerKeyHas().then((has) => { if (alive) setHasVoiceServerKey(has); })
+      .catch(() => { /* presence unknown: show as not set */ });
     window.cth.kgStatus().then((s) => { if (alive) setKgDocCount(s.docCount); })
       .catch(() => { /* status unavailable */ });
     // Hydrate live connection state + the persisted Request URL: the
@@ -2082,6 +2113,40 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               </span>
                             )}
                           </label>
+                          {voiceCustomServer && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <span style={slackLabelStyle}>{t('settings.voice.serverKey')}</span>
+                              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                <input
+                                  type="password"
+                                  aria-label={t('settings.voice.serverKey')}
+                                  value={voiceServerKey}
+                                  onChange={(e) => setVoiceServerKey(e.target.value)}
+                                  onKeyDown={(e) => { if (isComposingKey(e)) return; if (e.key === 'Enter') void saveVoiceServerKey(); }}
+                                  placeholder={hasVoiceServerKey ? t('settings.voice.keyPlaceholderSaved') : ''}
+                                  style={{ ...slackInputStyle, flex: 1, fontFamily: 'var(--cth-font-mono)' }}
+                                />
+                                <PixelButton
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => void saveVoiceServerKey()}
+                                  disabled={!voiceServerKey.trim()}
+                                >
+                                  {t('settings.voice.save')}
+                                </PixelButton>
+                                {hasVoiceServerKey && (
+                                  <PixelButton variant="secondary" size="sm" onClick={() => void clearVoiceServerKey()}>
+                                    {t('settings.voice.serverKeyClear')}
+                                  </PixelButton>
+                                )}
+                              </div>
+                              <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
+                                {voiceServerKeyNote || (hasVoiceServerKey
+                                  ? t('settings.voice.serverKeySaved')
+                                  : t('settings.voice.serverKeyNone'))}
+                              </span>
+                            </div>
+                          )}
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                               <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>
@@ -2185,7 +2250,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   <span style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>{t('settings.unsavedChanges')}</span>
                 )}
                 <PixelButton variant="secondary" size="md" onClick={requestClose}>{t('settings.close')}</PixelButton>
-                <PixelButton variant="primary" size="md" onClick={() => void saveAll()} disabled={saveBusy}>
+                {/* An invalid voice base URL is not saved: main would refuse it at connect anyway. */}
+                <PixelButton variant="primary" size="md" onClick={() => void saveAll()} disabled={saveBusy || !voiceBaseCheck.ok}>
                   {saveBusy ? t('settings.saving') : t('common.save')}
                 </PixelButton>
               </div>
