@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* T1b fragment merge: fold fragments/g*-{en,zh}.json into locales/{en,zh-CN}.json.
+/* T1b fragment merge: fold fragments/g*-{en,zh,zh-TW}.json into locales/{en,zh-CN,zh-TW}.json.
  * Fails loudly on key collisions with differing values, then verifies parity. */
 const fs = require('fs');
 const path = require('path');
@@ -39,18 +39,29 @@ function arrays(o, p = '') {
 
 const en = JSON.parse(fs.readFileSync(path.join(LOC, 'en.json'), 'utf8'));
 const zh = JSON.parse(fs.readFileSync(path.join(LOC, 'zh-CN.json'), 'utf8'));
-let merged = 0;
-for (const f of fs.readdirSync(FRAG).filter((f) => f.endsWith('-en.json') || f.endsWith('-zh.json')).sort()) {
+const TW_FILE = path.join(LOC, 'zh-TW.json');
+const tw = fs.existsSync(TW_FILE) ? JSON.parse(fs.readFileSync(TW_FILE, 'utf8')) : null;
+
+// fragment suffix -> target locale. `-zh.json` is Simplified (zh-CN) for
+// historical reasons; `-zh-TW.json` is Traditional and does not match it.
+const TARGETS = [['-en.json', en], ['-zh.json', zh], ['-zh-TW.json', tw]];
+let merged = 0, twMerged = 0;
+for (const f of fs.readdirSync(FRAG).sort()) {
+  const hit = TARGETS.find(([suffix]) => f.endsWith(suffix));
+  if (!hit) continue;
+  const target = hit[1];
+  if (!target) throw new Error(`${f} is a zh-TW fragment but locales/zh-TW.json does not exist`);
   const frag = JSON.parse(fs.readFileSync(path.join(FRAG, f), 'utf8'));
-  const target = f.endsWith('-en.json') ? en : zh;
   for (const [ns, body] of Object.entries(frag)) {
     if (!target[ns]) target[ns] = {};
     deepMerge(target[ns], body, ns);
   }
   merged++;
+  if (target === tw) twMerged++;
 }
 fs.writeFileSync(path.join(LOC, 'en.json'), JSON.stringify(en, null, 2) + '\n');
 fs.writeFileSync(path.join(LOC, 'zh-CN.json'), JSON.stringify(zh, null, 2) + '\n');
+if (tw && twMerged) fs.writeFileSync(TW_FILE, JSON.stringify(tw, null, 2) + '\n');
 
 // parity check
 const ek = new Set(keys(en)), zk = new Set(keys(zh));
@@ -65,4 +76,27 @@ for (const [p, n] of ea) {
   const m = za.find((x) => x[0] === p);
   if (!m || m[1] !== n) { console.error('ARRAY MISMATCH', p, n, m && m[1]); process.exit(1); }
 }
-console.log(`merged ${merged} fragment files; en/zh now ${ek.size} keys each, parity OK`);
+
+// zh-TW parity. Keys zh-TW has and en lacks are always an error (dead strings).
+// Keys it is missing are an error only when this run merged zh-TW fragments:
+// a batch of en/zh fragments with no zh-TW one goes through with a warning
+// (those strings fall back to English until zh-TW catches up, and the
+// locale-parity tests still flag them).
+if (tw) {
+  const tk = new Set(keys(tw));
+  const onlyEnTw = [...ek].filter((k) => !tk.has(k));
+  const onlyTw = [...tk].filter((k) => !ek.has(k));
+  if (onlyTw.length || (onlyEnTw.length && twMerged)) {
+    console.error('zh-TW PARITY FAIL — missing:', onlyEnTw, 'extra:', onlyTw);
+    process.exit(1);
+  }
+  if (onlyEnTw.length) {
+    console.warn(`WARNING: no zh-TW fragments merged; zh-TW is missing ${onlyEnTw.length} keys:`, onlyEnTw);
+  }
+  const ta = arrays(tw);
+  for (const [p, n] of ea) {
+    const m = ta.find((x) => x[0] === p);
+    if (m && m[1] !== n) { console.error('zh-TW ARRAY MISMATCH', p, n, m[1]); process.exit(1); }
+  }
+}
+console.log(`merged ${merged} fragment files (${twMerged} zh-TW); en/zh now ${ek.size} keys each, parity OK`);
