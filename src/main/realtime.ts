@@ -12,10 +12,18 @@
  *
  * Phase 1 is read-only — this module ONLY mints (no action tools; that's rt-5).
  *
+ * The server is OpenAI unless Settings → Voice names another OpenAI Realtime
+ * compatible one (a self-hosted LocalAI, say). For such a server, or when the token
+ * mint is skipped, MAIN also makes the SDP exchange (`realtime:sdp`): the renderer's
+ * CSP only reaches OpenAI, and with the mint skipped the bearer is the key itself.
+ *
  * Branch feat/realtime-michael. See board.md "🎙 REALTIME MICHAEL".
  */
 import { ipcMain } from 'electron';
 import { getSecret, hasSecret } from './integrations';
+import { readConfig } from './config';
+import { checkRealtimeBaseUrl, DEFAULT_REALTIME_BASE_URL } from '../shared/realtimeEndpoint';
+import { exchangeSdp, mintToken, type MintResult } from './realtimeHttp';
 
 /** Mirrors `providerKeyRef('openai')` in src/main/index.ts (BACKEND_KEY_ENV maps
  *  openai→OPENAI_API_KEY). Inlined as a local const so this module needs no new
@@ -30,17 +38,7 @@ const OPENAI_KEY_REF = 'apikey:openai';
 export { REALTIME_MODEL } from '../shared/realtimePricing';
 import { REALTIME_MODEL } from '../shared/realtimePricing';
 
-/** GA ephemeral-secret mint endpoint. If an account/tier still answers the legacy
- *  beta shape, we fall back to /v1/realtime/sessions on a 404 and normalize both
- *  response shapes below. (Live verification is pending the user's real key.) */
-const CLIENT_SECRETS_URL = 'https://api.openai.com/v1/realtime/client_secrets';
-const LEGACY_SESSIONS_URL = 'https://api.openai.com/v1/realtime/sessions';
-
-const MINT_TIMEOUT_MS = 15_000;
-
-export type MintResult =
-  | { ok: true; token: string; expiresAt: number | null; sessionConfig: { model: string } }
-  | { ok: false; error: string; code?: string };
+export type { MintResult } from './realtimeHttp';
 
 /** Whether a BYOK OpenAI key is stored (presence only — no decryption). Gates the
  *  Realtime Michael voice toggle in the renderer, the way `hasGroqKey` gates the
@@ -49,77 +47,81 @@ export function hasOpenAiKey(): boolean {
   return hasSecret(OPENAI_KEY_REF);
 }
 
-/** Mint a short-lived ephemeral client secret for a realtime WebRTC session. The
- *  real OpenAI key is decrypted MAIN-ONLY here and is NEVER part of the result. */
-export async function mintRealtimeToken(model: string = REALTIME_MODEL): Promise<MintResult> {
+/** Talk's server as configured in Settings → Voice: base URL (default OpenAI),
+ *  whether the token mint is skipped, and the model to ask for. */
+function voiceEndpoint():
+  | { ok: true; base: string; isDefaultBase: boolean; direct: boolean; model: string }
+  | { ok: false; error: string } {
+  const cfg = readConfig();
+  const checked = checkRealtimeBaseUrl(cfg.realtimeBaseUrl);
+  if (!checked.ok) return { ok: false, error: `${checked.error} Fix it in Settings → Voice.` };
+  const model = (typeof cfg.realtimeModel === 'string' && cfg.realtimeModel.trim()) || REALTIME_MODEL;
+  return {
+    ok: true,
+    base: checked.url,
+    isDefaultBase: checked.url === DEFAULT_REALTIME_BASE_URL,
+    direct: cfg.realtimeSkipTokenMint === true,
+    model
+  };
+}
+
+/** Mint a short-lived ephemeral client secret for a realtime WebRTC session, at
+ *  the configured base URL. With "Skip token request" on, nothing is minted (the
+ *  server has no token endpoint) and main later sends the key itself in
+ *  `realtime:sdp`. The real OpenAI key is decrypted MAIN-ONLY here and is NEVER
+ *  part of the result. */
+export async function mintRealtimeToken(model?: string): Promise<MintResult> {
   const key = getSecret(OPENAI_KEY_REF);
   if (!key) {
     return { ok: false, error: 'no OpenAI API key set — add one in Settings → Voice', code: 'no_key' };
   }
-
-  const post = async (url: string, body: unknown) => {
-    const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), MINT_TIMEOUT_MS);
-    try {
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: ac.signal
-      });
-      const text = await r.text();
-      let json: Record<string, unknown> | undefined;
-      try { json = text ? (JSON.parse(text) as Record<string, unknown>) : undefined; } catch { /* non-JSON body */ }
-      return { status: r.status, ok: r.ok, json, text };
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-
-  try {
-    // GA shape first: { session: { type, model } } → { value, expires_at, ... }.
-    let res = await post(CLIENT_SECRETS_URL, { session: { type: 'realtime', model } });
-    // Older accounts: fall back to the legacy sessions endpoint shape.
-    if (res.status === 404) res = await post(LEGACY_SESSIONS_URL, { model });
-
-    if (!res.ok) {
-      const errObj = res.json?.error as { message?: unknown } | undefined;
-      const msg =
-        (typeof errObj?.message === 'string' && errObj.message) ||
-        (res.text ? res.text.slice(0, 200) : `HTTP ${res.status}`);
-      return { ok: false, error: `token mint failed (${res.status}): ${msg}`, code: 'mint_failed' };
-    }
-
-    // Normalize across GA ({ value }) and legacy ({ client_secret: { value } }) shapes.
-    const clientSecret = res.json?.client_secret as { value?: unknown; expires_at?: unknown } | undefined;
-    const token =
-      (typeof res.json?.value === 'string' && (res.json.value as string)) ||
-      (typeof clientSecret?.value === 'string' && clientSecret.value) ||
-      '';
-    if (!token) return { ok: false, error: 'mint returned no ephemeral token', code: 'no_token' };
-
-    const expRaw = res.json?.expires_at ?? clientSecret?.expires_at;
-    const expiresAt = typeof expRaw === 'number' ? expRaw : null;
-
-    return { ok: true, token, expiresAt, sessionConfig: { model } };
-  } catch (e) {
-    const err =
-      e instanceof Error ? (e.name === 'AbortError' ? 'token mint timed out' : e.message) : String(e);
-    return { ok: false, error: err, code: 'network' };
-  }
+  const ep = voiceEndpoint();
+  if (!ep.ok) return { ok: false, error: ep.error, code: 'bad_base_url' };
+  return mintToken({
+    key,
+    base: ep.base,
+    model: model ?? ep.model,
+    direct: ep.direct,
+    isDefaultBase: ep.isDefaultBase
+  });
 }
 
 /** Register the renderer-facing realtime IPC. A SINGLE call from index.ts (rather
  *  than per-handler `ipcMain.handle` lines there) keeps the index.ts footprint to
- *  one line — rt-1 COORD note (Oscar also edits index.ts). Neither handler ever
+ *  one line — rt-1 COORD note (Oscar also edits index.ts). No handler ever
  *  returns the real OpenAI key. */
 export function registerRealtimeIpc(): void {
   // Boolean presence only — gates the voice toggle.
   ipcMain.handle('realtime:hasKey', () => hasOpenAiKey());
-  // Mint an ephemeral token; returns { token, sessionConfig } only.
+  // Mint an ephemeral token; returns { token, sessionConfig, sdpViaMain } only. A
+  // model the renderer asks for wins; otherwise the one set in Settings → Voice.
   ipcMain.handle('realtime:mintToken', async (_evt, payload: unknown) => {
     const p = (payload ?? {}) as { model?: unknown };
-    const model = typeof p.model === 'string' && p.model.trim() ? p.model.trim() : REALTIME_MODEL;
+    const model = typeof p.model === 'string' && p.model.trim() ? p.model.trim() : undefined;
     return mintRealtimeToken(model);
+  });
+  // The SDP offer/answer exchange, made here when the mint said `sdpViaMain`. The
+  // base URL, mode and key are read here, never taken from the renderer: the
+  // renderer supplies only the offer, the minted token it was given, and the model.
+  ipcMain.handle('realtime:sdp', async (_evt, payload: unknown) => {
+    const p = (payload ?? {}) as { sdp?: unknown; token?: unknown; model?: unknown };
+    const ep = voiceEndpoint();
+    if (!ep.ok) return { ok: false, error: ep.error };
+    const model = typeof p.model === 'string' && p.model.trim() ? p.model.trim() : ep.model;
+    let bearer: string;
+    if (ep.direct) {
+      const key = getSecret(OPENAI_KEY_REF);
+      if (!key) return { ok: false, error: 'no OpenAI API key set — add one in Settings → Voice' };
+      bearer = key;
+    } else {
+      bearer = typeof p.token === 'string' ? p.token : '';
+    }
+    return exchangeSdp({
+      sdp: typeof p.sdp === 'string' ? p.sdp : '',
+      base: ep.base,
+      model,
+      direct: ep.direct,
+      bearer
+    });
   });
 }
