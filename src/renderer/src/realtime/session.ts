@@ -28,6 +28,7 @@ import { RealtimeAgent, RealtimeSession, OpenAIRealtimeWebRTC } from '@openai/ag
 import { realtimeReadTools, realtimeSessionSummary } from './tools';
 import { realtimeActionTools } from './actions';
 import { resetRealtimeCost, recordRealtimeUsage, endRealtimeCost, isRealtimeIdle, getRealtimeCostSnapshot } from './costStore';
+import { relaySdpFetch, SDP_RELAY_URL } from '@shared/realtimeEndpoint';
 
 /**
  * Voice-loop state machine:
@@ -329,7 +330,16 @@ export async function connect(): Promise<void> {
     audioEl.autoplay = true;
     await applyOutputSink(audioEl, state.outputDeviceId);
 
-    const transport = new OpenAIRealtimeWebRTC({ mediaStream: stream, audioElement: audioEl });
+    // A self-hosted server (Settings → Voice) or a skipped token mint: MAIN makes
+    // the SDP exchange (see relaySdpFetch). The transport is pointed at the relay
+    // address, which never leaves this window. `useInsecureApiKey` only lifts the
+    // SDK's "ephemeral keys only" check on the placeholder below: no key is here.
+    const viaMain = mint.sdpViaMain === true;
+    const transport = new OpenAIRealtimeWebRTC({
+      mediaStream: stream,
+      audioElement: audioEl,
+      ...(viaMain ? { baseUrl: SDP_RELAY_URL, useInsecureApiKey: true } : {})
+    });
     // Warm-start: a short, best-effort hive snapshot so Michael's first answer is grounded
     // without a tool round-trip (rt-4 realtimeSessionSummary). Returns '' on failure / never throws.
     let warmStart = await realtimeSessionSummary().catch(() => '');
@@ -376,8 +386,22 @@ export async function connect(): Promise<void> {
     wire(s);
 
     // The ephemeral client secret is the apiKey for this connect; the real OpenAI key
-    // never reaches the renderer.
-    await s.connect({ apiKey: mint.token, model: mint.sessionConfig.model });
+    // never reaches the renderer. Relayed, the SDK's own fetch is swapped for one
+    // that hands its single SDP POST to main, and only for the length of connect().
+    if (viaMain) {
+      const realFetch = window.fetch;
+      const model = mint.sessionConfig.model;
+      window.fetch = relaySdpFetch(realFetch.bind(window), (sdp) =>
+        window.cth.realtimeExchangeSdp({ sdp, token: mint.token, model })
+      );
+      try {
+        await s.connect({ apiKey: mint.token || 'relayed-by-main', model });
+      } finally {
+        window.fetch = realFetch;
+      }
+    } else {
+      await s.connect({ apiKey: mint.token, model: mint.sessionConfig.model });
+    }
 
     session = s;
     resetRealtimeCost(Date.now()); // rt-9: start the live session cost meter

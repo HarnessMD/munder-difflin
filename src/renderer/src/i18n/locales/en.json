@@ -370,7 +370,19 @@
       "5m": "5 minutes",
       "10m": "10 minutes",
       "never": "Off (never)",
-      "idleDisconnectDesc": "How long the voice session stays open with no talking before it auto-closes. The spend cap still stops a runaway session even when this is off."
+      "idleDisconnectDesc": "How long the voice session stays open with no talking before it auto-closes. The spend cap still stops a runaway session even when this is off.",
+      "baseUrl": "Base URL",
+      "baseUrlHint": "Leave as is for OpenAI. For a server on your network, for example:",
+      "baseUrlError": {
+        "invalid": "This is not a valid URL.",
+        "scheme": "It must start with https:// (or http:// for a private network address).",
+        "insecure": "http:// is allowed only for this computer or a private network address. Use https://.",
+        "credentials": "The URL must not contain a user name or password.",
+        "query": "The URL must not end in a query (?…) or a fragment (#…)."
+      },
+      "skipTokenMint": "Skip token request (use key directly)",
+      "skipTokenMintDesc": "For servers without /realtime/client_secrets, e.g. LocalAI",
+      "realtimeModel": "Model (optional)"
     },
     "saved": "Saved",
     "saving": "Saving…",

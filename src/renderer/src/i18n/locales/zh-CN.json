@@ -370,7 +370,19 @@
       "5m": "5 分钟",
       "10m": "10 分钟",
       "never": "关闭（永不）",
-      "idleDisconnectDesc": "语音会话在无人说话时保持多久后自动关闭。即使此项关闭，支出上限仍能阻止失控的会话。"
+      "idleDisconnectDesc": "语音会话在无人说话时保持多久后自动关闭。即使此项关闭，支出上限仍能阻止失控的会话。",
+      "baseUrl": "基础 URL",
+      "baseUrlHint": "使用 OpenAI 时保持不变。局域网内的服务器示例：",
+      "baseUrlError": {
+        "invalid": "这不是有效的 URL。",
+        "scheme": "必须以 https:// 开头（私有网络地址可用 http://）。",
+        "insecure": "http:// 仅允许用于本机或私有网络地址，请使用 https://。",
+        "credentials": "URL 中不能包含用户名或密码。",
+        "query": "URL 不能以查询（?…）或片段（#…）结尾。"
+      },
+      "skipTokenMint": "跳过令牌请求（直接使用密钥）",
+      "skipTokenMintDesc": "适用于没有 /realtime/client_secrets 的服务器，例如 LocalAI",
+      "realtimeModel": "模型（可选）"
     },
     "saved": "已保存",
     "saving": "保存中…",

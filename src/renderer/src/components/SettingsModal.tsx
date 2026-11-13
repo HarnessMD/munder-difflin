@@ -22,6 +22,7 @@ import { McpDefaultsSettings } from './McpDefaultsSettings';
 import { IntegrationsRegistry } from './IntegrationsRegistry';
 import { AiEnginesSettings } from './AiEnginesSettings';
 import { REALTIME_MODEL } from '@shared/realtimePricing';
+import { checkRealtimeBaseUrl, DEFAULT_REALTIME_BASE_URL } from '@shared/realtimeEndpoint';
 import { RealtimeDevicePicker } from '@/realtime/DevicePicker';
 import { CostHud } from '@/realtime/CostHud';
 import {
@@ -534,6 +535,15 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
   const [idleDisconnectMs, setIdleDisconnectMs] = useState<number>(
     (config as HarnessConfig).realtimeIdleDisconnectMs ?? 180_000
   );
+  // Talk's server (Settings → Voice): base URL, skip-the-token-mint, model.
+  const [voiceBaseUrl, setVoiceBaseUrl] = useState<string>(
+    (config as HarnessConfig).realtimeBaseUrl ?? DEFAULT_REALTIME_BASE_URL
+  );
+  const [voiceSkipMint, setVoiceSkipMint] = useState<boolean>(
+    (config as HarnessConfig).realtimeSkipTokenMint === true
+  );
+  const [voiceModel, setVoiceModel] = useState<string>((config as HarnessConfig).realtimeModel ?? '');
+  const voiceBaseCheck = checkRealtimeBaseUrl(voiceBaseUrl);
 
   // Re-seed every editable field from the on-disk config when the modal opens.
   // App's `config` prop is loaded once and never refreshed after a save, so
@@ -558,6 +568,9 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
       setGroqKey(cc.groqApiKey ?? '');
       setFreeflowModel(cc.freeflowModel ?? 'whisper-large-v3-turbo');
       setIdleDisconnectMs((c as HarnessConfig).realtimeIdleDisconnectMs ?? 180_000);
+      setVoiceBaseUrl((c as HarnessConfig).realtimeBaseUrl ?? DEFAULT_REALTIME_BASE_URL);
+      setVoiceSkipMint((c as HarnessConfig).realtimeSkipTokenMint === true);
+      setVoiceModel((c as HarnessConfig).realtimeModel ?? '');
     }).catch(() => { /* keep prop-seeded values */ });
     window.cth.kgStatus().then((s) => { if (alive) setKgDocCount(s.docCount); })
       .catch(() => { /* status unavailable */ });
@@ -2040,6 +2053,70 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                               ? t('settings.voice.keySaved', { godName })
                               : t('settings.voice.noKey', { godName }))}
                           </span>
+
+                          {/* Talk's server. Default OpenAI; a self-hosted OpenAI Realtime
+                              compatible server (LocalAI) is set here. Staged, saved with
+                              the footer Save like the rest of this tab. */}
+                          <div style={sectionRule} />
+                          <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <span style={slackLabelStyle}>{t('settings.voice.baseUrl')}</span>
+                            <input
+                              type="text"
+                              value={voiceBaseUrl}
+                              spellCheck={false}
+                              onChange={(e) => {
+                                setVoiceBaseUrl(e.target.value);
+                                const v = e.target.value.trim();
+                                stage({ realtimeBaseUrl: v && v !== DEFAULT_REALTIME_BASE_URL ? v : undefined } as Partial<HarnessConfig>);
+                              }}
+                              placeholder={DEFAULT_REALTIME_BASE_URL}
+                              style={{ ...slackInputStyle, fontFamily: 'var(--cth-font-mono)' }}
+                            />
+                            <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
+                              {t('settings.voice.baseUrlHint')}{' '}
+                              <span style={{ fontFamily: 'var(--cth-font-mono)' }}>http://192.168.x.x:8080/v1</span>
+                            </span>
+                            {!voiceBaseCheck.ok && (
+                              <span role="alert" style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-status-blocked)' }}>
+                                {t(`settings.voice.baseUrlError.${voiceBaseCheck.problem}`)}
+                              </span>
+                            )}
+                          </label>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                              <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>
+                                {t('settings.voice.skipTokenMint')}
+                              </span>
+                              <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
+                                {t('settings.voice.skipTokenMintDesc')}
+                              </span>
+                            </div>
+                            <PixelButton
+                              variant={voiceSkipMint ? 'primary' : 'secondary'}
+                              size="sm"
+                              onClick={() => {
+                                const next = !voiceSkipMint;
+                                setVoiceSkipMint(next);
+                                stage({ realtimeSkipTokenMint: next } as Partial<HarnessConfig>);
+                              }}
+                            >
+                              {voiceSkipMint ? t('common.on') : t('common.off')}
+                            </PixelButton>
+                          </div>
+                          <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <span style={slackLabelStyle}>{t('settings.voice.realtimeModel')}</span>
+                            <input
+                              type="text"
+                              value={voiceModel}
+                              spellCheck={false}
+                              onChange={(e) => {
+                                setVoiceModel(e.target.value);
+                                stage({ realtimeModel: e.target.value.trim() || undefined } as Partial<HarnessConfig>);
+                              }}
+                              placeholder={REALTIME_MODEL}
+                              style={{ ...slackInputStyle, fontFamily: 'var(--cth-font-mono)' }}
+                            />
+                          </label>
                         </div>
 
                         <RealtimeDevicePicker />

@@ -311,6 +311,12 @@ export interface HarnessConfig {
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
    *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;
+  /** Talk's server: base URL (unset = OpenAI), whether to skip the token mint and
+   *  use the key directly, and the model id (unset = the default). Mirrors
+   *  src/main/config.ts. */
+  realtimeBaseUrl?: string;
+  realtimeSkipTokenMint?: boolean;
+  realtimeModel?: string;
   costCapUsd?: number;
   costCapTokens?: number;
   agentTokenCaps?: Record<string, number>;
@@ -1307,9 +1313,18 @@ const api = {
   realtimeMintToken: (
     req?: { model?: string }
   ): Promise<
-    | { ok: true; token: string; expiresAt: number | null; sessionConfig: { model: string } }
+    | { ok: true; token: string; expiresAt: number | null; sessionConfig: { model: string }; sdpViaMain: boolean }
     | { ok: false; error: string; code?: string }
   > => ipcRenderer.invoke('realtime:mintToken', req ?? {}),
+  // The SDP offer/answer exchange, made by MAIN when the mint said `sdpViaMain`
+  // (a self-hosted server, or "Skip token request"). Main supplies the base URL and
+  // any key; the renderer passes only the offer, its minted token and the model.
+  realtimeExchangeSdp: (req: {
+    sdp: string;
+    token: string;
+    model: string;
+  }): Promise<{ ok: true; sdp: string; location?: string } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('realtime:sdp', req),
   // rt-5 voice ACTIONS — the renderer holds NO policy; main (realtimeActions.ts) owns
   // the tiering, two-step verbal confirm, hard allowlist, and michael-voice
   // attribution. These just forward {verb,...args} and speak back `spoken`.

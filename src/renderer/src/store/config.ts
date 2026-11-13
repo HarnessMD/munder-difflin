@@ -110,6 +110,12 @@ export interface HarnessConfig {
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
    *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;
+  /** Talk's server: base URL (unset = OpenAI), whether to skip the token mint and
+   *  use the key directly, and the model id (unset = the default). Mirrors
+   *  src/main/config.ts. */
+  realtimeBaseUrl?: string;
+  realtimeSkipTokenMint?: boolean;
+  realtimeModel?: string;
   costCapUsd?: number;
   /** Hard total-token ceiling across active agents (the user-facing budget). */
   costCapTokens?: number;
