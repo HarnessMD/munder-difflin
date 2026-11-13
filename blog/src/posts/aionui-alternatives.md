@@ -24,6 +24,8 @@ faq:
 
 Our view: Orca is the closest AionUi alternative, because it is also a free desktop app that runs Claude Code, Codex and other agent CLIs side by side. AionUi is a free, Apache 2.0 desktop app for macOS, Windows and Linux, with a WebUI and a Team mode, and it stays a strong pick. Checked 9 Nov 2026.
 
+Rowboat, an open source AI coworker, has [its own list](/blog/rowboat-alternatives/).
+
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More head to heads live in our [Comparisons hub](/blog/topics/comparisons/) and [Herdr alternatives](/blog/herdr-alternatives/).
 
 ## What is AionUi?

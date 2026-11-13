@@ -5939,5 +5939,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-tools-today-2026-11-13": {
+    "title": "Agent Tools Today, 13 Nov 2026: Gemini 4 Hydrogen, Edge0-145B and Anthropic's IPO Page",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-4-hydrogen": {
+    "title": "Gemini 4 Hydrogen: Price vs Argon, Where to Use It and When to Pick It (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-hydrogen/hero.png",
+      "alt": "Title card on white. A pill reading New model, the title Gemini 4 Hydrogen, the line Price vs Argon, where to use it, when to pick it and a Checked 13 Nov 2026 line. Three tiles slide in: Hydrogen $1.50 in, Argon $2.00 in and Carbon $2.00 in.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-4-hydrogen/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "rowboat-alternatives": {
+    "title": "Rowboat Alternatives: 5 Tools Like Rowboat for an AI Coworker (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/rowboat-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Rowboat alternatives, the line 5 tools like Rowboat for an AI coworker and a Checked 13 Nov 2026 line. Five small tiles named AnythingLLM, Munder Difflin, Eigent, AionUi and Claude Cowork slide in under a grey tile labelled Rowboat.",
+      "prompt": "Title card: the hero scene in assets/media/rowboat-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

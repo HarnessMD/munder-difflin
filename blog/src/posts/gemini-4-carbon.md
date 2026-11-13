@@ -24,6 +24,8 @@ faq:
 
 Gemini 4 Carbon is Google's new frontier model, announced 28 Oct 2026, and you cannot use it yet unless you are one of the cyber defenders in its first group. Google's post of 28 Oct 2026 says it will launch at Argon's introductory price, $2 input and $10 output per million tokens.
 
+On 12 Nov 2026 Google added [Gemini 4 Hydrogen](/blog/gemini-4-hydrogen/), which it calls its daily driver for agentic workflows.
+
 New models end up inside the agents you run. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs engines such as Claude Code, Codex and Gemini CLI. It does not offer Gemini 4 Carbon: on 29 Oct 2026 Google had published no Carbon model ID for developers. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Gemini 4 Carbon?
