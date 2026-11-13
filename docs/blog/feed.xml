@@ -4,9 +4,33 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-12T00:00:00.000Z</updated>
+  <updated>2026-11-13T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 13 Nov 2026: Gemini 4 Hydrogen, Edge0-145B and Anthropic&#39;s IPO Page</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-13/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-13/</id>
+    <published>2026-11-13T00:00:00.000Z</published>
+    <updated>2026-11-13T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 12 to 13 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Gemini 4 Hydrogen: Price vs Argon, Where to Use It and When to Pick It (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-hydrogen/" />
+    <id>https://munderdiffl.in/blog/gemini-4-hydrogen/</id>
+    <published>2026-11-13T00:00:00.000Z</published>
+    <updated>2026-11-13T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Gemini 4 Hydrogen costs $1.50 in and $7.50 out per 1M tokens (13 Nov 2026). Where you can use it, what Orchestrator does, and Hydrogen or Argon.</summary>
+  </entry>
+  <entry>
+    <title>Rowboat Alternatives: 5 Tools Like Rowboat for an AI Coworker (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/rowboat-alternatives/" />
+    <id>https://munderdiffl.in/blog/rowboat-alternatives/</id>
+    <published>2026-11-13T00:00:00.000Z</published>
+    <updated>2026-11-13T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Rowboat is a free, open source AI coworker with a local knowledge graph and Spaces for agent teams. Five alternatives, checked 13 Nov 2026.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 12 Nov 2026: AWS Emulator, Gemini Decisions API, Agents and a Maya Site</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-12/" />
@@ -462,29 +486,5 @@
     <published>2026-10-26T00:00:00.000Z</published>
     <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
     <summary>Codex computer use lets the ChatGPT desktop app see and click apps on macOS and Windows. Setup, which plans get it, locked use and how Claude&#39;s compares.</summary>
-  </entry>
-  <entry>
-    <title>Cursor Pricing (Oct 2026): Every Plan After the 12 Oct Change</title>
-    <link href="https://munderdiffl.in/blog/cursor-pricing/" />
-    <id>https://munderdiffl.in/blog/cursor-pricing/</id>
-    <published>2026-10-26T00:00:00.000Z</published>
-    <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Cursor pricing as of 26 Oct 2026: Free, Plus $8, Premium $30, Super $100, Ultra $200, Teams seats, what changed on 12 Oct and what old plans keep.</summary>
-  </entry>
-  <entry>
-    <title>Pi Agent Alternatives: 7 Coding Agents to Try (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/pi-agent-alternatives/" />
-    <id>https://munderdiffl.in/blog/pi-agent-alternatives/</id>
-    <published>2026-10-26T00:00:00.000Z</published>
-    <updated>2026-10-26T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Seven Pi agent alternatives checked 26 Oct 2026: OpenCode, Munder Difflin, Claude Code, Codex CLI, Hermes Agent, Goose and Crush, with licences and prices.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 23 Oct 2026: Claude Duet, OpenAI CLI, Nvidia OpenShell</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-23/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-23/</id>
-    <published>2026-10-23T00:00:00.000Z</published>
-    <updated>2026-10-23T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents on 23 Oct 2026, each with its source.</summary>
   </entry>
 </feed>
