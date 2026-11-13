@@ -68,7 +68,7 @@ The [Orca site](https://www.onorca.dev) FAQ says "Orca is completely free and op
 
 ## 2. Munder Difflin: if you want a team, not a row of worktrees
 
-[Munder Difflin](https://harnessmd.com/download) is what we make. It runs on engines such as Claude Code, Codex and Gemini CLI, and connects tools through MCP servers, skills and plugins, plus Slack and webhooks. Agents run while your computer runs. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is what we make. It runs on engines such as Claude Code, Codex and Gemini CLI, and connects tools through MCP servers, skills and plugins, plus Slack and webhooks. Agents run on your computer, or in its Cloud Office, always on, with your computer off. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Emdash: if you want Conductor's shape, open source
 

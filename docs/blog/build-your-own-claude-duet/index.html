@@ -99,7 +99,7 @@
   "mainEntity": [
     { "@type": "Question", "name": "Is this the same as Claude Duet?", "acceptedAnswer": { "@type": "Answer", "text": "No. Claude Duet is Anthropic's app that works on business apps in its own virtual machine and decides by itself when to message you. This build copies one idea, a brief that comes to you first, with a team of agents on your own computer, on a clock you set." } },
     { "@type": "Question", "name": "What do I need for this build?", "acceptedAnswer": { "@type": "Answer", "text": "Munder Difflin, which is free, a coding CLI such as Claude Code with a subscription or key, and the GitHub CLI signed in to your account so the agent can read pull requests, runs and issues. Slack is optional." } },
-    { "@type": "Question", "name": "Does the brief run if my laptop is asleep?", "acceptedAnswer": { "@type": "Answer", "text": "Not today. Schedules run on your computer, so it has to be awake, and Munder Difflin has a setting that keeps it awake while agents are live. The Munder Difflin Cloud Office, coming soon, keeps agents working with your computer off." } },
+    { "@type": "Question", "name": "Does the brief run if my laptop is asleep?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, in the Munder Difflin Cloud Office, which keeps agents working with your computer off. On your own computer, schedules need it awake, and Munder Difflin has a setting that keeps it awake while agents are live." } },
     { "@type": "Question", "name": "Can I use Codex or Gemini CLI instead of Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each agent picks its own engine when you add it, so the brief agent can run Codex, Gemini CLI, OpenCode or another supported CLI. The prompt stays the same." } }
     
   ]
@@ -222,7 +222,7 @@ Put anything that blocks a release first.</code></pre>
 <figure class="mg" data-scene="thread"><img src="/blog/assets/media/build-your-own-claude-duet/thread.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. In a #standup thread you write Fix the failing check on main. The message travels to Michael, the orchestrator, which starts a short lived temp worker. The worker replies Fix ready for review in the same thread and folds away."><figcaption>A reply in Slack becomes a short lived worker and an answer in the same thread.</figcaption></figure>
 <p>Spend, scope changes and destructive steps still come back to you for approval, and a circuit breaker stops an agent that loops.</p>
 <h2 id="what-is-still-missing-compared-with-claude-duet" tabindex="-1">What is still missing compared with Claude Duet? <a class="anchor" href="#what-is-still-missing-compared-with-claude-duet" aria-hidden="true">#</a></h2>
-<p>Judgment, for now. Duet decides what is urgent on its own and runs in a virtual machine with your laptop off. This build fires on your clock, on your awake computer, and sees only what its commands show; the Cloud Office, coming soon, takes it off your computer. It works with any engine you pick, today, anywhere. For the full picture, read <a href="/blog/claude-duet-vs-munder-difflin/">Claude Duet vs Munder Difflin</a> and <a href="/blog/scheduling-autonomous-agent-missions/">scheduling agent missions</a>.</p>
+<p>Judgment, for now. Duet decides what is urgent on its own and runs in a virtual machine with your laptop off. This build fires on your clock, on your awake computer or in the Cloud Office with your computer off, and sees only what its commands show. It works with any engine you pick, today, anywhere. For the full picture, read <a href="/blog/claude-duet-vs-munder-difflin/">Claude Duet vs Munder Difflin</a> and <a href="/blog/scheduling-autonomous-agent-missions/">scheduling agent missions</a>.</p>
 <link rel="stylesheet" href="/blog/assets/media/build-your-own-claude-duet/motion.css"><script defer src="/blog/assets/media/build-your-own-claude-duet/motion.js"></script>
 
 
@@ -242,7 +242,7 @@ Put anything that blocks a release first.</code></pre>
         
         <div class="qa">
           <p class="q">Does the brief run if my laptop is asleep?</p>
-          <p class="a">Not today. Schedules run on your computer, so it has to be awake, and Munder Difflin has a setting that keeps it awake while agents are live. The Munder Difflin Cloud Office, coming soon, keeps agents working with your computer off.</p>
+          <p class="a">Yes, in the Munder Difflin Cloud Office, which keeps agents working with your computer off. On your own computer, schedules need it awake, and Munder Difflin has a setting that keeps it awake while agents are live.</p>
         </div>
         
         <div class="qa">

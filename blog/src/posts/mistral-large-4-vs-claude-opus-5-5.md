@@ -87,6 +87,6 @@ For other match ups, see [Gemini 4 Argon vs Claude Opus 5.5](/blog/gemini-4-argo
 
 Yes. A common split is the strong hosted model for planning and review, and the cheaper or local one for bulk work.
 
-Munder Difflin runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. Some engines accept a local base URL, so an open model can drive them; see [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/). A Cloud Office and a mobile app are coming soon; [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+Munder Difflin runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. Some engines accept a local base URL, so an open model can drive them; see [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/). Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 <link rel="stylesheet" href="/blog/assets/media/mistral-large-4-vs-claude-opus-5-5/motion.css"><script defer src="/blog/assets/media/mistral-large-4-vs-claude-opus-5-5/motion.js"></script>

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenCode 2.3: background subagents, quieter transcripts and upgrade notes — Munder Difflin Blog</title>
+<meta name="description" content="OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026." />
+<link rel="canonical" href="https://munderdiffl.in/blog/opencode-2-3/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="OpenCode 2.3: background subagents, quieter transcripts and upgrade notes — Munder Difflin Blog" />
+<meta property="og:description" content="OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026." />
+<meta property="og:url" content="https://munderdiffl.in/blog/opencode-2-3/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/opencode-2-3/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A pill reading New version, the title OpenCode 2.3, the line Background subagents by default and what else changed and a Checked 13 Nov 2026 line. Three tiles slide in: Background subagents, Quieter transcripts and Jump to message." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-13T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="CLI Agents" />
+<meta property="article:tag" content="Engines" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="OpenCode 2.3: background subagents, quieter transcripts and upgrade notes — Munder Difflin Blog" />
+<meta name="twitter:description" content="OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/opencode-2-3/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A pill reading New version, the title OpenCode 2.3, the line Background subagents by default and what else changed and a Checked 13 Nov 2026 line. Three tiles slide in: Background subagents, Quieter transcripts and Jump to message." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "OpenCode 2.3: background subagents, quieter transcripts and upgrade notes",
+  "description": "OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026.",
+  "image": ["https://munderdiffl.in/blog/assets/media/opencode-2-3/hero.png"],
+  "datePublished": "2026-11-13T00:00:00.000Z",
+  "dateModified": "2026-11-13T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/opencode-2-3/" },
+  "keywords": "opencode 2.3, opencode 2.3.0, opencode background subagents, opencode verbosity, opencode jump to message, opencode upgrade, opencode changelog",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/opencode-2-3/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "OpenCode 2.3: background subagents, quieter transcripts and upgrade notes", "item": "https://munderdiffl.in/blog/opencode-2-3/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is new in OpenCode 2.3?", "acceptedAnswer": { "@type": "Answer", "text": "The v2.3.0 release notes, published on GitHub on 13 Nov 2026, list three highlights: background subagents by default, quieter transcripts by default, and Jump to message in the desktop app. The notes also add experimental MCP events behind the mcp_events flag, client certificates for providers, and a long list of fixes." } },
+    { "@type": "Question", "name": "Can I stop OpenCode 2.3 subagents from running in the background?", "acceptedAnswer": { "@type": "Answer", "text": "The v2.3.0 notes name no setting for that. They say subagents now always run in the background, return their session ID immediately and report to their parent whenever they become idle. OpenCode's agents docs, read on 13 Nov 2026, also say subagents always run in the background." } },
+    { "@type": "Question", "name": "How do I see every tool call again in the OpenCode TUI?", "acceptedAnswer": { "@type": "Answer", "text": "Set Verbosity to medium or high in settings, or set session.verbosity in your TUI config, per the v2.3.0 notes. The new default is low, which folds each run of tool calls and thoughts into one activity row. A session.verbosity you already set is kept." } },
+    { "@type": "Question", "name": "What is the Jump to message shortcut in OpenCode?", "acceptedAnswer": { "@type": "Answer", "text": "The v2.3.0 notes give Cmd+Alt+G, or Ctrl+Alt+G on Windows and Linux. It opens Jump to message in the desktop app, which searches prompts across the current session, including prompts not yet loaded in the timeline. You can also open it from the command palette." } },
+    { "@type": "Question", "name": "How do I upgrade OpenCode to 2.3?", "acceptedAnswer": { "@type": "Answer", "text": "OpenCode's README lists npm i -g @opencode/cli@latest, a curl install script and the anomalyco/tap/opencode-v2 Homebrew tap. On 13 Nov 2026 the npm registry gave 2.3.0 as the latest tag for @opencode/cli. From 1.x, Anomaly's 2.0 post says to get onto the latest 1.x release and run opencode upgrade --major." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>OpenCode 2.3: background subagents, quieter transcripts and upgrade notes</h1>
+    <p class="dek">OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-13">Nov 13, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/opencode-2-3/hero.png" alt="Title card on white. A pill reading New version, the title OpenCode 2.3, the line Background subagents by default and what else changed and a Checked 13 Nov 2026 line. Three tiles slide in: Background subagents, Quieter transcripts and Jump to message." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>OpenCode 2.3 makes every subagent run in the background and folds tool calls into one quiet activity row, so the parent session keeps working while the transcript shows less. Anomaly published <a href="https://github.com/anomalyco/opencode/releases/tag/v2.3.0">v2.3.0</a> on GitHub on 13 Nov 2026 at 08:55 UTC. Checked 13 Nov 2026.</p>
+<p>New to the tool? <a href="/blog/what-is-opencode/">What is OpenCode</a> covers the basics, the <a href="/blog/topics/concepts/">Concepts hub</a> explains the terms, and <a href="/blog/opencode-2-0/">OpenCode 2.0</a> covers the rewrite this release builds on. If you run Claude Code subagents too, our <a href="/blog/claude-code-max-plan-tips/">Max plan guide</a> covers that side.</p>
+<h2 id="what-is-new-in-opencode-23" tabindex="-1">What is new in OpenCode 2.3? <a class="anchor" href="#what-is-new-in-opencode-23" aria-hidden="true">#</a></h2>
+<p>Three highlights: background subagents by default, quieter transcripts by default, and Jump to message in the desktop app. The table is our selection from the <a href="https://github.com/anomalyco/opencode/releases/tag/v2.3.0">v2.3.0 notes</a> and, for the last row, the <a href="https://github.com/anomalyco/opencode/releases/tag/v2.2.6">v2.2.6 notes</a>, both read on 13 Nov 2026.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>What it does</th>
+<th>Default or flag</th>
+<th>Release</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Background subagents</td>
+<td>Subagents return their session ID at once and report to the parent when idle</td>
+<td>Always on</td>
+<td>v2.3.0, 13 Nov</td>
+</tr>
+<tr>
+<td>Quieter transcripts</td>
+<td>Each run of tool calls and thoughts becomes one collapsible activity row</td>
+<td>Verbosity <code>low</code> by default</td>
+<td>v2.3.0, 13 Nov</td>
+</tr>
+<tr>
+<td>Jump to message</td>
+<td>Desktop app search across the current session’s prompts</td>
+<td><code>Cmd+Alt+G</code> or <code>Ctrl+Alt+G</code></td>
+<td>v2.3.0, 13 Nov</td>
+</tr>
+<tr>
+<td>MCP events</td>
+<td>Experimental support for MCP events</td>
+<td><code>mcp_events</code> flag</td>
+<td>v2.3.0, 13 Nov</td>
+</tr>
+<tr>
+<td>Shell timeout to background</td>
+<td>Experimental: moves a shell command to the background when its timeout expires</td>
+<td><code>shell_timeout_background</code> flag</td>
+<td>v2.3.0, 13 Nov</td>
+</tr>
+<tr>
+<td><code>opencode run</code> waits</td>
+<td>Waits for the background subagents and shell commands its prompt started</td>
+<td>On, no time limit</td>
+<td>v2.2.6, 6 Nov</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="what-do-background-subagents-change-for-the-parent-session" tabindex="-1">What do background subagents change for the parent session? <a class="anchor" href="#what-do-background-subagents-change-for-the-parent-session" aria-hidden="true">#</a></h2>
+<p>The parent no longer waits: a subagent hands back its session ID straight away and reports in when it goes idle. The v2.3.0 notes put it this way: “Subagents now return immediately, continue in the background, and report back whenever they become idle. You can keep working in the parent session while multiple subagents run concurrently.”</p>
+<p>OpenCode’s <a href="https://opencode.ai/docs/agents/">agents docs</a>, read on 13 Nov 2026, add: “the parent receives a report when a child goes idle, and again after each later round of work.”</p>
+<p>When a subagent goes idle while its own background work is still running, the notes say its report “now says it is still running, so the parent waits for the final report instead of treating the partial answer as done.” Subagents now admit they are still busy instead of handing in half the homework.</p>
+<figure class="mg" data-scene="kettle"><img src="/blog/assets/media/opencode-2-3/kettle.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A kettle labelled subagent heats on a hob and starts to steam, while a notepad beside it labelled parent session keeps filling with new lines. When the kettle whistles, a card rises from the spout reading report back. A tap on the kettle refills it and the cycle starts again."><figcaption>Subagents run in the background and report back when idle, per the v2.3.0 notes of 13 Nov 2026.</figcaption></figure>
+<h2 id="how-do-you-see-every-step-in-the-transcript-again" tabindex="-1">How do you see every step in the transcript again? <a class="anchor" href="#how-do-you-see-every-step-in-the-transcript-again" aria-hidden="true">#</a></h2>
+<p>Set Verbosity to <code>medium</code> or <code>high</code> in settings, or set <code>session.verbosity</code> in your TUI config, per the v2.3.0 notes. The new default is <code>low</code>, which “summarizes each run of tools and thoughts into one activity row”, and the notes add: “A <code>session.verbosity</code> you already set is kept.”</p>
+<p>OpenCode’s <a href="https://opencode.ai/docs/cli/config">settings docs</a> say terminal settings live in one global file, <code>~/.config/opencode/cli.json</code>, and that you can press <code>Ctrl+P</code>, then select <strong>Open settings</strong>, from the TUI. Following the <code>session</code> block on that page, the key looks like this:</p>
+<pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
+  <span class="token property">"session"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"verbosity"</span><span class="token operator">:</span> <span class="token string">"high"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>That settings page did not list <code>session.verbosity</code> yet on 13 Nov 2026.</p>
+<figure class="mg" data-scene="drawer"><img src="/blog/assets/media/opencode-2-3/drawer.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Small cards labelled tool call and thought slide one by one into a drawer labelled activity, and the drawer closes under a tag that reads Verbosity low. A tap on the drawer pulls it open, lays every card out in a row again and changes the tag to Verbosity high."><figcaption>Verbosity defaults to low in 2.3; medium or high shows every step, per the v2.3.0 notes of 13 Nov 2026.</figcaption></figure>
+<h2 id="what-is-jump-to-message" tabindex="-1">What is Jump to message? <a class="anchor" href="#what-is-jump-to-message" aria-hidden="true">#</a></h2>
+<p>It is a desktop app command that searches the prompts in your current session and jumps straight to one. The v2.3.0 notes say to open <strong>Jump to message</strong> from the command palette or press <code>Cmd+Alt+G</code> (<code>Ctrl+Alt+G</code> on Windows and Linux). The notes add that it finds “prompts not yet loaded in the timeline”.</p>
+<figure class="mg" data-scene="elevator"><img src="/blog/assets/media/opencode-2-3/elevator.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An elevator car rides up a glass shaft past floors, each labelled prompt, then stops at one and its doors slide open. A panel beside the shaft reads Jump to message and Cmd Alt G. A tap on a floor sends the car there."><figcaption>Jump to message opens with Cmd+Alt+G or Ctrl+Alt+G, per the v2.3.0 notes of 13 Nov 2026.</figcaption></figure>
+<h2 id="what-else-changed-in-23" tabindex="-1">What else changed in 2.3? <a class="anchor" href="#what-else-changed-in-23" aria-hidden="true">#</a></h2>
+<p>Mostly experiments and fixes. Our picks from the v2.3.0 notes:</p>
+<ul>
+<li>Experimental MCP events, “behind the <code>mcp_events</code> flag”. The notes do not say how to turn it on.</li>
+<li>“Shell commands now survive server handoffs and keep their output when interrupted.”</li>
+<li>Providers can present a client certificate for mutual TLS through <code>settings.tls</code>.</li>
+<li>Local model discovery for Ollama, LM Studio and vLLM “waits up to 15 seconds per request instead of 1”.</li>
+<li>An experimental Recent sessions sidebar in the desktop app, limited to “the last seven days and 30 rows”.</li>
+</ul>
+<h2 id="how-do-you-upgrade-to-opencode-23" tabindex="-1">How do you upgrade to OpenCode 2.3? <a class="anchor" href="#how-do-you-upgrade-to-opencode-23" aria-hidden="true">#</a></h2>
+<p>Use one of the install commands in OpenCode’s <a href="https://github.com/anomalyco/opencode">README</a>. On 13 Nov 2026 the <a href="https://registry.npmjs.org/@opencode/cli">npm registry</a> gave 2.3.0 as the <code>latest</code> tag for <code>@opencode/cli</code>. The README lists these, and calls the Homebrew tap “recommended, always up to date”:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token function">npm</span> i <span class="token parameter variable">-g</span> @opencode/cli@latest
+<span class="token function">curl</span> <span class="token parameter variable">-fsSL</span> https://opencode.ai/v2/install <span class="token operator">|</span> <span class="token function">bash</span>
+brew <span class="token function">install</span> anomalyco/tap/opencode-v2</code></pre>
+<p>For the desktop app, the README points to <a href="http://opencode.ai/download">opencode.ai/download</a>.</p>
+<p>Still on 1.x? Anomaly’s <a href="https://anoma.ly/notes/opencode-2-0/">2.0 post</a> says: “make sure you’re on the latest 1.x release, then run opencode upgrade --major”.</p>
+<p>One catch: on 13 Nov 2026 GitHub’s <a href="https://github.com/anomalyco/opencode/releases/latest">latest release</a> link still opened v1.19.5, so a script that follows it gets 1.x.</p>
+<h2 id="what-should-you-watch-for-when-upgrading" tabindex="-1">What should you watch for when upgrading? <a class="anchor" href="#what-should-you-watch-for-when-upgrading" aria-hidden="true">#</a></h2>
+<p>Two defaults changed: subagents always run in the background, and transcripts default to <code>low</code>. Details from the notes:</p>
+<ol>
+<li>Subagents “now always run in the background”. The notes name no setting to switch that off.</li>
+<li>Transcript verbosity “now defaults to <code>low</code>”. A <code>session.verbosity</code> you set before is kept.</li>
+<li>Since v2.2.6, <code>opencode run</code> waits for the subagents and shell commands its prompt started. Those notes say “There is no time limit” and to “set a timeout on CI jobs”.</li>
+<li>Code Mode results changed: “<code>write</code> and <code>edit</code> return their confirmation as a string, <code>patch</code> returns an empty result, and <code>skill</code> returns the skill’s directory and content.”</li>
+<li>“Session lists now open at the top rather than at the current session.”</li>
+</ol>
+<p>Our view: if you script OpenCode, item 3 matters most, because every subagent is now a background job.</p>
+<h2 id="how-does-23-relate-to-opencode-20" tabindex="-1">How does 2.3 relate to OpenCode 2.0? <a class="anchor" href="#how-does-23-relate-to-opencode-20" aria-hidden="true">#</a></h2>
+<p>It finishes an idea 2.0 started: background subagents went from one option to the only mode. Anomaly’s 2.0 post, dated 12 Oct 2026, introduced them and said “This happens automatically but you can also trigger it manually”. In 2.3 the agents docs say subagents “always run in the background”.</p>
+<p>Our <a href="/blog/opencode-2-0/">OpenCode 2.0 guide</a> covers the service, Code Mode and the plugin break that came first. On the <a href="https://github.com/anomalyco/opencode/releases">GitHub releases page</a>, v2.2.0 (27 Oct 2026) through v2.2.7 (10 Nov 2026) sit between them. Unlike v2.2.0, the v2.3.0 notes have no breaking changes section, so we think 2.3 is a defaults release, not a migration.</p>
+<h2 id="munder-difflin-and-opencode" tabindex="-1">Munder Difflin and OpenCode <a class="anchor" href="#munder-difflin-and-opencode" aria-hidden="true">#</a></h2>
+<p><a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its <a href="https://github.com/HarnessMD/munder-difflin">README</a>, read on 13 Nov 2026, names OpenCode among the agent CLIs it “Wraps”. For other options, see <a href="/blog/opencode-alternatives/">OpenCode alternatives</a> and <a href="/blog/opencode-vs-claude-code/">OpenCode vs Claude Code</a>.</p>
+<link rel="stylesheet" href="/blog/assets/media/opencode-2-3/motion.css"><script defer src="/blog/assets/media/opencode-2-3/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">What is new in OpenCode 2.3?</p>
+          <p class="a">The v2.3.0 release notes, published on GitHub on 13 Nov 2026, list three highlights: background subagents by default, quieter transcripts by default, and Jump to message in the desktop app. The notes also add experimental MCP events behind the mcp_events flag, client certificates for providers, and a long list of fixes.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can I stop OpenCode 2.3 subagents from running in the background?</p>
+          <p class="a">The v2.3.0 notes name no setting for that. They say subagents now always run in the background, return their session ID immediately and report to their parent whenever they become idle. OpenCode&#39;s agents docs, read on 13 Nov 2026, also say subagents always run in the background.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I see every tool call again in the OpenCode TUI?</p>
+          <p class="a">Set Verbosity to medium or high in settings, or set session.verbosity in your TUI config, per the v2.3.0 notes. The new default is low, which folds each run of tool calls and thoughts into one activity row. A session.verbosity you already set is kept.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What is the Jump to message shortcut in OpenCode?</p>
+          <p class="a">The v2.3.0 notes give Cmd+Alt+G, or Ctrl+Alt+G on Windows and Linux. It opens Jump to message in the desktop app, which searches prompts across the current session, including prompts not yet loaded in the timeline. You can also open it from the command palette.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I upgrade OpenCode to 2.3?</p>
+          <p class="a">OpenCode&#39;s README lists npm i -g @opencode/cli@latest, a curl install script and the anomalyco/tap/opencode-v2 Homebrew tap. On 13 Nov 2026 the npm registry gave 2.3.0 as the latest tag for @opencode/cli. From 1.x, Anomaly&#39;s 2.0 post says to get onto the latest 1.x release and run opencode upgrade --major.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/cli-agents/">CLI Agents</a><a class="tag" href="/blog/tags/engines/">Engines</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-new-in-opencode-23">What is new in OpenCode 2.3?</a></li><li class="lvl-2"><a href="#what-do-background-subagents-change-for-the-parent-session">What do background subagents change for the parent session?</a></li><li class="lvl-2"><a href="#how-do-you-see-every-step-in-the-transcript-again">How do you see every step in the transcript again?</a></li><li class="lvl-2"><a href="#what-is-jump-to-message">What is Jump to message?</a></li><li class="lvl-2"><a href="#what-else-changed-in-23">What else changed in 2.3?</a></li><li class="lvl-2"><a href="#how-do-you-upgrade-to-opencode-23">How do you upgrade to OpenCode 2.3?</a></li><li class="lvl-2"><a href="#what-should-you-watch-for-when-upgrading">What should you watch for when upgrading?</a></li><li class="lvl-2"><a href="#how-does-23-relate-to-opencode-20">How does 2.3 relate to OpenCode 2.0?</a></li><li class="lvl-2"><a href="#munder-difflin-and-opencode">Munder Difflin and OpenCode</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/pentagon-alternatives/"><span class="k">← Older</span><span class="t">Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)</span></a>
+      <a class="pn next" href="/blog/llama-cpp-1-0/"><span class="k">Newer →</span><span class="t">llama.cpp 1.0: What Changed and What to Check Before Upgrading</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/gemini-4-hydrogen/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-4-hydrogen/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-13">Nov 13, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/gemini-4-hydrogen/">Gemini 4 Hydrogen: Price vs Argon, Where to Use It and When to Pick It (Nov 2026)</a></h3>
+    <p class="dek">Gemini 4 Hydrogen costs $1.50 in and $7.50 out per 1M tokens (13 Nov 2026). Where you can use it, what Orchestrator does, and Hydrogen or Argon.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/gemini-4-hydrogen/" aria-label="Read: Gemini 4 Hydrogen: Price vs Argon, Where to Use It and When to Pick It (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/llama-cpp-1-0/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/llama-cpp-1-0/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-13">Nov 13, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/llama-cpp-1-0/">llama.cpp 1.0: What Changed and What to Check Before Upgrading</a></h3>
+    <p class="dek">llama.cpp 1.0 drops the deprecated API, adds FP8 KV caches and an MoE expert cache, and hardens llama-server. What changed. Checked 13 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/llama-cpp-1-0/" aria-label="Read: llama.cpp 1.0: What Changed and What to Check Before Upgrading">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-a2ui/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-a2ui/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-12">Nov 12, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-a2ui/">What is A2UI? Google&#39;s A2UI 1.0, explained</a></h3>
+    <p class="dek">A2UI 1.0 is Google&#39;s stable open protocol for agents that answer with native screens. What it is, what 1.0 adds, and how it fits MCP Apps and AG-UI.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-a2ui/" aria-label="Read: What is A2UI? Google&#39;s A2UI 1.0, explained">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

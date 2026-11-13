@@ -5972,5 +5972,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "pentagon-alternatives": {
+    "title": "Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/pentagon-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Pentagon alternatives, the line 5 tools like Pentagon for AI teammates and a Checked 13 Nov 2026 line. Five small tiles named Rowboat, Munder Difflin, Agent Relay, Perplexity Teammates and Claude Cowork slide in under a grey tile labelled Pentagon.",
+      "prompt": "Title card: the hero scene in assets/media/pentagon-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "llama-cpp-1-0": {
+    "title": "llama.cpp 1.0: What Changed and What to Check Before Upgrading",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/llama-cpp-1-0/hero.png",
+      "alt": "Title card on white. A pill reading New release, the title llama.cpp 1.0, the line What changed and what to check before upgrading and a Checked 13 Nov 2026 line. Three tiles slide in: 35 removed, NextN API and MoE expert cache.",
+      "prompt": "Title card: the hero scene in assets/media/llama-cpp-1-0/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-2-3": {
+    "title": "OpenCode 2.3: background subagents, quieter transcripts and upgrade notes",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/opencode-2-3/hero.png",
+      "alt": "Title card on white. A pill reading New version, the title OpenCode 2.3, the line Background subagents by default and what else changed and a Checked 13 Nov 2026 line. Three tiles slide in: Background subagents, Quieter transcripts and Jump to message.",
+      "prompt": "Title card: the hero scene in assets/media/opencode-2-3/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

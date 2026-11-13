@@ -70,7 +70,7 @@ Cowork does Turnstone's job inside Claude. Anthropic's [Cowork guide](https://su
 
 ## 2. Munder Difflin: free, open source, three systems
 
-Munder Difflin is ours, and it runs on Windows and Linux as well as macOS. Its [README](https://github.com/HarnessMD/munder-difflin), read 11 Nov 2026, says it "works with the subscriptions you already pay for, on their hourly limits" and offers "Download 0.5.6 for macOS, Windows or Linux". Work can arrive from Slack or a webhook, and agents add tools through MCP servers, skills and plugins. A Cloud Office and a mobile app are coming soon. It suits research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Munder Difflin is ours, and it runs on Windows and Linux as well as macOS. Its [README](https://github.com/HarnessMD/munder-difflin), read 11 Nov 2026, says it "works with the subscriptions you already pay for, on their hourly limits" and offers "Download 0.5.6 for macOS, Windows or Linux". Work can arrive from Slack or a webhook, and agents add tools through MCP servers, skills and plugins. Munder Difflin's Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon. It suits research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Grok Bot: the one Turnstone measures itself against
 

@@ -103,7 +103,7 @@
     { "@type": "Question", "name": "Is Orchestrator.inc the same as Agent Orchestrator?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The footer of orchestrator.inc, read 6 Nov 2026, says \"Orchestrator.inc (formerly Agent Orchestrator, AO)\". The GitHub repo is still called agent-orchestrator." } },
     { "@type": "Question", "name": "Is Orchestrator.inc free?", "acceptedAnswer": { "@type": "Answer", "text": "For local use, yes. Its pricing page, read 6 Nov 2026, lists Free at $0 a month, Starter at $20 a month and Pro at $40 a month, and says \"Plan limits apply only to cloud agents.\" The paid plans add cloud agents." } },
     { "@type": "Question", "name": "Does Orchestrator.inc have a mobile app?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Its home page, read 6 Nov 2026, says to \"Pair the free iPhone, iPad and Android app with your desktop by QR code.\" The agents still run on your machine. The phone reaches it on the same network, or from anywhere through a managed tunnel on Starter and up, per its FAQ." } },
-    { "@type": "Question", "name": "How is Munder Difflin different from Orchestrator.inc?", "acceptedAnswer": { "@type": "Answer", "text": "Our view: Orchestrator.inc is about getting code merged, and Munder Difflin is a team of agents for all kinds of knowledge work, coding included. Munder Difflin is free and open source and runs on your own computer. Its Cloud Office and mobile app are coming soon." } }
+    { "@type": "Question", "name": "How is Munder Difflin different from Orchestrator.inc?", "acceptedAnswer": { "@type": "Answer", "text": "Our view: Orchestrator.inc is about getting code merged, and Munder Difflin is a team of agents for all kinds of knowledge work, coding included. Munder Difflin is free and open source and runs on your own computer. Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon." } }
     
   ]
 }
@@ -197,8 +197,8 @@
 <p>The repo description says “Supports Claude Code, Codex &amp; 35+ coding agents” and lists “Desktop (macOS, Windows, Linux) + iPhone &amp; Android apps.” You choose per task: the README says “Pick the agent and model per task, then work in structured chat or the agent’s own terminal UI.” The licence is Apache 2.0. The <a href="https://github.com/OrchestratorInc/agent-orchestrator/releases/latest">latest release</a> is v0.14.10, published on 6 Nov 2026.</p>
 <figure class="mg" data-scene="muffins"><img src="/blog/assets/media/orchestrator-inc-vs-munder-difflin/muffins.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a mixing bowl labelled Main agent tips over a muffin tray. Batter pours into three cups one after another, and each cup gets a paper flag: Worker one, Worker two, Worker three. A small card rises over each cup that reads Own worktree. Tapping the bowl tips it again and refills the cups."><figcaption>Orchestrator.inc's main agent plans the work and starts a worker for each piece in its own worktree, per its README, read 6 Nov 2026.</figcaption></figure>
 <h2 id="what-is-munder-difflin" tabindex="-1">What is Munder Difflin? <a class="anchor" href="#what-is-munder-difflin" aria-hidden="true">#</a></h2>
-<p>Munder Difflin is a desktop app where a team of AI agents takes research, writing, email, ops and code, on your own computer. Agents run while your computer runs. Its <a href="https://github.com/HarnessMD/munder-difflin">README</a>, read 6 Nov 2026, describes “A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human.”</p>
-<p>It runs on engines such as Claude Code, Codex and Gemini CLI. Work can come in from Slack and webhooks, and agents pick up tools through MCP servers, skills and plugins. The README offers downloads “for macOS, Windows or Linux”. A Cloud Office and a mobile app are coming soon. Setup is in <a href="/blog/how-to-install-and-use-munder-difflin/">how to install and use Munder Difflin</a>.</p>
+<p>Munder Difflin is a desktop app where a team of AI agents takes research, writing, email, ops and code, on your own computer. Agents can also run in its Cloud Office, always on, with your computer off. Its <a href="https://github.com/HarnessMD/munder-difflin">README</a>, read 6 Nov 2026, describes “A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human.”</p>
+<p>It runs on engines such as Claude Code, Codex and Gemini CLI. Work can come in from Slack and webhooks, and agents pick up tools through MCP servers, skills and plugins. The README offers downloads “for macOS, Windows or Linux”. A mobile app is coming soon. Setup is in <a href="/blog/how-to-install-and-use-munder-difflin/">how to install and use Munder Difflin</a>.</p>
 <h2 id="how-do-they-compare-side-by-side" tabindex="-1">How do they compare side by side? <a class="anchor" href="#how-do-they-compare-side-by-side" aria-hidden="true">#</a></h2>
 <p>They share worktrees and differ in scope. Every row was read on 6 Nov 2026.</p>
 <div class="table-scroll">
@@ -219,7 +219,7 @@
 <tr>
 <td>Where it runs</td>
 <td>Your machine, plus cloud agents on paid plans and iPhone and Android apps</td>
-<td>Your computer. Cloud Office and mobile app coming soon</td>
+<td>Your computer, or the Cloud Office, always on. Mobile app coming soon</td>
 </tr>
 <tr>
 <td>Engines</td>
@@ -248,11 +248,10 @@
 <p>Nothing to run locally. Its <a href="https://orchestrator.inc/pricing/">pricing page</a>, read 6 Nov 2026, lists Free at $0, Starter at $20 a month and Pro at $40 a month. It says “Local agents are unlimited on every plan. Plan limits apply only to cloud agents.” Starter includes “1 simultaneous cloud agent” and Pro “15 simultaneous cloud agents”. Enterprise has custom pricing.</p>
 <figure class="mg" data-scene="receipt"><img src="/blog/assets/media/orchestrator-inc-vs-munder-difflin/receipt.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a small till prints a paper receipt that scrolls up one line at a time: Free, local, $0. Starter, $20 a month. Pro, $40 a month. A last line reads Cloud only. Tapping the receipt tears it off and a fresh one starts printing."><figcaption>Orchestrator.inc is free for local use; Starter at $20 and Pro at $40 a month cover cloud agents, per its pricing page, read 6 Nov 2026.</figcaption></figure>
 <h2 id="where-is-orchestratorinc-stronger" tabindex="-1">Where is Orchestrator.inc stronger? <a class="anchor" href="#where-is-orchestratorinc-stronger" aria-hidden="true">#</a></h2>
-<p>It is stronger at carrying a pull request all the way to merge, and at reaching you when you are away. All four points come from its own pages, read 6 Nov 2026.</p>
+<p>It is stronger at carrying a pull request all the way to merge, and at reaching you when you are away. All three points come from its own pages, read 6 Nov 2026.</p>
 <ul>
 <li><strong>CI routing.</strong> The README says “Failed checks, review comments, and merge conflicts go back to the worker that owns the branch until the PR is approved.” It adds: “A reviewer agent can read every PR before a person does.” We think this is the best part of the product.</li>
 <li><strong>Phone apps today.</strong> The <a href="https://orchestrator.inc">home page</a> says to “Pair the free iPhone, iPad and Android app with your desktop by QR code.” You get “a notification when an agent needs you”.</li>
-<li><strong>Cloud agents today.</strong> Starter promises “Agents keep working when your computer sleeps”. Munder Difflin’s agents run while your computer runs, and its Cloud Office is coming soon.</li>
 <li><strong>A browser per worker.</strong> The README says “Each worker also gets a browser to preview and test its app.”</li>
 </ul>
 <figure class="mg" data-scene="boomerang"><img src="/blog/assets/media/orchestrator-inc-vs-munder-difflin/boomerang.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, three paper boomerangs rest on a desk, each with a tag: Branch one, Branch two, Branch three. A slip that reads CI failed clips onto the second one. It flies out in a wide curve and lands back in the same spot, and its tag flips to read Fixed. Tapping any boomerang throws it again."><figcaption>Failed checks, review comments and merge conflicts go back to the worker that owns the branch, per Orchestrator.inc's README, read 6 Nov 2026.</figcaption></figure>
@@ -260,7 +259,7 @@
 <p>Munder Difflin aims wider than code. Orchestrator.inc’s own tagline is “Run a fleet of coding agents while keeping branches, reviews, and CI failures manageable.” That is a clear, focused promise. Munder Difflin puts research, writing, email and ops on the same floor as the code, under one orchestrator you brief.</p>
 <p>Worktrees are a switch, not the whole model. The README, read 6 Nov 2026, lists “Per-agent git worktrees. Optional isolation so parallel agents never collide on branches.” Work also arrives from outside the app: a Slack message or a webhook can start it. Tools come through MCP servers, skills and plugins.</p>
 <h2 id="who-should-pick-which" tabindex="-1">Who should pick which? <a class="anchor" href="#who-should-pick-which" aria-hidden="true">#</a></h2>
-<p>Our view: it depends on what fills your day. Pick Orchestrator.inc if most of it is pull requests, and you want CI failures and review comments sent back to the right agent, a phone app now, or cloud agents that keep going while the laptop sleeps.</p>
+<p>Our view: it depends on what fills your day. Pick Orchestrator.inc if most of it is pull requests, and you want CI failures and review comments sent back to the right agent, or a phone app now.</p>
 <p>Pick Munder Difflin if you want one orchestrator running a team across research, writing, ops and code, with work arriving from Slack or webhooks, on your own computer.</p>
 <p>Both run Claude Code and Codex, so starting with one does not lock you out of the other. For other matchups, read <a href="/blog/orca-vs-munder-difflin/">Orca vs Munder Difflin</a> or our <a href="/blog/conductor-alternatives/">Conductor alternatives</a> roundup. If you are weighing Reason Machines too, our <a href="/blog/reason-machines-alternatives/">Reason Machines alternatives</a> page sets it against five other tools.</p>
 <link rel="stylesheet" href="/blog/assets/media/orchestrator-inc-vs-munder-difflin/motion.css"><script defer src="/blog/assets/media/orchestrator-inc-vs-munder-difflin/motion.js"></script>
@@ -292,7 +291,7 @@
         
         <div class="qa">
           <p class="q">How is Munder Difflin different from Orchestrator.inc?</p>
-          <p class="a">Our view: Orchestrator.inc is about getting code merged, and Munder Difflin is a team of agents for all kinds of knowledge work, coding included. Munder Difflin is free and open source and runs on your own computer. Its Cloud Office and mobile app are coming soon.</p>
+          <p class="a">Our view: Orchestrator.inc is about getting code merged, and Munder Difflin is a team of agents for all kinds of knowledge work, coding included. Munder Difflin is free and open source and runs on your own computer. Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon.</p>
         </div>
         
       </section>
@@ -325,6 +324,22 @@
       <h2>Related in Comparisons</h2>
       <div class="post-grid">
         <article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/pentagon-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/pentagon-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-13">Nov 13, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/pentagon-alternatives/">Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)</a></h3>
+    <p class="dek">Pentagon puts AI agents on a shared canvas as teammates. Five alternatives with how they run, licence and price, checked 13 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/pentagon-alternatives/" aria-label="Read: Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
   <a class="thumb t-comparisons" href="/blog/rowboat-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/rowboat-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -353,22 +368,6 @@
     <div class="foot">
       <span class="tag kind">Comparisons</span>
       <a class="more" href="/blog/gemini-decisions-api-vs-openai-decisions-api/" aria-label="Read: Gemini Decisions API vs OpenAI Decisions API: Price, Inputs and Limits">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/marblism-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/marblism-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-11-12">Nov 12, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/marblism-alternatives/">Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)</a></h3>
-    <p class="dek">Marblism sells seven named AI employees to businesses. Five alternatives, from Sintra to Claude Cowork, with prices checked 12 Nov 2026.</p>
-    <div class="foot">
-      <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/marblism-alternatives/" aria-label="Read: Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)">Read →</a>
     </div>
   </div>
 </article>

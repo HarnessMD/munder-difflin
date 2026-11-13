@@ -63,7 +63,7 @@ Claude Code has computer use built in. Anthropic's [computer use docs](https://c
 
 ## 2. Munder Difflin: if you want a team of agents, not one tool
 
-[Munder Difflin](https://harnessmd.com/download) is what we make, and it is not a computer use tool. It is the desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer, and it can run Claude Code, Codex and Gemini CLI. A Cloud Office and a mobile app are coming soon; today, agents run while your computer runs. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is what we make, and it is not a computer use tool. It is the desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer, and it can run Claude Code, Codex and Gemini CLI. Agents run on your computer, or in its Cloud Office, always on, with your computer off; a mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Codex computer use: if you are on Windows or pay for ChatGPT
 

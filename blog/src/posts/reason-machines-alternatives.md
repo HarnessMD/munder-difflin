@@ -72,7 +72,7 @@ Devin gives a team hosted coding agents it can share. Devin's [pricing page](htt
 
 ## 2. Munder Difflin: free, open source, on your own computer
 
-Munder Difflin is ours, and it runs a team of agents for research, writing, ops and code. Its [README](https://github.com/HarnessMD/munder-difflin), read 11 Nov 2026, says it "works with the subscriptions you already pay for, on their hourly limits" and offers "Download 0.5.6 for macOS, Windows or Linux". Work can arrive from Slack or a webhook, and agents add tools through MCP servers, skills and plugins. Agents run while your computer runs; a Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Munder Difflin is ours, and it runs a team of agents for research, writing, ops and code. Its [README](https://github.com/HarnessMD/munder-difflin), read 11 Nov 2026, says it "works with the subscriptions you already pay for, on their hourly limits" and offers "Download 0.5.6 for macOS, Windows or Linux". Work can arrive from Slack or a webhook, and agents add tools through MCP servers, skills and plugins. Agents run on your computer, or in its Cloud Office, always on, with your computer off; a mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. OpenAI Codex cloud: if you already pay for ChatGPT
 

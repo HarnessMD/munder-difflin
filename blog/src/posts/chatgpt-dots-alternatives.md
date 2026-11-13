@@ -18,7 +18,7 @@ faq:
   - q: "What is the best open source alternative to ChatGPT dots?"
     a: "OpenClaw for a personal assistant in your chat apps, Munder Difflin for a team of work agents on your computer, and Hermes Agent for memory that learns over time. All three are open source and run on your own machine or server."
   - q: "Which ChatGPT dots alternatives keep working when my laptop is off?"
-    a: "The cloud ones. Claude Cowork runs scheduled tasks on Anthropic's servers, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. The local picks need a machine that stays on."
+    a: "Claude Cowork runs scheduled tasks on Anthropic's servers, Munder Difflin's Cloud Office runs agents in the cloud, always on, with your computer off, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. OpenClaw and Hermes Agent need a machine that stays on."
   - q: "Can I run more than one agent instead of a single dot?"
     a: "Not with dots yet: at launch each person gets one primary dot. Munder Difflin runs several named agents with separate roles on your computer today, each on the CLI engine you pick."
 thumb: "/blog/assets/media/chatgpt-dots-alternatives/lead-still.png"
@@ -55,7 +55,7 @@ This settles who holds your files and whether a closed lid stops work. Three pic
 
 **1. OpenClaw.** [OpenClaw](https://github.com/openclaw/openclaw) is an open source (MIT) personal assistant that runs on your computer and answers in WhatsApp, Telegram, Discord, Slack, Teams, iMessage and 20+ more. It runs as a background daemon, keeps memory and credentials on your hardware, with no paid tier. Best for: an errand runner you own.
 
-**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own `memory.md`, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: agents run while your computer runs, and you install the CLIs yourself. Best for: engineering and project work across several engines. (Munder Difflin 0.5.3, checked 30 Sep 2026.)
+**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own `memory.md`, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: you install the CLIs yourself. Best for: engineering and project work across several engines. (Munder Difflin 0.5.3, checked 30 Sep 2026.)
 
 **3. Hermes Agent.** [Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is open source (MIT), built on a learning loop: it curates its memory and writes new skills from experience. Its cron scheduler runs jobs unattended. Reach it on Telegram, Discord, Slack, WhatsApp or Signal. Best for: memory that grows on your box.
 
@@ -75,7 +75,7 @@ This settles who holds your files and whether a closed lid stops work. Three pic
 | --- | --- | --- | --- | --- |
 | ChatGPT dots | OpenAI's cloud computer | Always on | Pro outside EEA, Switzerland, UK; Business Premium | Pro, $100/month. |
 | OpenClaw | Your computer | Always on daemon | Anyone | Free and open source. |
-| Munder Difflin | Your computer | Runs while your computer does, plus schedules | Anyone on Mac, Windows, Linux | Free and open source. |
+| Munder Difflin | Your computer or its Cloud Office | Always on in its Cloud Office, plus schedules | Anyone on Mac, Windows, Linux | Free and open source. |
 | Hermes Agent | Your computer or server | Always on, cron jobs | Anyone | Free and open source. |
 | Claude Cowork | Anthropic's cloud | Tasks and schedules | Paid Claude plans | Claude Pro, $20/month. |
 | Gemini Spark | Google's cloud and your Chrome | Ongoing tasks and schedules | Google AI Pro or Ultra; not EEA, Switzerland, UK, Nigeria | Google AI Pro, price by country. |
@@ -94,7 +94,7 @@ Only Meta Muse has a free hosted tier, US and Canada only. Dots start at $100 a 
 
 OpenClaw, for a dot's job in your personal life: one assistant in your chat apps, on your hardware. Munder Difflin, if you want agents for work: several named agents with roles, each on the engine that suits the job. Hermes Agent, for memory.
 
-None works with your laptop shut: you need a server or an always on machine. We put Munder Difflin and dots side by side in [Munder Difflin vs ChatGPT dots](/blog/munder-difflin-vs-chatgpt-dots/).
+OpenClaw and Hermes Agent need a server or an always on machine; Munder Difflin's Cloud Office works with your laptop shut. We put Munder Difflin and dots side by side in [Munder Difflin vs ChatGPT dots](/blog/munder-difflin-vs-chatgpt-dots/).
 
 ## Is there an open source copy of ChatGPT dots?
 

@@ -83,6 +83,6 @@ Both guides need a key from the Kimi API Platform. Our [Codex CLI install guide]
 
 Try it if you want a cheaper model close to Claude Opus 5.5 on terminal coding, and if open weights matter to you later. Wait for independent scores and the weights if you plan to self host.
 
-Munder Difflin runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. The agents run on your computer today; a Cloud Office and a mobile app are coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) walks through setup, and [Mistral Large 4 vs Claude Opus 5.5](/blog/mistral-large-4-vs-claude-opus-5-5/) compares another open model with Opus.
+Munder Difflin runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. The agents run on your computer, or in its Cloud Office, always on, with your computer off; a mobile app is coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) walks through setup, and [Mistral Large 4 vs Claude Opus 5.5](/blog/mistral-large-4-vs-claude-opus-5-5/) compares another open model with Opus.
 
 <link rel="stylesheet" href="/blog/assets/media/what-is-kimi-k3-1-pro/motion.css"><script defer src="/blog/assets/media/what-is-kimi-k3-1-pro/motion.js"></script>

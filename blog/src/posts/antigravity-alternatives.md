@@ -63,7 +63,7 @@ Our view: Claude Code is the pick if Claude was why you used Antigravity. Its [m
 
 ## 2. Munder Difflin: if the work is more than code
 
-[Munder Difflin](https://harnessmd.com/download) is what we make. Pick it if research, writing and ops sit next to the coding on your list. The catch: agents run while your computer runs. A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is what we make. Pick it if research, writing and ops sit next to the coding on your list. Agents run on your computer, or in its Cloud Office, always on, with your computer off. A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Codex: if you already pay for ChatGPT
 

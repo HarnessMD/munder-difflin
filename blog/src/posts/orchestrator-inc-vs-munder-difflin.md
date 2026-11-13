@@ -19,7 +19,7 @@ faq:
   - q: "Does Orchestrator.inc have a mobile app?"
     a: "Yes. Its home page, read 6 Nov 2026, says to \"Pair the free iPhone, iPad and Android app with your desktop by QR code.\" The agents still run on your machine. The phone reaches it on the same network, or from anywhere through a managed tunnel on Starter and up, per its FAQ."
   - q: "How is Munder Difflin different from Orchestrator.inc?"
-    a: "Our view: Orchestrator.inc is about getting code merged, and Munder Difflin is a team of agents for all kinds of knowledge work, coding included. Munder Difflin is free and open source and runs on your own computer. Its Cloud Office and mobile app are coming soon."
+    a: "Our view: Orchestrator.inc is about getting code merged, and Munder Difflin is a team of agents for all kinds of knowledge work, coding included. Munder Difflin is free and open source and runs on your own computer. Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon."
 ---
 
 Our view: pick Orchestrator.inc if your day is pull requests and CI, and Munder Difflin if you want a team of agents for research, writing, ops and code on your own computer. Both are free and open source for local use. Checked 6 Nov 2026.
@@ -38,9 +38,9 @@ The repo description says "Supports Claude Code, Codex & 35+ coding agents" and 
 
 ## What is Munder Difflin?
 
-Munder Difflin is a desktop app where a team of AI agents takes research, writing, email, ops and code, on your own computer. Agents run while your computer runs. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human."
+Munder Difflin is a desktop app where a team of AI agents takes research, writing, email, ops and code, on your own computer. Agents can also run in its Cloud Office, always on, with your computer off. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human."
 
-It runs on engines such as Claude Code, Codex and Gemini CLI. Work can come in from Slack and webhooks, and agents pick up tools through MCP servers, skills and plugins. The README offers downloads "for macOS, Windows or Linux". A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+It runs on engines such as Claude Code, Codex and Gemini CLI. Work can come in from Slack and webhooks, and agents pick up tools through MCP servers, skills and plugins. The README offers downloads "for macOS, Windows or Linux". A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## How do they compare side by side?
 
@@ -49,7 +49,7 @@ They share worktrees and differ in scope. Every row was read on 6 Nov 2026.
 | | Orchestrator.inc | Munder Difflin |
 | --- | --- | --- |
 | What it is | A fleet of coding agents, from task to merged PR | A team of AI agents for knowledge work, coding included |
-| Where it runs | Your machine, plus cloud agents on paid plans and iPhone and Android apps | Your computer. Cloud Office and mobile app coming soon |
+| Where it runs | Your machine, plus cloud agents on paid plans and iPhone and Android apps | Your computer, or the Cloud Office, always on. Mobile app coming soon |
 | Engines | Claude Code, Codex and 35+ more | Engines such as Claude Code, Codex and Gemini CLI |
 | Worktrees | One per worker | Optional, one per agent |
 | Licence | Apache 2.0 | Free and open source |
@@ -63,11 +63,10 @@ Nothing to run locally. Its [pricing page](https://orchestrator.inc/pricing/), r
 
 ## Where is Orchestrator.inc stronger?
 
-It is stronger at carrying a pull request all the way to merge, and at reaching you when you are away. All four points come from its own pages, read 6 Nov 2026.
+It is stronger at carrying a pull request all the way to merge, and at reaching you when you are away. All three points come from its own pages, read 6 Nov 2026.
 
 * **CI routing.** The README says "Failed checks, review comments, and merge conflicts go back to the worker that owns the branch until the PR is approved." It adds: "A reviewer agent can read every PR before a person does." We think this is the best part of the product.
 * **Phone apps today.** The [home page](https://orchestrator.inc) says to "Pair the free iPhone, iPad and Android app with your desktop by QR code." You get "a notification when an agent needs you".
-* **Cloud agents today.** Starter promises "Agents keep working when your computer sleeps". Munder Difflin's agents run while your computer runs, and its Cloud Office is coming soon.
 * **A browser per worker.** The README says "Each worker also gets a browser to preview and test its app."
 
 <figure class="mg" data-scene="boomerang"><img src="/blog/assets/media/orchestrator-inc-vs-munder-difflin/boomerang.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, three paper boomerangs rest on a desk, each with a tag: Branch one, Branch two, Branch three. A slip that reads CI failed clips onto the second one. It flies out in a wide curve and lands back in the same spot, and its tag flips to read Fixed. Tapping any boomerang throws it again."><figcaption>Failed checks, review comments and merge conflicts go back to the worker that owns the branch, per Orchestrator.inc's README, read 6 Nov 2026.</figcaption></figure>
@@ -80,7 +79,7 @@ Worktrees are a switch, not the whole model. The README, read 6 Nov 2026, lists 
 
 ## Who should pick which?
 
-Our view: it depends on what fills your day. Pick Orchestrator.inc if most of it is pull requests, and you want CI failures and review comments sent back to the right agent, a phone app now, or cloud agents that keep going while the laptop sleeps.
+Our view: it depends on what fills your day. Pick Orchestrator.inc if most of it is pull requests, and you want CI failures and review comments sent back to the right agent, or a phone app now.
 
 Pick Munder Difflin if you want one orchestrator running a team across research, writing, ops and code, with work arriving from Slack or webhooks, on your own computer.
 

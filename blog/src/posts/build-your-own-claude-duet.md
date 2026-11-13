@@ -15,7 +15,7 @@ faq:
   - q: "What do I need for this build?"
     a: "Munder Difflin, which is free, a coding CLI such as Claude Code with a subscription or key, and the GitHub CLI signed in to your account so the agent can read pull requests, runs and issues. Slack is optional."
   - q: "Does the brief run if my laptop is asleep?"
-    a: "Not today. Schedules run on your computer, so it has to be awake, and Munder Difflin has a setting that keeps it awake while agents are live. The Munder Difflin Cloud Office, coming soon, keeps agents working with your computer off."
+    a: "Yes, in the Munder Difflin Cloud Office, which keeps agents working with your computer off. On your own computer, schedules need it awake, and Munder Difflin has a setting that keeps it awake while agents are live."
   - q: "Can I use Codex or Gemini CLI instead of Claude Code?"
     a: "Yes. Each agent picks its own engine when you add it, so the brief agent can run Codex, Gemini CLI, OpenCode or another supported CLI. The prompt stays the same."
 ---
@@ -79,6 +79,6 @@ Spend, scope changes and destructive steps still come back to you for approval, 
 
 ## What is still missing compared with Claude Duet?
 
-Judgment, for now. Duet decides what is urgent on its own and runs in a virtual machine with your laptop off. This build fires on your clock, on your awake computer, and sees only what its commands show; the Cloud Office, coming soon, takes it off your computer. It works with any engine you pick, today, anywhere. For the full picture, read [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) and [scheduling agent missions](/blog/scheduling-autonomous-agent-missions/).
+Judgment, for now. Duet decides what is urgent on its own and runs in a virtual machine with your laptop off. This build fires on your clock, on your awake computer or in the Cloud Office with your computer off, and sees only what its commands show. It works with any engine you pick, today, anywhere. For the full picture, read [Claude Duet vs Munder Difflin](/blog/claude-duet-vs-munder-difflin/) and [scheduling agent missions](/blog/scheduling-autonomous-agent-missions/).
 
 <link rel="stylesheet" href="/blog/assets/media/build-your-own-claude-duet/motion.css"><script defer src="/blog/assets/media/build-your-own-claude-duet/motion.js"></script>

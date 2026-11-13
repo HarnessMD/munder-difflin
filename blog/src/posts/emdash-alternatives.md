@@ -63,7 +63,7 @@ We think Orca is the nearest match, with a phone app on top. Its [README](https:
 
 ## 2. Munder Difflin: a team for more than code
 
-[Munder Difflin](https://harnessmd.com/download) is ours. It runs engines such as Claude Code, Codex and Gemini CLI, takes work from Slack and webhooks, and adds tools through MCP servers, skills and plugins. Agents run while your computer runs. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A Cloud Office and a mobile app are coming soon. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is ours. It runs engines such as Claude Code, Codex and Gemini CLI, takes work from Slack and webhooks, and adds tools through MCP servers, skills and plugins. Agents run on your computer, or in its Cloud Office, always on, with your computer off. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A mobile app is coming soon. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Orchestrator.inc: if you want pull requests carried to merge
 

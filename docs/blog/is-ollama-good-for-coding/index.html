@@ -188,7 +188,8 @@
   <div class="post-wrap wrap">
     <div class="prose">
       <p>Ollama is good for coding on scoped, private work if you pull a recent tool calling model that fits your memory and raise its context window. It does not yet replace Claude or GPT on long agent runs. Ollama only runs the model; the model and your memory decide the rest.</p>
-<p>You can pick, size and wire local models by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, a free and open source desktop app that runs several coding agents side by side, each on its own engine and model. As of 0.5.2, its Add agent screen offers eight local Ollama models for OpenCode, Crush and Pi agents, each tooltip showing a rough memory figure and the <code>ollama pull</code> command, while Claude Code agents stay on your Claude login. It will not pull the model or set Ollama’s context for you; the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers the rest of setup.</p>
+<p>If you run models with llama.cpp instead, our page on <a href="/blog/llama-cpp-1-0/">llama.cpp 1.0</a> covers what changed on 13 Nov 2026.</p>
+<p>You can pick, size and wire local models by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer, each agent on its own engine and model. As of 0.5.2, its Add agent screen offers eight local Ollama models for OpenCode, Crush and Pi agents, each tooltip showing a rough memory figure and the <code>ollama pull</code> command, while Claude Code agents stay on your Claude login. It will not pull the model or set Ollama’s context for you; the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers the rest of setup.</p>
 <h2 id="can-ollama-write-code" tabindex="-1">Can Ollama write code? <a class="anchor" href="#can-ollama-write-code" aria-hidden="true">#</a></h2>
 <p>Not on its own: Ollama is a model runner, and the model you load writes the code. It downloads open weight models, serves them on <code>localhost:11434</code>, and gives coding tools an API to call.</p>
 <p>One recent change blurs that. Since 0.32.0 (11 July 2026), typing <code>ollama</code> opens an agent that helps you code, and the release notes show it on <code>glm-5.2:cloud</code>, a model on Ollama’s servers rather than yours. Any tag with cloud in it, such as <code>gpt-oss:120b-cloud</code>, sends your prompts off the machine.</p>
@@ -348,34 +349,34 @@
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/what-is-a2ui/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-a2ui/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/llama-cpp-1-0/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/llama-cpp-1-0/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-11-12">Nov 12, 2026</time>
+      <time datetime="2026-11-13">Nov 13, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/what-is-a2ui/">What is A2UI? Google&#39;s A2UI 1.0, explained</a></h3>
-    <p class="dek">A2UI 1.0 is Google&#39;s stable open protocol for agents that answer with native screens. What it is, what 1.0 adds, and how it fits MCP Apps and AG-UI.</p>
+    <h3><a href="/blog/llama-cpp-1-0/">llama.cpp 1.0: What Changed and What to Check Before Upgrading</a></h3>
+    <p class="dek">llama.cpp 1.0 drops the deprecated API, adds FP8 KV caches and an MoE expert cache, and hardens llama-server. What changed. Checked 13 Nov 2026.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/what-is-a2ui/" aria-label="Read: What is A2UI? Google&#39;s A2UI 1.0, explained">Read →</a>
+      <a class="more" href="/blog/llama-cpp-1-0/" aria-label="Read: llama.cpp 1.0: What Changed and What to Check Before Upgrading">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/what-is-nvidia-openshell/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-nvidia-openshell/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-concepts" href="/blog/opencode-2-3/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opencode-2-3/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-11-11">Nov 11, 2026</time>
+      <time datetime="2026-11-13">Nov 13, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/what-is-nvidia-openshell/">What is NVIDIA OpenShell? The agent sandbox, explained</a></h3>
-    <p class="dek">NVIDIA OpenShell runs AI agents in a sandbox with file, network and credential policy. What it is, how to install it, what v0.1.8 changed, alternatives.</p>
+    <h3><a href="/blog/opencode-2-3/">OpenCode 2.3: background subagents, quieter transcripts and upgrade notes</a></h3>
+    <p class="dek">OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026.</p>
     <div class="foot">
       <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/what-is-nvidia-openshell/" aria-label="Read: What is NVIDIA OpenShell? The agent sandbox, explained">Read →</a>
+      <a class="more" href="/blog/opencode-2-3/" aria-label="Read: OpenCode 2.3: background subagents, quieter transcripts and upgrade notes">Read →</a>
     </div>
   </div>
 </article>

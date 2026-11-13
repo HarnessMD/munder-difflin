@@ -64,7 +64,7 @@ Sintra sells 12 named AI employees, the nearest match to Marblism's model. Its [
 
 ## 2. Munder Difflin: free, open source, your own computer
 
-Munder Difflin is ours. Its [README](https://github.com/HarnessMD/munder-difflin), read 12 Nov 2026, says "Import a ready made role from the Agent Gallery if you would rather not start from scratch." and offers "Download 0.5.6 for macOS, Windows or Linux". Work arrives from Slack or a webhook, and agents gain tools through MCP servers, skills and plugins. Agents run while your computer runs; a Cloud Office and a mobile app are coming soon. Our view: it suits research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Munder Difflin is ours. Its [README](https://github.com/HarnessMD/munder-difflin), read 12 Nov 2026, says "Import a ready made role from the Agent Gallery if you would rather not start from scratch." and offers "Download 0.5.6 for macOS, Windows or Linux". Work arrives from Slack or a webhook, and agents gain tools through MCP servers, skills and plugins. Agents run on your computer, or in its Cloud Office, always on, with your computer off; a mobile app is coming soon. Our view: it suits research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Lindy: one assistant that also takes calls
 
