@@ -388,6 +388,10 @@ export async function connect(): Promise<void> {
     // The ephemeral client secret is the apiKey for this connect; the real OpenAI key
     // never reaches the renderer. Relayed, the SDK's own fetch is swapped for one
     // that hands its single SDP POST to main, and only for the length of connect().
+    // This relies on @openai/agents-realtime (0.11.8) making that POST with the
+    // global fetch, looked up at call time (dist/openaiRealtimeWebRtc.mjs:247).
+    // Recheck it when bumping the SDK. It fails closed: an SDK that bypassed the
+    // swap would fetch realtime-relay.invalid, which the CSP and DNS both refuse.
     if (viaMain) {
       const realFetch = window.fetch;
       const model = mint.sessionConfig.model;

@@ -16,20 +16,23 @@
  * compatible one (a self-hosted LocalAI, say). For such a server, or when the token
  * mint is skipped, MAIN also makes the SDP exchange (`realtime:sdp`): the renderer's
  * CSP only reaches OpenAI, and with the mint skipped the bearer is the key itself.
+ * A self-hosted server never gets the OpenAI key: it gets its own optional server
+ * key (`apikey:realtime-server`), or none (`realtimeKey` in realtimeHttp.ts).
  *
  * Branch feat/realtime-michael. See board.md "🎙 REALTIME MICHAEL".
  */
 import { ipcMain } from 'electron';
-import { getSecret, hasSecret } from './integrations';
+import { deleteSecret, getSecret, hasSecret, setSecret } from './integrations';
 import { readConfig } from './config';
 import { checkRealtimeBaseUrl, DEFAULT_REALTIME_BASE_URL } from '../shared/realtimeEndpoint';
-import { exchangeSdp, mintToken, type MintResult } from './realtimeHttp';
-
-/** Mirrors `providerKeyRef('openai')` in src/main/index.ts (BACKEND_KEY_ENV maps
- *  openai→OPENAI_API_KEY). Inlined as a local const so this module needs no new
- *  export added to index.ts — keeping the index.ts edit to a single registration
- *  line (rt-1 COORD: Oscar also edits index.ts). */
-const OPENAI_KEY_REF = 'apikey:openai';
+import {
+  exchangeSdp,
+  mintToken,
+  realtimeKey,
+  OPENAI_KEY_REF,
+  REALTIME_SERVER_KEY_REF,
+  type MintResult
+} from './realtimeHttp';
 
 /** GA speech-to-speech model for the voice orchestrator (v0.3.4: bumped to the
  *  July 2026 gpt-realtime-2.1 — 25% p95 latency cut, better interruption handling).
@@ -71,14 +74,12 @@ function voiceEndpoint():
  *  `realtime:sdp`. The real OpenAI key is decrypted MAIN-ONLY here and is NEVER
  *  part of the result. */
 export async function mintRealtimeToken(model?: string): Promise<MintResult> {
-  const key = getSecret(OPENAI_KEY_REF);
-  if (!key) {
-    return { ok: false, error: 'no OpenAI API key set — add one in Settings → Voice', code: 'no_key' };
-  }
   const ep = voiceEndpoint();
   if (!ep.ok) return { ok: false, error: ep.error, code: 'bad_base_url' };
+  const k = realtimeKey(ep.isDefaultBase, getSecret);
+  if (!k.ok) return k;
   return mintToken({
-    key,
+    key: k.key,
     base: ep.base,
     model: model ?? ep.model,
     direct: ep.direct,
@@ -93,6 +94,17 @@ export async function mintRealtimeToken(model?: string): Promise<MintResult> {
 export function registerRealtimeIpc(): void {
   // Boolean presence only — gates the voice toggle.
   ipcMain.handle('realtime:hasKey', () => hasOpenAiKey());
+  // The self-hosted server's own key: write-only like `providerKey:*`. The renderer
+  // can set it, clear it and ask whether one is set; it never reads it back.
+  ipcMain.handle('realtime:serverKey:set', (_evt, key: unknown) =>
+    typeof key === 'string' && key.trim()
+      ? setSecret(REALTIME_SERVER_KEY_REF, key.trim())
+      : { ok: false, error: 'key required' });
+  ipcMain.handle('realtime:serverKey:has', () => hasSecret(REALTIME_SERVER_KEY_REF));
+  ipcMain.handle('realtime:serverKey:clear', () => {
+    try { deleteSecret(REALTIME_SERVER_KEY_REF); return { ok: true }; }
+    catch (e) { return { ok: false, error: e instanceof Error ? e.message : String(e) }; }
+  });
   // Mint an ephemeral token; returns { token, sessionConfig, sdpViaMain } only. A
   // model the renderer asks for wins; otherwise the one set in Settings → Voice.
   ipcMain.handle('realtime:mintToken', async (_evt, payload: unknown) => {
@@ -110,9 +122,9 @@ export function registerRealtimeIpc(): void {
     const model = typeof p.model === 'string' && p.model.trim() ? p.model.trim() : ep.model;
     let bearer: string;
     if (ep.direct) {
-      const key = getSecret(OPENAI_KEY_REF);
-      if (!key) return { ok: false, error: 'no OpenAI API key set — add one in Settings → Voice' };
-      bearer = key;
+      const k = realtimeKey(ep.isDefaultBase, getSecret);
+      if (!k.ok) return { ok: false, error: k.error };
+      bearer = k.key;
     } else {
       bearer = typeof p.token === 'string' ? p.token : '';
     }
