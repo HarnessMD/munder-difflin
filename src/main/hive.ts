@@ -2524,7 +2524,7 @@ export class HiveManager {
         // Let Grok apply its event-aware defaults (5s normally, 600s for Stop).
         // Grok is a HOOK bridge (not a proxy sidecar), so it is hit by the same
         // `node: command not found` 127 — bundled node here too.
-        hooks: [{ type: 'command', command: this.nodeRun(shim) }]
+        hooks: [{ type: 'command', command: grokHookCommand(this.nodeRun(shim)) }]
       });
       const hooks = {
         PreToolUse: [tool('.*')],
@@ -3593,6 +3593,16 @@ process.stdin.on('end', () => {
   } catch (_) { process.exit(0); }
 });
 `;
+
+/** Grok runs hook commands through PowerShell on Windows. There a line that
+ *  STARTS with a quoted path (`"<launcher>" "<shim>"`) is a string expression,
+ *  not a command, so the second string is a ParserError ("Unexpected token")
+ *  and every hook exits 1 (#749). The call operator `&` makes PowerShell invoke
+ *  it. Applied to the bare-`node` fallback too: `& node "<shim>"` is equally
+ *  valid, so there is one shape on win32. POSIX output is unchanged. */
+export function grokHookCommand(cmd: string, platform: NodeJS.Platform = process.platform): string {
+  return platform === 'win32' ? `& ${cmd}` : cmd;
+}
 
 // ─── grok-hook shim (written to <hive>/bin/grok-hook.cjs) ───────────────────
 // Grok's lifecycle events and decisions are Claude-compatible, but the wire
