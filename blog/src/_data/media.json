@@ -6005,5 +6005,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "agent-relay-alternatives": {
+    "title": "Agent Relay Alternatives: 5 Tools for Agents That Talk to Each Other (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/agent-relay-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Agent Relay alternatives, the line 5 tools like Agent Relay for agents that talk to each other and a Checked 14 Nov 2026 line. Five small tiles named Rowboat, Munder Difflin, Agent Mail, Claude Code agent teams and Orca slide in under a grey tile labelled Agent Relay.",
+      "prompt": "Title card: the hero scene in assets/media/agent-relay-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "nimbalyst-alternatives": {
+    "title": "Nimbalyst Alternatives: 5 Tools Like Nimbalyst for Parallel Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/nimbalyst-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Nimbalyst alternatives, the line 5 tools like Nimbalyst for parallel agents and a Checked 14 Nov 2026 line. Five small tiles named Orca, Munder Difflin, T3 Code, Paradev and Emdash Classic slide in under a grey tile labelled Nimbalyst.",
+      "prompt": "Title card: the hero scene in assets/media/nimbalyst-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-14": {
+    "title": "Agent Tools Today, 14 Nov 2026: llama.cpp 1.0, OpenCode 2.3 and Two Claude Outages",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

@@ -98,6 +98,8 @@ The [LICENSE](https://github.com/anthropics/claude-code/blob/main/LICENSE.md) sa
 
 Crystal. Its [README](https://github.com/stravu/crystal), read 6 Nov 2026, says it "has been deprecated and replaced by Nimbalyst", deprecated in February 2026. Our older [Conductor alternative](/blog/conductor-claude-code-alternative/) page predates the Meta news.
 
+For tools like Nimbalyst, see [Nimbalyst alternatives](/blog/nimbalyst-alternatives/).
+
 ## Which one should you pick?
 
 Our view: Orca if your work lived in Conductor Cloud. Munder Difflin if you want a team of agents on research, writing, ops and code at once. Emdash for the closest local swap on any OS. T3 Code if you steer from a phone and accept early software. Worktrunk or Claude Code's own flag if you just want the worktrees.
