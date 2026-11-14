@@ -131,6 +131,12 @@ const CONTEXT_COMMANDS: Record<AgentProvider, ProviderContextCommands> = {
   // where optional instructions focus the summary". There is no `/clear`.
   pi: { compact: '/compact', clear: '/new', compactTakesFocus: true },
 
+  // omp (Oh My Pi) compacts AUTOMATICALLY when the window fills (pi-fork
+  // behavior), and its typed slash-command surface is not yet transcribed
+  // from a frozen binary. Prefer null over guessing — wrong slashes into a
+  // live TUI are worse than no auto-compact (same honesty as cursor).
+  omp: NO_CONTEXT_COMMANDS,
+
   // Copilot's INTERACTIVE mode does have `/compact [FOCUS-INSTRUCTIONS]` and
   // `/clear` — but this app never runs it interactively. The preset spawns it in
   // print mode (`initialPromptFlag: '-p'`, `canReceiveInbox: false`), which runs
