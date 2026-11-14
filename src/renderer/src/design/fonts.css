@@ -13,6 +13,13 @@
  * when every OS we ship on already has a good one. The token stacks in
  * tokens.css name those system faces instead.
  *
+ * Press Start 2P's latin subset also carries İ Ğ ğ Ş ş (U+0130, U+011E-011F,
+ * U+015E-015F), cut from the same upstream OFL file. Without them the Turkish
+ * locale's pixel headings fell back glyph by glyph to a CJK system face, so
+ * "DİL" read "D:L" and "Bağlantılar" read "Ba;lantılar". Ç ç Ö ö Ü ü ı were
+ * already in the latin subset. Inter and JetBrains Mono fall back to the system
+ * sans/mono for those five letters, which looks the same at body sizes.
+ *
  * Vite fingerprints and inlines these URLs at build time, so the paths below are
  * source paths, not runtime ones. */
 
