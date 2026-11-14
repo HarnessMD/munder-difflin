@@ -14,7 +14,7 @@ import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellE
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
 import {
-  readConfig, writeConfig, setAgentTokenCap, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
+  readConfig, writeConfig, setAgentTokenCap, setMcpServerEnabled, getMcpConsentState, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
   modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
 import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
@@ -1189,6 +1189,31 @@ function breakerToast(title: string, body: string): void {
   if (!readConfig().notifications) return;
   try { if (Notification.isSupported()) new Notification({ title, body }).show(); }
   catch { /* unsupported platform */ }
+}
+
+/** The consent-read failure last told to the user, so spawning a whole team against
+ *  one broken config.json raises one toast rather than one per agent. Cleared by the
+ *  next good read, so a later, separate breakage is announced again. */
+let surfacedMcpConsentFailure: string | undefined;
+
+/** Default-MCP consent for a new session. An unreadable config.json fails closed —
+ *  no default server is wired, safe ones included — but never silently: the agent
+ *  is missing tools the user expects, so log it and tell them how to recover. */
+function mcpDefaultsForSpawn(): Record<string, unknown> | null {
+  const consent = getMcpConsentState();
+  if (consent.ok) {
+    surfacedMcpConsentFailure = undefined;
+    return consent.records;
+  }
+  console.warn('[mcp] consent state unreadable; spawning without default MCP servers:', consent.error);
+  if (surfacedMcpConsentFailure !== consent.error) {
+    surfacedMcpConsentFailure = consent.error;
+    breakerToast(
+      'Default MCP servers disabled',
+      `${consent.error}. New agents start without default MCP servers until config.json is repaired; then refresh Settings → Default MCP servers.`
+    );
+  }
+  return null;
 }
 
 /** One circuit-breaker beat: pull a fresh usage sample per active agent, append
@@ -2789,7 +2814,7 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
           kgCliPath: knowledge.env().KG_CLI,
           theme: readConfig().terminalTheme ?? 'light',
           // W3 — default-MCP consent state + the bundled skills source dir.
-          mcpDefaults: readConfig().mcpDefaults,
+          mcpDefaults: mcpDefaultsForSpawn(),
           skillsDir: skillsResourceDir(),
           // The shared palace is mutated by the agent's own `mempalace` calls, so
           // the OS sandbox must let it through (empty when memory is off).
@@ -3198,6 +3223,10 @@ ipcMain.handle('integrations:test', async (_evt, payload: unknown) => {
 
 // ─── IPC: config ────────────────────────────────────────────────────────────
 ipcMain.handle('config:get', (): HarnessConfig => readConfig());
+ipcMain.handle('config:getMcpConsentState', () => getMcpConsentState());
+ipcMain.handle('config:setMcpServerEnabled', (_evt, catalogId: unknown, enabled: unknown) =>
+  setMcpServerEnabled(catalogId, enabled)
+);
 ipcMain.handle('config:update', (_evt, patch: Partial<HarnessConfig>) => {
   // FIRST RUN: every hive-bound service is started by bootstrapHiveServices(),
   // which runs once at app-ready and early-returns on `!hive.enabled()` — i.e.

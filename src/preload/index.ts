@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron';
 import type { AgentProvider } from '../shared/agentProvider';
+import type { McpDefaultsMap, McpConsentStateResult } from '../shared/mcpCatalog';
 import type { HireManifest } from '../shared/hire';
 export type { HireManifest } from '../shared/hire';
 import type { IntegrationRecord, IntegrationTemplate } from '../shared/integrations';
@@ -275,7 +276,7 @@ export interface HarnessConfig {
   godModel?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id. Mirrors
    *  src/main/config.ts. */
-  mcpDefaults?: { [id: string]: { enabled: boolean } };
+  mcpDefaults?: McpDefaultsMap;
   semanticMemory: boolean;
   embeddingModel: 'minilm' | 'embeddinggemma';
   missions?: ScheduledMission[];
@@ -659,6 +660,10 @@ const api = {
     ipcRenderer.invoke('config:get'),
   updateConfig: (patch: Partial<HarnessConfig>): Promise<HarnessConfig> =>
     ipcRenderer.invoke('config:update', patch),
+  getMcpConsentState: (): Promise<McpConsentStateResult> =>
+    ipcRenderer.invoke('config:getMcpConsentState'),
+  setMcpServerEnabled: (catalogId: string, enabled: boolean): Promise<HarnessConfig> =>
+    ipcRenderer.invoke('config:setMcpServerEnabled', catalogId, enabled),
   /** Set or clear one per-agent token ceiling against main's latest config. */
   setAgentTokenCap: (agentId: string, tokenCap?: number): Promise<HarnessConfig> =>
     ipcRenderer.invoke('config:setAgentTokenCap', agentId, tokenCap),
