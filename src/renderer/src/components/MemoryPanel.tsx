@@ -98,7 +98,7 @@ export function MemoryPanel() {
           {pill}
         </button>
       ) : (
-        <PixelPanel variant="dialog" title={t('memoryPanel.title')} noPadding>
+        <PixelPanel className="cth-hive-memory" variant="dialog" title={t('memoryPanel.title')} noPadding>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 14 }}>
 
             {/* What this is — one plain line. */}
