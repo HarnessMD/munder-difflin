@@ -43,26 +43,41 @@ test('a well-formed catalog parses to exactly what it says', () => {
   });
 });
 
-test('the shipped remote file is itself a valid catalog', () => {
-  // docs/model-catalog.json is what actually goes over the wire. If it does not
-  // survive its own parser, every app in the field silently keeps the baked list
-  // and nobody finds out until a model is missing.
-  const remote = require('../docs/model-catalog.json');
-  const parsed = parseModelCatalog(remote);
-  assert.ok(parsed, 'docs/model-catalog.json must parse');
-  assert.deepEqual(
-    Object.keys(parsed.providers).sort(),
-    Object.keys(baked.providers).sort(),
-    'the remote file should cover the same providers as the baked one'
-  );
-});
+for (const [name, catalog] of [['remote', require('../docs/model-catalog.json')], ['baked', baked]]) {
+  test(`the shipped ${name} catalog parses without losing or rewriting entries`, () => {
+    const parsed = parseModelCatalog(catalog);
+    assert.ok(parsed, `${name} catalog must parse`);
+    // Null/absent bounds and ids have the same meaning in the payload contract.
+    // Everything else must survive intact: a typo must not silently disappear
+    // through the parser's fallback, sanitizing, capping or deduplication paths.
+    const expected = Object.fromEntries(Object.entries(catalog.providers).map(([provider, rows]) => [
+      provider,
+      rows.map(row => ({
+        label: row.label,
+        ...(row.id != null && row.id !== '' ? { id: row.id } : {}),
+        ...(row.minAppVersion != null && row.minAppVersion !== '' ? { minAppVersion: row.minAppVersion } : {}),
+        ...(row.maxAppVersion != null && row.maxAppVersion !== '' ? { maxAppVersion: row.maxAppVersion } : {})
+      }))
+    ]));
+    assert.deepEqual(parsed.providers, expected);
+  });
+}
 
-test('the remote file and the baked file agree on every model', () => {
-  // They are seeded from each other. Drift here means a fresh install shows one
-  // list for a few hours and a different one after the first refresh, which
-  // reads as a bug in the picker rather than as two files out of sync.
-  const remote = require('../docs/model-catalog.json');
-  assert.deepEqual(remote.providers, baked.providers);
+test('the shipped remote catalog updates the pickers while clearing it restores the offline lists', () => {
+  // The remote copy deliberately evolves without a build. Equality with the
+  // baked copy would make the feature's normal release process fail CI (#652).
+  const providers = Object.keys(baked.providers);
+  const offline = Object.fromEntries(providers.map(provider => [provider, modelsForProvider(provider)]));
+  const parsed = parseModelCatalog(require('../docs/model-catalog.json'));
+  assert.ok(parsed);
+  applyRemoteModelCatalog(parsed);
+  for (const [provider, rows] of Object.entries(parsed.providers)) {
+    assert.deepEqual(modelsForProvider(provider), rows.map(row =>
+      row.id === undefined ? { label: row.label } : { id: row.id, label: row.label }
+    ));
+  }
+  applyRemoteModelCatalog(null);
+  for (const provider of providers) assert.deepEqual(modelsForProvider(provider), offline[provider]);
 });
 
 test('a version this build does not know is rejected whole', () => {
