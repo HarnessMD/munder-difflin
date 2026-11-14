@@ -355,7 +355,7 @@
       "voiceChatDesc": "实时与调度者对话。从 {{godName}} 的标签页开启；在这里选择语音回路使用的麦克风和扬声器。",
       "openaiKey": "OpenAI API 密钥 · 语音",
       "openaiKeyDesc1": "与 {{godName}} 对话基于 OpenAI 的 Realtime API——语音进、语音出，通过到 {{model}} 的实时连接。这与你的智能体所用的 Claude 订阅是不同服务，所以需要单独的 OpenAI API 密钥。",
-      "openaiKeyDesc2": "在下面粘贴一次即可。密钥在这台机器上加密存储，之后不再显示——每次语音会话都会从它生成一个短时令牌，密钥本身永远不会离开你的电脑。它与「智能体与模型」下列出的 OpenAI 密钥相同；在任一处设置即可。",
+      "openaiKeyDesc2": "在下面粘贴一次即可。密钥在这台机器上加密存储，之后不再显示。它只会发送给 OpenAI，用于为每次语音会话生成一个短时令牌；自定义语音服务器使用它自己的密钥，在下方设置。它与「智能体与模型」下列出的 OpenAI 密钥相同；在任一处设置即可。",
       "keyPlaceholderSaved": "密钥已保存——粘贴新密钥可替换",
       "save": "保存",
       "keySaved": "密钥已保存——Talk 已就绪。从 {{godName}} 的卡片启动。",
@@ -370,7 +370,23 @@
       "5m": "5 分钟",
       "10m": "10 分钟",
       "never": "关闭（永不）",
-      "idleDisconnectDesc": "语音会话在无人说话时保持多久后自动关闭。即使此项关闭，支出上限仍能阻止失控的会话。"
+      "idleDisconnectDesc": "语音会话在无人说话时保持多久后自动关闭。即使此项关闭，支出上限仍能阻止失控的会话。",
+      "baseUrl": "基础 URL",
+      "baseUrlHint": "使用 OpenAI 时保持不变。局域网内的服务器示例：",
+      "baseUrlError": {
+        "invalid": "这不是有效的 URL。",
+        "scheme": "必须以 https:// 开头（私有网络地址可用 http://）。",
+        "insecure": "http:// 仅允许用于本机或私有网络地址。请使用 https://，或服务器的 IP 地址。",
+        "credentials": "URL 中不能包含用户名或密码。",
+        "query": "URL 不能以查询（?…）或片段（#…）结尾。"
+      },
+      "serverKey": "服务器密钥（可选）",
+      "serverKeyClear": "清空",
+      "serverKeySaved": "已保存。Talk 只把这个密钥发送给上面的服务器，绝不发送你的 OpenAI 密钥。",
+      "serverKeyNone": "未设置。Talk 不向上面的服务器发送任何密钥，也绝不发送你的 OpenAI 密钥。",
+      "skipTokenMint": "跳过令牌请求（直接使用密钥）",
+      "skipTokenMintDesc": "适用于没有 /realtime/client_secrets 的服务器，例如 LocalAI",
+      "realtimeModel": "模型（可选）"
     },
     "saved": "已保存",
     "saving": "保存中…",
