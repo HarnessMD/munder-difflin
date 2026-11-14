@@ -26,6 +26,13 @@ jobs:
       # it on the release branch, before a tag, instead of on launch day.
       - name: Release links consistent
         run: npm run check:links
+      # Locale shape only: key trees, {{placeholders}} and <tags> match en.json,
+      # and zh-TW.json is in step with zh-CN.json (passes when zh-TW.json does
+      # not exist). Deliberately NOT the whole test/*.test.cjs suite.
+      - name: i18n tests
+        run: node --test test/i18n-god-name.test.cjs test/arabic-ui.test.cjs test/i18n-locale-parity.test.cjs
+      - name: zh-TW in step with zh-CN
+        run: npm run i18n:fill-zh-tw -- --check
 
   build:
     name: Build

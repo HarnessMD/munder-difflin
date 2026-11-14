@@ -39,6 +39,7 @@ const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm,
 const en = locale('en');
 const ar = locale('ar');
 const zh = locale('zh-CN');
+const tw = locale('zh-TW');
 
 // --- the gate: inert for everyone who did not pick Arabic ------------------
 
@@ -187,12 +188,14 @@ test('ar is registered everywhere a language has to be registered', () => {
 });
 
 test('every locale has exactly the same key tree', () => {
-  const e = pathsOf(en), a = pathsOf(ar), z = pathsOf(zh);
+  const e = pathsOf(en), a = pathsOf(ar), z = pathsOf(zh), t = pathsOf(tw);
   const missing = [...e.keys()].filter((k) => !a.has(k));
   const extra = [...a.keys()].filter((k) => !e.has(k));
   assert.deepEqual(missing, [], 'ar is missing keys — they would silently fall back');
   assert.deepEqual(extra, [], 'ar has keys en does not — dead strings');
   assert.equal(z.size, e.size, 'zh-CN drifted from en');
+  assert.deepEqual([...e.keys()].filter((k) => !t.has(k)), [], 'zh-TW is missing keys');
+  assert.deepEqual([...t.keys()].filter((k) => !e.has(k)), [], 'zh-TW has keys en does not');
   assert.ok(e.size > 1000, `sanity: only ${e.size} keys found`);
 });
 
@@ -228,12 +231,13 @@ test('no Arabic string is left as its English source', () => {
 test('every interpolation variable survives translation', () => {
   // `{{godName}}` mistyped is a literal "{{godname}}" on screen, and i18next
   // will not warn. This is the highest-frequency way a locale file breaks.
-  const e = pathsOf(en), a = pathsOf(ar), z = pathsOf(zh);
+  const e = pathsOf(en), a = pathsOf(ar), z = pathsOf(zh), t = pathsOf(tw);
   const vars = (s) => [...String(s).matchAll(/\{\{\s*([\w.]+)\s*\}\}/g)].map((m) => m[1]).sort().join(',');
   const bad = [];
   for (const [k, v] of e) {
     if (vars(v) !== vars(a.get(k))) bad.push(`ar ${k}: [${vars(v)}] -> [${vars(a.get(k))}]`);
     if (vars(v) !== vars(z.get(k))) bad.push(`zh ${k}: [${vars(v)}] -> [${vars(z.get(k))}]`);
+    if (vars(v) !== vars(t.get(k))) bad.push(`zh-TW ${k}: [${vars(v)}] -> [${vars(t.get(k))}]`);
   }
   assert.deepEqual(bad, []);
   // Positive control: the comparison above can actually fail.
@@ -243,14 +247,16 @@ test('every interpolation variable survives translation', () => {
 test('inline markup and array shapes are preserved', () => {
   // Several onboarding strings carry <strong>; the office flavour lines are
   // arrays indexed by the scene, so a short array is an out-of-range read.
-  const e = pathsOf(en), a = pathsOf(ar);
+  const e = pathsOf(en), a = pathsOf(ar), t = pathsOf(tw);
   const tags = (s) => [...String(s).matchAll(/<\/?([a-z]+)>/g)].map((m) => m[1]).sort().join(',');
   for (const [k, v] of e) {
     assert.equal(tags(a.get(k)), tags(v), `markup changed in ${k}`);
+    assert.equal(tags(t.get(k)), tags(v), `zh-TW markup changed in ${k}`);
   }
   const count = (o, p) => p.split('.').reduce((n, s) => n?.[s], o);
   for (const p of ['office.errand.smoke', 'office.suckUp', 'office.gossip', 'office.cheer']) {
     assert.equal(count(ar, p).length, count(en, p).length, `${p} changed length`);
+    assert.equal(count(tw, p).length, count(en, p).length, `zh-TW ${p} changed length`);
   }
 });
 
@@ -258,7 +264,7 @@ test('the terminal setting still explains its performance cost, in every locale'
   // The founder's amendment moved this setting's default onto the language but
   // explicitly kept the control, because ON swaps the renderer and costs speed.
   // Losing that explanation would be a real regression.
-  for (const [code, l] of [['en', en], ['zh-CN', zh], ['ar', ar]]) {
+  for (const [code, l] of [['en', en], ['zh-CN', zh], ['zh-TW', tw], ['ar', ar]]) {
     const g = l.settings.general;
     assert.ok(g.arabicTerminalDesc, `${code} lost arabicTerminalDesc`);
     assert.ok(g.arabicTerminalDesc.length > 80,

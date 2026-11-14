@@ -96,6 +96,14 @@
   --cth-panel-border-dialog:   inset 0 0 0 1px var(--cth-ink-500);
 }
 
+/* The SC faces above render Traditional text with mainland glyph shapes.
+   <html lang> is set by useDirection. */
+:root:lang(zh-TW) {
+  --cth-font-display: "Press Start 2P", "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI Historic", monospace;
+  --cth-font-ui:      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI Historic", sans-serif;
+  --cth-font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, "PingFang TC", "Microsoft JhengHei", "Noto Sans Mono CJK TC", "Noto Sans CJK TC", "Microsoft YaHei", "Noto Sans Mono CJK SC", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI Historic", monospace;
+}
+
 /* ── Dark theme ──────────────────────────────────────────────────────────────
    One token swap darkens the WHOLE app. Shades of black with a near-white text
    ramp, tuned for READABILITY first and measured rather than eyeballed. Stamped
