@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PixelButton } from './PixelButton';
 import type { LocalSkill, CatalogSkill } from '../../../preload';
+import { installedSkillKeys, isCatalogSkillInstalled } from '../../../shared/skillCatalogMatch';
 
 type Mode = 'installed' | 'browse';
 
@@ -114,6 +115,8 @@ export function SkillsTab({ agentCwd }: { agentCwd?: string }) {
     return list.filter((s) =>
       s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)).length;
   }, [catalog, owner, category, q]);
+
+  const installedKeys = useMemo(() => installedSkillKeys(local ?? []), [local]);
 
   const install = async (c: CatalogSkill) => {
     setAction((a) => ({ ...a, [c.url]: { busy: true } }));
@@ -307,8 +310,9 @@ export function SkillsTab({ agentCwd }: { agentCwd?: string }) {
               {' · '}{t('skillsTab.curatedBy')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {shownCatalog.map((s) => (
-                <div key={s.url + s.name} style={rowStyle}>
+              {shownCatalog.map((s) => {
+                const installed = isCatalogSkillInstalled(s, installedKeys);
+                return <div key={s.url + s.name} style={rowStyle}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <span style={{ fontFamily: 'var(--cth-font-display)', fontSize: 11, flex: 1, minWidth: 0 }}>
                       {s.name.toUpperCase()}
@@ -322,10 +326,11 @@ export function SkillsTab({ agentCwd }: { agentCwd?: string }) {
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                     <button
                       onClick={() => void install(s)}
-                      disabled={!!action[s.url]?.busy || !!action[s.url]?.done}
-                      style={actionBtn(action[s.url]?.done ? 'quiet' : 'primary')}
+                      disabled={installed || !!action[s.url]?.busy || !!action[s.url]?.done}
+                      style={actionBtn(installed || action[s.url]?.done ? 'quiet' : 'primary')}
                     >
-                      {action[s.url]?.busy ? t('skillsTab.installing') : action[s.url]?.done ?? t('skillsTab.install')}
+                      {action[s.url]?.busy ? t('skillsTab.installing')
+                        : installed ? t('skillsTab.installed') : action[s.url]?.done ?? t('skillsTab.install')}
                     </button>
                     <button
                       onClick={() => void window.cth.openExternal(s.url)}
@@ -337,8 +342,8 @@ export function SkillsTab({ agentCwd }: { agentCwd?: string }) {
                       </span>
                     )}
                   </div>
-                </div>
-              ))}
+                </div>;
+              })}
             </div>
           </>
         )}
