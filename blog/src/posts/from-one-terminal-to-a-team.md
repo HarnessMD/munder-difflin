@@ -23,6 +23,8 @@ Most people don't decide to "run a team of agents" — they back into it, one te
 the workflow strains. Here's the arc, what breaks at each step, and the concrete before-and-after of
 crossing to a real team.
 
+When your teammates run agents too, tools like Agent Relay let those agents message each other, and our [Agent Relay alternatives](/blog/agent-relay-alternatives/) page compares five of them.
+
 ## Stage 1: One terminal
 
 You run a single `claude` session. It's focused, it's easy to follow, and for most tasks it's all you
