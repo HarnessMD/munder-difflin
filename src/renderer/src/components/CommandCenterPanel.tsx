@@ -661,9 +661,9 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
           dir={rtl ? 'auto' : undefined}
           value={dispatchText}
           onChange={(e) => setDispatchText(e.target.value)}
-          rows={2}
+          rows={3}
           placeholder={t('commandCenter.dispatchPlaceholder', { godName })}
-          style={textareaStyle}
+          style={{ ...textareaStyle, minHeight: 58 }}
         />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
           <PixelButton variant="primary" size="sm" onClick={dispatch} disabled={!dispatchText.trim()}>
@@ -1343,7 +1343,7 @@ function Pre({ children }: { children: React.ReactNode }) {
 }
 
 const textareaStyle: React.CSSProperties = {
-  flex: 1, width: '100%', resize: 'none', padding: '6px 8px',
+  flex: 1, width: '100%', resize: 'vertical', padding: '6px 8px',
   background: 'var(--cth-paper-100)', border: 'none',
   boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)',
   fontFamily: 'var(--cth-font-mono)', fontSize: 12, lineHeight: '17px',
