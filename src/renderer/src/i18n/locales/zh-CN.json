@@ -397,7 +397,8 @@
       "graph": "图谱",
       "activity": "动态",
       "skills": "技能",
-      "workers": "工人"
+      "workers": "工人",
+      "conference": "会议室"
     },
     "terminalFullscreen": "终端已全屏打开。按 Esc 返回。",
     "noTerminal": "{{name}} 没有实时终端。",
@@ -1193,7 +1194,19 @@
     "uncapped": "无上限",
     "preserved": "保留的工作树（{{count}}）",
     "preservedIntro": "已完成工人的工作树中保留着未整合的工作——保留（绝不自动丢弃），并在工作合入其基础分支后自动回收。",
-    "keptAgo": "{{age}} 前保留"
+    "keptAgo": "{{age}} 前保留",
+    "startTempTitle": "启动临时工",
+    "startTemp": "从 {{name}} 启动临时工",
+    "tempFor": "给 {{name}} 的一项工作",
+    "tempObjective": "这个工人要做什么？",
+    "tempStart": "启动临时工",
+    "tempStarting": "启动中…",
+    "tempCancel": "取消",
+    "tempHint": "做完一项工作就关闭。",
+    "tempStarted": "临时工已启动。",
+    "tempQueued": "临时工已排队——等待空位。",
+    "tempFailed": "无法启动临时工。",
+    "tempNeedAgent": "请先选择一名常驻代理。"
   },
   "memoryGraph": {
     "topics": "主题",
@@ -1405,5 +1418,25 @@
     "viewSource": "查看源码",
     "loading": "正在加载图片…",
     "decodeFailed": "无法解码此图片——文件可能已损坏或扩展名有误"
+  },
+  "conferenceRoom": {
+    "title": "会议室",
+    "lead": "安排两到四名克隆。{{godName}} 主持辩论。达成一致后，计划写入看板；陷入僵局时，问题进入「问我」。",
+    "topicLabel": "他们要决定什么？",
+    "topicPlaceholder": "例如：为注册修复选定鉴权方案并拆分工作……",
+    "seatsLabel": "座位 {{count}} / {{max}}",
+    "needMoreAgents": "至少再雇 {{min}} 名常驻代理，才能开会。",
+    "needSeats": "请选择 {{min}} 到 {{max}} 名克隆入座。",
+    "start": "召集会议",
+    "starting": "召集中…",
+    "hint": "{{godName}} 会主持。僵局会进入「问我」。",
+    "started": "会议已召集——已安排 {{count}} 名克隆。请看 {{godName}} 的终端：简报已在其收件箱。若他一直无反应，通常是 CLI 被挡住（常见是额度不足）——修好后再由他主持。",
+    "failed": "无法召集会议：{{error}}",
+    "mailSubject": "会议：{{topic}}",
+    "briefTitle": "会议室",
+    "briefTopic": "议题：{{topic}}",
+    "briefParticipants": "与会者（他们要辩论到对计划达成一致）：",
+    "briefRules": "作为主持（{{godName}}）的规则：\n1. 把这些代理拉入议题辩论。优先用 propose / agree / refuse 邮件。\n2. 会议进行时尽量不要给他们派互相冲突的新活。\n3. 达成一致后，在看板写一个父任务，并为每个具体步骤写子票据，指派给与会者。\n4. 若超过两轮仍无共识，把父任务标为 blocked，并用 humanQA 请人类裁决——不要自己捏造折中方案。\n5. 主题行以「会议：」开头，方便在楼层识别。",
+    "watchTerminal": "打开 {{godName}} 的终端标签。他应被「会议」邮件唤醒。若终端里出现额度或登录错误，那就是楼层仍安静的原因。"
   }
 }
