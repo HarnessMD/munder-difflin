@@ -3108,14 +3108,48 @@ const GENERATED_HIVE_DOCS = [
 // A minimal pipe: read the hook payload on stdin, tag it with this agent's id,
 // forward it to the hive's UDS, and relay the response back to `claude`. All the
 // real logic lives in the main process (HookServer). Never blocks a stop on error.
+const HOOK_PHASE_TIMEOUT_MS = 5_000;
+const HOOK_STATUS_PHASE_TIMEOUT_MS = 1_500;
+const HOOK_STDIN_READER = `
+function readHookStdin(timeoutMs, onComplete) {
+  let inputText = '';
+  let inputState = 'reading';
+  const stdinTimer = setTimeout(() => failInput('input_timeout'), timeoutMs);
+  function failInput(reason) {
+    if (inputState !== 'reading') return;
+    inputState = 'failed';
+    clearTimeout(stdinTimer);
+    try { process.stderr.write('[munder-hive-hook] ' + reason + '\\n'); } catch {}
+    process.exitCode = 0;
+    try {
+      process.stdin.pause();
+      process.stdin.destroy();
+    } catch { process.exit(0); }
+  }
+  process.stdin.on('error', () => failInput('stdin_error'));
+  process.stdin.on('close', () => failInput('stdin_closed'));
+  try {
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', (chunk) => { if (inputState === 'reading') inputText += chunk; });
+    process.stdin.on('end', () => {
+      if (inputState !== 'reading') return;
+      inputState = 'completed';
+      clearTimeout(stdinTimer);
+      try { onComplete(inputText); }
+      catch {
+        try { process.stderr.write('[munder-hive-hook] handler_error\\n'); } catch {}
+        process.exit(1);
+      }
+    });
+  } catch { failInput('stdin_error'); }
+}
+`;
 const HOOK_SHIM = `#!/usr/bin/env node
 'use strict';
 const net = require('net');
+${HOOK_STDIN_READER}
 const isStatus = process.argv.includes('--status');
-let data = '';
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (d) => { data += d; });
-process.stdin.on('end', () => {
+readHookStdin(isStatus ? ${HOOK_STATUS_PHASE_TIMEOUT_MS} : ${HOOK_PHASE_TIMEOUT_MS}, (data) => {
   let payload = {};
   try { payload = JSON.parse(data || '{}'); } catch (_) {}
   if (!payload.agent_id) payload.agent_id = process.env.AGENT_ID || null;
@@ -3142,7 +3176,7 @@ process.stdin.on('end', () => {
     } else {
       process.exit(0);
     }
-    setTimeout(() => process.exit(0), 1500).unref();
+    setTimeout(() => process.exit(0), ${HOOK_STATUS_PHASE_TIMEOUT_MS}).unref();
     return;
   }
   if (!sock) { process.exit(0); }
@@ -3153,7 +3187,7 @@ process.stdin.on('end', () => {
   c.on('data', (d) => { resp += d; });
   c.on('end', () => done(0));
   c.on('error', () => process.exit(0));
-  setTimeout(() => process.exit(0), 5000).unref();
+  setTimeout(() => process.exit(0), ${HOOK_PHASE_TIMEOUT_MS}).unref();
 });
 `;
 
@@ -3173,12 +3207,10 @@ process.stdin.on('end', () => {
 const AGY_HOOK_SHIM = `#!/usr/bin/env node
 'use strict';
 const net = require('net');
+${HOOK_STDIN_READER}
 const event = process.argv[2] || 'Unknown';
 const agentId = process.env.AGENT_ID || null;
-let data = '';
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (d) => { data += d; });
-process.stdin.on('end', () => {
+readHookStdin(${HOOK_PHASE_TIMEOUT_MS}, (data) => {
   const sock = process.env.HIVE_SOCK;
   if (!agentId || !sock) { process.exit(0); } // not a hive worker → ignore
   let agy = {};
@@ -3216,7 +3248,7 @@ process.stdin.on('end', () => {
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
     c.on('error', () => process.exit(0));
-    setTimeout(() => process.exit(0), 5000).unref();
+    setTimeout(() => process.exit(0), ${HOOK_PHASE_TIMEOUT_MS}).unref();
   } catch (_) { process.exit(0); }
 });
 `;
@@ -3546,11 +3578,9 @@ server.listen(0, '127.0.0.1', function () {
 const GEMINI_HOOK_SHIM = `#!/usr/bin/env node
 'use strict';
 const net = require('net');
+${HOOK_STDIN_READER}
 const agentId = process.env.AGENT_ID || null;
-let data = '';
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (d) => { data += d; });
-process.stdin.on('end', () => {
+readHookStdin(${HOOK_PHASE_TIMEOUT_MS}, (data) => {
   const sock = process.env.HIVE_SOCK;
   if (!agentId || !sock) { process.exit(0); }
   let gemini = {};
@@ -3589,7 +3619,7 @@ process.stdin.on('end', () => {
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
     c.on('error', () => process.exit(0));
-    setTimeout(() => process.exit(0), 5000).unref();
+    setTimeout(() => process.exit(0), ${HOOK_PHASE_TIMEOUT_MS}).unref();
   } catch (_) { process.exit(0); }
 });
 `;
@@ -3603,11 +3633,9 @@ process.stdin.on('end', () => {
 const GROK_HOOK_SHIM = `#!/usr/bin/env node
 'use strict';
 const net = require('net');
+${HOOK_STDIN_READER}
 const agentId = process.env.AGENT_ID || null;
-let data = '';
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (d) => { data += d; });
-process.stdin.on('end', () => {
+readHookStdin(${HOOK_PHASE_TIMEOUT_MS}, (data) => {
   const sock = process.env.HIVE_SOCK;
   if (!agentId || !sock) { process.exit(0); }
   let grok = {};
@@ -3663,7 +3691,7 @@ process.stdin.on('end', () => {
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
     c.on('error', () => process.exit(0));
-    setTimeout(() => process.exit(0), 5000).unref();
+    setTimeout(() => process.exit(0), ${HOOK_PHASE_TIMEOUT_MS}).unref();
   } catch (_) { process.exit(0); }
 });
 `;
