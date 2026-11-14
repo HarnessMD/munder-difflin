@@ -230,6 +230,8 @@ export type { CatalogModel, ModelCatalog } from '@shared/modelCatalogPayload';
  *  - cursor: ids match `cursor-agent models` / `--model` (Cursor account catalog).
  *    Luna is the cheap, high-context default for Michael; the rest are curated
  *    quick-picks and the command field stays editable for any live slug.
+ *  - devin: `devin models list` accepts the SWE-2 family slug or its specific
+ *    variants. The command field also accepts the user's `--prompt-file` flag.
  *  - grok: the models reported by the installed Grok CLI (`grok models`).
  *  - kimi: managed Kimi Code aliases accepted by `kimi --model <alias>`.
  *  - custom: no presets at all; the command field is the whole interface.
