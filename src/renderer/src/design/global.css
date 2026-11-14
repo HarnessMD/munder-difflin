@@ -199,6 +199,13 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
   font-feature-settings: "liga" 0, "clig" 0, "calt" 0 !important;
 }
 
+/* xterm owns the viewport's scrollTop (terminalPool.ts keeps the reader's place
+ * while output streams). Browser scroll anchoring would adjust it on its own as
+ * the scroll area grows, so it is switched off for the terminal viewport. */
+.xterm-viewport {
+  overflow-anchor: none;
+}
+
 /* Arabic/RTL in terminals (see terminal/arabicJoiner.ts for the whole recipe).
    `plaintext` gives each ROW its own base direction from its first strong
    character — an Arabic row lays out right-to-left and right-aligned, a Latin
