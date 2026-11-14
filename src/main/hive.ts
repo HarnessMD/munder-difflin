@@ -397,6 +397,11 @@ export class HiveManager {
   ) {}
 
   private routerTimer: NodeJS.Timeout | null = null;
+  /** Router ticks between full sweeps that include archived agents' outboxes
+   *  (40 x 1.5 s = 60 s at the default interval). */
+  static ROUTER_FULL_SWEEP_EVERY = 40;
+  private routerTick = 0;
+  private routerArchived: { key: string; ids: Set<string> } | null = null;
 
   /** The embedded OTLP collector's loopback URL, set by the main process once the
    *  collector is bound (telemetry.ts). null = telemetry off → no OTel env is
@@ -1839,13 +1844,40 @@ export class HiveManager {
     if (this.routerTimer) { clearInterval(this.routerTimer); this.routerTimer = null; }
   }
 
+  /** Archived ids from registry.json, re-parsed only when the file changes.
+   *  `changed` is true on the call that saw a new version of the file. */
+  private routerArchivedIds(root: string): { ids: Set<string>; changed: boolean } {
+    const path = join(root, 'registry.json');
+    let key = 'missing';
+    try { const st = statSync(path); key = `${st.mtimeMs}:${st.size}`; } catch { /* no registry yet */ }
+    if (this.routerArchived && this.routerArchived.key === key) {
+      return { ids: this.routerArchived.ids, changed: false };
+    }
+    const ids = new Set<string>();
+    if (key !== 'missing') {
+      const reg = this.readJson<Registry>(path, { godId: null, agents: {} });
+      for (const [id, agent] of Object.entries(reg.agents ?? {})) if (agent?.archived) ids.add(id);
+    }
+    this.routerArchived = { key, ids };
+    return { ids, changed: true };
+  }
+
   routeOnce(): number {
     const root = this.root();
     if (!root) return 0;
     const agentsDir = join(root, 'agents');
     if (!existsSync(agentsDir)) return 0;
+    // Archived agents have no live terminal, so their outboxes are almost
+    // always empty, and walking them all every tick blocked the main thread
+    // (#811). Skip them, except on a full sweep: whenever registry.json
+    // changes (an agent was just archived, so its last outbox gets drained)
+    // and every ROUTER_FULL_SWEEP_EVERY ticks as a backstop for late writers.
+    const archived = this.routerArchivedIds(root);
+    const fullSweep = archived.changed || this.routerTick % HiveManager.ROUTER_FULL_SWEEP_EVERY === 0;
+    this.routerTick++;
     let routed = 0;
     for (const id of readdirSync(agentsDir)) {
+      if (!fullSweep && archived.ids.has(id)) continue;
       const outbox = join(agentsDir, id, 'outbox');
       if (!existsSync(outbox)) continue;
       for (const f of readdirSync(outbox)) {
