@@ -1,3 +1,4 @@
+import './packThemes'; // theme packs join the project-theme catalogue before any config is read
 import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, powerMonitor, powerSaveBlocker, screen, shell, Notification } from 'electron';
 import { spawn } from 'node:child_process';
 import {
@@ -14,14 +15,23 @@ import { resolveCommand as resolveCliCommand, isSafeCommandName } from './shellE
 import { initAutoUpdater, abortPendingRestart } from './updater';
 import { RealtimeFloorWatcher } from './realtimeFloorWatcher';
 import {
-  readConfig, writeConfig, setAgentTokenCap, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
+  readConfig, writeConfig, setAgentTokenCap, setGraphicsMode, setProjectThemeForHome, setCodexFolderOk, resetConfig, onConfigWritten, ensureHarnessHome, ensureClaudePermissionsAccepted,
   modelForRole, OPS_STANDUP_MISSION, HEARTBEAT_MISSION, COMPACT_MAINTENANCE_MISSION, type HarnessConfig, type ScheduledMission
 } from './config';
-import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde } from './fs';
+import { listDir, readFileText, readFileBinary, writeFileText, statAbs, expandTilde, newProjectFolderState } from './fs';
+import { integrityIssues, integrityPath } from './damagedFile';
+import { applyGraphicsModeAtStartup, appliedGraphicsMode, graphicsStatus, logGraphicsWhenKnown, watchGpuReports } from './graphics';
+import type { GraphicsStatusView } from '../shared/graphicsMode';
+import { HistoryService } from './historyService';
+import { parseAnswerRequest } from './askMeAnswers';
+import { isProjectThemeId, moveProjectTheme, resolveProjectTheme, type ProjectThemeId, type ProjectThemeSave } from '../shared/projectTheme';
+import { ReloadPolicy, type RecoveryNotice } from '../shared/viewRecovery';
+import { codexFolderKey, codexHold, codexProjectLayers, type CodexHold, type CodexHoldNotice } from './codexProjectLayers';
+import type { AnswerOutcome } from '../shared/humanQuestion';
 import { normalizeWeekly, weeklyDelayMs } from '../shared/weeklySchedule';
 import {
   getBranch, getStatus, getLog, getBranches, getAheadBehind, isRepo, getDiff, mainRepoRoot,
-  addWorktree, removeWorktree, worktreeHasUnintegratedWork, worktreeIsGcSafe,
+  addWorktree, removeWorktree, dropHeldAgentBranch, worktreeHasUnintegratedWork, worktreeIsGcSafe,
   getLogGraph, getCommitFiles, getFileAtRev, compareRefs, listWorktrees, checkoutRef
 } from './git';
 import { linkWorktreeDeps, unlinkWorktreeDeps } from './worktreeDeps';
@@ -94,6 +104,14 @@ import {
 } from '../shared/codexRemote';
 
 const isDev = !!process.env.ELECTRON_RENDERER_URL;
+
+// Settings, Graphics: applied HERE, at module load, before app ready
+// (disableHardwareAcceleration does nothing later). A missing or damaged
+// config.json is Auto. CPU only turns hardware acceleration off for this run.
+const graphicsAtStartup = applyGraphicsModeAtStartup(app);
+// The GPU process's first report, noted before ready so none is missed; the
+// startup 'graphics' row waits for it, since the status reads software until then.
+watchGpuReports(app);
 
 // Keep the main process alive on an unexpected throw/rejection. The harness is a
 // multi-agent supervisor — a single stray throw (e.g. node-pty's ConPTY console
@@ -421,6 +439,16 @@ interface PreservedWorktree {
  *  sweep drains this: an entry is removed (worktree + scratch GC'd) only when the
  *  work is provably integrated, or when the worktree is already gone from disk. */
 const preservedWorktrees = new Map<string, PreservedWorktree>();
+/** Worktrees whose removal was refused this run (git.removeWorktree: not a
+ *  linked worktree, or a link inside could not be removed as a link). Each is
+ *  logged once to the hive log, and the GC sweep stops retrying it until the
+ *  app starts again. */
+const refusedWorktrees = new Set<string>();
+function noteRemovalRefused(wtPath: string, error: string | undefined): void {
+  if (refusedWorktrees.has(wtPath)) return;
+  refusedWorktrees.add(wtPath);
+  try { hive.appendLog({ kind: 'worktree-removal-refused', path: wtPath, error }); } catch { /* best-effort */ }
+}
 
 /**
  * Tear down everything tied to a PTY id: archive its hive agent, remove its
@@ -486,7 +514,7 @@ function teardownPty(id: string): void {
       void finalizeWorkerWorktree(wtPath, origCwd, worker);
     } else {
       void removeWorktree(origCwd, wtPath)
-        .then(r => { if (!r.ok) console.error('[worktree] removeWorktree failed:', r.error); })
+        .then(r => { if (!r.ok) { console.error('[worktree] removeWorktree failed:', r.error); if (r.refused) noteRemovalRefused(wtPath, r.error); } })
         .catch(e => console.error('[worktree] removeWorktree threw:', e));
     }
   }
@@ -548,7 +576,7 @@ async function finalizeWorkerWorktree(wtPath: string, origCwd: string, worker: W
       return;
     }
     const r = await removeWorktree(origCwd, wtPath);
-    if (!r.ok) { console.error('[worker] removeWorktree failed:', r.error); return; }
+    if (!r.ok) { console.error('[worker] removeWorktree failed:', r.error); if (r.refused) noteRemovalRefused(wtPath, r.error); return; }
     // Worktree is gone (clean/integrated at teardown), but DEFER its scratch-dir
     // cleanup to the throttled GC sweep rather than deleting it synchronously here:
     // HIVE_ROOT/agents/<id> holds the worker's memory.md and the MemPalace miner
@@ -2303,6 +2331,67 @@ ipcMain.handle('hire:openFile', async () => {
  * window — cascades its position, and on close stops only its OWN terminals
  * while the app keeps running.
  */
+/** One shot "the view was restored" notices (shared/viewRecovery), by the
+ *  webContents that should show it; the reloaded page takes its own on mount. */
+const recoveryNotices = new Map<number, RecoveryNotice>();
+/** Asked once, synchronously, by the reloaded page's preload: true while this
+ *  window has a notice waiting, so the page opens on the live project rather
+ *  than the launch-time hive picker. */
+ipcMain.on('window:recoveringSync', (evt) => { evt.returnValue = recoveryNotices.has(evt.sender.id); });
+ipcMain.handle('window:takeRecoveryNotice', (evt) => {
+  const n = recoveryNotices.get(evt.sender.id) ?? null;
+  recoveryNotices.delete(evt.sender.id);
+  return n;
+});
+/** The root error boundary's "Reload the window", through main so the reloaded
+ *  page says it was restored. */
+ipcMain.on('window:reloadAfterError', (evt) => {
+  const wc = evt.sender;
+  if (wc.isDestroyed()) return;
+  recoveryNotices.set(wc.id, { at: Date.now(), reason: 'render-error', streak: 1 });
+  try { hive.appendLog({ kind: 'renderer-error-reload' }); } catch { /* best-effort */ }
+  wc.reload();
+});
+
+/** A window's view died. Its terminals live in main and keep running, so reload
+ *  it and leave the notice; a view that keeps dying (ReloadPolicy) stays down. A
+ *  view that exits cleanly, or dies while the app quits, is left alone. */
+function onViewGone(win: BrowserWindow, wc: Electron.WebContents, details: Electron.RenderProcessGoneDetails, isFloor: boolean, policy: ReloadPolicy): void {
+  if (details.reason === 'clean-exit' || allowQuit || win.isDestroyed() || wc.isDestroyed()) return;
+  const at = Date.now();
+  const { reload, streak } = policy.next(at);
+  try { hive.appendLog({ kind: 'render-process-gone', reason: details.reason, exitCode: details.exitCode, floor: isFloor, reload, streak }); } catch { /* best-effort */ }
+  if (!reload) return;
+  recoveryNotices.set(wc.id, { at, reason: details.reason, streak });
+  wc.reload();
+}
+
+/** This window's view cannot answer: it died (and stayed down), or is gone. */
+function viewGone(wc: Electron.WebContents): boolean {
+  try { return wc.isDestroyed() || wc.isCrashed(); } catch { return true; }
+}
+
+/** The quit warning, asked natively when the window's view cannot show its own
+ *  (it died and stayed down): the same choice the page's modal gives, so the
+ *  app can still be quit. */
+function askQuitNatively(win: BrowserWindow | null, ptyCount: number): void {
+  const opts: Electron.MessageBoxSyncOptions = {
+    type: 'warning',
+    buttons: ['Quit and stop agents', 'Cancel'],
+    defaultId: 1,
+    cancelId: 1,
+    message: `Quit Munder Difflin? ${ptyCount} running terminal${ptyCount === 1 ? '' : 's'} will be stopped.`,
+    detail: 'The window is not showing (its view stopped), so this is asked here instead.'
+  };
+  const choice = win && !win.isDestroyed() ? dialog.showMessageBoxSync(win, opts) : dialog.showMessageBoxSync(opts);
+  if (choice === 0) {
+    closingTime.cancel(); // a hard quit overrides a closing time in progress
+    teardownAndQuit();
+  } else {
+    abortPendingRestart();
+  }
+}
+
 function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   const isFloor = opts.floor === true;
 
@@ -2436,6 +2525,7 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
     const count = ptyManager.list().length;
     if (count === 0) return;
     e.preventDefault();
+    if (viewGone(wc)) { askQuitNatively(win, count); return; }
     win.focus();
     wc.send('app:closeRequested', { ptyCount: count });
   });
@@ -2450,6 +2540,9 @@ function createWindow(opts: { floor?: boolean } = {}): BrowserWindow {
   win.webContents.on('did-start-navigation', (details) => {
     if (details.isMainFrame) rendererReadyForHires = false;
   });
+
+  const reloads = new ReloadPolicy();
+  wc.on('render-process-gone', (_e, details) => onViewGone(win, wc, details, isFloor, reloads));
 
   if (isDev && process.env.ELECTRON_RENDERER_URL) {
     win.loadURL(process.env.ELECTRON_RENDERER_URL);
@@ -2624,7 +2717,69 @@ ipcMain.handle('pty:spawn', async (evt, opts: AgentSpawnOptions) => {
  *  it can ALSO be invoked by the god-triggered ephemeral-worker watcher (which has
  *  no renderer `evt`). `owner` is the window that should receive this PTY's output
  *  (null → the primary window). Behavior-identical to the prior inline handler. */
-async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
+// ── R3: hold a hive Codex start (codexProjectLayers) ─────────────────────────
+/** Held Codex starts for the window's card, one per agent and folder, newest last. */
+const codexHolds: CodexHoldNotice[] = [];
+function pushCodexHolds(): void {
+  for (const w of allWindows) {
+    if (w.isDestroyed() || w.webContents.isDestroyed()) continue;
+    try { w.webContents.send('codexHold:push', codexHolds.slice()); } catch { /* window tearing down */ }
+  }
+}
+/** Null to start a hive Codex agent in `cwd`; else why it is held. `keyCwd` is the
+ *  folder the person started in when `cwd` is the worktree made from it: the OK and
+ *  the card stay keyed by that folder (spelled as in its main checkout). A check
+ *  that throws holds too (fail safe). */
+function codexStartCheck(agentId: string, cwd: string, keyCwd: string = cwd): CodexHold | null {
+  try {
+    const codexHome = hive.codexHomeOf(agentId) ?? join(hive.root() ?? '', 'agents', agentId, '.codex');
+    const report = codexProjectLayers({ cwd, codexHome });
+    if (keyCwd !== cwd) report.projectFolder = codexProjectLayers({ cwd: keyCwd, codexHome }).projectFolder;
+    return codexHold(report, readConfig().codexLayerOptIns);
+  } catch (e) {
+    return { folderKey: codexFolderKey(keyCwd), folder: keyCwd, layers: [], unknown: [`the check failed (${e instanceof Error ? e.message : String(e)})`] };
+  }
+}
+/** A held start: kept for the card (one per agent and folder, newest last), pushed,
+ *  logged, and returned as spawnAgentCore's result. */
+function codexStartHeld(agentId: string, hold: CodexHold): { ok: false; error: string; codexHold: CodexHoldNotice } {
+  const notice: CodexHoldNotice = { ...hold, agentId, at: Date.now() };
+  const same = codexHolds.findIndex((n) => n.agentId === agentId && n.folderKey === hold!.folderKey);
+  if (same >= 0) codexHolds.splice(same, 1);
+  codexHolds.push(notice);
+  while (codexHolds.length > 20) codexHolds.shift();
+  pushCodexHolds();
+  try { hive.appendLog({ kind: 'codex-hold', agent: agentId, folder: hold.folder, files: hold.layers.flatMap((l) => l.items.map((it) => it.file)), unknown: hold.unknown }); } catch { /* best-effort */ }
+  return { ok: false, error: `Codex start held: ${hold.folder} has project .codex settings that would run unreviewed. Allow the folder to start it.`, codexHold: notice };
+}
+ipcMain.handle('codexHold:list', () => codexHolds.slice());
+/** The card's Allow: records the held folder's key (one OK covers its worktrees);
+ *  the window then starts the held agents again. Only a folder held now. */
+ipcMain.handle('codexHold:allow', (_evt, folderKey: unknown) => {
+  if (typeof folderKey !== 'string' || !codexHolds.some((n) => n.folderKey === folderKey)) return { ok: false, error: 'that folder is not held' };
+  const { saved } = setCodexFolderOk(folderKey, true);
+  if (!saved) return { ok: false, error: 'not-saved' };
+  for (let i = codexHolds.length - 1; i >= 0; i--) if (codexHolds[i].folderKey === folderKey) codexHolds.splice(i, 1);
+  pushCodexHolds();
+  try { hive.appendLog({ kind: 'codex-folder-allowed', folder: folderKey }); } catch { /* best-effort */ }
+  return { ok: true };
+});
+ipcMain.handle('codexHold:dismiss', (_evt, at: unknown) => {
+  const i = codexHolds.findIndex((n) => n.at === at);
+  if (i >= 0) { codexHolds.splice(i, 1); pushCodexHolds(); }
+  return { ok: true };
+});
+/** Settings: the allowed folders, and withdrawing one (by its key). */
+ipcMain.handle('codexHold:allowed', () => (readConfig().codexLayerOptIns ?? []).filter((k): k is string => typeof k === 'string'));
+ipcMain.handle('codexHold:withdraw', (_evt, folderKey: unknown) => {
+  if (typeof folderKey !== 'string' || !folderKey.trim()) return { ok: false, error: 'invalid folder' };
+  const { saved } = setCodexFolderOk(folderKey, false);
+  if (!saved) return { ok: false, error: 'not-saved' };
+  try { hive.appendLog({ kind: 'codex-folder-withdrawn', folder: folderKey }); } catch { /* best-effort */ }
+  return { ok: true };
+});
+
+async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebContents | null): Promise<{ ok: boolean; error?: string; codexHold?: CodexHoldNotice; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> {
   // ── cwd INGESTION — expand `~` exactly once, here ───────────────────────────
   // This is the single door every agent spawn comes through (`pty:spawn` IPC and
   // the god-triggered ephemeral-worker watcher), so it is where a user-typed
@@ -2718,6 +2873,16 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
       return res;
     }
   }
+  // R3: every hive Codex start (first, resume, respawn) passes
+  // --dangerously-bypass-hook-trust, so a project `.codex` that carries code would
+  // run unreviewed. Held until the person allows the folder. Checked on the cwd as
+  // given, before any worktree is made, so the usual held start leaves nothing
+  // behind; a made worktree is checked once more below.
+  const codexHive = !!(opts.hive && hive.enabled() && provider === 'codex');
+  if (codexHive) {
+    const held = codexStartCheck(opts.hive!.id, opts.cwd);
+    if (held) return codexStartHeld(opts.hive!.id, held);
+  }
   // Git isolation: when requested and the cwd is a real repo, give this agent
   // its own worktree on an `agent/<id>` branch so it can't clobber other agents'
   // (or the user's) working tree. Best-effort — a failure falls back to the
@@ -2743,6 +2908,21 @@ async function spawnAgentCore(opts: AgentSpawnOptions, owner: Electron.WebConten
         const br = await getBranch(origCwd);
         const baseBranch = 'current' in br && br.current ? br.current : 'main';
         const wt = await addWorktree(origCwd, wtPath, baseBranch);
+        // R3, second check: the worktree holds the base branch's committed `.codex`, not
+        // the working tree checked above. Held: the worktree is taken back (as teardown
+        // does) and the branch made for it deleted when nothing is on it, before the
+        // card goes up, so an Allow starts again in its own worktree.
+        const held = wt.ok && codexHive ? codexStartCheck(opts.hive!.id, wtPath, origCwd) : null;
+        if (held) {
+          const made = await getBranch(wtPath);
+          const r = await removeWorktree(origCwd, wtPath).catch((e: unknown) => ({ ok: false, error: String(e), refused: false }));
+          if (!r.ok) { console.error('[worktree] removeWorktree failed:', r.error); if (r.refused) noteRemovalRefused(wtPath, r.error); }
+          else {
+            const drop = await dropHeldAgentBranch(origCwd, wtPath, 'current' in made ? made.current : null, baseBranch);
+            if (drop.error) console.error('[worktree] held start: branch kept:', drop.error);
+          }
+          return codexStartHeld(opts.hive!.id, held);
+        }
         if (wt.ok) {
           opts.cwd = wtPath;
           worktreePaths.set(opts.id, wtPath);
@@ -3250,7 +3430,7 @@ ipcMain.handle('config:ensureHome', (_evt, path: unknown) => {
 // re-binds against the new root. mode: 'move' copies the data (old kept as a
 // safety net), 'fresh' just re-points and bootstraps an empty home.
 ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
-  const p = (payload ?? {}) as { newHome?: unknown; mode?: unknown };
+  const p = (payload ?? {}) as { newHome?: unknown; mode?: unknown; projectTheme?: unknown };
   if (typeof p.newHome !== 'string' || !p.newHome) return { ok: false, error: 'invalid newHome' };
   const mode: 'move' | 'fresh' = p.mode === 'fresh' ? 'fresh' : 'move';
   // expandTilde BEFORE resolve: both UI callers feed a folder-dialog result
@@ -3261,6 +3441,19 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   const newHome = resolve(expandTilde(p.newHome));
   const oldRaw = readConfig().harnessHome;
   const oldHome = oldRaw ? resolve(oldRaw) : null;
+  // Read before anything is copied in: a fresh home with no hive is a new project.
+  const blankProject = !existsSync(join(newHome, 'hive'));
+  // P2: a fresh project may come with the floor the person chose (a move keeps its
+  // own). It only starts a new project in an empty folder (nothing but .DS_Store), so
+  // it never lands on an existing project. Errors are ids the window words.
+  const chosen = mode === 'fresh' && p.projectTheme != null ? p.projectTheme : undefined;
+  let theme: ProjectThemeId | undefined;
+  if (chosen !== undefined) {
+    if (!isProjectThemeId(chosen)) return { ok: false, error: 'invalid-theme' };
+    theme = chosen;
+    const folder = await newProjectFolderState(newHome);
+    if (folder !== 'empty') return { ok: false, error: folder };
+  }
 
   // Guard against same-folder / nested-folder (a move would self-copy forever).
   if (oldHome) {
@@ -3317,7 +3510,10 @@ ipcMain.handle('config:changeHome', async (_evt, payload: unknown) => {
   // Repoint config and relaunch so every service re-bootstraps against newHome.
   // (Identical recovery path to resetAll — relaunch is the clean re-bind.)
   allowQuit = true;
-  writeConfig({ harnessHome: newHome });
+  // The project's floor theme goes with it on a move; a new project gets the one
+  // chosen for it (shared/projectTheme).
+  const officeThemeByHive = moveProjectTheme(readConfig().officeThemeByHive, { mode, oldHome, newHome, blankProject, theme });
+  writeConfig({ harnessHome: newHome, officeThemeByHive });
   try { ptyManager.killAll(); } catch (e) { console.error('[changeHome] killAll:', e); }
   app.relaunch();
   app.exit(0);
@@ -3517,20 +3713,109 @@ ipcMain.handle('hive:addTask', (_evt, task: unknown) => {
     return { ok: false, error: 'invalid task' };
   }
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
-  return { ok: hive.addTask(task as HiveTask) };
+  return taskWrite(() => hive.addTask(task as HiveTask));
 });
+/** A board write, with a refusal (tasks.json damaged, or not readable just now)
+ *  returned as its error rather than thrown, so the window can say so. */
+function taskWrite(write: () => boolean): { ok: boolean; error?: string } {
+  try { return { ok: write() }; } catch (e) { return { ok: false, error: e instanceof Error ? e.message : String(e) }; }
+}
 ipcMain.handle('hive:patchTask', (_evt, id: unknown, patch: unknown) => {
   if (typeof id !== 'string' || !id || !patch || typeof patch !== 'object' || Array.isArray(patch)) {
     return { ok: false, error: 'invalid task patch' };
   }
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
-  return { ok: hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>) };
+  return taskWrite(() => hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>));
 });
 ipcMain.handle('hive:deleteTask', (_evt, id: unknown) => {
   if (typeof id !== 'string' || !id) return { ok: false, error: 'invalid task id' };
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
-  return { ok: hive.deleteTask(id) };
+  return taskWrite(() => hive.deleteTask(id));
 });
+/** Ask Me (askMeAnswers): answer or dismiss the question each card showed, one
+ *  humanQA entry each, in one tasks.json write. An answer counts as sent once it
+ *  is saved: the god's notice follows, and a notice that fails is logged, never
+ *  reported as not sent. */
+function answerQuestions(raw: unknown[]): AnswerOutcome[] {
+  if (!hive.enabled()) return raw.map((): AnswerOutcome => ({ result: 'failed', error: 'hive disabled (no harnessHome)' }));
+  const reqs = raw.map(parseAnswerRequest);
+  let applied: ReturnType<typeof hive.answerQuestions>;
+  try {
+    applied = hive.answerQuestions(reqs);
+  } catch (e) {
+    const error = e instanceof Error ? e.message : String(e);
+    return reqs.map((r): AnswerOutcome => (r ? { result: 'failed', error } : { result: 'invalid' }));
+  }
+  return applied.map(({ result, notice }, i): AnswerOutcome => {
+    if (notice) {
+      try {
+        hive.send({ to: 'god', act: 'inform', subject: notice.subject, body: notice.body }, 'human');
+        analytics.trackMessageSent('hive');
+      } catch (e) {
+        hive.appendLog({ kind: 'answer-notice-failed', task: reqs[i]?.taskId, error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+    return { result };
+  });
+}
+ipcMain.handle('hive:answerQuestion', (_evt, req: unknown) => answerQuestions([req])[0]);
+ipcMain.handle('hive:answerQuestions', (_evt, reqs: unknown) =>
+  Array.isArray(reqs) && reqs.length <= 500 ? answerQuestions(reqs) : []);
+// Damaged sources of truth (damagedFile): config.json, registry.json and
+// tasks.json are each read first, so the list is current. Names only.
+ipcMain.handle('integrity:issues', () => {
+  readConfig();
+  if (hive.enabled()) { hive.registry(); hive.tasks(); }
+  return integrityIssues();
+});
+// Show a listed file (a damaged file or its copy) in the file manager. The
+// window names it; a path from the window is never used.
+ipcMain.handle('integrity:reveal', (_evt, name: unknown) => {
+  const p = typeof name === 'string' ? integrityPath(name) : null;
+  if (!p) return { ok: false, error: 'not a listed file' };
+  shell.showItemInFolder(p);
+  return { ok: true };
+});
+// The History tab: one page of an agent's conversation from its CLI's own
+// transcript, found by agent id alone (historyService); never a window path.
+const historyService = new HistoryService({
+  agent: (id) => {
+    const a = hive.registry().agents[id];
+    return a ? { provider: a.provider, cwd: a.cwd, sessionId: a.sessionId } : null;
+  },
+  transcriptPath: (id) => hookServer.transcriptPath(id),
+  codexHomeFor: (id) => hive.codexHomeOf(id),
+  geminiHome: () => join(homedir(), '.gemini')
+});
+ipcMain.handle('hive:history', (_evt, req: unknown) => historyService.page(req));
+// Settings, Graphics. The status is what is IN FORCE (the mode read before
+// ready, Chromium's GPU compositing) plus the saved mode; a saved change
+// applies after a restart, which goes through the normal teardown (the window
+// asks the person first when agents are running).
+function graphicsStatusView(): GraphicsStatusView {
+  let feature: Record<string, string> | null = null;
+  try { feature = app.getGPUFeatureStatus() as unknown as Record<string, string>; } catch { /* unknown */ }
+  return { ...graphicsStatus(readConfig(), feature), runningAgents: ptyManager.list().length };
+}
+ipcMain.handle('graphics:status', () => graphicsStatusView());
+ipcMain.handle('graphics:setMode', (_evt, mode: unknown) => {
+  setGraphicsMode(mode);
+  try { hive.appendLog({ kind: 'graphics-set', mode, applied: appliedGraphicsMode() }); } catch { /* best-effort */ }
+  return graphicsStatusView();
+});
+ipcMain.handle('graphics:restart', () => {
+  app.relaunch();
+  teardownAndQuit();
+});
+/** The current project's floor theme: the Settings picker, and voice. Main reads,
+ *  merges and writes the map, so two windows cannot erase each other's choice; a
+ *  switch changes only how the floor looks, never the agents. */
+function chooseProjectTheme(theme: unknown): ProjectThemeSave {
+  const cfg = readConfig();
+  if (!cfg.harnessHome) return { ok: false, reason: 'no-home', theme: resolveProjectTheme(cfg, null) };
+  return setProjectThemeForHome(cfg.harnessHome, theme);
+}
+ipcMain.handle('config:setProjectTheme', (_evt, theme: unknown) => chooseProjectTheme(theme));
 ipcMain.handle('hive:setArchived', (_evt, id: unknown, archived: unknown) => {
   if (typeof id !== 'string') return { ok: false, error: 'invalid id' };
   if (!hive.enabled()) return { ok: false, error: 'hive disabled (no harnessHome)' };
@@ -4475,9 +4760,9 @@ registerRealtimeActionIpc({
   hiveEnabled: () => hive.enabled(),
   hiveSend: (partial, from) => hive.send(partial, from),
   hiveTasks: () => hive.tasks(),
-  hiveAddTask: (task) => hive.addTask(task as HiveTask),
-  hivePatchTask: (id, patch) => hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>),
-  hiveDeleteTask: (id) => hive.deleteTask(id),
+  hiveAddTask: (task) => taskWrite(() => hive.addTask(task as HiveTask)).ok,
+  hivePatchTask: (id, patch) => taskWrite(() => hive.patchTask(id, patch as Partial<Omit<HiveTask, 'id'>>)).ok,
+  hiveDeleteTask: (id) => taskWrite(() => hive.deleteTask(id)).ok,
   hiveRegistry: () => hive.registry(),
   hiveLog: (event) => hive.appendLog(event),
   controlPause: (id, on) => control.pause(id, on),
@@ -4536,7 +4821,9 @@ registerRealtimeActionIpc({
     try { liveWebContents()?.send('realtime:enqueue', { agentId: id, text }); } catch { /* window gone */ }
   },
   getConfigValue: (key) => (readConfig() as unknown as Record<string, unknown>)[key],
-  patchConfig: (patch) => { writeConfig(patch as Partial<HarnessConfig>); }
+  patchConfig: (patch) => { writeConfig(patch as Partial<HarnessConfig>); },
+  getProjectTheme: () => { const c = readConfig(); return resolveProjectTheme(c, c.harnessHome ?? null); },
+  setProjectTheme: (theme) => chooseProjectTheme(theme)
 });
 
 // rt-12 seam: push detected completions to the live floor; bridge live-flag, queue
@@ -4852,6 +5139,8 @@ async function gcPreservedWorktrees(): Promise<void> {
       // A worker id that is live again (reqId reuse) → never GC its worktree or
       // scratch out from under the new run; leave the stale entry for a later sweep.
       if (liveWorkers.has(e.workerId)) continue;
+      // A removal refused this run is not retried (logged once already).
+      if (refusedWorktrees.has(e.wtPath)) continue;
       // (a) Worktree already gone (removed at clean teardown, or god removed it by
       //     hand per the preserve note) → just reclaim the scratch dir + drop tracking.
       if (!existsSync(e.wtPath)) {
@@ -4868,7 +5157,7 @@ async function gcPreservedWorktrees(): Promise<void> {
       catch (err) { console.error('[worker gc] gc-safe check threw (keeping):', err); continue; }
       if (!safe.gc) continue; // keep — fail-safe
       const r = await removeWorktree(e.origCwd, e.wtPath);
-      if (!r.ok) { console.error(`[worker gc] removeWorktree failed (keeping ${e.workerId}):`, r.error); continue; }
+      if (!r.ok) { console.error(`[worker gc] removeWorktree failed (keeping ${e.workerId}):`, r.error); if (r.refused) noteRemovalRefused(e.wtPath, r.error); continue; }
       removeWorkerScratch(e.workerId);
       preservedWorktrees.delete(key);
       console.log(`[worker gc] reclaimed ${e.workerId} (${safe.detail})`);
@@ -5373,6 +5662,8 @@ function onSystemResume(reason: string): void {
 }
 
 app.whenReady().then(() => {
+  // The startup 'graphics' row in the hive log, once Chromium knows (graphics.ts).
+  logGraphicsWhenKnown(app, graphicsAtStartup, (row) => hive.appendLog(row));
   // Realtime Michael mic-gate hygiene (rt-8 / Pam rt-10 nit): the voice session
   // opens the mic permission gate by persisting realtimeVoiceEnabled=true and
   // closes it on disconnect — but a hard crash/reload mid-session skips that
@@ -5461,6 +5752,7 @@ app.on('before-quit', (e) => {
   if (count === 0) return;
   e.preventDefault();
   if (mainWindow) {
+    if (viewGone(mainWindow.webContents)) { askQuitNatively(mainWindow, count); return; }
     mainWindow.focus();
     mainWindow.webContents.send('app:closeRequested', { ptyCount: count });
   }

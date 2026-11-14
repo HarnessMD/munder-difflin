@@ -364,3 +364,14 @@ export async function statAbs(p: string): Promise<{ exists: boolean; isFile: boo
     return { exists: false, isFile: false, path: abs };
   }
 }
+
+/** P2: whether a new project may start in `dir`. Missing, or holding nothing but
+ *  .DS_Store, is 'empty'; anything else in it is 'not-empty'; a path that cannot be
+ *  read as a folder (a file, no permission) is 'unreadable'. */
+export async function newProjectFolderState(dir: string): Promise<'empty' | 'not-empty' | 'unreadable'> {
+  try {
+    return (await readdir(dir)).some((n) => n !== '.DS_Store') ? 'not-empty' : 'empty';
+  } catch (e) {
+    return (e as NodeJS.ErrnoException)?.code === 'ENOENT' ? 'empty' : 'unreadable';
+  }
+}

@@ -109,7 +109,7 @@ test('renderer task actions never send a whole stale ledger back to main', () =>
   assert.match(realtimeActions, /hiveAddTask\s*\(/);
   assert.match(realtimeActions, /hivePatchTask\s*\(/);
   assert.match(realtimeActions, /hiveDeleteTask\s*\(/);
-  assert.match(sources[0], /hivePatchTask\s*\(/);
+  assert.match(sources[0], /hiveAnswerQuestion\s*\(/, 'Ask Me answers and dismisses one question through main');
   assert.match(sources[1], /hivePatchTask\s*\(/);
   assert.match(sources[2], /hiveDeleteTask\s*\(/);
   assert.match(sources[3], /hiveAddTask\s*\(/);
