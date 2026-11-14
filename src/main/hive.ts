@@ -43,6 +43,7 @@ import { preferredAgentRole } from '../shared/agentRole';
 import { mergeTaskLedger } from '../shared/taskLedger';
 import { expandTilde } from './fs';
 import { resolveGodName } from '../shared/godIdentity';
+import { NoticeGate, signatureOf, type Notice, type NoticeFacts, type NoticeKind, type NoticeVerdict } from './noticeGate';
 
 /** The subset of HarnessConfig the hive consumes for the default-MCP merge.
  *  Kept as a local shape so hive.ts never imports the foundation-owned config
@@ -1673,6 +1674,91 @@ export class HiveManager {
     this.routeMessage(msg);
     this.commit(`hive: msg ${msg.from}→${msg.to} (${msg.act})`);
     return msg;
+  }
+
+  // Harness notices (T-796): the four delivery rules.
+  //
+  // Only the app's OWN notices go through sendNotice (heartbeat, breaker,
+  // worker and spawn reports). Agent-authored mail keeps its path through
+  // routeMessage and is delivered exactly once and unchanged.
+
+  private _noticeGate: { file: string; gate: NoticeGate<Partial<HiveMessage>> } | null = null;
+  /** The gate for the CURRENT hive root (the root follows harnessHome). */
+  private noticeGate(): NoticeGate<Partial<HiveMessage>> | null {
+    const root = this.root();
+    if (!root) return null;
+    const file = join(root, 'notice-ledger.json');
+    if (this._noticeGate?.file !== file) this._noticeGate = { file, gate: new NoticeGate<Partial<HiveMessage>>(file) };
+    return this._noticeGate.gate;
+  }
+
+  /** Set by the main process from the hook stream (WaitTracker). Unset = no
+   *  agent is ever treated as waiting, so rule 3 never holds anything. */
+  private _isWaiting: ((agentId: string) => boolean) | null = null;
+  setWaitingProbe(fn: ((agentId: string) => boolean) | null): void {
+    this._isWaiting = fn;
+  }
+
+  /** Rule 3 and 4 facts for one recipient, read from the registry and the probe.
+   *  God is never dead: it is the bounce target and the human's proxy. */
+  noticeFacts(to: string): NoticeFacts {
+    const reg = this.registry();
+    const id = to === 'god' || to === 'human' ? (reg.godId ?? 'god') : to;
+    const a = reg.agents[id];
+    const isGod = id === reg.godId || id === 'god';
+    const dead = !isGod && (!a || a.archived === true);
+    let waiting = false;
+    try { waiting = !dead && (this._isWaiting?.(id) ?? false); } catch { waiting = false; }
+    return { dead, waiting };
+  }
+
+  /** Send a harness notice under the four rules. Returns the verdict; only
+   *  'deliver' writes an inbox file now ('defer' writes it once the recipient
+   *  stops waiting). Every non-delivery is logged as kind 'notice'. */
+  sendNotice(notice: Notice, partial: Partial<HiveMessage>, from: string): NoticeVerdict {
+    const to = partial.to ?? 'god';
+    const gate = this.noticeGate();
+    if (!gate) { this.send(partial, from); return 'deliver'; }
+    const reg = this.registry();
+    const key = to === 'god' || to === 'human' ? (reg.godId ?? 'god') : to;
+    const verdict = gate.decide(key, notice, this.noticeFacts(key));
+    if (verdict === 'deliver') {
+      this.send(partial, from);
+      gate.markDelivered(key, notice);
+    } else if (verdict === 'defer') {
+      for (const ev of gate.hold(key, notice, partial, from)) {
+        this.appendLog({ kind: 'notice', verdict: 'evicted', to: ev.to, sig: ev.sig });
+      }
+    }
+    if (verdict !== 'deliver') this.appendLog({ kind: 'notice', verdict, to: key, sig: signatureOf(notice) });
+    return verdict;
+  }
+
+  /** Release held notices whose recipient stopped waiting (rule 3) and drop
+   *  those whose recipient died meanwhile (rule 4). Call on a main beat. */
+  flushNotices(): number {
+    const gate = this.noticeGate();
+    if (!gate || !gate.held().length) return 0;
+    const { send, dead } = gate.release((to) => this.noticeFacts(to));
+    for (const d of dead) this.appendLog({ kind: 'notice', verdict: 'dead', to: d.to, sig: d.sig, held: true });
+    for (const d of send) {
+      // A signature delivered while this one was held (an urgent twin) wins.
+      if (gate.delivered(d.to).includes(d.sig)) { this.appendLog({ kind: 'notice', verdict: 'duplicate', to: d.to, sig: d.sig, held: true }); continue; }
+      this.send(d.payload, d.from);
+      gate.markDelivered(d.to, d.notice);
+    }
+    return send.length;
+  }
+
+  /** Rule 2: re-arm `kind` signatures for `to` whose condition has cleared. */
+  rearmNotices(to: string, kind: NoticeKind, cleared: (key: string, ctx: string[] | undefined) => boolean): number {
+    const gate = this.noticeGate();
+    if (!gate) return 0;
+    const reg = this.registry();
+    const id = to === 'god' || to === 'human' ? (reg.godId ?? 'god') : to;
+    const n = gate.rearm(id, kind, cleared);
+    if (n) this.appendLog({ kind: 'notice', verdict: 'rearmed', to: id, noticeKind: kind, count: n });
+    return n;
   }
 
   private routeMessage(msg: HiveMessage): void {
