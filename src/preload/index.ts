@@ -53,6 +53,8 @@ export interface HiveAgentMeta {
   role?: string;
   capabilities?: string[];
   cwd: string;
+  worktreePath?: string;
+  worktreeOrigin?: string;
   isGod?: boolean;
   /** Michael's prep assistant — send-only; enriches prompts and forwards them. */
   isAssistant?: boolean;
@@ -579,7 +581,7 @@ const api = {
   // ─── PTY ─────────────────────────────────────────────────────────────────
   /** `cwd` in the result is the TILDE-EXPANDED absolute path main actually spawned
    *  into — the renderer stores that, not the raw `~/…` the user typed. */
-  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> =>
+  spawnPty: (opts: SpawnPtyOptions): Promise<{ ok: boolean; error?: string; cwd?: string; worktreePath?: string; worktreeOrigin?: string; worktreeGone?: boolean; resumeNotFound?: boolean; resumed?: boolean; seedPrompt?: string }> =>
     ipcRenderer.invoke('pty:spawn', opts),
   writePty: (id: string, data: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('pty:write', id, data),
@@ -897,7 +899,7 @@ const api = {
   onHiveAgentSpawned: (
     cb: (rec: {
       id: string; name: string; provider?: string; cwd: string;
-      command?: string; role?: string; worktreePath?: string;
+      command?: string; role?: string; worktreePath?: string; worktreeOrigin?: string;
       character?: string; accent?: string;
     }) => void
   ): (() => void) => {
