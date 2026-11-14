@@ -30,6 +30,18 @@ export function paintCup(g: Graphics, x: number, y: number): void {
   g.rect(x, y - 4, 5, 1).fill(0xffffff);
 }
 
+/** The boss's crown: a 7×4 gold band with three points and a ruby, drawn in the
+ *  sprite container's space so it rides on the head (feet at the origin, the
+ *  18×32 frame's hair top at about y = -30). */
+function paintCrown(g: Graphics): void {
+  const gold = 0xf2c94c, shade = 0xb8860b;
+  for (const x of [-4, -1, 2]) g.rect(x, -34, 1, 1).fill(gold);
+  for (const x of [-4, -3, -1, 1, 2]) g.rect(x, -33, 1, 1).fill(gold);
+  g.rect(-4, -32, 7, 2).fill(gold);
+  g.rect(-4, -31, 7, 1).fill(shade);
+  g.rect(-1, -32, 1, 1).fill(0xd64545);
+}
+
 const SPEED = 48; // pixels/sec (tileSize=16)
 // Slide the sprite when seated so it reads as "sitting on the chair" rather than
 // standing on the tile. The chair tile holds the chair/barrel, with the desk in
@@ -88,6 +100,8 @@ interface CharacterOptions {
   /** Where the avatar first appears (the office door). Defaults to seatTile. */
   spawnTile?: { x: number; y: number };
   glowColor: number;
+  /** Wear the boss's crown (the orchestrator). */
+  crowned?: boolean;
   /** Direction faced while seated. Default 'down' so the face is toward the user. */
   seatDirection?: Direction;
   onClick?: (agentId: string) => void;
@@ -163,6 +177,12 @@ export class Character {
     this.agentId = options.agentId;
     this.mapRenderer = options.mapRenderer;
     this.sprite = new CharacterSprite(options.frames);
+    if (options.crowned) {
+      const crown = new Graphics();
+      paintCrown(crown);
+      crown.eventMode = 'none';
+      this.sprite.container.addChild(crown);
+    }
     this.deskTile = options.seatTile;
     this.seatDirection = options.seatDirection ?? 'down';
     this.onClick = options.onClick;

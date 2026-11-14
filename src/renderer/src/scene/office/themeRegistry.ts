@@ -113,7 +113,8 @@ export interface PaletteConfig {
  *  own roster + sprite frames. The office theme points at cast.ts's exports. */
 export interface ThemeCast {
   byName: Record<string, CastMember>;
-  getFrames: (name: string) => Promise<Texture[][]>;
+  /** `badge` is the 0xRRGGBB accent for the avatar's lanyard ID badge. */
+  getFrames: (name: string, opts?: { badge?: number }) => Promise<Texture[][]>;
   defaultCharacter: string;
 }
 
@@ -211,7 +212,7 @@ export const OFFICE_THEME: ThemeConfig = {
   },
   cast: {
     byName: CAST_BY_NAME as Record<string, CastMember>,
-    getFrames: (name: string) => getCastFrames(name as OfficeCharacterName),
+    getFrames: (name: string, opts?: { badge?: number }) => getCastFrames(name as OfficeCharacterName, opts),
     defaultCharacter: DEFAULT_CHARACTER,
   },
 };
