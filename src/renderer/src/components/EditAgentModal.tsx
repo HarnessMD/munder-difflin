@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
 import { SpritePortrait } from './SpritePortrait';
@@ -30,6 +31,7 @@ export interface EditAgentModalProps {
  * via updateAgent (engine changes apply on the next restart).
  */
 export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
+  const { t } = useTranslation();
   const updateAgent = useStore((s) => s.updateAgent);
   const [config, setConfig] = useState<HarnessConfig | null>(null);
 
@@ -42,6 +44,8 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
   const [model, setModel] = useState<string | undefined>(agent.model);
   const [description, setDescription] = useState(agent.description);
   const [goal, setGoal] = useState(agent.goal ?? '');
+  const [seat, setSeat] = useState<number | undefined>(agent.seat);
+  const seatCount = useStore((s) => s.seatCount);
 
   useEffect(() => {
     void window.cth.getConfig().then(setConfig).catch(() => setConfig(null));
@@ -56,6 +60,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
     setModel(agent.model);
     setDescription(agent.description);
     setGoal(agent.goal ?? '');
+    setSeat(agent.seat);
   }, [agent.id]);
 
   const pickProvider = (id: AgentProvider) => {
@@ -86,7 +91,8 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
       model,
       command,
       description: trimmedDescription,
-      goal: trimmedGoal || undefined
+      goal: trimmedGoal || undefined,
+      seat
     });
     onClose();
   };
@@ -105,7 +111,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
           one job — describe an agent — and a tall narrow dialog next to a wide
           one reads as two unrelated screens. */}
       <div onClick={(e) => e.stopPropagation()} style={{ width: 940, maxWidth: '95vw' }}>
-        <PixelPanel variant="dialog" title="EDIT AGENT" style={{ padding: 16 }} noPadding>
+        <PixelPanel variant="dialog" title={t('editAgent.title')} style={{ padding: 16 }} noPadding>
           <div style={{
             display: 'flex', flexDirection: 'column', gap: 14,
             padding: 16, maxHeight: '86vh', overflowY: 'auto'
@@ -182,6 +188,33 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
                       }}
                     />
                   ))}
+                </div>
+              </Row>
+
+              <Row label="Desk">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <select
+                    value={seat === undefined ? '' : seat}
+                    onChange={(e) => setSeat(e.target.value === '' ? undefined : Number(e.target.value))}
+                    style={{ ...inputStyle, width: 140, cursor: 'pointer' }}
+                    aria-label={`desk seat for ${agent.name}`}
+                  >
+                    <option value="">automatic (first free)</option>
+                    {(() => {
+                      // OfficeFloor publishes the live seat count of the current
+                      // theme (0 until the map mounts); fall back to a sane list
+                      // so the picker is never empty.
+                      const n = Math.max(seatCount, 12);
+                      return Array.from({ length: n }, (_, i) => (
+                        <option key={i} value={i}>
+                          desk {i}{i === 0 ? " — Michael's room" : ''}
+                        </option>
+                      ));
+                    })()}
+                  </select>
+                  <span style={{ fontSize: 11, color: 'var(--cth-ink-500)', lineHeight: '14px' }}>
+                    Pick a seat · blank = automatic. A pinned desk beats the first-free rule — even for Michael (desk 0). A pin on a taken desk falls back to automatic.
+                  </span>
                 </div>
               </Row>
             </Section>

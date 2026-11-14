@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStore, selectedAgent } from '@/store/store';
 import { startMockLoop, stopMockLoop } from '@/store/mockEvents';
 import type { HarnessConfig } from '@/store/config';
@@ -7,6 +8,7 @@ import { OfficeFloor } from '@/scene/office/OfficeFloor';
 import { useHive } from '@/hooks/useHive';
 import { useResolvedGodName } from '@/hooks/useResolvedGodName';
 import { useGodNameSync } from '@/i18n/useGodNameSync';
+import { useMenuLabelsSync } from '@/i18n/useMenuLabelsSync';
 import { useDirectionSync } from '@/i18n/useDirection';
 import { useArabicTerminalSync } from '@/terminal/useArabicTerminalSync';
 import { MemoryPanel } from '@/components/MemoryPanel';
@@ -37,8 +39,11 @@ import brandLogo from '@brand/logo.png?url';
 declare const __APP_VERSION__: string;
 
 export function App() {
+  const { t } = useTranslation();
   // Point every {{godName}} string at the orchestrator's real, renameable name.
   useGodNameSync();
+  // Keep the native window menu in the picked language (main rebuilds it).
+  useMenuLabelsSync();
   // Mirror the document only for a user who has picked an RTL app language.
   useDirectionSync();
   // Let terminals that are ALREADY open follow a language switch too.
@@ -308,7 +313,7 @@ export function App() {
           fontSize: 13,
           color: 'var(--cth-ink-500)'
         }}>
-          {config.autoMode ? 'auto mode on' : 'auto mode off'}
+          {config.autoMode ? t('app.autoModeOn') : t('app.autoModeOff')}
         </span>
         {/* v0.3.4: theme + fullscreen live HERE (top right), not buried in the
             terminal header — and the theme darkens the whole app, terminals
@@ -331,7 +336,7 @@ export function App() {
             void window.cth.updateConfig({ terminalTheme: next });
           }}
           data-tip={appThemeNow === 'dark' ? 'Light theme' : 'Dark theme'}
-          aria-label="Toggle dark mode"
+          aria-label={t('app.darkModeAria')}
           style={{
             marginLeft: 'auto',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -350,7 +355,7 @@ export function App() {
           className="cth-titlebar-nodrag cth-settings-btn cth-tip"
           onClick={() => { setSettingsSection(undefined); setSettingsOpen(true); }}
           data-tip="Settings"
-          aria-label="Settings"
+          aria-label={t('app.settingsAria')}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 28, height: 28, padding: 0,
@@ -377,7 +382,7 @@ export function App() {
             if (target) useStore.getState().setFullscreen(target.id);
           }}
           data-tip={fullscreenAgentId ? 'Exit focus mode (Esc)' : 'Focus mode'}
-          aria-label="Toggle focus mode"
+          aria-label={t('app.focusModeAria')}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 28, height: 28, padding: 0,
@@ -409,7 +414,7 @@ export function App() {
               pointerEvents: 'none'
             }}>
               <div style={{ pointerEvents: 'auto', width: 360 }}>
-                <PixelPanel variant="dialog" title="EMPTY FLOOR" noPadding>
+                <PixelPanel variant="dialog" title={t('app.emptyFloor')} noPadding>
                   <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <p style={{ margin: 0, fontSize: 13, lineHeight: '20px' }}>
                       No agents on the floor yet. Spawn one to see real claude output stream in here.
@@ -447,7 +452,7 @@ export function App() {
               <div style={{
                 fontFamily: 'var(--cth-font-display)', fontSize: 10, lineHeight: '14px',
                 color: 'var(--cth-ink-500)'
-              }}>WAKING THE FLOOR</div>
+              }}>{t('app.wakingFloor')}</div>
               <p style={{ margin: 0, fontSize: 13, textAlign: 'center', color: 'var(--cth-ink-700)' }}>
                 {bootingGodName} is clocking in.<br />
                 The terminal will land here once he's seated.
@@ -462,7 +467,7 @@ export function App() {
               <div style={{
                 fontFamily: 'var(--cth-font-display)', fontSize: 10, lineHeight: '14px',
                 color: 'var(--cth-ink-500)'
-              }}>NO AGENT SELECTED</div>
+              }}>{t('app.noAgent')}</div>
               <p style={{ margin: 0, fontSize: 13, textAlign: 'center', color: 'var(--cth-ink-700)' }}>
                 Spawn an agent from the strip below.<br />
                 The terminal and command bar will land here.

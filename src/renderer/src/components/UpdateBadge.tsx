@@ -13,12 +13,14 @@
  * is wiring and pixels.
  */
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { describeUpdate, manualDownloadUrl, manualInstallSteps, pendingVersion, reduceStatus, type UpdateStatus } from '@shared/updateState';
 import { PixelButton } from './PixelButton';
 
 declare const __APP_VERSION__: string;
 
 export function UpdateBadge() {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<UpdateStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [hover, setHover] = useState(false);
@@ -165,7 +167,7 @@ export function UpdateBadge() {
     {started && (
       <div
         role="dialog"
-        aria-label="Install the update"
+        aria-label={t('updatesSection.installAria')}
         className="cth-titlebar-nodrag"
         style={{
           position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 400,

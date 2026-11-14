@@ -21,6 +21,7 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "test:focused": "node --test test/*.test.cjs",
     "check:links": "node tools/check-release-links.cjs",
+    "check:ptBR": "node tools/check-ptBR-parity.cjs",
     "dist": "npm run build && electron-builder",
     "dist:mac": "npm run build && electron-builder --mac",
     "dist:win": "npm run build && electron-builder --win",
@@ -49,7 +50,6 @@
     "commit-graph": "^2.4.0",
     "electron-updater": "^6.8.9",
     "i18next": "^26.3.6",
-    "localtunnel": "^2.0.2",
     "monaco-editor": "^0.52.2",
     "node-pty": "^1.0.0",
     "pixi.js": "^8.5.1",
@@ -66,16 +66,15 @@
     "@electron/notarize": "^2.5.0",
     "@electron/rebuild": "^3.7.0",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/localtunnel": "^2.0.4",
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
-    "electron": "^32.2.0",
-    "electron-builder": "^25.1.8",
-    "electron-vite": "^2.3.0",
+    "electron": "32.3.3",
+    "electron-builder": "26.15.3",
+    "electron-vite": "^4.0.1",
     "typescript": "^5.6.3",
-    "vite": "^5.4.8"
+    "vite": "7.3.7"
   },
   "overrides": {
     "app-builder-lib": {

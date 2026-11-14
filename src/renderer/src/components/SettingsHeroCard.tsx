@@ -107,11 +107,11 @@ export function SettingsHeroCard() {
               <>
                 <span style={{ flex: 1 }} />
                 <span style={{ fontFamily: MONO, fontSize: 11, color: 'var(--cth-ink-700)' }}>
-                  v{pending} is out
+                  {t('settingsHero.versionOut', { v: pending })}
                 </span>
                 <PixelButton variant="primary" size="sm" onClick={downloadManually}
-                  title="Download the installer and replace the app yourself. Auto-update is in Updates below.">
-                  download v{pending}
+                  title={t('settingsHero.downloadTitle')}>
+                  {t('settingsHero.downloadVersion', { pending })}
                 </PixelButton>
               </>
             )}

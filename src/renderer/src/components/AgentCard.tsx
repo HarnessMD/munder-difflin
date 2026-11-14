@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { localizeAction } from '@/i18n/actionText';
 import { PixelPanel } from './PixelPanel';
 import { PixelBadge, StatusKind } from './PixelBadge';
 import { useHasTerminalDraft } from './terminalPool';
@@ -125,7 +126,9 @@ export function AgentCard({
     .filter(Boolean).join(', ') || 'none';
 
   // One context line: what it's DOING while working, WHERE it lives while idle.
-  const infoLine = (status !== 'idle' && action) ? action : project;
+  // Fixed status literals go through agentAction.*; live tool text passes raw.
+  const actionText = (status !== 'idle' && action) ? localizeAction(t, action) : '';
+  const infoLine = actionText ? actionText : project;
   const noteFirstLine = (note ?? '').split('\n').find((l) => l.trim()) ?? '';
 
   return (
@@ -232,7 +235,7 @@ export function AgentCard({
 
             {/* Context line: action while working, repo while idle. */}
             <div
-              title={`${project}${action && status !== 'idle' ? ` — ${action}` : ''}`}
+              title={`${project}${actionText ? ` — ${actionText}` : ''}`}
               style={{
                 fontSize: 11, lineHeight: '14px',
                 color: 'var(--cth-ink-500)',
