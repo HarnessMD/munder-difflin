@@ -3151,11 +3151,11 @@
     "youtube": []
   },
   "gemini-4-carbon": {
-    "title": "Gemini 4 Carbon: Price, Access and How It Compares to Argon (Oct 2026)",
+    "title": "Gemini 4 Carbon: Price, Access and How It Compares to Argon (Nov 2026)",
     "category": "concepts",
     "hero": {
       "file": "assets/media/gemini-4-carbon/hero.png",
-      "alt": "Title card on white. Gemini 4 Carbon in large ink type, a Concepts pill, the line Early access, Argon's price, Checked 29 Oct 2026, and two blocks labelled Argon and Carbon on a two step podium",
+      "alt": "Title card on white. Gemini 4 Carbon in large ink type, a Concepts pill, the line Open now, Argon's price, Checked 14 Nov 2026, and two blocks labelled Argon and Carbon on a two step podium",
       "prompt": "Still of the hero scene in assets/media/gemini-4-carbon/motion.js.",
       "status": "ready"
     },
@@ -6035,6 +6035,39 @@
       "file": "assets/media/agent-tools-today/hero.png",
       "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
       "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "openwork-alternatives": {
+    "title": "OpenWork Alternatives: 5 Desktop AI Agent Apps for Office Work (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/openwork-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title OpenWork alternatives, the line 5 desktop AI agent apps like OpenWork for office work and a Checked 14 Nov 2026 line. Five small tiles named Eigent, Munder Difflin, AionUi, Claude Cowork and goose slide in under a grey tile labelled OpenWork.",
+      "prompt": "Title card: the hero scene in assets/media/openwork-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "eigent-alternatives": {
+    "title": "Eigent Alternatives: 5 Tools for Teams of AI Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/eigent-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Eigent alternatives, the line 5 tools like Eigent for teams of AI agents and a Checked 14 Nov 2026 line. Five small tiles named AionUi, Munder Difflin, Rowboat, Claude Cowork and CrewAI slide in under a grey tile labelled Eigent.",
+      "prompt": "Title card: the hero scene in assets/media/eigent-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "sintra-alternatives": {
+    "title": "Sintra Alternatives: 5 Tools Like Sintra AI for Small Business (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/sintra-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Sintra alternatives, the line 5 tools like Sintra for small business and a Checked 14 Nov 2026 line. Five small tiles named Marblism, Munder Difflin, Lindy, Claude Cowork and Relevance AI slide in under a grey tile labelled Sintra.",
+      "prompt": "Title card: the hero scene in assets/media/sintra-alternatives/motion.js, shot at 1600 by 900.",
       "status": "ready"
     },
     "inline": {}

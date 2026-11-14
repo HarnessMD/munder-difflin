@@ -24,6 +24,8 @@ faq:
 
 The best open source AI agents right now are OpenClaw for a personal assistant, [Munder Difflin](https://harnessmd.com/download) for a team of agents on your computer, Hermes Agent for memory that learns, and OpenCode or Cline for coding. All ten picks below are MIT or Apache 2.0, checked on their repos on 1 Oct 2026.
 
+Eigent's agent workforce is compared in [Eigent alternatives](/blog/eigent-alternatives/).
+
 ## What is an open source AI agent?
 
 It is a program that calls a language model in a loop and uses tools to finish a goal, with code you may read, change and share. The model is a separate question: open code does not make the model open. [Is Claude Code open source?](/blog/is-claude-code-open-source/) shows where that line sits for one popular agent.

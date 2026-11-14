@@ -22,6 +22,8 @@ faq:
 
 The best Claude Cowork alternatives are Hob if you want a free app with the model on your own computer, [Munder Difflin](https://harnessmd.com/download) if you want a team of agents, and ChatGPT Work if you want a big vendor's cloud. Goose, OpenClaw and Hermes Agent round out the list.
 
+If you are looking at OpenWork, a free desktop app built on OpenCode, see our [OpenWork alternatives](/blog/openwork-alternatives/).
+
 If you are comparing Marblism's named AI employees for your business, see our [Marblism alternatives](/blog/marblism-alternatives/).
 
 If you are also weighing AionUi, a free desktop app over many agent CLIs, see our [AionUi alternatives](/blog/aionui-alternatives/).

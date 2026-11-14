@@ -24,6 +24,8 @@ faq:
 
 Our view: Sintra is the closest Marblism alternative, because it also sells a team of named AI employees to small business owners on one plan. Marblism, a Y Combinator Winter 2024 company, gives you seven of them, from an inbox assistant to a phone receptionist. Checked 12 Nov 2026.
 
+If you are weighing Sintra itself, our [Sintra alternatives](/blog/sintra-alternatives/) page compares five tools like it, with prices checked 14 Nov 2026.
+
 We make [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The wider field is in our pinned [Herdr alternatives](/blog/herdr-alternatives/) guide and the [Comparisons hub](/blog/topics/comparisons/).
 
 ## What is Marblism?
