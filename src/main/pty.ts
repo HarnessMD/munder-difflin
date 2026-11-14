@@ -328,6 +328,64 @@ export function parseNpmCmdShim(shimPath: string, content: string): NpmShimTarge
   return { interpreter, scriptPath };
 }
 
+/**
+ * Resolve an npm-style Windows shim (`.cmd`, `.bat`, or the extensionless sh shim
+ * next to them) to a program CreateProcess can run directly: `file` plus the
+ * `prefixArgs` to put before the caller's own args. Shared by PTY and non-PTY
+ * launches, so neither has to pass prompts through cmd.exe.
+ *
+ * Reads the filesystem but not `process.platform`: callers gate it to win32.
+ * `resolveInterpreter` maps a bare interpreter name (`node`) to an absolute path,
+ * or null when it is not installed.
+ *
+ * Returns null for anything not fully understood (not a shim, unreadable, unknown
+ * shape, script missing on disk, interpreter not installed or itself not a real
+ * .exe), so the caller keeps whatever fallback it had. Never throws.
+ */
+export function resolveWindowsNpmShim(
+  resolved: string,
+  resolveInterpreter: (command: string) => string | null
+): { file: string; prefixArgs: string[] } | null {
+  try {
+    const lower = resolved.toLowerCase();
+    // The `.cmd` IS the shim. An extensionless npm shim (`%APPDATA%\npm\claude`)
+    // is a POSIX **sh** script that cmd.exe cannot run at all; npm always writes a
+    // `.cmd` sibling naming the same target, so read that instead — strictly an
+    // improvement over handing sh syntax to cmd.exe.
+    const shimPath = lower.endsWith('.cmd') || lower.endsWith('.bat')
+      ? resolved
+      : (existsSync(`${resolved}.cmd`) ? `${resolved}.cmd` : null);
+    if (!shimPath) return null;
+    const st = statSync(shimPath);
+    if (!st.isFile() || st.size > 8192) return null;
+
+    const target = parseNpmCmdShim(shimPath, readFileSync(shimPath, 'utf8'));
+    if (!target) return null;
+    // The shim can outlive the package it points at (a half-removed global
+    // install). Falling back to cmd.exe then at least reproduces today's error.
+    if (!existsSync(target.scriptPath)) return null;
+
+    // Direct-executable shim: the target IS the program. No interpreter to
+    // resolve, and no script argument to prepend — spawning it with an argv
+    // array is exactly what the cmd.exe route was standing in the way of.
+    if (target.interpreter === null) {
+      return { file: target.scriptPath, prefixArgs: [] };
+    }
+
+    const interp = resolveInterpreter(target.interpreter);
+    if (!interp) return null;
+    // Must be a REAL executable: if `node` itself only resolves to a `.cmd`
+    // (e.g. our own bundled-runtime shim appended to PATH), spawning it directly
+    // would hit the very CreateProcess limitation we are routing around.
+    const il = interp.toLowerCase();
+    if (!il.endsWith('.exe') && !il.endsWith('.com')) return null;
+
+    return { file: interp, prefixArgs: [target.scriptPath] };
+  } catch {
+    return null; // unreadable/racing shim — fall back, never break the spawn
+  }
+}
+
 export class PtyManager {
   private sessions = new Map<string, PtySession>();
   private webContents: WebContents | null = null;
@@ -509,44 +567,12 @@ export class PtyManager {
    */
   private resolveWindowsShimSpawn(resolved: string): { file: string; script: string | null } | null {
     if (process.platform !== 'win32') return null;
-    try {
-      const lower = resolved.toLowerCase();
-      // The `.cmd` IS the shim. An extensionless npm shim (`%APPDATA%\npm\claude`)
-      // is a POSIX **sh** script that cmd.exe cannot run at all; npm always writes a
-      // `.cmd` sibling naming the same target, so read that instead — strictly an
-      // improvement over handing sh syntax to cmd.exe.
-      const shimPath = lower.endsWith('.cmd') || lower.endsWith('.bat')
-        ? resolved
-        : (existsSync(`${resolved}.cmd`) ? `${resolved}.cmd` : null);
-      if (!shimPath) return null;
-      const st = statSync(shimPath);
-      if (!st.isFile() || st.size > 8192) return null;
-
-      const target = parseNpmCmdShim(shimPath, readFileSync(shimPath, 'utf8'));
-      if (!target) return null;
-      // The shim can outlive the package it points at (a half-removed global
-      // install). Falling back to cmd.exe then at least reproduces today's error.
-      if (!existsSync(target.scriptPath)) return null;
-
-      // Direct-executable shim: the target IS the program. No interpreter to
-      // resolve, and no script argument to prepend — spawning it with an argv
-      // array is exactly what the cmd.exe route was standing in the way of.
-      if (target.interpreter === null) {
-        return { file: target.scriptPath, script: null };
-      }
-
-      const interp = this.resolveCommand(target.interpreter);
-      if (!interp.found) return null;
-      // Must be a REAL executable: if `node` itself only resolves to a `.cmd`
-      // (e.g. our own bundled-runtime shim appended to PATH), spawning it directly
-      // would hit the very CreateProcess limitation we are routing around.
-      const il = interp.path.toLowerCase();
-      if (!il.endsWith('.exe') && !il.endsWith('.com')) return null;
-
-      return { file: interp.path, script: target.scriptPath };
-    } catch {
-      return null; // unreadable/racing shim — fall back, never break the spawn
-    }
+    const target = resolveWindowsNpmShim(resolved, (command) => {
+      const interp = this.resolveCommand(command);
+      return interp.found ? interp.path : null;
+    });
+    if (!target) return null;
+    return { file: target.file, script: target.prefixArgs[0] ?? null };
   }
 
   spawn(opts: SpawnOptions, owner: WebContents | null = null): { ok: boolean; error?: string } {
