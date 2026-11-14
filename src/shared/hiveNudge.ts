@@ -21,10 +21,20 @@ const NUDGE_HEAD = 'You have new hive inbox message(s)';
  * round-trip guessing at. The pending inbox stays authoritative — an agent that
  * has a nudge suppressed by the one-pending rule below still finds its mail by
  * reading the directory, so the text must never invite it to stop at the ids.
+ *
+ * Deliberately ONE short line. The full "read inbox/, act, move handled ones to
+ * inbox/.done/, the directory is authoritative, act autonomously" instructions
+ * used to be restated in full here — but every agent already receives that exact
+ * prose once, at spawn, in its own system prompt (hive.ts's "HIVE PROTOCOL" block
+ * / PROTOCOL.md). Repeating it in every nudge only mattered because the nudge is
+ * typed character-by-character into a live PTY: a long multi-sentence write gives
+ * a slow/occluded TUI far more surface to swallow a keystroke on, and a stuck
+ * delivery then has that much more text sitting duplicated in the input box on
+ * the next retry. Shorter nudge, same safety net (it already lives elsewhere).
  */
 export function inboxNudgeText(ids: string[]): string {
   const named = ids.length ? ` — at least: ${ids.join(', ')}` : '';
-  return `${NUDGE_HEAD}${named}. Read your inbox, act on what is pending there, and move handled ones to inbox/.done/. Your inbox directory is authoritative: work everything still pending in it, and if a named id is already in inbox/.done/ you handled it on an earlier turn and can ignore that one. Act autonomously; only message god if you genuinely need a decision.`;
+  return `${NUDGE_HEAD}${named}. Process your inbox per your standing instructions.`;
 }
 
 /**
