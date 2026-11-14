@@ -96,7 +96,7 @@
     { "@type": "Question", "name": "Is there a free alternative to ChatGPT dots?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. OpenClaw, Munder Difflin and Hermes Agent are free and open source and run on hardware you control. You still pay for the AI model, or use one you already subscribe to. Meta Muse has a free hosted tier, but only in the US and Canada as of 29 Sep 2026." } },
     { "@type": "Question", "name": "Can I use ChatGPT dots in the UK or EU?", "acceptedAnswer": { "@type": "Answer", "text": "Not on a personal Pro plan. At launch OpenAI excludes Pro users in the EEA, Switzerland and the UK, while Business Premium covers all supported ChatGPT regions. Gemini Spark has the same gap, so the open source picks are the simplest route there." } },
     { "@type": "Question", "name": "What is the best open source alternative to ChatGPT dots?", "acceptedAnswer": { "@type": "Answer", "text": "OpenClaw for a personal assistant in your chat apps, Munder Difflin for a team of work agents on your computer, and Hermes Agent for memory that learns over time. All three are open source and run on your own machine or server." } },
-    { "@type": "Question", "name": "Which ChatGPT dots alternatives keep working when my laptop is off?", "acceptedAnswer": { "@type": "Answer", "text": "The cloud ones. Claude Cowork runs scheduled tasks on Anthropic's servers, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. The local picks need a machine that stays on." } },
+    { "@type": "Question", "name": "Which ChatGPT dots alternatives keep working when my laptop is off?", "acceptedAnswer": { "@type": "Answer", "text": "Claude Cowork runs scheduled tasks on Anthropic's servers, Munder Difflin's Cloud Office runs agents in the cloud, always on, with your computer off, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. OpenClaw and Hermes Agent need a machine that stays on." } },
     { "@type": "Question", "name": "Can I run more than one agent instead of a single dot?", "acceptedAnswer": { "@type": "Answer", "text": "Not with dots yet: at launch each person gets one primary dot. Munder Difflin runs several named agents with separate roles on your computer today, each on the CLI engine you pick." } }
     
   ]
@@ -202,7 +202,7 @@
 <figure class="fig fig-inline"><video autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="/blog/assets/media/chatgpt-dots-alternatives/note-1-still.png" aria-label="A looping sketch. Seven name cards slide into two bins. OpenClaw, Munder Difflin and Hermes Agent go into your computer; Claude Cowork, Gemini Spark, Grok Bot and Meta Muse go into cloud."><source src="/blog/assets/media/chatgpt-dots-alternatives/note-1.mp4" type="video/mp4"><img src="/blog/assets/media/chatgpt-dots-alternatives/note-1.gif" width="960" height="540" alt="A looping sketch. Seven name cards slide into two bins. OpenClaw, Munder Difflin and Hermes Agent go into your computer; Claude Cowork, Gemini Spark, Grok Bot and Meta Muse go into cloud."></video></figure>
 <h3 id="runs-on-your-computer" tabindex="-1">Runs on your computer <a class="anchor" href="#runs-on-your-computer" aria-hidden="true">#</a></h3>
 <p><strong>1. OpenClaw.</strong> <a href="https://github.com/openclaw/openclaw">OpenClaw</a> is an open source (MIT) personal assistant that runs on your computer and answers in WhatsApp, Telegram, Discord, Slack, Teams, iMessage and 20+ more. It runs as a background daemon, keeps memory and credentials on your hardware, with no paid tier. Best for: an errand runner you own.</p>
-<p><strong>2. Munder Difflin.</strong> <a href="https://harnessmd.com/download">Munder Difflin</a> is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own <code>memory.md</code>, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: agents run while your computer runs, and you install the CLIs yourself. Best for: engineering and project work across several engines. (Munder Difflin 0.5.3, checked 30 Sep 2026.)</p>
+<p><strong>2. Munder Difflin.</strong> <a href="https://harnessmd.com/download">Munder Difflin</a> is what we make: a free and open source desktop app that runs a team of named AI agents on your own computer. Each agent has a role and runs a CLI engine you already use: Claude Code, Codex, Gemini CLI, OpenCode, Cursor and more. Each one keeps its own <code>memory.md</code>, inbox and outbox. You can put missions on a schedule, and a Slack channel can feed work straight to Michael, your lead agent. The catch: you install the CLIs yourself. Best for: engineering and project work across several engines. (Munder Difflin 0.5.3, checked 30 Sep 2026.)</p>
 <p><strong>3. Hermes Agent.</strong> <a href="https://github.com/NousResearch/hermes-agent">Hermes Agent</a> from Nous Research is open source (MIT), built on a learning loop: it curates its memory and writes new skills from experience. Its cron scheduler runs jobs unattended. Reach it on Telegram, Discord, Slack, WhatsApp or Signal. Best for: memory that grows on your box.</p>
 <h3 id="runs-in-the-cloud" tabindex="-1">Runs in the cloud <a class="anchor" href="#runs-in-the-cloud" aria-hidden="true">#</a></h3>
 <p><strong>4. Claude Cowork.</strong> <a href="/blog/what-is-claude-cowork/">Cowork</a> is Anthropic’s agent for longer work, now cloud based. Its <a href="https://support.claude.com/en/articles/13345190-get-started-with-cowork">help page</a> says “Claude’s work runs on Anthropic’s servers, in an isolated environment” and scheduled tasks don’t need your computer awake. Since 16 Sep 2026 Anthropic has been <a href="https://claude.com/blog/cowork-is-now-claude">folding Cowork into the main Claude app</a>, Pro and Max first. Claude Pro was $20 a month, billed monthly, on 30 Sep 2026. Best for: reports, files and research by task.</p>
@@ -238,8 +238,8 @@
 </tr>
 <tr>
 <td>Munder Difflin</td>
-<td>Your computer</td>
-<td>Runs while your computer does, plus schedules</td>
+<td>Your computer or its Cloud Office</td>
+<td>Always on in its Cloud Office, plus schedules</td>
 <td>Anyone on Mac, Windows, Linux</td>
 <td>Free and open source.</td>
 </tr>
@@ -287,7 +287,7 @@
 <p>Only Meta Muse has a free hosted tier, US and Canada only. Dots start at $100 a month on Pro (30 Sep 2026). OpenAI has not said how usage counts against your plan after month one.</p>
 <h2 id="what-is-the-best-open-source-alternative-to-chatgpt-dots" tabindex="-1">What is the best open source alternative to ChatGPT dots? <a class="anchor" href="#what-is-the-best-open-source-alternative-to-chatgpt-dots" aria-hidden="true">#</a></h2>
 <p>OpenClaw, for a dot’s job in your personal life: one assistant in your chat apps, on your hardware. Munder Difflin, if you want agents for work: several named agents with roles, each on the engine that suits the job. Hermes Agent, for memory.</p>
-<p>None works with your laptop shut: you need a server or an always on machine. We put Munder Difflin and dots side by side in <a href="/blog/munder-difflin-vs-chatgpt-dots/">Munder Difflin vs ChatGPT dots</a>.</p>
+<p>OpenClaw and Hermes Agent need a server or an always on machine; Munder Difflin’s Cloud Office works with your laptop shut. We put Munder Difflin and dots side by side in <a href="/blog/munder-difflin-vs-chatgpt-dots/">Munder Difflin vs ChatGPT dots</a>.</p>
 <h2 id="is-there-an-open-source-copy-of-chatgpt-dots" tabindex="-1">Is there an open source copy of ChatGPT dots? <a class="anchor" href="#is-there-an-open-source-copy-of-chatgpt-dots" aria-hidden="true">#</a></h2>
 <p>Yes: <a href="https://github.com/CopilotKit/OpenDots">OpenDots</a> from CopilotKit is an open source template for similar agents. Created on 29 Sep 2026, it is MIT licensed and had about 3,850 stars on 6 Oct 2026. The README describes always on AI coworkers that move between text, calls and Slack. It is not among the seven: the README calls it “A template, not a hosted product.” You run it with Node 24, and the README says conversations require CopilotKit Intelligence: a hosted service, a local Docker evaluation or a licensed self-hosted deployment. It carries an alpha badge.</p>
 
@@ -313,7 +313,7 @@
         
         <div class="qa">
           <p class="q">Which ChatGPT dots alternatives keep working when my laptop is off?</p>
-          <p class="a">The cloud ones. Claude Cowork runs scheduled tasks on Anthropic&#39;s servers, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. The local picks need a machine that stays on.</p>
+          <p class="a">Claude Cowork runs scheduled tasks on Anthropic&#39;s servers, Munder Difflin&#39;s Cloud Office runs agents in the cloud, always on, with your computer off, Grok Bot works on a persistent cloud computer, and Gemini Spark might finish a task in a remote browser. OpenClaw and Hermes Agent need a machine that stays on.</p>
         </div>
         
         <div class="qa">
@@ -351,6 +351,22 @@
       <h2>Related in Comparisons</h2>
       <div class="post-grid">
         <article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/pentagon-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/pentagon-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-13">Nov 13, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/pentagon-alternatives/">Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)</a></h3>
+    <p class="dek">Pentagon puts AI agents on a shared canvas as teammates. Five alternatives with how they run, licence and price, checked 13 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/pentagon-alternatives/" aria-label="Read: Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
   <a class="thumb t-comparisons" href="/blog/rowboat-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/rowboat-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -379,22 +395,6 @@
     <div class="foot">
       <span class="tag kind">Comparisons</span>
       <a class="more" href="/blog/gemini-decisions-api-vs-openai-decisions-api/" aria-label="Read: Gemini Decisions API vs OpenAI Decisions API: Price, Inputs and Limits">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/marblism-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/marblism-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-11-12">Nov 12, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/marblism-alternatives/">Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)</a></h3>
-    <p class="dek">Marblism sells seven named AI employees to businesses. Five alternatives, from Sintra to Claude Cowork, with prices checked 12 Nov 2026.</p>
-    <div class="foot">
-      <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/marblism-alternatives/" aria-label="Read: Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)">Read →</a>
     </div>
   </div>
 </article>

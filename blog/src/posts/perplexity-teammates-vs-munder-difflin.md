@@ -19,7 +19,7 @@ faq:
   - q: "Do Perplexity Teammates keep working when I am away?"
     a: "That is the idea. The launch post, read 7 Nov 2026, says \"Teammates monitor ongoing work and follow up as things change. They investigate and act without waiting for a fresh query.\" Each teammate runs in its own separate environment."
   - q: "How is Munder Difflin different from Perplexity Teammates?"
-    a: "Our view: Teammates are hosted agents inside Perplexity, and Munder Difflin is a free and open source desktop app that runs a team of agents on your own computer, with engines such as Claude Code, Codex and Gemini CLI. Its Cloud Office and mobile app are coming soon."
+    a: "Our view: Teammates are hosted agents inside Perplexity, and Munder Difflin is a free and open source desktop app that runs a team of agents on your own computer, with engines such as Claude Code, Codex and Gemini CLI. Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon."
 ---
 
 Our view: pick Perplexity Teammates if you already pay for Max and want hosted agents that watch ongoing work in their own browsers, and Munder Difflin if you want a team of agents for all kinds of knowledge work, coding included, on your own computer. Checked 7 Nov 2026.
@@ -40,11 +40,11 @@ The headline feature is follow through. "Teammates monitor ongoing work and foll
 
 ## What is Munder Difflin?
 
-Munder Difflin is a desktop app where a team of agents takes research, writing, ops and code, on your own computer. Agents run while your computer runs. Its [README](https://github.com/HarnessMD/munder-difflin), read 7 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human."
+Munder Difflin is a desktop app where a team of agents takes research, writing, ops and code, on your own computer. Agents can also run in its Cloud Office, always on, with your computer off. Its [README](https://github.com/HarnessMD/munder-difflin), read 7 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human."
 
-Work can start outside the app. The README says: "message a channel or POST a webhook; Michael can spawn an ephemeral worker, reply in-thread, and tear it down." Agents run on engines such as Claude Code, Codex and Gemini CLI, and pick up tools through MCP servers, skills and plugins. A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Work can start outside the app. The README says: "message a channel or POST a webhook; Michael can spawn an ephemeral worker, reply in-thread, and tear it down." Agents run on engines such as Claude Code, Codex and Gemini CLI, and pick up tools through MCP servers, skills and plugins. A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
-<figure class="mg" data-scene="laptop"><img src="/blog/assets/media/perplexity-teammates-vs-munder-difflin/laptop.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, an open laptop shows four small desks, and paper cards slide from one desk to the next. A line across the top of the screen reads Agents run while your computer runs. Beside the laptop, a folded card reads Cloud Office, coming soon. Tapping the laptop sends a new card across the desks."><figcaption>Munder Difflin's agents run while your computer runs, under an orchestrator that escalates only what needs a human, per its README, read 7 Nov 2026.</figcaption></figure>
+<figure class="mg" data-scene="laptop"><img src="/blog/assets/media/perplexity-teammates-vs-munder-difflin/laptop.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, an open laptop shows four small desks, and paper cards slide from one desk to the next. A line across the top of the screen reads Agents run while your computer runs. Beside the laptop, a folded card reads Cloud Office, always on. Tapping the laptop sends a new card across the desks."><figcaption>Munder Difflin's agents run on your computer or in its Cloud Office, under an orchestrator that escalates only what needs a human, per its README, read 7 Nov 2026.</figcaption></figure>
 
 ## How do they compare side by side?
 
@@ -53,7 +53,7 @@ They differ most in where the agents live. Every row was read on 7 Nov 2026.
 | | Perplexity Teammates | Munder Difflin |
 | --- | --- | --- |
 | What it is | Hosted personal agents for ongoing work, inside Perplexity Computer | A desktop app that runs a team of AI agents for knowledge work, coding included |
-| Where it runs | Perplexity's web app, "soon on iOS", each teammate in "a separate environment" | Your own computer. Cloud Office and mobile app coming soon |
+| Where it runs | Perplexity's web app, "soon on iOS", each teammate in "a separate environment" | Your own computer, or the Cloud Office, always on. Mobile app coming soon |
 | Work comes from | Plugins such as Slack, GitHub or Gmail, and Slack channels | Slack and webhooks, with tools from MCP servers, skills and plugins |
 | Models or engines | Several top models, including ChatGPT, Gemini, Claude and NVIDIA Nemotron | Engines such as Claude Code, Codex and Gemini CLI |
 | Who can use it | Perplexity Max subscribers | Anyone who downloads it |
@@ -67,9 +67,9 @@ Teammates come with Perplexity Max. The [Teammates page](https://www.perplexity.
 
 ## Where is Perplexity Teammates stronger?
 
-It is stronger at hosted work that keeps going on its own. All four points come from Perplexity's pages, read 7 Nov 2026.
+It is stronger at proactive work that keeps going on its own. All four points come from Perplexity's pages, read 7 Nov 2026.
 
-* **Hosted and proactive today.** The [Teammates page](https://www.perplexity.ai/hub/products/teammate) says "Proactive by design, they run on automations and keep moving work forward on your behalf." Munder Difflin's agents run while your computer runs, and its Cloud Office is coming soon.
+* **Proactive by design.** The [Teammates page](https://www.perplexity.ai/hub/products/teammate) says "Proactive by design, they run on automations and keep moving work forward on your behalf." Munder Difflin's agents run on your computer, or in its Cloud Office, always on, with your computer off.
 * **A browser per teammate.** The launch post says "Each teammate runs in a separate environment, with browser sessions separate from other teammates." You can "take over the desktop, or redirect a teammate as it works."
 * **Memory across runs.** Teammates "remember project goals, task history, and shared files across runs", and each new task "builds on the work already done."
 * **Business examples in the launch post.** The post walks through marketing, sales, support and operations teammates, such as one that "follows up on missing items when a deadline is 72 hours away".
@@ -80,7 +80,7 @@ It is stronger at hosted work that keeps going on its own. All four points come 
 
 Munder Difflin runs on your own computer, with the engines you choose. Inside Perplexity, the product "selects the best one per query" unless you set a preferred model. Munder Difflin runs engines such as Claude Code, Codex and Gemini CLI.
 
-It is also free and open source, while Teammates sit behind Max. One orchestrator runs the floor: the README calls it "A GOD orchestrator you talk to." Work can come in through Slack or a webhook, and tools through MCP servers, skills and plugins. The trade is plain: agents run while your computer runs, and the hosted Cloud Office is coming soon.
+It is also free and open source, while Teammates sit behind Max. One orchestrator runs the floor: the README calls it "A GOD orchestrator you talk to." Work can come in through Slack or a webhook, and tools through MCP servers, skills and plugins. Agents run on your computer, or in the hosted Cloud Office, always on, with your computer off.
 
 ## Who should pick which?
 

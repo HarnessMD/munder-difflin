@@ -206,7 +206,7 @@ v0.13.0
 <p>Four things can push you elsewhere: the setup, the server at the centre, the style of governance, or a wish to write the orchestration themselves. None of them makes Omnigent a bad tool.</p>
 <p>The setup is more than one download. The README lists Python 3.12 or newer, <code>uv</code>, <code>git</code>, Node 22 with <code>npm</code> and <code>pnpm</code>, <code>tmux</code> for the native Claude and Codex wrappers, and <code>bubblewrap</code> on Linux, though the one line installer offers uv, tmux and bubblewrap. On Windows it runs “in a degraded mode”, without the native terminal wrappers or the filesystem and network sandbox. The project still wears an alpha badge, and releases went from v0.9.0 on 11 Aug to v0.13.0 on 9 Sep 2026, so expect things to move under you.</p>
 <p>Everything goes through a server. Even solo, you run one on your laptop and every client attaches to it. That is what makes shared sessions possible, and it is more moving parts than one person at one desk needs. Our piece on <a href="/blog/local-first-vs-cloud-agent-sdks/">local first vs cloud agent SDKs</a> covers that trade in general.</p>
-<p>If a server is more than you need, <a href="https://harnessmd.com/download">Munder Difflin</a> is the local version of the idea: a free and open source desktop app for macOS, Windows and Linux where every agent is a real CLI in its own terminal, across twelve providers including Claude Code, Codex, Gemini CLI, Copilot and Cursor. Michael, your clone, takes your brief and hands out the work, agents share memory, and per agent token caps plus a circuit breaker keep spend in check. It has no server wide policy layer like Omnigent’s, and the agents run only while your computer is on.</p>
+<p>If a server is more than you need, <a href="https://harnessmd.com/download">Munder Difflin</a> is the local version of the idea: a free and open source desktop app for macOS, Windows and Linux where every agent is a real CLI in its own terminal, across twelve providers including Claude Code, Codex, Gemini CLI, Copilot and Cursor. Michael, your clone, takes your brief and hands out the work, agents share memory, and per agent token caps plus a circuit breaker keep spend in check. It has no server wide policy layer like Omnigent’s. Its agents run on your computer, or in its Cloud Office with your computer off.</p>
 <p>Governance is written as code. Omnigent policies return allow, deny or ask, and they stack at three levels: server wide for admins, per agent in the YAML, and per session in the UI, with session rules checked first. Built-in handlers ask before file and shell tool calls, cap tool calls per session and block expensive models past a spend limit, with optional warnings before that. You can toggle the built-ins in the UI, but a rule beyond them means writing a Python handler, which is either a relief or a chore depending on who owns Python on your team. On the managed service, <a href="https://docs.databricks.com/aws/en/omnigent/">Databricks’ docs</a> (updated 11 Sep 2026) say only the built-in contextual policies are supported.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/omniagent-alternatives/note-2.png" alt="Hand drawn sketch: a todo, doing, done board with task cards" loading="lazy" decoding="async" /></figure>
 <h2 id="which-omnigent-alternatives-are-worth-trying" tabindex="-1">Which Omnigent alternatives are worth trying? <a class="anchor" href="#which-omnigent-alternatives-are-worth-trying" aria-hidden="true">#</a></h2>
@@ -308,6 +308,22 @@ v0.13.0
       <h2>Related in Comparisons</h2>
       <div class="post-grid">
         <article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/pentagon-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/pentagon-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-13">Nov 13, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/pentagon-alternatives/">Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)</a></h3>
+    <p class="dek">Pentagon puts AI agents on a shared canvas as teammates. Five alternatives with how they run, licence and price, checked 13 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/pentagon-alternatives/" aria-label="Read: Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
   <a class="thumb t-comparisons" href="/blog/rowboat-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/rowboat-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -336,22 +352,6 @@ v0.13.0
     <div class="foot">
       <span class="tag kind">Comparisons</span>
       <a class="more" href="/blog/gemini-decisions-api-vs-openai-decisions-api/" aria-label="Read: Gemini Decisions API vs OpenAI Decisions API: Price, Inputs and Limits">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-comparisons">
-  <a class="thumb t-comparisons" href="/blog/marblism-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/marblism-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-11-12">Nov 12, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/marblism-alternatives/">Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)</a></h3>
-    <p class="dek">Marblism sells seven named AI employees to businesses. Five alternatives, from Sintra to Claude Cowork, with prices checked 12 Nov 2026.</p>
-    <div class="foot">
-      <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/marblism-alternatives/" aria-label="Read: Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)">Read →</a>
     </div>
   </div>
 </article>

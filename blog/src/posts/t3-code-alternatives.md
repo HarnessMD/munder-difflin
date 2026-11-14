@@ -71,7 +71,7 @@ The same docs ask for "an active paid subscription: Pro, Max, Ultra, Team, or En
 
 ## 2. Munder Difflin: if you want a team for more than code
 
-[Munder Difflin](https://harnessmd.com/download) is what we make, and it fits if you want several agents on research, writing, ops and coding, not only threads in one repo. It runs on engines such as Claude Code, Codex and Gemini CLI. Work comes in from Slack and webhooks, and tools connect through MCP servers, skills and plugins. As with T3 Code, agents run while your computer runs. A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is what we make, and it fits if you want several agents on research, writing, ops and coding, not only threads in one repo. It runs on engines such as Claude Code, Codex and Gemini CLI. Work comes in from Slack and webhooks, and tools connect through MCP servers, skills and plugins. As with T3 Code, agents can run on your computer. They can also run in Munder Difflin's Cloud Office, always on, with your computer off. A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Codex in the ChatGPT app: if Codex is your main agent
 

@@ -72,7 +72,7 @@ Its [pricing page](https://cursor.com/pricing) on 6 Nov 2026 lists Free at $0, P
 
 ## 2. Munder Difflin: if you want a team of agents, not one editor
 
-[Munder Difflin](https://harnessmd.com/download) is what we make: a team of AI agents on your own computer, on engines such as Claude Code, Codex and Gemini CLI, with MCP servers, skills and plugins. Agents run while your computer runs. A Cloud Office and a mobile app are coming soon. See [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is what we make: a team of AI agents on your own computer, on engines such as Claude Code, Codex and Gemini CLI, with MCP servers, skills and plugins. Agents run on your computer, or in its Cloud Office, always on, with your computer off. A mobile app is coming soon. See [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Zed: if you want an open source editor
 

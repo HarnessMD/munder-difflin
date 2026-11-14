@@ -65,7 +65,7 @@ The [models page](https://antigravity.google/docs/models/) lists Gemini 4 Argon,
 
 ## 2. Munder Difflin: if one agent at a time is the bottleneck
 
-[Munder Difflin](https://harnessmd.com/download) is ours, for several agents on research, writing, ops and code side by side. Engines such as Claude Code, Codex and Gemini CLI do the work, so Gemini CLI can stay as one engine. Slack and webhooks bring jobs in; MCP servers, skills and plugins add tools. A Cloud Office and a mobile app are coming soon. Today, agents run while your computer runs. See [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is ours, for several agents on research, writing, ops and code side by side. Engines such as Claude Code, Codex and Gemini CLI do the work, so Gemini CLI can stay as one engine. Slack and webhooks bring jobs in; MCP servers, skills and plugins add tools. Agents run on your computer, or in its Cloud Office, always on, with your computer off. A mobile app is coming soon. See [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Claude Code: if you want Anthropic's models
 

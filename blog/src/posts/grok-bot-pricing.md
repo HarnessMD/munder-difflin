@@ -95,10 +95,10 @@ What it costs:
 | The app | Inside a $20 to $300 plan | Free |
 | The AI | Included, Cursor picks the model | The subscription or API key you already have, or a free local model |
 | Spend limits | Weekly allowance | Per agent token budgets and a circuit breaker you set |
-| Where it runs | Cursor's cloud | Your computer |
+| Where it runs | Cursor's cloud | Your computer or its Cloud Office |
 
 If you already pay for a Claude or ChatGPT plan, the agents run on that. If you want to spend nothing on tokens, [run it on open models](/blog/run-munder-difflin-on-open-models/) with Ollama, LM Studio or vLLM.
 
-The honest trade: agents run only while your computer is on, and Munder Difflin will not do errands like booking travel. For overnight work, a [Mac mini that stays awake](/blog/run-munder-difflin-on-a-mac-mini/) does the job for a one time cost.
+The honest trade: Munder Difflin will not do errands like booking travel. Its agents run on your computer, or in its Cloud Office with your computer off. For overnight work, a [Mac mini that stays awake](/blog/run-munder-difflin-on-a-mac-mini/) does the job for a one time cost.
 
 Want to see how Grok Bot stacks up against Meta's new agent? Read [Meta Muse vs Grok Bot](/blog/meta-muse-vs-grok-bot/).

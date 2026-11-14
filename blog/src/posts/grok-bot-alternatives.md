@@ -52,7 +52,7 @@ Nine, each tagged with where it runs.
 
 **1. ChatGPT dots (OpenAI's cloud).** The closest match, launched 29 Sep 2026, with plugins for over 4,000 apps. See [ChatGPT dots alternatives](/blog/chatgpt-dots-alternatives/).
 
-**2. Munder Difflin (your computer).** [Munder Difflin](https://harnessmd.com/download) is what we make. It is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Each agent runs on an engine you choose, such as Claude Code, Codex or Gemini CLI. A Slack message or a webhook can start work, and skills, plugins and MCP servers add what your agents can reach. Agents work while your computer is on; the Cloud Office, where work goes on with your computer off, is coming soon. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+**2. Munder Difflin (your computer).** [Munder Difflin](https://harnessmd.com/download) is what we make. It is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Each agent runs on an engine you choose, such as Claude Code, Codex or Gemini CLI. A Slack message or a webhook can start work, and skills, plugins and MCP servers add what your agents can reach. Agents work on your computer, or in the Cloud Office, always on, with your computer off. Start with [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 **3. ChatGPT Work (OpenAI's cloud, or your desktop).** OpenAI's [Work help page](https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex) says it runs in the cloud, can use local files in the desktop app and can start on a schedule or a Gmail, Slack or GitHub event.
 
@@ -76,7 +76,7 @@ The split: does work carry on with your laptop shut? Versions read on 30 Sep 202
 | --- | --- | --- | --- | --- | --- |
 | Grok Bot | Cursor's cloud, US | Yes | Grok Bot picks | Premium or higher, legacy Cursor, linked SuperGrok | Premium, $30/month on 12 Nov 2026. |
 | ChatGPT dots | OpenAI's cloud | Yes | OpenAI | Pro (not EEA, Switzerland, UK), Business Premium | ChatGPT Pro, $100/month on 30 Sep 2026. |
-| Munder Difflin | Your computer | While your computer is on; Cloud Office coming soon | Yes, an engine per agent | Anyone on macOS, Windows, Linux | Free and open source. |
+| Munder Difflin | Your computer or its Cloud Office | Yes, with the Cloud Office | Yes, an engine per agent | Anyone on macOS, Windows, Linux | Free and open source. |
 | ChatGPT Work | OpenAI's cloud or desktop | Cloud tasks | OpenAI, with picker | Eligible paid plans | Included. |
 | Claude Cowork | Anthropic's cloud | Yes | Claude | Paid Claude plans | Claude Pro, $20/month on 30 Sep 2026. |
 | Gemini Spark | Google's cloud, your device | Partly | Google | AI Pro or Ultra; not EEA, Switzerland, UK, Nigeria | Google AI Pro, varies by country. |

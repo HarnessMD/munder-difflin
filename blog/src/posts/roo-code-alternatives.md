@@ -63,7 +63,7 @@ The [migration guide](https://docs.zoocode.dev/roo-to-zoo-migration) is two step
 
 ## 2. Munder Difflin: if you want a team, not one agent in one editor
 
-[Munder Difflin](https://harnessmd.com/download) is what we make, a team of AI agents on your own computer. It runs on engines such as Claude Code, Codex and Gemini CLI, and connects tools through MCP servers, skills and plugins. Agents run while your computer runs. A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is what we make, a team of AI agents on your own computer. It runs on engines such as Claude Code, Codex and Gemini CLI, and connects tools through MCP servers, skills and plugins. Agents run on your computer, or in its Cloud Office, always on, with your computer off. A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Cline: if you want the project Roo Code came from
 

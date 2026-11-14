@@ -142,7 +142,7 @@
       el("path", { d: "M616 330 L624 314 H760 L768 330 Z", fill: SOFT, stroke: INK, "stroke-width": 2.5, "stroke-linejoin": "round" }, tent);
       el("path", { d: "M600 486 L616 330 H768 L784 486 Z", fill: LIL, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round" }, tent);
       txt(tent, 692, 404, "Cloud Office,", { "text-anchor": "middle", "font-size": 22, "font-weight": 700 });
-      txt(tent, 692, 436, "coming soon", { "text-anchor": "middle", "font-size": 22, "font-weight": 700 });
+      txt(tent, 692, 436, "always on", { "text-anchor": "middle", "font-size": 22, "font-weight": 700 });
       button(lap, "Laptop: send a new card across the desks", () => { sent[next] = api.now(); next = (next + 1) % 3; api.poke(); });
       return (t, now) => {
         const busy = [0, 0, 0, 0];

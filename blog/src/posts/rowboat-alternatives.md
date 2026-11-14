@@ -70,7 +70,7 @@ AnythingLLM is a free, open source AI app that learns from your files on your co
 
 ## 2. Munder Difflin: a team of agents on your own computer
 
-We build this one. Its [README](https://github.com/HarnessMD/munder-difflin), read 13 Nov 2026, says "each agent gets long-term memory, a mailbox, and a desk on a 2D office floor". Work arrives from Slack or a webhook, and agents gain tools through MCP servers, skills and plugins. Today agents run on your computer; a Cloud Office and a mobile app are coming soon. We think it suits several agents sharing research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+We build this one. Its [README](https://github.com/HarnessMD/munder-difflin), read 13 Nov 2026, says "each agent gets long-term memory, a mailbox, and a desk on a 2D office floor". Work arrives from Slack or a webhook, and agents gain tools through MCP servers, skills and plugins. Agents run on your computer, or in our Cloud Office, always on, with your computer off; a mobile app is coming soon. We think it suits several agents sharing research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Eigent: an agent workforce on your desktop
 

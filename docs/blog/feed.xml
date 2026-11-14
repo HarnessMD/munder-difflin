@@ -24,6 +24,30 @@
     <summary>Gemini 4 Hydrogen costs $1.50 in and $7.50 out per 1M tokens (13 Nov 2026). Where you can use it, what Orchestrator does, and Hydrogen or Argon.</summary>
   </entry>
   <entry>
+    <title>llama.cpp 1.0: What Changed and What to Check Before Upgrading</title>
+    <link href="https://munderdiffl.in/blog/llama-cpp-1-0/" />
+    <id>https://munderdiffl.in/blog/llama-cpp-1-0/</id>
+    <published>2026-11-13T00:00:00.000Z</published>
+    <updated>2026-11-13T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>llama.cpp 1.0 drops the deprecated API, adds FP8 KV caches and an MoE expert cache, and hardens llama-server. What changed. Checked 13 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>OpenCode 2.3: background subagents, quieter transcripts and upgrade notes</title>
+    <link href="https://munderdiffl.in/blog/opencode-2-3/" />
+    <id>https://munderdiffl.in/blog/opencode-2-3/</id>
+    <published>2026-11-13T00:00:00.000Z</published>
+    <updated>2026-11-13T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/pentagon-alternatives/" />
+    <id>https://munderdiffl.in/blog/pentagon-alternatives/</id>
+    <published>2026-11-13T00:00:00.000Z</published>
+    <updated>2026-11-13T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Pentagon puts AI agents on a shared canvas as teammates. Five alternatives with how they run, licence and price, checked 13 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>Rowboat Alternatives: 5 Tools Like Rowboat for an AI Coworker (Nov 2026)</title>
     <link href="https://munderdiffl.in/blog/rowboat-alternatives/" />
     <id>https://munderdiffl.in/blog/rowboat-alternatives/</id>
@@ -462,29 +486,5 @@
     <published>2026-10-26T00:00:00.000Z</published>
     <updated>2026-10-26T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills and MCP servers, multi agent moves, rising repos and arguments in coding agents from 23 to 26 Oct 2026, each with its source.</summary>
-  </entry>
-  <entry>
-    <title>CLAUDE.md Best Practices: What to Write, Where It Lives, How Long (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/claude-md-best-practices/" />
-    <id>https://munderdiffl.in/blog/claude-md-best-practices/</id>
-    <published>2026-10-26T00:00:00.000Z</published>
-    <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
-    <summary>CLAUDE.md best practices from Anthropic&#39;s docs, checked 26 Oct 2026: what to put in it, where each file lives, the 200 line target and how AGENTS.md loads.</summary>
-  </entry>
-  <entry>
-    <title>Codex Alternatives: 7 Picks Beyond OpenAI&#39;s Agent (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/codex-alternatives/" />
-    <id>https://munderdiffl.in/blog/codex-alternatives/</id>
-    <published>2026-10-26T00:00:00.000Z</published>
-    <updated>2026-10-26T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Seven Codex alternatives checked 26 Oct 2026: Claude Code, Munder Difflin, Copilot CLI, OpenCode, Goose, Cline and Cursor, with licences and prices.</summary>
-  </entry>
-  <entry>
-    <title>Codex Computer Use: How to Turn It On, Plans and Limits (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/codex-computer-use/" />
-    <id>https://munderdiffl.in/blog/codex-computer-use/</id>
-    <published>2026-10-26T00:00:00.000Z</published>
-    <updated>2026-10-26T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Codex computer use lets the ChatGPT desktop app see and click apps on macOS and Windows. Setup, which plans get it, locked use and how Claude&#39;s compares.</summary>
   </entry>
 </feed>
