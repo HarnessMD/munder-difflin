@@ -1,0 +1,102 @@
+name: Daily Copilot review
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: daily-copilot-review
+  cancel-in-progress: false
+
+jobs:
+  request-reviews:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check review token
+        env:
+          COPILOT_REVIEW_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          if [ -z "$COPILOT_REVIEW_TOKEN" ]; then
+            echo "::error::Set COPILOT_REVIEW_TOKEN to a personal access token belonging to the account with Copilot Max. See CONTRIBUTING.md."
+            exit 1
+          fi
+
+      # Never check out or execute code from a contributor's pull request.
+      - name: Request reviews using the Copilot subscriber's account
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const reviewer = 'copilot-pull-request-reviewer[bot]';
+            const isCopilot = user =>
+              ['copilot-pull-request-reviewer[bot]', 'copilot']
+                .includes(user?.login?.toLowerCase());
+            const { data: account } = await github.rest.users.getAuthenticated();
+            if (account.type !== 'User') {
+              throw new Error('COPILOT_REVIEW_TOKEN must authenticate a personal account, not a bot.');
+            }
+
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', per_page: 100
+            });
+            let requested = 0;
+            let skipped = 0;
+            let failed = 0;
+            for (const pr of pulls) {
+              if (pr.draft || pr.user?.type === 'Bot') {
+                skipped++;
+                continue;
+              }
+
+              try {
+                const reviews = await github.paginate(github.rest.pulls.listReviews, {
+                  owner, repo, pull_number: pr.number, per_page: 100
+                });
+                if (reviews.some(review =>
+                  isCopilot(review.user) && review.submitted_at &&
+                  review.commit_id === pr.head.sha
+                )) {
+                  core.info(`#${pr.number}: Copilot already reviewed the current head.`);
+                  skipped++;
+                  continue;
+                }
+
+                const pending = await github.paginate(
+                  github.rest.pulls.listRequestedReviewers,
+                  { owner, repo, pull_number: pr.number, per_page: 100 },
+                  response => response.data.users
+                );
+                if (pending.some(isCopilot)) {
+                  core.info(`#${pr.number}: a Copilot review is already pending.`);
+                  skipped++;
+                  continue;
+                }
+
+                await github.rest.pulls.requestReviewers({
+                  owner, repo, pull_number: pr.number, reviewers: [reviewer]
+                });
+                requested++;
+                core.info(`#${pr.number}: requested Copilot review as ${account.login}.`);
+              } catch (error) {
+                failed++;
+                core.error(`#${pr.number}: review request failed: ${error.message}`);
+              }
+            }
+
+            await core.summary
+              .addHeading('Daily Copilot review requests')
+              .addRaw(`Requesting account: ${account.login}\n\n`)
+              .addTable([
+                ['Requested', 'Skipped', 'Failed'],
+                [String(requested), String(skipped), String(failed)]
+              ])
+              .addRaw('\nCopilot posts its review and overview on each PR asynchronously. A successful request does not mean the review has finished.\n')
+              .write();
+            if (failed > 0) {
+              core.setFailed(`${failed} pull request(s) could not be processed. See the errors above.`);
+            }
