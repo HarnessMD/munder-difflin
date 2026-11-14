@@ -158,7 +158,7 @@ test('the catalog is the schema config.ts expects', () => {
   assert.deepEqual(
     Object.keys(catalog.providers).sort(),
     ['antigravity', 'claude', 'copilot', 'codex', 'crush', 'cursor', 'custom',
-      'gemini', 'grok', 'kimi', 'opencode', 'pi', 'qwen'].sort()
+      'gemini', 'grok', 'kimi', 'omp', 'opencode', 'pi', 'qwen'].sort()
   );
 });
 

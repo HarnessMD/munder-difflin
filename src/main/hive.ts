@@ -897,6 +897,13 @@ export class HiveManager {
               // prove; the renderer idle inbox-wake nudge is the guaranteed drain.
               env.PI_CODING_AGENT_DIR = this.installPiHooks(dir);
             }
+            else if (desc.shim === 'omp') {
+              // omp (can1357/oh-my-pi) is a Pi fork: same lifecycle surface, but
+              // hooks load from <agentDir>/hooks/pre/ and credentials live in
+              // SQLite (copied per agent). E2E-verified on 18.20.0; the renderer
+              // idle inbox-wake nudge remains the guaranteed drain fallback.
+              env.PI_CODING_AGENT_DIR = this.installOmpHooks(dir);
+            }
             else if (desc.shim === 'opencode') {
               // OpenCode (anomalyco/opencode) has no Claude-shaped Stop hook, but its
               // plugin API exposes a real session.idle event (god Decision 1). We drop
@@ -2415,6 +2422,41 @@ export class HiveManager {
     return home;
   }
 
+  /** omp (Oh My Pi, can1357/oh-my-pi) bridge — mirror of the Pi bridge. omp is a
+   *  Pi fork with the same pi.on(event) surface, but it discovers hooks as direct
+   *  .js files under <agentDir>/hooks/pre/ (not Pi's extensions/ manifest), and it
+   *  keeps credentials/model catalog in SQLite (agent.db + models.db), not in a
+   *  copyable models.json. E2E-VERIFIED on omp 18.20.0 (isolated agent dir + hook
+   *  discovery + PreToolUse/PostToolUse/Stop payloads + --auto-approve): an agent
+   *  dir without the two DBs starts with "No default model selected", so they are
+   *  copied per agent. PI_CODING_AGENT_DIR carries the isolation (honored by omp).
+   *  Auto-approve is the CLI's own --auto-approve flag; the bridge only reports. */
+  private installOmpHooks(dir: string): string {
+    const home = join(dir, '.omp-agent');
+    try {
+      const hooksDir = join(home, 'hooks', 'pre');
+      mkdirSync(hooksDir, { recursive: true });
+      writeFileSync(join(hooksDir, 'hive-bridge.js'), OMP_EXTENSION, 'utf8');
+
+      const userOmpDir = join(homedir(), '.omp', 'agent');
+      for (const db of ['agent.db', 'models.db'] as const) {
+        const src = join(userOmpDir, db);
+        const dst = join(home, db);
+        if (!existsSync(src) || existsSync(dst)) continue;
+        // sqlite3 .backup is consistent while omp is writing; a plain copy is
+        // the no-sqlite3 fallback (best-effort, same trust level as pi's
+        // models.json copy). Wrapped so a failure can never break the spawn.
+        const backed = spawnSync('sqlite3', [src, `.backup '${dst}'`], { stdio: 'ignore' });
+        if (backed.error || backed.status !== 0) {
+          for (const suffix of ['', '-wal', '-shm'] as const) {
+            try { copyFileSync(join(userOmpDir, db + suffix), join(home, db + suffix)); } catch {}
+          }
+        }
+      }
+    } catch (e) { console.error('[hive] installOmpHooks failed:', e); }
+    return home;
+  }
+
   /** OpenCode (anomalyco/opencode) bridge — god Decision 1 (native plugin, not proxy).
    *  OpenCode has no Claude-shaped Stop hook, but its plugin API exposes a real
    *  `session.idle` lifecycle event. We drop a bundled PLUGIN into a PER-AGENT config
@@ -3279,6 +3321,43 @@ try { if (typeof globalThis !== 'undefined' && globalThis.pi) register(globalThi
 module.exports = function (pi) { return register(pi); };
 module.exports.activate = function (pi) { return register(pi); };
 module.exports.default = module.exports;
+`;
+
+// ─── omp bridge hook (written to <agentDir>/.omp-agent/hooks/pre/) ────────────
+// A bundled hook for omp (can1357/oh-my-pi) — a Pi fork that auto-loads direct
+// .js files from <agentDir>/hooks/pre/. ESM (omp runs on Bun): a default-export
+// factory is omp's documented hook contract. Posts cth-hook-shaped payloads to
+// HIVE_SOCK on tool_call/tool_result and Stop on agent_end + session_stop;
+// approvals stay with the CLI's own --auto-approve flag (the bridge only
+// reports). E2E-verified on omp 18.20.0. Fully wrapped: a wrong API guess can
+// never break the spawn.
+const OMP_EXTENSION = `import net from 'node:net';
+const SOCK = process.env.HIVE_SOCK;
+const AGENT = process.env.AGENT_ID || null;
+function post(payload) {
+  try {
+    if (!SOCK) return;
+    payload.agent_id = payload.agent_id || AGENT;
+    const c = net.createConnection(SOCK, () => { try { c.end(JSON.stringify(payload) + '\\n'); } catch (e) {} });
+    c.on('error', () => {});
+  } catch (e) {}
+}
+function ompToolPayload(hookEventName, ev) {
+  return {
+    hook_event_name: hookEventName,
+    tool_name: ev && (ev.toolName || (ev.tool && ev.tool.name)),
+    tool_input: ev && (ev.input !== undefined && ev.input !== null ? ev.input : ev.args)
+  };
+}
+export default function (pi) {
+  if (!pi || typeof pi.on !== 'function') return;
+  try {
+    pi.on('tool_call', (ev) => { post(ompToolPayload('PreToolUse', ev)); });
+    pi.on('tool_result', (ev) => { post(ompToolPayload('PostToolUse', ev)); });
+    pi.on('agent_end', () => { post({ hook_event_name: 'Stop' }); });
+    pi.on('session_stop', () => { post({ hook_event_name: 'Stop' }); });
+  } catch (e) {}
+}
 `;
 
 // ─── opencode bridge plugin (written to <agentDir>/.opencode/plugin/) ────────
