@@ -48,6 +48,14 @@
     <summary>Six ways to earn around the GTA 6 launch, what Rockstar reportedly allows, where each payout comes from, and the AI agent workflow that does the prep.</summary>
   </entry>
   <entry>
+    <title>Qwen4-Max: Price, Specs and How to Use It in Claude Code (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/qwen4-max/" />
+    <id>https://munderdiffl.in/blog/qwen4-max/</id>
+    <published>2026-11-16T00:00:00.000Z</published>
+    <updated>2026-11-16T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Qwen4-Max is Qwen&#39;s new 2.4T flagship with a 1M context: API price, specs, Token Plan, and setup in Claude Code and Qwen Code, checked 16 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 15 Nov 2026: Antigravity&#39;s /teamwork, GLM-5.3 on Two DGX Stations and Lovable Apps</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-15/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-15/</id>
@@ -478,13 +486,5 @@
     <published>2026-10-30T00:00:00.000Z</published>
     <updated>2026-10-30T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Instinct is a personal AI agent you text or call, still in private beta. What it does, what its privacy policy says, and six texting agents you can use today.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 29 Oct 2026: Gemini 4 Carbon, Copilot Connectors, OpenCode Goals</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-29/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-29/</id>
-    <published>2026-10-29T00:00:00.000Z</published>
-    <updated>2026-10-29T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 28 to 29 Oct 2026, each with its source and date.</summary>
   </entry>
 </feed>

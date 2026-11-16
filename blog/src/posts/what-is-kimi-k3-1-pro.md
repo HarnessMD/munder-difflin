@@ -24,6 +24,8 @@ faq:
 
 Kimi K3.1 Pro is Moonshot AI's coding and agent model with a 1M token context window, available through Kimi's apps, Kimi Code and the Kimi API, with open weights promised by 4 November 2026. On Kimi's own Terminal-Bench 4.0 table it sits 0.7 points behind Claude Opus 5.5. Checked 29 Oct 2026.
 
+Alibaba's Qwen team released its own 1M token flagship on 16 Nov 2026: see [Qwen4-Max](/blog/qwen4-max/) for its price and Claude Code setup.
+
 For a team of agents on your own work, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. For another open model released this week, see [Mistral Large 4](/blog/mistral-large-4/). This page sits in our [Concepts hub](/blog/topics/concepts/).
 
 <figure class="mg" data-scene="highjump"><img src="/blog/assets/media/what-is-kimi-k3-1-pro/highjump.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, three high jump bars rise to 58.2, 65.7 and 66.4 on a scale titled Terminal-Bench 4.0, labelled GPT-6 Astra, Kimi K3.1 Pro and Claude Opus 5.5. A small ruler slides between the two highest bars and reads 0.7 points. Tapping a bar shows its source."><figcaption>Terminal-Bench 4.0 figures from Kimi's launch post: Claude Opus 5.5 66.4%, Kimi K3.1 Pro 65.7%, GPT-6 Astra 58.2%.</figcaption></figure>

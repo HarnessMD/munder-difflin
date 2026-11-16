@@ -6137,5 +6137,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "qwen4-max": {
+    "title": "Qwen4-Max: Price, Specs and How to Use It in Claude Code (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/qwen4-max/hero.png",
+      "alt": "Title card on white. A pill reading Concepts, the title Qwen4-Max, the line Price, specs and how to use it in Claude Code and Qwen Code and a Checked 16 Nov 2026 line. Four small tiles reading 1M context, $1.50 input, $4.50 output and Token Plan slide in along a thin line.",
+      "prompt": "Title card: the hero scene in assets/media/qwen4-max/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
