@@ -24,6 +24,8 @@ faq:
 
 Our view: pick OpenCode Browse when your agent must work inside the browser you are already signed in to, and pick agent-browser when you want a scriptable CLI with its own Chrome that any shell agent can call. Both are open source on GitHub. Checked 11 Nov 2026.
 
+If you also weigh Browser Use, see [Browser Use alternatives](/blog/browser-use-alternatives/).
+
 Both tools moved in the past week. Browse shipped four [releases](https://github.com/anomalyco/browse/releases) on 7 Nov and two on 8 Nov, the last v0.0.16 (UTC), and our [9 Nov brief](/blog/agent-tools-today-2026-11-09/) listed it first. agent-browser shipped [v0.42.0](https://github.com/vercel-labs/agent-browser/releases) on 10 Nov. This page sits in our [Comparisons hub](/blog/topics/comparisons/); for tools that run several agents side by side, see [Herdr alternatives](/blog/herdr-alternatives/).
 
 ## OpenCode Browse vs agent-browser at a glance (checked 11 Nov 2026)

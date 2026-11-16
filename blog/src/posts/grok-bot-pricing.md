@@ -1,104 +1,97 @@
 ---
-title: "Grok Bot Pricing: What $20, $30, $100 and $300 a Month Actually Buy"
-seoTitle: "Grok Bot Pricing: Plans From $20 to $300, and Is It Free?"
-description: "Grok Bot has no plan of its own. The cheapest way in is a $20 a month Cursor plan, SuperGrok is $30, and there is a seven day trial, not a free plan."
+title: "Grok Bot Pricing in Nov 2026: Premium $30, Super $100, Ultra $200"
+seoTitle: "Grok Bot Pricing (Nov 2026): Plans From $30, and Is It Free?"
+description: "Grok Bot pricing, checked 16 Nov 2026: x.ai lists Premium at $30, Super at $100 and Ultra at $200 a month, plus Teams and Enterprise. No free plan listed."
 date: 2026-09-26
+updated: 2026-11-16
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
 primaryKeyword: "grok bot pricing"
 secondaryKeywords: ["grok bot price", "grok bot cost", "is grok bot free", "grok bot free trial", "grok bot supergrok", "grok bot cursor pro", "cheapest way to get grok bot"]
 tags: ["Comparisons", "AI Agents", "Pricing", "Open Source"]
-ogImage: "https://munderdiffl.in/blog/assets/media/grok-bot-pricing/lead-still.png"
+ogImage: "https://munderdiffl.in/blog/assets/media/grok-bot-pricing/hero.png"
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
   - q: "How much does Grok Bot cost?"
-    a: "Grok Bot has no standalone subscription. Since 26 August 2026 it comes with SuperGrok ($30 a month), SuperGrok Plus ($100), SuperGrok Heavy ($300) and every paid Cursor plan, from Cursor Pro at $20 a month up to Cursor Ultra at $200. Teams get it with Cursor Teams plans, which cost $120 a seat on Premium Teams."
+    a: "On 16 Nov 2026 x.ai's Grok Bot page prices it at $30 a month on Premium, $100 on Super and $200 on Ultra, each billed monthly. It says Teams and Enterprise plans include it too, and Enterprise customers contact sales. Extra usage is \"billed based on token cost\"."
   - q: "Is Grok Bot free?"
-    a: "Only as a trial. Cursor describes the free trial as a usage credit with a seven day window, and it does not turn into a paid plan on its own. After that you need one of the paid plans."
+    a: "Not as a plan. On 16 Nov 2026 x.ai's Grok Bot page starts at Premium, $30 a month, and lists no free tier. x.ai's FAQ says \"Some accounts can try Grok Bot before they pay\" and \"The trial is a usage credit, and a 7-day window also applies.\""
   - q: "What is the cheapest way to get Grok Bot?"
-    a: "Cursor Pro at $20 a month, which has included Grok Bot since 26 August 2026. The cheapest SpaceXAI plan with Grok Bot is SuperGrok at $30 a month; SuperGrok Lite does not include it."
+    a: "Premium at $30 a month, the lowest price on x.ai's Grok Bot page on 16 Nov 2026. x.ai's FAQ says it also comes \"with legacy Cursor Pro, Pro+, Ultra, and self-serve Teams\"."
   - q: "Does Grok Bot use up my Cursor or SuperGrok usage?"
-    a: "No. SpaceXAI says Grok Bot comes with its own usage, separate from your Grok and Cursor plans, so work you hand to a Bot does not count against your existing allowance. Bot usage resets weekly."
+    a: "On Premium, Super and Ultra, yes: on 16 Nov 2026 x.ai's FAQ says \"Grok Bot draws from the same weekly usage pool as Cursor and the Grok apps\". On 26 Aug 2026 SpaceXSI had said it \"comes with its own usage, separate from your Grok and Cursor plans\"."
   - q: "Is there a free alternative to Grok Bot?"
     a: "For work agents, Munder Difflin is free and open source. It runs a team of agents on your own computer with engines you already pay for, or with a free local model. OpenClaw and Hermes Agent are free, open source personal assistants."
-thumb: "/blog/assets/media/grok-bot-pricing/lead-still.png"
+thumb: "/blog/assets/media/grok-bot-pricing/hero.png"
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>The cheapest way into Grok Bot is Cursor Pro at $20 a month. The cheapest SpaceXAI plan with it is SuperGrok at $30. The biggest agent allowance sits in SuperGrok Heavy at $300. There is a seven day trial, not a free plan. If you only need work agents, you can run them free on your own computer.</p></div>
+<div class="callout tldr"><span class="ic">TL;DR</span><p>On 16 Nov 2026, <a href="https://x.ai/bot">x.ai's Grok Bot page</a> lists Premium at $30 a month, Super at $100 and Ultra at $200, each billed monthly. Teams and Enterprise plans include it too. No free plan is listed. If you only need work agents, you can run them free on your own computer.</p></div>
 
-Grok Bot is SpaceXAI's team of always on AI agents, called Bots. They sign into your apps, do the work on a cloud computer and keep going with your laptop shut. It reached [418,000 weekly users](https://www.bloomberg.com/news/articles/2026-09-22/spacexai-s-grok-bot-agent-tops-400-000-users-after-first-month) a month after launch. The pricing confuses a lot of people, because there is no "Grok Bot plan" to buy. It comes inside other subscriptions.
+Grok Bot costs $30, $100 or $200 a month on the Premium, Super and Ultra plans that [x.ai's Grok Bot page](https://x.ai/bot) lists on 16 Nov 2026, and Teams and Enterprise plans include it too. Checked 16 Nov 2026. No free plan is listed.
 
-If what you want is agents for your work, there is also a way to pay nothing for the app. [Munder Difflin](https://harnessmd.com/download) runs a team of agents on your own computer using AI engines you already have. It is free and open source. We compare the costs at the end.
+Grok Bot is SpaceXSI's team of always on AI agents, called Bots. They sign into your apps, do the work on a cloud computer and keep going with your laptop shut. Bloomberg reported [418,000 weekly users](https://www.bloomberg.com/news/articles/2026-09-22/spacexai-s-grok-bot-agent-tops-400-000-users-after-first-month) a month after launch. This page listed SuperGrok and Cursor plans in September; the Grok Bot page now names neither.
 
-<figure class="lead-loop"><video autoplay muted loop playsinline preload="metadata" width="1360" height="764" poster="/blog/assets/media/grok-bot-pricing/lead-still.png" aria-label="A looping animation. A receipt prints the plans that include Grok Bot, from Cursor Pro at 20 dollars to SuperGrok Heavy at 300 dollars, and ends with no Grok Bot plan of its own. It cuts to Munder Difflin's real add agent dialog: a free app that uses the engine you already pay for."><source src="/blog/assets/media/grok-bot-pricing/lead.mp4" type="video/mp4"><img src="/blog/assets/media/grok-bot-pricing/lead.gif" width="1360" height="764" alt="A looping animation. A receipt prints the plans that include Grok Bot, from Cursor Pro at 20 dollars to SuperGrok Heavy at 300 dollars, and ends with no Grok Bot plan of its own. It cuts to Munder Difflin's real add agent dialog: a free app that uses the engine you already pay for."></video><figcaption>Every plan with Grok Bot, then Munder Difflin: a free app that runs on the AI engine you already use.</figcaption></figure>
-<style>.lead-loop{margin:1.4rem 0 .6rem;border:1px solid #D9CFE0;border-radius:16px;overflow:hidden;background:#FFF8E7}.lead-loop video,.lead-loop img{display:block;width:100%;height:auto;margin:0}.lead-loop figcaption{font:500 13px/1.5 "Space Grotesk",system-ui,sans-serif;color:#6B5878;padding:10px 16px 14px;margin:0;border-top:1px solid #D9CFE0;background:#FCFAF0}</style>
-<script>if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('.lead-loop video').forEach(function(v){v.removeAttribute('autoplay');v.pause();v.currentTime=0;v.load()})}</script>
+If what you want is agents for your work, there is also a free route. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It uses the AI engines you already have. More on it at the end.
+
+<figure class="mg" data-scene="till"><img src="/blog/assets/media/grok-bot-pricing/till.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow till prints a receipt headed Grok Bot plans, 16 Nov 2026. Three lines print one at a time: Premium $30 / month, Super $100 / month, Ultra $200 / month, then a last line: Teams and Enterprise: included. A mint tick appears beside each line. Tapping the till prints the receipt again."><figcaption>Grok Bot plan prices on x.ai's Grok Bot page, 16 Nov 2026.</figcaption></figure>
 
 ## Every plan that includes Grok Bot
 
-Grok Bot launched in beta on 11 August 2026 for only three top plans: SuperGrok Heavy, Cursor Ultra and Cursor Premium Teams. On 26 August [SpaceXAI opened it to more plans](https://x.ai/news/grok-bot-more-plans). Here is where it stands now.
+Grok Bot launched in beta on 11 August 2026. On 26 August [SpaceXSI opened it to more plans](https://x.ai/news/grok-bot-more-plans), including SuperGrok and Cursor Pro. [Grok Bot 1.0](https://x.ai/news/grok-bot-1-0) is dated 2 Nov 2026, and the [Grok Bot page](https://x.ai/bot) now says "Grok Bot is out of beta." Here is what that page lists as of 16 Nov 2026.
 
-| Plan | Price a month | Who sells it | Notes |
-| --- | --- | --- | --- |
-| Cursor Pro | $20 | Cursor | Cheapest way in, since 26 Aug |
-| SuperGrok | $30 | SpaceXAI | Cheapest SpaceXAI plan with Grok Bot |
-| Cursor Pro+ | See Cursor's pricing | Cursor | Included since 26 Aug |
-| SuperGrok Plus | $100 | SpaceXAI | Adds 1080p video and priority access |
-| Cursor Premium Teams | $120 a seat | Cursor | One of the three launch plans |
-| Cursor Ultra | $200 | Cursor | One of the three launch plans |
-| SuperGrok Heavy | $300 | SpaceXAI | Largest allowance, one of the three launch plans |
+| Plan | Price, 16 Nov 2026 | What the page lists |
+| --- | --- | --- |
+| Premium | [$30 / month](https://x.ai/bot), 16 Nov 2026 | Grok Bot's own computer, routines on a schedule, weekly Grok Bot usage |
+| Super | [$100 / month](https://x.ai/bot), 16 Nov 2026 | Everything in Premium, 3.5x Premium usage, priority model access at peak times |
+| Ultra | [$200 / month](https://x.ai/bot), 16 Nov 2026 | Everything in Super, 12x Premium usage, earliest access to all products and models |
+| Teams | See the Teams tab on [the Grok Bot page](https://x.ai/bot) | Included, the page says |
+| Enterprise | [Contact sales](https://x.ai/bot) | Included, the page says |
 
-Prices come from [SpaceXAI's pricing page](https://x.ai/pricing), [VentureBeat's launch report](https://venturebeat.com/orchestration/spacexais-grok-bot-turns-agents-into-persistent-digital-coworkers-that-can-operate-your-apps-for-120-per-month) and Cursor's plan pages, checked in September 2026. Cursor Standard Teams also includes Grok Bot. Linking an individual X Premium+ subscription works too. SuperGrok Lite does not include it.
+The page bills all three individual plans monthly and adds: "Already on an eligible Premium, Super, Ultra, Teams, or Enterprise plan? Grok Bot is included." The [1.0 post](https://x.ai/news/grok-bot-1-0) splits two features by plan: "Team Bots are available on Team and Enterprise plans. Meetings are available on Team, Enterprise, and Ultra plans." [x.ai's FAQ](https://docs.x.ai/grok-bot/faq) adds that it comes "with legacy Cursor Pro, Pro+, Ultra, and self-serve Teams".
 
 ## Is Grok Bot free?
 
-No. There is a free trial, and [Cursor's Grok Bot plans page](https://cursor.com/help/grok-bot/plans) describes it as a usage credit with a seven day window. It does not turn into a paid plan by itself. When the credit or the week runs out, you need one of the plans above.
+No, not as a plan: the lowest price on [the Grok Bot page](https://x.ai/bot) on 16 Nov 2026 is Premium at $30 a month. x.ai's FAQ says "Plus and Free don't include it", though "Some accounts can try Grok Bot before they pay": "The trial is a usage credit, and a 7-day window also applies."
 
 ## Does Grok Bot eat into your plan's usage?
 
-No, and this is the best part of the pricing. SpaceXAI says Grok Bot comes with its own usage, separate from your Grok and Cursor plans, so a job you hand to a Bot does not count against your chat or coding allowance. Bot usage resets every week. Bigger plans get a bigger weekly allowance, and SpaceXAI has not published how many tasks each allowance covers.
+Yes on Premium, Super and Ultra: on 16 Nov 2026 [x.ai's FAQ](https://docs.x.ai/grok-bot/faq) says "Grok Bot draws from the same weekly usage pool as Cursor and the Grok apps". On 26 August [SpaceXSI had said](https://x.ai/news/grok-bot-more-plans) it "comes with its own usage, separate from your Grok and Cursor plans". On 16 Nov 2026 the [Grok Bot page](https://x.ai/bot) lists "Weekly Grok Bot usage included" on Premium, "3.5x Premium usage" on Super and "12x Premium usage" on Ultra. It gives multipliers, not task counts.
 
-At launch, eesel's review noted there was [no spend cap](https://www.eesel.ai/blog/grok-bot-pricing) on extra usage. If you turn on paid extra usage, keep an eye on it.
+The same page says Grok Bot subscriptions come with weekly usage included, "with additional usage billed based on token cost." At launch, eesel's review noted there was [no spend cap](https://www.eesel.ai/blog/grok-bot-pricing) on extra usage. If you turn on paid extra usage, keep an eye on it.
 
 ## What you get for the money
 
-Every plan gets the same product: Bots that work on a cloud computer, sign into your apps through a browser, run routines on a schedule and hand work to each other in shared threads. The desktop app runs on macOS, Windows and Linux, and there are phone apps.
+Premium covers the core product. The [Grok Bot page](https://x.ai/bot) lists "Grok Bot's own computer", "Signs into your tools", "Routines on a schedule" and "Works where you work: desktop, iOS, Slack, Teams and more". Super and Ultra add usage and priority or earliest access. Team Bots and meetings depend on the plan, as the table shows.
 
 What you do not get at any price:
 
-- **A choice of model.** Cursor picks the model and the mix can change.
-- **Your own computer.** Bots run only on Cursor's cloud computers in the US. Running them on your own servers is not supported.
-- **Walls between Bots.** All the Bots on your account share one computer and its logins.
+- **A choice of model.** "Grok Bot picks the model for each task, and there is no model picker", x.ai's FAQ says.
+- **Walls between Bots.** The Grok Bot page says "Every Bot has its own computer", but the FAQ says "Every Bot on your account uses one persistent cloud computer" and "Do not use separate Bots as a security boundary."
 
 We cover what those limits mean in our [Grok Bot alternatives](/blog/grok-bot-alternatives/) guide.
 
 ## Which plan should you pick?
 
-- **You already pay for Cursor Pro.** You already have Grok Bot. Try it before paying for anything else.
-- **You want Grok Bot and you use Grok for chat.** SuperGrok at $30 covers both.
-- **You will run several Bots all day.** Look at SuperGrok Heavy or Cursor Ultra, because the weekly allowance is what runs out first.
-- **You are buying for a team.** Cursor Teams plans, priced per seat.
+Start with [Premium at $30 a month](https://x.ai/bot) (16 Nov 2026) unless you need more usage, meetings or Team Bots.
 
-## The $0 route for work agents
+- **You want to try Grok Bot on your own.** Premium, the lowest price on the page.
+- **You will run several Bots all day.** Super or Ultra. Super lists 3.5x Premium usage and Ultra 12x.
+- **You want a Bot in your calls.** Ultra, Teams or Enterprise, the plans the 1.0 post names for meetings.
+- **You are buying for a team.** Teams or Enterprise, the plans with Team Bots.
 
-If your Bots would mostly do engineering or other work on files, compare the cost of running the agents yourself.
+## The free route for work agents
 
-[Munder Difflin](https://harnessmd.com/download) is a free and open source desktop app (MIT licence) for macOS, Windows and Linux. It turns the AI tools you already use into a team: Claude Code, Codex, Gemini CLI, Cursor, OpenCode, Grok's own CLI and six others. Each agent gets a desk, an inbox, long term memory and a shared task board, and you can start work from Slack or a webhook.
+If your Bots would do research, writing, ops or code, compare running the agents yourself.
 
-What it costs:
+Munder Difflin's agents run on engines such as Claude Code, Codex and Gemini CLI, take work in from Slack and webhooks, and use MCP servers, skills and plugins.
 
-| | Grok Bot | Munder Difflin |
-| --- | --- | --- |
-| The app | Inside a $20 to $300 plan | Free |
-| The AI | Included, Cursor picks the model | The subscription or API key you already have, or a free local model |
-| Spend limits | Weekly allowance | Per agent token budgets and a circuit breaker you set |
-| Where it runs | Cursor's cloud | Your computer or its Cloud Office |
-
-If you already pay for a Claude or ChatGPT plan, the agents run on that. If you want to spend nothing on tokens, [run it on open models](/blog/run-munder-difflin-on-open-models/) with Ollama, LM Studio or vLLM.
+If you already pay for a Claude or ChatGPT plan, the agents run on that. To spend nothing on tokens, [run it on open models](/blog/run-munder-difflin-on-open-models/).
 
 The honest trade: Munder Difflin will not do errands like booking travel. Its agents run on your computer, or in its Cloud Office with your computer off. For overnight work, a [Mac mini that stays awake](/blog/run-munder-difflin-on-a-mac-mini/) does the job for a one time cost.
 
 Want to see how Grok Bot stacks up against Meta's new agent? Read [Meta Muse vs Grok Bot](/blog/meta-muse-vs-grok-bot/).
+
+<link rel="stylesheet" href="/blog/assets/media/grok-bot-pricing/motion.css"><script defer src="/blog/assets/media/grok-bot-pricing/motion.js"></script>

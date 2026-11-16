@@ -6148,5 +6148,49 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "qwen4-max-vs-claude-opus-5-5": {
+    "inline": {},
+    "title": "Qwen4-Max vs Claude Opus 5.5: Price, Limits and Claude Code Setup (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/qwen4-max-vs-claude-opus-5-5/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Qwen4-Max vs Claude Opus 5.5, the line Price, limits and Claude Code setup and a Checked 16 Nov 2026 line. Two tiles joined by a thin line read Qwen4-Max $6.00 and Claude Opus 5.5 $24.00, labelled 1M input plus 1M output.",
+      "prompt": "Title card: the hero scene in assets/media/qwen4-max-vs-claude-opus-5-5/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "lobehub-alternatives": {
+    "inline": {},
+    "title": "LobeHub Alternatives: 5 Chat and Agent Workspaces Compared (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/lobehub-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title LobeHub alternatives, the line 5 AI workspaces like LobeHub and a Checked 16 Nov 2026 line. Five tiles named LibreChat, Munder Difflin, Open WebUI, Cherry Studio and Jan slide in under a grey LobeHub tile.",
+      "prompt": "Title card: the hero scene in assets/media/lobehub-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "browser-use-alternatives": {
+    "inline": {},
+    "title": "Browser Use Alternatives: 5 Picks After the 1.0 Rewrite (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/browser-use-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Browser Use alternatives, the line 5 tools for AI agents that drive a browser and a Checked 16 Nov 2026 line. Tiles named Stagehand, Munder Difflin, Skyvern, Playwright MCP and +1 slide in under a grey Browser Use tile.",
+      "prompt": "Title card: the hero scene in assets/media/browser-use-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "grok-bot-pricing": {
+    "inline": {},
+    "title": "Grok Bot Pricing in Nov 2026: Premium $30, Super $100, Ultra $200",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/grok-bot-pricing/hero.png",
+      "alt": "Title card on white. A pill reading Pricing, the title Grok Bot pricing, the line What each plan costs in Nov 2026 and a Checked 16 Nov 2026 line. Three price tags slide in on a thin line: Premium $30, Super $100 and Ultra $200, a month, x.ai, 16 Nov 2026.",
+      "prompt": "Title card: the hero scene in assets/media/grok-bot-pricing/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
