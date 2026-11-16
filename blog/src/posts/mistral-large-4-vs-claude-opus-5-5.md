@@ -22,6 +22,8 @@ faq:
 
 Claude Opus 5.5 is the stronger coding model on every shared score we found; Mistral Large 4 costs about a tenth per output token and is the one you can download and run yourself. Pick Opus for the hardest agent work, Mistral for volume, cost or data that must stay in house. Checked 29 Oct 2026.
 
+We put Qwen4-Max against the same model in [Qwen4-Max vs Claude Opus 5.5](/blog/qwen4-max-vs-claude-opus-5-5/).
+
 If you run agents on your own work, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. This page sits in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## Mistral Large 4 vs Claude Opus 5.5 at a glance (checked 29 Oct 2026)
