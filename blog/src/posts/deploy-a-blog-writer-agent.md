@@ -126,7 +126,8 @@ Two more rules we follow:
 ## The meta point
 
 A multi agent office is not only for code. Once you have a writer that drafts, a check that catches mistakes, a build
-that publishes and one human gate, you have a content function instead of a one off prompt.
+that publishes and one human gate, you have a content function instead of a one off prompt. The same pipeline can run
+[a GTA 6 guide site](/blog/gta-6-guide-site/), with your own play notes as the source the checker holds every claim to.
 
 So this post is exhibit A: briefed, rewritten in a worktree against a house style, checked, and handed to a human as
 a pull request.

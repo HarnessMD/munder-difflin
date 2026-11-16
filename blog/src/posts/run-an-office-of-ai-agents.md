@@ -73,7 +73,7 @@ Honesty matters here, because over-promising is how people get burned:
   zero review. Agents are leveraged labor, not oracles.
 
 The skill is in the scoping and the guardrails, not in trusting blindly. Done right, the leverage is
-real.
+real. The same office can run a launch week of content too, like the [GTA 6 workflows](/blog/make-money-with-gta-6/) where a person approves every piece.
 
 ## How to get there
 

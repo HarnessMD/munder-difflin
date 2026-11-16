@@ -4,9 +4,49 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-15T00:00:00.000Z</updated>
+  <updated>2026-11-16T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 16 Nov 2026: Qwen4-Max, Browser Use 1.0.6 and an Open Source Essay</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-16/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-16/</id>
+    <published>2026-11-16T00:00:00.000Z</published>
+    <updated>2026-11-16T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 15 to 16 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>GTA 6 Clipping Farm: How to Run One With a Team of AI Agents</title>
+    <link href="https://munderdiffl.in/blog/gta-6-clipping-farm/" />
+    <id>https://munderdiffl.in/blog/gta-6-clipping-farm/</id>
+    <published>2026-11-16T00:00:00.000Z</published>
+    <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
+    <summary>An honest GTA 6 clipping farm: a few real accounts, paid clipping campaigns, Rockstar&#39;s video rules, and AI agents that cut, caption and track.</summary>
+  </entry>
+  <entry>
+    <title>Start a GTA 6 Guide Site or Newsletter With AI Agents (the Way This Blog Runs)</title>
+    <link href="https://munderdiffl.in/blog/gta-6-guide-site/" />
+    <id>https://munderdiffl.in/blog/gta-6-guide-site/</id>
+    <published>2026-11-16T00:00:00.000Z</published>
+    <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
+    <summary>Run a GTA 6 guide site, newsletter or Discord the way this blog runs: you play and take notes, agents draft and fact check, you approve and publish.</summary>
+  </entry>
+  <entry>
+    <title>GTA 6 YouTube Channel Ideas: 6 Content Channels an AI Agent Team Can Help Run</title>
+    <link href="https://munderdiffl.in/blog/gta-6-youtube-channel-ideas/" />
+    <id>https://munderdiffl.in/blog/gta-6-youtube-channel-ideas/</id>
+    <published>2026-11-16T00:00:00.000Z</published>
+    <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
+    <summary>Six GTA 6 YouTube channel ideas built on your own play, what Rockstar reportedly allows, how YouTube pays, and the agent team that does the prep.</summary>
+  </entry>
+  <entry>
+    <title>How to Make Money From GTA 6: 6 Hustles and the AI Agent Workflow for Each</title>
+    <link href="https://munderdiffl.in/blog/make-money-with-gta-6/" />
+    <id>https://munderdiffl.in/blog/make-money-with-gta-6/</id>
+    <published>2026-11-16T00:00:00.000Z</published>
+    <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
+    <summary>Six ways to earn around the GTA 6 launch, what Rockstar reportedly allows, where each payout comes from, and the AI agent workflow that does the prep.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 15 Nov 2026: Antigravity&#39;s /teamwork, GLM-5.3 on Two DGX Stations and Lovable Apps</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-15/" />
@@ -446,45 +486,5 @@
     <published>2026-10-29T00:00:00.000Z</published>
     <updated>2026-10-29T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 28 to 29 Oct 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>Gemini 4 Carbon: Price, Access and How It Compares to Argon (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/gemini-4-carbon/" />
-    <id>https://munderdiffl.in/blog/gemini-4-carbon/</id>
-    <published>2026-10-29T00:00:00.000Z</published>
-    <updated>2026-11-14T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Gemini 4 Carbon is Google&#39;s new frontier model, open to paying Gemini API developers since 10 Nov 2026: its price, who can use it and how it compares to Argon.</summary>
-  </entry>
-  <entry>
-    <title>How to Run Mistral Large 4 Locally: Hardware, GGUF Sizes and vLLM (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/how-to-run-mistral-large-4/" />
-    <id>https://munderdiffl.in/blog/how-to-run-mistral-large-4/</id>
-    <published>2026-10-29T00:00:00.000Z</published>
-    <updated>2026-10-29T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Mistral Large 4 weights are out. Which file fits your memory, the llama.cpp and vLLM commands, the GPUs Mistral validated and the licence, checked 29 Oct 2026.</summary>
-  </entry>
-  <entry>
-    <title>Mistral Large 4 vs Claude Opus 5.5: Price, Coding Scores and Open Weights (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/mistral-large-4-vs-claude-opus-5-5/" />
-    <id>https://munderdiffl.in/blog/mistral-large-4-vs-claude-opus-5-5/</id>
-    <published>2026-10-29T00:00:00.000Z</published>
-    <updated>2026-10-29T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Claude Opus 5.5 leads on coding scores; Mistral Large 4 costs about a tenth per output token and you can download it. Prices and scores, checked 29 Oct 2026.</summary>
-  </entry>
-  <entry>
-    <title>What Is Kimi K3.1 Pro? Price, Weights and How to Use It for Coding (Oct 2026)</title>
-    <link href="https://munderdiffl.in/blog/what-is-kimi-k3-1-pro/" />
-    <id>https://munderdiffl.in/blog/what-is-kimi-k3-1-pro/</id>
-    <published>2026-10-29T00:00:00.000Z</published>
-    <updated>2026-10-29T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Kimi K3.1 Pro is Moonshot&#39;s 1M context coding model, weights due by 4 Nov. Price, Terminal-Bench score and setup in Kimi Code, Codex and Claude Code.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 28 Oct 2026: OpenCode 2.2, Entire, Hallmark</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-10-28/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-10-28/</id>
-    <published>2026-10-28T00:00:00.000Z</published>
-    <updated>2026-10-28T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 27 to 28 Oct 2026, each with its source and date.</summary>
   </entry>
 </feed>

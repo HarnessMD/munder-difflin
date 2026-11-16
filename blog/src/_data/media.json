@@ -6082,5 +6082,60 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "make-money-with-gta-6": {
+    "title": "How to Make Money From GTA 6: 6 Hustles and the AI Agent Workflow for Each",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/make-money-with-gta-6/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title Make money from GTA 6, the line 6 hustles and the AI agent workflow for each and a Checked 16 Nov 2026 line. Six small tiles named Clipping, Channels, Guide site, Editing, Streaming and Community slide in around a tile reading You approve.",
+      "prompt": "Title card: the hero scene in assets/media/make-money-with-gta-6/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-clipping-farm": {
+    "title": "GTA 6 Clipping Farm: How to Run One With a Team of AI Agents",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-clipping-farm/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title GTA 6 clipping farm, the line A few honest accounts and a team of AI agents and a Checked 16 Nov 2026 line. Six small tiles named Scout, Cutter, Captioner, Writer, Tracker and You slide in along a thin line.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-clipping-farm/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-youtube-channel-ideas": {
+    "title": "GTA 6 YouTube Channel Ideas: 6 Content Channels an AI Agent Team Can Help Run",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-youtube-channel-ideas/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title GTA 6 YouTube channel ideas, the line 6 content channels an AI agent team can help run and a Checked 16 Nov 2026 line. Six small tiles named News, Map, Mission, Comparisons, Tips and Places slide in as two rows.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-youtube-channel-ideas/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-guide-site": {
+    "title": "Start a GTA 6 Guide Site or Newsletter With AI Agents (the Way This Blog Runs)",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-guide-site/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title GTA 6 guide site or newsletter, the line Run it with AI agents, the way this blog runs and a Checked 16 Nov 2026 line. Six small tiles named Notes, Brief, Draft, Fact check, Your edit and Publish slide in along a thin line.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-guide-site/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-16": {
+    "title": "Agent Tools Today, 16 Nov 2026: Qwen4-Max, Browser Use 1.0.6 and an Open Source Essay",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
