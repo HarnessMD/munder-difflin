@@ -6203,5 +6203,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gpt-6-2-astra-and-sol": {
+    "inline": {},
+    "title": "GPT-6.2 Astra and Sol: Price, Specs and How to Use Them in Codex (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gpt-6-2-astra-and-sol/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title GPT 6.2 Astra and Sol, the line OpenAI's new pair of models and a Checked 18 Nov 2026 line. A lilac tile reads GPT 6.2 Astra, $8 in per 1M tokens, under a small yellow star, and a sky blue tile reads GPT 6.2 Sol, $2 in per 1M tokens, under a small yellow sun.",
+      "prompt": "Title card: the hero scene in assets/media/gpt-6-2-astra-and-sol/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }

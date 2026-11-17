@@ -22,6 +22,8 @@ faq:
 
 GPT-6.1 Terra is OpenAI's new fast, efficient model for visual reasoning, computer use and writing. OpenAI released it on 26 October 2026. Its API price is $1 per million input tokens and $5 per million output tokens as of 27 Oct 2026, half or less of the GPT-5.6 Terra price.
 
+On 17 Nov 2026 OpenAI released two newer models, [GPT-6.2 Astra and GPT-6.2 Sol](/blog/gpt-6-2-astra-and-sol/), for the hardest projects and for everyday work.
+
 Codex is one of the engines in [Munder Difflin](https://harnessmd.com/download), free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup. New to Codex? Start with [what is Codex](/blog/what-is-codex/).
 
 ## What is GPT-6.1 Terra?
