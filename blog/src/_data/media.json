@@ -6192,5 +6192,16 @@
       "prompt": "Title card: the hero scene in assets/media/grok-bot-pricing/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "munder-difflin-0-5-10": {
+    "title": "Munder Difflin 0.5.10: Sleeping Agents and a Drag to the Cloud Office",
+    "category": "story",
+    "hero": {
+      "file": "assets/media/munder-difflin-0-5-10/hero.png",
+      "alt": "Title card on white. A pill reading Release, the title Munder Difflin 0.5.10, the line Sleeping agents and the Cloud Office and a 17 Nov 2026 line. Desk lamps, only the first lit, sit under a sky blue cloud, with a mint tile on a dotted line between them.",
+      "prompt": "Title card: the hero scene in assets/media/munder-difflin-0-5-10/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
