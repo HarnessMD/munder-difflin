@@ -1,7 +1,7 @@
 ---
 title: "GTA 6 Business Ideas: 9 Real Ways to Profit From the Launch, and the AI Agents That Do the Prep"
 seoTitle: "GTA 6 Business Ideas: 9 Real Ways to Profit From the Launch"
-description: "Nine legal GTA 6 business ideas, from a deals newsletter to a paid Discord tier: who pays, the platform rule for each, the Rockstar risk and the agent work."
+description: "Nine GTA 6 business ideas that sell your own work, from a deals newsletter to a paid Discord tier: who pays, the platform rule, the Rockstar risk."
 date: 2026-11-19
 category: use-cases
 categoryLabel: Use Cases
@@ -18,16 +18,16 @@ faq:
   - q: "What is the easiest GTA 6 business to start this week?"
     a: "We think a setup and coaching service, because the buyer pays for your time, not for views, and you need no footage at all. The owner keeps their own password, which PlayStation's terms ask every user to safeguard. It can still earn nothing if nobody books."
   - q: "Can I charge entry for a GTA 6 launch party or tournament?"
-    a: "Not without Rockstar's written terms. Rockstar's terms say you will use the game for personal, non commercial use and will not use it with any wager of money, and PlayStation sells a license for private, non commercial use. A free party for friends is fine."
+    a: "Not without Rockstar's written terms. Rockstar's terms say you will use the game for personal, non commercial use and will not use it with any wager of money, and PlayStation sells a license for private, non commercial use. We think a free party for friends is the safe version."
   - q: "Do I have to disclose affiliate links in a GTA 6 deals newsletter?"
     a: "Yes. Amazon's Associates agreement requires the line \"As an Amazon Associate I earn from qualifying purchases.\" The FTC's endorsement FAQ says to disclose clearly and conspicuously, and that the closer the disclosure is to your recommendation, the better."
   - q: "Can AI agents run a GTA 6 business for me?"
-    a: "They can do the prep: price checks, drafts, translations, listings and code. You own the product, the accounts, the money and every send, and you approve what goes out. Munder Difflin's README lists \"Human gates: spend, scope, and destructive ops escalate to you\"."
+    a: "They can do the prep: price checks, drafts, translations, listings and code. You own the product, the accounts, the money and every send, and you approve what goes out."
 ---
 
 The best GTA 6 business ideas sell something you own around the launch, such as your words, designs, time or data, and never Rockstar's art, logos or footage. Checked 19 Nov 2026. Below are nine, each with who pays, the platform rule that governs it and the main risk. Any of them can earn nothing.
 
-Grand Theft Auto VI "launches on November 19", per [Rockstar's Newswire](https://www.rockstargames.com/newswire/article/k4ak9okk485712/grand-theft-auto-vi-pre-load-begins-on-november-10). Clipping, channels, guides, editing and streaming live in [our GTA 6 money hub](/blog/make-money-with-gta-6/); this post goes further. You can run all nine by hand, or use [Munder Difflin](https://harnessmd.com/download), free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.
+Grand Theft Auto VI launched 19 November 2026 on PlayStation 5 and Xbox Series X|S, per [Rockstar's Newswire](https://www.rockstargames.com/newswire/article/k4ak9okk485712/grand-theft-auto-vi-pre-load-begins-on-november-10). Clipping, channels, guides, editing and streaming live in [our GTA 6 money hub](/blog/make-money-with-gta-6/); this post goes further. You can run all nine by hand, or use [Munder Difflin](https://harnessmd.com/download), free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.
 
 ## What rule applies to every GTA 6 business?
 
@@ -73,15 +73,15 @@ Each idea is one job you own plus prep an agent can draft.
 
 ## What does the agent team do, and what stays yours?
 
-Agents research, draft and check; you own the product, accounts, money and every send. Munder Difflin's [README](https://github.com/HarnessMD/munder-difflin), read 19 Nov 2026, lists "Kanban tasks with dependencies, scheduled missions + heartbeat" and "Human gates: spend, scope, and destructive ops escalate to you". So a Researcher checks prices each morning, a Writer drafts the newsletter, and the send waits for your yes. [harnessmd.com](https://harnessmd.com) says "Close your laptop and a Cloud Office keeps going", so it runs while you play, on engines such as Claude Code, Codex or Gemini CLI. More teams: [every agent on our floor](/blog/ai-agent-use-cases-our-office/).
+Agents research, draft and check; you own the product, accounts, money and every send. Munder Difflin's [README](https://github.com/HarnessMD/munder-difflin), read 19 Nov 2026, lists "Kanban tasks with dependencies, scheduled missions + heartbeat". So a Researcher checks prices each morning, a Writer drafts the newsletter, and you approve and send it. [harnessmd.com](https://harnessmd.com) says "Close your laptop and a Cloud Office keeps going", so it runs while you play, on engines such as Claude Code, Codex or Gemini CLI. Some of this is Pro; the same page says "Pro adds the Pro workspace: an orchestrator that runs your other agents, a task board, an inbox, automations, memory, Stapler, temps and the capabilities catalog. The free plan lets you use Pro features up to a monthly allowance of work tokens." More teams: [every agent on our floor](/blog/ai-agent-use-cases-our-office/).
 
 <!-- SIM: board -->
 
-<figure class="mg" data-scene="holds"><img src="/blog/assets/media/gta-6-business-ideas/holds.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Reels labelled Research, Draft and Check spin and stop on their own, each beside a small round agent figure. A fourth reel labelled Send stays still until a button marked You is pressed, then it stops and a light reads Approved. Tap the You button to send."><figcaption>Agents prepare, you approve (README human gates, read 19 Nov 2026).</figcaption></figure>
+<figure class="mg" data-scene="holds"><img src="/blog/assets/media/gta-6-business-ideas/holds.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Reels labelled Research, Draft and Check spin and stop on their own, each beside a small round agent figure. A fourth reel labelled Send stays still until a button marked You is pressed, then it stops and a light reads Approved. Tap the You button to send."><figcaption>Agents prepare, you approve and send (our view, 19 Nov 2026).</figcaption></figure>
 
 ## Which GTA 6 business ideas did we cut?
 
-We cut paid LAN nights, prize tournaments and account sales, because the rules forbid them. Rockstar's terms say you will not use the game "in connection with any wager of any money or other thing of value" without written terms. PlayStation's terms say a store purchase is "a personal license to use that product for private, non-commercial use". A ticket to play is commercial use.
+We cut paid LAN nights, paid entry tournaments and account sales, because the terms rule them out unless Rockstar agrees in writing. Rockstar's terms say you will not use the game "in connection with any wager of any money or other thing of value" without written terms. PlayStation's terms say a store purchase is "a personal license to use that product for private, non-commercial use". We think a ticket to play is commercial use.
 
 Our view: host the launch party for friends, free, and sell something of yours on Monday.
 

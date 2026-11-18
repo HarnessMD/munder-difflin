@@ -14,7 +14,7 @@ author:
   initials: CG
 faq:
   - q: "Can you make real money playing GTA 6?"
-    a: "Not from the game itself. Take-Two's Terms of Service say virtual items, which include in game currency, have no monetary value and may not be sold or redeemed for real money unless Take-Two gives separate written terms. The real money in launch week comes from paid work you keep moving, such as client projects."
+    a: "Not from the game itself. Take-Two's Terms of Service say virtual items, which include in game currency, have no monetary value and may not be sold or redeemed for real money unless Take-Two gives separate written terms, and Rockstar's own terms say the same. Any real money in launch week has to come from paid work you already have, such as client projects."
   - q: "Can I sell my GTA 6 account or in game cash?"
     a: "Take-Two's terms say no. You agree \"not to sell, transfer, or share your Account\", and the user rules rule out any market that sells or exchanges virtual items or accounts. A breach can get your access suspended or ended."
   - q: "Is there a job where you get paid to play GTA 6?"
@@ -27,7 +27,7 @@ faq:
 
 Playing GTA 6 earns you no real money, because Take-Two's terms say in game items "have no monetary value", but your client work can keep earning while you play if AI agents prepare it and you approve it. Checked 19 Nov 2026.
 
-Grand Theft Auto VI launches on November 19 on PlayStation 5 and Xbox Series X|S, per [Rockstar's Newswire](https://www.rockstargames.com/newswire/article/k4ak9okk485712/grand-theft-auto-vi-pre-load-begins-on-november-10). This guide is for freelancers (writers, designers, developers, editors, virtual assistants) whose clients did not take the day off. You can prepare the work by hand, or use [Munder Difflin](https://harnessmd.com/download), free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.
+Grand Theft Auto VI launched 19 November 2026 on PlayStation 5 and Xbox Series X|S, per [Rockstar's Newswire](https://www.rockstargames.com/newswire/article/k4ak9okk485712/grand-theft-auto-vi-pre-load-begins-on-november-10), and Rockstar calls it ["a single player experience"](https://www.rockstargames.com/newswire/article/5171972o3ak5oa/pre-order-grand-theft-auto-vi-on-june-25). This guide is for freelancers (writers, designers, developers, editors, virtual assistants) whose clients did not take the day off. You can prepare the work by hand, or use [Munder Difflin](https://harnessmd.com/download), free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer.
 
 ## Can you make real money playing GTA 6?
 
@@ -35,7 +35,7 @@ No, not from the game. [Take-Two's Terms of Service](https://www.take2games.com/
 
 > Virtual Items have no monetary value, cannot be used outside of the Services, and may not be sold, transferred or redeemed for real money or items of value outside of the Services unless subject to separate, express written terms provided by Take-Two permitting such conduct.
 
-Accounts too: you "agree not to sell, transfer, or share your Account", and a breach can get your access suspended or terminated. So this week's fortune converts to real money at a rate of zero, and the exchange desk is closed.
+[Rockstar's own Terms of Service](https://www.rockstargames.com/eula), with the same date, carry the same rule with "Rockstar" in place of "Take-Two". Accounts too: you "agree not to sell, transfer, or share your Account", and a breach can get your access suspended or terminated. So the in game cash you stack this week pays nothing to your bank. Thank you for playing.
 
 <figure class="mg" data-scene="receipt"><img src="/blog/assets/media/make-money-while-playing-gta-6/receipt.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A receipt printer feeds out a slip one line at a time: In game cash, Monetary value: none, Sell for real money: not allowed, Sell account: not allowed, Paid to your bank: nothing. The last line prints alone after a pause: Thank you for playing. Tapping the printer tears off the slip and prints it again."><figcaption>Take-Two's Terms of Service (last updated February 28, 2025, read 19 Nov 2026): virtual items have no monetary value and may not be sold for real money.</figcaption></figure>
 
@@ -43,7 +43,7 @@ Accounts too: you "agree not to sell, transfer, or share your Account", and a br
 
 ## Which freelance tasks can AI agents prepare?
 
-AI agents can prepare any task that ends as a draft you read: first drafts, research, invoices, payment reminders, code changes and reports. Our view of the split, as of 19 Nov 2026:
+AI agents can prepare any task that ends as a draft you read. Six common ones: first drafts, research briefs, invoices, payment reminders, code changes and weekly reports. Our view of the split, as of 19 Nov 2026:
 
 | Freelancer | The agent prepares while you play | You do between missions |
 |---|---|---|
@@ -54,7 +54,7 @@ AI agents can prepare any task that ends as a draft you read: first drafts, rese
 | Virtual assistant | An inbox summary and reply drafts | Send, or rewrite and send |
 | Everyone | Invoice and reminder drafts from your time log; a weekly client report | Check every number, send it yourself |
 
-The rule that makes this safe: a draft stays a draft until you send it, waiting in a review folder, not in your client's inbox. Ask for a link beside every research claim, so checking one takes a click instead of faith.
+The rule that makes this safe: a draft stays a draft until you send it, waiting for you in a review folder, not in your client's inbox. Ask for a link beside every research claim, so checking one takes a click instead of faith.
 
 <figure class="mg" data-scene="slips"><img src="/blog/assets/media/make-money-while-playing-gta-6/slips.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A receipt printer prints six short slips one after another: First draft, Research brief, Invoice draft, Payment reminder, Code change, Weekly report. Each slip drops onto a spike labelled Waiting for you, and a counter under the spike settles on Sent by agents: none. Tapping a slip flips it over to show Sender: you."><figcaption>Six kinds of freelance work, each waiting for you to send it (our view, 19 Nov 2026).</figcaption></figure>
 
@@ -67,7 +67,7 @@ You still do everything that carries your name, your judgment or a client's mone
 - **Check the money.** Amounts, dates, tax lines and bank details, on every invoice.
 - **Talk.** Calls and bad news. The agent drafts a polite third reminder; the firm phone voice is still you.
 - **Guard client files.** Some contracts limit where client material may go or whether AI tools may touch it. Read yours first.
-- **Be honest.** If a contract or platform asks how you use AI, tell the client. Never fake being online; "I reply in the evenings this week" is honest and works.
+- **Be honest.** If a contract or platform asks how you use AI, tell the client. Never fake being online; "I reply in the evenings this week" is honest.
 
 ## What does a 20 minute approval routine look like?
 
@@ -76,7 +76,7 @@ Our view: one 20 minute block a day, between missions, money first. Save the gam
 1. **Minutes 0 to 5, money.** Check the invoice and reminder drafts, fix any number, send.
 2. **Minutes 5 to 12, client drafts.** Approve, edit lightly, or send one back with a line of feedback.
 3. **Minutes 12 to 17, code and reports.** Read the summary, then the diff. Merge only what you read.
-4. **Minutes 17 to 20, tomorrow.** Give each agent its next task, then pick the controller back up.
+4. **Minutes 17 to 20, tomorrow's tasks.** Give each agent its next task, then back to the mission.
 
 A draft that needs more than a light edit is not ready. Send it back with a note, or the routine quietly becomes a workday.
 
@@ -92,7 +92,7 @@ Write a brief per client, give each agent one job, and send every output to one 
 4. A morning schedule, so drafts wait for you before your first session.
 5. One real task tonight. Fix the brief, not the draft.
 
-Munder Difflin has the parts. Its [README](https://github.com/HarnessMD/munder-difflin) lists "Kanban tasks with dependencies, scheduled missions + heartbeat", and [harnessmd.com](https://harnessmd.com) says "Schedules and webhooks start work on their own. Close your laptop and a Cloud Office keeps going". The Cloud Office is live: agents in the cloud, always on, so work goes on with your computer off and your console on.
+Munder Difflin has the parts. Its [README](https://github.com/HarnessMD/munder-difflin) lists "Kanban tasks with dependencies, scheduled missions + heartbeat", and [harnessmd.com](https://harnessmd.com) says "Schedules and webhooks start work on their own. Close your laptop and a Cloud Office keeps going". Some of this is Pro; the same page says "Pro adds the Pro workspace: an orchestrator that runs your other agents, a task board, an inbox, automations, memory, Stapler, temps and the capabilities catalog. The free plan lets you use Pro features up to a monthly allowance of work tokens." The Cloud Office is live: agents in the cloud, always on, so work goes on with your computer off and your console on.
 
 <!-- SIM: booth -->
 
