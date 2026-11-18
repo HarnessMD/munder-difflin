@@ -130,7 +130,7 @@ export function UpdatesSection() {
 
   return (
     <div>
-      <div style={{
+      <div className="cth-small-label" style={{
         fontFamily: 'var(--cth-font-display)', fontSize: 8, lineHeight: '12px',
         color: 'var(--cth-ink-500)', textTransform: 'uppercase', marginBottom: 10
       }}>

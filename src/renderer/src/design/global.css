@@ -219,6 +219,27 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .cth-bidi .xterm .xterm-rows > div > span,
 .cth-bidi.xterm .xterm-rows > div > span { display: inline !important; unicode-bidi: normal !important; }
 
+/* Explicit hook for functional labels whose original size is below 11px.
+   Press Start 2P has no Hangul, but spaces use its advance width. Switch Korean
+   labels to UI sans for consistent spacing; keep pixel-font brand titles out.
+   !important overrides the labels' existing React inline styles. */
+html:lang(ko) .cth-small-label {
+  font-family: var(--cth-font-ui) !important;
+  letter-spacing: normal !important;
+  font-size: 11px !important;
+}
+
+/* Translated Settings section title; preserve its existing display size. */
+html:lang(ko) .cth-settings-section-title {
+  font-family: var(--cth-font-ui) !important;
+  letter-spacing: normal !important;
+}
+
+/* Only the translated Hive Memory dialog title; preserve its display size. */
+html:lang(ko) .cth-hive-memory > :first-child {
+  font-family: var(--cth-font-ui) !important;
+}
+
 /* ─── RTL app language ───────────────────────────────────────────────────────
    Everything below is under `[dir="rtl"]`, which i18n/useDirection puts on
    <html> ONLY for a user who picked a right-to-left app language. For everyone

@@ -189,7 +189,7 @@ export function TasksKanban() {
               flex: '1 1 0', minWidth: 170, display: 'flex', flexDirection: 'column',
               background: 'var(--cth-cream-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
             }}>
-              <div style={{
+              <div className="cth-small-label" style={{
                 display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px 4px',
                 background: col.accent, boxShadow: 'inset 0 -1px 0 var(--cth-ink-900)',
                 fontFamily: 'var(--cth-font-display)', fontSize: 9, color: 'var(--cth-ink-900)'
