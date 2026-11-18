@@ -21,7 +21,7 @@ faq:
   - q: "Is there a safe GTA 6 PC download or emulator?"
     a: "No. There is no legitimate PC build, so every GTA 6 PC download is a scam. Malwarebytes found fake demo sites serving an infostealer, Huntress found a fake ISO carrying ransomware, and NordVPN warned about fake PS5 emulators that steal data."
   - q: "Is GTA 6 on Xbox Cloud Gaming for PC?"
-    a: "Not that we could find. Rockstar's 10 Nov 2026 post says GTA VI is available via Xbox Cloud Gaming \"on XBOX Series X|S and XBOX One consoles\", which names consoles, not PCs. The Xbox Cloud Gaming web pages we read on 19 Nov 2026 did not show it."
+    a: "Not that we could find. Rockstar's 10 Nov 2026 post says GTA VI \"will also be available via XBOX Cloud Gaming on XBOX Series X|S and XBOX One consoles\", which names consoles, not PCs. The Xbox Cloud Gaming web pages we read on 19 Nov 2026 did not show it."
 ---
 
 No, GTA 6 is not on PC: no PC version has been announced, and Grand Theft Auto VI arrives on 19 Nov 2026 for PlayStation 5 and Xbox Series X|S only. Checked 19 Nov 2026.
@@ -42,7 +42,7 @@ Later than console, both times. Rockstar's Newswire dates, read 19 Nov 2026:
 | Red Dead Redemption 2 | [26 Oct 2018](https://www.rockstargames.com/newswire/article/4k412883895ka4/Red-Dead-Redemption-2-Now-Available), PS4 and Xbox One | [5 Nov 2019](https://www.rockstargames.com/newswire/article/75o941131a99k5/Red-Dead-Redemption-2-Now-Available-for-PC) | about 12 months |
 | Grand Theft Auto VI | 19 Nov 2026, PS5 and Xbox Series X\|S | not announced | unknown |
 
-GTA V's PC date also slipped. The 24 Feb 2015 post said "a bit more time is needed to ensure that the game is as polished as possible" and gave everyone who had preordered "an additional $200,000 in-game cash". Fake money, real apology. Red Dead Redemption 2's PC date was [announced on 4 Oct 2019](https://www.rockstargames.com/newswire/article/9k1248838o2974/Red-Dead-Redemption-2-Coming-to-PC-November-5th), a month ahead.
+GTA V's PC date also slipped. The 24 Feb 2015 post said "a bit more time is needed to ensure that the game is as polished as possible" and promised everyone who had preordered "an additional $200,000 in-game cash" for GTA Online. Fake money, real apology. Red Dead Redemption 2's PC date was [announced on 4 Oct 2019](https://www.rockstargames.com/newswire/article/9k1248838o2974/Red-Dead-Redemption-2-Coming-to-PC-November-5th), a month ahead.
 
 <figure class="mg" data-scene="history"><img src="/blog/assets/media/is-gta-6-on-pc/history.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. In an ink terminal window on white, three commands type out one character at a time with a yellow block cursor: when pc gta5 prints console 2013, PC 2015; when pc rdr2 prints console 2018, PC 2019; when pc gta6 prints console 2026, PC not announced; a last comment line reads pattern found, promise not found. Pressing any key or tapping types the next character; Enter jumps to the end."><figcaption>Rockstar Newswire, read 19 Nov 2026: GTA V reached PC about 19 months after console, Red Dead Redemption 2 about 12. GTA VI has no PC date.</figcaption></figure>
 
@@ -68,9 +68,9 @@ No. There is no PC build, so every "GTA 6 PC download" is malware bait. [Malware
 
 [Help Net Security reports](https://www.helpnetsecurity.com/2026/09/10/fake-gta-6-downloads-malware-ransomware/) (10 Sep 2026) that Huntress took apart a fake "leaked" ISO with "several RATs, an infostealer, ransomware used as a wiper". [LevelUp reports](https://www.levelup.com/en/news/scammers-are-using-fake-ps5-emulators-to-trick-gamers-and-steal-their-private-information-with-malware/) (30 Oct 2026) NordVPN's warning about fake PS5 emulators on GitHub: "But this isn’t an emulator. It steals your data, hides from your antivirus, and erases its tracks".
 
-- Buy only from PlayStation Store, the Xbox store, Rockstar's store or a real retailer.
+- Buy only from PlayStation Store, the Xbox store or a real retailer.
 - Treat any GTA 6 PC, crack, demo or emulator link as hostile.
-- Ran one? Our advice: change passwords from a clean device, sign out everywhere, then reset the PC.
+- Ran one? Malwarebytes says to scan the PC, change passwords from a clean device (email first), sign out of active sessions everywhere and turn on two factor authentication. Our advice: with RATs and ransomware in these bundles, reset the PC too.
 
 <figure class="mg" data-scene="installer"><img src="/blog/assets/media/is-gta-6-on-pc/installer.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An ink terminal on white types: size gta6_installer.exe prints 1.1 MB; size real game prints up to 212 GB; scan gta6_installer.exe prints infostealer; a last comment line reads the screenshot was bigger than the game. Pressing any key or tapping types the next character; Enter jumps to the end."><figcaption>Malwarebytes, 24 Aug 2026: the fake installer was 1.1 MB. Rockstar's real preload needs up to 212 GB.</figcaption></figure>
 

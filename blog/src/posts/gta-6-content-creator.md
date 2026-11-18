@@ -33,7 +33,7 @@ Rockstar's [Newswire](https://www.rockstargames.com/newswire/article/517572321a5
 
 Press the create button. [Sony's capture page](https://www.playstation.com/en-us/support/games/capture-ps5-gameplay-screenshots/), read 19 Nov 2026, says Save Recent Gameplay keeps "anywhere from the last 15 seconds up to 1 hour of gameplay" and a new recording runs "up to 1 hour". Resolution sits in Settings > Captures and Broadcasts > Captures > Video Clip Format. Note: "Some scenes are blocked and won't be included in your video clips."
 
-To export, open Media Gallery, pick a clip, then More > Copy to USB Drive ([Sony](https://www.playstation.com/en-us/support/games/ps5-media-gallery-view-screenshots/)). The PlayStation App only takes clips "up to 1920x1080 in resolution and up to 3 minutes in duration" and keeps them 14 days ([Sony](https://www.playstation.com/en-us/support/games/ps5-game-captures-ps-app/)). Want GTA 6 clips for edits in 4K? Copy them to USB, because the app route stops at 1920x1080.
+To export, open Media Gallery, pick a clip, then More > Copy to USB Drive ([Sony](https://www.playstation.com/en-us/support/games/ps5-media-gallery-view-screenshots/)). The PlayStation App only takes clips "up to 1920x1080 in resolution and up to 3 minutes in duration" and keeps them 14 days ([Sony](https://www.playstation.com/en-us/support/games/ps5-game-captures-ps-app/)). GTA 6 clips for edits in 4K go by USB; the app stops at 1920x1080.
 
 ## How do you capture GTA 6 clips on Xbox Series X|S?
 
@@ -61,7 +61,7 @@ YouTube recommends 3840 x 2160 for video thumbnails and 2160 x 3840 for Shorts. 
 
 [YouTube's branding page](https://support.google.com/youtube/answer/10456525) sets a minimum of 2048 x 1152 at 16:9 and a 6 MB cap; at that size, text and logos go inside a 1235 x 338 safe area, because the image "will get cropped on certain views and devices".
 
-For vertical video, [YouTube's Shorts page](https://support.google.com/youtube/answer/12779649) takes files "Up to 3 minutes" with "a square or vertical aspect ratio". A GTA 6 TikTok account follows TikTok's own Help Center limits; check them there on the day you set your export.
+For vertical video, [YouTube's Shorts page](https://support.google.com/youtube/answer/12779649) takes files "Up to 3 minutes" with "a square or vertical aspect ratio". For a GTA 6 TikTok account, check TikTok's Help Center for its limits.
 
 <figure class="mg" data-scene="frames"><img src="/blog/assets/media/gta-6-content-creator/frames.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three comic panels draw themselves at true proportions: a wide panel labelled Thumbnail 3840 x 2160, a tall panel labelled Shorts 2160 x 3840, and a long strip labelled Banner 2048 x 1152 with a small box inside labelled Safe area 1235 x 338. A caption box lands last: Text goes in the middle. Tapping the banner shades the parts that get cropped."><figcaption>YouTube Help, read 19 Nov 2026: thumbnails 3840 x 2160, Shorts thumbnails 2160 x 3840, banners at least 2048 x 1152 with a 1235 x 338 safe area.</figcaption></figure>
 
@@ -73,7 +73,7 @@ Name what you did, not what happened in the story. Our rules:
 - No character fates, no mission names, no "ending" anywhere, tags included.
 - Write "no spoilers" only when it is true for every frame.
 - Thumbnails too. A frozen cutscene frame is a spoiler with a border.
-- Keep a spoiler word list, and have the title agent flag any draft that hits it.
+- Keep a spoiler word list for the title agent.
 
 Do this: "Two hours of Vice City driving (no spoilers)". Not that: a title asking what happens to a character, which the comments will answer for everyone.
 
@@ -95,9 +95,9 @@ ffmpeg -i short_01.mp4 -vf "subtitles=short_01.srt" short_01_captioned.mp4
 
 The first line cuts 30 seconds from 12:40 into a 9:16 slice, centred because [ffmpeg's docs](https://ffmpeg.org/ffmpeg-filters.html) say the crop's left edge "defaults to" `(in_w-out_w)/2`. The second burns in captions. A coding agent such as Claude Code can run both; that is ffmpeg's work, not a Munder Difflin feature.
 
-<figure class="lead-loop"><img src="/blog/assets/media/gta-6-content-creator/sim-lineup.webp" width="1600" height="900" loading="lazy" decoding="async" alt="Pixel art lineup of the nine crew of Palmira Beach Crew with names and roles: Rosa Vela the Boss, Dex Marlow the wheelman, Juno Park the hacker, Kai Moreno the influencer, Benny Shoal the fixer, Tess Gale the lookout, Ollie Finch the numbers man, Marisol Reyes the airboat captain and Nia Brooks the gearhead."><figcaption>One crew, one job each. From Palmira Beach Crew, the office simulation our AI agents now work in: an original sunny caper world made for launch week, not from any game. <a href="/blog/gta-6-for-ai-agents/">How we built it</a>.</figcaption></figure>
+<figure class="lead-loop"><img src="/blog/assets/media/gta-6-content-creator/sim-lineup.webp" width="1600" height="900" loading="lazy" decoding="async" alt="Pixel art lineup of the Palmira Beach Crew cast with names and roles: Rosa Vela the Boss, Dex Marlow the wheelman, Juno Park the hacker, Kai Moreno the influencer, Benny Shoal the fixer, Tess Gale the lookout, Ollie Finch the numbers man, Marisol Reyes the airboat captain and Nia Brooks the gearhead."><figcaption>One crew, one job each. From Palmira Beach Crew, the office simulation our AI agents now work in: an original sunny caper world made for launch week, not from any game. <a href="/blog/gta-6-for-ai-agents/">How we built it</a>.</figcaption></figure>
 
-Munder Difflin adds the team. Its [README](https://github.com/HarnessMD/munder-difflin), read 19 Nov 2026, lists "Kanban tasks with dependencies, scheduled missions + heartbeat", so the Captioner waits for the Cutter, and "Slack & webhooks: message a channel or POST a webhook", so drafts reach you in Slack. [harnessmd.com](https://harnessmd.com) adds "Close your laptop and a Cloud Office keeps going". The task board is part of Pro; the same page says "Pro adds the Pro workspace: an orchestrator that runs your other agents, a task board, an inbox, automations, memory, Stapler, temps and the capabilities catalog. The free plan lets you use Pro features up to a monthly allowance of work tokens." More teams like this: [every agent on our floor](/blog/ai-agent-use-cases-our-office/).
+Munder Difflin adds the team. Its [README](https://github.com/HarnessMD/munder-difflin), read 19 Nov 2026, lists "Kanban tasks with dependencies, scheduled missions + heartbeat", so the Captioner waits for the Cutter, and "Slack & webhooks: message a channel or POST a webhook", so drafts reach you in Slack. [harnessmd.com](https://harnessmd.com) adds "Close your laptop and a Cloud Office keeps going". That page also says "Pro adds the Pro workspace: an orchestrator that runs your other agents, a task board, an inbox, automations, memory, Stapler, temps and the capabilities catalog. The free plan lets you use Pro features up to a monthly allowance of work tokens." More teams like this: [every agent on our floor](/blog/ai-agent-use-cases-our-office/).
 
 <figure class="mg" data-scene="storyboard"><img src="/blog/assets/media/gta-6-content-creator/storyboard.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A comic strip reveals one panel at a time: You play, Cutter, Captions, Titles, Calendar and Tracker, each with a small prop. The final panel shows a stamp landing with the words You approve. Tapping a panel enlarges it to show that agent's one job."><figcaption>Five agents prepare and one person approves. The README's Kanban line was read on 19 Nov 2026.</figcaption></figure>
 

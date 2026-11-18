@@ -41,7 +41,7 @@ We think a playtime quote in a newspaper three months before launch is also mark
 Between 70 hours and almost 120 hours, in the reviews that state a number. Reviews went live on 18 Nov 2026:
 
 - **The Guardian**, Keza MacDonald: "[It took me 70 hours to finish the game and I could have taken longer.](https://www.theguardian.com/games/2026/nov/18/grand-theft-auto-vi-gta-6-review-playstation-rockstar)"
-- **IGN**, Luke Reilly: "[despite hitting the credits after almost 120 hours of hijinks](https://www.ign.com/articles/grand-theft-auto-vi-review)". His verdict adds: "After three weeks and over 120 hours playing it".
+- **IGN**, Luke Reilly: "[despite hitting the credits after almost 120 hours of hijinks](https://www.ign.com/articles/grand-theft-auto-vi-review)". His verdict adds: "After three weeks and over 120 hours playing it", and he has "zero plans to stop playing it".
 - **CGMagazine**, as quoted on [Metacritic](https://www.metacritic.com/game/grand-theft-auto-vi/critic-reviews/): the story kept the reviewer "sitting on the edge of my seat for over seventy hours."
 - **Generación Xbox**, as quoted on [Metacritic](https://www.metacritic.com/game/grand-theft-auto-vi/critic-reviews/?platform=xbox-series-x): "After more than 80 hours on Xbox Series X".
 
@@ -51,7 +51,7 @@ Eurogamer, Polygon and Game Informer give no total. For scores instead of hours,
 
 [HowLongToBeat lists GTA VI](https://howlongtobeat.com/game/104609) with 6 submitted times, read early on 19 Nov 2026, which is too few to trust yet:
 
-- **Main Story:** 42 hours, from 1 submission.
+- **Main Story:** 42 hours, from 1 submission: a sample size of 1.
 - **Main + Sides:** 80 hours, from 5 submissions (Rushed 70 hours, Leisure 95 hours).
 - **Completionist:** no times yet.
 

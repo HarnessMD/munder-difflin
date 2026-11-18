@@ -14,20 +14,20 @@ author:
   initials: CG
 faq:
   - q: "What is GTA 6's Metacritic score?"
-    a: "99 on PlayStation 5 from 150 critic reviews, and 99 on Xbox Series X from 14, when we read Metacritic at 04:06 IST on 19 Nov 2026. All 150 PS5 reviews count as positive. Metacritic says scores for new games can change many times a day, so check the live page."
+    a: "99 on PlayStation 5 from 150 critic reviews, and 99 on Xbox Series X from 14, when we read Metacritic at 04:41 IST on 19 Nov 2026. All 150 PS5 reviews count as positive. Metacritic says scores for new games can change many times a day, so check the live page."
   - q: "What did IGN give GTA 6?"
     a: "IGN's Luke Reilly gave it 10/10 on 18 Nov 2026 and wrote that \"Grand Theft Auto 6 is the single most impressive video game I have ever played.\" GameSpot also gave it 10/10 and Eurogamer 5/5."
   - q: "What is OpenCritic's Top Critic Average?"
-    a: "OpenCritic's FAQ says it is calculated by taking \"the simple average score of all numeric reviews written by top critics after normalizing the score on a 0-100 scale.\" Reviews without a score do not count. GTA 6 had a 99 from 88 critic reviews on 19 Nov 2026."
+    a: "OpenCritic's FAQ says it is calculated by taking \"the simple average score of all numeric reviews written by top critics after normalizing the score on a 0-100 scale.\" Reviews without a score do not count. GTA 6 had a Top Critic Average of 99 on 19 Nov 2026, with 88 critic reviews listed."
   - q: "Is GTA 6 worth the hype?"
     a: "Our view: for open world fans, yes. Metacritic counted 150 positive reviews and no mixed or negative ones, and 99% of OpenCritic's critics recommend it. Check first if a 30 fps target, a single player game or a very long story is a problem for you."
   - q: "Does GTA 6 score higher than GTA 5 and Red Dead Redemption 2?"
     a: "Yes, on both sites. On Metacritic GTA 6 has 99, GTA V 97 and Red Dead Redemption 2 97. On OpenCritic it is 99, 92 and 95, though OpenCritic says its records from before October 2015, which include GTA V, are a baseline rather than an exact history."
 ---
 
-GTA 6 review scores are 99 on Metacritic (PlayStation 5, from 150 critic reviews) and a 99 Top Critic Average on OpenCritic (from 88 critic reviews). Checked 19 Nov 2026.
+GTA 6 review scores are 99 on Metacritic (PlayStation 5, from 150 critic reviews) and a 99 Top Critic Average on OpenCritic, which lists 88 critic reviews. Checked 19 Nov 2026.
 
-We read both pages at 04:06 IST on 19 Nov 2026 (22:36 UTC on 18 Nov). No spoilers below. Everything else: [the GTA 6 hub](/blog/make-money-with-gta-6/).
+We last read both pages at 04:41 IST on 19 Nov 2026 (23:11 UTC on 18 Nov). No spoilers below. Everything else: [the GTA 6 hub](/blog/make-money-with-gta-6/).
 
 ## What are the GTA 6 review scores right now?
 
@@ -95,7 +95,7 @@ We think three groups should check first:
 
 - **Frame rate fans.** Rockstar's target is 30 fps; the PS5 Pro adds "improved clarity" and ray traced shadows.
 - **Online players.** Rockstar calls GTA VI "a single player experience" ([Newswire, 24 Jun 2026](https://www.rockstargames.com/newswire/article/5171972o3ak5oa/pre-order-grand-theft-auto-vi-on-june-25)).
-- **Busy people.** One Rockstar developer's playthrough took 80 hours, [TechRadar reports](https://www.techradar.com/gaming/gta-6-will-be-a-massive-game-and-rockstars-longest-yet-as-the-studio-confirms-it-can-take-up-to-80-hours-to-beat); see [how long GTA 6 takes to beat](/blog/gta-6-how-long-to-beat/).
+- **Busy people.** One Rockstar developer's playthrough took 80 hours, [TechRadar reports](https://www.techradar.com/gaming/gta-6-will-be-a-massive-game-and-rockstars-longest-yet-as-the-studio-confirms-it-can-take-up-to-80-hours-to-beat) (28 Aug 2026); see [how long GTA 6 takes to beat](/blog/gta-6-how-long-to-beat/).
 
 Player reviews are not in yet; if you trust players over critics, wait for the user score.
 

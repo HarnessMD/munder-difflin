@@ -1,7 +1,7 @@
 ---
 title: "GTA 6 Characters: Jason, Lucia and the Cast, Explained Without Spoilers"
 seoTitle: "GTA 6 Characters: Jason, Lucia and the Cast, No Spoilers"
-description: "GTA 6 characters without spoilers: Jason Duval, Lucia Caminos and all 8 people on Rockstar's cast page, each in Rockstar's own words."
+description: "GTA 6 characters without spoilers: Jason Duval, Lucia Caminos and all 8 entries on Rockstar's cast page, each in Rockstar's own words."
 date: 2026-11-19
 category: guides
 categoryLabel: Guides
@@ -14,13 +14,13 @@ author:
   initials: CG
 faq:
   - q: "Who are the main characters in GTA 6?"
-    a: "Jason Duval and Lucia Caminos are the two leads. Rockstar's Only in Leonida page lists six more people: Cal Hampton, Boobie Ike, Dre'Quan Priest, Real Dimez, Raul Bautista and Brian Heder. We checked the list on 19 Nov 2026."
+    a: "Jason Duval and Lucia Caminos are the two leads. Rockstar's Only in Leonida page lists six more entries: Cal Hampton, Boobie Ike, Dre'Quan Priest, Real Dimez, Raul Bautista and Brian Heder. We checked the list on 19 Nov 2026."
   - q: "How many characters are in GTA 6?"
     a: "Rockstar's People list has 8 entries. One entry, Real Dimez, is a duo, so the list names 9 people. Rockstar gives no total for every character in the game, so we give none either."
   - q: "Who voices Jason and Lucia?"
     a: "None of the Rockstar pages we opened on 19 Nov 2026 credit a voice actor: not the People pages, not the trailer posts. So this page names nobody. Anything you read elsewhere did not come from Rockstar's own character pages."
   - q: "Is this guide spoiler free?"
-    a: "Yes. Every line comes from Rockstar's own pre launch pages and trailer posts, plus two news reports on what the trailers showed. Nothing comes from reviews, and nothing goes past the premise Rockstar published before launch."
+    a: "Yes. Every line comes from Rockstar's own pre launch pages and trailer posts, plus news reports on what the trailers showed and on Rockstar's video policy. Nothing comes from reviews, and nothing goes past the premise Rockstar published before launch."
 ---
 
 GTA 6 has two lead characters, Jason Duval and Lucia Caminos, and Rockstar's own cast page lists six more: Cal Hampton, Boobie Ike, Dre'Quan Priest, Real Dimez, Raul Bautista and Brian Heder. Checked 19 Nov 2026.
@@ -56,7 +56,7 @@ Rockstar's [Launch Trailer post](https://www.rockstargames.com/newswire/article/
 
 ## How many characters are in GTA 6?
 
-Rockstar lists 8 main cast entries on its People list; that is our only count. One entry is a duo, per the [Real Dimez page](https://www.rockstargames.com/VI/only-in-leonida/dimez): Bae-Luxe and Roxy. So the list names 9 people across 8 entries. Rockstar gives no total for everyone in the game, and we will not guess one.
+Rockstar lists 8 entries on its People list; that is our only count. One entry is a duo, per the [Real Dimez page](https://www.rockstargames.com/VI/only-in-leonida/dimez): Bae-Luxe and Roxy. So the list names 9 people across 8 entries. Rockstar gives no total for everyone in the game, and we will not guess one.
 
 Other names turn up inside the profiles, such as Brian's third wife, Lori, and the Ultimate Edition text on Rockstar's page adds an "eccentric collector and local fixer, Wyman" (more in [our editions guide](/blog/gta-6-editions-price/)). Rockstar keeps them off the People list, so we do too. Eight pages is a short guest list for an entire state.
 
@@ -66,10 +66,10 @@ Other names turn up inside the profiles, such as Brian's third wife, Lori, and t
 
 Read Rockstar's own pages first and stop where they stop. We think pre launch copy is the safest read, because it was written to sell the setup.
 
-1. **Start at the People list.** These pages went up before launch and end where the story begins.
+1. **Start at the People list.** Game Informer [reported](https://gameinformer.com/2025/05/06/rockstar-just-unveiled-the-second-grand-theft-auto-vi-trailer) on 6 May 2025 that Rockstar's site added "new characters", and the pages end where the story begins.
 2. **Read trailer posts, not trailer breakdowns.** Rockstar's posts give the synopsis. Frame by frame breakdowns guess at plot, and some guesses land.
 3. **Treat any name outside the eight as a spoiler flag.** If a "full cast" list names someone Rockstar's People list does not, that name came from the game, not the marketing. Close the tab.
-4. **Read the score, skip the review.** Reviews went live on 18 Nov 2026. [Our review scores roundup](/blog/gta-6-review-scores/) gives the numbers without the plot.
+4. **Read the score, skip the review.** Reviews went live on 18 Nov 2026; save the text for after the credits. [Our review scores roundup](/blog/gta-6-review-scores/) gives the numbers without the plot.
 5. **Skip any video with "ending" in its title.** [tbreak reports](https://tbreak.com/gta-6-spoilers-rockstar-video-takedown-policy/) (4 Nov 2026) that under Rockstar's video policy, "Endings, edited cutscene compilations and standalone cinematics are removed". Takedowns come after uploads, so titles reach your feed first. [Rockstar's policy page](https://support.rockstargames.com/articles/200153756/Policy-on-posting-copyrighted-Rockstar-Games-material) is the one to read.
 
 Voice cast: none of the Rockstar pages we opened credit an actor, so this page names nobody.

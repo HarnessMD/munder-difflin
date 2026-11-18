@@ -25,13 +25,13 @@ faq:
     a: "Rockstar's Only in Leonida page names six: Vice City, Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia and Mount Kalaga. Other place names, such as Stockyard and Lake Leonida, appear in Rockstar's Ultimate Edition list without a region attached."
 ---
 
-The GTA 6 map is Leonida, a fictional state that Rockstar researched in Florida, and Edge reports it is roughly twice the size of GTA 5's map. Rockstar names six regions, from Vice City to Mount Kalaga, and has published no area in square miles. Checked 19 Nov 2026.
+The GTA 6 map is Leonida, a fictional state that Rockstar researched in Florida, and Edge reported on 29 Oct 2026 that it is roughly twice the size of GTA 5's map. Rockstar names six regions, from Vice City to Mount Kalaga, and has published no area in square miles. Checked 19 Nov 2026.
 
 Grand Theft Auto VI launches on 19 Nov 2026 on PS5 and Xbox Series X|S, per [Rockstar's Newswire](https://www.rockstargames.com/newswire/article/517572321a549a/watch-the-grand-theft-auto-vi-launch-trailer). For the rest of launch week, start at [our GTA 6 hub](/blog/make-money-with-gta-6/).
 
 ## Where is GTA 6 set?
 
-GTA 6 is set in Leonida, Rockstar's fictional state. Rockstar's [Trailer 1 post](https://www.rockstargames.com/newswire/article/8978kok9385a82/grand-theft-auto-vi-watch-trailer-1-now) (5 Dec 2023) says the game "heads to the state of Leonida, home to the neon-soaked streets of Vice City and beyond". Its [Only in Leonida page](https://www.rockstargames.com/VI/only-in-leonida) says "the sunshine state".
+GTA 6 is set in Leonida, Rockstar's fictional state. Rockstar's [Trailer 1 post](https://www.rockstargames.com/newswire/article/8978kok9385a82/grand-theft-auto-vi-watch-trailer-1-now) (5 Dec 2023) says the game "heads to the state of Leonida, home to the neon-soaked streets of Vice City and beyond". Its [Only in Leonida page](https://www.rockstargames.com/VI/only-in-leonida) says "the sunshine state", and its [GTA VI page](https://www.rockstargames.com/VI) heads the synopsis "Vice City, USA."
 
 The Florida link comes from reporting. [Edge](https://www.gamesradar.com/edge/gtavi-cover/) (29 Oct 2026) reports that in 2015 Rockstar North's Rob Nelson "led a small group travelling to Miami to consider what a return to Vice City might look and feel like". Polygon's [review](https://www.polygon.com/gta-6-review/) (18 Nov 2026) calls it "the Florida-inspired state of Leonida", and Eurogamer's [review](https://www.eurogamer.net/grand-theft-auto-6-review) says "Leonida is just a heightened Florida."
 
@@ -43,7 +43,7 @@ Times the word Florida appears on Rockstar's GTA VI page and Only in Leonida pag
 
 ## What are the regions of the GTA 6 map?
 
-Rockstar names six on Only in Leonida, in this order: Vice City, Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia and Mount Kalaga. The last column names a real place only where an outlet does. Read 19 Nov 2026.
+Rockstar names six on Only in Leonida, under Places, in this order: Vice City, Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia and Mount Kalaga. The last column names a real place only where an outlet does. Read 19 Nov 2026.
 
 | Region | What Rockstar says | Real place it echoes, per a source |
 |:--|:--|:--|
@@ -54,7 +54,7 @@ Rockstar names six on Only in Leonida, in this order: Vice City, Leonida Keys, G
 | Ambrosia | "In the heart of Leonida", where "The Allied Crystal sugar refinery provides the jobs" | None named |
 | Mount Kalaga | "A national landmark up against the state’s northern border" | None named |
 
-Polygon adds that, unlike real Florida, the north of Leonida "actually features topography of differing elevations". Hills, in other words. Ocean Beach also turns up in the preorder pack ([editions and price](/blog/gta-6-editions-price/)).
+Polygon adds that, unlike real Florida, the north of Leonida "actually features topography of differing elevations". Actual hills, in other words. Ocean Beach also turns up in the preorder pack ([editions and price](/blog/gta-6-editions-price/)).
 
 <figure class="mg" data-scene="stops"><img src="/blog/assets/media/gta-6-map/stops.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. One transit line draws across the frame in straight and diagonal segments under the title Only in Leonida, page order, and six white stops pop in one by one: Vice City, Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia, Mount Kalaga. The line is a schematic in page order, not geography. A yellow chip lands last on Mount Kalaga: actual hills. Tapping a stop shows the real place a source names for it: Miami, Florida Keys, Everglades, or none named."><figcaption>Rockstar's Only in Leonida page, read 19 Nov 2026, in page order. An abstract schematic, not the game's map.</figcaption></figure>
 
@@ -68,7 +68,7 @@ Roughly twice the size, Edge reports, but Rockstar has published no area in squa
 - **GTA IV, GTA V and RDR2 combined.** Same piece: "Rockstar says its total landmass, including Vice City and the surrounding areas, is nearly as large as the playable maps of GTAIV, GTAV and RDR2 combined."
 - **Three times RDR2.** [tbreak reports](https://tbreak.com/gta-6-map-3x-bigger-red-dead-redemption-2/) (28 Aug 2026), quoting GameSpot on a New York Times interview: "The overall map, the studio said, is three times as large as the playable area of its previous game, Red Dead Redemption 2."
 
-As [tbreak](https://tbreak.com/gta-6-map-size-gta-4-gta-5-rdr2-combined/) put it on 1 Nov 2026: "Rockstar hasn't published an area measurement to tie them together." Rockstar's own word in 2023 was "biggest", which is a mood, not a measurement.
+As [tbreak](https://tbreak.com/gta-6-map-size-gta-4-gta-5-rdr2-combined/) put it on 1 Nov 2026: "Rockstar hasn’t published an area measurement to tie them together." Rockstar's 2023 Trailer 1 post promised "the biggest, most immersive evolution of the Grand Theft Auto series yet", which is a mood, not a measurement.
 
 <figure class="mg" data-scene="yardstick"><img src="/blog/assets/media/gta-6-map/yardstick.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A short transit line labelled GTA V draws first. Below it a line labelled Leonida draws twice as long, with a chip reading roughly twice GTA V. Three short lines labelled GTA IV, GTA V and RDR2 then join end to end through interchange capsules into one line that stops just short of the Leonida line's end, labelled nearly as large combined. A yellow chip lands last: square miles published: none. Tapping the Leonida line shows the third yardstick: three times RDR2."><figcaption>Edge, 29 Oct 2026: roughly twice GTA V; nearly GTA IV, GTA V and RDR2 combined, per Rockstar. No area published.</figcaption></figure>
 

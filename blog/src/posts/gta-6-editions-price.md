@@ -20,9 +20,9 @@ faq:
   - q: "Is the GTA 6 Ultimate Edition worth it?"
     a: "Our view: only if you want its extra vehicles, outfits and the five places that open only in the Ultimate Edition, because both editions contain the same game. On Xbox, the $20.00 upgrade matched the gap between the two editions on 19 Nov 2026, so buying Standard first cost nothing extra there. PlayStation showed no upgrade price that day."
   - q: "Can I upgrade GTA 6 from Standard to Ultimate later?"
-    a: "On Xbox, yes: the Ultimate Edition Upgrade cost $20.00, £20.00, €20.00 or ₹ 1,500.00 on 19 Nov 2026. On PlayStation the upgrade was listed with no price, marked \"Pre-Order Unavailable\" on the US page. PlayStation also says the upgrade is not eligible for the launch GTA+ offer."
+    a: "On Xbox, yes: the Ultimate Edition Upgrade cost $20.00, £20.00, €20.00 or ₹ 1,500.00 on 19 Nov 2026. On PlayStation the upgrade was listed with no price: its price spot read \"Unavailable\" in all four regions checked. PlayStation also says the upgrade is not eligible for the launch GTA+ offer."
   - q: "Is there a GTA 6 collector's edition?"
-    a: "Not as a game edition: the stores sell Standard and Ultimate, plus the upgrade on Xbox. Rockstar's GTA VI page lists a \"Collector's Box: The Vice City Collection\", which is merchandise, not a copy of the game. Its price is not covered in this post."
+    a: "Not as a game edition: the stores sell Standard and Ultimate, plus the upgrade on Xbox. Rockstar's GTA VI page lists a \"Collector's Box\" called \"The Vice City Collection\", which the Rockstar Store sells as merchandise, not as a copy of the game. Its price is not covered in this post."
 ---
 
 GTA 6 comes in two editions, priced alike on PlayStation Store and the Xbox store for the 19 Nov 2026 launch: Standard at $79.99, £69.99, €79.99 or Rs 5,999, and Ultimate at $99.99, £89.99, €99.99 or Rs 7,499. Checked 19 Nov 2026.
@@ -62,7 +62,7 @@ Not in the table: the [Rockstar Store page](https://store.rockstargames.com/game
 
 ## Is the GTA 6 Ultimate Edition worth it?
 
-Our view: only if you want the extra cars, outfits and the five Ultimate only places, because the game itself is identical. On Xbox the decision can wait: on 19 Nov 2026 the Ultimate Edition Upgrade cost $20.00, exactly the gap between $79.99 and $99.99, and the same held in pounds, euros and rupees (Rs 5,999 plus Rs 1,500 is Rs 7,499). PlayStation's US page lists the upgrade as "Pre-Order Unavailable", with no price.
+Our view: only if you want the extra cars, outfits and the five Ultimate only places, because the game itself is identical. On Xbox the decision can wait: on 19 Nov 2026 the Ultimate Edition Upgrade cost $20.00, exactly the gap between $79.99 and $99.99, and the same held in pounds, euros and rupees (Rs 5,999 plus Rs 1,500 is Rs 7,499). PlayStation's pages show "Unavailable" where the upgrade's price would be.
 
 On Xbox, twenty dollars gets you a buggy, a boat and a tattoo parlour's opening hours, the most Leonida receipt possible. Our view, by buyer:
 

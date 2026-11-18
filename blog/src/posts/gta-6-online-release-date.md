@@ -13,7 +13,7 @@ author:
   initials: CG
 faq:
   - q: "Is there a GTA 6 Online release date?"
-    a: "No. Rockstar's only statement is from its Newswire on 24 Jun 2026: \"Grand Theft Auto VI is a single player experience\". No Rockstar post up to 19 Nov 2026 announces an online mode or a date for one."
+    a: "No. The only Rockstar statement on it we found is its Newswire post of 24 Jun 2026: \"Grand Theft Auto VI is a single player experience\". No Rockstar post up to 19 Nov 2026 announces an online mode or a date for one."
   - q: "Is GTA 6 multiplayer?"
     a: "Not at launch. Sony's GTA VI page answers \"Does Grand Theft Auto VI have any multiplayer modes or features?\" with \"Grand Theft Auto VI is a single-player experience.\" Each of you plays your own copy alone."
   - q: "How can I play with friends on GTA 6 launch night?"
@@ -24,13 +24,13 @@ faq:
     a: "No crossplay is announced. No Rockstar page read on 19 Nov 2026 mentions it, and there is no multiplayer to share across consoles. The game is on PS5 and Xbox Series X|S, and no PC version has been announced."
 ---
 
-There is no GTA 6 Online release date, because Rockstar has announced no online mode: [its only word](https://www.rockstargames.com/newswire/article/5171972o3ak5oa/pre-order-grand-theft-auto-vi-on-june-25), on 24 Jun 2026, is that Grand Theft Auto VI "is a single player experience". Checked 19 Nov 2026.
+There is no GTA 6 Online release date, because Rockstar has announced no online mode: [its only word we found](https://www.rockstargames.com/newswire/article/5171972o3ak5oa/pre-order-grand-theft-auto-vi-on-june-25), on 24 Jun 2026, is that Grand Theft Auto VI "is a single player experience". Checked 19 Nov 2026.
 
 The game itself is out today: "Grand Theft Auto VI arrives November 19 to PlayStation 5 and XBOX Series X|S," [Rockstar wrote](https://www.rockstargames.com/newswire/article/517572321a549a/watch-the-grand-theft-auto-vi-launch-trailer) on 15 Oct 2026. More launch coverage: [the GTA 6 hub](/blog/make-money-with-gta-6/).
 
 ## What has Rockstar said about GTA 6 Online?
 
-Rockstar has said one thing, once, and it is not a date. Its [preorder post of 24 Jun 2026](https://www.rockstargames.com/newswire/article/5171972o3ak5oa/pre-order-grand-theft-auto-vi-on-june-25) reads: "Grand Theft Auto VI is a single player experience, coming November 19 to PlayStation 5 and Xbox Series X|S." Sony's [GTA VI page](https://www.playstation.com/en-us/games/grand-theft-auto-vi/) asks itself "Does Grand Theft Auto VI have any multiplayer modes or features?" and answers: "Grand Theft Auto VI is a single-player experience."
+Rockstar has said one thing that we found, and it is not a date. Its [preorder post of 24 Jun 2026](https://www.rockstargames.com/newswire/article/5171972o3ak5oa/pre-order-grand-theft-auto-vi-on-june-25) reads: "Grand Theft Auto VI is a single player experience, coming November 19 to PlayStation 5 and Xbox Series X|S." Sony's [GTA VI page](https://www.playstation.com/en-us/games/grand-theft-auto-vi/) asks itself "Does Grand Theft Auto VI have any multiplayer modes or features?" and answers: "Grand Theft Auto VI is a single-player experience."
 
 On [Rockstar's Newswire](https://www.rockstargames.com/newswire), read 19 Nov 2026, the newest GTA VI post is from 10 Nov 2026, and no GTA VI post we read names an online mode, a beta or a date. A site that prints one is guessing.
 
@@ -50,11 +50,11 @@ Still deciding whether to buy? [The review scores](/blog/gta-6-review-scores/) l
 
 ## Do you need PS Plus or Game Pass for GTA 6?
 
-Our view: not for GTA VI itself, because both plans sell online multiplayer and Sony says GTA VI has none. Sony's [PlayStation Plus page](https://www.playstation.com/en-us/ps-plus/whats-new/) pitches Essential as "join your friends in online multiplayer". Microsoft's [Game Pass page](https://www.xbox.com/en-US/xbox-game-pass/core) sells Essential with "online console multiplayer and in-game benefits." Sony's GTA VI fine print asks only for an account: "Online features require an account for PlayStation".
+Our view: not for GTA VI itself, because both plans sell online multiplayer and Sony says GTA VI has none. Sony's [PlayStation Plus page](https://www.playstation.com/en-us/ps-plus/whats-new/) pitches Essential as "join your friends in online multiplayer". Microsoft's [Game Pass page](https://www.xbox.com/en-US/xbox-game-pass/core) sells Essential with "online console multiplayer and in-game benefits." Sony's GTA VI fine print says "Online features require an account for PlayStation" and names no PlayStation Plus plan.
 
 If you searched for Game Pass Core, it is now Game Pass Essential. Its [support page](https://support.xbox.com/en-US/help/subscriptions-billing/manage-subscriptions/xbox-games-with-gold-faq) says Games with Gold moved to "XBOX Game Pass Core, which has since transitioned to XBOX Game Pass Essential as of October 1, 2025", and the [compare page](https://www.xbox.com/en-US/xbox-game-pass/compare) lists Ultimate, Premium, Essential and PC Game Pass. No Core.
 
-If your group moves to GTA Online, the plans matter again: Microsoft's compare page lists online console multiplayer under Essential and opens multiplayer to "every XBOX player" for free to play games.
+If your group moves to GTA Online, the plans matter again: Microsoft sells online console multiplayer with Essential, and its compare page opens multiplayer to "every XBOX player" for free to play games.
 
 <figure class="mg" data-scene="essential"><img src="/blog/assets/media/gta-6-online-release-date/essential.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white Swiss grid, two rows slam in word by word: PS PLUS ESSENTIAL then ONLINE MULTIPLAYER, and GAME PASS ESSENTIAL then ONLINE CONSOLE MULTIPLAYER. A third row slams GTA VI, and the last words land a beat late in a yellow block: SINGLE PLAYER. Tapping replays the slam; hovering a word slams it again."><figcaption>Sony and Microsoft sell Essential on online multiplayer; Sony lists no multiplayer modes for GTA VI. Pages read 19 Nov 2026.</figcaption></figure>
 
@@ -64,7 +64,7 @@ Nothing is announced: no Rockstar or Sony page we read on 19 Nov 2026 mentions c
 
 ## What happened with GTA Online after GTA 5?
 
-GTA Online launched 14 days after GTA V, on a date Rockstar had published 33 days before GTA V came out. Rockstar's [post of 15 Aug 2013](https://www.rockstargames.com/newswire/article/1748koo9o5734o/watch-the-gta-online-official-gameplay-video) said: "Access to Grand Theft Auto Online is free with every retail copy of Grand Theft Auto V and launches on October 1st." Its [post of 17 Sep 2013](https://www.rockstargames.com/newswire/article/o349k552518949/grand-theft-auto-v-now-available) opened with "Grand Theft Auto V is now available worldwide for PlayStation 3 and Xbox 360".
+GTA Online launched 14 days after GTA V, on a date Rockstar had published 33 days before GTA V came out. Rockstar's [post of 15 Aug 2013](https://www.rockstargames.com/newswire/article/1748koo9o5734o/watch-the-gta-online-official-gameplay-video) said: "Access to Grand Theft Auto Online is free with every retail copy of Grand Theft Auto V and launches on October 1st." Its [post of 17 Sep 2013](https://www.rockstargames.com/newswire/article/o349k552518949/grand-theft-auto-v-now-available) opened: "Today we are proud to announce that Grand Theft Auto V is now available worldwide for PlayStation 3 and Xbox 360."
 
 | Checked 19 Nov 2026 | GTA V | GTA VI |
 |---|---|---|
@@ -86,6 +86,6 @@ Watch Rockstar's own pages: every Rockstar date in this post appeared there firs
 3. **Use Rockstar's Subscribe link.** It sits in Rockstar's footer and needs a Rockstar Games account.
 4. **Trust primary pages only.** A date that is not on rockstargames.com or take2games.com is not a date yet.
 
-Rather not refresh a page for months? Hand the check to an agent. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. An agent can check the Newswire on a schedule and message a Slack channel only when a GTA VI post mentions online; [harnessmd.com](https://harnessmd.com) says "Schedules and webhooks start work on their own." [Build a GTA 6 tracker](/blog/gta-6-tracker/) walks through it, and [our own floor](/blog/ai-agent-use-cases-our-office/) shows more.
+Rather not refresh a page for months? Hand the check to an agent. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. An agent can check the Newswire on a schedule and message a Slack channel only when a GTA VI post mentions online; [harnessmd.com](https://harnessmd.com) says "Schedules and webhooks start work on their own." Pro adds "automations", and "The free plan lets you use Pro features up to a monthly allowance of work tokens." [Build a GTA 6 tracker](/blog/gta-6-tracker/) walks through it, and [our own floor](/blog/ai-agent-use-cases-our-office/) shows more.
 
 <link rel="stylesheet" href="/blog/assets/media/gta-6-online-release-date/motion.css"><script defer src="/blog/assets/media/gta-6-online-release-date/motion.js"></script>
