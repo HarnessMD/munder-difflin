@@ -6379,5 +6379,60 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gta-6-marketing": {
+    "title": "GTA 6 Marketing: 7 Lessons for Founders From Rockstar's Launch",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gta-6-marketing/hero.png",
+      "alt": "Title card on white: a yellow pill reading Concepts at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 marketing in large ink type with a short yellow underline, the line 7 launch lessons for founders in muted text, and on the right an Art Deco sunburst fan opens on a centre axis behind a plaque reading 7 LESSONS.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-marketing/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-map": {
+    "title": "GTA 6 Map: Leonida, Vice City and How Big It Is Next to GTA 5",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-map/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 map in large ink type with a short yellow underline, the line Leonida, Vice City and how big it is in muted text, and on the right an abstract transit diagram drawing on, three lines meeting at an interchange capsule reading Leonida, with white stops.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-map/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-characters": {
+    "title": "GTA 6 Characters: Jason, Lucia and the Cast, Explained Without Spoilers",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-characters/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 characters in large ink type with a short yellow underline, the line Jason, Lucia and the cast, no spoilers in muted text, and on the right two dossier cards with plain geometric silhouettes flip in, then a stamp lands reading NO SPOILERS.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-characters/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-refund": {
+    "title": "GTA 6 Refund: How to Get Your Money Back on PlayStation and Xbox",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-refund/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 refund in large ink type with a short yellow underline, the line How to get your money back on PS5 and Xbox in muted text, and on the right a small Swiss flowchart: a dot travels from a diamond reading Where did you pay? to two boxes, PS Store and Xbox, ending at a yellow box reading The store decides.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-refund/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-sales": {
+    "title": "GTA 6 Sales: Preorders, Records and How Much It Has Made So Far",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/gta-6-sales/hero.png",
+      "alt": "Title card on white: a yellow pill reading News at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 sales in large ink type with a short yellow underline, the line Preorders, records and what is official in muted text, and on the right a small low poly island with an odometer whose digits roll and settle on 11 with a flag reading Estimate.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-sales/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
