@@ -94,7 +94,7 @@
       const HZ = 240, CX = 400, H = 600, STILL = 8;
       const bg = stage(svg, { hz: HZ, sun: [400, 178, 128], g0: -0.78, half: true, mts: [[18, 200, 50], [596, 180, 40]], clouds: [[64, 64, 112], [622, 108, 92]] });
       const P = (xb, f) => [CX + (xb - CX) * f, HZ + (H - HZ) * f];
-      const LANES = [[["PS5"], ["YouTube", "and Twitch"], SKY, 150], [["Xbox"], ["Twitch"], MINT, 150], [["Capture card", "and PC"], ["Any service"], LIL, 178]];
+      const LANES = [[["PS5"], ["YouTube", "and Twitch"], SKY, 150], [["Xbox"], ["Twitch"], MINT, 150], [["Capture card", "and PC"], ["Most", "services"], LIL, 178]];
       const root = el("g", {}, svg), tintL = el("g", {}, root), chevL = el("g", {}, root), signL = el("g", {}, root), cardL = el("g", {}, root);
       [235, 565].forEach((xb) => { const a = P(xb, 1), b = P(xb, 0.03); el("path", { d: `M${a} L${b}`, stroke: INK, "stroke-width": 2, "stroke-dasharray": "14 10", "stroke-linecap": "round", opacity: 0.55 }, tintL); });
       let pick = -1;

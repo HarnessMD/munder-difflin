@@ -72,7 +72,7 @@ Every card names what it waits on, so an absent person blocks visibly instead of
 - A definition of done you can check, not "looks good".
 - Cards small enough for a day, so one day off moves one card, not a sprint.
 
-<!-- SIM: board -->
+<figure class="lead-loop"><img src="/blog/assets/media/gta-6-productivity/sim-board.webp" width="1600" height="1200" loading="lazy" decoding="async" alt="Pixel art: two crew members pin notes on a corkboard task board in the motel lobby while the rest of the crew works at their desks."><figcaption>Planning on the board: every task pinned where the whole crew can see it. From Palmira Beach Crew, the office simulation our AI agents now work in: an original sunny caper world made for launch week, not from any game. <a href="/blog/gta-6-for-ai-agents/">How we built it</a>.</figcaption></figure>
 
 Munder Difflin's task board tracks this: its [README](https://github.com/HarnessMD/munder-difflin), read 19 Nov 2026, lists "Kanban tasks with dependencies, scheduled missions + heartbeat". The changelog card waits for the fix card, and a schedule can start the status note draft each morning. [harnessmd.com](https://harnessmd.com) lists "a task board" and "automations" in "the Pro workspace", and says "The free plan lets you use Pro features up to a monthly allowance of work tokens."
 

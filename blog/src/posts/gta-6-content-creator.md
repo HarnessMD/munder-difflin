@@ -14,13 +14,13 @@ author:
   initials: CG
 faq:
   - q: "How long a clip can I save on PS5 and Xbox?"
-    a: "Sony's help page says a PS5 saves anywhere from the last 15 seconds up to 1 hour of recent gameplay, and a new recording runs up to 1 hour. Microsoft's page says an Xbox grabs the last 30 seconds, or up to the last 2 minutes, and Start recording runs up to 10 minutes on internal storage or 1 hour on external storage."
+    a: "Sony's help page says a PS5 saves anywhere from the last 15 seconds up to 1 hour of recent gameplay, and a new recording runs up to 1 hour. Microsoft's page says an Xbox grabs the last 30 seconds, or up to the last 2 minutes, and Start recording runs up to 10 minutes on internal storage or 1 hour on external storage, depending on clip resolution and free space."
   - q: "What size should a GTA 6 YouTube thumbnail be?"
-    a: "YouTube's help page, read 19 Nov 2026, recommends 3840 x 2160 pixels at 16:9 for video thumbnails and 2160 x 3840 at 9:16 for Shorts, as JPG or PNG. Uploads from a computer can be up to 50MB, from mobile 2 MB. Use your own captures, not Rockstar's art."
+    a: "YouTube's help page, read 19 Nov 2026, recommends 3840 x 2160 pixels at 16:9 for video thumbnails and 2160 x 3840 at 9:16 for Shorts, in a format such as JPG or PNG. Uploads from a computer can be up to 50MB, from mobile 2 MB. Use your own captures, not Rockstar's art."
   - q: "What size is a GTA 6 YouTube banner?"
     a: "YouTube asks for at least 2048 x 1152 pixels at 16:9, recommends 2560 x 1440 for TV and caps the file at 6 MB. Keep text and logos inside the 1235 x 338 safe area, because the rest is cropped on some devices."
   - q: "Can I put GTA 6 cutscenes in my clips?"
-    a: "tbreak and Metro reported on 4 Nov 2026 that Rockstar allows cutscenes inside a longer playthrough or a narrated Let's Play, and removes endings, edited cutscene compilations and isolated cinematics. We think a short clip of one cutscene counts as isolated, so keep cutscenes for full playthroughs. Read Rockstar's policy page yourself."
+    a: "tbreak and Metro reported on 4 Nov 2026 that Rockstar allows cutscenes inside a longer playthrough, such as a narrated Let's Play, and removes endings, edited cutscene compilations and isolated cinematics. We think a short clip of one cutscene counts as isolated, so keep cutscenes for full playthroughs. Read Rockstar's policy page yourself."
   - q: "Do the AI agents post my videos?"
     a: "Not in this kit. Agents cut, caption, draft titles, fill the calendar and keep the tracking sheet. You play, record, watch every cut, approve it and post it from your own account."
 ---
@@ -33,11 +33,11 @@ Rockstar's [Newswire](https://www.rockstargames.com/newswire/article/517572321a5
 
 Press the create button. [Sony's capture page](https://www.playstation.com/en-us/support/games/capture-ps5-gameplay-screenshots/), read 19 Nov 2026, says Save Recent Gameplay keeps "anywhere from the last 15 seconds up to 1 hour of gameplay" and a new recording runs "up to 1 hour". Resolution sits in Settings > Captures and Broadcasts > Captures > Video Clip Format. Note: "Some scenes are blocked and won't be included in your video clips."
 
-To export, open Media Gallery, pick a clip, then More > Copy to USB Drive ([Sony](https://www.playstation.com/en-us/support/games/ps5-media-gallery-view-screenshots/)). The PlayStation App only takes clips "up to 1920x1080 in resolution and up to 3 minutes in duration" and keeps them 14 days ([Sony](https://www.playstation.com/en-us/support/games/ps5-game-captures-ps-app/)). Want GTA 6 clips for edits in 4K? The USB stick is the only door.
+To export, open Media Gallery, pick a clip, then More > Copy to USB Drive ([Sony](https://www.playstation.com/en-us/support/games/ps5-media-gallery-view-screenshots/)). The PlayStation App only takes clips "up to 1920x1080 in resolution and up to 3 minutes in duration" and keeps them 14 days ([Sony](https://www.playstation.com/en-us/support/games/ps5-game-captures-ps-app/)). Want GTA 6 clips for edits in 4K? Copy them to USB, because the app route stops at 1920x1080.
 
 ## How do you capture GTA 6 clips on Xbox Series X|S?
 
-Press the Xbox button, then X, to save the last 30 seconds. [Microsoft's capture page](https://support.xbox.com/en-US/help/friends-social-activity/share-socialize/capture-game-clips-and-screenshots), read 19 Nov 2026, says the View button grabs "up to the last 2 minutes", and Start recording runs up to 10 minutes on internal storage or 1 hour on external. Resolution lives in Profile & system > Settings > Preferences > Capture & share. For some games it is fixed at 4K HDR, and then internal clips stop at 30 seconds ([Microsoft](https://support.xbox.com/en-US/help/games-apps/game-setup-and-play/game-clips-captured-only-4K-HDR)).
+Press the Xbox button, then X, to save the last 30 seconds. [Microsoft's capture page](https://support.xbox.com/en-US/help/friends-social-activity/share-socialize/capture-game-clips-and-screenshots), read 19 Nov 2026, says the View button grabs "up to the last 2 minutes", and Start recording runs up to 10 minutes on internal storage or 1 hour on external, depending on clip resolution and free space. Resolution lives in Profile & system > Settings > Preferences > Capture & share. For some games it is fixed at 4K HDR, and then internal clips stop at 30 seconds ([Microsoft](https://support.xbox.com/en-US/help/games-apps/game-setup-and-play/game-clips-captured-only-4K-HDR)).
 
 To export, open the Captures app, select Manage, then Upload to OneDrive or Copy to external storage; the drive "must be formatted as NTFS" ([Microsoft](https://support.xbox.com/en-US/help/games-apps/my-games-apps/back-up-game-clips)). Back up early: clips on the Xbox network "may be deleted after 90 days".
 
@@ -57,9 +57,9 @@ Our view, as three creator rules: every Short is gameplay, never a cutscene; eve
 
 ## What size is a GTA 6 YouTube thumbnail and banner?
 
-A thumbnail is 3840 x 2160 for videos and 2160 x 3840 for Shorts. [YouTube's thumbnail page](https://support.google.com/youtube/answer/72431), read 19 Nov 2026, also asks for JPG or PNG, 16:9 for videos and 9:16 for Shorts, and caps files at 50MB from a computer or 2 MB from mobile. Custom thumbnails need a verified account.
+YouTube recommends 3840 x 2160 for video thumbnails and 2160 x 3840 for Shorts. [YouTube's thumbnail page](https://support.google.com/youtube/answer/72431), read 19 Nov 2026, also suggests a format such as JPG or PNG, 16:9 for videos and 9:16 for Shorts, and caps files at 50MB from a computer or 2 MB from mobile. Custom thumbnails need a verified account.
 
-[YouTube's branding page](https://support.google.com/youtube/answer/10456525) sets a minimum of 2048 x 1152 at 16:9 and a 6 MB cap, and keeps text and logos inside a 1235 x 338 safe area, because the image "will get cropped on certain views and devices".
+[YouTube's branding page](https://support.google.com/youtube/answer/10456525) sets a minimum of 2048 x 1152 at 16:9 and a 6 MB cap; at that size, text and logos go inside a 1235 x 338 safe area, because the image "will get cropped on certain views and devices".
 
 For vertical video, [YouTube's Shorts page](https://support.google.com/youtube/answer/12779649) takes files "Up to 3 minutes" with "a square or vertical aspect ratio". A GTA 6 TikTok account follows TikTok's own Help Center limits; check them there on the day you set your export.
 
@@ -95,9 +95,9 @@ ffmpeg -i short_01.mp4 -vf "subtitles=short_01.srt" short_01_captioned.mp4
 
 The first line cuts 30 seconds from 12:40 into a 9:16 slice, centred because [ffmpeg's docs](https://ffmpeg.org/ffmpeg-filters.html) say the crop's left edge "defaults to" `(in_w-out_w)/2`. The second burns in captions. A coding agent such as Claude Code can run both; that is ffmpeg's work, not a Munder Difflin feature.
 
-<!-- SIM: board -->
+<figure class="lead-loop"><img src="/blog/assets/media/gta-6-content-creator/sim-lineup.webp" width="1600" height="900" loading="lazy" decoding="async" alt="Pixel art lineup of the nine crew of Palmira Beach Crew with names and roles: Rosa Vela the Boss, Dex Marlow the wheelman, Juno Park the hacker, Kai Moreno the influencer, Benny Shoal the fixer, Tess Gale the lookout, Ollie Finch the numbers man, Marisol Reyes the airboat captain and Nia Brooks the gearhead."><figcaption>One crew, one job each. From Palmira Beach Crew, the office simulation our AI agents now work in: an original sunny caper world made for launch week, not from any game. <a href="/blog/gta-6-for-ai-agents/">How we built it</a>.</figcaption></figure>
 
-Munder Difflin adds the team. Its [README](https://github.com/HarnessMD/munder-difflin), read 19 Nov 2026, lists "Kanban tasks with dependencies, scheduled missions + heartbeat", so the Captioner waits for the Cutter, and "Slack & webhooks: message a channel or POST a webhook", so drafts reach you in Slack. [harnessmd.com](https://harnessmd.com) adds "Close your laptop and a Cloud Office keeps going". More teams like this: [every agent on our floor](/blog/ai-agent-use-cases-our-office/).
+Munder Difflin adds the team. Its [README](https://github.com/HarnessMD/munder-difflin), read 19 Nov 2026, lists "Kanban tasks with dependencies, scheduled missions + heartbeat", so the Captioner waits for the Cutter, and "Slack & webhooks: message a channel or POST a webhook", so drafts reach you in Slack. [harnessmd.com](https://harnessmd.com) adds "Close your laptop and a Cloud Office keeps going". The task board is part of Pro; the same page says "Pro adds the Pro workspace: an orchestrator that runs your other agents, a task board, an inbox, automations, memory, Stapler, temps and the capabilities catalog. The free plan lets you use Pro features up to a monthly allowance of work tokens." More teams like this: [every agent on our floor](/blog/ai-agent-use-cases-our-office/).
 
 <figure class="mg" data-scene="storyboard"><img src="/blog/assets/media/gta-6-content-creator/storyboard.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A comic strip reveals one panel at a time: You play, Cutter, Captions, Titles, Calendar and Tracker, each with a small prop. The final panel shows a stamp landing with the words You approve. Tapping a panel enlarges it to show that agent's one job."><figcaption>Five agents prepare and one person approves. The README's Kanban line was read on 19 Nov 2026.</figcaption></figure>
 

@@ -14,7 +14,7 @@ author:
   initials: CG
 faq:
   - q: "How many GB is GTA 6 on PS5?"
-    a: "Up to 212 GB. Rockstar's pre-load post of 3 Nov 2026 says the file \"will require up to 212 GB depending on your device\", and PlayStation's store page asks you to clear a minimum of 212GB. Leave extra room for the launch update, which tbreak reports must be installed before you can play."
+    a: "Up to 212 GB. Rockstar's pre load post of 3 Nov 2026 says the file \"will require up to 212 GB depending on your device\", and PlayStation's store page asks you to clear a minimum of 212GB. Leave extra room for the launch update, which tbreak reports must be installed before you can play."
   - q: "Is GTA 6 smaller on Xbox Series S?"
     a: "No smaller size has been published. Rockstar gives one figure, up to 212 GB, and the pages we read on 19 Nov 2026 list nothing separate for the Series S. On the 512GB Series S that is about 41% of the whole drive, so clear space first."
   - q: "How long does GTA 6 take to download?"
@@ -22,18 +22,18 @@ faq:
   - q: "Can I play GTA 6 from an external USB drive?"
     a: "Not on PS5: Sony says PS5 games can't be played directly from USB extended storage, so you copy them back first. On Xbox Series X|S, Microsoft says Optimized for Xbox Series X|S titles must be installed on the internal SSD or a Storage Expansion Card."
   - q: "Does the boxed copy of GTA 6 skip the download?"
-    a: "No. PlayStation's GTA VI support page says the Code-In-Box version holds only a download code and no disc, and Rockstar says code in box copies exist for both consoles. You download the full game either way."
+    a: "No. PlayStation's GTA VI support page says the boxed version holds only a download code and no disc, and Rockstar says code in box copies exist for both consoles. You download the full game either way."
 ---
 
-The GTA 6 download size is up to 212 GB on PlayStation 5 and Xbox Series X|S, per Rockstar, so clear at least 212 GB of free space before you start. Checked 19 Nov 2026.
+The GTA 6 download size is up to 212 GB on PlayStation 5 and Xbox Series X|S: Rockstar says the pre load file needs "up to 212 GB depending on your device", so clear at least 212 GB of free space before you start. Checked 19 Nov 2026.
 
 For the rest of the launch, start at [our GTA 6 hub](/blog/make-money-with-gta-6/).
 
 ## How many GB is GTA 6 on PS5 and Xbox?
 
-Up to 212 GB on both. Rockstar's [pre-load post](https://www.rockstargames.com/newswire/article/k4ak9okk485712/grand-theft-auto-vi-pre-load-begins-on-november-10) (3 Nov 2026) says "The pre-load file will require up to 212 GB depending on your device", and Sony's [GTA VI store page](https://www.playstation.com/en-us/games/grand-theft-auto-vi/) asks you to clear "a minimum of 212GB". No page we read gives a smaller figure for any console, Series S included.
+Up to 212 GB on both. Rockstar's [pre load post](https://www.rockstargames.com/newswire/article/k4ak9okk485712/grand-theft-auto-vi-pre-load-begins-on-november-10) (3 Nov 2026) says "The pre-load file will require up to 212 GB depending on your device", and Sony's [GTA VI store page](https://www.playstation.com/en-us/games/grand-theft-auto-vi/) asks you to clear "a minimum of 212GB". No page we read gives a smaller figure for any console, Series S included.
 
-Two traps. The box still downloads: Sony's [GTA VI support page](https://www.playstation.com/en-us/support/games/gta-vi-support/) says it "will only contain a game download code" and "A disc will not be included in the box." That is a lot of cardboard for one code. And [tbreak reports](https://tbreak.com/gta-6-streaming-record-before-launch/) (18 Nov 2026) that "the mandatory launch update needs to be installed before you can play at midnight". Its size is unpublished, so leave headroom.
+Two traps. The box still downloads: Sony's [GTA VI support page](https://www.playstation.com/en-us/support/games/gta-vi-support/) says it "will only contain a game download code" and "A disc will not be included in the box." That is a lot of cardboard for one code. And [tbreak reports](https://tbreak.com/gta-6-streaming-record-before-launch/) (18 Nov 2026) that "the mandatory launch update needs to be installed before you can play at midnight". We found no published size for it, so leave headroom.
 
 Or skip it: Rockstar's [10 Nov post](https://www.rockstargames.com/newswire/article/89834o94713o21/pre-load-grand-theft-auto-vi-now) puts the game on Xbox Cloud Gaming, "utilizing XBOX Series S graphics settings."
 
@@ -43,7 +43,7 @@ You need 212 GB free on a drive the game can run from, which rules out a plain U
 
 **PS5.** Sony's [USB extended storage page](https://www.playstation.com/en-us/support/hardware/ps5-extended-storage/) says "PlayStation®5 games can't be played directly from USB extended storage", so the game goes on the internal drive or an added M.2 SSD. Sony's [M.2 rules](https://www.playstation.com/en-us/support/hardware/ps5-install-m2-ssd/): a PCI-Express Gen4x4 M.2 NVMe SSD, 250 GB to 8 TB, 5,500MB/s or faster recommended, a cooling structure such as a heatsink, and no M.2 SATA drives.
 
-**Xbox Series X|S.** Microsoft's [storage page](https://support.xbox.com/en-US/help/hardware-network/storage/manage-storage) says Optimized for Xbox Series X|S titles "must be installed on the console's internal SSD" or the Storage Expansion Card. The [card](https://support.xbox.com/en-US/help/hardware-network/storage/use-storage-expansion-card-xbox-series-x-s) comes in 2TB, 1TB or 512GB and "performs identically to the console's internal SSD." Our view: the console version of GTA 6 is Series X|S only, so assume the rule applies.
+**Xbox Series X|S.** Microsoft's [storage page](https://support.xbox.com/en-US/help/hardware-network/storage/manage-storage) says Optimized for Xbox Series X|S titles "must be installed on the console's internal SSD" or the Storage Expansion Card. The [card](https://support.xbox.com/en-US/help/hardware-network/storage/use-storage-expansion-card-xbox-series-x-s) comes in 2TB, 1TB or 512GB and "performs identically to the console's internal SSD." Our view: on Xbox, GTA 6 installs only on Series X|S, so assume the rule applies.
 
 The Series S is the tight one. [xbox.com](https://www.xbox.com/en-US/consoles/xbox-series-s) lists a model with a "512GB Custom NVME SSD", and 212 GB is about 41% of that whole drive (our arithmetic, 19 Nov 2026).
 
@@ -81,8 +81,8 @@ Use a cable, quiet the network, and let the console download while it rests.
 1. **Go wired.** Microsoft: "If possible, try connecting your console to your home router through a wired connection." Sony's [error code page](https://www.playstation.com/en-us/support/error-codes/ps5/ce-109503-8/) says the same. On wireless, Microsoft suggests 5 GHz.
 2. **Pause other downloads** on your network and close any running game. Microsoft lists both.
 3. **Go overnight.** Microsoft suggests starting downloads late in the evening to run "during off-peak hours."
-4. **PS5 rest mode.** Per Sony's GTA VI page, turn on Settings > System > Power Saving > Features Available in Rest Mode > Stay Connected to the Internet, then Auto-Install in Rest Mode under Automatic Updates. Sony's [power page](https://www.playstation.com/en-us/support/hardware/power-saving/) notes this draws more power.
-5. **Xbox Sleep.** Microsoft's [games and add-ons page](https://support.xbox.com/en-US/help/games-apps/my-games-apps/view-downloadable-content): games install automatically "if you have your power mode set to Sleep and, you've enabled Keep my games & apps up to date."
+4. **PS5 rest mode.** Per Sony's GTA VI page, turn on Settings > System > Power Saving > Features Available in Rest Mode > Stay Connected to the Internet, then Auto-Install in Rest Mode under Settings > Saved Data and Game/App Settings > Automatic Updates. Sony's [power page](https://www.playstation.com/en-us/support/hardware/power-saving/) notes this draws more power.
+5. **Xbox Sleep.** Microsoft's [downloadable content page](https://support.xbox.com/en-US/help/games-apps/my-games-apps/view-downloadable-content): games install automatically "if you have your power mode set to Sleep and, you've enabled Keep my games & apps up to date."
 6. **Stuck?** Sony: Pause, then Resume in Downloads/Uploads. Still stuck: Cancel and Delete, then download again.
 
 Staring at the progress bar appears on neither list.

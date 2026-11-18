@@ -93,7 +93,7 @@ On leave? Then be on leave, and let the drafts wait. Playing on an evening or a 
 
 One rule: never set an agent to answer your manager as you, keep a status dot green, or send anything that says you are working when you are not. Our view: that is the sick call again, with more steps.
 
-<!-- SIM: board -->
+<figure class="lead-loop"><img src="/blog/assets/media/gta-6-day-off-work/sim-pool-break.webp" width="1600" height="1200" loading="lazy" decoding="async" alt="Pixel art: two crew members take a coconut break by the motel pool while a third dozes under a yellow parasol."><figcaption>A break by the pool while the queue keeps moving. From Palmira Beach Crew, the office simulation our AI agents now work in: an original sunny caper world made for launch week, not from any game. <a href="/blog/gta-6-for-ai-agents/">How we built it</a>.</figcaption></figure>
 
 <figure class="mg" data-scene="gameday"><img src="/blog/assets/media/gta-6-day-off-work/gameday.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A phone lock screen shows a quiet banner reading Game day; agent notifications slide in silently and stack under it: Report drafted, Research ready, Replies drafted, each tagged Waiting for you; the last card reads Nothing sent without you. Tapping the stack fans the cards out to show each draft."><figcaption>Agents prepare, you approve. harnessmd.com, read 19 Nov 2026: a Cloud Office keeps going with your laptop closed.</figcaption></figure>
 
