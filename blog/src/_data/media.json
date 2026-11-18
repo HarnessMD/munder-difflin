@@ -6214,5 +6214,170 @@
       "prompt": "Title card: the hero scene in assets/media/gpt-6-2-astra-and-sol/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "gta-6-day-off-work": {
+    "title": "GTA 6 Day Off Work? Skip the Excuse, Let AI Agents Prep Your Queue",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-day-off-work/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 day off work in large ink type with a short yellow underline, the line Skip the excuse. Book it honestly in muted text, and on the right a phone outline where three notification cards stack in with a soft bounce: Leave request: approved, Queue: prepped by agents, You: playing.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-day-off-work/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-productivity": {
+    "title": "GTA 6 Productivity: How Teams Keep Shipping in Launch Week (an AI Agent Playbook)",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-productivity/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 launch week productivity in large ink type with a short yellow underline, the line How teams keep shipping while everyone plays in muted text, and three small Kanban columns named Queued, Doing and Approved with four cards flying into Approved one by one.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-productivity/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "make-money-while-playing-gta-6": {
+    "title": "Make Real Money While Playing GTA 6: A Freelancer's AI Agent Setup",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/make-money-while-playing-gta-6/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title Make money while playing GTA 6 in large ink type with a short yellow underline, the line A freelancer's AI agent setup in muted text, and on the right a small receipt printer feeding a receipt that prints Drafts ready, Invoices drafted, Approved by you, line by line.",
+      "prompt": "Title card: the hero scene in assets/media/make-money-while-playing-gta-6/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-business-ideas": {
+    "title": "GTA 6 Business Ideas: 9 Real Ways to Profit From the Launch, and the AI Agents That Do the Prep",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-business-ideas/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 business ideas in large ink type with a short yellow underline, the line 9 real ways to profit, and the agents that do the prep in muted text, and on the right a small slot machine whose three reels land on Your words, Your design and Your time under a sunburst.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-business-ideas/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-content-creator": {
+    "title": "GTA 6 Content Creator Kit: Clips, Thumbnails, Titles and a Posting Plan From an AI Agent Team",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-content-creator/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 content creator kit in large ink type with a short yellow underline, the line Clips, thumbnails, titles, a posting plan in muted text, and on the right a three panel comic strip filling panel by panel: a clip strip, a thumbnail frame, a calendar, ending with a small stamp reading You approve.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-content-creator/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-discord-server": {
+    "title": "GTA 6 Discord Server: How to Start, Grow and Moderate One With AI Agents",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-discord-server/hero.png",
+      "alt": "Title card on soft paper: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 Discord server in large ink type with a short yellow underline, the line Start, grow and moderate one with AI agents in muted text, and on the right three layered paper cutout cards named general, spoilers and events that pop up in turn with parallax depth.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-discord-server/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-streaming-setup": {
+    "title": "GTA 6 Streaming Setup: Overlays, Rules and an AI Agent Crew Off Camera",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-streaming-setup/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 streaming setup in large ink type with a short yellow underline, the line Overlays, rules and an AI agent crew off camera in muted text, and on the right a daylight synthwave horizon: a yellow sun of horizontal bars rising over a lilac perspective grid, with a small LIVE chip in aqua blinking on.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-streaming-setup/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-tracker": {
+    "title": "GTA 6 Tracker: Build a Morning Brief of News, Servers and Sales With AI Agents",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-tracker/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 tracker in large ink type with a short yellow underline, the line News, servers and sales in one morning brief in muted text, and on the right a radar disc on white whose sweep lights four blips labelled Newswire, Status, Stores and Earnings, then a small card reading Brief at 07:00.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-tracker/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-download-size": {
+    "title": "GTA 6 Download Size: How Many GB on PS5 and Xbox, and How Long It Takes",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-download-size/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 download size in large ink type with a short yellow underline, the line How many GB, and how long it takes in muted text, and on the right an isometric plate on which blocks stack into a tower with a chip reading 212 GB.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-download-size/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-editions-price": {
+    "title": "GTA 6 Editions and Price: Every Edition in Dollars, Pounds and Rupees",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-editions-price/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 editions and price in large ink type with a short yellow underline, the line Every edition in dollars, pounds, euros and rupees in muted text, and on the right a small split flap board whose rows riffle to STANDARD 79.99 and ULTIMATE 99.99, then a USD chip flips to GBP, EUR and INR.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-editions-price/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "is-gta-6-on-pc": {
+    "title": "Is GTA 6 on PC? What Rockstar Has Said, and Your Options",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/is-gta-6-on-pc/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title Is GTA 6 on PC? in large ink type with a short yellow underline, the line What Rockstar has said, and your options in muted text, and on the right a small light terminal window where a command types out and prints PC: not announced with a blinking cursor.",
+      "prompt": "Title card: the hero scene in assets/media/is-gta-6-on-pc/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-online-release-date": {
+    "title": "GTA 6 Online Release Date: What Rockstar Has Confirmed",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/gta-6-online-release-date/hero.png",
+      "alt": "Title card on white: a yellow pill reading News at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 online release date in large ink type with a short yellow underline, the line What Rockstar has confirmed so far in muted text, and on the right the words SINGLE PLAYER slam in on a grid, then a yellow block slams in reading NO DATE YET.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-online-release-date/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-review-scores": {
+    "title": "GTA 6 Review Scores: Metacritic, OpenCritic and What Critics Actually Said",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/gta-6-review-scores/hero.png",
+      "alt": "Title card on white: a yellow pill reading News at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 review scores in large ink type with a short yellow underline, the line Metacritic, OpenCritic and what critics said in muted text, and on the right a small HIGH SCORES panel where a counter ticks up to 99 and a NEW HIGH SCORE tag blinks.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-review-scores/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-how-long-to-beat": {
+    "title": "GTA 6 How Long to Beat: Story Length in Hours, Every Source",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-how-long-to-beat/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 how long to beat in large ink type with a short yellow underline, the line Story length in hours, every source in muted text, and on the right a row of square Isotype cells filling one by one up to a chip reading 80 h, with a small clock icon ticking.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-how-long-to-beat/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-engine": {
+    "title": "GTA 6 Engine: What Powers It, and What Developers Can Learn From RAGE",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gta-6-engine/hero.png",
+      "alt": "Title card on white: a yellow pill reading Concepts at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 engine in large ink type with a short yellow underline, the line What powers it, and what developers can learn in muted text, and on the right a blueprint of a simple abstract engine block drafting itself line by line with a title block reading RAGE (reported).",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-engine/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
