@@ -6434,5 +6434,16 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gta-6-for-ai-agents": {
+    "title": "I Built a GTA 6 Style City for My Claude Code and Codex Agents. They Work While I Play the Real GTA 6",
+    "category": "story",
+    "hero": {
+      "file": "assets/media/gta-6-for-ai-agents/hero.png",
+      "alt": "Title card on white: a yellow pill reading Story at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 AI agents in large ink type with a short yellow underline, the line My office works while I play in muted text, and on the right a crop of the pixel art motel lobby with tilt shift blur where crew sprites type at desks and one walks a DONE envelope to the Boss, with a small chip reading You: playing.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-for-ai-agents/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }

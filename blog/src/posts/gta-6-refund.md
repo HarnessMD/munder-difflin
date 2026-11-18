@@ -41,7 +41,7 @@ Sony says you "may have additional rights under applicable local law", and its [
 
 | Store | Preorder cancel rule | After download or launch | Time window | Where to ask |
 |---|---|---|---|---|
-| PlayStation Store (US, UK, India) | Paid over 14 days before release: "any time before the release date". Paid 14 days or less before: "up to 14 days after payment". Never once a download or preload starts | "not eligible for a refund unless they are faulty" | 14 days from purchase | [Refund request page](https://www.playstation.com/en-us/support/store/ps-store-refund-request/) |
+| PlayStation Store (US, UK, India) | Paid over 14 days before release: "any time before the release date". Paid 14 days or less before: "up to 14 days after payment". Only if no download or preload has started | "not eligible for a refund unless they are faulty" | 14 days from purchase | [Refund request page](https://www.playstation.com/en-us/support/store/ps-store-refund-request/) |
 | Xbox and Microsoft Store (US, UK, India) | Order history, "up to 10 days before the game launches"; then a refund request | Refund "if you haven't accumulated a significant amount of play time" | Typically 14 days; requests for 90 days | [Request a refund for digital games](https://support.xbox.com/en-US/help/subscriptions-billing/buy-games-apps/refund-orders) |
 | Boxed copy (code in box) | Shop's policy | Shop's policy | Shop's policy | The shop that sold it |
 
@@ -57,7 +57,7 @@ If nothing has downloaded, the day you paid sets the window (our arithmetic for 
 
 Cancel, and any preorder bonus "will stop working".
 
-<figure class="mg" data-scene="preload"><img src="/blog/assets/media/gta-6-refund/preload.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white Swiss grid, a yellow dot runs through diamonds labelled Preordered?, Downloaded? and Within 14 days?; at Downloaded? an arrow marked Yes, preload counts drops to a box reading No refund unless faulty, then a yellow chip lands last: Auto download already said yes. Tapping a diamond flips its answer and reroutes the dot."><figcaption>Sony's policy, read 19 Nov 2026: a preload counts as a download; the window is 14 days.</figcaption></figure>
+<figure class="mg" data-scene="preload"><img src="/blog/assets/media/gta-6-refund/preload.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white Swiss grid, a yellow dot runs through diamonds labelled Preordered?, Within 14 days? and Downloaded?; at Downloaded? an arrow marked Yes, preload counts drops to a box reading No refund unless faulty, then a yellow chip lands last: Auto download already said yes. Tapping a diamond flips its answer and reroutes the dot."><figcaption>Sony's policy, read 19 Nov 2026: a preload counts as a download; the window is 14 days.</figcaption></figure>
 
 ## How do you request a GTA 6 refund on PS5?
 
