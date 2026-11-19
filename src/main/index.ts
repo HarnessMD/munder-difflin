@@ -309,7 +309,8 @@ const hookServer = new HookServer(
   control,
   breaker,
   standingGoalFromRoster,
-  (agentId, event, message) => workerWake.noteHook(agentId, event, message)
+  (agentId, event, message, notificationType) =>
+    workerWake.noteHook(agentId, event, message, Date.now(), notificationType)
 );
 const memory = new MemoryManager(
   () => readConfig().harnessHome,

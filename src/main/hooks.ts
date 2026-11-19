@@ -146,10 +146,15 @@ export class HookServer {
     /** Standing goal text for an agent (from the durable roster). Optional so
      *  tests can omit it; when set, injected at session start and when changed. */
     private getStandingGoal?: (agentId: string) => string | null,
-    /** Optional observer of every hook boundary (agentId, event, message). The
+    /** Optional observer of every hook boundary. The
      *  worker inbox-wake watchdog (workerWake.ts) feeds on this to learn when an
      *  agent is parked on a permission/HITL prompt so it never types into it. */
-    private onEvent?: (agentId: string | undefined, event: string, message: string | undefined) => void
+    private onEvent?: (
+      agentId: string | undefined,
+      event: string,
+      message: unknown,
+      notificationType?: unknown
+    ) => void
   ) {}
 
   /** Bind the hook socket. Asynchronous and safe to call repeatedly — a
@@ -383,7 +388,7 @@ export class HookServer {
   private handle(p: HookPayload): unknown {
     const agentId = p.agent_id ?? undefined;
     const event = p.hook_event_name ?? 'Unknown';
-    this.onEvent?.(agentId, event, p.message);
+    this.onEvent?.(agentId, event, p.message, p.notification_type);
     if (agentId && typeof p.transcript_path === 'string' && p.transcript_path) {
       this.transcriptPaths.set(agentId, p.transcript_path);
     }

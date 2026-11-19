@@ -20,6 +20,7 @@ import { bridgeOf, providerPreset } from '../../../shared/agentProvider';
 import { isDurableRole, preferredAgentRole, roleForHiveSpawn } from '../../../shared/agentRole';
 import { inboxNudgeText } from '../../../shared/hiveNudge';
 import { resolveGodName } from '../../../shared/godIdentity';
+import { classifyHook } from '../../../shared/hookClassify';
 import { acquireTerminal, resetTerminal, isTerminalAutomationSafe } from '@/components/terminalPool';
 import { canDeliverToAgent, deliverWithAcknowledgement, checkPrecondition } from './queueDelivery';
 import { OFFICE_CAST, DEFAULT_CHARACTER } from '@/scene/office/cast';
@@ -520,23 +521,11 @@ export function useHive(config: HarnessConfig | null): void {
           updateAgent(e.agentId, { status: 'idle', action: 'idle', carrying: undefined });
         }
       } else if (e.event === 'Notification' && !breakerArmed) {
-        // Claude Code fires Notification for two very different situations:
-        //   1. it genuinely needs the human (a permission / approval prompt), or
-        //   2. the prompt has merely gone idle ("Claude is waiting for your
-        //      input") — i.e. the agent answered and has nothing queued.
-        // Only (1) is a real "needs you". Treating (2) as blocked made Michael
-        // march to the door with a red "!" right after finishing, so detect the
-        // idle case and let him linger on the floor instead.
-        const msg = (e.message ?? '').toLowerCase();
-        const idleWaiting = !msg
-          || msg.includes('waiting for your input')
-          || msg.includes('is idle')
-          || msg.includes('waiting for input');
-        const needsHuman = msg.includes('permission')
-          || msg.includes('approve')
-          || msg.includes('confirm')
-          || msg.includes('needs your');
-        if (needsHuman && !idleWaiting) {
+        // Known Claude notification types are authoritative. Legacy/unknown
+        // notifications use the shared text fallback so the watchdog and UI
+        // cannot disagree about HITL versus ordinary idle notifications.
+        const hookClass = classifyHook(e.event, e.message, e.notificationType);
+        if (hookClass === 'needsHuman') {
           // Only the god agent escalates to the human; sub-agents are autonomous
           // and read as "waiting" (parked on god, not on you).
           updateAgent(e.agentId, { status: self.isGod ? 'blocked' : 'waiting' });
