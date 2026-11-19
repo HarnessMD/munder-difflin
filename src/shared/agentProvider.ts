@@ -32,6 +32,7 @@ export type AgentProvider =
   | 'opencode'
   | 'crush'
   | 'pi'
+  | 'omp'
   | 'copilot'
   | 'cursor'
   | 'custom';
@@ -51,7 +52,7 @@ export type AgentProvider =
  *               and `inboxDelivery` is how mail reaches it ('terminal' work-order
  *               handoff today; 'serve' reserved for a future HTTP push path). */
 export type BridgeDescriptor =
-  | { kind: 'hooks'; shim: 'agy' | 'codex' | 'pi' | 'opencode' | 'grok' | 'gemini' }
+  | { kind: 'hooks'; shim: 'agy' | 'codex' | 'pi' | 'omp' | 'opencode' | 'grok' | 'gemini' }
   | {
       kind: 'proxy';
       api: 'openai' | 'anthropic';
@@ -499,6 +500,51 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     docsUrl: 'https://pi.dev/docs/latest'
   },
   {
+    // omp (Oh My Pi, can1357/oh-my-pi; npm @oh-my-pi/pi-coding-agent). A Pi fork
+    // by Stencil Labs: same pi.on(event) lifecycle surface, but discovers hooks as
+    // direct .js files under <agentDir>/hooks/pre/ and keeps credentials/model
+    // catalog in SQLite (agent.db + models.db), not a copyable models.json.
+    // Non-hiveAware; bridged like pi — installOmpHooks drops a per-agent hook that
+    // posts HIVE_SOCK payloads. E2E-verified against omp 18.20.0 (hook discovery,
+    // PreToolUse/PostToolUse/Stop payloads, PI_CODING_AGENT_DIR isolation).
+    id: 'omp',
+    label: 'omp · Oh My Pi',
+    defaultCommand: 'omp',
+    commandGroups: [],
+    // omp launch --help (18.20.0): --auto-approve "Auto-approve all tool calls"
+    // (the --approval-mode=yolo config spelling also exists; --yolo does NOT).
+    // The CLI handles approvals itself, so unlike pi the bridge never approves.
+    autoModeFlag: '--auto-approve',
+    autoFlag: '--auto-approve',
+    nonInteractiveEnv: { PI_SKIP_VERSION_CHECK: '1', PI_TELEMETRY: '0' },
+    supportsModel: true,
+    modelFlag: '--model', // value form: provider/model, e.g. anthropic/claude-sonnet-4-5
+    hiveAware: false,
+    // HOOKS bridge, `omp` shim (installOmpHooks): omp auto-loads direct .js files
+    // from <agentDir>/hooks/pre/ (and honors PI_CODING_AGENT_DIR for the default
+    // profile's agent dir, so per-agent isolation reuses the same env var as pi).
+    bridge: { kind: 'hooks', shim: 'omp' },
+    // No recommended model: omp's catalog is BYOK and huge — an empty picker
+    // default never reports a model the user has no key for (opencode precedent).
+    recommendedOrchestratorModel: undefined,
+    // god-eligible via the bridge's Stop→drain; the renderer idle inbox-wake
+    // nudge is the guaranteed drain fallback (same honesty as pi).
+    canReceiveInbox: true,
+    initialPromptFlag: undefined,
+    // omp launch takes the hive protocol as its initial prompt positionally
+    // (pi-fork argv shape: omp [options] [messages...], verified on 18.20.0).
+    positionalInitialPrompt: true,
+    resumeFlag: '--resume',
+    // bun is omp's preferred runtime (omp itself runs on Bun); the native rung
+    // covers node-free machines.
+    installCommand: 'bun install -g @oh-my-pi/pi-coding-agent',
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://omp.sh/install | sh',
+      win32: 'powershell -c irm https://omp.sh/install.ps1 ^| iex'
+    },
+    docsUrl: 'https://omp.sh/docs'
+  },
+  {
     // GitHub Copilot CLI (`copilot`, npm @github/copilot). Driven in print mode:
     // `copilot -p "<prompt>" -s --allow-all-tools --no-ask-user [--model]`, the
     // documented non-interactive shape (single prompt, clean stdout, exits when
@@ -592,6 +638,7 @@ export function isAgentProvider(value: unknown): value is AgentProvider {
     value === 'opencode' ||
     value === 'crush' ||
     value === 'pi' ||
+    value === 'omp' ||
     value === 'copilot' ||
     value === 'cursor' ||
     value === 'custom'
@@ -644,6 +691,7 @@ export function inferAgentProvider(command: string | undefined, explicit?: unkno
   if (bin === 'opencode') return 'opencode';
   if (bin === 'crush') return 'crush';
   if (bin === 'pi') return 'pi';
+  if (bin === 'omp') return 'omp';
   if (bin === 'copilot') return 'copilot';
   // Cursor ships as `cursor-agent`; `agent` is a shorter alias (generic name — check last).
   if (bin === 'cursor-agent') return 'cursor';
