@@ -31,6 +31,7 @@ import { FullscreenTerminal } from '@/components/FullscreenTerminal';
 import { TaskDetailOverlay } from '@/components/TaskDetailOverlay';
 import { IdePanel } from '@/ide/IdePanel';
 import { useHoldOptionToTalk } from '@/freeflow/holdOption';
+import { isCustomRealtimeBase } from '@shared/realtimeEndpoint';
 import brandLogo from '@brand/logo.png?url';
 
 // Injected at build time from package.json (see electron.vite.config.ts).
@@ -139,6 +140,10 @@ export function App() {
   // Config subscription — the copy loaded above would otherwise go stale the
   // moment anything saves a setting.
   useEffect(() => window.cth.onConfigChanged(setConfig), []);
+  // Talk's server choice gates its toggle as much as the OpenAI key does.
+  useEffect(() => {
+    useStore.getState().setRealtimeCustomServer(isCustomRealtimeBase(config?.realtimeBaseUrl));
+  }, [config?.realtimeBaseUrl]);
 
   // Quit warning subscription
   useEffect(() => window.cth.onCloseRequested((info) => setQuitWarn(info)), []);

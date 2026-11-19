@@ -355,7 +355,7 @@
       "voiceChatDesc": "Talk to the orchestrator in real time. Toggle it on from {{godName}}'s tab; choose which microphone and speaker the voice loop uses here.",
       "openaiKey": "OpenAI API key · voice",
       "openaiKeyDesc1": "Talking to {{godName}} runs on OpenAI's Realtime API — speech in, speech out, over a live connection to {{model}}. That is a different service from the Claude subscription your agents run on, so it needs its own OpenAI API key.",
-      "openaiKeyDesc2": "Paste it once below. It is encrypted on this machine and never shown again — each voice session mints its own short-lived token from it, and the key itself never leaves your computer. It is the same OpenAI key listed under Agents & Models; setting it in either place is enough.",
+      "openaiKeyDesc2": "Paste it once below. It is encrypted on this machine and never shown again. It is sent only to OpenAI, to mint each voice session's short-lived token; a custom voice server uses its own key, set below. It is the same OpenAI key listed under Agents & Models; setting it in either place is enough.",
       "keyPlaceholderSaved": "key saved — paste a new one to replace it",
       "save": "Save",
       "keySaved": "Key saved — Talk is ready. Start it from {{godName}}'s card.",
@@ -370,7 +370,23 @@
       "5m": "5 minutes",
       "10m": "10 minutes",
       "never": "Off (never)",
-      "idleDisconnectDesc": "How long the voice session stays open with no talking before it auto-closes. The spend cap still stops a runaway session even when this is off."
+      "idleDisconnectDesc": "How long the voice session stays open with no talking before it auto-closes. The spend cap still stops a runaway session even when this is off.",
+      "baseUrl": "Base URL",
+      "baseUrlHint": "Leave as is for OpenAI. For a server on your network, for example:",
+      "baseUrlError": {
+        "invalid": "This is not a valid URL.",
+        "scheme": "It must start with https:// (or http:// for a private network address).",
+        "insecure": "http:// is allowed only for this computer or a private network address. Use https://, or the server's IP address.",
+        "credentials": "The URL must not contain a user name or password.",
+        "query": "The URL must not end in a query (?…) or a fragment (#…)."
+      },
+      "serverKey": "Server key (optional)",
+      "serverKeyClear": "Clear",
+      "serverKeySaved": "Saved. Talk sends this key to the server above, never your OpenAI key.",
+      "serverKeyNone": "None set. Talk sends no key to the server above, and never your OpenAI key.",
+      "skipTokenMint": "Skip token request (use key directly)",
+      "skipTokenMintDesc": "For servers without /realtime/client_secrets, e.g. LocalAI",
+      "realtimeModel": "Model (optional)"
     },
     "saved": "Saved",
     "saving": "Saving…",

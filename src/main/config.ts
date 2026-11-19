@@ -367,6 +367,18 @@ export interface HarnessConfig {
    *  auto-disconnect on idle — the spend cap remains the runaway guard. The user
    *  tunes this in Settings → Realtime Michael. */
   realtimeIdleDisconnectMs?: number;
+  /** Base URL of the OpenAI Realtime compatible server Talk connects to, set in
+   *  Settings → Voice. Unset (or blank) = OpenAI, https://api.openai.com/v1. Used for
+   *  both the token mint and the /realtime/calls SDP exchange. http:// is accepted
+   *  only for this computer and private network hosts (shared/realtimeEndpoint.ts). */
+  realtimeBaseUrl?: string;
+  /** Skip the token mint and send the stored key itself as the bearer on
+   *  /realtime/calls. For servers with no /realtime/client_secrets (LocalAI). The key
+   *  still stays in main: main makes the SDP exchange. Default off. */
+  realtimeSkipTokenMint?: boolean;
+  /** Realtime model id to ask for. Unset = REALTIME_MODEL. Local servers name
+   *  their models their own way. */
+  realtimeModel?: string;
 
   // ─── Generic inbound webhook + status API (LEGACY, single-endpoint) ─────────
   // Superseded by `webhookTriggers`, which allows many endpoints over one server
@@ -461,6 +473,9 @@ const DEFAULTS: HarnessConfig = {
   freeflowModel: 'whisper-large-v3-turbo',
   realtimeVoiceEnabled: false,
   realtimeIdleDisconnectMs: 180_000,
+  realtimeBaseUrl: undefined,
+  realtimeSkipTokenMint: false,
+  realtimeModel: undefined,
   webhookEnabled: false,
   webhookSecret: undefined,
   webhookPort: undefined,

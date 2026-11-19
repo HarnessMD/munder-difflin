@@ -88,6 +88,7 @@ export interface RealtimeMichaelToggleProps {
 export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggleProps) {
   const { t } = useTranslation();
   const hasOpenAiKey = useStore((s) => s.hasOpenAiKey);
+  const customServer = useStore((s) => s.realtimeCustomServer);
   const { status, error, connect, disconnect } = useRealtimeMichael();
   // Measured viewport coords, not a CSS offset. The agent dock clips its
   // children, so a popover positioned inside the card gets sliced at the card's
@@ -100,7 +101,8 @@ export function RealtimeMichaelToggle({ compact = false }: RealtimeMichaelToggle
   const hintOpen = hint !== null;
 
   const view = STATE_VIEW[status];
-  const noKey = !hasOpenAiKey;
+  // A self-hosted server (Settings → Voice) needs no OpenAI key.
+  const noKey = !hasOpenAiKey && !customServer;
 
   // Without a BYOK OpenAI key: stay visible but disabled (matches FreeFlowButton).
   // Talk mints an ephemeral token from the OpenAI key (apikey:openai) — the SAME
