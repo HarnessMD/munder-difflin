@@ -58,6 +58,8 @@ Payouts depend on views, campaign budgets and platform approval, and any of them
 
 <figure class="mg" data-scene="vending"><img src="/blog/assets/media/make-money-with-gta-6/vending.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A vending machine shows six slots labelled Clipping, Channels, Guide site, Editing, Streaming and Community. A coin marked Approved drops in and one slot releases a small card; a coin marked Not approved rolls back out with nothing. Tap a slot to see who pays for it."><figcaption>Six hustles, and every payout waits for an approval (platform pages read 16 Nov 2026).</figcaption></figure>
 
+Launch week guides: [business ideas](/blog/gta-6-business-ideas/), a [creator kit](/blog/gta-6-content-creator/), [money while you play](/blog/make-money-while-playing-gta-6/), [editions and price](/blog/gta-6-editions-price/) and [download size](/blog/gta-6-download-size/).
+
 ## How does the agent team work?
 
 One agent takes each job, a task board links them, and you approve everything they hand you.
