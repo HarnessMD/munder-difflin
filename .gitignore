@@ -35,3 +35,6 @@ docs/blog-preview-*/
 # Finder duplicate files, e.g. "spec 2.js", "sitemap 2.xml"
 *\ 2.*
 *\ [0-9].*
+
+# local hive agent roster snapshots
+roster-backups/
