@@ -24,6 +24,8 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, mkdirSy
 import { join, basename, dirname, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
 import { getText } from './fetchText';
+import { parseGitHubSourceUrl, safeSkillDirName } from '../shared/skillCatalogMatch';
+export { parseGitHubSourceUrl, safeSkillDirName } from '../shared/skillCatalogMatch';
 
 export interface LocalSkill {
   id: string;
@@ -278,43 +280,6 @@ interface GhEntry { name: string; path: string; type: string; size?: number; dow
 const MAX_FILES = 60;
 const MAX_TOTAL_BYTES = 2 * 1024 * 1024;
 const MAX_DEPTH = 5;
-
-/**
- * A GitHub source URL → the pieces the contents API needs.
- *
- * Two shapes, because the catalog uses both: a folder inside a repo
- * (`owner/repo/tree/<ref>/<path>`, 145 entries) and a whole repo whose root IS
- * the skill (`owner/repo`, 81 entries). For the latter `ref` is empty and the
- * caller omits it, which makes the API use the repo's default branch — there is
- * no reliable way to guess between `main` and `master` and no need to.
- */
-export function parseGitHubSourceUrl(url: string): { owner: string; repo: string; ref: string; path: string } | null {
-  const clean = url.trim().replace(/[#?].*$/, '').replace(/\/+$/, '');
-  const tree = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/?(.*)$/.exec(clean);
-  if (tree) {
-    const [, owner, repo, ref, path] = tree;
-    if (!owner || !repo || !ref) return null;
-    return { owner, repo, ref, path: path.replace(/\/+$/, '') };
-  }
-  const root = /^https:\/\/github\.com\/([^/]+)\/([^/]+)$/.exec(clean);
-  if (root) {
-    const [, owner, repo] = root;
-    // Reserved paths that are not repositories.
-    if (['orgs', 'topics', 'collections', 'sponsors', 'features'].includes(owner.toLowerCase())) return null;
-    return { owner, repo: repo.replace(/\.git$/i, ''), ref: '', path: '' };
-  }
-  return null;
-}
-
-/** A folder name we are willing to create. Anything with a separator, a dot-dot,
- *  or a leading dot is rejected outright rather than massaged into safety. */
-export function safeSkillDirName(raw: string): string | null {
-  const base = raw.trim().split('/').pop() ?? '';
-  if (!base || base === '.' || base === '..') return null;
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(base)) return null;
-  if (base.includes('..')) return null;
-  return base;
-}
 
 function getJson<T>(url: string): Promise<T> {
   return getText(url).then((t) => JSON.parse(t) as T);
