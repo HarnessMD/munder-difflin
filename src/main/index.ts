@@ -90,6 +90,7 @@ import {
   codexRemoteAliasPath,
   codexRemoteEndpoint,
   codexRemoteSocketFits,
+  planCodexLaunch,
   withCodexRemoteArgs
 } from '../shared/codexRemote';
 
@@ -160,6 +161,12 @@ async function enableCodexRemoteForSpawn(
   opts: SpawnOptions & { hive?: AgentMeta },
   agentId: string
 ): Promise<boolean> {
+  const launch = planCodexLaunch(opts.args ?? []);
+  if (!launch.managedRemote) {
+    opts.args = launch.args;
+    if (launch.localReason) console.log('[codex-remote] starting local TUI:', launch.localReason);
+    return false;
+  }
   if (process.platform === 'win32') return false;
   const realHome = opts.env?.CODEX_HOME;
   if (!realHome) return false;
@@ -216,7 +223,7 @@ async function enableCodexRemoteForSpawn(
       return false;
     }
     opts.env = { ...(opts.env ?? {}), CODEX_HOME: alias };
-    opts.args = withCodexRemoteArgs(opts.args ?? [], codexRemoteEndpoint(alias));
+    opts.args = withCodexRemoteArgs(launch.args, codexRemoteEndpoint(alias));
     return true;
   } catch (e) {
     console.warn('[codex-remote] setup failed; starting local TUI:',
