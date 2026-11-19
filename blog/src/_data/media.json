@@ -6214,5 +6214,49 @@
       "prompt": "Title card: the hero scene in assets/media/gpt-6-2-astra-and-sol/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "gemini-4-neon": {
+    "inline": {},
+    "title": "Gemini 4 Neon: Price, API and How It Compares (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-neon/hero.png",
+      "alt": "Title card on white. A pill reading Concepts, the title Gemini 4 Neon, the line Price, API and how it compares and a Checked 19 Nov 2026 line. Three yellow price tags slide in on a thin line: Input $3.00, Output $15.00 and Caching $0.15, per 1M tokens.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-4-neon/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "amp-alternatives": {
+    "inline": {},
+    "title": "Amp Alternatives: 5 Picks for the Coding Agent (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/amp-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Amp alternatives, the line 5 picks for the coding agent and a Checked 19 Nov 2026 line. Tiles named Claude Code, Munder Difflin, Codex CLI, OpenCode and Cursor slide in under a soft Amp tile.",
+      "prompt": "Title card: the hero scene in assets/media/amp-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "openhands-alternatives": {
+    "inline": {},
+    "title": "OpenHands Alternatives: 5 Picks After v1.42.0 (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/openhands-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title OpenHands alternatives, the line 5 picks after v1.42.0 and a Checked 19 Nov 2026 line. Tiles named OpenCode, Munder Difflin, goose, Cline and Claude Code slide in under a soft OpenHands tile.",
+      "prompt": "Title card: the hero scene in assets/media/openhands-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "agent-tools-today-2026-11-19": {
+    "title": "Agent Tools Today, 19 Nov 2026: GPT-6.2 Astra and Sol, Gemini 4 Neon and MAI Code 2",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
   }
 }
