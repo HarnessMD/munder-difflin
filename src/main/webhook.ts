@@ -39,13 +39,16 @@
  * access, which lives in the main entrypoint); this class owns only transport,
  * the secret gate, schema validation, rate limiting, and the tunnel.
  */
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import { randomBytes, timingSafeEqual } from 'node:crypto';
-import { validateAgainstSchema, type InboundKind } from '../shared/triggers';
+import { createServer, type IncomingHttpHeaders, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { githubEventWanted, hasServiceSignature, inboundFromService, isServiceSource, verifyServiceSignature, type ServiceSource } from './serviceWebhooks';
+import { validateAgainstSchema, type GithubWebhookEvent, type InboundKind, type WebhookAuth, type WebhookSource } from '../shared/triggers';
+import type { BoundPort } from '../shared/boundPort';
+import { keepTunnel, type KeptTunnel } from './tunnel';
 // NOTE: `tunnelmole` is an ESM-only package. The Electron main process is bundled
 // as CommonJS, so a static `import` gets externalized into `require('tunnelmole')`
 // and throws ERR_REQUIRE_ESM at load. It is imported dynamically inside
-// `openTunnel()` instead — Rollup preserves dynamic import() in CJS output, which
+// main/tunnel.ts instead — Rollup preserves dynamic import() in CJS output, which
 // can load ESM. Do not hoist this back to a top-level import.
 
 /** One servable endpoint — the structural subset of `WebhookTrigger` this class
@@ -58,6 +61,13 @@ export interface WebhookEndpoint {
   secret: string;
   /** User-editable JSON Schema (serialised) inbound bodies are checked against. */
   schema: string;
+  /** GitHub, Linear or Telegram: their own signature and payload instead of
+   *  ours (main/serviceWebhooks.ts). Absent or `custom` is our contract. */
+  source?: WebhookSource;
+  /** Which GitHub deliveries go on; absent is every one (shared/triggers.ts). */
+  events?: GithubWebhookEvent[];
+  /** A custom caller's proof: header (default), bearer or hmac. */
+  auth?: WebhookAuth;
 }
 
 /** What the dispatch handler is told about the endpoint a message arrived on.
@@ -104,6 +114,12 @@ export interface WebhookServerOptions {
   port: number;
   /** The endpoints to serve. May be swapped later with `setEndpoints`. */
   endpoints: WebhookEndpoint[];
+  /** How the public tunnel is opened. The app leaves this out and gets
+   *  tunnelmole; a test passes its own so no network is touched. */
+  openTunnel?: (port: number) => Promise<string>;
+  /** The tunnelmole tunnel closed (the service ends each one after 12 hours)
+   *  and was reopened at this new public root (main/tunnel.ts). */
+  onTunnelUrl?: (url: string) => void;
   /**
    * Turn a verified POST into hive work (or into a held message awaiting the
    * operator). Return null to signal a server-side failure (→ 500). The token it
@@ -115,7 +131,22 @@ export interface WebhookServerOptions {
    * token maps to nothing (→ 404). MUST be scoped to the one token — it must
    * never reveal or enumerate any other task.
    */
-  lookupStatus: (token: string) => WebhookTaskStatus | null;
+  lookupStatus: (token: string, endpointId: string | null) => WebhookTaskStatus | null;
+  /**
+   * 0.5.6: a POST to an endpoint that exists was answered with an error
+   * status, for that webhook's Activity tab. Only the id and the status: an
+   * unknown id is never reported, so the log cannot be used to walk ids.
+   */
+  onRefused?: (endpointId: string, status: number) => void;
+  /**
+   * Refuse a delivery id seen on the same endpoint within this many
+   * milliseconds (GitHub's `x-github-delivery`, Linear's `linear-delivery`,
+   * Telegram's `update_id`, a custom caller's own `x-md-delivery`). Checked
+   * only after the secret or signature, so an unproven caller cannot fill or
+   * probe the list. Absent: no replay guard. This computer passes
+   * WEBHOOK_REPLAY_WINDOW_MS (Telegram retries made a card each).
+   */
+  replayWindowMs?: number;
 }
 
 /** Reject bodies larger than this before buffering — callers send tiny JSON; the
@@ -137,16 +168,38 @@ export const LEGACY_ENDPOINT_ID = 'legacy';
 /** Rate-limit bucket shared by EVERY unknown id. One bucket, not one per id:
  *  per-id buckets for ids we don't serve would let a prober both grow our memory
  *  unboundedly and — worse — observe that unknown ids never hit the per-endpoint
- *  limit while real ones do. Sharing one bucket makes the two indistinguishable. */
+ *  limit while real ones do. Sharing one bucket makes the two indistinguishable
+ *  until that bucket is full: past it an unknown id answers 429 while a known one
+ *  still answers 401. Ids carry about 31 random bits, so this tells a prober little. */
 const UNKNOWN_BUCKET = ':unknown';
+
+/** At most this many delivery ids are remembered; the oldest goes first. */
+const MAX_DELIVERIES = 10_000;
+
+/** How long this computer remembers a delivery id: a day, longer than
+ *  any service keeps retrying one update. */
+export const WEBHOOK_REPLAY_WINDOW_MS = 24 * 60 * 60 * 1000;
+/** A delivery id is short printable text, or it is not one. */
+const DELIVERY_ID = /^[\x21-\x7e]{1,200}$/;
 
 export class WebhookServer {
   private server: Server | null = null;
   private tunnelUrl: string | null = null;
-  private readonly port: number;
+  /** The port this server is bound to, or will try first. It moves when the
+   *  asked for port is taken (0.5.3, the rest of bug 11), and the tunnel follows. */
+  private port: number;
+  /** The port config asked for. Only ever reported, never bound again. */
+  private readonly requestedPort: number;
+  /** Set when the asked for port was taken and the server moved off it. */
+  private movedFromPort: number | undefined;
+  private readonly tunnelOpener?: (port: number) => Promise<string>;
+  private readonly onTunnelUrl?: (url: string) => void;
+  /** The kept tunnelmole tunnel, when the app opened it (not a test's opener). */
+  private tunnel: KeptTunnel | null = null;
   private endpoints = new Map<string, WebhookEndpoint>();
   private readonly onMessage: (msg: WebhookInbound, endpoint: WebhookEndpointRef) => WebhookDispatch | null;
-  private readonly lookupStatus: (token: string) => WebhookTaskStatus | null;
+  private readonly lookupStatus: (token: string, endpointId: string | null) => WebhookTaskStatus | null;
+  private readonly onRefused?: (endpointId: string, status: number) => void;
   /** Compared against when the requested id doesn't exist, purely so the failure
    *  path does the same work as a wrong-secret failure. Random per process and
    *  never exported, so it cannot be matched even by accident. */
@@ -154,11 +207,19 @@ export class WebhookServer {
   // Fixed-window rate limiters keyed by bucket ('' = global, else the endpoint id).
   // The remote IP is the tunnel's, so per-IP would be meaningless behind tunnelmole.
   private windows = new Map<string, { start: number; count: number }>();
+  private readonly replayWindowMs: number;
+  /** `<endpoint id>\n<delivery id>` to when it may be taken again. */
+  private deliveries = new Map<string, number>();
 
   constructor(opts: WebhookServerOptions) {
+    this.replayWindowMs = typeof opts.replayWindowMs === 'number' && opts.replayWindowMs > 0 ? opts.replayWindowMs : 0;
     this.port = opts.port;
+    this.requestedPort = opts.port;
+    this.tunnelOpener = opts.openTunnel;
+    this.onTunnelUrl = opts.onTunnelUrl;
     this.onMessage = opts.onMessage;
     this.lookupStatus = opts.lookupStatus;
+    this.onRefused = opts.onRefused;
     this.setEndpoints(opts.endpoints);
   }
 
@@ -194,6 +255,13 @@ export class WebhookServer {
     return this.tunnelUrl;
   }
 
+  /** Where the server really is, for Settings (shared/boundPort.ts). Empty when
+   *  it is not bound. */
+  boundPort(): BoundPort {
+    if (!this.server) return {};
+    return { port: this.port, ...(this.movedFromPort !== undefined ? { movedFrom: this.movedFromPort } : {}) };
+  }
+
   /** Is the local HTTP server bound? `start()` reports ok:false for a tunnel
    *  failure too, and in THAT case the security boundary is still live — the
    *  caller must keep the instance (or the listener leaks, unstoppable). */
@@ -207,58 +275,108 @@ export class WebhookServer {
    * opened afterwards and is non-fatal — if it can't be established the server
    * keeps running and we report the tunnel error without a URL.
    */
-  async start(): Promise<{ ok: boolean; url?: string; error?: string }> {
+  async start(): Promise<{ ok: boolean; url?: string; error?: string } & BoundPort> {
     if (this.server) return { ok: false, error: 'already running' };
     if (this.endpoints.size === 0) return { ok: false, error: 'no enabled webhook endpoints' };
+    this.movedFromPort = undefined;
     try {
-      await this.listen();
+      await this.listen(this.requestedPort);
     } catch (e) {
-      this.stop();
-      return { ok: false, error: `failed to bind port ${this.port}: ${errMsg(e)}` };
+      // 0.5.3, the rest of bug 11. A taken port used to leave every webhook off
+      // until the person found what held it. Callers through the tunnel do not
+      // know the local port, and the tunnel is opened below to whatever was
+      // bound, so for them a free port is as good. A LOCAL caller pointed at the
+      // configured port does break, which is why the move is reported
+      // (boundPort) and shown in Settings instead of being silent.
+      if ((e as NodeJS.ErrnoException)?.code !== 'EADDRINUSE') {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort}: ${errMsg(e)}` };
+      }
+      try {
+        await this.listen(0);
+        this.movedFromPort = this.requestedPort;
+      } catch (e2) {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort} (in use) or any free port: ${errMsg(e2)}` };
+      }
     }
+    const bound = this.boundPort();
     try {
       const url = await this.openTunnel();
       if (!url) throw new Error('tunnelmole returned empty URL');
       this.tunnelUrl = url;
-      // tunnelmole runs in the background; there is no close handle to wire here.
-      return { ok: true, url };
+      // main/tunnel.ts keeps it open: a close reopens it and onTunnelUrl hears the new root.
+      return { ok: true, url, ...bound };
     } catch (e) {
       // Surface the tunnel failure rather than silently returning ok:true with no url.
-      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}` };
+      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}`, ...bound };
     }
   }
 
-  /** Close the HTTP server. Idempotent and best-effort.
-   *  Note: tunnelmole has no documented close handle; teardown is best-effort. */
+  /** Close the HTTP server and its tunnel. Idempotent and best-effort. */
   stop(): void {
+    this.tunnel?.close();
+    this.tunnel = null;
     this.tunnelUrl = null;
     try { this.server?.close(); } catch { /* noop */ }
     this.server = null;
+    this.movedFromPort = undefined;
   }
 
-  private listen(): Promise<void> {
+  private listen(port: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const server = createServer((req, res) => this.handleRequest(req, res));
       const onError = (e: Error): void => reject(e);
       server.once('error', onError);
-      server.listen(this.port, () => {
+      server.listen(port, () => {
         server.off('error', onError);
         this.server = server;
+        // Port 0 means "any": read back the one the system gave.
+        const addr = server.address();
+        this.port = addr && typeof addr === 'object' ? addr.port : port;
         resolve();
       });
     });
   }
 
   private async openTunnel(): Promise<string> {
-    // TODO: optional persistent domain — pass `domain` here when config carries one.
-    // Dynamic import keeps the ESM-only `tunnelmole` out of the CJS require graph.
-    const { tunnelmole } = await import('tunnelmole');
-    return new Promise<string>((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('timed out')), TUNNEL_START_TIMEOUT_MS);
-      tunnelmole({ port: this.port })
-        .then((url) => { clearTimeout(timer); resolve(url); })
-        .catch((e) => { clearTimeout(timer); reject(e); });
+    if (this.tunnelOpener) return this.tunnelOpener(this.port);
+    // TODO: optional persistent domain, when config carries one.
+    const port = this.port;
+    this.tunnel?.close();
+    const tunnel = await keepTunnel({
+      name: 'webhook',
+      port,
+      startTimeoutMs: TUNNEL_START_TIMEOUT_MS,
+      listening: () => this.server?.listening === true && this.port === port,
+      onUrl: (url) => { this.tunnelUrl = url; this.onTunnelUrl?.(url); },
+      onDown: () => { if (this.tunnel === tunnel) this.tunnel = null; }
     });
+    // Stopped while it opened: let it go rather than keep a tunnel nothing serves.
+    if (!this.server) { tunnel.close(); throw new Error('stopped'); }
+    this.tunnel = tunnel;
+    return tunnel.url;
+  }
+
+
+  /** Has this endpoint taken this delivery id inside the window? */
+  private deliverySeen(endpointId: string, delivery: string | null): boolean {
+    if (!this.replayWindowMs || !delivery) return false;
+    const until = this.deliveries.get(`${endpointId}\n${delivery}`);
+    return until !== undefined && until > Date.now();
+  }
+
+  /** Remember a delivery id this endpoint took. Expired ids go first, then the oldest past the cap. */
+  private noteDelivery(endpointId: string, delivery: string | null): void {
+    if (!this.replayWindowMs || !delivery) return;
+    const now = Date.now();
+    const key = `${endpointId}\n${delivery}`;
+    this.deliveries.delete(key);
+    this.deliveries.set(key, now + this.replayWindowMs);
+    for (const [k, until] of this.deliveries) {
+      if (this.deliveries.size <= MAX_DELIVERIES && until > now) break;
+      this.deliveries.delete(k);
+    }
   }
 
   /** Fixed-window limiter — bounds total work before any parse/crypto runs. */
@@ -278,6 +396,13 @@ export class WebhookServer {
     if (!this.allowRequest('', RATE_LIMIT)) { json(res, 429, { ok: false, error: 'rate limited' }); return; }
     const id = readEndpointId(req);
     const endpoint = id !== null ? this.endpoints.get(id) ?? null : null;
+    if (endpoint && this.onRefused && req.method === 'POST') {
+      const known = endpoint.id;
+      res.once('close', () => {
+        if (!res.headersSent || res.statusCode < 400) return;
+        try { this.onRefused?.(known, res.statusCode); } catch { /* the log never fails the call */ }
+      });
+    }
     // Per-endpoint budget, with every unknown id sharing one bucket (see UNKNOWN_BUCKET).
     if (!this.allowRequest(endpoint ? endpoint.id : UNKNOWN_BUCKET, PER_ENDPOINT_RATE_LIMIT)) {
       json(res, 429, { ok: false, error: 'rate limited' }); return;
@@ -285,7 +410,7 @@ export class WebhookServer {
     const method = req.method ?? '';
     if (method === 'GET') { this.handleStatus(req, res, endpoint); return; }
     if (method === 'POST') { this.handleCreate(req, res, endpoint); return; }
-    res.writeHead(405); res.end();
+    res.writeHead(405, { 'content-length': '0' }); res.end();
   }
 
   /**
@@ -300,7 +425,9 @@ export class WebhookServer {
     const token = readToken(req);
     if (!token) { json(res, 401, { ok: false, error: 'token required' }); return; }
     let status: WebhookTaskStatus | null = null;
-    try { status = this.lookupStatus(token); }
+    // The webhook the token was asked under goes with it: a token answers only
+    // under its own webhook's address.
+    try { status = this.lookupStatus(token, endpoint ? endpoint.id : null); }
     catch { json(res, 500, { ok: false, error: 'lookup failed' }); return; }
     // 404 for an unknown token — identical to a malformed one and to an unknown
     // endpoint id, so a probe can't distinguish any of the three (no enumeration).
@@ -310,10 +437,15 @@ export class WebhookServer {
 
   /** POST — verify this endpoint's secret, then buffer + validate + dispatch. */
   private handleCreate(req: IncomingMessage, res: ServerResponse, endpoint: WebhookEndpoint | null): void {
+    if (endpoint && isServiceSource(endpoint.source)) { this.handleServiceCreate(req, res, endpoint, endpoint.source); return; }
     // Authenticate BEFORE reading the body so an unauthenticated peer can't even
     // make us buffer (within the size cap). 401 on any failure — no detail leaked,
     // and an unknown id lands here too so it is answered identically.
-    if (!this.verifySecret(req, endpoint) || !endpoint) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+    // An HMAC caller signs the body, so only the header's presence can be
+    // checked now; the signature itself is checked once the body is in.
+    const hmac = endpoint?.auth === 'hmac';
+    if (hmac ? !hasCustomSignature(req.headers) : (!this.verifySecret(req, endpoint) || !endpoint)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+    if (!endpoint) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
 
     const chunks: Buffer[] = [];
     let size = 0;
@@ -326,8 +458,10 @@ export class WebhookServer {
     });
     req.on('end', () => {
       if (aborted) return;
+      const raw = Buffer.concat(chunks);
+      if (hmac && !verifyCustomSignature(req.headers, raw, endpoint.secret)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
       let parsed: unknown;
-      try { parsed = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+      try { parsed = JSON.parse(raw.toString('utf8')); }
       catch { json(res, 400, { ok: false, error: 'bad json' }); return; }
 
       // The endpoint's own schema decides what a valid body is. Echoing the
@@ -348,11 +482,15 @@ export class WebhookServer {
       if (body.kind === 'directive' || body.kind === 'communication') inbound.kind = body.kind;
       const from = typeof body.from === 'string' ? body.from.trim() : '';
       if (from) inbound.from = from;
+      // A delivery id this endpoint already took is not work again.
+      const delivery = deliveryIdOf(undefined, req.headers, parsed);
+      if (this.deliverySeen(endpoint.id, delivery)) { json(res, 409, { ok: false, error: 'duplicate delivery' }); return; }
 
       let out: WebhookDispatch | null = null;
       try { out = this.onMessage(inbound, { id: endpoint.id, name: endpoint.name }); }
       catch { json(res, 500, { ok: false, error: 'could not create task' }); return; }
       if (!out) { json(res, 500, { ok: false, error: 'could not create task' }); return; }
+      this.noteDelivery(endpoint.id, delivery);
       // 202, not 200: the message was accepted but no work has started. The caller
       // still gets its token so it can poll the hold, and the GET reports the hold
       // honestly rather than pretending a task is queued.
@@ -368,7 +506,51 @@ export class WebhookServer {
       }
       json(res, 200, { ok: true, token: out.token, taskId: out.taskId });
     });
-    req.on('error', () => { if (!aborted) { try { res.writeHead(400); res.end(); } catch { /* socket gone */ } } });
+    req.on('error', () => { if (!aborted) { try { res.writeHead(400, { 'content-length': '0' }); res.end(); } catch { /* socket gone */ } } });
+  }
+
+  /**
+   * POST from GitHub, Linear or Telegram (0.5.3). Their signature covers the
+   * raw body, so the header's presence is checked first (nothing to prove,
+   * nothing buffered) and the signature itself once the body is in. Their own
+   * payload is turned into the message, so the endpoint's schema does not
+   * apply. An event with nothing for an agent answers 200 so the service does
+   * not retry it, and goes nowhere.
+   */
+  private handleServiceCreate(req: IncomingMessage, res: ServerResponse, endpoint: WebhookEndpoint, source: ServiceSource): void {
+    if (!hasServiceSignature(source, req.headers)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+    const chunks: Buffer[] = [];
+    let size = 0;
+    let aborted = false;
+    req.on('data', (c: Buffer) => {
+      if (aborted) return;
+      size += c.length;
+      if (size > MAX_BODY_BYTES) { aborted = true; json(res, 413, { ok: false, error: 'too large' }); req.destroy(); return; }
+      chunks.push(c);
+    });
+    req.on('end', () => {
+      if (aborted) return;
+      const raw = Buffer.concat(chunks);
+      if (!verifyServiceSignature(source, req.headers, raw, endpoint.secret)) { json(res, 401, { ok: false, error: 'unauthorized' }); return; }
+      let parsed: unknown;
+      try { parsed = JSON.parse(raw.toString('utf8')); }
+      catch { json(res, 400, { ok: false, error: 'bad json' }); return; }
+      // Linear signs its send time in the body; an old one is a replay, refused as a bad signature.
+      // A delivery the service sends again (its retry, or a replay) is answered 200 so it stops, and goes nowhere.
+      const delivery = deliveryIdOf(source, req.headers, parsed);
+      if (this.deliverySeen(endpoint.id, delivery)) { json(res, 200, { ok: true, ignored: 'duplicate delivery' }); return; }
+      if (source === 'github' && !githubEventWanted(endpoint.events, req.headers, parsed)) { json(res, 200, { ok: true, ignored: 'event not chosen' }); return; }
+      const got = inboundFromService(source, req.headers, parsed);
+      if (got.skip) { json(res, 200, { ok: true, ignored: got.reason }); return; }
+      const inbound: WebhookInbound = { message: got.message, title: got.title, ...(got.from ? { from: got.from } : {}) };
+      let out: WebhookDispatch | null = null;
+      try { out = this.onMessage(inbound, { id: endpoint.id, name: endpoint.name }); }
+      catch { json(res, 500, { ok: false, error: 'could not create task' }); return; }
+      if (!out) { json(res, 500, { ok: false, error: 'could not create task' }); return; }
+      this.noteDelivery(endpoint.id, delivery);
+      json(res, out.pending ? 202 : 200, out.pending ? { ok: true, pending: true, status: 'awaiting-approval' } : { ok: true, taskId: out.taskId });
+    });
+    req.on('error', () => { if (!aborted) { try { res.writeHead(400, { 'content-length': '0' }); res.end(); } catch { /* socket gone */ } } });
   }
 
   /**
@@ -381,7 +563,9 @@ export class WebhookServer {
    * the same as "wrong secret" and answers with the same 401.
    */
   private verifySecret(req: IncomingMessage, endpoint: WebhookEndpoint | null): boolean {
-    const provided = req.headers['x-md-webhook-secret'];
+    // 'bearer' reads the secret from Authorization; 'header' (and an unknown
+    // id) from x-md-webhook-secret. Either way the compare below is the same.
+    const provided = endpoint?.auth === 'bearer' ? bearerToken(req.headers.authorization) : req.headers['x-md-webhook-secret'];
     if (typeof provided !== 'string') return false;
     const a = Buffer.from(provided);
     const b = Buffer.from(endpoint ? endpoint.secret : this.decoySecret);
@@ -389,6 +573,27 @@ export class WebhookServer {
     const equal = timingSafeEqual(a, b);
     return endpoint ? equal : false;
   }
+}
+
+/** The token of an `Authorization: Bearer <token>` header, or null. */
+export function bearerToken(h: string | undefined): string | null {
+  const m = typeof h === 'string' ? /^Bearer\s+(\S+)\s*$/i.exec(h) : null;
+  return m ? m[1] : null;
+}
+
+/** The header an HMAC caller signs with, and its `sha256=<hex>` value. */
+export const CUSTOM_SIGNATURE_HEADER = 'x-md-signature';
+function hasCustomSignature(headers: IncomingHttpHeaders): boolean {
+  const v = headers[CUSTOM_SIGNATURE_HEADER];
+  return typeof v === 'string' && v.length > 0;
+}
+/** Does `x-md-signature` carry sha256=HMAC(secret, body)? Constant time. */
+export function verifyCustomSignature(headers: IncomingHttpHeaders, rawBody: Buffer, secret: string): boolean {
+  const got = headers[CUSTOM_SIGNATURE_HEADER];
+  if (typeof got !== 'string' || !secret) return false;
+  const want = Buffer.from(`sha256=${createHmac('sha256', secret).update(rawBody).digest('hex')}`);
+  const have = Buffer.from(got.trim().toLowerCase());
+  return have.length === want.length && timingSafeEqual(have, want);
 }
 
 /**
@@ -404,6 +609,23 @@ function readEndpointId(req: IncomingMessage): string | null {
   if (segments.length === 0) return LEGACY_ENDPOINT_ID;
   if (segments.length > 1) return null;
   try { return decodeURIComponent(segments[0]); } catch { return segments[0]; }
+}
+
+/**
+ * The id a caller gives this delivery, or null: GitHub's
+ * `x-github-delivery`, Linear's `linear-delivery`, Telegram's `update_id` in
+ * the body, our own `x-md-delivery` for a custom caller. Short printable text
+ * only; anything else is no id.
+ */
+export function deliveryIdOf(source: ServiceSource | undefined, headers: IncomingHttpHeaders, parsed: unknown): string | null {
+  let v: unknown;
+  if (source === 'github') v = headers['x-github-delivery'];
+  else if (source === 'linear') v = headers['linear-delivery'];
+  else if (source === 'telegram') {
+    const u = parsed && typeof parsed === 'object' ? (parsed as { update_id?: unknown }).update_id : undefined;
+    v = typeof u === 'number' && Number.isSafeInteger(u) ? String(u) : undefined;
+  } else v = headers['x-md-delivery'];
+  return typeof v === 'string' && DELIVERY_ID.test(v) ? v : null;
 }
 
 /** Parse the endpoint's stored schema. An unparseable one yields `undefined`,
@@ -427,10 +649,18 @@ function readToken(req: IncomingMessage): string {
   return '';
 }
 
+/**
+ * Every answer carries its length. Without one Node sends
+ * `Transfer-Encoding: chunked`, and the tunnelmole relay in front of this
+ * computer turns a chunked answer into its own 502 Bad Gateway. Telegram then
+ * retried every update it had already delivered, with backoff, for as long as
+ * the tunnel was up (15 Nov: 25 calls for one /start, six cards and six temps).
+ */
 function json(res: ServerResponse, status: number, body: unknown): void {
   try {
-    res.writeHead(status, { 'content-type': 'application/json' });
-    res.end(JSON.stringify(body));
+    const text = JSON.stringify(body);
+    res.writeHead(status, { 'content-type': 'application/json', 'content-length': String(Buffer.byteLength(text)) });
+    res.end(text);
   } catch { /* socket already gone */ }
 }
 

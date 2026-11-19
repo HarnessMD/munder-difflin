@@ -1,11 +1,14 @@
 /**
- * Auto-update status model + presentation mapping.
+ * Update notice status model + presentation mapping.
  *
- * Deliberately electron-free: main (src/main/updater.ts) produces these states
- * from electron-updater events, the toolbar badge
- * (src/renderer/src/components/UpdateBadge.tsx) renders them, and the rules that
- * matter — which state wins when two arrive out of order, what the button says
- * and does — live here where they can be unit-tested without booting Electron.
+ * Releases are source only: a GitHub release carries notes and GitHub's own
+ * source archive, and people build the app themselves. So the app never
+ * downloads or installs anything. Main (src/main/updater.ts) polls
+ * releases/latest and reports what it found, the toolbar badge
+ * (src/renderer/src/components/UpdateBadge.tsx), the toast and Settings render
+ * it, and the rules that matter (which state wins when two arrive out of order,
+ * what the button says and does) live here where they can be unit tested
+ * without booting Electron.
  */
 
 export type UpdateStatus =
@@ -13,54 +16,25 @@ export type UpdateStatus =
   | { state: 'idle' }
   | { state: 'checking' }
   | { state: 'not-available' }
-  | { state: 'available'; version: string; notes?: string }
-  | { state: 'downloading'; version: string; percent: number }
-  | { state: 'downloaded'; version: string; notes?: string }
-  /** This install can't self-update (win-portable, or the native path failed):
-   *  notify-only, link to the release page. `reason` is the underlying error.
-   *  `notes` is the release body — the notify-only poll already reads the same
-   *  `releases/latest` JSON that carries it, so the toast can show "what's new"
-   *  here too without a second request. */
-  | { state: 'available-manual'; version: string; url: string; reason?: string; notes?: string;
-      /** Direct asset for THIS platform/arch, when the release has one. The
-       *  modal's primary button downloads it; without it the button falls back
-       *  to the releases page. */
-      downloadUrl?: string }
+  /** A newer release is out. `url` is its page on GitHub. `notes` is its body,
+   *  read from the same releases/latest reply, so the toast can show what is
+   *  new without a second request. */
+  | { state: 'available'; version: string; url: string; notes?: string }
   /** First launch after the version moved: `version` is the one now RUNNING and
    *  `notes` its release body, so the renderer can show that release's page. */
   | { state: 'just-updated'; version: string; notes?: string }
   | { state: 'error'; message: string };
 
-export type UpdateAction = 'none' | 'check' | 'download' | 'restart' | 'open-release' | 'manual';
+export type UpdateAction = 'none' | 'check' | 'open-release';
 
-export const REPO = 'chaitanyagiri/munder-difflin';
+/** Where releases are published. GitHub redirects the old name, and the poll
+ *  follows one redirect, but this is the name to keep current. */
+export const REPO = 'HarnessMD/munder-difflin';
 
-/** The installer for THIS machine in the release tagged v{version}, by the
- *  names electron-builder.yml produces. Used when a status carries no
- *  `downloadUrl` of its own (the native updater path never does). */
-export function installerUrl(version: string, platform: string, arch: string): string {
-  const v = version.replace(/^v/, '');
-  const file = platform === 'darwin' ? `Munder-Difflin-${v}-mac-${arch}.dmg`
-    : platform === 'win32' ? `Munder-Difflin-${v}-win-x64-setup.exe`
-    : `Munder-Difflin-${v}-linux-x86_64.AppImage`;
-  return `https://github.com/${REPO}/releases/download/v${v}/${file}`;
-}
-
-/** The newer release a status knows about, or null. Every state that names a
- *  version newer than the running one counts, whatever the updater is doing
- *  with it: the manual path is always on offer. */
+/** The newer release a status knows about, or null. */
 export function pendingVersion(status: UpdateStatus | null, current: string): string | null {
-  if (!status || !('version' in status)) return null;
-  if (status.state === 'just-updated') return null;
+  if (status?.state !== 'available') return null;
   return isNewer(status.version, current) ? status.version : null;
-}
-
-/** Where a manual download of `status`'s release goes: the asset the release
- *  itself named when it did, else the conventional installer URL. */
-export function manualDownloadUrl(status: UpdateStatus, platform: string, arch: string): string | null {
-  if (!('version' in status) || status.state === 'just-updated') return null;
-  if (status.state === 'available-manual' && status.downloadUrl) return status.downloadUrl;
-  return installerUrl(status.version, platform, arch);
 }
 
 export interface UpdateBadgeView {
@@ -120,16 +94,8 @@ export function shouldShowReleaseDrop(previous: string | null, current: string):
   return !isNewer(previous, current);
 }
 
-/** Download percentages arrive as floats and, on a resumed/differential
- *  download, occasionally out of range. Clamp so the UI can't render `-0%`
- *  or `104%`. */
-export function clampPercent(n: number): number {
-  if (!Number.isFinite(n)) return 0;
-  return Math.max(0, Math.min(100, Math.round(n)));
-}
-
-/** How far along the update pipeline a state is. A later stage is never
- *  replaced by an earlier one for the SAME version — see `reduceStatus`. */
+/** How much a state says. A state that says more is never replaced by one
+ *  that says less for the SAME version; see `reduceStatus`. */
 function rank(s: UpdateStatus): number {
   switch (s.state) {
     case 'idle': return 0;
@@ -137,10 +103,7 @@ function rank(s: UpdateStatus): number {
     case 'not-available': return 1;
     case 'error': return 1;
     case 'just-updated': return 1;
-    case 'available-manual': return 2;
-    case 'available': return 3;
-    case 'downloading': return 4;
-    case 'downloaded': return 5;
+    case 'available': return 2;
   }
 }
 
@@ -149,13 +112,22 @@ function versionOf(s: UpdateStatus): string | null {
 }
 
 /**
+ * The second, quieter action some states carry beside the primary one. With a
+ * newer release named, the primary button opens its page, and this keeps
+ * "check again" on offer beside it.
+ */
+export function secondaryUpdateAction(status: UpdateStatus | null): 'check' | null {
+  return status?.state === 'available' ? 'check' : null;
+}
+
+/**
  * Fold a new status into the current one.
  *
- * The rule that matters: once an update is staged, the 6-hourly re-check (or a
- * manual "check now") must NOT wipe the "restart to update" affordance out from
- * under the user — `checking` / `not-available` / a transient `error` are all
- * lower-rank and lose. A genuinely NEWER version always wins, so a long-running
- * app that sees 0.3.7 while 0.3.6 is staged moves forward rather than sticking.
+ * The rule that matters: once a newer release has been named, the 6 hourly
+ * re-check (or a manual "check now") must NOT wipe the notice out from under
+ * the person reading it. `checking`, `not-available` and a transient `error`
+ * all rank lower and lose. A genuinely NEWER version always wins, so a long
+ * running app that sees 0.3.7 after 0.3.6 was announced moves forward.
  */
 export function reduceStatus(prev: UpdateStatus | null, next: UpdateStatus): UpdateStatus {
   if (!prev) return next;
@@ -174,42 +146,11 @@ export function reduceStatus(prev: UpdateStatus | null, next: UpdateStatus): Upd
  */
 export function describeUpdate(status: UpdateStatus | null, currentVersion: string): UpdateBadgeView {
   const v = currentVersion;
-  // The title-bar badge is the MANUAL path, always: click downloads the
-  // installer and the user replaces the app. Auto-update (download, restart)
-  // lives in Settings -> Updates. So any state that names a newer release reads
-  // the same here, whatever the background updater is doing with it.
-  if (status?.state === 'downloading') {
-    // Settings started the automatic download; the chip reports progress and
-    // nothing else, so the two paths are not raced against each other.
-    return {
-      label: `downloading ${clampPercent(status.percent)}%`, action: 'none', tone: 'busy', busy: true,
-      title: `Downloading v${status.version}… ${clampPercent(status.percent)}%`
-    };
-  }
   const pending = pendingVersion(status, v);
   if (pending) {
-    // When the native updater has staged the update, the badge drives the SAME
-    // auto-update the Settings pane does: restart to install once it is
-    // downloaded, or kick the download while it is 'available'. Manual download
-    // is reserved for 'available-manual', the notify-only fallback where the
-    // native updater could NOT fetch it, so the user replaces the app by hand.
-    if (status?.state === 'downloaded') {
-      return {
-        label: `v${pending} · restart`, action: 'restart', tone: 'ready', busy: false,
-        title: `Click to restart and install v${pending}`
-      };
-    }
-    if (status?.state === 'available') {
-      return {
-        label: `v${pending} · update`, action: 'download', tone: 'ready', busy: false,
-        title: `Downloading v${pending} in the background; click to start it if it has not begun`
-      };
-    }
-    const why = status?.state === 'available-manual' && status.reason
-      ? ` (this install could not update itself: ${status.reason})` : '';
     return {
-      label: `v${pending} · download`, action: 'manual', tone: 'ready', busy: false,
-      title: `Click to download v${pending}, then replace the app you have${why}`
+      label: `v${pending} available`, action: 'open-release', tone: 'ready', busy: false,
+      title: `v${pending} is out. Click to open its release page.`
     };
   }
   switch (status?.state) {
@@ -231,11 +172,11 @@ export function describeUpdate(status: UpdateStatus | null, currentVersion: stri
 }
 
 export interface UpdateSettingsView {
-  /** Headline: the version that matters right now — yours, or the one waiting. */
+  /** Headline: the version that matters right now, yours or the newer one. */
   headline: string;
   /** One sentence of explanation. Carries the verbatim error when there is one. */
   detail: string;
-  /** Primary button label, or null while the updater is mid-flight and there is
+  /** Primary button label, or null while a check is in flight and there is
    *  nothing useful to press. */
   button: string | null;
   action: UpdateAction;
@@ -249,9 +190,9 @@ export interface UpdateSettingsView {
  * Separate from `describeUpdate` on purpose. The toolbar chip has room for two
  * words and has to stay quiet when nothing is happening, so its idle state says
  * nothing at all; Settings is where someone goes *to ask*, so every state gets a
- * full sentence and — outside the two mid-flight states — a button. The states
- * and the transitions between them are shared, which is the part that has to
- * stay in sync.
+ * full sentence and, outside a check in flight, a button. The states and the
+ * transitions between them are shared, which is the part that has to stay in
+ * sync.
  */
 export function describeUpdateSettings(
   status: UpdateStatus | null,
@@ -268,29 +209,8 @@ export function describeUpdateSettings(
     case 'available':
       return {
         headline: `v${status.version} is available`,
-        detail: `You're on v${v}. Download it now — you'll be asked to restart once it's ready.`,
-        button: `Download v${status.version}`, action: 'download', busy: false, tone: 'ready'
-      };
-    case 'downloading':
-      return {
-        headline: `Downloading v${status.version}`,
-        detail: `${clampPercent(status.percent)}% done. You can keep working; the restart is yours to trigger.`,
-        button: null, action: 'none', busy: true, tone: 'busy'
-      };
-    case 'downloaded':
-      return {
-        headline: `v${status.version} is ready to install`,
-        detail: `Restart Munder Difflin to finish updating from v${v}.`,
-        button: 'Restart to update', action: 'restart', busy: false, tone: 'ready'
-      };
-    case 'available-manual':
-      return {
-        headline: `v${status.version} is available`,
-        detail: status.reason
-          ? `This install can't update itself (${status.reason}) — download it from the release page.`
-          : `This install can't update itself — download it from the release page.`,
-        button: status.downloadUrl ? `Download v${status.version}` : 'Open release page',
-        action: 'open-release', busy: false, tone: 'warn'
+        detail: `You're on v${v}. Releases ship as source, so build it the way you built this one.`,
+        button: 'Open release page', action: 'open-release', busy: false, tone: 'ready'
       };
     case 'just-updated':
       return {
@@ -318,34 +238,4 @@ export function describeUpdateSettings(
         button: 'Check for updates', action: 'check', busy: false, tone: 'idle'
       };
   }
-}
-
-/** What to do with the installer once it has downloaded, per platform. Shown
- *  on the title-bar badge's hover card and in the notice after the click. */
-export function manualInstallSteps(platform: string): { os: string; steps: string[] } {
-  if (platform === 'darwin') {
-    return {
-      os: 'macOS',
-      steps: [
-        'Open the .dmg and drag Munder Difflin onto Applications. Choose Replace when asked.',
-        'Quit this app, open the new one from Applications, and pick the same project.'
-      ]
-    };
-  }
-  if (platform === 'win32') {
-    return {
-      os: 'Windows',
-      steps: [
-        'Quit this app, then run the downloaded setup .exe. It replaces the installed version.',
-        'Open Munder Difflin again and pick the same project.'
-      ]
-    };
-  }
-  return {
-    os: 'Linux',
-    steps: [
-      'Make the downloaded .AppImage executable (chmod +x) and move it over the one you run now.',
-      'Quit this app, launch the new AppImage, and pick the same project.'
-    ]
-  };
 }

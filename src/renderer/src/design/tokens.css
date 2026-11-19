@@ -28,8 +28,12 @@
 
   /* Status — same recalibration; hue meanings unchanged */
   --cth-status-idle:     #A199AB;
+  --cth-status-sleeping: var(--cth-status-idle);
+  --cth-status-sleeping-tint: var(--cth-status-idle-tint);
+  --cth-dot-idle:        var(--cth-status-idle);      /* 0.5.3 bug 16, see the professional blocks */
   --cth-status-thinking: #4F9FAF;
   --cth-status-working:  #DCAB3C;
+  --cth-dot-working:     var(--cth-status-working);
   --cth-status-waiting:  #6D87D6;
   --cth-status-blocked:  #D96A62;
   --cth-status-success:  #5CA97A;
@@ -57,6 +61,23 @@
   --cth-font-display: "Press Start 2P", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI Historic", monospace;
   --cth-font-ui:      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI Historic", sans-serif;
   --cth-font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, "PingFang SC", "Microsoft YaHei", "Noto Sans Mono CJK SC", "Noto Sans CJK SC", "Geeza Pro", "Noto Naskh Arabic", "Segoe UI Historic", monospace;
+
+  /* FIGURES (v0.4.9 phase 7, founder 3 Sep 2026: "the terminal's font is used
+     for the app's figures, so the sidebar and the terminal agree").
+
+     Every NUMBER the app draws reads in the terminal's face: a queue position
+     in the composer, a token total on an agent card, a percent under a context
+     meter, a count in the rail. The reason is not decoration. Inter's digits
+     are proportional, so a figure beside a figure in Inter does not line up and
+     does not match the same figure one pane to the right, where the terminal is
+     showing it in JetBrains Mono. Two faces for one kind of fact reads as two
+     kinds of fact.
+
+     An ALIAS, not a fourth stack. Pointing it at the mono stack is the whole
+     point: xterm is handed "JetBrains Mono" first (src/renderer/src/components/
+     terminalPool.ts) and so is this, and when that stack moves both move
+     together. A second literal list here would be a promise that drifts. */
+  --cth-font-figures: var(--cth-font-mono);
 
   /* Type scale — v0.3.4: one step tighter (Inter reads larger than Pixelify
      at equal px, and the controls were oversized) */
@@ -90,6 +111,14 @@
      ink-900 here inverts with the theme and paints near-white on a pale accent,
      which is the one place the theme switch actively hurts legibility. */
   --cth-on-accent: #1A1320;
+  /* The accent names some screens read. Classic's accent is its lemon,
+     mixed from tokens the dark theme restates, so one definition serves both
+     themes. */
+  --cth-accent: var(--cth-lemon);
+  --cth-accent-hover: color-mix(in srgb, var(--cth-lemon) 80%, white);
+  --cth-accent-ink: var(--cth-on-accent);
+  --cth-accent-text: color-mix(in srgb, var(--cth-lemon) 55%, var(--cth-ink-900));
+  --cth-accent-soft: color-mix(in srgb, var(--cth-lemon) 20%, var(--cth-cream-50));
 
   --cth-panel-border-inset:    inset 0 0 0 1px var(--cth-ink-100);
   --cth-panel-border-terminal: inset 0 0 0 1px var(--cth-ink-300);
@@ -156,8 +185,10 @@
 
   /* Status — dark-tuned counterparts (same hue language) */
   --cth-status-idle:     #6F6C77;
+  --cth-dot-idle:        var(--cth-status-idle);
   --cth-status-thinking: #64ACBB;
   --cth-status-working:  #D8B052;
+  --cth-dot-working:     var(--cth-status-working);
   --cth-status-waiting:  #8095DC;
   --cth-status-blocked:  #DF8078;
   --cth-status-success:  #6FB88B;

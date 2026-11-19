@@ -1,14 +1,74 @@
-<!-- RELEASE RUNNER, REQUIRED BEFORE YOU TAG: run RELEASE-CHECKLIST.md. Rehearse the updater on 0.4.6-rc.1 -> 0.4.7-rc.1 prereleases and pass the fault-injection checks BEFORE tagging the real release. This comment is not rendered in the published notes. -->
-# Munder Difflin v0.4.6
+<!-- RELEASE RUNNER: releases are source only from 0.6.0. Pushing a v* tag creates the GitHub Release from this file with no files attached; GitHub adds the source archive. Nothing is built, signed or notarized. This comment is not rendered in the published notes. -->
+# Munder Difflin v0.6.0
 
 **A local hive of Claude Code, Antigravity, Codex, Gemini, Cursor, Grok & Copilot agents that run themselves.**
 Messaging, routing, and remembering, coordinated by your clone, Michael, who you talk to. Local-first and open source.
 
-### → [**munderdiffl.in**](https://munderdiffl.in/) · see it in action, then grab a build below
+### → [**munderdiffl.in**](https://munderdiffl.in/) · see it in action, then build it from source below
 
 ---
 
-## What's new in 0.4.6
+## What's new in 0.6.0
+
+**The engine catches up.** The agents' engine gets a year's worth of work: agents that sleep and
+wake, keys that reach a running agent, MCP servers chosen per agent, a token cap per agent, and
+integrations for Slack, webhooks and the tunnel.
+
+- **The new engine.** Mail and wake, temps, compaction by size, a clear when an agent switches
+  work, handoff, memory trim and the memory index, restart and resume, the circuit breaker and
+  the token ledger, safe git and worktree admin, hooks over HTTP, the retention sweep, board
+  hygiene, two floors, recovery of a crashed window, and Windows fixes.
+- **Agents sleep.** An idle agent sleeps after the time set in Settings and shows a Sleeping card
+  with a Wake button on its terminal.
+- **Integrations.** Slack in every mode, inbound webhooks (GitHub, Linear, Telegram and your own),
+  the tunnel, an integration broker every agent can use, and an inbound message handled by a temp.
+- **Keys reach running agents.** A key or secret saved in Settings is available to an agent
+  through `md-secret` at once, with no restart.
+- **MCP servers per agent**, over the floor wide defaults, and a **token cap per agent** in the
+  command center.
+- **A top bar** with the version, auto mode, usage limits, theme, settings and focus.
+
+### Releases are source only
+
+From 0.6.0 on, a release carries the source code and its notes, and no installers. Build the app
+on your own machine with the steps under **Build it** below. The app checks for a newer release
+and tells you when one is out, with a link to its notes. It no longer downloads or installs
+anything.
+
+### Removed
+
+- Downloading and installing updates inside the app (see above).
+- Freeflow dictation and the office theme picker. The floor keeps its default office.
+
+<!-- drop -->
+<div class="drop">
+  <p class="eyebrow">Munder Difflin 0.6.0</p>
+  <h1>The engine catches up.</h1>
+  <p class="lede">Agents that sleep and wake, keys that reach a running agent, MCP servers per
+  agent and a token cap per agent. Releases are source only from now on.</p>
+  <ul class="features">
+    <li>
+      <h2>Agents sleep</h2>
+      <p>An idle agent sleeps after the time you set in Settings. Wake it from its terminal.</p>
+    </li>
+    <li>
+      <h2>Keys reach running agents</h2>
+      <p>A key saved in Settings is ready for an agent at once, with no restart.</p>
+    </li>
+    <li>
+      <h2>Integrations</h2>
+      <p>Slack in every mode, inbound webhooks, the tunnel and a broker every agent can use.</p>
+    </li>
+    <li>
+      <h2>Build it yourself</h2>
+      <p>Releases now carry the source code and no installers. The app tells you when a new
+      version is out and links to its notes.</p>
+    </li>
+  </ul>
+</div>
+<!-- /drop -->
+
+## Still new in 0.4.6
 
 **The release that speaks your language and updates itself.** The interface now runs in Chinese and
 Arabic, the auto-updater downloads and installs a new build end to end, fonts ship inside the app so
@@ -37,14 +97,6 @@ hardened. Plus the Settings rework, an IME fix for CJK typing, and 16 community 
 - **The ASK ME card renders markdown.** Questions with emphasis, bullets, `code`, tables and links
   now render instead of showing their raw asterisks.
 
-### A note on Pro
-
-v0.5.0 launches with a Pro version alongside the community version. Community stays free, stays
-open, and keeps getting updates. Pro ships with new features and integrations, with more posted
-throughout the year, and it stays ahead of Community, for power users who want the full potential
-of coding agents and agent harnesses. The Pro roadmap also includes a mobile app. The first 100 people on the
-Founders' Wall get a month of Pro free, then 50% off the annual plan.
-
 ### Thanks
 
 16 community pull requests from 13 contributors landed in this release, one of them (#213)
@@ -56,44 +108,6 @@ re-implemented rather than merged. Thank you to [@aaroncoville](https://github.c
 [@raifemre](https://github.com/raifemre), [@savvaskoualis](https://github.com/savvaskoualis) and
 [@Schopenhauer-loves-Hegel](https://github.com/Schopenhauer-loves-Hegel), and to everyone who
 reviewed a pull request or filed the bug that led to one.
-
-<!-- drop -->
-<div class="drop">
-  <p class="eyebrow">Munder Difflin 0.4.6</p>
-  <h1>Speaks your language. Updates itself.</h1>
-  <p class="lede">The interface now runs in Chinese and Arabic, the updater installs a new build end
-  to end, and the fonts ship inside the app so a blocked network never leaves you on a blank screen.</p>
-  <ul class="features">
-    <li>
-      <h2>Chinese and Arabic</h2>
-      <p>Pick a language in Settings. Every string is translated and the terminals read right to
-      left. Some screens still need their padding and icons mirrored, and that is the next piece of
-      work.</p>
-    </li>
-    <li>
-      <h2>Updates install themselves</h2>
-      <p>The badge moves from check to available to downloading to downloaded on its own, and the
-      button at the end restarts you into the new version. This is the release that proves that path.</p>
-    </li>
-    <li>
-      <h2>Fonts ship inside the app</h2>
-      <p>No Google Fonts fetch on launch, so the app opens at the same speed on any network,
-      including one where Google is blocked, and this page can no longer white-screen while a
-      stylesheet loads.</p>
-    </li>
-    <li>
-      <h2>Hardened command launching</h2>
-      <p>The name of the CLI an agent launches is validated before it is ever resolved against your
-      PATH.</p>
-    </li>
-    <li>
-      <h2>One Save button</h2>
-      <p>The Connections tab stops repeating itself. REST API, MCP, Slack and webhooks each keep
-      their place.</p>
-    </li>
-  </ul>
-</div>
-<!-- /drop -->
 
 ## Still new in 0.4.5
 
@@ -289,71 +303,37 @@ Four of the fixes above are [@gpechieu](https://github.com/gpechieu)'s and three
 [@TTAWDTT](https://github.com/TTAWDTT)'s. Thank you, and thank you to everyone who reviewed a
 pull request or filed the bug that led to one.
 
-## ⤓ Downloads
-
-Latest builds for every platform. The macOS build is **universal**, one DMG that runs on both
-Apple Silicon and Intel.
-
-### 🍎 macOS
-| Build | File |
-|---|---|
-| Universal (Apple Silicon + Intel) | [`Munder-Difflin-0.4.6-mac-universal.dmg`](https://github.com/chaitanyagiri/munder-difflin/releases/latest/download/Munder-Difflin-0.4.6-mac-universal.dmg) |
-
-### 🪟 Windows
-| Build | File |
-|---|---|
-| Installer (x64), *recommended* | [`Munder-Difflin-0.4.6-win-x64-setup.exe`](https://github.com/chaitanyagiri/munder-difflin/releases/latest/download/Munder-Difflin-0.4.6-win-x64-setup.exe) |
-| Portable (x64, no install) | [`Munder-Difflin-0.4.6-win-x64-portable.exe`](https://github.com/chaitanyagiri/munder-difflin/releases/latest/download/Munder-Difflin-0.4.6-win-x64-portable.exe) |
-
-### 🐧 Linux
-| Build | File |
-|---|---|
-| AppImage (x86_64) | [`Munder-Difflin-0.4.6-linux-x86_64.AppImage`](https://github.com/chaitanyagiri/munder-difflin/releases/latest/download/Munder-Difflin-0.4.6-linux-x86_64.AppImage) |
-
-### 📦 Source
-[Source code (zip)](https://github.com/chaitanyagiri/munder-difflin/archive/refs/tags/v0.4.6.zip) ·
-[Source code (tar.gz)](https://github.com/chaitanyagiri/munder-difflin/archive/refs/tags/v0.4.6.tar.gz)
-
-> **Verify your download:** [`SHA256SUMS.txt`](https://github.com/chaitanyagiri/munder-difflin/releases/latest/download/SHA256SUMS.txt) — then `shasum -a 256 -c SHA256SUMS.txt` (macOS/Linux) or `Get-FileHash` (Windows).
-
-> The filenames above carry a version number, so they only resolve while this is the
-> latest release. If a link 404s you are reading an old release page — grab the current
-> build from the [**releases page**](https://github.com/chaitanyagiri/munder-difflin/releases/latest),
-> which is always right.
-
 ---
 
-## First launch
+## Build it
 
-- **macOS** — the build is **signed with a Developer ID** (hardened runtime). If macOS
-  still shows an "unidentified developer" warning on first open, right-click the app →
-  **Open** → **Open** once. After that, the first time agents touch a folder you'll get a
-  single macOS privacy prompt for Documents/Desktop/Downloads — allow it once and the
-  grant sticks (it covers the `claude` agents the app spawns), because the grant is bound
-  to the app's stable signature.
-- **Windows** — not code-signed yet; SmartScreen may show "Windows protected your PC" →
-  **More info** → **Run anyway**.
-- **Linux** — make the AppImage executable: `chmod +x Munder-Difflin-*.AppImage`, then run it.
+Releases carry the source code only. Build the app on your own machine:
+
+```bash
+git clone https://github.com/HarnessMD/munder-difflin.git
+cd munder-difflin
+git checkout v0.6.0
+nvm use            # Node 22 (Node 20 works too; Node 26 cannot run the native rebuild)
+npm install        # rebuilds node-pty for Electron
+npm run dev        # starts the app
+```
+
+To make an app you can keep in your Applications folder: `npm run dist` (current OS), or
+`dist:mac` / `dist:win` / `dist:linux`. The result is not signed, so on first open macOS may ask
+you to right click the app and choose **Open**, and Windows SmartScreen may ask you to choose
+**More info**, then **Run anyway**.
+
+When a newer release is out, the app tells you and links to its notes. To update, pull the new
+tag and run the same steps again.
 
 ---
 
 ## Requirements
 - macOS 12+, Windows 10/11, or a modern Linux desktop
+- Node 20 or 22, and a C/C++ toolchain (Xcode Command Line Tools on macOS, Build Tools on Windows)
 - [Claude Code](https://claude.com/claude-code) installed and on your `PATH` (and/or the Antigravity `agy` or OpenAI `codex` CLI for those providers)
-- A Claude Code subscription (Munder Difflin drives your existing `claude` CLI — it doesn't replace it)
-- For **Realtime Michael** (voice): your own **OpenAI key with Realtime API access** — without it the **Talk** button stays disabled
-
----
-
-## 🛠 Build from source
-```bash
-git clone https://github.com/chaitanyagiri/munder-difflin.git
-cd munder-difflin
-npm install        # rebuilds node-pty for Electron
-npm run dev        # launches the app with hot reload
-```
-Node 18+ and a C/C++ toolchain are required (Xcode CLT on macOS, Build Tools on Windows).
-To produce installers yourself: `npm run dist` (current OS), or `dist:mac` / `dist:win` / `dist:linux`.
+- A Claude Code subscription (Munder Difflin drives your existing `claude` CLI; it doesn't replace it)
+- For **Realtime Michael** (voice): your own **OpenAI key with Realtime API access**. Without it the **Talk** button stays disabled
 
 ---
 
@@ -365,15 +345,15 @@ To produce installers yourself: `npm run dist` (current OS), or `dist:mac` / `di
 - **GOD orchestrator + hive** — one agent you talk to routes work to specialists and stays autonomous, escalating only critical items (spend, destructive ops, scope) to you natively, through human-in-the-loop prompts. It can also spawn an ephemeral worker straight from Slack and tear it down safely.
 - **Plugs into your setup** — your subscription, settings, skills, and MCP servers, plus an integrations registry with a write-only secret broker; `/remote-control` reaches the whole floor from your phone.
 
-Full notes in the [CHANGELOG](https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md).
+Full notes in the [CHANGELOG](https://github.com/HarnessMD/munder-difflin/blob/main/CHANGELOG.md).
 
 ---
 
 ## Links
 [Website](https://munderdiffl.in/) ·
-[Repo](https://github.com/chaitanyagiri/munder-difflin) ·
-[Issues](https://github.com/chaitanyagiri/munder-difflin/issues) ·
-[Contribute](https://github.com/chaitanyagiri/munder-difflin/blob/main/CONTRIBUTING.md) ·
+[Repo](https://github.com/HarnessMD/munder-difflin) ·
+[Issues](https://github.com/HarnessMD/munder-difflin/issues) ·
+[Contribute](https://github.com/HarnessMD/munder-difflin/blob/main/CONTRIBUTING.md) ·
 [Become a patron](https://razorpay.me/@munderdifflinfund)
 
 MIT-licensed. An affectionate parody — not affiliated with NBC's *The Office* or Dunder Mifflin.

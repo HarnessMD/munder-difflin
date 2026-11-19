@@ -12,9 +12,20 @@ import {
 } from '@shared/engineAvailability';
 import type { ToolStatus } from '@shared/toolCatalog';
 import { useResolvedGodName } from '@/hooks/useResolvedGodName';
+import { useFolderCheck } from '@/hooks/useFolderCheck';
+import { OFFERED_LANGUAGES, hasSavedLanguage, setLanguage } from '@/i18n';
+import { systemLanguageOf } from '@/i18n/systemLanguage';
 
 export interface OnboardingWizardProps {
   onComplete: (config: HarnessConfig) => void;
+}
+
+/** The computer's language among the offered ones, else English. Read only by
+ *  onboarding: the app itself never reads the system language (i18n/index.ts). */
+function systemLanguage(): string {
+  let wanted: readonly string[] = [];
+  try { wanted = navigator.languages?.length ? navigator.languages : [navigator.language]; } catch { /* none */ }
+  return systemLanguageOf(wanted, OFFERED_LANGUAGES.map((l) => l.code));
 }
 
 type Audience = 'technical' | 'non-technical';
@@ -109,6 +120,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   );
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
+  // What the home folder already is, said on the home step as soon as it is picked or typed.
+  const found = useFolderCheck(home);
 
   // Which engine CLIs are actually on this machine. The picker used to record the
   // choice blind; the first check happened when Michael spawned, and for a
@@ -124,6 +137,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     finally { setProbing(false); }
   };
   useEffect(() => { void probeEngines(); }, []);
+  // A fresh install starts in the computer's language when the app has it,
+  // saved as the Settings language; a language picked before is kept.
+  useEffect(() => { if (!hasSavedLanguage()) setLanguage(systemLanguage()); }, []);
   const selectedEngine = classifyEngineAvailability(engines, godProvider);
   const engineBlocked = engineBlocksOnboarding(selectedEngine);
 
@@ -210,6 +226,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       setError(t('onboarding.errEngineNotInstalled', { label: providerPreset(godProvider).label }));
       setBusy(false); setStep('orchestrator'); return;
     }
+    // A folder that is a workspace already is said on the home step (useFolderCheck), so going on from there is the person's choice and nothing stops here.
     const ensure = await window.cth.ensureHarnessHome(harnessHome);
     if (!ensure.ok) {
       setError(ensure.error ?? t('onboarding.errCreateHome'));
@@ -385,6 +402,17 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 <div style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>
                   {plain ? t('onboarding.home.notePlain') : t('onboarding.home.note')}
                 </div>
+                {/* A workspace already there is information, drawn in the note's ink, not the coral error box. */}
+                {found === 'workspace' && (
+                  <div role="status" data-folder-holds-workspace style={{ fontSize: 12, color: 'var(--cth-ink-700)', overflowWrap: 'anywhere' }}>
+                    {t('onboarding.homeHoldsWorkspace', { path: home.trim() })}
+                  </div>
+                )}
+                {found === 'file' && (
+                  <div role="alert" style={{ padding: '6px 10px', background: 'var(--cth-coral-light)', boxShadow: 'inset 0 0 0 1px var(--cth-coral)', fontSize: 13, color: 'var(--cth-ink-900)', overflowWrap: 'anywhere' }}>
+                    {t('onboarding.homeIsFile', { path: home.trim() })}
+                  </div>
+                )}
               </>
             )}
 
@@ -689,8 +717,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
                 <ToggleRow
                   icon="info"
-                  label={t('onboarding.permissions.shareStats')}
-                  desc={t('onboarding.permissions.shareStatsDesc')}
+                  label={t('onboarding.permissions.shareStats', 'SHARE ANONYMOUS USAGE STATS')}
+                  desc={t('onboarding.permissions.shareStatsDesc', 'A few anonymous events (app opened, agent spawned, feature used) that help improve Munder Difflin. Never prompts, code, file paths or agent output. The full list is in TELEMETRY.md; change it any time in Settings.')}
                   on={shareStats}
                   tint="var(--cth-lemon-light)"
                   edge="var(--cth-lemon)"
@@ -779,7 +807,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                       setError(undefined);
                       setStep(nextStep(step));
                     }}
-                    disabled={(step === 'persona' && !audience) || (step === 'orchestrator' && engineBlocked)}
+                    disabled={(step === 'persona' && !audience) || (step === 'home' && found === 'file') || (step === 'orchestrator' && engineBlocked)}
                   >
                     {step === 'welcome' ? t('onboarding.permissions.setItUp') : t('common.next')}
                   </PixelButton>

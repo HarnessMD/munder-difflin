@@ -1,3 +1,4 @@
+import { isTerminalReport } from '@shared/terminalReport';
 /**
  * A process-wide pool of live xterm terminals, one per ptyId.
  *
@@ -22,8 +23,10 @@ import { arabicJoinRanges } from '@/terminal/arabicJoiner';
 import { attachArabicSpacingFix } from '@/terminal/arabicSpacingFix';
 import { isArabicTerminalEnabled } from '@/terminal/arabicSetting';
 import {
-  classifyPathToken, isPathToken, stripPathToken, terminalLinkSpans, type PathAction
+  classifyPathToken, confirmSpacedPath, isPathToken, spacedPathSpans, terminalLinkSpans, terminalPathReference, type PathAction
 } from '@shared/terminalPaths';
+import { confirmedTerminalLine, createTerminalMouseLinkGate, rangesOverlap } from '@shared/terminalBufferLinks';
+import { ownerOfPath } from '@/ide/ownerOfPath';
 import {
   createTerminalRecoveryState,
   normalizePtyChunk,
@@ -33,6 +36,7 @@ import {
 } from './terminalRecovery';
 import {
   canAutomateTerminal,
+  settleDraft,
   opensInteractiveTerminalUi,
   shouldFollowTerminalOutput,
   terminalAutomationBlock,
@@ -40,6 +44,12 @@ import {
 } from './terminalAutomation';
 import { sanitizeTerminalSelection } from './terminalSelection';
 import { terminalKeySequence } from './terminalKeys';
+import type { CliMissingState } from '@shared/cliMissing';
+import type { CliSetupState } from '@shared/cliSetup';
+import type { LoginPrompt } from '@shared/cliLogin';
+import i18n from '@/i18n';
+import { showToast } from './toast';
+import { coveredAboveIde, ideChordOpens } from '../ide/ideShortcutRules';
 import '@xterm/xterm/css/xterm.css';
 
 export interface TerminalEntry {
@@ -52,6 +62,16 @@ export interface TerminalEntry {
   /** xterm is only `open()`ed once its host is first attached to the document. */
   opened: boolean;
   exited: boolean;
+  /** I2 (0.5.3): the engine CLI is not installed, so nothing is running in this
+   *  pty and the view draws the card over the grid. Null once it runs. */
+  cliMissing: CliMissingState | null;
+  cliMissingListeners: Set<(s: CliMissingState | null) => void>;
+  /** Batch 2: installing, or signing in after the install. */
+  cliSetup: CliSetupState | null;
+  cliSetupListeners: Set<(s: CliSetupState | null) => void>;
+  /** I2 part 2: the CLI's sign in prompt, drawn as a modal over the grid. */
+  login: LoginPrompt | null;
+  loginListeners: Set<(p: LoginPrompt | null) => void>;
   /** Stream subscriptions to tear down on dispose. */
   unsub: Array<() => void>;
   /** Current consumer callbacks — set by whichever view is mounted. */
@@ -72,7 +92,7 @@ export interface TerminalEntry {
   automationBlockedAt: number;
   /** True while the user has unsubmitted text in the live TUI prompt. */
   inputDirty: boolean;
-  inputDirtyAt: number; // when the draft was last typed into; drives staleness expiry
+  inputDirtyAt: number; // when the draft was last typed into; the screen cannot clear it inside the echo grace
   automationSettleUntil: number;
   /** Our model of the text on the live prompt line. On the ENTRY, not a closure
    * variable: `inputDirty` is derived from it, so anything that clears the
@@ -83,6 +103,16 @@ export interface TerminalEntry {
    * the OLD process carry the generation they were registered under, so they can
    * be recognised and dropped instead of corrupting the replacement. */
   generation: number;
+  /** A terminal nobody has opened was sized to the process grid (autosend,
+   *  0.5.5), so its screen reads true. An unopened xterm starts at 80 by 24
+   *  while the process draws at its own grid, and that screen reads a stuck
+   *  input box as empty. */
+  gridSized: boolean;
+  /** Output held until the grid is known, so no byte is drawn at a wrong size.
+   *  Null once flushed. */
+  held: string[] | null;
+  /** The grid is being asked for now (sizeToProcessGrid). */
+  sizing?: boolean;
   webgl?: WebglAddon;
   /** Live Arabic/RTL rendering handles, present only while it is ON. Held so
    *  the mode can be switched off again without disposing the terminal. */
@@ -116,7 +146,7 @@ export function notifyThemeChangeAll(theme: 'light' | 'dark'): void {
 function notifyThemeChange(ptyId: string, theme: 'light' | 'dark'): void {
   const entry = pool.get(ptyId);
   if (!entry || entry.exited || !entry.themeNotify) return;
-  window.cth.writePty(ptyId, `\x1b[?997;${theme === 'dark' ? 1 : 2}n`);
+  window.cth.writePty(ptyId, `\x1b[?997;${theme === 'dark' ? 1 : 2}n`, false);
 }
 
 /** Get (or lazily create) the persistent terminal for a pty. Theme/font are
@@ -148,7 +178,16 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     // actual background — so it also rescues low-contrast coloured *text* on the
     // cream paper. Untouched for already-high-contrast cells (the dark theme).
     minimumContrastRatio: 4.5,
-    allowProposedApi: true
+    allowProposedApi: true,
+    // OSC 8 (for example a displayed filename with a file:// destination)
+    // must use our stat/IDE/reveal path, never xterm's default browser opener.
+    linkHandler: {
+      allowNonHttpProtocols: true,
+      activate: (event, uri) => {
+        if (!(event.metaKey || event.ctrlKey)) return;
+        void activateTerminalUri(ptyId, uri);
+      }
+    }
   });
   const fit = new FitAddon();
   term.loadAddon(fit);
@@ -169,6 +208,12 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     host,
     opened: false,
     exited: false,
+    cliMissing: null,
+    cliMissingListeners: new Set(),
+    cliSetup: null,
+    cliSetupListeners: new Set(),
+    login: null,
+    loginListeners: new Set(),
     unsub: [],
     recovery: createTerminalRecoveryState(),
     needsRendererRepaint: false,
@@ -179,14 +224,31 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     inputDirtyAt: 0,
     automationSettleUntil: 0,
     lineBuf: '',
-    generation: 0
+    generation: 0,
+    gridSized: false,
+    held: []
   };
+
+  const mouseLinkGate = createTerminalMouseLinkGate();
+  const observeLinkMouse = (event: MouseEvent): void => mouseLinkGate.observe(event);
+  for (const type of ['mousedown', 'mouseup', 'mousemove'] as const) {
+    // Observe without stopping DOM propagation: xterm's own linkifier must
+    // still receive the down/up pair, including while the TUI reports mice.
+    host.addEventListener(type, observeLinkMouse, true);
+    entry.unsub.push(() => host.removeEventListener(type, observeLinkMouse, true));
+  }
 
   // Subscribe to the pty stream ONCE for the terminal's whole lifetime, so the
   // buffer keeps filling even while this terminal isn't mounted in any view.
+  let livePainted = false;
+  void window.cth.sleepScreen?.(ptyId).then((screen) => { if (screen && !livePainted) term.write(screen); }).catch(() => {});
   entry.unsub.push(window.cth.onPtyData(ptyId, (rawChunk) => {
+    livePainted = true;
     const chunk = normalizePtyChunk(rawChunk);
     if (!chunk) return;
+    // The process came after the grid search stopped: look again now.
+    if (entry.held && !entry.sizing) void sizeToProcessGrid(entry);
+    if (entry.held) { entry.held.push(chunk); entry.onData?.(chunk); return; }
     const active = term.buffer.active;
     const follow = shouldFollowTerminalOutput(active.viewportY, active.baseY);
     term.write(chunk, () => {
@@ -211,9 +273,51 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
   // terminal in place — clear the latched exit (so keystrokes flow again) and wipe
   // the install banner + "process exited" line — so the relaunched CLI's TUI paints
   // onto a clean, typeable grid. Mirrors resetTerminal but works on this closure.
-  entry.unsub.push(window.cth.onPtyRelaunch(ptyId, () => {
+  entry.unsub.push(window.cth.onPtyRelaunch(ptyId, (info) => {
     entry.exited = false;
+    setCliMissing(entry, null);
+    setCliSetup(entry, null);
     try { term.reset(); } catch { /* not yet open */ }
+    // The CLI would not reopen the last session. Its error and the exit
+    // line are cleared above; one quiet line says what happened instead.
+    if (info?.startedFresh) {
+      try { term.writeln(STARTED_FRESH_LINE); } catch { /* not yet open */ }
+    }
+  }));
+  // I2: the engine CLI is not installed. Nothing was spawned, so there is no
+  // exit to latch; the card is drawn by the view and the grid stays clean for
+  // the installer's output when the person presses Install. A failed install
+  // sends the state again with its last lines, and the card comes back.
+  entry.unsub.push(window.cth.onPtyCliMissing(ptyId, (state) => {
+    entry.exited = false;
+    setCliMissing(entry, state);
+  }));
+  // F3 (founder, 24 Sep 2026): that push reaches only a terminal that already
+  // exists. An agent respawned at app start (or a screen opened later) stopped
+  // at the card before anyone listened, and its terminal stayed a silent blank
+  // grid. Ask main once whether this pty is paused at the card. The push stays
+  // authoritative: a state that arrived while this answer was in flight wins.
+  void window.cth.cliMissingState?.(ptyId).then((state) => {
+    if (state && !entry.cliMissing) { entry.exited = false; setCliMissing(entry, state); }
+  }).catch(() => { /* a main without the handler */ });
+  // Batch 2: the setup phase, pushed and pulled the same way.
+  entry.unsub.push(window.cth.onPtyCliSetup(ptyId, (state) => {
+    // A login running in this pty is a live process: the previous one's exit
+    // (the installer's, or the agent run that ended signed out) latched
+    // `exited`, which swallowed every key typed into the sign in (batch 2).
+    if (state?.login === 'running') entry.exited = false;
+    setCliSetup(entry, state);
+  }));
+  void window.cth.cliSetupState?.(ptyId).then((state) => {
+    if (state && !entry.cliSetup) setCliSetup(entry, state);
+  }).catch(() => { /* a main without the handler */ });
+  // I2 part 2: the CLI printed its sign in prompt, or the sign in ended. The
+  // modal is drawn by the view; a success says so in a toast and the terminal
+  // is the CLI's again.
+  entry.unsub.push(window.cth.onPtyLogin(ptyId, (e) => {
+    if ('prompt' in e) { setLogin(entry, e.prompt); return; }
+    setLogin(entry, null);
+    if (e.done.outcome === 'success') showToast(i18n.t('terminal.cliLogin.signedIn'));
   }));
 
   // ── Copy / paste ──────────────────────────────────────────────────────────
@@ -259,9 +363,9 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     // Keys xterm would encode in a way the TUI cannot read. Checked BEFORE the
     // Ctrl/Cmd gate below, because Shift+Enter holds neither: without this it
     // fell straight through to xterm's default, which sends the same bare CR as
-    // Enter — so Shift+Enter submitted the prompt instead of opening a new line
+    // Enter, so Shift+Enter submitted the prompt instead of opening a new line
     // (#481). Writing to the pty directly is the same path the OSC colour replies
-    // below already use.
+    // already use.
     const seq = terminalKeySequence(ev);
     if (seq !== null) {
       if (!entry.exited) window.cth.writePty(ptyId, seq);
@@ -269,6 +373,16 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
       return false;
     }
     if (!(ev.ctrlKey || ev.metaKey)) return true;
+    // The IDE chord (0.5.3). On Windows and Linux it is Ctrl+I, which is Tab to a
+    // shell, so the agent would be sent a Tab as the IDE opened over it. Kept
+    // from the CLI ONLY when this same keydown really opens the IDE: on macOS
+    // Control I stays the terminal's (readline Tab, vim jump forward), and so
+    // does the chord while the IDE is open or a modal is up.
+    if (ideChordOpens(ev, {
+      isOpen: () => storeApi?.getState().ideOpen ?? false,
+      open: () => {},
+      covered: () => coveredAboveIde(document, window)
+    })) return false;
     const key = ev.key.toLowerCase();
     if (key === 'c' && (ev.shiftKey || term.hasSelection())) {
       // Copy-on-Ctrl+C only while a selection exists; clear it after, so a
@@ -310,7 +424,7 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     const hex = index === 11 ? map?.background : map?.foreground;
     const rgb = hex && parseHexColor(hex);
     if (!rgb) return false;                  // unknown colour: stay silent rather than lie
-    window.cth.writePty(ptyId, `\x1b]${index};${oscColorBody(rgb)}\x1b\\`);
+    window.cth.writePty(ptyId, `\x1b]${index};${oscColorBody(rgb)}\x1b\\`, false);
     return true;
   };
   term.parser.registerOscHandler(10, oscColorReply(10));
@@ -346,8 +460,9 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
   // It lives on the entry (see TerminalEntry.lineBuf) so every prompt-clearing
   // path resets it too.
   term.onData((data) => {
-    if (entry.exited) return;
-    window.cth.writePty(ptyId, data);
+    if (!mouseLinkGate.forward(data)) return;
+    if (entry.exited && isTerminalReport(data)) return;
+    window.cth.writePty(ptyId, data, !isTerminalReport(data));
     // A lone Escape or Ctrl-C closes interactive pickers. Arrow-key escape
     // sequences must NOT clear the block while the user navigates a picker.
     if (data === '\x1b' || data === '\x03') {
@@ -403,13 +518,89 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
     // an analytics event; it sends a surface name and nothing else.
     if (submitted && !pasted) void window.cth.trackMessageSent('terminal');
     entry.inputDirty = entry.lineBuf.length > 0;
-    // Re-stamped on every keystroke, so the staleness clock measures time since
-    // the user last touched the draft — not since they started it.
+    // Re-stamped on every keystroke: the echo grace runs from the last key.
     if (entry.inputDirty) entry.inputDirtyAt = Date.now();
   });
 
   pool.set(ptyId, entry);
+  void sizeToProcessGrid(entry);
   return entry;
+}
+
+/** Write out whatever arrived while the grid was being asked for. */
+function flushHeld(entry: TerminalEntry): void {
+  const held = entry.held;
+  if (!held) return;
+  entry.held = null;
+  if (held.length) entry.term.write(held.join(''));
+}
+
+/** Size a terminal nobody has opened to its process's grid before drawing a
+ *  byte, then ask the process for a full frame, so main can read its input box
+ *  (autosend, 0.5.5). An opened terminal is sized by its view instead. Never
+ *  resized after drawing: the program would not redraw for it. */
+async function sizeToProcessGrid(entry: TerminalEntry): Promise<void> {
+  if (entry.sizing) return;
+  entry.sizing = true;
+  try {
+    // A restored agent's terminal is made before its process starts: Michael's
+    // about 5 s before (Pam, round 6). The search used to stop after 5 s from
+    // here, a beat too soon, and his screen stayed 80 by 24 against a 100 by 30
+    // process, unreadable, so nothing could see his input box. With nothing
+    // printed yet nothing waits on the grid, so the search keeps on (two
+    // minutes, then again at the first byte); output already held gets the
+    // 5 s it always had.
+    const began = Date.now();
+    let firstByteAt = 0;
+    while (entry.held && !entry.opened && !entry.exited) {
+      const live = await window.cth.listPtys().catch(() => []);
+      const pty = live.find((p) => p.id === entry.ptyId);
+      if (pty?.cols && pty.rows) {
+        if (!entry.opened && entry.held) {
+          try { entry.term.resize(pty.cols, pty.rows); entry.gridSized = true; } catch { /* keep the default */ }
+          flushHeld(entry);
+          // Pre-warming already subscribed and asked for the missing startup
+          // frame. Share the attach latch: another row-down/row-back redraw on
+          // first open makes Codex send its conversation twice more.
+          if (entry.gridSized) requestInitialPtyRedraw(entry.recovery, () => window.cth.redrawPty(entry.ptyId));
+        }
+        return;
+      }
+      const now = Date.now();
+      if (entry.held.length) {
+        firstByteAt ||= now;
+        if (now - firstByteAt >= GRID_WAIT_HELD_MS) break;
+      } else if (now - began >= GRID_WAIT_NO_OUTPUT_MS) {
+        return; // still nothing printed: the first byte starts the search again
+      }
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    flushHeld(entry);
+  } finally {
+    entry.sizing = false;
+  }
+}
+
+/** Output held for the grid is drawn at the default size after this long. */
+const GRID_WAIT_HELD_MS = 5_000;
+/** A terminal with no output yet looks for its process this long. */
+const GRID_WAIT_NO_OUTPUT_MS = 120_000;
+
+
+/** The terminal is in the pool and its process has not exited. */
+export function terminalAlive(ptyId: string): boolean {
+  const entry = pool.get(ptyId);
+  return !!entry && !entry.exited;
+}
+
+/** Type dictated words at the terminal's own prompt, as a paste: xterm wraps
+ *  it in bracketed paste, so a TUI takes it as text and never as keys. False
+ *  when the terminal is gone or its process exited. */
+export function pasteIntoTerminal(ptyId: string, text: string): boolean {
+  const entry = pool.get(ptyId);
+  if (!entry || entry.exited || !text) return false;
+  entry.term.paste(text);
+  return true;
 }
 
 /** Whether queued automation can safely own this terminal's input line. A PTY
@@ -417,7 +608,48 @@ export function acquireTerminal(ptyId: string, theme?: ThemeMap, fontSize = 14):
 export function isTerminalAutomationSafe(ptyId: string, now = Date.now()): boolean {
   const entry = pool.get(ptyId);
   if (!entry) return true;
+  // Batch 2: the terminal belongs to the card, the installer or the login.
+  // A queued message typed there would be read by the wrong program.
+  if (entry.cliMissing || entry.cliSetup) return false;
   return canAutomateTerminal(automationStateOf(entry, now), now);
+}
+
+/** The rows the terminal is showing right now, as text, bottom row last. Null
+ *  when there is nothing true to read: no terminal, an exited one, output still
+ *  held, or (with `grid`) a terminal not drawn at that grid. Without `grid`
+ *  only an opened terminal is read, as before. */
+export function terminalScreenLines(ptyId: string, grid?: { cols: number; rows: number }): string[] | null {
+  const entry = pool.get(ptyId);
+  if (!entry || entry.exited || entry.held) return null;
+  // With a grid, the screen counts only when it is drawn at the process grid:
+  // at any other size a stuck input box reads as empty.
+  if (grid) {
+    if (!entry.opened && !entry.gridSized) return null;
+    if (entry.term.cols !== grid.cols || entry.term.rows !== grid.rows) return null;
+  } else if (!entry.opened) {
+    return null;
+  }
+  try {
+    const buf = entry.term.buffer.active;
+    const rows: string[] = [];
+    for (let y = buf.baseY; y < buf.baseY + entry.term.rows; y++) {
+      rows.push(buf.getLine(y)?.translateToString(true) ?? '');
+    }
+    return rows;
+  } catch {
+    return null; // never let a buffer read break delivery
+  }
+}
+
+/** Main's question while it submits into this pty (autosend): the screen,
+ *  when drawn at the process grid, and whether a person's draft or menu holds
+ *  the input line. A pty with no pooled terminal has no person's draft. */
+export function answerTerminalProbe(req: { ptyId: string; cols: number; rows: number }): { lines: string[] | null; safe: boolean; pooled: boolean } {
+  return {
+    lines: terminalScreenLines(req.ptyId, { cols: req.cols, rows: req.rows }),
+    safe: isTerminalAutomationSafe(req.ptyId),
+    pooled: pool.has(req.ptyId)
+  };
 }
 
 /** Characters a TUI paints around its input line that are not the user's text:
@@ -469,15 +701,118 @@ function promptLineHasText(entry: TerminalEntry, now = Date.now()): boolean | nu
 
 /** Whether the user has unsubmitted text sitting on this terminal's prompt.
  *  Shares its draft detection with the automation gate, so the "typing" badge
- *  reports the same draft the gate is holding delivery for. It does NOT apply the
- *  staleness expiry the gate does: past STALE_INPUT_MS the gate starts delivering
- *  while this still reports the draft — which is the honest reading, because the
- *  text really is still on the prompt. */
+ *  reports the same draft the gate is holding delivery for. A draft never expires
+ *  in either: the gate holds until the box is empty. */
 export function hasTerminalDraft(ptyId: string | undefined, now = Date.now()): boolean {
   if (!ptyId) return false;
   const entry = pool.get(ptyId);
   if (!entry) return false;
   return entry.inputDirty && promptLineHasText(entry, now) !== false;
+}
+
+function setLogin(entry: TerminalEntry, p: LoginPrompt | null): void {
+  entry.login = p;
+  for (const l of entry.loginListeners) l(p);
+}
+
+/** The sign in prompt for this pty as React state (I2 part 2), pushed. */
+export function useCliLogin(ptyId: string | undefined): LoginPrompt | null {
+  const [state, setState] = useState<LoginPrompt | null>(() => (ptyId ? pool.get(ptyId)?.login ?? null : null));
+  useEffect(() => {
+    if (!ptyId) { setState(null); return; }
+    const entry = acquireTerminal(ptyId);
+    setState(entry.login);
+    entry.loginListeners.add(setState);
+    return () => { entry.loginListeners.delete(setState); };
+  }, [ptyId]);
+  return state;
+}
+
+/** The modal's buttons go through main: it holds the link the CLI printed
+ *  and the pty the code goes into. dismiss clears the modal here at once. */
+export async function actOnLogin(ptyId: string, action: 'open-link' | 'paste' | 'dismiss', text?: string): Promise<{ ok: boolean; error?: string }> {
+  if (action === 'dismiss') { const entry = pool.get(ptyId); if (entry) setLogin(entry, null); }
+  return window.cth.loginAct(ptyId, action, text);
+}
+
+function setCliSetup(entry: TerminalEntry, state: CliSetupState | null): void {
+  entry.cliSetup = state;
+  for (const l of entry.cliSetupListeners) l(state);
+}
+
+/** Batch 2: the setup phase for this pty as React state, pushed. */
+export function useCliSetup(ptyId: string | undefined): CliSetupState | null {
+  const [state, setState] = useState<CliSetupState | null>(() => (ptyId ? pool.get(ptyId)?.cliSetup ?? null : null));
+  useEffect(() => {
+    if (!ptyId) { setState(null); return; }
+    const entry = acquireTerminal(ptyId);
+    setState(entry.cliSetup);
+    entry.cliSetupListeners.add(setState);
+    return () => { entry.cliSetupListeners.delete(setState); };
+  }, [ptyId]);
+  return state;
+}
+
+/** "Setup complete, start agent". Main discards the login terminal and starts
+ *  the agent; the panel goes the moment it answers, or stays with the reason. */
+export async function startAgentAfterSetup(ptyId: string, mode?: 'anyway'): Promise<{ ok: boolean; error?: string }> {
+  const res = await window.cth.cliSetupStart(ptyId, mode);
+  const entry = pool.get(ptyId);
+  if (res.ok && entry) setCliSetup(entry, null);
+  return res;
+}
+
+/** "Set up manually" (batch 4): main opens the manual terminal and pushes the
+ *  manual panel. The card goes at once so the terminal is what shows; a
+ *  refusal brings it back. */
+export async function openManualSetup(ptyId: string): Promise<{ ok: boolean; error?: string }> {
+  const entry = pool.get(ptyId);
+  const before = entry?.cliMissing ?? null;
+  if (entry) setCliMissing(entry, null);
+  const res = await window.cth.cliSetupManual(ptyId);
+  if (!res.ok && entry && !entry.cliMissing && !entry.cliSetup) setCliMissing(entry, before);
+  return res;
+}
+
+/** "Sign in again": main runs the login step again in the same terminal. */
+export function retrySetupLogin(ptyId: string): Promise<{ ok: boolean; error?: string }> {
+  return window.cth.cliSetupLogin(ptyId);
+}
+
+function setCliMissing(entry: TerminalEntry, state: CliMissingState | null): void {
+  entry.cliMissing = state;
+  for (const l of entry.cliMissingListeners) l(state);
+}
+
+/** The card's state for this pty as React state (I2). Pushed, not polled: the
+ *  card must appear the moment main says the CLI is missing, and go the moment
+ *  the person presses the button. */
+export function useCliMissing(ptyId: string | undefined): CliMissingState | null {
+  const [state, setState] = useState<CliMissingState | null>(() => (ptyId ? pool.get(ptyId)?.cliMissing ?? null : null));
+  useEffect(() => {
+    if (!ptyId) { setState(null); return; }
+    const entry = acquireTerminal(ptyId);
+    setState(entry.cliMissing);
+    entry.cliMissingListeners.add(setState);
+    return () => { entry.cliMissingListeners.delete(setState); };
+  }, [ptyId]);
+  return state;
+}
+
+/** The person pressed the card's button: hide the card so the installer's own
+ *  output (or the CLI) is what they see, then ask main. A failure brings the
+ *  card back through onPtyCliMissing; a refusal from main is returned. */
+export async function installMissingCli(ptyId: string): Promise<{ ok: boolean; error?: string }> {
+  const entry = pool.get(ptyId);
+  const before = entry?.cliMissing ?? null;
+  if (entry) setCliMissing(entry, null);
+  const res = await window.cth.installCli(ptyId);
+  if (!res.ok && entry && !entry.cliMissing) {
+    // Nothing happened (the pause was gone, or main refused): the card comes
+    // back rather than leaving a blank grid nobody can type into.
+    setCliMissing(entry, before);
+  }
+  return res;
 }
 
 /** `hasTerminalDraft` as React state. The flag lives on a mutable pool entry
@@ -498,8 +833,9 @@ export function useHasTerminalDraft(ptyId: string | undefined): boolean {
 }
 
 function automationStateOf(entry: TerminalEntry, now = Date.now()) {
-  // The screen wins over the keystroke count, but only when it says "empty".
-  const inputDirty = entry.inputDirty && promptLineHasText(entry, now) !== false;
+  // The screen wins over the keystroke count, but only when it says "empty",
+  // and then for good: text typed later by automation is not a person's draft.
+  const inputDirty = settleDraft(entry, entry.inputDirty ? promptLineHasText(entry, now) : null);
   return {
     exited: entry.exited,
     pickerOpen: entry.automationBlocked,
@@ -760,6 +1096,8 @@ export function attachTerminal(entry: TerminalEntry, container: HTMLElement): vo
     // terminal, and xterm needs its host in the document to measure the cell.
     entry.term.open(entry.host);
     entry.opened = true;
+    // The view sizes it now; anything held for the grid is drawn.
+    flushHeld(entry);
     // Arabic/RTL terminal support (the full recipe is documented in
     // terminal/arabicJoiner.ts): join every Arabic phrase into one render range,
     // and strip xterm's per-span letter-spacing from Arabic spans. MUST come
@@ -858,6 +1196,10 @@ export function reflowTerminal(ptyId: string): void {
   } catch { /* host may not be sized yet */ }
 }
 
+/** What the terminal says when a refused resume started the agent fresh: the
+ *  words the agent's row uses for the same thing, dim, like the resume line. */
+export const STARTED_FRESH_LINE = '\x1b[2m─ started fresh, last session not found ─\x1b[0m';
+
 /**
  * Soft-reset a pooled terminal for an IN-PLACE pty respawn (the same ptyId is
  * reused — e.g. a model change or agent restart). Clears the screen + scrollback
@@ -887,6 +1229,11 @@ export function resetTerminal(
   entry.lineBuf = '';
   entry.automationBlocked = false;
   entry.automationBlockedAt = 0;
+  // The missing CLI card belonged to the line that is being replaced. A new
+  // line whose CLI is also missing gets its own card pushed by the spawn that
+  // follows this reset, so nothing is lost by dropping the old one here.
+  setCliMissing(entry, null);
+  setCliSetup(entry, null);
   try {
     if (opts.preserveScrollback) {
       entry.term.writeln('\r\n\x1b[2m─ resuming existing session ─\x1b[0m');
@@ -926,10 +1273,10 @@ export function disposeTerminal(ptyId: string): void {
 // v0.4.5 widened this from markdown-only to every path token. What each type
 // does lives in @shared/terminalPaths, not here — this file only knows how to
 // find tokens on a line and how to run the three verdicts.
-const mdStatCache = new Map<string, { isFile: boolean; path: string }>();
+
 
 function resolvePathCandidate(ptyId: string, raw: string): string | null {
-  const p = stripPathToken(raw);
+  const p = raw; // Already parsed; decoding a file URI must not strip filename characters twice.
   if (!isPathToken(p)) return null;
   if (p.startsWith('~/') || p.startsWith('/') || /^[A-Za-z]:[\\/]/.test(p)) return p;
   // relative → resolve against the owning agent's cwd. Async store import keeps
@@ -939,63 +1286,91 @@ function resolvePathCandidate(ptyId: string, raw: string): string | null {
   return `${cwd}/${p.replace(/^\.\//, '')}`;
 }
 
+/** Does this path exist whole? For a path with a space: a link is made only of one the disk confirms (founder bug, 3 Nov 2026). Kept a few seconds, as hover asks again and again. */
+const existsCache = new Map<string, { at: number; yes: boolean }>();
+async function existsWhole(abs: string): Promise<boolean> {
+  const hit = existsCache.get(abs);
+  if (hit && Date.now() - hit.at < 5000) return hit.yes;
+  const res = await window.cth.statAbs(abs).catch(() => null);
+  const yes = !!res?.exists;
+  if (existsCache.size > 500) existsCache.clear();
+  existsCache.set(abs, { at: Date.now(), yes });
+  return yes;
+}
+
 // The store is loaded lazily via dynamic import (resolved once, cached): a
 // static import would drag zustand/react into the node --test transpile of the
 // pure automation helpers that share this file's import graph.
 interface MdStoreShape {
   getState: () => {
     agents: Array<{ ptyId?: string; cwd: string }>;
-    openFileInIde: (absPath: string) => void;
+    ideOpen: boolean;
+    ideProjectRoot?: string | null;
+    openFileInIde: (absPath: string, location?: { line: number; column: number }, root?: string) => void;
   };
 }
 let storeApi: MdStoreShape | null = null;
 void import('@/store/store')
   .then((m) => { storeApi = (m as unknown as { useStore: MdStoreShape }).useStore; })
   .catch(() => { /* store unavailable (tests) — link provider stays inert */ });
+/** Failure is visible, but never falls back to launching a file or remote URI. */
+function pathLinkFailed(): void { showToast(i18n.t('terminal.pathLinkFailed'), { tone: 'bad' }); }
 
-/** Act on a verified path. `reveal` also takes any directory that reaches here:
- *  the IDE needs a file. A miss is silent by design — the token is agent output
- *  and may simply not exist.
- *
- *  Both non-reveal verdicts land in the IDE. The IDE already routes by type
- *  (Monaco for source, preview for markdown, the viewer for images), so this
- *  does not need to pass the verdict along — it only needs to know whether the
- *  file is ours to open at all. */
-async function activatePath(abs: string, action: PathAction): Promise<void> {
-  let hit = mdStatCache.get(abs);
-  if (!hit) {
-    const res = await window.cth.statAbs(abs).catch(() => null);
-    if (!res || !res.exists) return;
-    hit = { isFile: res.isFile, path: res.path };
-    if (mdStatCache.size > 500) mdStatCache.clear();
-    mdStatCache.set(abs, hit);
-  }
-  if (action === 'reveal' || !hit.isFile) {
-    void window.cth.revealPath(hit.path).catch(() => { /* file browser refused */ });
-    return;
-  }
-  storeApi?.getState().openFileInIde(hit.path);
+async function openTerminalUrl(url: string): Promise<void> {
+  try {
+    const res = await window.cth.openExternal?.(url);
+    if (!res?.ok) pathLinkFailed();
+  } catch { pathLinkFailed(); }
+}
+
+async function activateTerminalUri(ptyId: string, uri: string): Promise<void> {
+  if (/^https:\/\//i.test(uri)) { await openTerminalUrl(uri.replace(/^https:/i, 'https:')); return; }
+  // A label can hide its destination. No arbitrary URI scheme or host is
+  // allowed to reach this computer's filesystem.
+  const ref = terminalPathReference(uri);
+  const abs = ref && resolvePathCandidate(ptyId, ref.path);
+  if (!ref || !abs) { pathLinkFailed(); return; }
+  await activatePath(abs, classifyPathToken(ref.path), ref.line ? { line: ref.line, column: ref.column ?? 1 } : undefined);
+}
+
+/** Stat on every click: hover metadata must not turn a changed/deleted path into an action. */
+async function activatePath(abs: string, action: PathAction, location?: { line: number; column: number }): Promise<void> {
+  try {
+    const hit = await window.cth.statAbs(abs);
+    if (!hit?.exists) { pathLinkFailed(); return; }
+    const state = storeApi?.getState();
+    const hasRoot = !!state && !!ownerOfPath(state.agents, hit.path);
+    if (action === 'reveal' || !hit.isFile || !hasRoot) {
+      const res = await window.cth.revealPath(hit.path);
+      if (!res.ok) pathLinkFailed();
+      return;
+    }
+    state!.openFileInIde(hit.path, location);
+  } catch { pathLinkFailed(); }
 }
 
 function registerMarkdownLinkProvider(term: Terminal, ptyId: string): void {
   try {
     term.registerLinkProvider({
-      provideLinks(bufferLineNumber, callback) {
-        const line = term.buffer.active.getLine(bufferLineNumber - 1);
-        const text = line ? line.translateToString(true) : '';
+      async provideLinks(bufferLineNumber, callback) {
+        const logical = await confirmedTerminalLine(term.buffer.active, bufferLineNumber - 1, term.cols, (raw) => {
+            const ref = terminalPathReference(raw);
+            const abs = ref && resolvePathCandidate(ptyId, ref.path);
+            return abs ? existsWhole(abs) : Promise.resolve(false);
+          });
+        const text = logical.text;
         // A URL host need not carry a dot (`https://localhost:3000/x`), so the
         // cheap bail-out has to let `://` through as well.
-        if (!text || (!text.includes('.') && !text.includes('://'))) { callback(undefined); return; }
+        // A folder with a space in its name has no dot, so a separator lets the line through too.
+        if (!text) { callback(undefined); return; }
         const links: Parameters<typeof callback>[0] = [];
 
         // Ordering (URLs win overlaps with path tokens) lives in
         // @shared/terminalPaths so it can be unit-tested; this only turns a
         // span into an xterm link and decides what a click does.
         for (const span of terminalLinkSpans(text)) {
-          const range = {
-            start: { x: span.start + 1, y: bufferLineNumber },
-            end: { x: span.start + span.raw.length, y: bufferLineNumber }
-          };
+          const range = logical.range(span.start, span.end);
+          if (!range || bufferLineNumber < range.start.y || bufferLineNumber > range.end.y) continue;
           if (span.kind === 'url') {
             const url = span.token;
             links!.push({
@@ -1007,12 +1382,12 @@ function registerMarkdownLinkProvider(term: Terminal, ptyId: string): void {
                 if (event && !(event.metaKey || event.ctrlKey)) return;
                 // The URL is agent output. It reaches nothing but the opener,
                 // which is https-only and re-checks in the main process.
-                void window.cth.openExternal?.(url).catch(() => { /* opener refused */ });
+                void openTerminalUrl(url);
               }
             });
             continue;
           }
-          const abs = resolvePathCandidate(ptyId, span.raw);
+          const abs = resolvePathCandidate(ptyId, span.token);
           if (!abs) continue;
           const action = classifyPathToken(span.token);
           links!.push({
@@ -1021,12 +1396,40 @@ function registerMarkdownLinkProvider(term: Terminal, ptyId: string): void {
             activate: (event: MouseEvent | undefined) => {
               // ⌘/Ctrl+click only — a plain click must keep going to the TUI.
               if (event && !(event.metaKey || event.ctrlKey)) return;
-              void activatePath(abs, action);
+              void activatePath(abs, action, span.line ? { line: span.line, column: span.column ?? 1 } : undefined);
             }
           });
         }
-        callback(links && links.length ? links : undefined);
+        // A path with a space (`/…/Munder Difflin.app`): the plain tokens above saw only its words. Each reading is
+        // asked of the disk, longest first, and only one that exists whole is linked; it then takes the place of the
+        // word tokens inside it.
+        const spaced = spacedPathSpans(text);
+        if (!spaced.length) { callback(links && links.length ? links : undefined); return; }
+        const absOf = (p: string): string | null => resolvePathCandidate(ptyId, p);
+        void Promise.all(spaced.map((sp) => confirmSpacedPath(sp, (p) => { const abs = absOf(p); return abs ? existsWhole(abs) : Promise.resolve(false); })))
+          .then((found) => {
+            let out = links!;
+            for (const hit of found) {
+              const abs = hit && absOf(hit.path);
+              if (!hit || !abs) continue;
+              const range = logical.range(hit.start, hit.end);
+              if (!range || bufferLineNumber < range.start.y || bufferLineNumber > range.end.y) continue;
+              out = out.filter((l) => !rangesOverlap(l.range, range));
+              const action = classifyPathToken(hit.path);
+              out.push({
+                range, text: hit.path,
+                decorations: { underline: true, pointerCursor: true },
+                activate: (event: MouseEvent | undefined) => {
+                  // ⌘/Ctrl+click only — a plain click must keep going to the TUI.
+                  if (event && !(event.metaKey || event.ctrlKey)) return;
+                  void activatePath(abs, action, hit.line ? { line: hit.line, column: hit.column ?? 1 } : undefined);
+                }
+              });
+            }
+            out.sort((a, b) => a.range.start.y - b.range.start.y || a.range.start.x - b.range.start.x);
+            callback(out.length ? out : undefined);
+          }, () => callback(links && links.length ? links : undefined));
       }
     });
-  } catch { /* proposed API unavailable — feature silently off */ }
+  } catch (error) { console.warn('[terminal] file links unavailable', error); }
 }

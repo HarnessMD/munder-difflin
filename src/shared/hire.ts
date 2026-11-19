@@ -7,8 +7,12 @@
  * `munderdifflin://hire?src=<https-url>` deep link or an in-app file picker.
  *
  * SECURITY MODEL — a manifest is untrusted input:
- *   - It can NEVER auto-spawn an agent. Importing only pre-fills the Add-Agent
- *     modal; the human reviews the final command and clicks spawn.
+ *   - It can NEVER auto-spawn an agent from a link or an import. Importing only
+ *     pre-fills the Add-Agent modal; the human reviews the final command and
+ *     clicks spawn. The one exception (founder 26 Oct 2026): a file the
+ *     orchestrator writes into <hive>/hire-requests/ while the human's lasting
+ *     agents switch allows it (core/hireRequests.ts). It takes only what that
+ *     review opens ticked, so the rule below still holds there.
  *   - It cannot carry a raw executable/command. The spawn binary always comes
  *     from the locally configured provider preset; a manifest may only append
  *     flag-shaped arguments (validated below), which the modal shows in full.
@@ -21,7 +25,7 @@
  *     auto-enabled (consistent with "import only pre-fills; human clicks spawn").
  */
 
-import { mcpCatalogEntry } from './mcpCatalog';
+import { isRetiredMcp, mcpCatalogEntry, resolveMcpId } from './mcpCatalog';
 import { MAX_AGENT_TOKEN_CAP } from './tokenCaps';
 
 export const HIRE_SPEC_V1 = 'munder-difflin/hire@1';
@@ -65,7 +69,9 @@ export interface HireManifest {
   capabilities?: string[];
   /** Spawn in an isolated git worktree. */
   isolate?: boolean;
-  /** Per-agent total-token ceiling, applied to agentTokenCaps after spawn. */
+  /** A token cap with no period. Still read, so a hire link made before
+   *  0.5.6 opens, and no longer applied: those caps were removed on 16 Oct
+   *  2026 for token limits per period (shared/tokenLimits). */
   tokenCap?: number;
   /** Attribution shown in the import preview. */
   author?: string;
@@ -293,11 +299,16 @@ export function validateHireManifest(raw: unknown): HireValidation {
       mcpServers = [];
       for (const s of o.mcpServers) {
         if (!str(s) || !s.trim()) { errors.push('"mcpServers" entries must be non-empty strings'); continue; }
-        const id = s.trim();
-        const entry = mcpCatalogEntry(id);
-        if (!entry) {
-          errors.push(`"mcpServers" entry ${JSON.stringify(id)} is not a known catalog id — a hire may only reference built-in MCP servers`);
-        } else {
+        const named = s.trim();
+        // A link made for an older build may name a server since replaced
+        // (RETIRED_MCP_IDS): it reads as the replacement, and one with no
+        // replacement is left out. Nothing retired is ever started.
+        const id = resolveMcpId(named);
+        if (!id && isRetiredMcp(named)) continue;
+        const entry = id ? mcpCatalogEntry(id) : undefined;
+        if (!id || !entry) {
+          errors.push(`"mcpServers" entry ${JSON.stringify(named)} is not a known catalog id — a hire may only reference built-in MCP servers`);
+        } else if (!mcpServers.includes(id)) {
           mcpServers.push(id);
           if (entry.tier !== 'safe-readonly') consentRequired.push(id);
         }

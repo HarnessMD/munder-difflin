@@ -83,7 +83,6 @@
   },
   "agentCard": {
     "boss": "老板",
-    "contextTitle": "上下文：{{used}} / {{limit}} 令牌（{{pct}}%）",
     "contextGaugeTitle": "上下文指示条——智能体上报活动后开始填充",
     "doingTasks": "正在执行 {{count}} 项任务——点击查看",
     "doingTasksPlural": "正在执行 {{count}} 项任务——点击查看",
@@ -106,7 +105,43 @@
     "viewAnswersHistory": "打开包含完整问答历史的任务详情",
     "blockingDownstream": "阻塞 {{count}} 个下游任务",
     "blockingDownstreamPlural": "阻塞 {{count}} 个下游任务",
-    "more": "… 还有 {{count}} 个"
+    "more": "… 还有 {{count}} 个",
+    "kind": {
+      "choose": "选择",
+      "question": "问题"
+    },
+    "pickAny": "可多选",
+    "asked": "提问于 {{when}}",
+    "recommended": "推荐",
+    "notePlaceholder": "其他想法，或补充说明（可选）…（Ctrl+Enter 发送）",
+    "answerWith": "回答：{{choice}}",
+    "pickFirst": "选一个选项，或写下说明",
+    "answered": "已回答",
+    "answeredAt": "回答于 {{when}}",
+    "notSent": "未发送",
+    "gone": "你在输入时，这个问题已被修改或关闭。",
+    "goneKept": "你写的内容，需要时可以复制：",
+    "failed": "你的回答还在输入框里。请再试一次。"
+  },
+  "agentMenu": {
+    "open": "打开",
+    "message": "发消息",
+    "pauseTools": "暂停工具",
+    "resumeTools": "恢复工具",
+    "hold": "1:1 独占",
+    "release": "解除 1:1",
+    "rename": "重命名",
+    "addNote": "添加备注",
+    "editNote": "编辑备注",
+    "archive": "归档"
+  },
+  "agentRow": {
+    "crashed": "已崩溃",
+    "stopped": "已停止",
+    "finished": "已完成",
+    "contextTitle": "上下文已用 {{pct}}%",
+    "noSession": "无会话",
+    "oneOnOne": "你的 1:1，协调者不会打扰它"
   },
   "agentStrip": {
     "privateNote": "私人笔记 · {{name}}",
@@ -127,6 +162,7 @@
   },
   "sidebar": {
     "terminal": "终端",
+    "history": "历史",
     "git": "Git",
     "messages": "消息",
     "traces": "追踪"
@@ -149,55 +185,28 @@
     "fullscreenDesc": "此终端已在聚焦模式中打开。按 Esc 或退出聚焦模式将其带回此处。",
     "noPty": "没有终端",
     "noPtyDesc": "该智能体没有实时终端。通过「添加智能体」生成一个，即可使用终端标签页。",
-    "killConfirm": "关闭 {{name}}？PTY 进程将被终止，智能体将被归档（保留在历史中，移出楼层）。",
+    "killConfirm": "关闭 {{name}}？PTY 进程将被终止，智能体将被归档（保留在历史中，移出楼层）。有未提交更改的工作文件夹会被保留。",
     "ideTip": "打开 IDE：浏览并编辑 {{project}} 中的文件，并将未提交的更改作为差异查看。",
     "terminalTip": "在 {{cwd}} 中打开你的系统终端应用 —— 位于该智能体文件夹中的普通 shell，与该智能体自己的终端相互独立。",
     "openIde": "打开 IDE",
     "ide": "IDE",
     "openTerminalAria": "在该智能体的文件夹中打开系统终端"
   },
-  "settingsHero": {
-    "sponsoredBy": "赞助方",
-    "visit": "访问",
-    "whatsNew": "新功能",
-    "whatsNewTitle": "显示上次告知你的更新的发布说明",
-    "starOnGitHub": "在 GitHub 上标星",
-    "reportProblem": "反馈问题",
-    "fullChangelog": "完整更新日志 →",
-    "announcement": "公告",
-    "proLaunch": "v0.5.0 与 Munder Difflin Pro 一同发布。",
-    "proCommunityFree": "社区版保持免费、开源，并持续获得更新。",
-    "proParagraph": "Pro 版将带来新的功能与集成，全年持续上新；它领先于社区版，面向想要充分发挥编码智能体与智能体工具链潜力的重度用户。Pro 路线图还包括移动端应用。",
-    "foundersWallTitle": "在 Founders' Wall 上吗？",
-    "foundersWallBody": "免费获得一个月的 Munder Difflin Pro，此后年度套餐享 5 折。仅限前 100 位上榜用户。",
-    "seeTheWall": "查看榜单",
-    "joinDiscord": "加入 Discord"
-  },
-  "officeTheme": {
-    "title": "办公室主题",
-    "tvShow": "电视剧办公室主题",
-    "experimental": "实验性",
-    "desc": "把像素办公室换皮成电视剧场景。切换会开启一套全新演员阵容。",
-    "current": "当前",
-    "soon": "即将推出",
-    "notBuiltYet": "{{label}} 尚未构建——暂时显示办公室。",
-    "switchAborted": "切换中止——终端无法关闭：{{error}}",
-    "confirmTitle": "切换到「{{label}}」？",
-    "startsFreshCast": "开启全新演员阵容",
-    "deleteCount": "你的 {{count}} 个当前智能体将被删除——它们的终端会关闭，进行中的工作会停止。",
-    "deleteCountPlural": "你的 {{count}} 个当前智能体将被删除——它们的终端会关闭，进行中的工作会停止。",
-    "onlyCarries": "只有 {{god}} 会保留。",
-    "stillWorking": "⚠ {{count}} 个智能体仍在工作。",
-    "stillWorkingPlural": "⚠ {{count}} 个智能体仍在工作。",
-    "cantUndo": "此操作无法撤销。",
-    "switching": "切换中…",
-    "deleteSwitch": "删除 {{count}} 个并切换"
-  },
   "settings": {
+    "codexFolders": {
+      "title": "你允许的 Codex 文件夹",
+      "desc": "在这些文件夹里的 Codex 智能体会运行该文件夹自己的钩子、MCP 服务器和规则。撤回后，从它下次启动起不再运行。",
+      "withdraw": "撤回",
+      "empty": "没有。如果 Codex 智能体的文件夹有自己的 Codex 设置，它会等你同意后再启动。",
+      "waitingTitle": "等待你同意",
+      "waitingDesc": "一名临时工，或通过语音雇用的智能体，曾试图在这些文件夹中启动。它没有可以询问你的界面，所以没有启动。只有在信任其代码仓库时才允许。",
+      "allow": "允许"
+    },
     "title": "设置",
     "changeHomeTitle": "更改主文件夹",
     "resetTitle": "重置一切？",
     "close": "关闭",
+    "save": "保存",
     "change": "更改…",
     "apply": "应用中…",
     "moveAndRestart": "迁移并重启",
@@ -209,8 +218,7 @@
       "prerequisites": "前置条件",
       "agentsModels": "智能体与模型",
       "autonomyBudgets": "自主权与预算",
-      "connections": "连接",
-      "voice": "语音",
+      "voice": "调度者的语音",
       "memoryKnowledge": "记忆与知识"
     },
     "changeHome": {
@@ -225,21 +233,22 @@
     },
     "general": {
       "homeFolder": "主文件夹",
+      "openLastHive": "启动时跳过配置选择",
+      "openLastHiveDesc": "直接重新打开此文件夹，不再询问要打开哪个配置。适用于无人值守的机器，否则选择界面会让整个楼层一直停着，直到有人点击。",
       "environment": "环境",
       "keepAwake": "智能体运行时保持 Mac 唤醒",
       "keepAwakeDesc": "阻止显示屏休眠，让计划任务和终端准时触发。更耗电——最好接电源。",
       "simpleMode": "用通俗方式解释",
       "simpleModeDesc": "智能体用日常语言而不是工程术语向你汇报。",
+      "graphics": "图形",
+      "graphicsDesc": "应用如何绘制终端和楼层。「自动」在显卡（GPU）可用时使用显卡，不可用时使用处理器（CPU）。如果楼层或终端一直空白或闪烁，请选「仅 CPU」。下次启动时生效。",
       "notifications": "通知",
       "desktopNotifications": "桌面通知",
       "desktopNotificationsDesc": "智能体完成或需要你输入时弹出系统通知。",
       "maintenance": "维护",
       "autoCompact": "定时自动压缩",
-      "autoCompactDesc": "按计划为每个智能体排队执行 /compact（默认每小时；间隔在触发器标签页设置）。默认关闭——长期运行的智能体不开启可能会撑爆上下文。",
-      "autoUpdate": "自动更新",
-      "autoUpdateDesc": "后台检查 GitHub 发布并下载更新；由你选择何时重启。绝不会自行重启。",
-      "telemetry": "匿名使用统计",
-      "telemetryDesc": "少量匿名事件（打开应用、生成智能体、使用功能）——绝不包含提示词、代码、路径或智能体输出。完整清单见 TELEMETRY.md。",
+      "autoCompactDesc": "当智能体的上下文超过阈值时，在其回合结束时压缩。不报告 token 数的引擎改为按定时器压缩。默认开启。在“自动化”中设置阈值和定时器（Classic 中为“触发器”）。",
+      "telemetry": "使用数据",
       "language": "语言",
       "languageDesc": "选择应用界面的语言。默认英文。",
       "dangerZone": "危险区",
@@ -252,8 +261,6 @@
     "agentsModels": {
       "defaultModel": "默认智能体模型",
       "defaultModelDesc": "每个新生成的 Claude 智能体（含 {{godName}}）默认使用此模型，除非按智能体单独选择。在模型选择器中标记为「· 默认」。",
-      "savedNote": "已保存——适用于新生成的智能体",
-      "saveFailed": "保存失败",
       "advanced": "高级",
       "maxTurns": "每次运行最大轮数",
       "unlimited": "无限制",
@@ -264,14 +271,15 @@
       "autoOn": "自主模式——智能体无需询问即可行动",
       "autoOff": "先询问——智能体在工具批准前暂停",
       "autoDesc": "适用于新生成的智能体（每个智能体的命令仍可覆盖）。",
+      "lasting": "{{god}} 可以添加常驻智能体",
+      "lastingOn": "{{god}} 无需询问你即可添加一个留在名册上的智能体。每一个都会消耗你未批准的 token，并会列在你的收件箱中。",
+      "lastingOff": "只有你。{{god}} 的请求会等待，你打开此项后就会执行。",
+      "lastingYes": "我和 {{god}}",
+      "lastingNo": "只有我",
       "autonomous": "自主",
       "askFirst": "先询问",
       "breaker": "断路器",
       "breakerDesc": "防范失控智能体和超支。断路器会对越界的智能体先引导、再约束、最后停止。",
-      "floorBudget": "全楼层令牌预算",
-      "budgetPlaceholder": "例如 1000000",
-      "budgetEquals": "= {{value}} 令牌",
-      "budgetTotal": "整个楼层的令牌总数",
       "velocity": "令牌速度（tok/分）",
       "velocityPlaceholder": "例如 200000",
       "repeatedLimit": "重复工具上限",
@@ -281,25 +289,52 @@
       "hardStopDesc": "触发时直接终止智能体，而不仅是约束。关闭 = 先引导（推荐）。",
       "killOnTrip": "触发即终止",
       "steerFirst": "先引导",
-      "saved": "已保存"
+      "hygiene": "归档",
+      "hygieneDesc": "旧卡片会移到账本旁的归档中，并可在任务页的“已归档”下继续搜索。等待过久的问题只会被标记，不会被归档。看板超过 token 上限时，会请 {{godName}} 精简一次；精简前完整内容先保存到 board-archive.md。",
+      "ticketPrefix": "工单编号前缀",
+      "ticketPrefixHint": "三个大写字母或数字，首位为字母。新卡片的编号形如 {{example}}。",
+      "hygieneField": {
+        "doneArchiveDays": "已完成任务归档等待天数",
+        "staleFlagDays": "无人处理任务标记等待天数",
+        "staleArchiveDays": "无人处理任务归档等待天数",
+        "askNagDays": "未回答问题提醒等待天数",
+        "boardTokenCap": "看板精简阈值（token）"
+      }
     },
     "memory": {
-      "semanticMemory": "语义记忆",
+      "semanticMemory": "跨记忆搜索",
       "crossSession": "跨会话回忆",
-      "crossSessionDesc": "智能体的 markdown 记忆建立索引以便即时搜索。嵌入模型位于记忆面板中。",
+      "crossSessionDesc": "智能体的笔记会建立索引，团队可以按含义搜索，而不只是精确字词。",
       "kg": "知识图谱",
       "kgTitle": "企业知识库",
       "kgDesc": "添加你的文档、图片和 PDF；智能体可通过 kg 工具按需查询。",
       "adding": "添加中…",
       "addFiles": "添加文件…",
       "docCount": "已索引 {{count}} 个文档",
-      "docCountPlural": "已索引 {{count}} 个文档"
+      "docCountPlural": "已索引 {{count}} 个文档",
+      "modelDesc": "“快速”覆盖英文。“多语言”覆盖所有语言，会下载更大的模型。",
+      "folder": "记忆文件夹",
+      "noFolder": "智能体第一次写下笔记时创建。",
+      "reveal": "在文件夹中显示",
+      "codex": {
+        "title": "在搜索中包含 Codex 记忆",
+        "desc": "把 Codex 代理自己记住的内容复制到搜索中，让其他代理也能找到。只复制记忆，不复制会话或日志。在你打开之前保持关闭：Codex 记忆可能包含个人或客户的信息。",
+        "on": "已复制到搜索",
+        "off": "不复制"
+      }
     },
     "connections": {
+      "responder": {
+        "heading": "谁来回答收到的消息",
+        "hint": "Slack 请求或队友的消息会交给这个智能体。如果它没有在运行，则由 {{godName}} 接手。",
+        "orchestrator": "{{godName}}（推荐）",
+        "temp": "一名临时工",
+        "tempClone": "一名临时工，克隆自 {{name}}"
+      },
       "slack": "Slack",
       "slackIntegration": "Slack 集成",
       "showSlackHelp": "显示 Slack 连接步骤",
-      "slackDesc": "把 Slack 频道的消息直接接入 {{godName}} 的队列。",
+      "slackDesc": "团队在 Slack 话题里发出工作，并在同一话题里读到回复。由 {{godName}} 回答，除非你在本页顶部选择了其他智能体。",
       "connected": "● 已连接",
       "notConnected": "○ 未连接",
       "signingSecret": "签名密钥",
@@ -333,34 +368,117 @@
       "rotate": "轮换",
       "mode": "模式",
       "webhooksHint": "调用方把请求 POST 到 webhook 的 URL，密钥放在 x-md-webhook-secret 请求头中。每个 webhook 都会按自己的 JSON schema 校验请求体——可在 {{godName}} 的命令中心的触发器标签页中编辑，那里也保留着所有到达历史。",
-      "organisation": "组织",
-      "orgKey": "组织密钥",
-      "orgKeyDesc": "队友的安装如何找到你的实例。",
-      "apiKey": "API 密钥",
-      "orgKeyPlaceholder": "粘贴你的组织密钥",
-      "orgConfigOnly": "目前仅限配置。组织消息服务尚不存在，所以这里的密钥不会启动任何传输——它会被保存、显示在触发器标签页中，然后等待。"
+      "slackWay": {
+        "heading": "Slack 如何联系办公室",
+        "laptop": "一次只能用一种方式。每种方式都需要办公室保持打开、笔记本保持唤醒。",
+        "polling": {
+          "label": "定时检查消息",
+          "hint": "推荐。只需一个令牌，无需公网地址。停机后会补上错过的消息。",
+          "foot": "办公室按定时向 Slack 询问新消息。电脑休眠期间到达的消息会在下一次检查时收到。"
+        },
+        "help": {
+          "polling": "连接 Slack，定时检查消息\n\n1. api.slack.com/apps › Create New App › From scratch。命名为 Munder Difflin 并选择你的工作区。\n2. OAuth & Permissions › Bot Token Scopes：添加 channels:history、groups:history、chat:write 和 files:read。安装到工作区。\n3. 把 Bot User OAuth Token（xoxb）填入这里的机器人令牌，把频道 id 填入频道。\n4. 把机器人邀请进该频道：/invite @MunderDifflin\n5. 点击测试连接，然后点击开启。不需要 Event Subscriptions，也不需要 Request URL。",
+          "socket": "连接 Slack，保持连接\n\n1. api.slack.com/apps › Create New App › From scratch。命名为 Munder Difflin 并选择你的工作区。\n2. OAuth & Permissions › Bot Token Scopes：添加 channels:history、groups:history、chat:write 和 files:read。安装到工作区，把 Bot User OAuth Token（xoxb）填入这里的机器人令牌。\n3. Socket Mode › Enable Socket Mode。Basic Information › App Level Tokens › Generate，权限 connections:write。把令牌（xapp）填入这里的应用令牌。\n4. Event Subscriptions › Enable Events › Subscribe to bot events：添加 message.channels 和 message.groups。不需要 Request URL。保存，若 Slack 要求则重新安装。\n5. 把机器人邀请进频道：/invite @MunderDifflin，把频道 id 填入频道，点击测试连接，然后点击开启。",
+          "webhook": "连接 Slack，让 Slack 调用办公室\n\n1. api.slack.com/apps › Create New App › From scratch。命名为 Munder Difflin 并选择你的工作区。\n2. Basic Information › Signing Secret：复制到这里的签名密钥。\n3. OAuth & Permissions › Bot Token Scopes：添加 chat:write、channels:history 和 groups:history。安装到工作区，然后把 Bot User OAuth Token（xoxb）填入这里的机器人令牌。\n4. 点击下面的启动，启动 webhook 并获得 Request URL。\n5. Event Subscriptions › Enable Events › Request URL：粘贴这里的 Request URL，等待 Slack 显示绿色对勾。\n6. Event Subscriptions › Subscribe to bot events：添加 message.channels 和 message.groups。\n7. Event Subscriptions › Subscribe to events on behalf of users（若 Slack 要求，先添加对应的用户令牌权限 channels:history 和 groups:history）：添加 message.channels 和 message.groups。\n8. 保存更改，若 Slack 提示则重新安装，然后把机器人邀请进你的频道：/invite @MunderDifflin\n\nRequest URL 每次启动都会变化，重启后需要重新粘贴。"
+        },
+        "socket": {
+          "label": "保持连接",
+          "hint": "即时。两个令牌，无需公网地址。补漏检查会覆盖停机期间。",
+          "foot": "办公室与 Slack 保持一条打开的连接，每条消息都能即时听到。电脑休眠时不会有消息到达；之后由补收检查取回。"
+        },
+        "webhook": {
+          "label": "让 Slack 调用办公室",
+          "hint": "高级。需要签名密钥、端口和隧道。停机期间的消息会丢失。"
+        },
+        "botTokenHint": "Slack 应用 › OAuth & Permissions › Bot User OAuth Token",
+        "appToken": "应用令牌",
+        "appTokenHint": "Slack 应用 › Basic Information › App Level Tokens，权限 connections:write",
+        "checkEvery": "检查间隔",
+        "checkEveryHint": "办公室向 Slack 询问新消息的频率",
+        "catchupEvery": "补漏间隔",
+        "catchupEveryHint": "补上连接断开期间到达的消息",
+        "tempCwd": "临时工的工作目录",
+        "tempCwdPlaceholder": "最新智能体的文件夹",
+        "tempCwdHint": "临时工处理每条 Slack 请求时打开的文件夹。",
+        "choose": "选择",
+        "turnOn": "开启",
+        "turnOff": "关闭",
+        "onBtn": "已开启",
+        "saved": "已保存",
+        "on": "已开启",
+        "startFailed": "启动失败",
+        "tunnelMissing": "已启动，但隧道不可用",
+        "stoppedForSwitch": "已停止；请为新方式点击开启",
+        "notYet": "尚未",
+        "secondsAgo": "{{n}} 秒前",
+        "minutesAgo": "{{n}} 分钟前",
+        "inSeconds": "{{n}} 秒后",
+        "inMinutes": "{{n}} 分钟后",
+        "off": "关闭",
+        "everySeconds": "{{n}} 秒",
+        "everyMinute": "1 分钟",
+        "everyMinutes": "{{n}} 分钟",
+        "everyHour": "1 小时",
+        "status": {
+          "polling": "正以 @{{bot}} 检查 {{team}}，上次检查 {{ago}}，下次 {{next}}",
+          "socket": "已以 @{{bot}} 连接到 {{team}}，套接字刷新于 {{ago}}",
+          "catchup": "上次补漏 {{ago}}",
+          "reconnecting": "正在重新连接 Slack"
+        }
+      },
+      "proactive": {
+        "label": "主动在 Slack 中发消息",
+        "offHint": "关闭。办公室只在别人已经发起的话题里回复。",
+        "onHint": "开启。办公室也可以先发消息，并在请求到达时立即回一句“收到”。",
+        "what": "这不影响对来自 Slack 的工作的回复，那些始终回到各自的话题里。"
+      },
+      "diag": {
+        "test": "测试连接",
+        "testing": "正在测试…",
+        "noToken": "在上面粘贴机器人令牌，然后点测试连接。它会检查令牌并找出你的频道，不会保存任何东西。",
+        "missing": "仍然缺少：{{fields}}。",
+        "authFail": "Slack 拒绝了该令牌：{{error}}",
+        "ok": "已连接到 {{team}}，身份为 @{{bot}}。",
+        "socketOk": "长连接可以打开。",
+        "socketFail": "长连接没有打开：{{error}}"
+      },
+      "channelPick": {
+        "label": "频道",
+        "one": "正在使用 #{{name}}。这是机器人唯一所在的频道。",
+        "choose": "机器人在 {{n}} 个频道里。选择它应该关注的那个：",
+        "none": "机器人还没有加入任何频道。在 Slack 里，到你想让它关注的频道执行 /invite @{{bot}}，然后再点一次测试连接。",
+        "needScope": "此应用无法列出频道，所以需要手动填写 id。在 Slack 应用中添加 channels:read 和 groups:read 权限并重新安装，这里就会自动填好。",
+        "error": "无法列出频道：{{error}}。请改为手动填写 id。",
+        "anyChannel": "机器人所在的每一个频道。保持连接会实时听到每个频道，因此不需要 id。",
+        "catchupNeedsChannel": "如果你也想要补收检查，请选一个频道。没有频道时，电脑休眠期间到达的消息之后不会被补收。",
+        "manual": "频道 id",
+        "manualHint": "会覆盖上面的选择。留空则使用上面的选择。",
+        "privateTag": "私密"
+      },
+      "advanced": {
+        "show": "高级",
+        "hide": "高级",
+        "hint": "接入方式、由谁处理请求、时间间隔，以及发消息。"
+      },
+      "saveBtn": "保存",
+      "scopes": {
+        "needs": "需要以下权限",
+        "where": "Slack 应用 › OAuth & Permissions › Bot Token Scopes。添加后重新安装到工作区，再粘贴令牌。",
+        "appNeeds": "应用令牌需要 {{scope}}，在 Basic Information › App Level Tokens 中获取。",
+        "allGranted": "该令牌已具备所需的全部权限。",
+        "missing": "该令牌缺少 {{scopes}}。请在 Slack 应用中添加，重新安装，然后再次粘贴令牌。",
+        "unknown": "Slack 没有说明该令牌具备哪些权限，请对照上面的列表自行确认。"
+      },
+      "boundPort": "正在监听端口 {{port}}。",
+      "boundPortMoved": "端口 {{from}} 已被占用，本次会话改为监听 {{port}}。本地调用方必须使用 {{port}}。已保存的端口没有改变。"
     },
     "voice": {
-      "freeFlow": "自由输入",
-      "freeFlowTitle": "自由输入（语音听写）",
-      "freeFlowDesc": "按住说话听写：开口说话，Groq Whisper 就会把文字放进队列编辑器。",
-      "groqKey": "Groq API 密钥",
-      "groqPlaceholder": "gsk_...（在 console.groq.com 免费获取密钥）",
-      "model": "模型",
-      "fast": "whisper-large-v3-turbo（快速）",
-      "accurate": "whisper-large-v3（准确）",
-      "freeFlowHint": "两种听写方式：点击队列编辑器发送键上方的麦克风按钮（点击开始录音，再点一次转写）；或在查看任意智能体终端时按住 Option（⌥）说话、松手转写。两种方式都会把文字放进编辑器草稿，供你发送前检查。首次录音时 macOS 会请求麦克风权限。",
-      "realtime": "实时 {{godName}}",
-      "voiceChat": "与 {{godName}} 语音对话",
-      "voiceChatDesc": "实时与调度者对话。从 {{godName}} 的标签页开启；在这里选择语音回路使用的麦克风和扬声器。",
       "openaiKey": "OpenAI API 密钥 · 语音",
       "openaiKeyDesc1": "与 {{godName}} 对话基于 OpenAI 的 Realtime API——语音进、语音出，通过到 {{model}} 的实时连接。这与你的智能体所用的 Claude 订阅是不同服务，所以需要单独的 OpenAI API 密钥。",
-      "openaiKeyDesc2": "在下面粘贴一次即可。密钥在这台机器上加密存储，之后不再显示——每次语音会话都会从它生成一个短时令牌，密钥本身永远不会离开你的电脑。它与「智能体与模型」下列出的 OpenAI 密钥相同；在任一处设置即可。",
       "keyPlaceholderSaved": "密钥已保存——粘贴新密钥可替换",
       "save": "保存",
       "keySaved": "密钥已保存——Talk 已就绪。从 {{godName}} 的卡片启动。",
       "noKey": "尚无密钥——保存密钥前 Talk 保持禁用。",
-      "keySavedNote": "密钥已保存——Talk 已就绪。",
       "couldNotSave": "无法保存密钥。",
       "idleDisconnect": "空闲自动断开",
       "30s": "30 秒",
@@ -370,12 +488,260 @@
       "5m": "5 分钟",
       "10m": "10 分钟",
       "never": "关闭（永不）",
-      "idleDisconnectDesc": "语音会话在无人说话时保持多久后自动关闭。即使此项关闭，支出上限仍能阻止失控的会话。"
+      "idleDisconnectDesc": "语音会话在无人说话时保持多久后自动关闭。即使此项关闭，支出上限仍能阻止失控的会话。",
+      "title": "调度者的语音"
     },
     "saved": "已保存",
     "saving": "保存中…",
     "unsavedChanges": "有未保存的更改",
-    "unsavedWarning": "你有未保存的设置。仍要关闭并放弃这些更改吗？"
+    "unsavedWarning": "你有未保存的设置。仍要关闭并放弃这些更改吗？",
+    "worktrees": {
+      "title": "工作树",
+      "refresh": "刷新",
+      "desc": "每个隔离的代理和每个临时工都在项目的一份独立副本中工作。工作合并后应用会移除副本，崩溃的代理留下未保存工作的副本会被保留。其余的会一直留在这里占用磁盘，直到你删除它们。",
+      "loading": "正在查看磁盘",
+      "empty": "磁盘上没有工作树。",
+      "totalOne": "1 个文件夹",
+      "totalMany": "{{count}} 个文件夹",
+      "totalSize": "共 {{size}}",
+      "totalSoFar": "目前 {{size}}，已测量 {{done}} / {{count}}",
+      "measuring": "测量中",
+      "checking": "正在检查内容",
+      "detached": "无分支",
+      "ageToday": "今天创建",
+      "ageOne": "1 天前创建",
+      "ageMany": "{{count}} 天前创建",
+      "live": "有代理正在这里运行",
+      "liveHint": "有代理正在此文件夹中运行。请先停止该代理。",
+      "notWorktree": "不是任何项目的工作树。如不需要，请手动删除。",
+      "notWorktreeHint": "应用只删除能交还给 git 的工作树。",
+      "clean": "没有未保存的内容",
+      "unknown": "无法读取其中内容",
+      "uncommittedOne": "1 个未提交的文件",
+      "uncommittedMany": "{{count}} 个未提交的文件",
+      "notInBaseOne": "1 个提交不在 {{base}} 中",
+      "notInBaseMany": "{{count}} 个提交不在 {{base}} 中",
+      "onlyHereOne": "1 个提交不在任何其他分支上",
+      "onlyHereMany": "{{count}} 个提交不在任何其他分支上",
+      "delete": "删除",
+      "deleting": "正在删除",
+      "deleteFolder": "删除文件夹",
+      "deleteAnyway": "仍然删除",
+      "keep": "保留",
+      "confirmClean": "此文件夹中没有未保存的内容。要删除吗？",
+      "confirmUnread": "应用尚未读完此文件夹。如果其中有工作，会再次询问你。",
+      "confirmUnknown": "应用无法读取此文件夹中的内容。其中未提交的内容将永久丢失。",
+      "loseOne": "1 个未提交的文件将永久丢失。",
+      "loseMany": "{{count}} 个未提交的文件将永久丢失。",
+      "keepOne": "1 个未合并的提交会保留在分支 {{branch}} 上。只删除文件夹。",
+      "keepMany": "{{count}} 个未合并的提交会保留在分支 {{branch}} 上。只删除文件夹。",
+      "refused": {
+        "gitFailed": "Git 拒绝移除：{{error}}",
+        "notOurs": "此文件夹不是应用可以删除的。"
+      }
+    },
+    "frame": {
+      "about": "这是什么？",
+      "aboutField": "关于{{name}}",
+      "partlySaved": "已保存，但有一项更改未保存：{{error}}",
+      "onSave": "按保存后生效。"
+    },
+    "conn": {
+      "answeredBy": "由谁回复",
+      "appliesOnSave": "按“保存”后生效。",
+      "state": {
+        "connected": "已连接",
+        "needs": "还需要 {{fields}}",
+        "notConnected": "未连接",
+        "off": "关闭"
+      },
+      "slack": {
+        "switch": "使用 Slack",
+        "field": {
+          "botToken": "Bot 令牌",
+          "appToken": "App 令牌",
+          "channelId": "频道 ID",
+          "signingSecret": "签名密钥"
+        },
+        "botTokenInfo": "以 xoxb 开头。Slack 应用 › OAuth & Permissions › Bot User OAuth Token。",
+        "appTokenInfo": "以 xapp 开头。Slack 应用 › Basic Information › App Level Tokens，权限 connections:write。有了它，消息发出后立刻送达。",
+        "channelInfo": "要回复的频道。默认是所有频道：Bot 加入的每一个频道，在 Slack 把 Bot 加进某个频道，它就会在那里回复。只想在部分频道回复时，取消勾选“所有频道”，再勾选要的频道；“测试连接”会列出它们。发给 Bot 的私信始终会回复。",
+        "signingSecretInfo": "Slack 应用 › Basic Information › Signing Secret。Slack 用它为每次调用这台电脑签名。",
+        "anyChannel": "Bot 加入的所有频道",
+        "allChannels": "所有频道",
+        "pickChannels": "选择一个或多个频道",
+        "channelsCount": "{{n}} 个频道",
+        "listChannels": "按“测试连接”列出 Bot 所在的频道，或填入多个 id，用逗号分隔。",
+        "noneMeansAll": "一个都不勾选时，它会在 Bot 加入的每个频道回复。",
+        "answeredByInfo": "谁来处理 Slack 请求。同事发来的消息也交给同一个代理。该代理停止时由 {{godName}} 回复。",
+        "way": {
+          "socket": "实时：消息发出后立刻送达。",
+          "polling": "每分钟检查一次频道。加上 App 令牌即可改为实时。",
+          "webhook": "Slack 调用这台 Mac 的公开地址。"
+        },
+        "howTo": "如何获取",
+        "steps": "最快的方式：用清单创建应用。\n1. 点上方的“复制清单”。\n2. api.slack.com/apps › Create New App › From a manifest。选择你的工作区，粘贴清单，然后点 Next 和 Create。\n3. Install App › Install to Workspace › Allow。把 Bot User OAuth Token（xoxb）复制到“Bot 令牌”。\n4. Basic Information › App Level Tokens › Generate Token and Scopes：添加 connections:write，然后点 Generate。把令牌（xapp）复制到“App 令牌”。“定时检查”方式不需要它。\n5. 在 Slack 里，在每个需要它回答的频道输入 /invite @{{handle}}。大家也可以直接给它发消息。点“测试连接”，然后保存。\n\nSlack 改成一步步引导？在 “What it can respond to in Slack?” 这一步添加机器人事件 {{events}}。\n\n手动创建的应用？它需要机器人权限 {{scopes}}。“自动”和“实时”还需要：打开 Socket Mode；在 Event Subscriptions › Subscribe to bot events 中添加机器人事件 {{events}}；在 App Home › Messages Tab 中打开并允许发送消息。每次修改后重新安装应用。“定时检查”不需要任何事件。",
+        "wayLabel": "连接方式",
+        "wayInfo": "自动：有应用令牌时实时接收，没有时每分钟检查一次。实时方式需要在 Slack 应用中添加机器人事件；在第一条消息实时到达之前，办公室也会每分钟检查一次。下方字段随方式变化。",
+        "wayChoice": {
+          "auto": "自动",
+          "socket": "实时（socket 模式）",
+          "polling": "定时检查",
+          "webhook": "Slack 调用这台 Mac（webhook）"
+        },
+        "copyManifest": "复制清单",
+        "manifestCopied": "已复制",
+        "manifestInfo": "一次粘贴即可设置 Slack 应用的权限、事件和私信。",
+        "liveMissing": "Slack 没有把这些发送到实时连接：{{events}}。这些消息仍会通过每分钟一次的检查送达。想立即收到，请在 Slack 应用的 Event Subscriptions › Subscribe to bot events 中添加它们，然后重新安装应用。",
+        "catchupOff": "每分钟一次的检查已关闭，所以连接断开期间错过的消息不会被补收：{{error}}"
+      },
+      "webhook": {
+        "answeredByInfo": "webhook 没有指定自己的代理时，由谁处理。该代理停止时由 {{godName}} 回复。"
+      },
+      "inbound": {
+        "defaultAgent": "默认智能体",
+        "form": {
+          "title": "添加入站 webhook",
+          "type": "Webhook 类型",
+          "typeChoice": {
+            "custom": "空白（任意工具）",
+            "github": "GitHub",
+            "linear": "Linear",
+            "telegram": "Telegram"
+          },
+          "accepts": "接受的请求",
+          "acceptsInfo": "按此 schema 校验的 JSON 请求体。必须包含 message 字段；title、kind 和 from 可选。",
+          "acceptsService": {
+            "github": "GitHub 自己的事件负载：拉取请求、议题和评论。",
+            "linear": "Linear 自己的事件负载：议题和评论。",
+            "telegram": "Telegram 的更新负载：别人发给你机器人的消息。"
+          },
+          "badSchema": "schema 不是有效的 JSON。",
+          "auth": "验证方式",
+          "authChoice": {
+            "header": "请求头中的密钥",
+            "bearer": "Bearer 令牌",
+            "hmac": "签名的请求体（HMAC SHA-256）"
+          },
+          "authService": {
+            "github": "GitHub 用密钥为每次投递签名（X-Hub-Signature-256）。把密钥粘贴到 GitHub。",
+            "linear": "Linear 用它自己的签名密钥为每次投递签名（Linear-Signature）。在 Linear 创建 webhook 后把它粘贴到这里。",
+            "telegram": "Telegram 在 X-Telegram-Bot-Api-Secret-Token 中发送密钥。保存时会用它注册你的机器人。"
+          },
+          "goesTo": "交给哪个智能体",
+          "prompt": "附加到每个事件的提示",
+          "afterSave": "按下保存后，地址和密钥会出现在列表中。",
+          "confirm": "添加 webhook"
+        },
+        "changedByAgent": "已被智能体修改，请重新加载。你在这里对 webhook 的修改没有保存。",
+        "reload": "重新加载",
+        "creatingAddress": "正在创建地址…",
+        "addressFailed": "无法创建地址：{{error}}",
+        "addressTimedOut": "地址还没有出现。请检查网络连接后重试。",
+        "retry": "重试",
+        "deleteNamed": "删除 {{name}}",
+        "deleteConfirm": "保存时删除",
+        "deleteOnSave": "按下保存后删除。",
+        "undo": "撤销",
+        "delete": "删除",
+        "keep": "保留"
+      }
+    },
+    "integ": {
+      "howTo": "如何连接",
+      "saveFailed": "Webhook 无法保存。",
+      "defaultAgent": "默认代理",
+      "more": "更多",
+      "guardrails": "给每条消息加上安全规则",
+      "enabled": "{{name}} 开启",
+      "receiving": "正在接收",
+      "paused": "已暂停",
+      "urlInfo": "把它粘贴到对方服务里。地址是公开的，只有带密钥的调用方能进来。",
+      "urlAfterSave": "保存后显示",
+      "promptInfo": "代理对这里的每条消息应该做什么。会随每条消息一起发送。",
+      "field": {
+        "name": "名称",
+        "description": "说明",
+        "prompt": "指令",
+        "url": "地址",
+        "secret": "密钥"
+      },
+      "secretInfo": {
+        "custom": "调用方在请求头 x-md-webhook-secret 中发送它。",
+        "github": "把它粘贴到 GitHub 上该 webhook 的 Secret 字段。",
+        "linear": "Linear 会生成自己的签名密钥。从 Linear 上该 webhook 的页面复制并粘贴到这里。"
+      },
+      "promptPlaceholder": {
+        "custom": "例如：这些来自客服台，请回复一份草稿答案。",
+        "github": "例如：审查新的拉取请求，并评论你发现的问题。",
+        "linear": "例如：当问题分配给代理时，开始处理。",
+        "telegram": "例如：简短回答关于我们产品的问题。"
+      },
+      "sourceName": {
+        "custom": "Webhook",
+        "github": "GitHub",
+        "linear": "Linear",
+        "telegram": "Telegram"
+      },
+      "github": {
+        "title": "GitHub",
+        "info": "GitHub 把仓库事件（拉取请求、问题、评论）发给你选的代理。",
+        "inboundOnly": "事件会送到代理。暂时还不会把回复发回 GitHub。",
+        "steps": "1. 按“连接”，再按“保存”，地址会显示在这里。\n2. 在 GitHub：你的仓库 › Settings › Webhooks › Add webhook。\n3. Payload URL 填这里的地址，Content type 选 application/json，Secret 填这里的密钥。\n4. 选择需要的事件，然后 Add webhook。GitHub 会先发一个 ping，它会被忽略。"
+      },
+      "linear": {
+        "title": "Linear",
+        "info": "Linear 把问题和评论事件发给你选的代理。",
+        "inboundOnly": "事件会送到代理。暂时还不会把回复发回 Linear。",
+        "steps": "1. 按“连接”，再按“保存”，地址会显示在这里。\n2. 在 Linear：Settings › API › Webhooks › New webhook。粘贴地址，选择资源类型并创建。\n3. 把 Linear 为该 webhook 显示的签名密钥复制到这里的“密钥”，再按一次“保存”。"
+      },
+      "telegram": {
+        "title": "Telegram",
+        "info": "发给你的 Telegram bot 的消息会送到你选的代理。",
+        "inboundOnly": "消息会送到代理。暂时还不会把回复发回 Telegram。",
+        "steps": "1. 在 Telegram 给 @BotFather 发 /newbot，按步骤操作，它会给你一个 bot 令牌。\n2. 按“连接”，粘贴 bot 令牌，按“保存”。应用会告诉 Telegram 把消息发到哪里。\n3. 给你的 bot 发消息，消息会送到代理。",
+        "botToken": "Bot 令牌",
+        "botTokenInfo": "来自 @BotFather。按“保存”时用一次来连接 bot，不会保存。",
+        "registerFailed": "Telegram 没有接受这个 bot：{{error}}"
+      },
+      "custom": {
+        "defaultName": "Webhook",
+        "namePlaceholder": "客服台",
+        "descriptionPlaceholder": "简单说明谁会调用它",
+        "promptPlaceholder": "代理对每次调用应该做什么"
+      },
+      "list": {
+        "open": "打开自动化",
+        "same": "这些就是“自动化”里的 webhook 自动化。在这里修改，那里也会同步。",
+        "none": "还没有 webhook。",
+        "to": "发给 {{name}}",
+        "edit": "编辑"
+      }
+    },
+    "keys": {
+      "providers": {
+        "info": "自带密钥的引擎所用的密钥：OpenCode、Crush、pi.dev 和 Qwen。加密保存，不再显示；引擎在智能体启动时读取密钥。Claude Code 和 Codex 使用各自的登录。"
+      },
+      "envVar": "智能体以 {{name}} 读取。",
+      "willSave": "按保存后生效。",
+      "willRemove": "按保存后移除。",
+      "remove": "移除",
+      "undo": "撤销",
+      "live": "密钥保存后，正在运行的智能体即可立即使用，无需重启。",
+      "custom": {
+        "notConnection": "{{id}} 连接不会读取此项。请把它的密钥放到那个连接里，在「智能体使用的应用」下。",
+        "info": "为代理需要的任何东西设置名称和值，例如服务令牌。加密保存在本机，之后不再显示。每个代理都会以该名称的环境变量读取它。智能体使用的应用不会读取这些值。",
+        "name": "名称",
+        "value": "值",
+        "willReplace": "按保存后替换已保存的值。",
+        "problem": {
+          "shape": "只能使用大写字母、数字和下划线。",
+          "long": "名称不能超过 64 个字符。",
+          "reserved": "这个名称由应用自己设置。请换一个名称。",
+          "empty": "请填写名称。"
+        }
+      }
+    }
   },
   "commandCenter": {
     "title": "命令中心",
@@ -397,7 +763,7 @@
       "graph": "图谱",
       "activity": "动态",
       "skills": "技能",
-      "workers": "工人"
+      "workers": "临时工"
     },
     "terminalFullscreen": "终端已全屏打开。按 Esc 返回。",
     "noTerminal": "{{name}} 没有实时终端。",
@@ -414,32 +780,32 @@
     "agents": "智能体",
     "godTag": "（上帝）",
     "toolCalls": "{{count}} 次工具调用",
-    "rate": "速率",
-    "budget": "预算",
-    "meterTitle": "累计会话用量：{{used}} / {{limit}} 令牌{{note}}——非上下文窗口",
-    "agentLimit": "（智能体限额——工作令牌，不计缓存读取）",
-    "floorBudget": "（楼层预算）",
     "ctx": "上下文",
     "contextTitle": "上下文窗口：{{used}} / {{limit}} 令牌（{{pct}}%）",
     "noStatusTick": "尚无状态上报",
     "modelRestarts": "{{provider}} 模型（重启智能体）",
     "restartContinue": "重启并继续",
     "restartContinueTitle": "终止并重新生成{{name}}，恢复其当前会话——修复损坏/花屏的终端而不丢失上下文",
+    "restartOnLine": "重启",
+    "commandLineHint": "该代理实际运行的命令行。编辑后按重启即可按此命令启动。",
     "engine": "引擎：",
     "apply": "应用",
     "confirmRestartEngine": "这会重启 {{name}}；不同引擎上的会话无法恢复。",
-    "restartFailed": "重启失败。",
     "archived": "已归档（{{count}}）",
     "showClosed": "显示已关闭的智能体",
     "hideClosed": "隐藏已关闭的智能体",
+    "reopen": "重新打开",
+    "reopening": "正在重新打开…",
+    "reopenTitle": "重新打开该智能体：沿用同一 id、工作目录与记忆，并恢复上次会话",
+    "reopenFailed": "无法重新打开：{{error}}",
+    "alreadyOpen": "已经打开",
+    "forgetTitle": "永久移除：将该智能体从列表中彻底删除",
     "directories": "目录",
     "noRepos": "没有已注册的仓库。",
     "openInTerminal": "在 Terminal.app 中打开",
     "issues": "Issue",
     "fetching": "获取中…",
     "fetchIssues": "获取 Issues",
-    "noRepoSelected": "未选择仓库。",
-    "fetchFailed": "获取 issues 失败。",
     "noIssues": "尚未获取 issues。",
     "assign": "分配",
     "textSearch": "文本搜索（看板、任务、记忆）",
@@ -460,16 +826,10 @@
     "logEscalate": "升级给人类：{{subject}}",
     "logApprovalGranted": "批准通过",
     "logApprovalDenied": "批准被拒",
-    "tokenLimitTitle": "设置该智能体的令牌上限（工作令牌：输入 + 输出 + 缓存写入；不计缓存读取）",
-    "tokenLimit": "上限 {{value}}",
-    "setLimit": "设置上限",
     "saveLimit": "保存上限",
-    "fleetTokens": "Σ {{value}} tok",
     "fleetInputs": "输入 {{value}}（缓存 {{pct}}%）",
     "fleetRate": "{{value}} tok/分",
-    "telemetryNote": "来自每个智能体 OpenTelemetry 的实时数据 · 条状图显示已用令牌与各自上限的对比，否则为 {{cap}} 楼层预算",
-    "defaultBudgetNote": "（默认——请在设置中设置楼层令牌预算）",
-    "openIssue": "GitHub Issue #{{num}}：{{title}}",
+    "telemetryNote": "实时来自每个智能体的 OpenTelemetry · 按周期的 token 限额在编排者的“预算与熔断器”标签页中设置",
     "deliveryResumeAria": "恢复整个楼层的自动投递",
     "deliveryHoldAria": "暂停整个楼层的自动投递",
     "openIdeAria": "打开 IDE"
@@ -559,7 +919,6 @@
     "descriptionPlaceholder": "职责 —— 该智能体是做什么的，而非实时状态",
     "goal": "目标（可选）",
     "goalPlaceholder": "每次提示都会注入的长期指令",
-    "importHire": "导入 hire",
     "importHireDesc": "导入 hire 会从一个 .json 清单加载现成的智能体——它会填好下方所有字段供你检查。不点 生成 就不会启动任何东西。",
     "generateWithAI": "用 AI 生成一个…",
     "hideAIPrompt": "隐藏 AI 提示词",
@@ -577,6 +936,8 @@
     "skipHire": "跳过 hire"
   },
   "onboarding": {
+    "homeHoldsWorkspace": "{{path}} 已有一个工作区。继续则按原样打开，或选择其他文件夹。",
+    "homeIsFile": "{{path}} 是文件，不是文件夹。请选择其他文件夹。",
     "titles": {
       "persona": "欢迎来到 MUNDER DIFFLIN",
       "welcome": "认识你的办公室",
@@ -601,7 +962,7 @@
     },
     "welcome": {
       "headline": "你的克隆以及它经营的楼层",
-      "descPlain": "你的克隆经营着一小间 AI 员工办公室，你可以在一个屏幕上看到一切。里面有什么：",
+      "descPlain": "你的分身运营着一个由 AI 代理组成的小办公室，你在一个屏幕上看到全部。里面有：",
       "desc": "你的克隆协调着一窝 AI 编程智能体——持久、可观察、全本地。里面有什么：",
       "features": {
         "engines": {
@@ -659,8 +1020,8 @@
       "cliAgentPlain": "一个<strong>CLI 智能体</strong>是运行在你电脑上的 AI 编程助手 —— 常见的有 Claude Code（Anthropic）、Codex（OpenAI）和 Antigravity（Google Gemini）。<strong>你的克隆体</strong>是常驻运行、打理整个办公室的那一个。我们推荐使用 Opus 4.8（1M）的 Claude Code。其他引擎之后可以随时添加或切换。",
       "cliAgent": "每个选项都是一个<strong>CLI 引擎</strong>（Claude Code、Codex、Antigravity/Gemini，或本地代理如 Qwen）。标记为 INSTALLED 的引擎已在本机就绪；INSTALLS ON FIRST RUN 表示应用会在 {{godName}} 首次启动时进行安装。<strong>你的克隆体</strong>（{{godName}}）是统筹整个 hive 的引擎。推荐：Claude Code · Opus 4.8 · 1M。其他提供方之后可按智能体逐一接入。",
       "recommended": "推荐",
-      "workersOnly": "仅限雇员",
-      "workersOnlyHint": "暂时无法接收蜂巢邮件，因此不能运行你的分身——但雇佣工作智能体时仍然可用。",
+      "workersOnly": "仅限临时工",
+      "workersOnlyHint": "暂时无法接收蜂巢邮件，因此不能运行你的分身。雇佣临时工时仍然可用。",
       "model": "模型",
       "modelNote": "这只设置 {{godName}} 的引擎。之后你可以在每个智能体上运行其他提供商。"
     },
@@ -691,88 +1052,32 @@
       "notificationsDesc": "智能体需要你或终端需要抢救时提醒你——即使你不在。第一次触发时你的系统可能会请求权限。",
       "openAtLogin": "开机启动",
       "openAtLoginDesc": "重启后自动重新启动 harness，让计划任务自行恢复。无提示——立即生效。",
-      "shareStats": "共享匿名使用统计",
-      "shareStatsDesc": "少量匿名事件（打开应用、生成智能体、使用功能），用于改进 Munder Difflin——绝不包含提示词、代码、文件路径或智能体输出。完整清单见 TELEMETRY.md；可随时在设置中更改。",
       "stayAwake": "接电源时保持唤醒（手动）",
-      "stayAwakeDescMac": "macOS 只允许你自己设置这一项。在「电池」→「选项」中，开启「防止显示器关闭时自动进入睡眠」（接电源适配器时），这样显示器休眠时定时器也能继续触发。没有防休眠设置的话 Mac 仍会真正休眠——工作会保存并在唤醒后补上。",
-      "stayAwakeDescWindows": "Windows 只允许你自己设置这一项。在「设置」→「系统」→「电源和电池」→「屏幕和睡眠」中，将「使用电源时，使设备进入睡眠状态」设为「从不」（或延长时间），这样定时器也能继续触发。没有防休眠设置的话 Windows 仍会真正休眠——工作会保存并在唤醒后补上。",
-      "stayAwakeDescLinux": "你的桌面环境只允许你自己设置这一项。请查找电源设置面板（例如 GNOME 设置 →「电源」，或 KDE 系统设置 →「电源管理」），并在接电源时关闭自动休眠/挂起。没有防休眠设置的话系统仍会真正休眠——工作会保存并在唤醒后补上。",
-      "openBatteryMac": "打开电池设置",
-      "openBatteryWindows": "打开电源设置",
-      "setItUp": "开始设置",
-      "next": "下一步"
+      "setItUp": "开始设置"
     },
     "errPickHome": "请先选择 harness 主文件夹。",
     "errCreateHome": "无法创建 harness 主文件夹",
     "errEngineNotInstalled": "{{label}} 尚未安装。请先安装它并点击“重新检查”，或选择其他引擎。"
   },
   "office": {
-    "gpuError": "办公楼层丢失了 GPU 上下文。\n\n同时使用 GPU 的终端太多了。\n关闭几个智能体终端，或重启应用，即可恢复。",
-    "errand": {
-      "water": [
-        "给植物浇水 🌿",
-        "给植物们喝点水",
-        "它们长得真快"
-      ],
-      "window": [
-        "开窗透透气 🍃",
-        "一点新鲜空气",
-        "今天微风不错"
-      ],
-      "dispenser": [
-        "接点水喝 💧",
-        "补水时间",
-        "保持精神"
-      ],
-      "fridge": [
-        "冰箱里有什么好东西？",
-        "谁拿走了我的酸奶？",
-        "随便看看…"
-      ],
-      "shelf": [
-        "看看书架 📚",
-        "有什么新东西吗？",
-        "好东西真多"
-      ],
-      "bin": [
-        "把废纸清掉 🗑️",
-        "收拾桌子的日子",
-        "稍微整理一下"
-      ],
-      "smoke": [
-        "这层楼自己就能运转 🚬",
-        "老板休息一下。",
-        "思考人生 🚬",
-        "我宣布……休息一下"
-      ]
+    "conn": {
+      "git": {
+        "host": {
+          "label": "git 主机地址",
+          "help": "必须以 https:// 开头。SSH 地址暂不可用。",
+          "notHttps": "地址必须以 https:// 开头。",
+          "hostOnly": "只输入主机，例如 https://github.com，后面不要加任何内容。"
+        },
+        "user": {
+          "label": "User name",
+          "help": "你在这个主机上的用户名。"
+        },
+        "token": {
+          "label": "Access token"
+        }
+      }
     },
-    "suckUp": [
-      "{{godName}}，已经交付了 {{done}} 个任务。加薪吗？🥺",
-      "老板，这周完成了 {{done}} 个任务！",
-      "一如既往的好眼光，老板！",
-      "我正要去做那件事！",
-      "今天领带不错，{{godName}}",
-      "努力工作，老板！💪",
-      "史上最好的老板。真心话。"
-    ],
-    "gossip": [
-      "他到底写过代码没有？",
-      "又一个拖了一小时的「快速同步」…",
-      "「世界上最好的老板」——那个杯子是他自己买的",
-      "他把我的任务据为己有，说是他的主意",
-      "说真的，那股雪茄味…",
-      "他浇了那盆植物。就一盆。他自己的。",
-      "你听见了吗？「我宣布……休息一下」"
-    ],
-    "cheer": [
-      "完成！✔",
-      "漂亮",
-      "收工",
-      "上线 🚀",
-      "又搞定一个",
-      "拿下了",
-      "记入战绩"
-    ],
+    "gpuError": "办公楼层丢失了 GPU 上下文。\n\n同时使用 GPU 的终端太多了。\n关闭几个智能体终端，或重启应用，即可恢复。",
     "mugs": {
       "empty": "没有干净的杯子了…",
       "brewing": "正在冲一杯新的 ☕",
@@ -782,16 +1087,114 @@
       "waiting": "等待中",
       "needsYou": "需要你",
       "compacting": "正在压缩上下文",
-      "looping": "循环中——断路器已启动",
-      "runningFloor": "正在管理楼层",
-      "idle": "空闲"
+      "looping": "循环中，断路器已启动",
+      "runningFloor": "正在管理办公室",
+      "idle": "空闲",
+      "live": {
+        "thinking": "正在思考",
+        "resumed": "已恢复",
+        "readingInbox": "正在读收件箱",
+        "readingMessage": "正在读新消息",
+        "startingUp": "正在启动",
+        "reconnecting": "正在重新连接",
+        "breakerCleared": "断路器已解除",
+        "revivedAfterSleep": "休眠后已恢复",
+        "startedFresh": "已重新开始，未找到上次会话",
+        "worktreeGone": "工作树已不存在，正在使用基础仓库",
+        "spawned": "刚启动",
+        "awaiting": "等待中",
+        "waitingOnYou": "在等你",
+        "waitingOnOrchestrator": "在等协调者",
+        "asking": "正在提问",
+        "using": "正在使用 {{tool}}",
+        "restarting": "正在重启",
+        "continuing": "正在继续",
+        "recreatingTerminal": "正在重建终端",
+        "switchingTo": "正在切换到 {{engine}}"
+      }
     }
   },
+  "error": {
+    "tag": "错误",
+    "panel": "无法显示{{where}}。应用的其他部分不受影响。",
+    "app": "应用出错，停止了绘制。你的智能体仍在运行。",
+    "tryAgain": "重试",
+    "reload": "重新加载窗口"
+  },
+  "recovery": {
+    "title": "窗口在 {{time}} 崩溃，已重新加载。",
+    "body": "你的智能体一直在运行。崩溃前的终端输出不会再显示，新的输出照常出现。",
+    "ok": "好"
+  },
+  "integrity": {
+    "paused": "已暂停",
+    "title": "无法读取{{file}}，对它的更改已暂停。",
+    "body": "应用没有覆盖它，并保留了一份副本：{{copy}}。修好文件或放回一份完好的副本后，更改会自动恢复。",
+    "defaults": "在此之前，应用使用默认设置运行。",
+    "show": "显示文件",
+    "file": {
+      "config": "你的设置文件（config.json）",
+      "tasks": "任务看板（tasks.json）",
+      "registry": "智能体列表（registry.json）"
+    },
+    "saveBlocked": "未保存：无法读取你的设置文件，所以更改已暂停。"
+  },
+  "graphics": {
+    "auto": "自动",
+    "gpu": "GPU",
+    "cpu": "仅 CPU",
+    "drawing": "当前绘制方式：{{what}}",
+    "onCpu": "处理器（CPU）",
+    "onCpuFallback": "处理器（CPU），因为显卡无法使用",
+    "onGpuNoName": "显卡（GPU），暂时还不知道名称",
+    "unknown": "未知，系统还没有报告",
+    "restartNeeded": "已保存。「{{mode}}」在重启后生效。",
+    "restartNow": "立即重启",
+    "confirm": "重启会停止 {{count}} 个正在运行的智能体。现在重启吗？",
+    "restart": "重启",
+    "later": "稍后",
+    "saveFailed": "无法保存图形设置，没有任何改变。"
+  },
+  "codexLayer": {
+    "tag": "未启动",
+    "title": "{{agent}} 尚未启动。这个文件夹有自己的 Codex 设置。",
+    "body": "如果 {{agent}} 在这里启动，Codex 还会加载代码仓库里的这些文件，未经审查。它们可以启动 MCP 服务器、运行钩子、设定命令规则：",
+    "kind": {
+      "config": "设置，可以启动 MCP 服务器",
+      "hooks": "钩子，在智能体的事件发生时运行的命令",
+      "rules": "命令规则，决定它可以运行什么",
+      "agents": "智能体文件，可以启动 MCP 服务器并设置智能体的指令",
+      "hookFiles": "钩子文件，可以运行命令"
+    },
+    "more": "还有 {{count}} 个文件",
+    "more_one": "还有 1 个文件",
+    "unreadable": "这里没有应用能读取的设置文件；为安全起见，仍把这个文件夹算在内",
+    "allowAll": "允许这些文件夹并启动",
+    "trust": "只有在信任这个代码仓库时才允许。之后可以在设置的「智能体与模型」中撤回。",
+    "allow": "允许此文件夹并启动",
+    "notNow": "暂不"
+  },
+  "history": {
+    "prompt": "提示",
+    "reply": "回复",
+    "start": "本次会话开始",
+    "compacted": "对话已压缩",
+    "loadOlder": "加载更早的",
+    "jump": "跳到最新",
+    "footer": "只读，来自 {{engine}} 自己的会话记录。",
+    "cut": "（已截断）",
+    "empty": "还没有内容。智能体第一次回复后，这里会显示历史。",
+    "unsupported": "这个引擎没有应用能读取的记录。终端是唯一的历史。",
+    "readFailed": "无法读取历史。应用稍后会再试一次。"
+  },
+  "where": {
+    "history": "历史"
+  },
   "setupPanel": {
+    "versionNotice": "已安装 {{installed}}。本应用基于 {{pinned}} 测试。未做任何更改。",
     "title": "前置条件",
     "checking": "正在检查已安装的工具…",
     "summary": "{{ready}} / {{total}} 就绪{{missing}}",
-    "summaryMissing": " · {{count}} 个推荐项缺失",
     "recheck": "重新检查",
     "checkingBtn": "检查中…",
     "statusReady": "就绪",
@@ -800,7 +1203,6 @@
     "recommended": "推荐",
     "docs": "文档 →",
     "askDesc": "{{godName}} 可以为你安装 {{count}} 个缺失的推荐工具。这会填好他的派发框——在你按下派发前不会运行任何东西。",
-    "askDescPlural": "{{godName}} 可以为你安装 {{count}} 个缺失的推荐工具。这会填好他的派发框——在你按下派发前不会运行任何东西。",
     "allReady": "所有推荐项都已安装。上面的单个引擎都是可选的——只设置你实际使用的即可。",
     "askMichael": "让 {{godName}} 设置一切",
     "sections": {
@@ -820,34 +1222,14 @@
   },
   "aiEngines": {
     "providers": "AI 引擎提供商（BYOK）",
-    "providersDesc": "OpenCode、Crush、pi.dev 和 Qwen 引擎的 API 密钥与本地端点。密钥只写存储（加密落盘；之后不再显示），且仅在那些引擎启动时使用。Claude Code 和 Codex 使用各自的登录。",
-    "apiKeys": "API 密钥",
-    "setCheck": "已设置 ✓",
-    "keyStoredPlaceholder": "••••••••（已存储——输入以替换）",
+    "providersDesc": "OpenCode、Crush、pi.dev 和 Qwen 引擎的本地端点和默认模型。它们的 API 密钥在「集成」的「密钥与凭据」下。Claude Code 和 Codex 使用各自的登录。",
     "keyPlaceholder": "粘贴 {{label}} 密钥",
-    "saved": "已保存",
-    "failed": "失败",
-    "cleared": "已清除",
     "localEndpoint": "本地端点 · 默认模型（按引擎）",
     "defaultModelPlaceholder": "默认模型（提供商/模型）",
     "runningOpenModels": "要跑开源模型？分步指南：",
     "runOnOpenModels": "在开源模型上运行 Munder Difflin",
     "setUpMacMini": "在 Mac Mini 上配置",
     "autoModeCaveat": "⚠ 在自动模式下，这些引擎以完整的文件系统 + shell 访问权限运行（无沙箱）——就像 Claude 的绕过模式。把自动模式关掉（通用页）即可让它们先询问。与真实模型调用的端到端实测仍在等待你的密钥 / 本地 LLM。"
-  },
-  "mcpDefaults": {
-    "title": "默认 MCP 服务器",
-    "desc": "这些服务器会并入每个新智能体的会话设置。安全服务器默认开启；写入/密钥类服务器在你同意前保持关闭。更改在下次生成智能体时生效——正在运行的智能体不受影响。",
-    "toggleNote": "{{id}}：{{state}}",
-    "couldNotSave": "无法保存",
-    "tiers": {
-      "safeReadonly": "安全且只读（默认开启）",
-      "write": "写入访问（需要同意）",
-      "secret": "需要密钥 / API Key（需要同意）",
-      "safeReadonlyNote": "这些服务器只读取数据，不需要密钥，且限定在智能体工作区内。它们对每个新智能体启用。",
-      "writeNote": "这些服务器可以修改工作区之外的状态。默认关闭——审核后再启用。",
-      "secretNote": "这些服务器需要 API 密钥或凭据。默认关闭——添加凭据并在同意后启用。"
-    }
   },
   "devicePicker": {
     "microphone": "麦克风",
@@ -868,23 +1250,15 @@
     "helpWorking": "{{godName}} 正在运行工具——麦克风已静音（点击停止）",
     "noKeyTitle": "Talk 需要你的 OpenAI API 密钥（用于 Realtime 语音 API）。可在设置 → 语音中添加。",
     "whyDisabled": "为什么 Talk 被禁用？",
-    "popoverBody": "使用此功能需要一个 OpenAI API 密钥。",
-    "setItUpNow": "现在就去设置"
+    "popoverBody": "通话需要 OpenAI API 密钥。密钥只保存在这台电脑上，OpenAI 按语音分钟计费。",
+    "setItUpNow": "现在就去设置",
+    "createKeyAt": "在此创建密钥："
   },
   "updatesSection": {
     "title": "更新",
     "onVersion": "你当前是 v{{v}}",
     "checkingDetail": "正在检查新版本…",
     "availableHeadline": "v{{version}} 已可用",
-    "availableDetail": "你当前是 v{{v}}。立即下载——下载完成后会提示你重启。",
-    "downloadBtn": "下载 v{{version}}",
-    "downloadingHeadline": "正在下载 v{{version}}",
-    "downloadingDetail": "已完成 {{percent}}%。你可以继续工作；重启由你自己决定。",
-    "downloadedHeadline": "v{{version}} 已就绪，可安装",
-    "downloadedDetail": "重启 Munder Difflin 以完成从 v{{v}} 的更新。",
-    "restartBtn": "重启以更新",
-    "manualDetail": "此安装无法自行更新——请从发布页面下载。",
-    "manualDetailReason": "此安装无法自行更新（{{reason}}）——请从发布页面下载。",
     "openReleaseBtn": "打开发布页面",
     "errorHeadline": "更新检查失败",
     "errorDetail": "{{message}}（你当前是 v{{v}}）。",
@@ -893,11 +1267,7 @@
     "latestDetail": "你已经是最新版本——无需安装。",
     "checkAgainBtn": "再次检查",
     "idleDetail": "更新每 6 小时自动检查一次。想确认的话可以现在检查。",
-    "checkBtn": "检查更新",
-    "downloadManually": "手动下载",
-    "downloadManuallyTitle": "下载 v{{version}} 安装程序并自行替换应用",
-    "manualDownloadingTitle": "<b>v{{version}} 正在你的浏览器中下载。</b>",
-    "manualDownloadingBody": "下载完成后，退出本应用，将新版本覆盖安装到当前版本之上，重新打开并选择同一个项目。在 {{os}} 上："
+    "checkBtn": "检查更新"
   },
   "triggersTab": {
     "intro": "所有无需你输入就能启动工作的方式。",
@@ -906,22 +1276,11 @@
     "context": "上下文",
     "contextBlurb": "当智能体的上下文占满时压缩或清空。",
     "webhooks": "Webhook",
-    "webhooksBlurb": "让外部系统把工作投进来。",
-    "organisation": "组织",
-    "organisationBlurb": "让队友的 Munder Difflin 给你的发消息。"
-  },
-  "orgSection": {
-    "acceptMessages": "接受来自你组织的消息",
-    "key": "组织密钥",
-    "keyPlaceholder": "粘贴你的密钥",
-    "trust": "信任",
-    "settingsOnly": "目前仅限设置。组织消息服务尚不存在，所以这里的密钥不会启动任何连接，也不会发送或接收任何内容。它会保存好，等服务就绪后使用。",
-    "noKeyWarning": "此项已开启但没有设置密钥，所以目前还没有队友能联系到你。",
-    "noKey": "无密钥"
+    "webhooksBlurb": "让外部系统把工作投进来。"
   },
   "contextSection": {
     "loading": "稍等…",
-    "intro": "规则只有在两半都满足时才触发：距离上次运行的时间已过，且该智能体的上下文至少达到指示条的量。指示条为 0% 意味着只看时钟。",
+    "intro": "压缩在智能体的一轮结束、且上下文达到或超过指示条时运行。不报告令牌数的引擎改由定时器压缩。清空按自己的定时器运行，且上下文至少要达到它的指示条。指示条为 0% 意味着只看定时器。",
     "compact": "压缩",
     "compactBlurb": "对上下文做摘要，让对话继续下去。",
     "clear": "清空",
@@ -939,7 +1298,19 @@
     "contextBar": "上下文指示条",
     "contextBarHint": "窗口满到什么程度才允许运行。0% = 只看时间。",
     "bigWindows": "大窗口指示条",
-    "bigWindowsHint": "用于约 1M 令牌的窗口，那里即使较小的占比也是海量文本。"
+    "bigWindowsHint": "用于约 1M 令牌的窗口，那里即使较小的占比也是海量文本。",
+    "hintCompact": "一轮结束时达到 {{pct}}%（{{tokens}} 令牌）即压缩，1M 窗口为 {{large}}%（{{largeTokens}} 令牌）。",
+    "fallbackEvery": "备用定时器，用于不报告令牌数的引擎",
+    "fallbackEveryHint": "报告令牌数的智能体不等这个定时器。它在一轮结束且达到指示条时压缩。",
+    "tokensSmall": "在 200k 窗口上是 {{tokens}} 令牌。",
+    "tokensLarge": "在 1M 窗口上是 {{tokens}} 令牌。",
+    "compactBarHint": "一轮结束时达到这个量就压缩。",
+    "zeroBarHint": "0% = 只看定时器。",
+    "switchClear": "切换工作时清空",
+    "switchClearBlurb": "当智能体被唤醒去做另一项工作，且它的会话已足够久时，它先写好交接文件，然后上下文被清空，再拿到新工作。",
+    "switchClearHint": "切换工作时，且同一会话已持续 {{interval}}。",
+    "switchClearAfter": "仅在会话持续超过",
+    "switchClearHeld": "智能体有子智能体在运行时，清空会等待。没有清空命令的引擎不受影响。"
   },
   "schedulesSection": {
     "justNow": "刚刚",
@@ -1041,14 +1412,10 @@
     "task": "任务 {{id}}",
     "sectionWebhooks": "Webhook",
     "sectionWebhooksBlurb": "投递到你的 webhook 端点的一切，以及 {{godName}} 回复的内容。",
-    "sectionOrg": "组织",
-    "sectionOrgBlurb": "来自队友克隆节点的消息，以及 {{godName}} 回复的内容。",
     "heldOne": "有 1 条消息被暂存，等待你的决定。",
     "heldMany": "有 {{count}} 条消息被暂存，等待你的决定。",
     "decideFailed": "没有送达。请重试。",
     "clearFailed": "无法清除。请重试。",
-    "emptyOrgTitle": "这里还没有内容，一切正常。",
-    "emptyOrgBody": "队友消息功能尚未构建。你现在可以设置组织密钥并选择模式，但在传输服务上线前，没有人的克隆节点能联系到你的。上线后，他们的消息和我们的回复都会出现在这里。",
     "emptyWebhookTitle": "还没有 webhook 消息。",
     "emptyWebhookBody": "当有内容投递到你的端点时，它会出现在这里，下面是 {{godName}} 的回复。目前还没有调用进来。在 Webhook 下添加一个端点，即可获得一个可以分发出去的 URL。",
     "clearConfirm": "删除全部 {{count}} 条消息？记录将永久消失。",
@@ -1059,17 +1426,13 @@
   },
   "fileTree": {
     "loading": "加载中…",
-    "copyPathTitle": "复制路径到剪贴板"
-  },
-  "fileEditor": {
-    "file": "文件",
-    "edit": "编辑",
-    "preview": "预览",
-    "editTitle": "编辑源代码",
-    "previewTitle": "渲染预览（基于已保存的文件）",
-    "openInIde": "在 IDE 中打开",
-    "openInIdeTitle": "在完整 IDE 中打开此文件",
-    "closeTitle": "关闭（Esc）"
+    "copyPathTitle": "复制路径到剪贴板",
+    "namePlaceholder": "名称",
+    "newFile": "新建文件",
+    "newFolder": "新建文件夹",
+    "rename": "重命名",
+    "copyPath": "复制路径",
+    "moveToBin": "移到废纸篓"
   },
   "gitTab": {
     "notARepo": "不是 git 仓库。",
@@ -1100,7 +1463,6 @@
     "exitFullscreen": "退出聚焦模式（Esc）",
     "addAgent": "添加智能体",
     "respawnTitle": "从上次会话重新生成：{{names}}——ID 相同，记忆和收件箱会自动重新挂载",
-    "contextTitle": "上下文：{{used}} / {{limit}} 令牌（{{pct}}%）",
     "modelTitle": "模型：{{model}}",
     "cliDefault": "CLI 默认",
     "closeAgent": "关闭 {{name}}——结束进程并归档智能体",
@@ -1174,13 +1536,13 @@
   "workersTab": {
     "stopping": "停止中",
     "working": "工作中",
-    "liveWorkers": "活跃工人",
-    "liveIntro": "{{godName}} 为处理 Slack 消息而启动的隔离工人——它们运行到完成、在会话线程中回复，然后自动拆除。",
-    "noneRunning": "当前没有运行中的工人。",
+    "liveWorkers": "运行中的临时工",
+    "liveIntro": "{{godName}} 为每项工作启动的临时工。它们跑完任务、在会话中回复，然后自动结束。",
+    "noneRunning": "目前没有运行中的临时工。",
     "repliesToSlack": "回复到 Slack 会话线程",
     "stoppingEllipsis": "停止中…",
     "stop": "停止",
-    "workerIdTitle": "工人 / PTY ID",
+    "workerIdTitle": "临时工 / PTY id",
     "baseBranchTitle": "工作树所基于的分支",
     "base": "base：{{branch}}",
     "upSinceTitle": "自生成以来的时间",
@@ -1192,7 +1554,7 @@
     "tokens": "令牌 {{value}}",
     "uncapped": "无上限",
     "preserved": "保留的工作树（{{count}}）",
-    "preservedIntro": "已完成工人的工作树中保留着未整合的工作——保留（绝不自动丢弃），并在工作合入其基础分支后自动回收。",
+    "preservedIntro": "已结束但工作树中仍有未合并工作的临时工。会被保留，不会自动丢弃，工作合入基础分支后自动回收。",
     "keptAgo": "{{age}} 前保留"
   },
   "memoryGraph": {
@@ -1213,68 +1575,210 @@
     "legendInformTopic": "告知/主题"
   },
   "integrations": {
-    "errLabel": "请给它一个名称。",
-    "errId": "无法从该名称派生出有效的 ID。",
-    "errBaseUrl": "必须填写基础 URL。",
-    "errBaseUrlFormat": "基础 URL 必须是 https://（或用于本地目标的 http://127.0.0.1 / localhost）。",
-    "errHeader": "请求头名称必须是 1–64 个字符，由 A–Z、0–9 或 \"-\" 组成。",
-    "couldNotSave": "无法保存。",
-    "added": "集成已添加。",
-    "updated": "集成已更新。",
-    "removed": "已移除「{{label}}」。",
-    "couldNotRemove": "无法移除。",
-    "testFailed": "测试运行失败。",
-    "connected": "✓ 已连接",
-    "connectedWith": "✓ 已连接（{{status}}）",
-    "failed": "✕",
-    "backToList": "← 集成",
-    "pickTemplate": "选择模板",
-    "galleryDesc": "选择你要连接的内容。模板会设置默认值。未列出的服务请选「自定义 REST」。",
-    "anyHttpApi": "任意 HTTP API",
-    "continue": "继续",
-    "backToTemplates": "← 模板",
-    "needsSecret": "需要一个 {{label}}",
-    "publicApi": "公共 API——无需密钥",
-    "label": "名称",
-    "labelHint": "显示在你的列表中。ID",
-    "fixed": "固定",
-    "baseUrl": "基础 URL",
-    "baseUrlHint": "由 {{label}} 模板设置。",
-    "preset": "预设",
-    "authentication": "认证",
-    "setByTemplate": "由模板设置",
-    "headerName": "请求头名称",
-    "headerHint": "密钥以 {{header}}: <secret> 的形式发送。",
-    "saved": "已保存",
-    "replaceKey": "替换密钥",
-    "pasteYour": "粘贴你的",
-    "writeOnly": "只写",
-    "secretDesc": "在主进程中加密存储，之后不再显示。要更改，请粘贴新密钥——旧密钥无法读回。",
-    "blankKeepsKey": "留空以保留已保存的密钥。",
-    "availability": "可用性",
-    "enabled": "已启用",
-    "disabled": "已禁用",
-    "availableToAll": "✓ 所有工人可用",
-    "notAvailableYet": "工人尚不可用",
-    "addSecretToEnable": "添加密钥并启用即可使其可用。",
-    "readyOnceSaved": "保存后即就绪。",
-    "disabledNoUse": "已禁用——没有工人可以使用它。",
-    "v1Note": "v1 将每个已启用的集成授予所有工人。按工人细粒度授权即将推出。",
-    "testConnection": "测试连接",
-    "testing": "测试中…",
-    "testAfterSave": "先保存集成，再测试实时连接。",
-    "testLiveDesc": "使用已存储的密钥对基础 URL 执行一次实时只读探测。",
-    "saveIntegration": "保存集成",
-    "saveChanges": "保存更改",
-    "title": "集成",
-    "titleDesc": "连接外部工具，让你的智能体能够读取并对它们采取行动。密钥在主进程中加密存储，之后不再显示。",
-    "addIntegration": "添加集成",
-    "empty": "还没有集成。连接 GitHub 或自定义 REST API，让你的智能体可以使用它。",
-    "addFirst": "添加你的第一个集成",
-    "count": "{{count}} 个集成 · {{usable}} 个对工人可用",
-    "needsSecretShort": "需要密钥",
-    "test": "测试",
-    "edit": "编辑"
+    "where": {
+      "slack": {
+        "postLine": "智能体可以在 Slack 主动发起消息，而不只是回复。"
+      }
+    },
+    "hub": {
+      "head": {
+        "title": "集成"
+      },
+      "tab": {
+        "apps": "应用和服务",
+        "providers": "AI 提供商",
+        "keys": "密钥和机密"
+      },
+      "kind": {
+        "in": "传入的事件",
+        "inBody": "外部发生了事情，你的办公室就会醒来处理。",
+        "use": "智能体可以使用",
+        "useBody": "你的智能体通过登录或 API 令牌在其他服务中操作。",
+        "count": "已开启 {{n}} 个",
+        "all": "显示全部"
+      },
+      "name": {
+        "slackApp": "Slack 应用",
+        "githubGit": "用于 git 和 gh 的 GitHub"
+      },
+      "list": {
+        "search": "搜索应用和服务",
+        "connected": "已连接",
+        "webhooks": "Webhook",
+        "others": "所有应用和服务",
+        "custom": "自定义 API",
+        "preset": "预设",
+        "addHook": "添加 webhook",
+        "none": "没有匹配项。"
+      },
+      "line": {
+        "in": "带来工作",
+        "use": "智能体可以使用",
+        "both": "带来工作，智能体也可以使用",
+        "answered": "由 {{name}} 回答",
+        "repos": "{{n}} 个仓库",
+        "allRepos": "所有仓库",
+        "keyFailed": "密钥失败"
+      },
+      "chip": {
+        "connected": "已连接"
+      },
+      "sec": {
+        "in": "传入的事件",
+        "use": "智能体可以做什么",
+        "activity": "活动"
+      },
+      "in": {
+        "off": "关闭。连接不会开启这些事件。",
+        "switch": "发生这些事件时唤醒我的办公室",
+        "pr": "拉取请求",
+        "issues": "议题",
+        "checks": "失败的检查",
+        "push": "推送",
+        "who": "谁来回答",
+        "address": "粘贴到 {{app}} 的地址",
+        "secret": "机密",
+        "copy": "复制",
+        "noEvents": "{{app}}本身不会带来事件。要从{{app}}唤醒你的办公室，请添加 webhook。"
+      },
+      "use": {
+        "gh": {
+          "tokenOnly": "粘贴一个令牌。git、gh 和 GitHub API 都使用它。",
+          "tokened": "已用令牌连接。git、gh 和 GitHub API 都使用它。令牌决定它们能访问哪些仓库。",
+          "restart": "正在运行的智能体重启后才会拿到新令牌。"
+        },
+        "token": "API 令牌",
+        "tokenSave": "智能体永远看不到令牌。",
+        "customHelp": "将基础 URL 指向任意 REST API，然后选择它接收密钥的方式：Bearer 令牌、你命名的标头、带前缀的标头、查询参数、HTTP 基本验证，或不需要。",
+        "moreFields": "更多设置",
+        "test": "测试连接",
+        "disconnect": "断开连接",
+        "connect": "连接",
+        "noAct": "Webhook 只带来事件。这里没有任何内容能让智能体执行操作。",
+        "keyFailed": "此密钥未通过测试。通过之前，智能体无法使用 {{app}}。"
+      },
+      "sl": {
+        "what": "大家在 Slack 里给你的办公室写消息，由你选择的智能体在消息串中回答。",
+        "line": "Slack 线路",
+        "useLine": "智能体只通过这条线路回答。Slack 不会作为服务提供给智能体去其他地方读取或发帖。",
+        "post": "自动在 Slack 发帖",
+        "setup": "设置：令牌和频道"
+      },
+      "prov": {
+        "line": "智能体引擎运行所用的密钥。"
+      },
+      "keys": {
+        "line": "智能体按名称使用的你自己的机密。"
+      },
+      "key": {
+        "saved": "已保存",
+        "unset": "未设置"
+      }
+    },
+    "screen": {
+      "title": "集成",
+      "orchestrator": "协调者",
+      "listLabel": "集成列表",
+      "keysPage": {
+        "title": "密钥与凭据",
+        "line": "服务商密钥 {{set}}/{{total}} · 自定义 {{custom}} 个",
+        "chip": "已保存 {{n}} 个",
+        "back": "全部密钥与凭据",
+        "noSecrets": "还没有你自己的密钥。"
+      },
+      "addSecret": "添加密钥",
+      "newSecret": "新密钥",
+      "pickOne": "在左侧选择一个集成。",
+      "foot": {
+        "idle": "不会自动保存。按「保存」应用更改。"
+      },
+      "chip": {
+        "slack": {
+          "off": "关闭",
+          "needs": "需要设置",
+          "events": "缺少事件",
+          "live": "实时",
+          "down": "未连接",
+          "starting": "启动中",
+          "moved": "在办公室"
+        },
+        "hook": {
+          "unsaved": "未保存",
+          "off": "关闭",
+          "creating": "启动中",
+          "ready": "开启",
+          "failed": "需要查看",
+          "removing": "保存时删除"
+        },
+        "conn": {
+          "off": "关闭",
+          "needsKey": "需要密钥",
+          "failed": "需要查看",
+          "passed": "开启",
+          "ready": "开启",
+          "removing": "保存时删除",
+          "unsaved": "未保存"
+        },
+        "key": {
+          "pending": "未保存"
+        }
+      },
+      "line": {
+        "starting": "启动中",
+        "offAnsweredBy": "已关闭。开启后由 {{name}} 回复",
+        "addedOnSave": "按「保存」后添加",
+        "removedOnSave": "按「保存」后删除",
+        "hookFailed": "它的地址没能创建",
+        "hookCreating": "正在创建地址",
+        "customSecret": "每个智能体都能读取",
+        "conn": {
+          "off": "已关闭。智能体无法调用",
+          "needsKey": "需要它的密钥",
+          "failed": "密钥未通过测试",
+          "passed": "已连接，测试通过",
+          "ready": "已连接"
+        }
+      },
+      "slack": {
+        "needsEvents": "缺少事件：{{events}}",
+        "checkAgain": "再检查一次",
+        "workspace": "{{team}} 工作区"
+      },
+      "who": {
+        "webhookLead": "谁来接这个 Webhook 的调用。没有指定智能体的 Webhook 交给下面的默认智能体。该智能体停止时由 {{godName}} 回复。",
+        "thisWebhook": "这个 Webhook",
+        "defaultShared": "所有未指定智能体的 Webhook 共用。"
+      },
+      "key": {
+        "value": "密钥",
+        "replace": "新值",
+        "stored": "已保存。输入新的即可替换"
+      },
+      "conn": {
+        "removeOnSave": "按「保存」后会删除这个连接。"
+      },
+      "activity": {
+        "reading": "读取中",
+        "empty": "暂无内容",
+        "emptyLine": "经由这个集成进出的内容会显示在这里，最新的在前。",
+        "unsaved": "保存之后才会开始记录。",
+        "fallback": {
+          "in": "收到了一条内容",
+          "out": "发出了一条内容",
+          "error": "有一项失败了",
+          "info": "发生了一件事"
+        }
+      },
+      "addSheet": {
+        "customApi": "自定义 API 集成",
+        "webhook": {
+          "github": "Issue、Pull Request 和推送",
+          "linear": "来自 Linear 的 Issue 和评论",
+          "telegram": "发给你的 Telegram 机器人的消息",
+          "custom": "任何能调用网址的服务"
+        }
+      }
+    }
   },
   "kanban": {
     "count": "{{count}} 项任务",
@@ -1305,6 +1809,9 @@
     "heldDraft": "暂挂——{{name}} 的终端提示行有未发送文本",
     "heldPicker": "暂挂——{{name}} 的终端里有一个斜杠命令选择器开着",
     "heldExited": "暂挂——{{name}} 的终端已退出",
+    "heldPrompt": "暂挂：{{name}} 正在终端里请求权限或回答。请在那里回答，在此之前不会输入任何内容",
+    "wakeUnconfirmed": "未确认：已向 {{name}} 输入邮件，但没有迹象表明它已接收。不会自动重新输入",
+    "wakeUnconfirmedTitle": "再向 {{name}} 输入一次这些邮件。请先查看它的终端：可能已经送达。",
     "sendingOneByOne": "正在逐条发送给 {{name}}…",
     "pausedTitle": "整个楼层的自动投递已暂停。在命令中心恢复，或对下面的消息使用「立即发送」。",
     "dropToAttach": "拖放以附加",
@@ -1317,6 +1824,7 @@
     "messagePlaceholder": "给 {{name}} 发消息",
     "busyPlaceholder": "{{name}} 正在忙——排队发消息",
     "files": "文件",
+    "folder": "文件夹",
     "collapse": "收起此消息",
     "showFull": "显示完整消息",
     "seeLess": "收起",
@@ -1324,8 +1832,18 @@
     "sendNowTitle": "即使自动投递已暂停也投递此消息。它会移到队列最前，终端一空闲就输入。",
     "sendNow": "立即发送",
     "sendingWhenFree": "空闲后发送…",
+    "boxGoneChip": "可能已发送",
+    "boxGoneTitle": "{{name}} 在应用确认这条消息是否送达之前重启了。请查看对话，然后重新输入或移除它。在此之前，后面的消息都不会发送。",
+    "movedChip": "未确认",
+    "movedTitle": "已在 {{name}} 的终端中输入并按下 Enter，但 {{name}} 没有把它当作提示接收：Enter 可能回答了屏幕上的其他内容。它不会自动重新输入。请查看终端，然后重新输入或移除它。在此之前，后面的消息都不会发送。",
+    "stuckChip": "卡在输入框中",
+    "stuckTitle": "已输入到 {{name}} 的终端但未发送。它发出之前，后面的消息都不会发送。",
+    "pressReturn": "按回车",
+    "pressReturnTitle": "再按一次提交键。输入框中的文字将按原样发送。",
+    "typeAgain": "重新输入",
+    "typeAgainTitle": "重新输入整条消息。请先清空输入框，否则两段文字会连在一起。",
     "removeFromQueue": "从队列移除",
-    "ffNoKeyTitle": "听写需要一个免费的 Groq API 密钥。点击信息标记查看步骤。",
+    "ffNoKeyTitle": "听写需要一个免费的 Groq API 密钥。点击即可添加。",
     "ffStopTranscribe": "停止并转写",
     "ffTitle": "自由输入——向队列听写。点击，或按住 Option（⌥）。",
     "stop": "停止",
@@ -1333,7 +1851,7 @@
     "ffSetupTitle": "设置听写",
     "ffSetupIntro": "说话代替打字。Groq 负责转写，其免费额度足以覆盖——无需绑卡，零成本。",
     "ffCreateKey": "在以下地址免费创建密钥",
-    "ffPasteKey": "粘贴到设置 → 语音 → Groq API 密钥",
+    "ffPasteKey": "粘贴到下面并保存",
     "ffClickOrHold": "点击「语音」，或按住右侧 Option 键说话",
     "ffHoldHint": "单独按住一会儿即可开始；松开后转写到编辑器，发送前可修改。两个 Option 键都可以，Option+按键组合仍会原样到达终端。"
   },
@@ -1344,18 +1862,12 @@
     "noAgent": "无智能体",
     "noWorkspace": "无工作区",
     "closeIde": "关闭 IDE（Esc）",
-    "expandGit": "展开 git 面板",
-    "collapseGit": "折叠 git 面板——为文件树腾出空间",
-    "rail": {
-      "changes": "更改",
-      "history": "历史",
-      "compare": "比较"
-    },
     "refresh": "刷新",
-    "files": "文件",
     "rev": "版本",
     "img": "图",
     "diff": "差异",
+    "discardChanges": "放弃更改",
+    "tabDirtyClose": "关闭。会先询问你保存还是放弃更改。",
     "closeTab": "关闭标签页",
     "loadingDiff": "正在加载差异…",
     "binaryDiff": "二进制文件——无文本差异",
@@ -1369,9 +1881,27 @@
     "preview": "预览",
     "viewImage": "查看图片",
     "copyPath": "复制路径",
-    "saveTitle": "保存（Cmd/Ctrl+S）",
     "saved": "已保存",
-    "save": "保存"
+    "switchWorkspace": "切换",
+    "switchBlocked": "切换工作区前请先保存更改",
+    "unsaved": {
+      "title": "未保存的更改",
+      "tabBody": "如果不保存就关闭，你对 {{file}} 的更改将会丢失。",
+      "ideBody": "这些文件有尚未保存的更改。如果不保存就关闭 IDE，这些更改将会丢失。",
+      "cancel": "取消",
+      "closeWithout": "不保存并关闭",
+      "saveAndClose": "保存并关闭",
+      "discardAll": "全部放弃并关闭",
+      "saveAll": "全部保存并关闭",
+      "saving": "正在保存…",
+      "failed": "无法保存 {{files}}，没有关闭任何内容。"
+    },
+    "openBlocked": "{{file}} 在 {{name}} 的工作区。请先在这里保存或放弃更改，然后再打开。",
+    "here": "当前",
+    "emptyWhy": "IDE 会打开某个智能体的工作目录，而此窗口中还没有智能体拥有工作目录。",
+    "emptyStep1": "在侧边栏添加一个智能体。",
+    "emptyStep2": "添加时为它指定一个工作目录。",
+    "emptyStep3": "从该智能体再次打开 IDE。"
   },
   "gitPanes": {
     "jumpConfirm": "把仓库跳转到 {{sha}}（\"{{subject}}\"）？\n\n这会脱离 HEAD。若工作区不干净或有智能体正在运行，将自动阻止。",
@@ -1405,5 +1935,502 @@
     "viewSource": "查看源码",
     "loading": "正在加载图片…",
     "decodeFailed": "无法解码此图片——文件可能已损坏或扩展名有误"
+  },
+  "pro": {
+    "agentSleep": {
+      "waking": "正在唤醒",
+      "wakingDetail": "正在恢复此智能体的会话。准备就绪前，你的消息会保留在队列中。",
+      "detail": "此智能体正在休眠以节省资源。发送消息即可唤醒它，并继续同一段对话。",
+      "wake": "唤醒",
+      "wakeTitle": "唤醒 {{name}}",
+      "wakeFailed": "无法唤醒 {{name}}。"
+    },
+    "agent": {
+      "restartToApply": "重启后按这一行启动。"
+    },
+    "sheet": {
+      "command": "命令",
+      "useResolved": "使用自动生成的命令",
+      "commandOtherEngine": "这一行会启动 {{engine}}，但当前提供方是 {{picked}}。请把提供方选为 {{engine}}，或修改这一行。"
+    },
+    "autos": {
+      "hookAnsweredByHint": "这个来源的请求交给哪个代理。保持为 {{godName}} 时，由「集成」里设置的 webhook 默认代理决定。所选代理停止时由 {{godName}} 回复。"
+    },
+    "status": {
+      "sleeping": "休眠中"
+    },
+    "dialog": {
+      "cancel": "取消"
+    },
+    "conn": {
+      "label": "名称",
+      "id": "标识",
+      "baseUrl": "基础 URL",
+      "baseUrlFixed": "由 {{kind}} 预设决定。",
+      "auth": "身份验证",
+      "authKind": {
+        "none": "无（公开 API）",
+        "bearer": "Bearer 令牌",
+        "header": "自定义标头",
+        "github": "GitHub 令牌",
+        "prefix": "带前缀的标头",
+        "query": "查询参数",
+        "basic": "HTTP 基本验证"
+      },
+      "header": "标头名称",
+      "secretKeep": "已保存密钥。留空以保留，或粘贴新密钥以替换。",
+      "enabled": "已启用",
+      "ok": "已连接",
+      "okStatus": "已连接（{{status}}）",
+      "fail": "失败：{{error}}",
+      "testFailed": "测试未能运行。",
+      "remove": "移除",
+      "removeFailed": "无法移除该连接。",
+      "saveFailed": "无法保存该连接。",
+      "errLabel": "请为连接命名。",
+      "errUrl": "基础 URL 必须以 https://（或 http://localhost）开头。",
+      "errHeader": "标头名称只能包含字母、数字和连字符。",
+      "kind": {
+        "github": "GitHub 接口",
+        "git": "Git repositories"
+      },
+      "authWhy": {
+        "none": "不向请求添加任何内容。适用于无需密钥的接口。",
+        "bearer": "发送 Authorization: Bearer 和你的密钥。最常见的方式，Stripe、Notion 和 Sentry 都用它。",
+        "header": "把密钥单独放在你指定的标头里。当文档只给出标头名，密钥前没有任何单词时选它。 如果文档给的是 ID 加密钥，请改选 HTTP basic。",
+        "prefix": "在你指定的标头里先写一个单词，再写密钥。当文档在密钥前显示 Token、ApiKey 或 SSWS 时选它。",
+        "query": "把密钥作为查询参数附在每个 URL 上。天气、新闻和地图类接口常用这种方式。",
+        "basic": "以 HTTP 基本验证发送用户名和密钥。Atlassian、Twilio 和 Mailgun 接受邮箱加令牌的组合。",
+        "github": "发送 Authorization: Bearer 和你的令牌，并附上 GitHub REST 接口需要的两个标头。"
+      },
+      "headerHint": "供应商文档里的标头名。只能包含字母、数字和连字符。",
+      "prefix": "前缀单词",
+      "prefixHint": "一个单词。密钥前的空格会自动补上。",
+      "param": "查询参数",
+      "paramHint": "供应商文档里的参数名。",
+      "user": "用户",
+      "userHint": "组合的左半部分，通常是邮箱。密钥是右半部分，保存在加密存储中。",
+      "probe": "测试路径",
+      "probeHint": "可选。测试时调用的基础 URL 下的只读路径，例如 plans?count=1。留空则测试基础 URL 本身。",
+      "keyRejected": "密钥被拒绝（{{status}}）。请检查密钥；若为 HTTP basic，也请检查用户。",
+      "pathNotFound": "已连到服务，但找不到测试路径（404）。请设置测试路径以检查密钥。",
+      "sends": "实际发送的内容",
+      "sendsNothing": "不向请求添加任何内容。",
+      "sendsMasked": "星号所在的位置就是密钥的位置。密钥本身不会再次显示。",
+      "docs": "{{kind}} 文档",
+      "errPrefix": "前缀必须是一个由字母、数字或连字符组成的单词。",
+      "errParam": "参数名只能包含字母、数字、点、下划线和连字符。",
+      "errUser": "请填写组合中的用户名，且不能包含冒号。",
+      "errDuplicate": "已有连接使用该标识。请修改名称。"
+    },
+    "limits": {
+      "title": "用量限额",
+      "chipNone": "限额",
+      "checking": "正在检查",
+      "checkNow": "立即检查",
+      "checkNowTip": "立即检查。每个引擎最多每 5 分钟询问一次。",
+      "upToAge": "数据最早来自 {{time}}前",
+      "ageTag": "{{time}}前",
+      "asOf": "{{time}}前更新",
+      "minutes": "{{m}} 分钟",
+      "hours": "{{h}} 小时 {{m}} 分钟",
+      "h5": "5 小时",
+      "weekly": "每周",
+      "weeklyLimit": "每周限额",
+      "h5Limit": "5 小时限额",
+      "weeklyCredits": "每周额度",
+      "used": "已用 {{pct}}%",
+      "left": "剩余 {{pct}}%",
+      "noReading": "暂无读数",
+      "notInstalled": "未安装",
+      "chipUnit": "顶栏始终显示已用百分比。",
+      "resetShortOn": "{{day}} {{time}}",
+      "resetsInMin": "{{m}} 分钟后重置",
+      "resetsIn": "{{h}} 小时 {{m}} 分钟后重置",
+      "resetsOn": "{{day}} {{time}} 重置",
+      "resetPassed": "已于 {{time}} 重置。之后还没有新数据。",
+      "near": "接近限额",
+      "reached": "已达限额",
+      "notUpdated": "未更新",
+      "notAvailable": "不可用",
+      "whyOpencode": "OpenCode 不向应用提供可读取的限额。如果你使用 OpenCode Go，请在其控制台查看。",
+      "notInstalledHere": "这台电脑上没有安装 {{engine}}。",
+      "apiKeyNoLimits": "{{engine}} 使用 API 密钥登录，API 密钥没有套餐限额。",
+      "planApiKey": "API 密钥",
+      "grokNone": "应用启动后 Grok Build 还没有运行。下次运行后会显示数据。",
+      "grokNotRead": "应用无法从这个版本的 Grok Build 读取限额。",
+      "upToAgeMost": "大部分数据最早来自 {{time}}前",
+      "planNoteHere": "套餐来自这台电脑的登录。以其他方式登录的智能体可能不同。",
+      "lastSeenRunning": "最后读取于 {{engine}} 运行时",
+      "creditNote": "每周额度用量",
+      "loading": "正在读取用量限额，可能需要一点时间。",
+      "readFailed": "刚才无法读取用量限额。",
+      "noLimits": "{{engine}} 没有报告任何限额。",
+      "claudeNone": "应用启动后还没有 Claude Code 智能体回复。下一次回复后，用量条会显示数据。",
+      "failedOld": "刚才无法读取 {{engine}}。这些数据是 {{time}}前的。",
+      "failedNone": "刚才无法读取 {{engine}}。",
+      "failedRetry": "点击“立即检查”可重试，最多每 5 分钟一次。",
+      "notReadYet": "还没有 {{engine}} 的数据。",
+      "foot": "Claude Code 和 Codex 的数据在其智能体工作时传来，Grok Build 的数据在其运行时传来。打开此面板时读取 Antigravity，最多每 5 分钟一次。",
+      "fromAgent": "来自 {{agent}} 的上一次回复",
+      "askedEngine": "由应用询问 {{engine}}",
+      "chipAria": "用量限额。最接近限额：{{engine}}，{{window}} 已用 {{pct}}%。{{reset}}",
+      "cellTip": "{{engine}},{{window}}:已用 {{pct}}%。{{reset}}",
+      "showInBar": "在顶栏显示",
+      "show": "显示",
+      "engines": "引擎",
+      "lookAll": "全部引擎",
+      "lookClosest": "仅最接近的",
+      "lookIcon": "仅图标"
+    },
+    "chrome": {
+      "windowMenu": "菜单"
+    },
+    "boot": {
+      "restoring": "正在恢复你的智能体…（还剩 {{count}} 个）",
+      "note": "正在从上次中断处重新连接每个会话。",
+      "skip": "不再等待，直接进入"
+    },
+    "saveBar": {
+      "unsaved": "有未保存的更改",
+      "save": "保存",
+      "saving": "正在保存…",
+      "discard": "放弃更改",
+      "saved": "设置已保存。",
+      "leaveTitle": "保存更改吗？",
+      "leaveBody": "此页面上有些设置尚未保存。请保存，或放弃更改后继续。"
+    }
+  },
+  "avatars": {
+    "picker": {
+      "cast": "Munder Difflin",
+      "yours": "你的头像",
+      "presets": "预设",
+      "showPresets": "显示 {{count}} 个预设",
+      "hidePresets": "隐藏预设",
+      "preset": "预设 {{n}}"
+    }
+  },
+  "ide": {
+    "search": {
+      "placeholder": "在此工作区中查找",
+      "caseTitle": "区分大小写",
+      "wordTitle": "全字匹配",
+      "regexTitle": "正则表达式",
+      "none": "没有匹配项",
+      "count": "{{hits}} 处，{{files}} 个文件",
+      "truncated": "仅显示前面的结果。请缩小搜索范围以查看其余部分。",
+      "working": "正在搜索…",
+      "hint": "输入即可搜索工作区中的每个文件。文件名和内容都会给出结果。",
+      "nameCount": "{{n}} 个文件名",
+      "sectionNames": "文件名",
+      "sectionText": "文件内容"
+    },
+    "status": {
+      "pathLabel": "文件路径",
+      "position": "第 {{line}} 行，第 {{col}} 列",
+      "selected": "已选 {{n}} 个字符",
+      "lines": "{{n}} 行",
+      "bytesTitle": "此缓冲区按 UTF-8 计算的大小",
+      "eolNone": "单行",
+      "eolMixed": "换行符混用",
+      "eolMixedTitle": "此文件同时使用 LF 和 CRLF 换行符。",
+      "plainText": "纯文本",
+      "unsaved": "未保存",
+      "saving": "保存中",
+      "saveFailed": "保存失败",
+      "onDisk": "没有未保存的改动",
+      "loadingFile": "正在打开文件…",
+      "save": "保存",
+      "branch": "分支"
+    },
+    "keys": {
+      "title": "键盘快捷键",
+      "save": "保存当前文件",
+      "newFile": "新建文件",
+      "findFile": "按名称查找文件",
+      "findText": "在文件中查找文本",
+      "closeIde": "关闭 IDE",
+      "findInFile": "在当前文件中查找",
+      "replace": "在当前文件中替换",
+      "palette": "命令面板",
+      "goToLine": "跳转到指定行",
+      "goToSymbol": "跳转到符号"
+    },
+    "create": {
+      "title": "新建文件",
+      "inFolder": "位于 {{folder}}",
+      "theWorkspace": "工作区根目录",
+      "placeholder": "name.ts，或 docs/name.md",
+      "willCreate": "将创建 {{path}}",
+      "willMakeFolders": "会先创建这些文件夹：{{folders}}",
+      "confirm": "创建",
+      "creating": "正在创建…",
+      "aimHere": "把新文件放进这个文件夹",
+      "badEmpty": "请输入名称。",
+      "badAbsolute": "名称相对于工作区，请去掉开头的斜杠。",
+      "badTraversal": "名称中的路径层级不能是 . 或 ..",
+      "badFolderNotFile": "这指向一个文件夹，请在斜杠后面补上文件名。",
+      "badNullByte": "该名称包含文件名无法容纳的字符。",
+      "badTooLong": "该名称太长。",
+      "badSpacePadded": "名称不能以空格开头或结尾。",
+      "noteNoExtension": "没有扩展名，因此会按纯文本打开。",
+      "noteNested": "斜杠会创建文件夹。",
+      "noteHidden": "以点开头，文件树默认会隐藏它。",
+      "errExists": "{{folder}} 中已经有同名的东西了。",
+      "errNoParent": "文件夹 {{folder}} 还不存在。",
+      "errPermission": "你没有权限在 {{folder}} 中写入。",
+      "errReadOnly": "{{folder}} 位于只读文件系统上。",
+      "errOutsideRoot": "该路径超出了工作区，因此被拒绝。",
+      "errNameRefused": "文件系统拒绝了这个名称。",
+      "errNoSpace": "磁盘已没有剩余空间。"
+    },
+    "find": {
+      "indexing": "正在读取文件列表…",
+      "none": "没有匹配的文件",
+      "indexTruncated": "文件列表在 {{n}} 个文件处停止，因此之后的匹配不会出现。",
+      "listTruncated": "显示 {{total}} 项中的 {{shown}} 项。再多输入一些以缩小范围。"
+    },
+    "md": {
+      "outline": "大纲",
+      "outlineToggle": "显示标题大纲",
+      "noHeadings": "这份文档没有标题，因此没有可跳转的位置。以 # 开头的一行就能建立标题。",
+      "untitledHeading": "（空标题）",
+      "words": "{{n}} 个词",
+      "readingTime": "大约 {{n}} 分钟读完",
+      "tasks": "已勾选 {{total}} 项中的 {{done}} 项"
+    },
+    "frame": {
+      "home": "主页",
+      "close": "关闭",
+      "collapseAll": "折叠所有文件夹",
+      "resize": "拖动以调整侧栏宽度",
+      "openFile": "打开文件",
+      "homeSubtitle": "{{folder}}，分支 {{branch}} · {{count}} 个已更改",
+      "changedCount": "{{count}} 个已更改"
+    },
+    "tabs": {
+      "closeOthers": "关闭其他标签页",
+      "closeRight": "关闭右侧标签页",
+      "duplicate": "复制标签页",
+      "reveal": "在资源管理器中显示",
+      "newHome": "新标签页",
+      "menu": "标签页操作"
+    },
+    "side": {
+      "explorer": "资源管理器",
+      "search": "搜索",
+      "git": "源代码",
+      "explorerTitle": "资源管理器",
+      "searchTitle": "在文件中搜索",
+      "gitTitle": "源代码管理"
+    },
+    "git": {
+      "changes": "更改",
+      "history": "历史",
+      "compare": "比较",
+      "changesHint": "点击文件即可查看它与 HEAD 的差异。历史和比较也以同样的方式打开 REV 标签页。"
+    },
+    "quick": {
+      "placeholder": "在此工作区中搜索文件或文本",
+      "files": "文件",
+      "inFiles": "文件内容",
+      "commands": "命令",
+      "showAll": "在搜索标签页中显示全部 {{n}} 项",
+      "none": "没有与 {{query}} 匹配的内容"
+    },
+    "home": {
+      "newFileHint": "在当前文件夹中",
+      "openFile": "打开文件",
+      "openFileHint": "按名称查找",
+      "findInFiles": "在代码中搜索",
+      "findInFilesHint": "每个文件的每一行",
+      "recent": "最近",
+      "changed": "已更改",
+      "recentEmpty": "还没有打开过任何文件。"
+    }
+  },
+  "responseStyle": {
+    "title": "回复风格",
+    "desc": "每个智能体回答时遵循的说明,对全部六个引擎生效。",
+    "label": "风格说明",
+    "counter": "{{used}} / {{max}} 个字符",
+    "atCap": "已达上限,请精简后再添加。",
+    "reset": "恢复默认",
+    "usingDefault": "正在使用默认说明。",
+    "edited": "已由你修改。",
+    "claudeStyleLabel": "Claude Code 输出风格",
+    "claudeStyleDesc": "Claude Code 自带输出风格设置。从这里启动的代理默认使用 Concise（简洁），可以节省 token。其他引擎则使用上面的简报。",
+    "claudeStyleOff": "关闭（Claude Code 默认）",
+    "claudeStyleApplies": "在代理下次启动或重启时生效。",
+    "reach": "Claude、Codex、Gemini 和 Grok 会在下一轮对话中立即生效。Cursor 和 Copilot 会在应用发送的下一条消息中生效。"
+  },
+  "newFloor": {
+    "title": "新楼层：从哪里开始？",
+    "blurb": "一个楼层就是一个蜂巢，拥有自己的窗口和进程。选择一个包含蜂巢的文件夹，或选择一个新文件夹，应用会在其中建立一个全新的蜂巢。本窗口所在的蜂巢留在这里；已在另一个楼层打开的蜂巢不能再打开一次。",
+    "remembered": "最近使用",
+    "free": "作为楼层打开",
+    "openHere": "已在本楼层打开",
+    "openElsewhere": "已在另一个楼层打开（pid {{pid}}）",
+    "missing": "文件夹已不存在",
+    "opening": "正在打开…",
+    "openExisting": "打开现有文件夹…",
+    "createNew": "创建新文件夹…",
+    "errCurrent": "该文件夹就是本楼层当前所在的蜂巢。",
+    "errHeld": "该文件夹已在另一个楼层打开（pid {{pid}}）。请先关闭那个楼层，或选择其他文件夹。",
+    "errSameData": "楼层不能使用本楼层自己的数据文件夹。",
+    "errInvalid": "应用无法打开该文件夹。",
+    "errMkdir": "无法创建该文件夹：{{detail}}",
+    "errNoSpawner": "在独立楼层中打开蜂巢的功能尚未包含在此版本中。选择器和锁已就绪；每个楼层一个进程的功能随后推出。",
+    "errSpawn": "新楼层未能启动：{{detail}}"
+  },
+  "integrationActivity": {
+    "slackIn": "{{who}} 在 {{where}} 发来消息",
+    "slackInDm": "{{who}} 发来私信",
+    "slackInAnon": "{{where}} 收到一条消息",
+    "slackOut": "已在 {{where}} 回复",
+    "slackOutFailed": "在 {{where}} 的回复没有发出（{{error}}）",
+    "slackStartedPolling": "Slack 已启动，定时检查新消息",
+    "slackStartedSocket": "Slack 已启动，使用实时连接",
+    "slackStartedWebhook": "Slack 已启动，通过公开链接接收事件",
+    "slackFailed": "Slack 无法启动（{{error}}）",
+    "slackRefused": "Slack 没有启动：{{error}}",
+    "slackStopped": "Slack 已停止",
+    "slackTempNotQueued": "临时工无法接手一条 Slack 消息，已转给 {{godName}}",
+    "slackConnected": "实时连接已建立",
+    "slackDisconnected": "实时连接已断开，正在重新连接",
+    "slackRateLimited": "Slack 要求办公室放慢速度，检查间隔已拉长",
+    "slackNote": "Slack：{{detail}}",
+    "slackSetByAgent": "{{agent}} 修改了 Slack 设置",
+    "agentChangeFailed": "{{agent}} 请求的修改没有生效",
+    "webhookIn": "收到一次调用，已交给 {{agent}}",
+    "webhookInTemp": "收到一次调用，由一名临时工接手",
+    "webhookHeld": "收到一次调用，正在等你批准",
+    "webhookApproved": "你批准了一次待批调用，已交给 {{agent}}",
+    "webhookApprovedTemp": "你批准了一次待批调用，由一名临时工接手",
+    "webhookDeclined": "你拒绝了一次待批调用",
+    "webhookDone": "一次调用的答复已就绪，调用方可以取回",
+    "webhookRefusedAuth": "一次调用被拒绝：密钥或签名不匹配",
+    "webhookRefusedBody": "一次调用被拒绝：请求内容不符合这个 webhook 的要求",
+    "webhookRefusedSize": "一次调用被拒绝：内容太大",
+    "webhookRefusedRate": "一次调用被拒绝：一分钟内调用太多",
+    "webhookError": "一次调用的应答状态为 {{status}}",
+    "webhookAddedByAgent": "{{agent}} 创建了这个 webhook",
+    "webhookEditedByAgent": "{{agent}} 修改了这个 webhook",
+    "webhookSecretRotatedByAgent": "{{agent}} 为这个 webhook 换了新密钥",
+    "webhookRemovedByAgent": "{{agent}} 删除了这个 webhook",
+    "connCall": "{{agent}} 发起了一次 {{method}} 调用，应答 {{status}}",
+    "connCallFailed": "{{agent}} 发起了一次 {{method}} 调用，服务返回 {{status}}",
+    "connUnreachable": "{{agent}} 发起了一次 {{method}} 调用，但连不上服务",
+    "connDenied": "{{agent}} 被拒绝：这个连接已关闭，或没有向它开放",
+    "connNoKey": "{{agent}} 无法使用：这个连接没有保存密钥",
+    "connBadRequest": "{{agent}} 发起的一次 {{method}} 调用没有被办公室转发",
+    "connCallCut": "{{agent}} 的一次 {{method}} 调用在答复完成前中断了",
+    "connTestOk": "测试通过，服务返回 {{status}}",
+    "connTestFailed": "测试失败，服务返回 {{status}}",
+    "connTestUnreachable": "测试失败，连不上服务",
+    "secretRead": "{{agent}} 读取了它",
+    "secretMissing": "{{agent}} 请求读取它，但这个名称下没有保存任何内容"
+  },
+  "quitWarning": {
+    "title": "现在退出？",
+    "runningOne": "还有 1 个代理在运行",
+    "runningMany": "还有 {{count}} 个代理在运行",
+    "killBody": "全部终止并退出会立刻结束所有正在运行的代理会话。代理在内存中尚未保存的内容会丢失。",
+    "killKeeps": "已保存的一切都会保留：任务、记忆、文件，以及磁盘上已有的对话记录。随后应用关闭。",
+    "keep": "让它们继续运行",
+    "killAll": "全部终止并退出",
+    "killing": "正在终止..."
+  },
+  "skillInstall": {
+    "refused": {
+      "too-many-files": "该技能的文件数超过了安装器可获取的 {{files}} 个上限。",
+      "too-large": "该技能的体积超过了安装器可获取的 {{mb}} MB 上限。",
+      "file-too-large": "{{name}} 有 {{fileMb}} MB，安装器单个文件最多获取 {{mb}} MB。",
+      "too-deep": "该技能的文件夹层级超过了安装器可进入的 {{levels}} 层。"
+    }
+  },
+  "terminal": {
+    "starting": "正在启动 {{name}} 的会话…",
+    "pathLinkFailed": "无法打开此链接。路径可能不可用，或位于另一台计算机上。",
+    "cliMissing": {
+      "title": "这台电脑上没有安装 {{label}}。",
+      "customTitle": "这台电脑上找不到命令 {{bin}}。",
+      "npmWhat": "点击“安装”会在下方终端中运行这条命令。完成后，请先登录，再启动代理。",
+      "nodeWhat": "这台电脑上没有 Node.js。“安装”会先从 nodejs.org 安装 Node.js {{version}}（经校验和检查），然后运行这条命令。完成后，请先登录，再启动代理。",
+      "nativeWhat": "“安装”会运行 {{label}} 自带的安装程序，不需要 Node.js。完成后，请先登录，再启动代理。",
+      "manualNodeWhat": "这台电脑上没有 Node.js，应用也无法在这里为它运行安装程序。请先从 nodejs.org 安装 Node.js，在终端中运行下面这行命令，然后点击“再次检查”。",
+      "manualWhat": "应用没有 {{label}} 的安装程序。请按其文档的方式安装，然后点击“再次检查”。",
+      "customWhat": "请检查代理设置中的命令，安装所需内容，然后点击“再次检查”。",
+      "failed": "安装以代码 {{code}} 结束。最后几行：",
+      "refused": "什么都没有发生：{{error}}。",
+      "install": "安装",
+      "retry": "重试",
+      "check": "再次检查",
+      "working": "处理中…",
+      "docs": "打开文档"
+    },
+    "cliLogin": {
+      "title": "登录后继续",
+      "titleKey": "此引擎需要 API 密钥",
+      "deviceWhat": "打开链接并登录，然后在页面上输入此代码。网站确认后，代理会在这里自动启动。",
+      "browserWhat": "打开链接并在那里登录。网站确认后，代理会在这里自动启动。",
+      "pasteWhat": "打开链接并在那里登录。网站随后会显示一个代码：粘贴到下方，代理会在这里继续。",
+      "keyWhat": "把密钥粘贴到下方。它只保存在本应用的密钥库中，并在代理启动时交给引擎。保存后请重启代理。",
+      "openLink": "打开链接",
+      "copy": "复制",
+      "copied": "代码已复制",
+      "paste": "继续",
+      "pastePlaceholder": "粘贴页面上的代码",
+      "keyPlaceholder": "粘贴 API 密钥",
+      "saveKey": "保存密钥",
+      "keySaved": "密钥已保存。重启代理即可使用。",
+      "useTerminal": "改用终端",
+      "refused": "什么都没有发生：{{error}}。",
+      "signedIn": "已登录。代理正在运行。",
+      "copyLink": "复制链接",
+      "linkCopied": "链接已复制",
+      "linkFromTerminal": "此链接来自终端，而非本应用。只有在确认无误时才打开它。",
+      "deviceWhatSetup": "打开链接并登录，在页面上输入此代码。网站确认后，点击下方的“设置完成，启动代理”。",
+      "browserWhatSetup": "打开链接并在那里登录。网站确认后，点击下方的“设置完成，启动代理”。"
+    },
+    "cliSetup": {
+      "holdMissing": "请先安装 CLI",
+      "holdInstalling": "等待安装完成",
+      "holdSignin": "等待你启动代理",
+      "manual": "手动设置"
+    }
+  },
+  "projectIde": {
+    "title": "此项目上的代理",
+    "refresh": "重新读取",
+    "backToProject": "回到项目",
+    "uncommitted": "未提交的文件：{{count}}",
+    "unmerged": "不在 {{base}} 上的提交：{{count}}",
+    "unknown": "Git 无法说明此文件夹的内容。",
+    "working": "工作中",
+    "idle": "空闲",
+    "temp": "临时",
+    "openFiles": "打开文件",
+    "showing": "正在显示其文件",
+    "compare": "比较",
+    "comparing": "正在比较",
+    "changedSince": "自 {{base}} 以来的更改",
+    "nothingSince": "自 {{base}} 以来没有更改。",
+    "notCommitted": "未提交",
+    "compareLabel": "{{name}} 自 {{base}} 以来",
+    "noBase": "此文件夹没有可比较的分支。",
+    "noAgents": "还没有代理在此项目上工作。",
+    "noGit": "此文件夹没有 git，因此没有分支，也无法比较。",
+    "askGit": "请 {{name}} 设置 git",
+    "askedGit": "已请 {{name}} 设置 git。",
+    "askGitText": "请在 {{path}} 中设置 git，让在那里工作的每个代理都有自己的分支。不要更改其中的其他内容。",
+    "worksIn": "在 {{folder}} 中工作",
+    "wholeFolder": "在整个文件夹中工作",
+    "openBlocked": "请先保存或放弃此处的更改，然后再次打开 {{name}}。"
+  },
+  "usageNotice": {
+    "telemetryOff": "它已被停止，因为它的 token 计数已关闭。请从 ~/.claude/settings.json 的 env 部分以及启动它的命令中删除 CLAUDE_CODE_ENABLE_TELEMETRY 和所有 OTEL_ 设置，然后重新启动它。如果你的组织管理你的 Claude Code 设置，请联系管理员。",
+    "engineNotCounted": "在免费计划中，此引擎暂时无法启动，因为应用无法统计它的 token。Claude、Codex、Antigravity、Grok、Qwen 和 Crush 可以使用，Pro 或 Max 可解锁所有引擎。"
   }
 }

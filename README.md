@@ -429,7 +429,7 @@ Everything below is for contributors and for people who want to run an unrelease
 ### Prerequisites
 
 - **macOS, Windows, or Linux**.
-- **Node.js 18+** and npm.
+- **Node.js 20 or 22** and npm (`nvm use` reads `.nvmrc`). Node 26 cannot run the native rebuild in `postinstall`.
 - A **C/C++ toolchain** for `node-pty`'s native addon. On macOS, install Xcode Command Line Tools:
   ```bash
   xcode-select --install

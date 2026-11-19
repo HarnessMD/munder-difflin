@@ -1,22 +1,21 @@
 /**
- * Auto-update toast (v0.3.4) — the visual half of the background updater.
+ * Update toast (v0.3.4), the visual half of the update notice.
  *
- * Main's updater (src/main/updater.ts) downloads a new release in the
- * background and pushes ONE of two states over `update:status`:
- *   - 'downloaded'        → the update is staged; offer "restart to update".
- *   - 'available-manual'  → this install can't self-update (win-portable,
- *                           updater error); offer a link to the release page.
+ * Main's updater (src/main/updater.ts) polls GitHub's releases/latest and
+ * pushes 'available' over `update:status` when a newer release is out. The
+ * toast says so and offers that release's page. Releases ship as source, so
+ * there is nothing to download or install from here: the person builds the new
+ * version the way they built this one.
  *
  * Mirrors CompletionToast: self-contained + self-subscribing, mounted once in
- * App.tsx, renders nothing when idle. Installation is ALWAYS user-initiated —
- * "later" just hides the toast until the next app start (or the 6h re-check).
+ * App.tsx, renders nothing when idle. "later" just hides the toast until the
+ * next app start (or the 6h re-check).
  *
  * ─── v0.4.4: "What's new" ───────────────────────────────────────────────────
- * Both states already carried `notes` (the GitHub release body) and the toast
- * dropped it on the floor, so the only notification this app ever raises said
- * nothing but a version number. It now renders a digest of that body —
- * summarizeReleaseNotes() in src/shared/releaseNotes.ts does the parsing, and
- * lives there rather than here so it can be unit-tested without a renderer.
+ * The status carries `notes` (the GitHub release body), and the toast renders a
+ * digest of it. summarizeReleaseNotes() in src/shared/releaseNotes.ts does the
+ * parsing, and lives there rather than here so it can be unit-tested without a
+ * renderer.
  *
  * Three rules this block obeys:
  *   1. No notes, no block. A release body that is missing, empty, or pure
@@ -31,29 +30,29 @@
  *      cost the updater its only channel. See STAR_ASK_KEY below.
  *
  * No new IPC and no new network call: "read more" reuses `updateOpenRelease`
- * (the same bridge the manual state's button has always used) and the star link
- * goes through the existing `openExternal` opener.
+ * (the same bridge the button uses) and the star link goes through the existing
+ * `openExternal` opener.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/components/Icon';
 import { summarizeReleaseNotes } from '@shared/releaseNotes';
 import { extractDropHtml } from '@shared/releaseDrop';
 import { ReleaseDrop } from '@/components/ReleaseDrop';
-import type { UpdateStatus } from '@shared/updateState';
+import { dropSeen, offerUnlessSeen, releaseDropKey } from '@/components/releaseDropSeen';
+import { useBootSettled } from '@/store/bootGate';
+import { REPO, type UpdateStatus } from '@shared/updateState';
 
-/** The toast is the LOUD half — it only interrupts for the two states a user has
- *  to act on. Everything else (checking, available, download progress, errors)
- *  lives quietly in the toolbar badge next to the logo. */
-type ToastStatus = Extract<UpdateStatus, { state: 'downloaded' | 'available-manual' | 'just-updated' }>;
+/** The toast is the LOUD half: it only interrupts for a newer release and for
+ *  the release page of the version just updated to. Everything else (checking,
+ *  errors) lives quietly in the toolbar badge next to the logo. */
+type ToastStatus = Extract<UpdateStatus, { state: 'available' | 'just-updated' }>;
 
 function toastable(s: UpdateStatus): ToastStatus | null {
-  return s.state === 'downloaded' || s.state === 'available-manual' || s.state === 'just-updated' ? s : null;
+  return s.state === 'available' || s.state === 'just-updated' ? s : null;
 }
 
-const GITHUB_REPO_URL = 'https://github.com/chaitanyagiri/munder-difflin';
-/** Only ever the `href` — the click is handled by `updateOpenRelease`, which
- *  resolves `undefined` to this same page in main. */
-const GITHUB_RELEASES_URL = `${GITHUB_REPO_URL}/releases/latest`;
+/** The project's repository, where the star link points. */
+const GITHUB_REPO_URL = `https://github.com/${REPO}`;
 
 /** One-time flag for the star ask. `cth.`-prefixed localStorage is this app's
  *  convention for renderer-only UI memory (see App.tsx's skipHivePickerOnce and
@@ -80,7 +79,6 @@ function markStarAsked(): void {
 
 export function UpdateToast() {
   const [status, setStatus] = useState<ToastStatus | null>(null);
-  const [busy, setBusy] = useState(false);
   // Read once per window, so persisting the flag below cannot make the link
   // vanish from under the cursor of the person currently looking at it.
   const [starAsk] = useState(starAskPending);
@@ -89,45 +87,30 @@ export function UpdateToast() {
    *  under the cursor of the person looking at it — this keeps it on the toast
    *  that is showing it, and withholds it from any later one. */
   const [starSpentOn, setStarSpentOn] = useState<string | null>(null);
+  const bootSettled = useBootSettled();
 
   useEffect(() => window.cth.onUpdateStatus?.((next) => {
-    const t = toastable(next);
+    // A drop the user already closed is not offered again on a re-push
+    // (releaseDropSeen.ts); the corner toast keeps its own rule.
+    const t = offerUnlessSeen(toastable(next));
     // A non-toastable state (a re-check, say) must not erase a toast the user
     // hasn't answered yet — only a new actionable state replaces it.
     if (t) setStatus(t);
   }), []);
 
-  // Main may have emitted before this window existed (a downloaded update
-  // from a previous session, or the dev-only MD_DROP_PREVIEW boot hook), and a
-  // push nobody was listening to is gone. Pull the last status once on mount so
-  // that state is not lost.
+  // Main may have emitted before this window existed (a check or a release
+  // page fetch that finished first, or the dev-only MD_DROP_PREVIEW boot hook),
+  // and a push nobody was listening to is gone. Pull the last status once on mount so
+  // that state is not lost. Main holds that status for the life of the process
+  // and this surface remounts with the shell, so the pull skips a drop the
+  // user already closed, or closing it would last until the next remount.
   useEffect(() => {
     let alive = true;
     void window.cth.updateCurrent?.().then((cur) => {
-      const t = toastable(cur);
+      const t = offerUnlessSeen(toastable(cur));
       if (alive && t) setStatus((prev) => prev ?? t);
     }).catch(() => { /* nothing to show */ });
     return () => { alive = false; };
-  }, []);
-
-  // Settings' hero card asks to re-open the release notes. This surface owns the
-  // last status and the drop renderer, so it answers rather than duplicating
-  // either. `updateCurrent()` is used instead of the remembered state because
-  // "later" clears the local copy while main still holds it — dismissing a
-  // release must not make it unreadable afterwards. With genuinely nothing to
-  // show (a dev build, or an install already on the newest release) the honest
-  // answer is the releases page, not an empty modal.
-  useEffect(() => {
-    const onShow = async () => {
-      try {
-        const cur = await window.cth.updateCurrent();
-        const t = toastable(cur);
-        if (t) { setStatus(t); return; }
-      } catch { /* fall through to the page */ }
-      void window.cth.updateOpenRelease();
-    };
-    window.addEventListener('cth:show-release-notes', onShow);
-    return () => window.removeEventListener('cth:show-release-notes', onShow);
   }, []);
 
   const notes = useMemo(() => summarizeReleaseNotes(status?.notes), [status?.notes]);
@@ -155,54 +138,35 @@ export function UpdateToast() {
     }
   }, [showStar, version, starSpentOn]);
 
+  // 0.5.2, card v052-startup-restore-loading: nothing here, the drop above
+  // all, is offered while the restore is still running. The status is kept;
+  // it renders the moment the boot gate settles (store/bootGate.ts).
+  if (!bootSettled) return null;
   if (!status) return null;
-
-  /** Close the notice FIRST, then ask main to quit and install. The quit path
-   *  raises the kill-and-quit warning when agents are running, and leaving a
-   *  "restarting…" notice on screen behind it just gives the user two things to
-   *  read. (The warning outranking every modal is a separate fix — this one is
-   *  about not asking two questions at once.) If main reports it could not quit,
-   *  the notice comes back so the user can retry; a user CANCEL of the warning
-   *  is not a failure, and the notice stays closed. */
-  const restart = async () => {
-    const prev = status;
-    setBusy(true);
-    setStatus(null);
-    try {
-      const res = await window.cth.updateRestartAndInstall();
-      if (!res.ok) { setStatus(prev); setBusy(false); }
-    } catch { setStatus(prev); setBusy(false); }
-  };
-
-  /** Same call the manual state's button makes: main resolves `undefined` to
-   *  the releases page and refuses any URL outside this repo. */
-  const openRelease = () => {
-    void window.cth.updateOpenRelease(
-      status.state === 'available-manual' ? (status.downloadUrl ?? status.url) : undefined
-    );
-  };
-  /** True when the release carries an installer for THIS machine, so the button
-   *  can promise a download rather than a page to go hunting on. */
-  const hasDownload = status.state === 'available-manual' && !!status.downloadUrl;
 
   // An authored release: hand the whole moment to the centered drop instead of
   // the corner toast. Nothing is passed in but the content — the drop carries no
   // app buttons, and its own links go out through the OS browser.
   //
-  // Restart-to-install is NOT lost with the button: autoInstallOnAppQuit is off,
-  // so the update needs an explicit restart, and the title-bar UpdateBadge (and
-  // Settings -> Updates) still offer it after this is dismissed.
+  // The newer release is not lost with the corner card: the title-bar
+  // UpdateBadge and Settings -> Updates still name it and open its page.
   if (dropHtml && version) {
     return (
       <ReleaseDrop
         version={version}
         html={dropHtml}
-        onDismiss={() => setStatus(null)}
+        // Closing is remembered by state and version, so this page stays closed
+        // across remounts and re-pushes.
+        onDismiss={() => { dropSeen.markSeen(releaseDropKey(status)); setStatus(null); }}
       />
     );
   }
   // Freshly updated with nothing authored for this release: nothing to say.
   if (status.state === 'just-updated') return null;
+
+  /** Main opens only this project's release pages, and the page the last check
+   *  named. */
+  const openRelease = () => { void window.cth.updateOpenRelease(status.url); };
 
   const buttonStyle: React.CSSProperties = {
     padding: '3px 10px 1px',
@@ -219,7 +183,8 @@ export function UpdateToast() {
 
   return (
     <div style={{
-      position: 'fixed', right: 16, bottom: 16, zIndex: 400,
+      // Position is NOT set here — AppOverlaySlot owns the transient corner,
+      // so this and the approval toast stack instead of covering each other.
       maxWidth: 340,
       background: 'var(--cth-cream-50)',
       boxShadow: '0 0 0 2px var(--cth-ink-900), 4px 5px 0 0 rgba(26,19,32,0.25)',
@@ -230,15 +195,11 @@ export function UpdateToast() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Icon name="sparkle" />
         <span style={{ fontSize: 13, color: 'var(--cth-ink-900)', fontWeight: 600 }}>
-          {status.state === 'downloaded'
-            ? `Update v${status.version} downloaded`
-            : `v${status.version} is available`}
+          v{status.version} is available
         </span>
       </div>
       <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-700)' }}>
-        {status.state === 'downloaded'
-          ? 'Restart Munder Difflin whenever you like to apply it — nothing restarts on its own.'
-          : 'This install can’t update itself — grab the new build from the releases page.'}
+        Releases ship as source. Build it the way you built this one; the release page has the notes.
       </span>
 
       {notes.length > 0 && (
@@ -268,7 +229,7 @@ export function UpdateToast() {
           </ul>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a
-              href={status.state === 'available-manual' ? status.url : GITHUB_RELEASES_URL}
+              href={status.url}
               onClick={(e) => { e.preventDefault(); openRelease(); }}
               style={linkStyle}
             >Read more</a>
@@ -290,18 +251,9 @@ export function UpdateToast() {
         >
           later
         </button>
-        {status.state === 'downloaded' ? (
-          <button onClick={restart} disabled={busy} style={buttonStyle}>
-            {busy ? 'restarting…' : 'restart to update'}
-          </button>
-        ) : (
-          <button
-            onClick={openRelease}
-            style={buttonStyle}
-          >
-            {hasDownload ? `download ${status.version}` : 'open releases'}
-          </button>
-        )}
+        <button onClick={openRelease} style={buttonStyle}>
+          open release page
+        </button>
       </div>
     </div>
   );

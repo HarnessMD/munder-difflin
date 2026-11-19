@@ -1,0 +1,21 @@
+/* The season's pieces. Art only: the callers place and animate them. Nothing here takes the pointer or a tab stop, and
+   nothing here animates: moving parts are separate boxes so a caller moves
+   them with transform and opacity only, never an SVG child. */
+
+.cth-pc { position: relative; flex: none; pointer-events: none; }
+.cth-pc > svg { display: block; overflow: visible; }
+
+.cth-pc-wick { width: 2px; height: 3px; border-radius: 1px 1px 0 0; background: var(--cth-ink-700); }
+.cth-pc-flame { transform-origin: 50% 100%; }
+
+.cth-pc-web, .cth-pc-spider { display: block; pointer-events: none; }
+
+.cth-pc-bat { width: 44px; height: 22px; }
+.cth-pc-bat-body { position: absolute; inset: 0; }
+.cth-pc-bat-wing { position: absolute; top: 0; width: 22px; height: 22px; }
+.cth-pc-bat-wing svg { display: block; }
+.cth-pc-bat-wing-l { left: 0; transform-origin: 100% 50%; }
+.cth-pc-bat-wing-r { left: 22px; transform-origin: 0% 50%; }
+
+.cth-pc-strand { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.cth-pc-strand svg { display: block; overflow: visible; }

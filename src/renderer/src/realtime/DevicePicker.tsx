@@ -10,8 +10,8 @@
  * stale.
  *
  * `enumerateDevices()` only returns device LABELS once the page has been granted
- * mic access at least once (our main-process gate opens while a voice session or
- * Free Flow is live — see src/main/index.ts). Before that we show generic
+ * mic access at least once (our main process gate opens only while a voice
+ * session is live, see src/main/index.ts). Before that we show generic
  * "Microphone N" / "Speaker N" names and a hint, so the picker is usable cold.
  *
  * Branch feat/realtime-michael. See board.md "🎙 REALTIME MICHAEL".

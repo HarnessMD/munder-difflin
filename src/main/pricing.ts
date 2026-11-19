@@ -27,6 +27,20 @@ export interface ModelPrice {
 const OPUS: ModelPrice = { inputPerM: 15, outputPerM: 75, cacheReadPerM: 1.5, cacheWritePerM: 18.75 };
 const SONNET: ModelPrice = { inputPerM: 3, outputPerM: 15, cacheReadPerM: 0.3, cacheWritePerM: 3.75 };
 const HAIKU: ModelPrice = { inputPerM: 0.8, outputPerM: 4, cacheReadPerM: 0.08, cacheWritePerM: 1.0 };
+// Sonnet 5.5 (28 Sep 2026) is priced below the Sonnet family row, so it gets
+// its own. $2 in, $10 out (platform.claude.com models overview); the $0.20
+// cache read is Claude Code 2.1.284's own costUSD for a live call, and the
+// cache write is the usual 1.25 times input.
+const SONNET_5_5: ModelPrice = { inputPerM: 2, outputPerM: 10, cacheReadPerM: 0.2, cacheWritePerM: 2.5 };
+// Fable 5.2 (10 Nov 2026): $8 in, $40 out, $0.20 cache read (0.025 times
+// input), $10 for a 5 minute cache write (platform.claude.com pricing). Like
+// the rows above, the one cache write rate is the 5 minute one (1.25 times
+// input); a 1 hour write lists at $16.
+const FABLE_5_2: ModelPrice = { inputPerM: 8, outputPerM: 40, cacheReadPerM: 0.2, cacheWritePerM: 10 };
+// GPT-6.1 Sol (OpenAI, Codex; 10 Nov 2026): $2 in, $0.10 cached input, $10
+// out (developers.openai.com model page). OpenAI charges no extra to write a
+// cache, so a cache write is priced as plain input.
+const GPT_6_1_SOL: ModelPrice = { inputPerM: 2, outputPerM: 10, cacheReadPerM: 0.1, cacheWritePerM: 2 };
 
 /** When the model id is unknown, assume Sonnet (the historical default). */
 const DEFAULT_PRICE: ModelPrice = SONNET;
@@ -46,6 +60,9 @@ export function priceFor(model: string | undefined | null): ModelPrice {
   const m = normalizeModel(model).toLowerCase();
   if (m.includes('opus')) return OPUS;
   if (m.includes('haiku')) return HAIKU;
+  if (/sonnet-5-5(?![0-9])/.test(m)) return SONNET_5_5;
+  if (/fable-5-2(?![0-9])/.test(m)) return FABLE_5_2;
+  if (/gpt-6\.1-sol(?![0-9])/.test(m)) return GPT_6_1_SOL;
   if (m.includes('sonnet')) return SONNET;
   return DEFAULT_PRICE;
 }

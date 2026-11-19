@@ -1,10 +1,10 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
-import { SpritePortrait } from './SpritePortrait';
+import { CharacterPicker } from './CharacterPicker';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
-import { OFFICE_CAST, type OfficeCharacterName } from '@/scene/office/cast';
+import type { OfficeCharacterName } from '@/scene/office/castRoster';
 import { type AccentColorName } from '@/design/tokens';
 import {
   type AgentProvider,
@@ -69,6 +69,8 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
   };
 
   const preset = providerPreset(provider);
+  // The Engine note is said only once the provider or model differs from the agent's (0.5.8, god, 9 Nov 2026).
+  const engineEdited = provider !== inferAgentProvider(agent.command, agent.provider) || (model ?? '') !== (agent.model ?? '');
 
   const save = () => {
     const trimmedName = name.trim() || agent.name;
@@ -113,10 +115,14 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
             {/* Two columns so the extra width is used rather than padded.
                 Identity and Engine are short field lists; Briefing is free
                 text and takes the taller side. minHeight keeps the dialog from
-                collapsing into a wide thin strip on a small form. */}
+                collapsing into a wide thin strip on a small form. flexShrink 0:
+                a set minHeight replaces the flex item's automatic minimum, so on
+                a short window the column was squeezed under its content and the
+                Engine note was drawn over cancel (Kevin's 10-edit.png, 9 Nov
+                2026); now the dialog scrolls instead. */}
             <div style={{
               display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-              gap: 16, alignItems: 'start', minHeight: 260
+              gap: 16, alignItems: 'start', minHeight: 260, flexShrink: 0
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
             <Section label="Identity" hint="name · character · color">
@@ -131,37 +137,12 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
               </Row>
 
               <Row label="Character">
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {OFFICE_CAST.map((c) => {
-                    const active = character === c.name;
-                    return (
-                      <button
-                        key={c.name}
-                        type="button"
-                        onClick={() => { setCharacter(c.name); setName(c.displayName); }}
-                        title={c.blurb}
-                        style={{
-                          padding: 4,
-                          background: active ? `var(--cth-${accent}-light)` : 'var(--cth-cream-100)',
-                          boxShadow: active
-                            ? 'inset 0 0 0 1.5px var(--cth-ink-500)'
-                            : 'inset 0 0 0 1px var(--cth-ink-100)',
-                          cursor: 'pointer', border: 'none', width: 52,
-                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2
-                        }}
-                      >
-                        <div style={{
-                          width: 40, height: 48,
-                          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                          overflow: 'hidden'
-                        }}>
-                          <SpritePortrait character={c.name} scale={1.5} />
-                        </div>
-                        <span style={{ fontSize: 10, color: 'var(--cth-ink-700)' }}>{c.displayName}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <CharacterPicker
+                  value={character}
+                  accent={accent}
+                  scale={1.5}
+                  onPick={(c, displayName) => { setCharacter(c); if (displayName) setName(displayName); }}
+                />
               </Row>
 
               <Row label="Color">
@@ -250,9 +231,11 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
                 </Row>
               )}
 
-              <span style={{ fontSize: 12, color: 'var(--cth-ink-500)', lineHeight: '16px' }}>
-                Engine changes are saved for the next restart. Use Command Center → Floor to restart a live session onto a new provider/model now.
-              </span>
+              {engineEdited && (
+                <span data-edit-agent-engine-note style={{ fontSize: 12, color: 'var(--cth-ink-500)', lineHeight: '16px' }}>
+                  Engine changes are saved for the next restart. Use Command Center → Floor to restart a live session onto a new provider/model now.
+                </span>
+              )}
             </Section>
 
               </div>
@@ -280,7 +263,7 @@ export function EditAgentModal({ agent, onClose }: EditAgentModalProps) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4 }}>
+            <div data-edit-agent-actions style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 4, flexShrink: 0 }}>
               <PixelButton variant="ghost" size="md" onClick={onClose}>cancel</PixelButton>
               <div style={{ flex: 1 }} />
               <PixelButton variant="primary" size="md" onClick={save}>save changes</PixelButton>
