@@ -2219,7 +2219,8 @@ export class HiveManager {
     if (!root || !sessionId) return;
     try {
       const reg = this.registry();
-      const agent = reg.agents[agentId];
+      // Own entries only: the id comes from a hook payload, and '__proto__' must not reach Object.prototype.
+      const agent = Object.hasOwn(reg.agents, agentId) ? reg.agents[agentId] : undefined;
       if (!agent || agent.sessionId === sessionId) return; // unknown agent or unchanged → no write
       // Never a key the agent's engine refuses on sight (a Claude child's hook under an OpenCode agent).
       if (!sessionIdFits(agent.provider, sessionId)) return;
@@ -2262,7 +2263,7 @@ export class HiveManager {
     if (!root || !sessionId) return;
     try {
       const reg = this.registry();
-      const agent = reg.agents[agentId];
+      const agent = Object.hasOwn(reg.agents, agentId) ? reg.agents[agentId] : undefined;
       if (!agent || agent.refusedSessions?.[0] === sessionId) return;
       agent.refusedSessions = pushRefusedSession(agent.refusedSessions, sessionId);
       this.atomicWriteJson(join(root, 'registry.json'), reg);
