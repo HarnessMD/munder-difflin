@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { spawnSync, type SpawnSyncOptionsWithStringEncoding } from 'node:child_process';
 import { win32 } from 'node:path';
 
 // These helpers mirror the resolution logic in pty.ts. They exist separately so
@@ -43,7 +43,16 @@ function captureFromLoginShellUncached(script: string): string | null {
     const res = spawnSync(
       process.env.SHELL ?? '/bin/zsh',
       ['-ilc', `printf %s ${mark}; ${script}; printf %s ${mark}`],
-      { encoding: 'utf8', timeout: 3000 }
+      // `detached` puts the shell in its OWN session, with no controlling
+      // terminal. An interactive shell (-i, required above for rc-file PATH
+      // edits) enables job control: it opens /dev/tty and tcsetpgrp()s itself
+      // into the foreground. Run from `npm run dev`, that steals the terminal
+      // from Electron, and when the shell exits the foreground group points at
+      // a dead pgid — so the app takes SIGTTOU/SIGTTIN and STOPS. Sessionless,
+      // the tcsetpgrp fails harmlessly and the capture is unaffected.
+      // (`detached` is honored by libuv but absent from @types/node's
+      // spawnSync options, hence the assertion.)
+      { encoding: 'utf8', timeout: 3000, detached: true } as SpawnSyncOptionsWithStringEncoding
     );
     const out = res.stdout ?? '';
     const start = out.indexOf(mark);

@@ -15,7 +15,7 @@
  */
 import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn, spawnSync, type SpawnSyncOptionsWithStringEncoding } from 'node:child_process';
 import { ensureKilled } from './procKill';
 import { quarantineDirsToReap, quarantineStampMs, nextMineDelayMs } from './palaceReap';
 
@@ -148,9 +148,13 @@ export class MemoryManager {
         const p = res.stdout.trim().split(/\r?\n/)[0]?.trim();
         if (p && existsSync(p)) found = p;
       } else {
+        // `detached` keeps this interactive shell out of our session — see the
+        // same guard in shellEnv.ts: without it `bash -i` tcsetpgrp()s itself
+        // into the terminal's foreground and the app is left STOPPED by
+        // SIGTTOU the moment a hive opens.
         const res = spawnSync(process.env.SHELL ?? '/bin/zsh', ['-ilc', 'which mempalace'], {
-          encoding: 'utf8', timeout: 3000
-        });
+          encoding: 'utf8', timeout: 3000, detached: true
+        } as SpawnSyncOptionsWithStringEncoding);
         const p = res.stdout.trim().split('\n').pop();
         if (p && existsSync(p)) found = p;
       }
