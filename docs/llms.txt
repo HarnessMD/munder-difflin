@@ -7,7 +7,7 @@
 > between agents and brings back only what needs you (spend, scope and destructive steps).
 > Agents keep markdown memory in a shared, searchable palace, message each other through
 > mailboxes, and can run on a schedule, from Slack or from a webhook. The source in the
-> GitHub repository is MIT licensed. Current version: 0.4.6 (the source in the repository).
+> GitHub repository is MIT licensed. Current version: 0.6.0 (the source in the repository).
 > Latest app release: 0.5.6 (17 October 2026), installers for macOS (signed and notarized),
 > Windows and Linux.
 

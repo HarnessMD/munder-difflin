@@ -3,11 +3,13 @@
  *
  * Phase A scope (the rest of the renderer state stays in localStorage for now):
  *   - kv:               scalar app state. Today: the main window's bounds.
- *   - command_history:  NET-NEW — every prompt the user submits to an agent.
+ *   - command_history:  NET-NEW — every prompt the user submits to an agent,
+ *                       capped at COMMAND_HISTORY_LIMIT rows the same way
+ *                       slackHistory.ts and workerHistory.ts cap theirs.
  *
  * Lives in the Electron MAIN process (better-sqlite3 is native + synchronous);
  * the renderer reaches it over IPC. The DB file sits next to config.json under
- * app.getPath('userData'). WAL mode so reads never block the single writer.
+ * officePaths().userData(). WAL mode so reads never block the single writer.
  *
  * Schema evolves via PRAGMA user_version migrations: an ordered array where
  * migration N runs when user_version < N+1, then bumps it. NEVER edit a shipped
@@ -16,8 +18,9 @@
  * they are deliberately NOT built in v1.
  */
 import Database from 'better-sqlite3';
-import { app } from 'electron';
+import { officePaths } from '../core/paths';
 import { join } from 'node:path';
+import { COMMAND_HISTORY_LIMIT } from '../shared/retention';
 
 /** A captured user prompt, as returned to the renderer (camelCase columns). */
 export interface CommandHistoryRow {
@@ -42,7 +45,7 @@ export interface CommandHistoryRow {
  *     (coordinated w/ jim-mq290qkn 2026-06-06):
  *       cost_ledger(id, agent_id, session_id TEXT, ts, input, output,
  *                   cache_read, cache_creation, model TEXT, usd REAL)
- *     Rows are CUMULATIVE snapshots (one per agent per heartbeat beat) — diff
+ *     Rows are CUMULATIVE snapshots (one per agent whenever its totals move) — diff
  *     consecutive rows for velocity; index (agent_id, session_id, ts). Additive;
  *     lands as a later migration.
  */
@@ -78,7 +81,7 @@ export class PersistStore {
    *  callers should guard so a DB failure can't crash app startup. */
   open(): void {
     if (this.db) return;
-    const path = this.dbPath ?? join(app.getPath('userData'), 'harness.db');
+    const path = this.dbPath ?? join(officePaths().userData(), 'harness.db');
     const db = new Database(path);
     db.pragma('journal_mode = WAL');
     db.pragma('synchronous = NORMAL');
@@ -86,6 +89,29 @@ export class PersistStore {
     db.pragma('foreign_keys = ON');
     this.migrate(db);
     this.db = db;
+    // A DB that predates the cap opens with however many rows it accumulated,
+    // and addHistory only ever removes one row per insert, so the one place a
+    // backlog can actually be cleared is here.
+    this.trimHistory();
+  }
+
+  /**
+   * Drop everything past the newest COMMAND_HISTORY_LIMIT rows.
+   *
+   * By `id`, not by `ts`: id is AUTOINCREMENT and therefore monotonic whatever
+   * the clock does, and a machine whose clock stepped backwards must not lose
+   * the rows it wrote after the step. The subquery is one seek down the primary
+   * key index and returns NULL when the table is under the cap, in which case
+   * `id <= NULL` matches nothing and the statement costs nothing.
+   */
+  private trimHistory(): void {
+    if (!this.db) return;
+    try {
+      this.db.prepare(
+        `DELETE FROM command_history
+          WHERE id <= (SELECT id FROM command_history ORDER BY id DESC LIMIT 1 OFFSET ?)`
+      ).run(COMMAND_HISTORY_LIMIT);
+    } catch { /* a cap that cannot run must never fail the prompt it caps */ }
   }
 
   private migrate(db: Database.Database): void {
@@ -130,13 +156,18 @@ export class PersistStore {
 
   // ─── command history (net-new) ─────────────────────────────────────────────
 
-  /** Record one submitted prompt. Empty text or missing agent id are ignored. */
+  /** Record one submitted prompt, then re-apply the cap. Empty text or missing
+   *  agent id are ignored. Capping on insert rather than on a sweep is how the
+   *  other two ledgers do it (SLACK_HISTORY_LIMIT, WORKER_HISTORY_LIMIT): the
+   *  table can then never be over its bound between sweeps, and there is one
+   *  code path to reason about instead of two. */
   addHistory(entry: { agentId: string; cwd?: string | null; text: string }): void {
     if (!this.db) return;
     const text = (entry.text ?? '').trim();
     if (!text || !entry.agentId) return;
     this.db.prepare('INSERT INTO command_history (agent_id, cwd, text, ts) VALUES (?, ?, ?, ?)')
       .run(entry.agentId, entry.cwd ?? null, text, Date.now());
+    this.trimHistory();
   }
 
   /** Most-recent-first history, optionally scoped to one agent. */

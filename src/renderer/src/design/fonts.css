@@ -13,7 +13,7 @@
  * when every OS we ship on already has a good one. The token stacks in
  * tokens.css name those system faces instead.
  *
- * Vite fingerprints and inlines these URLs at build time, so the paths below are
+ * Vite hashes and inlines these URLs at build time, so the paths below are
  * source paths, not runtime ones. */
 
 @font-face {

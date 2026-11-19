@@ -1,7 +1,8 @@
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
 import react from '@vitejs/plugin-react';
 import { resolve, dirname } from 'node:path';
-import { readFileSync, copyFileSync, mkdirSync, statSync } from 'node:fs';
+import { readFileSync, copyFileSync, mkdirSync, statSync, realpathSync } from 'node:fs';
+import { searchForWorkspaceRoot } from 'vite';
 
 // Single source of truth for the displayed app version: package.json.
 const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
@@ -27,6 +28,8 @@ const defineMain = {
 function copyMainSidecars() {
   const ASSETS: Array<[string, string]> = [
     ['src/main/slack-trigger.cjs', 'out/main/slack-trigger.cjs'],
+    // The Slack polling core, pure like the trigger core above.
+    ['src/main/slack-poll.cjs', 'out/main/slack-poll.cjs'],
     // Knowledge Graph core: required by knowledge.ts at runtime (pure-JS, no
     // native deps), so it must be emitted next to the main bundle like the
     // Slack sidecar above.
@@ -76,6 +79,8 @@ export default defineConfig({
         input: { index: resolve(__dirname, 'src/renderer/index.html') }
       }
     },
+    // Dev server only: a worktree whose node_modules is a link to another checkout still loads its fonts.
+    server: { fs: { allow: [searchForWorkspaceRoot(__dirname), realpathSync(resolve(__dirname, 'node_modules'))] } },
     plugins: [react()],
     resolve: {
       alias: {

@@ -1,5 +1,6 @@
 @import './fonts.css';
 @import './tokens.css';
+@import './season.css';
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -7,6 +8,18 @@
    dark-mode OS styles form controls with the DARK UA scheme — most visibly a
    white (invisible) text caret on our cream textareas. */
 :root { color-scheme: light; }
+
+/* Dark mode (design/theme.ts stamps data-cth-theme): the native dropdown list
+   took the light scheme above and painted itself white under our near-white
+   dark-mode text, so it could not be read. Dark controls in dark mode, and the
+   list in the page's own paper and ink in both.
+   An inline style on a select still wins. */
+:root[data-cth-theme='dark'] { color-scheme: dark; }
+select, option, optgroup {
+  background-color: var(--cth-paper-100);
+  color: var(--cth-ink-900);
+}
+option:disabled { color: var(--cth-ink-500); }
 
 html, body, #root {
   margin: 0;
@@ -112,6 +125,15 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 /* Drag region for hidden inset title bar (mac) */
 .cth-titlebar-drag { -webkit-app-region: drag; }
 .cth-titlebar-nodrag { -webkit-app-region: no-drag; }
+/* Off the Mac the app's bar is the window's top row (design/windowChrome.ts): no inset for the traffic lights
+   at the left, and the width of the system's window controls kept free at the right. */
+:root.cth-own-frame .cth-window-bar {
+  padding-left: 10px !important;
+  padding-right: calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + 6px) !important;
+}
+/* A gradient bar (Classic, focus mode) is drawn flat in cream 200 off the Mac, the colour it names for the system's
+   controls, so the two are one colour with no seam at the top (Pam's limits-bar section G). The Mac keeps the gradient. */
+:root.cth-own-frame .cth-window-bar.cth-window-bar-flat { background: var(--cth-cream-200) !important; }
 
 /* In-app tooltip for title-bar controls.
    The native `title` attribute does not reliably render on buttons inside the
@@ -286,12 +308,12 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .cth-md-preview a { color: var(--cth-sky); }
 .cth-md-preview code {
   font-family: var(--cth-font-mono); font-size: 12.5px;
-  background: var(--cth-cream-200); padding: 1px 5px; border-radius: 2px;
+  background: var(--cth-cream-200); padding: 1px 5px; border-radius: var(--cth-radius-sm, 2px);
 }
 .cth-md-preview pre {
   background: var(--cth-cream-200);
   box-shadow: inset 0 0 0 1px var(--cth-ink-100);
-  padding: 10px 12px; overflow-x: auto; border-radius: 2px;
+  padding: 10px 12px; overflow-x: auto; border-radius: var(--cth-radius-lg, 2px);
 }
 .cth-md-preview pre code { background: transparent; padding: 0; }
 /* Code is LTR no matter what language the prose around it is in: an inline
@@ -325,12 +347,12 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .cth-md-preview .cth-md-image {
   display: block; max-width: 100%; height: auto; margin: 0.6em 0;
   box-shadow: inset 0 0 0 1px var(--cth-ink-100);
-  border-radius: 2px;
+  border-radius: var(--cth-radius-lg, 2px);
 }
 .cth-md-preview .cth-md-img {
   display: inline-block; padding: 2px 8px; font-size: 12px;
   background: var(--cth-cream-200); box-shadow: inset 0 0 0 1px var(--cth-ink-100);
-  color: var(--cth-ink-500); border-radius: 2px;
+  color: var(--cth-ink-500); border-radius: var(--cth-radius-sm, 2px);
 }
 
 /* ─── Markdown inside a card (v0.4.6) ────────────────────────────────────────
@@ -369,3 +391,44 @@ canvas, img, svg { image-rendering: pixelated; image-rendering: crisp-edges; }
 .cth-md-card hr { margin: 0.8em 0; }
 .cth-md-card table { margin: 0.5em 0; }
 .cth-md-card th, .cth-md-card td { padding: 3px 7px; font-size: 0.9em; }
+
+/* The app-level overlay slot — see components/AppSlots.tsx.
+   The layer spans the window so its contents can anchor to the viewport, and it
+   passes clicks straight through; only what is actually rendered in it takes
+   input. A modal covers the window on its own and gets the whole surface; a
+   toast gets only its own box, which is the difference between a toast and a
+   freeze. */
+.cth-app-overlay { position: fixed; inset: 0; z-index: 900; pointer-events: none; }
+.cth-app-overlay > * { pointer-events: auto; }
+
+/* THE TRANSIENT CORNER, owned in exactly one place. Three toasts used to anchor
+   themselves here independently and covered each other by z-index. They are a
+   column now, so they cannot overlap however many are up at once.
+   `column-reverse` puts the FIRST child nearest the corner, which is the most
+   reachable spot, so the array is ordered by urgency.
+   `right` rather than `inset-inline-end` on purpose: every one of these toasts
+   sat on the right in RTL before this change, and moving them is a separate
+   decision from stopping them covering each other. */
+.cth-app-overlay-transients {
+  position: absolute; right: 16px; bottom: 16px;
+  display: flex; flex-direction: column-reverse; align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+.cth-app-overlay-transients > * { pointer-events: auto; }
+
+/* RULE 1 OF THE SLOT: a modal that is really up hides every transient. The
+   modal's wrapper is always in the page; it counts only when the modal drew
+   something in it. An empty wrapper (no modal passed, or one that draws
+   nothing) hides nothing, is 0 px tall and takes no click. The transients
+   are hidden, never unmounted: they are fed by pushes and would lose any
+   that arrived while they were gone. See AppSlots.tsx. */
+.cth-app-overlay-modal:not(:empty) ~ .cth-app-overlay-transients { display: none; }
+
+/* The roster row's add-note control (F25, Pam's review of #36): a control with
+   nothing to edit stays out of sight until the row is hovered or focused, or
+   its editor is open. */
+[data-note-add] { opacity: 0; transition: opacity 120ms; }
+[data-roster-row]:hover [data-note-add],
+[data-roster-row]:focus-within [data-note-add],
+[data-note-add][data-open] { opacity: 1; }

@@ -8,7 +8,8 @@ import {
   Toggle, fmtInterval, inputStyle, textareaStyle, weeklyDraft, weeklyIsUsable,
   type WeeklyDraft
 } from './ui';
-import { formatWeekly, nextWeeklyFireMs } from '@shared/weeklySchedule';
+import { formatWeekly, nextWeeklyFireMs, withSavedZone } from '@shared/weeklySchedule';
+import { receiverOptions, receiverShown, receiverWords, tempReceiverLabel, type ReceiverAgent, type ReceiverOption } from './receiverOptions';
 import { useRtl } from '@/i18n/useDirection';
 
 /**
@@ -35,7 +36,7 @@ interface ScheduledMission {
   kind?: 'dispatch' | 'heartbeat' | 'compact';
   quietThresholdMs?: number;
   /** Day-of-week + time. Present ⇒ this replaces intervalMs (main/config.ts). */
-  weekly?: { days: number[]; minute: number };
+  weekly?: { days: number[]; minute: number; zone?: string };
 }
 
 const DEFAULT_INTERVAL_MS = 3_600_000;
@@ -96,7 +97,7 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
       // The interval rides along even in weekly mode, so flipping back to
       // "every…" later restores the cadence rather than a default.
       intervalMs: mInterval,
-      ...(mWeekly ? { weekly: mWeekly } : {}),
+      ...(mWeekly ? { weekly: withSavedZone(mWeekly) } : {}),
       to: mTo,
       body: mBody.trim(),
       enabled: true
@@ -109,7 +110,8 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
   const targetName = (to: string) =>
     to === 'broadcast' ? t('schedulesSection.everyone')
       : to === 'god' ? (agents.find((a) => a.isGod)?.name ?? 'the orchestrator')
-        : agents.find((a) => a.id === to)?.name ?? to;
+        : tempReceiverLabel(to, agents, receiverWords(t)) ?? agents.find((a) => a.id === to)?.name ?? to;
+  const targets = missionTargets(agents, t);
 
   return (
     <>
@@ -143,9 +145,7 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
           </Field>
           <Field label={t('schedulesSection.goesTo')}>
             <Select value={mTo} onChange={setMTo} style={{ width: '100%' }}>
-              <option value="broadcast">{t('schedulesSection.everyone')}</option>
-              <option value="god">{agents.find((a) => a.isGod)?.name ?? 'the orchestrator'}</option>
-              {agents.filter((a) => !a.isGod).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              {targets.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </Select>
           </Field>
           <Field label={t('schedulesSection.when')}>
@@ -182,7 +182,17 @@ export function SchedulesSection({ onSummary }: { onSummary?: (s: string) => voi
 
 /* ─────────────────────────────── one mission ─────────────────────────────── */
 
-interface RosterAgent { id: string; name: string; isGod?: boolean }
+type RosterAgent = ReceiverAgent;
+
+/** Who a mission may go to: everyone, then the one receiver list every picker
+ *  draws: the orchestrator, each agent, a temp, a temp cloned from an
+ *  agent. */
+function missionTargets(agents: readonly RosterAgent[], t: TFunction): ReceiverOption[] {
+  return [
+    { value: 'broadcast', label: t('schedulesSection.everyone') },
+    ...receiverOptions(agents, { value: 'god', label: agents.find((a) => a.isGod)?.name ?? 'the orchestrator' }, receiverWords(t), agents.filter((a) => !a.isGod))
+  ];
+}
 
 function MissionRow({ mission, targetName, agents, onPatch, onDelete }: {
   mission: ScheduledMission;
@@ -192,6 +202,7 @@ function MissionRow({ mission, targetName, agents, onPatch, onDelete }: {
   onDelete: () => void;
 }) {
   const { t } = useTranslation();
+  const targets = missionTargets(agents, t);
   const rtl = useRtl();
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState(mission.label);
@@ -246,7 +257,7 @@ function MissionRow({ mission, targetName, agents, onPatch, onDelete }: {
     // `weekly: undefined` is the switch back to interval mode. It has to be sent
     // explicitly — the backend merges by id and spreads, so simply omitting the
     // key would leave the old schedule in place and the row would snap back.
-    onPatch({ label: trimmed, to, intervalMs, body, weekly: weekly ?? undefined });
+    onPatch({ label: trimmed, to, intervalMs, body, weekly: weekly && weeklyKey(weekly) !== weeklyKey(storedWeekly) ? withSavedZone(weekly) : weekly ?? undefined });
     setSaved(true);
     setTimeout(() => setSaved(false), 1300);
   };
@@ -287,10 +298,8 @@ function MissionRow({ mission, targetName, agents, onPatch, onDelete }: {
             <input value={label} onChange={(e) => setLabel(e.target.value)} style={inputStyle} />
           </Field>
           <Field label={t('schedulesSection.goesTo')}>
-            <Select value={to} onChange={setTo} style={{ width: '100%' }}>
-              <option value="broadcast">{t('schedulesSection.everyone')}</option>
-              <option value="god">{agents.find((a) => a.isGod)?.name ?? 'the orchestrator'}</option>
-              {agents.filter((a) => !a.isGod).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+            <Select value={receiverShown(to, targets, to)} onChange={setTo} style={{ width: '100%' }}>
+              {targets.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </Select>
           </Field>
           <Field label={t('schedulesSection.when')}>

@@ -1,0 +1,62 @@
+/* Halloween decorations of the window (HalloweenLayer.tsx): the bats. The
+   whole layer ignores the mouse, sits under dialogs (z-index 40), and keeps
+   to the top of the window. Every loop is long and mostly quiet: a bat
+   crosses for about four seconds in every twenty six. The web, the spider,
+   the pumpkin and the ghost are in season/seasonCorner.css. */
+
+.cth-hw {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  overflow: hidden;
+}
+
+/* ── bats ─────────────────────────────────────────────────────────────── */
+.cth-hw-bats { position: absolute; inset: 0 0 auto 0; height: 140px; }
+.cth-hw-bat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-60px, 60px);
+  animation: cth-hw-fly 26s linear infinite;
+  will-change: transform;
+}
+.cth-hw-bat-1 { animation-delay: 3s; }
+.cth-hw-bat-2 { animation-delay: 4.1s; animation-duration: 26s; }
+.cth-hw-bat-2 .cth-pc-bat { transform: scale(0.75); }
+.cth-hw-bat-3 { animation-delay: 15s; animation-duration: 31s; }
+.cth-hw-bat-3 .cth-pc-bat { transform: scale(0.85); }
+@keyframes cth-hw-fly {
+  0%   { transform: translate(-60px, 84px); }
+  4%   { transform: translate(calc(25vw), 46px); }
+  8%   { transform: translate(calc(50vw), 78px); }
+  12%  { transform: translate(calc(75vw), 40px); }
+  16%  { transform: translate(calc(100vw + 60px), 70px); }
+  100% { transform: translate(calc(100vw + 60px), 70px); }
+}
+/* The bat's own boxes (.cth-pc-bat, .cth-pc-bat-wing) are laid out in
+   season/pieces/pieces.css; this file only flies and flaps them. */
+.cth-pc-bat-wing { will-change: transform; }
+/* Wings flap only while their bat is on screen: each keyframe list has the
+   flight's own duration and flaps inside the first 16%, the part of
+   cth-hw-fly where the bat crosses. Off screen the value holds still. */
+.cth-hw-bat-1 .cth-pc-bat-wing { animation: cth-hw-flap26 26s linear 3s infinite; }
+.cth-hw-bat-2 .cth-pc-bat-wing { animation: cth-hw-flap26 26s linear 4.1s infinite; }
+.cth-hw-bat-3 .cth-pc-bat-wing { animation: cth-hw-flap31 31s linear 15s infinite; }
+@keyframes cth-hw-flap26 {
+  0%, 2%, 4%, 6%, 8%, 10%, 12%, 14%, 16%, 100% { transform: scaleY(1); }
+  1%, 3%, 5%, 7%, 9%, 11%, 13%, 15% { transform: scaleY(0.35); }
+}
+@keyframes cth-hw-flap31 {
+  0%, 1.7%, 3.4%, 5.1%, 6.8%, 8.5%, 10.2%, 11.9%, 13.6%, 15.3%, 17%, 100% { transform: scaleY(1); }
+  0.85%, 2.55%, 4.25%, 5.95%, 7.65%, 9.35%, 11.05%, 12.75%, 14.45%, 16.15% { transform: scaleY(0.35); }
+}
+
+/* The window is off screen (season/windowHidden.ts): nothing runs. */
+:root[data-cth-window='hidden'] .cth-hw * { animation-play-state: paused !important; }
+
+/* Reduced motion: nothing flies. */
+@media (prefers-reduced-motion: reduce) {
+  .cth-hw-bats { display: none; }
+}

@@ -45,15 +45,20 @@ export interface TestResult {
   error?: string;
 }
 
+/** What a save or a remove answers. */
+export interface SaveResult { ok: boolean; error?: string }
+
 type UpsertResult = { ok: true; record: IntegrationRecord } | { ok: false; error: string };
 
 export interface IntegrationsClient {
   listTemplates(): Promise<IntegrationTemplate[]>;
   list(): Promise<IntegrationRecordView[]>;
   /** §6 upsert (metadata, no secret) + §6 setSecret when a new secret was typed. */
-  save(record: IntegrationRecord, secret?: string): Promise<{ ok: boolean; error?: string }>;
-  remove(id: string): Promise<{ ok: boolean }>;
+  save(record: IntegrationRecord, secret?: string): Promise<SaveResult>;
+  remove(id: string): Promise<SaveResult>;
   test(id: string): Promise<TestResult>;
+  /** Test before Connect: the form as it stands and the token typed on it. Nothing is kept. */
+  testDraft(record: IntegrationRecord, secret: string): Promise<TestResult>;
 }
 
 // The preload bridge Jim exposes (Deliverable 2). Channels are fixed by §6;
@@ -62,9 +67,10 @@ interface IntegrationsBridge {
   integrationsList(): Promise<IntegrationRecordView[]>;
   integrationsTemplates(): Promise<IntegrationTemplate[]>;
   integrationsUpsert(record: IntegrationRecord): Promise<UpsertResult>;
-  integrationsSetSecret(req: { id: string; secret: string }): Promise<{ ok: boolean; error?: string }>;
-  integrationsRemove(req: { id: string }): Promise<{ ok: boolean }>;
-  integrationsTest(req: { id: string; path?: string }): Promise<TestResult>;
+  integrationsSetSecret(req: { id: string; secret: string; baseUrl: string }): Promise<{ ok: boolean; error?: string; held?: boolean }>;
+  integrationsSave?(req: { record: IntegrationRecord; secret?: string }): Promise<SaveResult>;
+  integrationsRemove(req: { id: string }): Promise<SaveResult>;
+  integrationsTest(req: { id: string; path?: string } | { draft: IntegrationRecord; secret: string }): Promise<TestResult>;
 }
 
 function liveBridge(): IntegrationsBridge | undefined {
@@ -113,7 +119,8 @@ const mockClient: IntegrationsClient = {
       return Promise.resolve({ ok: false, status: 503, error: 'no secret set' });
     }
     return Promise.resolve({ ok: true, status: 200 });
-  }
+  },
+  testDraft: (_record, secret) => Promise.resolve(secret ? { ok: true, status: 200 } : { ok: false, error: 'no token typed' })
 };
 
 // ───────────────────────── exported client (real → mock fallback) ─────────────────────────
@@ -130,10 +137,16 @@ export const integrationsClient: IntegrationsClient = {
   save: async (record, secret) => {
     const b = liveBridge();
     if (!b) return mockClient.save(record, secret);
+    // One call: main does the two steps.
+    if (typeof b.integrationsSave === 'function') {
+      const r = await b.integrationsSave(secret && secret.length > 0 ? { record, secret } : { record });
+      return r.ok ? { ok: true } : { ok: false, error: r.error };
+    }
     const up = await b.integrationsUpsert(record);
     if (!up.ok) return { ok: false, error: up.error };
     if (secret && secret.length > 0) {
-      const ss = await b.integrationsSetSecret({ id: record.id, secret });
+      // The address this window showed: main seals the key for it and no other.
+      const ss = await b.integrationsSetSecret({ id: record.id, secret, baseUrl: record.baseUrl });
       if (!ss.ok) return { ok: false, error: ss.error };
     }
     return { ok: true };
@@ -145,6 +158,10 @@ export const integrationsClient: IntegrationsClient = {
   test: (id) => {
     const b = liveBridge();
     return b ? b.integrationsTest({ id }) : mockClient.test(id);
+  },
+  testDraft: (record, secret) => {
+    const b = liveBridge();
+    return b ? b.integrationsTest({ draft: record, secret }) : mockClient.testDraft(record, secret);
   }
 };
 

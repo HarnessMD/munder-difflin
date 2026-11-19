@@ -12,6 +12,8 @@ export interface PixelButtonProps {
   fullWidth?: boolean;
   style?: CSSProperties;
   title?: string;
+  /** `data-*` attributes on the button. */
+  dataAttrs?: Record<`data-${string}`, string | undefined>;
 }
 
 const heightBySize: Record<Size, number> = { sm: 24, md: 32, lg: 40 };
@@ -25,7 +27,8 @@ export function PixelButton({
   disabled = false,
   fullWidth = false,
   style,
-  title
+  title,
+  dataAttrs
 }: PixelButtonProps) {
   const [pressed, setPressed] = useState(false);
   const [hover, setHover] = useState(false);
@@ -45,7 +48,7 @@ export function PixelButton({
   // disabled control should look like anyway.
   const disabledText = 'var(--cth-ink-500)';
 
-  const palette = (() => {
+  const office = (() => {
     switch (variant) {
       case 'primary':
         return {
@@ -76,11 +79,14 @@ export function PixelButton({
           shadow:  'var(--cth-ink-300)'
         };
     }
-  })();
+  });
+
+  const palette = office()!;
 
   return (
     <button
       title={title}
+      {...dataAttrs}
       onClick={disabled ? undefined : onClick}
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}

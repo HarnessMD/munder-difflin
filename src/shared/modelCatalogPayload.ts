@@ -27,10 +27,11 @@
  * `parseModelCatalog` never throws. It returns null for "nothing usable here,
  * keep what you have", never a partially-built catalog.
  */
+import { isNewer } from './updateState';
 
 /** One row of the catalog. `minAppVersion` / `maxAppVersion` are INCLUSIVE app
  *  version bounds; null (or an absent key) means unbounded in that direction.
- *  See the long note on the filter in src/renderer/src/store/config.ts. */
+ *  See the note on `offeredAtVersion` below. */
 export interface CatalogModel {
   /** absent = use the CLI default (no --model flag) */
   id?: string;
@@ -48,6 +49,41 @@ export interface ModelCatalog {
  *  anything else is ignored in full — that is the escape hatch that lets the
  *  shape change later without breaking every shipped build in the field. */
 export const CATALOG_SCHEMA_VERSION = 1;
+
+/** Merge a validated remote catalog over the baked one, PER MODEL.
+ *
+ *  It used to be per PROVIDER: a provider named in the remote copy replaced
+ *  that provider's whole list. That made the pickers OLDER than the build they
+ *  run in. The remote file lives on main and lags a release, so the day Opus
+ *  5.5 shipped as the default (config.ts godModel and defaultModel) the remote
+ *  claude list still ended at Opus 5, the merge dropped the entry this build
+ *  ships, and the orchestrator's Config tab fell back to printing the raw id
+ *  `claude-opus-5-5` beside friendly names like "Opus 5" (founder, 24 Sep).
+ *
+ *  So: the remote list leads and wins by id, giving it the order and the
+ *  labels, and any baked model it does not mention is kept after it. The
+ *  remote can still RETIRE a model, with the maxAppVersion field it already
+ *  has and that `offeredAtVersion` already honours; silence is not retirement.
+ *  A provider the remote does not mention keeps the built-in list, as before.
+ *
+ *  Shared with main and `md-models` (core/engineModels.ts), so an agent reads the same list. */
+export function mergeCatalogModels(baked: CatalogModel[], remote: CatalogModel[]): CatalogModel[] {
+  const key = (m: CatalogModel) => m.id ?? '';
+  const named = new Set(remote.map(key));
+  return [...remote, ...baked.filter((m) => !named.has(key(m)))];
+}
+
+/** Whether a catalog entry belongs in a picker on this build. Both bounds are
+ *  inclusive of the release they name. Anything unparseable — an absent bound, a
+ *  malformed one, an unknown app version — is ignored rather than hiding the
+ *  model: a picker that silently loses every model is far worse than one that
+ *  offers a model this build's CLI cannot run (the command field is editable and
+ *  the CLI reports the bad slug). */
+export function offeredAtVersion(model: CatalogModel, appVersion: string): boolean {
+  if (model.minAppVersion && isNewer(model.minAppVersion, appVersion)) return false;
+  if (model.maxAppVersion && isNewer(appVersion, model.maxAppVersion)) return false;
+  return true;
+}
 
 const MAX = {
   /** A model id is a slug or a display name agy echoes back; nothing legitimate

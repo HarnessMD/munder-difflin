@@ -42,9 +42,8 @@ export type MintResult =
   | { ok: true; token: string; expiresAt: number | null; sessionConfig: { model: string } }
   | { ok: false; error: string; code?: string };
 
-/** Whether a BYOK OpenAI key is stored (presence only — no decryption). Gates the
- *  Realtime Michael voice toggle in the renderer, the way `hasGroqKey` gates the
- *  Free Flow mic button. */
+/** Whether a BYOK OpenAI key is stored (presence only, no decryption). Gates the
+ *  Realtime Michael voice toggle in the renderer. */
 export function hasOpenAiKey(): boolean {
   return hasSecret(OPENAI_KEY_REF);
 }
@@ -52,7 +51,7 @@ export function hasOpenAiKey(): boolean {
 /** Mint a short-lived ephemeral client secret for a realtime WebRTC session. The
  *  real OpenAI key is decrypted MAIN-ONLY here and is NEVER part of the result. */
 export async function mintRealtimeToken(model: string = REALTIME_MODEL): Promise<MintResult> {
-  const key = getSecret(OPENAI_KEY_REF);
+  const key = getSecret(OPENAI_KEY_REF, { kind: 'env' });
   if (!key) {
     return { ok: false, error: 'no OpenAI API key set — add one in Settings → Voice', code: 'no_key' };
   }

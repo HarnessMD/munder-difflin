@@ -35,25 +35,17 @@ export function shouldFollowTerminalOutput(viewportY: number, baseY: number): bo
   return baseY - viewportY <= 1;
 }
 
-/** How long an untouched draft on the prompt keeps blocking queue delivery.
- *
- * The block exists so automation can't fuse its text onto a half-written line.
- * It still has to expire, because the flag is set from KEYSTROKES and a TUI that
- * swallows keys for its own UI can leave it set while the prompt is visibly
- * empty — a phantom draft, which wedged the queue for the rest of the session.
- *
- * Half an hour, not a minute. The old 60s window fired while the user had merely
- * paused to think, and treating a real draft as abandoned is the expensive
- * mistake; leaving a queued message parked a while longer is the cheap one. When
- * it does fire, delivery simply types after the existing text (the two fuse into
- * one prompt) — automation never deletes what the user wrote. */
-export const STALE_INPUT_MS = 1_800_000;
+// A draft on the prompt holds queue delivery until the box is empty, at any age (Kevin, Pam b8 row 6).
+// It used to expire after half an hour, and the queued message was then typed after the person's text: the two
+// went to the agent as one prompt, the R7 fault by another road. A phantom draft (keys a TUI swallowed for its
+// own UI) is cleared by settleDraft once the rendered prompt line reads empty, and the person can clear a draft
+// from the queue row.
 
 /** How long an untouched picker keeps blocking queue delivery.
  * The picker latch is set when the user submits a bare `/model`-style command
  * and is cleared by an Enter, Escape or Ctrl-C typed into that terminal — so a
- * picker closed any other way leaves it set with no path back. Same half hour,
- * same reason: it is the user's menu, so wait a long time, then deliver. We
+ * picker closed any other way leaves it set with no path back. Half an hour:
+ * it is the user's menu, so wait a long time, then deliver. We
  * never send Escape ourselves; closing someone's open menu to make room for a
  * queued message is not ours to do. */
 export const STALE_PICKER_MS = 1_800_000;
@@ -65,6 +57,26 @@ export interface TerminalAutomationState {
   settleUntil: number;
   inputDirtyAt?: number; // last keystroke that left a draft; absent ⇒ never expires
   pickerOpenedAt?: number; // when the picker latched; absent ⇒ never expires
+}
+
+/**
+ * Settle the keystroke count against one read of the rendered prompt line, and
+ * say whether a person's draft is there (0.5.6).
+ *
+ * A read of "empty" used to overrule the count for that one read only. So a
+ * phantom draft (a key the TUI swallowed for a menu, counted and never
+ * cleared) let a queued message be typed, and then the message itself, now on
+ * the prompt line, read as the person's draft: every press of the submit key
+ * was skipped and the message sat in the input box until the person pressed
+ * Return in the terminal. An empty line now clears the count for good, so only
+ * a key pressed after it can hold the prompt again.
+ */
+export function settleDraft(entry: { lineBuf: string; inputDirty: boolean }, lineHasText: boolean | null): boolean {
+  if (entry.inputDirty && lineHasText === false) {
+    entry.lineBuf = '';
+    entry.inputDirty = false;
+  }
+  return entry.inputDirty;
 }
 
 /** A picker nobody has interacted with for STALE_PICKER_MS is treated as gone. */
@@ -80,23 +92,13 @@ export function isStaleTerminalPicker(
 /** Why automation may not own the prompt right now, or null when it may. */
 export type TerminalAutomationBlock = 'exited' | 'picker' | 'draft' | 'settling' | null;
 
-/** A draft nobody has touched for STALE_INPUT_MS is treated as abandoned. */
-export function isStaleTerminalDraft(
-  state: TerminalAutomationState,
-  now = Date.now()
-): boolean {
-  return state.inputDirty
-    && state.inputDirtyAt !== undefined
-    && now - state.inputDirtyAt >= STALE_INPUT_MS;
-}
-
 export function terminalAutomationBlock(
   state: TerminalAutomationState,
   now = Date.now()
 ): TerminalAutomationBlock {
   if (state.exited) return 'exited';
   if (state.pickerOpen && !isStaleTerminalPicker(state, now)) return 'picker';
-  if (state.inputDirty && !isStaleTerminalDraft(state, now)) return 'draft';
+  if (state.inputDirty) return 'draft';
   if (now < state.settleUntil) return 'settling';
   return null;
 }

@@ -57,7 +57,20 @@ const MIME_BY_EXT = {
 function genId() { return crypto.randomBytes(8).toString('hex'); }
 function extOf(p) { return path.extname(String(p || '')).replace(/^\./, '').toLowerCase(); }
 function mimeFor(p) { return MIME_BY_EXT[extOf(p)] || 'application/octet-stream'; }
-function ensureDir(d) { fs.mkdirSync(d, { recursive: true }); }
+// Owner only: the store holds a company's documents. The mode is set when a
+// folder is made; one that is already there is left as it is.
+function ensureDir(d) { fs.mkdirSync(d, { recursive: true, mode: 0o700 }); }
+const OWNER_ONLY = { encoding: 'utf8', mode: 0o600 };
+
+/** A document id is a NAME inside `<store>/docs`, never a path. Unchecked, an
+ *  id like `../../x` was joined onto the store folder: `remove` deleted a
+ *  folder outside the store and `get` read one. Ids made here are 16 hex
+ *  characters; a caller's own id may use letters, digits, `_` and `-`. */
+const SAFE_DOC_ID = /^[A-Za-z0-9_-]{1,128}$/;
+function safeDocId(id) { return typeof id === 'string' && SAFE_DOC_ID.test(id); }
+
+/** The most one file may weigh to be taken in (the files channel's own cap). */
+const MAX_INGEST_BYTES = 50 * 1024 * 1024;
 function nowIso() { return new Date().toISOString(); }
 
 function clampLimit(n, fallback) {
@@ -225,11 +238,24 @@ function ingest(kgRoot, input = {}) {
   ensureDir(kgRoot);
   ensureDir(path.join(kgRoot, 'docs'));
 
+  const srcPath = input.srcPath || null;
+  // Checked BEFORE anything is made: only a regular file is read. A missing
+  // file or a folder used to "go in" as an empty document, and a named pipe
+  // held the process for good (stat does not open it; a read would).
+  let srcBytes = 0;
+  if (srcPath) {
+    let st;
+    try { st = fs.statSync(srcPath); } catch { throw new Error('not taken in: there is no file at that path'); }
+    if (!st.isFile()) throw new Error('not taken in: that path is not a regular file');
+    if (st.size > MAX_INGEST_BYTES) throw new Error('not taken in: the file is larger than 50 MB');
+    srcBytes = st.size;
+  }
+  if (input.id != null && !safeDocId(input.id)) throw new Error('not taken in: a document id may use letters, digits, _ and - only');
+
   const docId = input.id || genId();
   const docDir = path.join(kgRoot, 'docs', docId);
   ensureDir(docDir);
 
-  const srcPath = input.srcPath || null;
   const inlineText = input.text != null ? input.text : input.inlineText;
   const source = input.source || (srcPath ? path.basename(srcPath) : (input.title || 'untitled'));
   const modality = input.modality || (srcPath ? detectModality(srcPath) : 'text');
@@ -238,16 +264,17 @@ function ingest(kgRoot, input = {}) {
 
   // Copy the raw artifact verbatim (lossless record for future re-extraction).
   let bytes = 0;
-  if (srcPath && fs.existsSync(srcPath)) {
+  if (srcPath) {
     try {
-      bytes = fs.statSync(srcPath).size;
+      bytes = srcBytes;
       fs.copyFileSync(srcPath, path.join(docDir, 'original.' + origExt));
+      fs.chmodSync(path.join(docDir, 'original.' + origExt), 0o600);
     } catch { /* best-effort copy */ }
   }
 
   const ex = extractText({ srcPath, inlineText, modality, title: input.title, caption: input.caption, tags, source });
   const fullText = String(ex.text || '');
-  fs.writeFileSync(path.join(docDir, 'text.md'), fullText, 'utf8');
+  fs.writeFileSync(path.join(docDir, 'text.md'), fullText, OWNER_ONLY);
 
   let indexText = fullText;
   let truncated = false;
@@ -258,14 +285,14 @@ function ingest(kgRoot, input = {}) {
   if (chunks.length === 0) chunks = [String(title)]; // images/empties: index the title so it's findable
 
   const lines = chunks.map((c, i) => JSON.stringify({ docId, title, source, modality, chunkIdx: i, text: c }));
-  fs.appendFileSync(path.join(kgRoot, 'index.jsonl'), lines.join('\n') + '\n', 'utf8');
+  fs.appendFileSync(path.join(kgRoot, 'index.jsonl'), lines.join('\n') + '\n', OWNER_ONLY);
 
   const meta = {
     id: docId, title, source, modality, mime: ex.mime || null, origExt,
     bytes, tags, caption: input.caption || null, chunkCount: chunks.length,
     addedAt: nowIso(), extractor: ex.extractor, truncated
   };
-  fs.writeFileSync(path.join(docDir, 'meta.json'), JSON.stringify(meta, null, 2), 'utf8');
+  fs.writeFileSync(path.join(docDir, 'meta.json'), JSON.stringify(meta, null, 2), OWNER_ONLY);
 
   return { docId, chunkCount: chunks.length, meta };
 }
@@ -313,8 +340,9 @@ function list(kgRoot) {
 
 /** Full record for one artifact: { meta, text } or null. */
 function getDoc(kgRoot, docId) {
-  const docDir = path.join(kgRoot, 'docs', String(docId || ''));
-  if (!docId || !fs.existsSync(docDir)) return null;
+  if (!safeDocId(docId)) return null;
+  const docDir = path.join(kgRoot, 'docs', docId);
+  if (!fs.existsSync(docDir)) return null;
   let meta = null;
   try { meta = JSON.parse(fs.readFileSync(path.join(docDir, 'meta.json'), 'utf8')); } catch { /* none */ }
   if (!meta) return null;
@@ -325,8 +353,12 @@ function getDoc(kgRoot, docId) {
 
 /** Delete one artifact's folder and drop its lines from the index. */
 function removeDoc(kgRoot, docId) {
-  const docDir = path.join(kgRoot, 'docs', String(docId || ''));
-  if (!docId || !fs.existsSync(docDir)) return false;
+  if (!safeDocId(docId)) return false;
+  const docDir = path.join(kgRoot, 'docs', docId);
+  // A real folder of the store only: a link put under docs/ is not followed.
+  let st;
+  try { st = fs.lstatSync(docDir); } catch { return false; }
+  if (!st.isDirectory()) return false;
   fs.rmSync(docDir, { recursive: true, force: true });
   const idxPath = path.join(kgRoot, 'index.jsonl');
   if (fs.existsSync(idxPath)) {
@@ -335,7 +367,7 @@ function removeDoc(kgRoot, docId) {
       if (!s) return false;
       try { return JSON.parse(s).docId !== docId; } catch { return false; }
     });
-    fs.writeFileSync(idxPath, kept.length ? kept.join('\n') + '\n' : '', 'utf8');
+    fs.writeFileSync(idxPath, kept.length ? kept.join('\n') + '\n' : '', OWNER_ONLY);
   }
   return true;
 }

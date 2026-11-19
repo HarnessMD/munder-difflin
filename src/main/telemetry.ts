@@ -442,7 +442,7 @@ export class TelemetryCollector {
     const sessionId = this.resolveSessionId?.(agentId);
     if (!sessionId) return null;
     const u = readAgentUsage(cwd, { sessionId });
-    if (!u.inputTokens && !u.outputTokens && !u.cacheReadTokens && !u.cacheWriteTokens) return null;
+    if (!u || (!u.inputTokens && !u.outputTokens && !u.cacheReadTokens && !u.cacheWriteTokens)) return null;
     return {
       agentId,
       sessionId: '',

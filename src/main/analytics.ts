@@ -410,9 +410,12 @@ export function writeVersionStamp(stateDir: string, version: string): void {
  *  install quietly did nothing is exactly the user who then reaches for manual,
  *  and crediting that install to `auto` would flatter the path that failed.
  *  The log is read only to derive the closed enum below — no line, path or
- *  message from it is ever sent, and updater.ts is not modified to support this
- *  (`test/update-applied.test.cjs` asserts the two literals still match, so a
- *  future reword fails the suite instead of silently degrading the metric).
+ *  message from it is ever sent.
+ *
+ *  Since 0.6.0 the updater only gives notice: releases are source only and
+ *  people build the new version themselves. updater.ts no longer writes any of
+ *  these lines, so every later move reads as `manual`, which is what it is.
+ *  The matching stays so a log an older build wrote is still read correctly.
  */
 const LOG_FILE = 'updater.log';
 const LOG_DOWNLOADED = 'update downloaded: ';

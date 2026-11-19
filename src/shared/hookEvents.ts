@@ -7,9 +7,14 @@ export interface HookEvent {
   source?: string;
   message?: string;
   blocked?: boolean;
+  /** UserPromptSubmit only: the last 48 characters of the prompt, whitespace
+   *  and pasted content tags removed (promptTail). Lets a queued message marked
+   *  stuck be released when its proof arrives late (autosend, 0.5.5). Never
+   *  the prompt itself. */
+  promptTail?: string;
 }
 
-const OPTIONAL_STRING_FIELDS = ['tool', 'notificationType', 'source', 'message'] as const;
+const OPTIONAL_STRING_FIELDS = ['tool', 'notificationType', 'source', 'message', 'promptTail'] as const;
 
 /** Validate an untrusted payload before it crosses the Electron IPC boundary. */
 export function validateHookEvent(value: unknown): value is HookEvent {
