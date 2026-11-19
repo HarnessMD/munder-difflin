@@ -37,17 +37,12 @@ import {
   bridgeOf,
   type AgentProvider
 } from '../shared/agentProvider';
-import { MCP_CATALOG } from '../shared/mcpCatalog';
+import { MCP_CATALOG, mcpConsentRecord, resolveMcpEnablement, type McpConsentInput } from '../shared/mcpCatalog';
 import { selectBroadcastTargets } from '../shared/broadcast';
 import { preferredAgentRole } from '../shared/agentRole';
 import { mergeTaskLedger } from '../shared/taskLedger';
 import { expandTilde } from './fs';
 import { resolveGodName } from '../shared/godIdentity';
-
-/** The subset of HarnessConfig the hive consumes for the default-MCP merge.
- *  Kept as a local shape so hive.ts never imports the foundation-owned config
- *  module just for a type. */
-type McpDefaultsMap = { [id: string]: { enabled: boolean } } | undefined;
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -722,9 +717,12 @@ export class HiveManager {
        *  old env-var spelling. */
       kgCliPath?: string;
       theme?: 'light' | 'dark';
-      /** Consent state for the default-MCP bundle (W3). Threaded from the live
-       *  HarnessConfig by the caller; undefined → catalog defaults apply. */
-      mcpDefaults?: { [id: string]: { enabled: boolean } };
+      /** Stored consent records for the default-MCP bundle (W3), keyed by catalog id —
+       *  the `records` of `getMcpConsentState()`, never the whole HarnessConfig.
+       *    undefined → no stored records: catalog defaults apply (safe ON, write/secret OFF).
+       *    null      → consent state could not be read: fail closed, no default server.
+       *  Values stay untrusted JSON; buildDefaultMcpServers validates each one. */
+      mcpDefaults?: McpConsentInput;
       /** App-resources `skills/` source dir (W3). The bundled read-only skills are
        *  copied into the agent's `.claude/skills/` per spawn; undefined or missing
        *  is a no-op (tolerated until Kevin populates the resource dir). */
@@ -1242,7 +1240,7 @@ export class HiveManager {
     return Array.from(new Set(out));
   }
 
-  private hookSettings(shim: string, cwd: string, cfg: McpDefaultsMap, theme?: 'light' | 'dark', writableDirs: string[] = []): unknown {
+  private hookSettings(shim: string, cwd: string, cfg: McpConsentInput, theme?: 'light' | 'dark', writableDirs: string[] = []): unknown {
     // Bundled node, NOT bare `node` — see nodeLauncherPath(). Claude runs each of
     // these through `sh -c` with a stripped PATH, where `node` is often absent.
     const cmd = this.nodeRun(shim);
@@ -1312,29 +1310,26 @@ export class HiveManager {
    * server only when it's enabled (catalog ∩ consent), scopes filesystem/git to the
    * agent cwd (never whole-disk), and namespaces every id `munder-<id>` so a server
    * of the same name in the user's own ~/.claude is never clobbered. A write/secret
-   * server is included ONLY on an explicit `enabled:true` consent — never via a
+   * server is included ONLY on valid versioned consent — never via a
    * default — so a malformed/partial config can't silently arm a keyed server.
+   * The static type keeps callers honest; the record values are still untrusted
+   * JSON, so mcpConsentRecord/resolveMcpEnablement validate each one at run time
+   * and fail closed even if a caller's static type is wrong.
    */
   private buildDefaultMcpServers(
     cwd: string,
-    cfg: McpDefaultsMap
+    cfg: McpConsentInput
   ): Record<string, { command: string; args: string[]; env?: Record<string, string> }> {
     const out: Record<string, { command: string; args: string[]; env?: Record<string, string> }> = {};
     for (const e of MCP_CATALOG) {
-      const consented = cfg?.[e.id]?.enabled;
-      const enabled = consented ?? e.defaultEnabled;
-      if (!enabled) continue;
-      // Defense-in-depth: a write/secret server requires an EXPLICIT opt-in; it can
-      // never ride in on a default (the catalog already ships these OFF, but this
-      // guards a hand-edited/partial mcpDefaults map too).
-      if (e.tier !== 'safe-readonly' && consented !== true) continue;
+      if (!resolveMcpEnablement(e, mcpConsentRecord(cfg, e.id))) continue;
       // Replace the `<cwd>` placeholder (filesystem/git) with the agent cwd at merge
       // time so these stay strictly workspace-scoped.
       const args = e.spec.args.map((a) => (a === '<cwd>' ? cwd : a));
       out[`munder-${e.id}`] = {
         command: e.spec.command,
         args,
-        ...(e.spec.env ? { env: e.spec.env } : {})
+        ...(e.spec.env ? { env: { ...e.spec.env } } : {})
       };
     }
     return out;

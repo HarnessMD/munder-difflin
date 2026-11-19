@@ -9,7 +9,10 @@ import {
   providerPreset,
   type AgentProvider
 } from '../shared/agentProvider';
-import { defaultMcpDefaults } from '../shared/mcpCatalog';
+import {
+  defaultMcpDefaults, isPlainObject, mcpCatalogEntry, mcpConsentGrant,
+  type McpDefaultsMap, type McpConsentStateResult
+} from '../shared/mcpCatalog';
 import { MAX_AGENT_TOKEN_CAP } from '../shared/tokenCaps';
 import { expandTilde, normalizeHiveHome } from './fs';
 import type { IntegrationRecord } from '../shared/integrations';
@@ -214,7 +217,7 @@ export interface HarnessConfig {
   /** Per-server consent state for the default MCP bundle, keyed by catalog id.
    *  Seeded from MCP_CATALOG (safe-readonly ON, write/secret OFF); the user flips
    *  these in Settings. A server is wired into an agent only when enabled here. */
-  mcpDefaults?: { [id: string]: { enabled: boolean } };
+  mcpDefaults?: McpDefaultsMap;
   /** Enable semantic memory (MemPalace CLI). No-op if mempalace isn't installed. */
   semanticMemory: boolean;
   /** Embedding model for the palace: lightweight 'minilm' or multilingual 'embeddinggemma'. */
@@ -509,6 +512,8 @@ function configPath(): string {
 function withTriggerDefaults(cfg: HarnessConfig): HarnessConfig {
   return {
     ...cfg,
+    // Never hand out the process-wide consent seed by mutable reference.
+    mcpDefaults: cfg.mcpDefaults === DEFAULTS.mcpDefaults ? defaultMcpDefaults() : cfg.mcpDefaults,
     contextTrigger: {
       compact: { ...DEFAULT_CONTEXT_TRIGGER.compact, ...cfg.contextTrigger?.compact },
       clear: { ...DEFAULT_CONTEXT_TRIGGER.clear, ...cfg.contextTrigger?.clear }
@@ -585,15 +590,43 @@ function migrateTriggersV1(cfg: HarnessConfig): HarnessConfig {
   }
 }
 
-export function readConfig(): HarnessConfig {
-  const p = configPath();
-  // No file yet = a first run with nothing to migrate; the defaults ARE the
-  // post-migration shape. Deliberately does not persist — a bare read must not
-  // conjure a config.json before onboarding has written one.
-  if (!existsSync(p)) return withTriggerDefaults({ ...DEFAULTS });
+/** How config.json bytes become text. Both strip a UTF-8 BOM (Windows editors).
+ *  - 'strict'  : any invalid byte is a load failure. Consent reads use this, so a
+ *                damaged file is reported to the user instead of being granted from.
+ *  - 'lenient' : invalid bytes become U+FFFD, the long-standing readConfig behaviour.
+ *                A stray ANSI/GBK byte in an unrelated string (a hand-edited name)
+ *                must not reset every setting on the next unrelated write. U+FFFD can
+ *                only land inside a JSON string, so it can never form an
+ *                `enabled:true` boolean or an integer revision — it cannot widen consent. */
+type ConfigDecoding = 'strict' | 'lenient';
+
+/** undefined = no file yet (first run). Every other failure throws with context:
+ *  I/O errors keep their Node error (errno code intact), parse/shape get a message. */
+function readStoredConfig(decoding: ConfigDecoding): Record<string, unknown> | undefined {
+  let raw: Buffer;
   try {
-    const raw = readFileSync(p, 'utf8');
-    const parsed = JSON.parse(raw);
+    raw = readFileSync(configPath());
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
+    throw error;
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(new TextDecoder('utf-8', { fatal: decoding === 'strict' }).decode(raw));
+  } catch {
+    throw new Error(decoding === 'strict'
+      ? 'Cannot load config.json: expected complete, valid UTF-8 JSON'
+      : 'Cannot load config.json: expected complete JSON');
+  }
+  if (!isPlainObject(parsed)) throw new Error('Cannot load config.json: expected an object');
+  return parsed;
+}
+
+export function readConfig(): HarnessConfig {
+  try {
+    const parsed = readStoredConfig('lenient');
+    // First run: no file and no migration write before onboarding.
+    if (parsed === undefined) return withTriggerDefaults({ ...DEFAULTS });
     return normalizeStoredHomes(migrateTriggersV1(withTriggerDefaults({ ...DEFAULTS, ...parsed })));
   } catch {
     return withTriggerDefaults({ ...DEFAULTS });
@@ -667,6 +700,10 @@ function persistConfig(next: HarnessConfig): HarnessConfig {
 }
 
 export function writeConfig(patch: Partial<HarnessConfig>): HarnessConfig {
+  if (!isPlainObject(patch)) throw new Error('invalid config patch');
+  if (Object.hasOwn(patch, 'mcpDefaults')) {
+    throw new Error('MCP consent must be updated with setMcpServerEnabled');
+  }
   const current = readConfig();
   const next: HarnessConfig = { ...current, ...patch };
   // Project INGESTION — a registered repo is typed by hand ("~/dev/foo") as often
@@ -695,6 +732,43 @@ export function writeConfig(patch: Partial<HarnessConfig>): HarnessConfig {
     next.recentHives = recentHives;
   }
   return persistConfig(next);
+}
+
+/** Consent reads cannot use readConfig's forgiving fallback or run migrations.
+ * Keep corrupt files intact and distinguish first install from other I/O errors. */
+function readMcpConsentConfig(): HarnessConfig {
+  const parsed = readStoredConfig('strict');
+  if (parsed === undefined) return withTriggerDefaults({ ...DEFAULTS });
+  if (Object.hasOwn(parsed, 'mcpDefaults') && !isPlainObject(parsed.mcpDefaults)) {
+    throw new Error('Cannot load MCP consent: mcpDefaults must be an object');
+  }
+  return withTriggerDefaults({ ...DEFAULTS, ...parsed });
+}
+
+/** Only the MCP records cross this read boundary, never unrelated credentials.
+ *  Never throws: a failure comes back as `{ ok:false, error }` for the UI to show. */
+export function getMcpConsentState(): McpConsentStateResult {
+  try {
+    return { ok: true, records: readMcpConsentConfig().mcpDefaults ?? defaultMcpDefaults() };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/** Synchronous main-process RMW serializes updates from windows in this process.
+ * Revision is chosen here, never supplied by a renderer snapshot. */
+export function setMcpServerEnabled(catalogId: unknown, enabled: unknown): HarnessConfig {
+  if (typeof catalogId !== 'string' || typeof enabled !== 'boolean') throw new Error('invalid MCP consent update');
+  const entry = mcpCatalogEntry(catalogId);
+  if (!entry) throw new Error('invalid MCP server id');
+  const record = enabled ? mcpConsentGrant(entry) : { enabled: false };
+  if (!record) throw new Error('invalid MCP catalog consent policy');
+  // Throws on an unreadable/corrupt file, so the IPC promise rejects and nothing is written.
+  const current = readMcpConsentConfig();
+  return persistConfig({
+    ...current,
+    mcpDefaults: { ...current.mcpDefaults, [catalogId]: record }
+  });
 }
 
 /** Set or clear one agent's token ceiling against the latest config on disk.

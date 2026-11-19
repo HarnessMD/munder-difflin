@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { HarnessConfig } from '@/store/config';
-import { MCP_CATALOG, type McpTier } from '@shared/mcpCatalog';
+import {
+  MCP_CATALOG, MCP_TIERS, isPlainObject, mcpCatalogEntry, mcpConsentRecord, resolveMcpEnablement, type McpTier
+} from '@shared/mcpCatalog';
 
-export interface McpDefaultsSettingsProps {
-  config: HarnessConfig;
-}
+/** A load failure means the state is unknown and clears once a read succeeds; a save
+ *  failure stays until the user acts, so a background refresh cannot hide it. */
+type McpPanelError = { kind: 'load' | 'save'; message: string };
 
-const TIER_ORDER: McpTier[] = ['safe-readonly', 'write', 'secret'];
+/** 'user': initial load, Refresh, post-save readback — shows loading and resets
+ *  feedback. 'broadcast': another config write happened — revalidate quietly. */
+type RefreshOrigin = 'user' | 'broadcast';
 const TIER_LABEL_KEY: Record<McpTier, string> = {
   'safe-readonly': 'mcpDefaults.tiers.safeReadonly',
   'write': 'mcpDefaults.tiers.write',
@@ -27,24 +30,96 @@ const labelStyle: React.CSSProperties = {
   textTransform: 'uppercase'
 };
 
-export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
+export function McpDefaultsSettings() {
   const { t } = useTranslation();
   const [note, setNote] = useState('');
+  const [error, setError] = useState<McpPanelError | null>(null);
+  const [records, setRecords] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [pending, setPending] = useState<string | null>(null);
+  const saving = useRef(false);
+  const mounted = useRef(false);
+  const readVersion = useRef(0);
 
-  const enabledFor = (id: string): boolean =>
-    config.mcpDefaults?.[id]?.enabled ?? MCP_CATALOG.find((e) => e.id === id)?.defaultEnabled ?? false;
+  const refresh = useCallback(async (origin: RefreshOrigin = 'user') => {
+    const version = ++readVersion.current;
+    // Every config write broadcasts (missions, token caps, theme…). Keep the last
+    // confirmed records and feedback on screen while revalidating in the background.
+    if (origin === 'user') {
+      setLoading(true);
+      setRecords(null);
+      setNote('');
+      setError(null);
+    }
+    try {
+      const state = await window.cth.getMcpConsentState();
+      if (!mounted.current || version !== readVersion.current) return null;
+      if (!state || state.ok !== true || !isPlainObject(state.records)) throw new Error('MCP consent unavailable');
+      setRecords(state.records);
+      if (origin === 'broadcast') setError((current) => (current?.kind === 'load' ? null : current));
+      return state.records;
+    } catch {
+      if (mounted.current && version === readVersion.current) {
+        setRecords(null);
+        setError({ kind: 'load', message: t('mcpDefaults.couldNotLoad') });
+      }
+      return null;
+    } finally {
+      // Also settles a user read that a newer broadcast read superseded.
+      if (mounted.current && version === readVersion.current) setLoading(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    mounted.current = true;
+    let off: (() => void) | undefined;
+    try {
+      off = window.cth.onConfigChanged(() => { void refresh('broadcast'); });
+      void refresh();
+    } catch {
+      setRecords(null);
+      setLoading(false);
+      setError({ kind: 'load', message: t('mcpDefaults.couldNotLoad') });
+    }
+    return () => {
+      mounted.current = false;
+      ++readVersion.current;
+      off?.();
+    };
+  }, [refresh, t]);
 
   const toggle = async (id: string) => {
-    const next = !enabledFor(id);
+    if (saving.current || loading || records === null) return;
+    const entry = mcpCatalogEntry(id);
+    if (!entry) return;
+    const next = !resolveMcpEnablement(entry, mcpConsentRecord(records, id));
+    saving.current = true;
+    setPending(id);
+    setNote('');
+    setError(null);
+    ++readVersion.current;
     try {
-      await window.cth.updateConfig({
-        mcpDefaults: { ...(config.mcpDefaults ?? {}), [id]: { enabled: next } }
-      });
-      setNote(t('mcpDefaults.toggleNote', { id, state: next ? t('common.on') : t('common.off') }));
-      setTimeout(() => setNote(''), 1800);
+      const updated = await window.cth.setMcpServerEnabled(id, next);
+      const savedRecord = mcpConsentRecord(updated?.mcpDefaults, id);
+      if (!isPlainObject(savedRecord) || !Object.hasOwn(savedRecord, 'enabled') || savedRecord.enabled !== next
+        || resolveMcpEnablement(entry, savedRecord) !== next) {
+        throw new Error('MCP consent update was not confirmed');
+      }
+      if (!mounted.current) return;
+      // Read after the save, rather than showing a response snapshot that another
+      // window may already have superseded. A failed read leaves state unknown.
+      const latest = await refresh();
+      if (mounted.current && latest) {
+        const on = resolveMcpEnablement(entry, mcpConsentRecord(latest, id));
+        setNote(t('mcpDefaults.toggleNote', { id, state: on ? t('common.on') : t('common.off') }));
+      }
     } catch {
-      setNote(t('mcpDefaults.couldNotSave'));
-      setTimeout(() => setNote(''), 2000);
+      if (!mounted.current) return;
+      await refresh();
+      if (mounted.current) setError({ kind: 'save', message: t('mcpDefaults.couldNotSave') });
+    } finally {
+      saving.current = false;
+      if (mounted.current) setPending(null);
     }
   };
 
@@ -59,7 +134,7 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
         </span>
       </div>
 
-      {TIER_ORDER.map((tier) => {
+      {MCP_TIERS.map((tier) => {
         const entries = byTier(tier);
         if (entries.length === 0) return null;
         const isConsent = tier !== 'safe-readonly';
@@ -80,7 +155,7 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {entries.map((entry) => {
-                const on = enabledFor(entry.id);
+                const on = resolveMcpEnablement(entry, mcpConsentRecord(records, entry.id));
                 return (
                   <div
                     key={entry.id}
@@ -108,6 +183,8 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
                     </div>
                     <button
                       type="button"
+                      disabled={loading || pending !== null || records === null}
+                      aria-busy={pending === entry.id}
                       onClick={() => { void toggle(entry.id); }}
                       style={{
                         flexShrink: 0,
@@ -125,7 +202,8 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
                         textTransform: 'uppercase'
                       }}
                     >
-                      {on ? t('common.on') : t('common.off')}
+                      {pending === entry.id ? t('common.saving') : loading ? t('mcpDefaults.loading')
+                        : records === null ? t('mcpDefaults.unavailable') : on ? t('common.on') : t('common.off')}
                     </button>
                   </div>
                 );
@@ -135,9 +213,11 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
         );
       })}
 
-      {note && (
-        <span style={{ fontSize: 12, color: 'var(--cth-mint)' }}>{note}</span>
-      )}
+      <button type="button" disabled={loading || pending !== null} onClick={() => { void refresh(); }}>
+        {t('mcpDefaults.refresh')}
+      </button>
+      {error && <span role="alert" style={{ fontSize: 12, color: '#6E1423' }}>{error.message}</span>}
+      {note && <span role="status" style={{ fontSize: 12, color: 'var(--cth-mint)' }}>{note}</span>}
     </div>
   );
 }
