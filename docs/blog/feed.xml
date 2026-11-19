@@ -8,6 +8,30 @@
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
   <entry>
+    <title>Agent Tools Today, 19 Nov 2026: GPT-6.2 Astra and Sol, Gemini 4 Neon and MAI Code 2</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-19/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-19/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 16 to 19 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Amp Alternatives: 5 Picks for the Coding Agent (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/amp-alternatives/" />
+    <id>https://munderdiffl.in/blog/amp-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Amp swapped its Dial for a model selector on 12 Nov 2026. Five Amp alternatives by fit, price and release, checked 19 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Gemini 4 Neon: Price, API and How It Compares (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-neon/" />
+    <id>https://munderdiffl.in/blog/gemini-4-neon/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Gemini 4 Neon came out on 18 Nov 2026: $3 input and $15 output per 1M tokens, the gemini-4-neon model code, where to use it and how it compares.</summary>
+  </entry>
+  <entry>
     <title>GTA 6 Business Ideas: 9 Real Ways to Profit From the Launch, and the AI Agents That Do the Prep</title>
     <link href="https://munderdiffl.in/blog/gta-6-business-ideas/" />
     <id>https://munderdiffl.in/blog/gta-6-business-ideas/</id>
@@ -174,6 +198,14 @@
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>GTA 6 pays nothing in real money; your client work can. What AI agents prepare for freelancers, what stays yours, and a 20 minute approval routine.</summary>
+  </entry>
+  <entry>
+    <title>OpenHands Alternatives: 5 Picks After v1.42.0 (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/openhands-alternatives/" />
+    <id>https://munderdiffl.in/blog/openhands-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>OpenHands ships as Agent Canvas, a control center for coding agents. Five alternatives by licence, release and fit, checked 19 Nov 2026.</summary>
   </entry>
   <entry>
     <title>GPT-6.2 Astra and Sol: Price, Specs and How to Use Them in Codex (Nov 2026)</title>
@@ -454,37 +486,5 @@
     <published>2026-11-10T00:00:00.000Z</published>
     <updated>2026-11-10T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 9 to 10 Nov 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>Claude Fable 5.2: price, fast mode, Mythos 5.2 and when to pick it</title>
-    <link href="https://munderdiffl.in/blog/claude-fable-5-2/" />
-    <id>https://munderdiffl.in/blog/claude-fable-5-2/</id>
-    <published>2026-11-10T00:00:00.000Z</published>
-    <updated>2026-11-10T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Fable 5.2 is Anthropic&#39;s model for the hardest technical work. Its price as of 9 Nov 2026, fast mode, Mythos 5.2 and when to pick it.</summary>
-  </entry>
-  <entry>
-    <title>Claude Sheets, Whiteboards and Data: what launched on 10 Nov 2026</title>
-    <link href="https://munderdiffl.in/blog/claude-sheets-whiteboards-data/" />
-    <id>https://munderdiffl.in/blog/claude-sheets-whiteboards-data/</id>
-    <published>2026-11-10T00:00:00.000Z</published>
-    <updated>2026-11-10T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Claude Sheets and Whiteboards launched in beta on 10 Nov 2026 and Dashboards became Claude Data. What each does, which plans get it, admin defaults.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 9 Nov 2026: Orca Git Graph, Goodbye Claude for Pi, Goldman Pulls Claude Code</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-09/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-09/</id>
-    <published>2026-11-09T00:00:00.000Z</published>
-    <updated>2026-11-09T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 8 to 9 Nov 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>AionUi Alternatives: 5 Apps for Running Teams of AI Agents (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/aionui-alternatives/" />
-    <id>https://munderdiffl.in/blog/aionui-alternatives/</id>
-    <published>2026-11-09T00:00:00.000Z</published>
-    <updated>2026-11-09T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>AionUi is a free Apache 2.0 desktop app over Claude Code, Codex and 20+ agent CLIs. Five alternatives, from Orca to Paperclip, checked 9 Nov 2026.</summary>
   </entry>
 </feed>

@@ -26,6 +26,8 @@ The best Codex alternatives, checked 26 Oct 2026: Claude Code for the same kind 
 
 <figure class="mg" data-scene="signpost"><img src="/blog/assets/media/codex-alternatives/signpost.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a tall white signpost with a grey top board labelled Codex turns slowly while seven blue arrow boards slide out one by one, labelled Claude Code, Munder Difflin, Copilot CLI, OpenCode, Goose, Cline and Cursor."><figcaption>Seven Codex alternatives, each checked on its own page or GitHub on 26 Oct 2026.</figcaption></figure>
 
+If you are weighing Amp rather than Codex, our [Amp alternatives](/blog/amp-alternatives/) list compares five picks, checked 19 Nov 2026.
+
 New to Codex itself? Start with [what is Codex](/blog/what-is-codex/). This list sits in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## Why look for a Codex alternative?

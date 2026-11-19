@@ -27,6 +27,8 @@ Gemini 4 Carbon is Google's new frontier model, open since [10 Nov 2026](https:/
 
 On 12 Nov 2026 Google added [Gemini 4 Hydrogen](/blog/gemini-4-hydrogen/), which it calls its daily driver for agentic workflows.
 
+On 18 Nov 2026 Google added [Gemini 4 Neon](/blog/gemini-4-neon/), which its [developer guide](https://ai.google.dev/gemini-api/docs/whats-new-gemini-4-neon) places between Hydrogen and Carbon.
+
 New models end up inside the agents you run. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs engines such as Claude Code, Codex and Gemini CLI. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Concepts hub](/blog/topics/concepts/) explains the terms.
 
 ## What is Gemini 4 Carbon?
