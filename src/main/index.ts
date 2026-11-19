@@ -65,6 +65,7 @@ import { RosterStore } from './roster';
 import { buildWorkerLaunch } from './workerLaunch';
 import { ControlRegistry } from './control';
 import { WorkerWakeWatchdog, WORKER_WAKE_REPORT_MS, activityEvidenceAt, type WorkerWakeFacts } from './workerWake';
+import { deliverNudge } from './nudgeDelivery';
 import { inboxNudgeText } from '../shared/hiveNudge';
 import { resolveGodName } from '../shared/godIdentity';
 import { fetchHireManifest, readHireManifestFiles } from './hire';
@@ -5174,22 +5175,23 @@ const HOOK_HEALTH_MS = 15_000;
 let workerWakeTimer: ReturnType<typeof setInterval> | null = null;
 let hookHealthTimer: ReturnType<typeof setInterval> | null = null;
 
-/** Type the renderer's guarded nudge into one worker's PTY — text first, Enter a
- *  tick later (the exact submitToPty pattern: a single-chunk write would land the
- *  "\r" inside the input box and never submit). Best-effort + never throws. */
-function nudgeWorker(ptyId: string, ids: string[] = []): void {
-  // Same text the renderer queues (#187's inboxNudgeText), so the two wake paths
-  // produce byte-identical nudges: the queue's one-pending rule recognises either
-  // via isInboxNudge, and a watchdog nudge names its ids so the agent can still
-  // tell "I filed this last turn" from "woken for nothing".
-  const wrote = ptyManager.write(ptyId, inboxNudgeText(ids));
-  if (!wrote.ok) { console.warn(`[worker-wake] write failed for ${ptyId}: ${wrote.error}`); return; }
-  setTimeout(() => {
-    try {
-      const submitted = ptyManager.write(ptyId, '\r');
-      if (!submitted.ok) console.warn(`[worker-wake] submit failed for ${ptyId}: ${submitted.error}`);
-    } catch (e) { console.error('[worker-wake] submit threw:', e); }
-  }, 140);
+/** Type the renderer's guarded nudge into one worker's PTY via deliverNudge —
+ *  text first, then Enter, with an echo-aware wait and Enter-only retries on a
+ *  swallowed Enter (see nudgeDelivery.ts). Same text the renderer queues
+ *  (#187's inboxNudgeText), so the two wake paths produce byte-identical
+ *  nudges: the queue's one-pending rule recognises either via isInboxNudge,
+ *  and a watchdog nudge names its ids so the agent can still tell "I filed
+ *  this last turn" from "woken for nothing". Never throws — a delivery that
+ *  can't confirm just logs 'stuck'/'gave-up' and returns. */
+async function nudgeWorker(ptyId: string, agentId: string, ids: string[] = []): Promise<void> {
+  try {
+    const result = await deliverNudge(ptyId, agentId, inboxNudgeText(ids), {
+      write: (id, data) => ptyManager.write(id, data),
+      lastOutputAt: (id) => ptyManager.lastOutputAt(id) ?? 0,
+      log: (event) => hive.appendLog(event)
+    });
+    if (result === 'stuck') console.warn(`[worker-wake] nudge to ${agentId} on ${ptyId} never confirmed after retries`);
+  } catch (e) { console.error(`[worker-wake] nudge delivery threw for ${agentId}:`, e); }
 }
 
 /** Main-process inbox-wake beat (issue #151, fix A): the renderer's idle nudge
@@ -5252,7 +5254,12 @@ function runWorkerWakeBeat(): void {
     const ids = hive.inbox(agentId).map((m) => m.id).filter(Boolean);
     if (!ids.length) { console.log(`[worker-wake] ${agentId} drained before delivery, skipping`); continue; }
     console.log(`[worker-wake] nudging ${agentId} on ${ptyId} (${ids.length} pending)`);
-    nudgeWorker(ptyId, ids);
+    // Marked synchronously, BEFORE the async delivery starts, so a beat that
+    // fires again while this delivery is still retrying its Enter keystroke
+    // sees 'in-flight' (via workerWake.explain) and holds rather than typing a
+    // second nudge on top of the first one's unconfirmed text.
+    workerWake.markNudging(agentId);
+    nudgeWorker(ptyId, agentId, ids).finally(() => workerWake.clearNudging(agentId));
   }
   // A worker sitting on old mail without a nudge is the failure this watchdog
   // exists for — say WHY it is being held, once per cooldown, so the log can
