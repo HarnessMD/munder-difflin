@@ -4819,6 +4819,24 @@ async function processSpawnRequest(filePath: string): Promise<void> {
     hive.send({ to: workerId, conversation: `worker-${reqId}`, act: 'request', subject: meta.name, body: `${prefix}${objective}${suffix}` }, 'god');
   } catch (e) {
     console.error('[worker] dispatch send failed:', e);
+    // A launched but unbriefed worker is not a successful request. Keep its
+    // WorkerRec until teardown so isolated work uses the existing safety gate.
+    let stopped: { ok: boolean; error?: string };
+    try { stopped = ptyManager.kill(workerId); }
+    catch (stopError) { stopped = { ok: false, error: String(stopError) }; }
+    if (stopped.ok || !ptyManager.list().some(pty => pty.id === workerId)) {
+      try { teardownPty(workerId); }
+      catch (cleanupError) { console.error('[worker] dispatch teardown failed:', cleanupError); }
+      fail(`task dispatch failed for worker "${workerId}"; check for partial delivery or work before retrying`);
+    } else {
+      // A failed kill must not drop tracking and orphan a live process. The
+      // normal stop/reaper can retry; tell god that manual attention is needed.
+      console.error('[worker] dispatch cleanup could not stop worker:', workerId, stopped.error);
+      try { integrationBroker.revoke(workerId); }
+      catch (revokeError) { console.error('[worker] dispatch broker revoke failed:', revokeError); }
+      fail(`task dispatch failed; worker "${workerId}" could not be stopped`);
+    }
+    return;
   }
 
   console.log(`[worker] spawned ${workerId} (cwd=${cwd}, base=${baseBranch}${slack ? ', slack' : ''})`);
