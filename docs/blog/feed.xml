@@ -24,12 +24,28 @@
     <summary>Amp swapped its Dial for a model selector on 12 Nov 2026. Five Amp alternatives by fit, price and release, checked 19 Nov 2026.</summary>
   </entry>
   <entry>
+    <title>Gemini 4 Neon vs Claude Opus 5.5: Price and Limits (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-neon-vs-claude-opus-5-5/" />
+    <id>https://munderdiffl.in/blog/gemini-4-neon-vs-claude-opus-5-5/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Gemini 4 Neon costs $18 for 1M input plus 1M output tokens, Claude Opus 5.5 costs $24. Limits, agent tools and vendor scores, checked 19 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>Gemini 4 Neon: Price, API and How It Compares (Nov 2026)</title>
     <link href="https://munderdiffl.in/blog/gemini-4-neon/" />
     <id>https://munderdiffl.in/blog/gemini-4-neon/</id>
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Gemini 4 Neon came out on 18 Nov 2026: $3 input and $15 output per 1M tokens, the gemini-4-neon model code, where to use it and how it compares.</summary>
+  </entry>
+  <entry>
+    <title>GitHub Copilot CLI Alternatives: 5 Picks Compared (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/github-copilot-cli-alternatives/" />
+    <id>https://munderdiffl.in/blog/github-copilot-cli-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Five GitHub Copilot CLI alternatives, from Claude Code to Qwen Code, with licences, plans and newest releases checked 19 Nov 2026.</summary>
   </entry>
   <entry>
     <title>GTA 6 Business Ideas: 9 Real Ways to Profit From the Launch, and the AI Agents That Do the Prep</title>
@@ -206,6 +222,14 @@
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>OpenHands ships as Agent Canvas, a control center for coding agents. Five alternatives by licence, release and fit, checked 19 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Orca Alternatives: 6 Picks for Parallel Coding Agents (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/orca-alternatives/" />
+    <id>https://munderdiffl.in/blog/orca-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Orca runs coding agents in parallel worktrees, free under MIT. Six Orca alternatives with platforms, licence and price, checked 19 Nov 2026.</summary>
   </entry>
   <entry>
     <title>GPT-6.2 Astra and Sol: Price, Specs and How to Use Them in Codex (Nov 2026)</title>
@@ -462,29 +486,5 @@
     <published>2026-11-11T00:00:00.000Z</published>
     <updated>2026-11-11T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Reason Machines runs coding agents that work beside Claude Code and Codex. Five alternatives, from Devin to Cursor Cloud Agents, checked 11 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Turnstone Alternatives: 5 Tools Like Turnstone for AI Teammates (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/turnstone-alternatives/" />
-    <id>https://munderdiffl.in/blog/turnstone-alternatives/</id>
-    <published>2026-11-11T00:00:00.000Z</published>
-    <updated>2026-11-11T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Turnstone runs AI teammates on the subscriptions you already pay for, on a Mac. Five alternatives, from Claude Cowork to OpenClaw, checked 11 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>What is NVIDIA OpenShell? The agent sandbox, explained</title>
-    <link href="https://munderdiffl.in/blog/what-is-nvidia-openshell/" />
-    <id>https://munderdiffl.in/blog/what-is-nvidia-openshell/</id>
-    <published>2026-11-11T00:00:00.000Z</published>
-    <updated>2026-11-11T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>NVIDIA OpenShell runs AI agents in a sandbox with file, network and credential policy. What it is, how to install it, what v0.1.8 changed, alternatives.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 10 Nov 2026: Claude Fable 5.2, an Opus 5.5 Nerf Thread, Orca&#39;s Phone Agents Tab</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-10/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-10/</id>
-    <published>2026-11-10T00:00:00.000Z</published>
-    <updated>2026-11-10T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 9 to 10 Nov 2026, each with its source and date.</summary>
   </entry>
 </feed>

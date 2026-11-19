@@ -6489,5 +6489,38 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "gemini-4-neon-vs-claude-opus-5-5": {
+    "inline": {},
+    "title": "Gemini 4 Neon vs Claude Opus 5.5: Price and Limits (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-4-neon-vs-claude-opus-5-5/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Gemini 4 Neon vs Claude Opus 5.5, the line Price, limits and scores and a Checked 19 Nov 2026 line. A sky card reading Gemini 4 Neon $18.00 and a lilac card reading Claude Opus 5.5 $24.00 slide in side by side above a small label, 1M input plus 1M output.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-4-neon-vs-claude-opus-5-5/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "orca-alternatives": {
+    "inline": {},
+    "title": "Orca Alternatives: 6 Picks for Parallel Coding Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/orca-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Orca alternatives, the line 6 picks for parallel coding agents and a Checked 19 Nov 2026 line. Tiles named T3 Code, Munder Difflin, Emdash, Paradev, Herdr and Conductor slide in under a soft Orca tile.",
+      "prompt": "Title card: the hero scene in assets/media/orca-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "github-copilot-cli-alternatives": {
+    "inline": {},
+    "title": "GitHub Copilot CLI Alternatives: 5 Picks Compared (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/github-copilot-cli-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title GitHub Copilot CLI alternatives, the line 5 picks for the terminal agent and a Checked 19 Nov 2026 line. Tiles named Claude Code, Munder Difflin, Codex CLI, OpenCode and Qwen Code slide in under a soft Copilot CLI tile.",
+      "prompt": "Title card: the hero scene in assets/media/github-copilot-cli-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
