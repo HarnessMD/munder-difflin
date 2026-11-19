@@ -118,3 +118,54 @@ test('the release-drop iframe also falls through to a system CJK face', () => {
     assert.match(stack, /Geeza Pro|Noto Naskh Arabic/);
   }
 });
+
+// --- glyph coverage ---------------------------------------------------------
+
+/** Code points the woff2's cmap maps. cmap is never transformed in woff2, so it
+ *  can be cut straight out of the brotli stream; only format 4 is read. */
+function woff2Codepoints(file) {
+  const zlib = require('node:zlib');
+  const buf = fs.readFileSync(file);
+  const numTables = buf.readUInt16BE(12);
+  const base128 = () => {
+    let v = 0;
+    for (;;) { const b = buf[off++]; v = v * 128 + (b & 0x7f); if (!(b & 0x80)) return v; }
+  };
+  const KNOWN = ['cmap', 'head', 'hhea', 'hmtx', 'maxp', 'name', 'OS/2', 'post', 'cvt ', 'fpgm', 'glyf', 'loca', 'prep'];
+  let off = 48, at = 0, cmap = null;
+  for (let i = 0; i < numTables; i++) {
+    const flags = buf[off++];
+    const tag = (flags & 63) === 63 ? buf.toString('latin1', off, (off += 4)) : KNOWN[flags & 63];
+    const length = base128();
+    const version = flags >> 6;
+    const transformed = tag === 'glyf' || tag === 'loca' ? version !== 3 : version !== 0;
+    const stored = transformed ? base128() : length;
+    if (tag === 'cmap') cmap = [at, length];
+    at += stored;
+  }
+  const data = zlib.brotliDecompressSync(buf.subarray(off)).subarray(cmap[0], cmap[0] + cmap[1]);
+  const out = new Set();
+  for (let i = 0, n = data.readUInt16BE(2); i < n; i++) {
+    const sub = data.readUInt32BE(4 + i * 8 + 4);
+    if (data.readUInt16BE(sub) !== 4) continue;
+    const segs = data.readUInt16BE(sub + 6) / 2;
+    const ends = sub + 14, starts = ends + segs * 2 + 2, deltas = starts + segs * 2, ranges = deltas + segs * 2;
+    for (let s = 0; s < segs; s++) {
+      const end = data.readUInt16BE(ends + s * 2), start = data.readUInt16BE(starts + s * 2);
+      for (let c = start; c <= end && c !== 0xffff; c++) {
+        const ro = data.readUInt16BE(ranges + s * 2);
+        const g = ro ? data.readUInt16BE(ranges + s * 2 + ro + (c - start) * 2) : 1;
+        if (g) out.add(c);
+      }
+    }
+  }
+  return out;
+}
+
+test('the pixel face carries every Turkish letter', () => {
+  // Press Start 2P sets the section headings. Without İ Ğ ğ Ş ş in the file the
+  // tr locale fell back per glyph to a CJK face: "DİL" read "D:L".
+  const cps = woff2Codepoints(path.join(root, FONT_DIR, 'press-start-2p-latin-400.woff2'));
+  for (const ch of 'İıĞğŞşÇçÖöÜü') assert.ok(cps.has(ch.codePointAt(0)), `Press Start 2P has no ${ch}`);
+  assert.ok(cps.has(0x41) && cps.has(0x7a), 'cmap parse looks wrong: no A or z');
+});

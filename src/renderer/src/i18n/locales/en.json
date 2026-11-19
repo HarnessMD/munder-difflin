@@ -1405,5 +1405,45 @@
     "viewSource": "view source",
     "loading": "loading image…",
     "decodeFailed": "could not decode this image — the file may be corrupt or misnamed"
+  },
+  "demoFloor": {
+    "headingTo": {
+      "shelf": "heading to shelf",
+      "terminal": "heading to terminal",
+      "web": "heading to web",
+      "board": "heading to board",
+      "mailbox": "heading to mailbox",
+      "mcp": "heading to mcp",
+      "desk": "heading to desk"
+    },
+    "headingBackToDesk": "heading back to desk",
+    "awaiting": "awaiting",
+    "doneWhatNext": "Done with that one. What next?",
+    "samples": {
+      "read": {
+        "what": "reading SPEC.md",
+        "thought": "Pulling up the spec so I can confirm the state machine before touching the implementation."
+      },
+      "edit": {
+        "what": "editing PixelPanel.tsx",
+        "thought": "Tightening up the panel border math — the inner stroke was a pixel off in inset mode."
+      },
+      "bash": {
+        "what": "running tests",
+        "thought": "Running the renderer suite to make sure nothing regressed before I move on."
+      },
+      "webFetch": {
+        "what": "fetching docs",
+        "thought": "Grabbing the hooks doc to double-check the PreToolUse payload shape — my memory of the field names is hazy."
+      },
+      "glob": {
+        "what": "searching for skill files",
+        "thought": "Enumerating all the skill files so I can walk each one and look for stale script paths."
+      },
+      "todoWrite": {
+        "what": "updating the todo board",
+        "thought": "Splitting the remaining work into four discrete tasks so I can track them as I go."
+      }
+    }
   }
 }
