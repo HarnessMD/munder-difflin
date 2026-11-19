@@ -9,6 +9,8 @@ const {
   isStaleTerminalDraft,
   opensInteractiveTerminalUi,
   shouldFollowTerminalOutput,
+  scrollbackRestoreLine,
+  SCROLLBACK_CLEAR_RESTORE_MS,
   terminalAutomationBlock,
   isStaleTerminalPicker,
   STALE_INPUT_MS,
@@ -119,4 +121,16 @@ test('terminal output follows only when already at the bottom', () => {
   assert.equal(shouldFollowTerminalOutput(100, 100), true);
   assert.equal(shouldFollowTerminalOutput(99, 100), true);
   assert.equal(shouldFollowTerminalOutput(80, 100), false);
+});
+
+test('a reader scrolled up when the scrollback is cleared is put back where they were', () => {
+  const anchor = { viewportY: 950, baseY: 1000 };
+  // Redraw still refilling: same distance above the bottom.
+  assert.deepEqual(scrollbackRestoreLine(400, anchor), { line: 350, done: false });
+  // Less reprinted than the reader had scrolled past: nearest text left is line 0.
+  assert.deepEqual(scrollbackRestoreLine(30, anchor), { line: 0, done: false });
+  // Buffer back to its old length (a full reprint): the exact old line, then stop.
+  assert.deepEqual(scrollbackRestoreLine(1000, anchor), { line: 950, done: true });
+  assert.deepEqual(scrollbackRestoreLine(1006, anchor), { line: 950, done: true });
+  assert.ok(SCROLLBACK_CLEAR_RESTORE_MS > 0);
 });

@@ -35,6 +35,32 @@ export function shouldFollowTerminalOutput(viewportY: number, baseY: number): bo
   return baseY - viewportY <= 1;
 }
 
+/** How long after a program clears the scrollback (CSI 3 J) we keep re-pinning
+ * a scrolled-up reader at the same distance from the bottom. A full-screen
+ * redraw (clear screen + clear scrollback + home, then the whole transcript
+ * again) arrives as several pty chunks; once it has landed, new output must
+ * stop dragging the reader along. */
+export const SCROLLBACK_CLEAR_RESTORE_MS = 250;
+
+/** Where a scrolled-up reader was when the program cleared the scrollback. */
+export interface ScrollbackClearAnchor {
+  viewportY: number;
+  baseY: number;
+}
+
+/** The viewport line that puts a reader back where they were after the program
+ * cleared the scrollback (CSI 3 J). xterm clamps a scrolled-up viewport to line
+ * 0 and leaves it there while the redraw refills the buffer, which is the
+ * "jumps to the top" bug. While the redraw is still refilling, keep the reader
+ * the same distance above the bottom; once the buffer is back to its old length
+ * the old line holds the same text again, so return to it exactly (`done`). A
+ * redraw that reprints less than the reader had scrolled past lands on line 0,
+ * the nearest text still there. */
+export function scrollbackRestoreLine(baseY: number, anchor: ScrollbackClearAnchor): { line: number; done: boolean } {
+  if (baseY >= anchor.baseY) return { line: Math.max(0, anchor.viewportY), done: true };
+  return { line: Math.max(0, baseY - Math.max(0, anchor.baseY - anchor.viewportY)), done: false };
+}
+
 /** How long an untouched draft on the prompt keeps blocking queue delivery.
  *
  * The block exists so automation can't fuse its text onto a half-written line.
