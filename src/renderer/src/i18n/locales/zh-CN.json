@@ -1405,5 +1405,13 @@
     "viewSource": "查看源码",
     "loading": "正在加载图片…",
     "decodeFailed": "无法解码此图片——文件可能已损坏或扩展名有误"
+  },
+  "markdownImage": {
+    "untitled": "图片",
+    "notImage": "不是支持的图片格式",
+    "malformedEncoding": "路径含有无效的 % 编码",
+    "unsafeSegment": "路径中编码了分隔符或 ..",
+    "loading": "加载中",
+    "decodeFailed": "无法解码"
   }
 }

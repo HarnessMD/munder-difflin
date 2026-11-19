@@ -8,7 +8,7 @@ import { MonacoDiff } from './MonacoDiff';
 import { ImagePreview } from './ImagePreview';
 import { MarkdownPreview } from '@/markdown/MarkdownPreview';
 import { HistoryPane, ComparePane } from './GitPanes';
-import { isImagePath, isSvgPath } from '@shared/imageTypes';
+import { isImageDiskPath, isSvgDiskPath } from '@shared/imageTypes';
 import { ideBarStyle, ideIconBtn as iconBtn, ideTextBtn as textBtn } from './chrome';
 
 // v0.3.4 markdown preview: per-md-tab view mode, defaulted from the last choice.
@@ -203,7 +203,7 @@ export function IdePanel() {
    *  SVG has no null bytes and so used to open as unhighlighted plaintext — it
    *  is a picture first here too, with `view source` one click away. */
   const openEdit = useCallback((rel: string) => {
-    if (isImagePath(rel)) { openTab('image', rel); return; }
+    if (isImageDiskPath(rel)) { openTab('image', rel); return; }
     openSource(rel);
   }, [openSource, openTab]);
 
@@ -639,7 +639,7 @@ export function IdePanel() {
                   root={root}
                   rel={activeTab.rel}
                   onCopyPath={() => copyAbs(activeTab.rel)}
-                  onViewSource={isSvgPath(activeTab.rel) ? () => openSource(activeTab.rel) : undefined}
+                  onViewSource={isSvgDiskPath(activeTab.rel) ? () => openSource(activeTab.rel) : undefined}
                 />
               )}
 
@@ -660,7 +660,7 @@ export function IdePanel() {
                       mdView={md ? view : undefined}
                       onMdView={md ? (v) => setMdView(activeTab.rel, v) : undefined}
                       // The return leg of the SVG round trip: source ⇄ picture.
-                      onViewImage={isImagePath(activeTab.rel) ? () => openTab('image', activeTab.rel) : undefined}
+                      onViewImage={isImageDiskPath(activeTab.rel) ? () => openTab('image', activeTab.rel) : undefined}
                     />
                     <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
                       {view !== 'preview' && (

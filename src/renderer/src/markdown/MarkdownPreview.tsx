@@ -14,10 +14,11 @@
  * (IDE tab / overlay) opens them in context; everything else is inert.
  */
 import { memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useWorkspaceImage } from '@/hooks/useWorkspaceImage';
-import { isExternal, isRelativeMd, resolveLocalImageRel, resolveRel } from './mdLinks';
+import { isExternal, resolveLocalImageSource, resolveMdLinkRel, type LocalImageRejectReason } from './mdLinks';
 import { remarkSoftBreaks } from './remarkSoftBreaks';
 import { rehypeAutoDir } from './rehypeAutoDir';
 import { useRtl } from '@/i18n/useDirection';
@@ -39,6 +40,18 @@ const CARD_PLUGINS = [remarkGfm, remarkSoftBreaks];
  *  stable and react-markdown does not re-run the pipeline on every render. */
 const AUTO_DIR_PLUGINS = [rehypeAutoDir];
 const NO_PLUGINS: never[] = [];
+
+/** Chip note (i18n key) for each reason a local image was not loaded. `null`
+ *  keeps the chip as quiet as it always was: a remote URL is not a mistake the
+ *  author made, it is a policy. A Record, so a new reason fails the typecheck
+ *  here until someone decides what the user should see for it. */
+const IMAGE_REJECT_NOTE_KEY: Readonly<Record<LocalImageRejectReason, string | null>> = {
+  empty: null,
+  remote: null,
+  'not-image': 'markdownImage.notImage',
+  'malformed-encoding': 'markdownImage.malformedEncoding',
+  'unsafe-segment': 'markdownImage.unsafeSegment'
+};
 
 export interface MarkdownPreviewProps {
   source: string;
@@ -67,6 +80,7 @@ export const MarkdownPreview = memo(function MarkdownPreview({
   // means an English user's markdown renders through exactly the pipeline it
   // rendered through before this existed, whatever the agent writes into it.
   const rtl = useRtl();
+  const { t } = useTranslation();
   return (
     <div className={card ? 'cth-md-preview cth-md-card' : 'cth-md-preview'}>
       <ReactMarkdown
@@ -75,15 +89,16 @@ export const MarkdownPreview = memo(function MarkdownPreview({
         components={{
           a: ({ href, children }) => {
             const h = href ?? '';
+            // Decoded like an image src, so `[x](<my notes.md>)` opens
+            // `my notes.md`; a malformed escape resolves to null and stays inert.
+            const mdRel = onOpenMarkdownLink ? resolveMdLinkRel(baseRel, h) : null;
             const onClick = (e: React.MouseEvent) => {
               e.preventDefault();
               if (isExternal(h)) { void window.cth.openExternal?.(h); return; }
-              if (isRelativeMd(h) && onOpenMarkdownLink) {
-                onOpenMarkdownLink(resolveRel(baseRel, h.replace(/#.*$/, '')));
-              }
+              if (mdRel && onOpenMarkdownLink) onOpenMarkdownLink(mdRel);
               // anything else (file:, anchors into self, unknown schemes): inert
             };
-            const clickable = isExternal(h) || (isRelativeMd(h) && !!onOpenMarkdownLink);
+            const clickable = isExternal(h) || mdRel !== null;
             return (
               <a
                 href={h || undefined}
@@ -102,9 +117,13 @@ export const MarkdownPreview = memo(function MarkdownPreview({
           // evidence was unviewable anywhere in the app.
           img: ({ alt, src }) => {
             const s = typeof src === 'string' ? src : undefined;
-            const rel = root ? resolveLocalImageRel(baseRel, s) : null;
-            if (!root || !rel) return <ImageChip alt={alt} src={s} />;
-            return <MdImage root={root} rel={rel} alt={alt} src={s} />;
+            if (!root) return <ImageChip alt={alt} src={s} />;
+            const source = resolveLocalImageSource(baseRel, s);
+            if (!source.ok) {
+              const noteKey = IMAGE_REJECT_NOTE_KEY[source.reason];
+              return <ImageChip alt={alt} src={s} note={noteKey ? t(noteKey) : undefined} />;
+            }
+            return <MdImage root={root} rel={source.rel} alt={alt} src={s} />;
           }
         }}
       >
@@ -117,9 +136,10 @@ export const MarkdownPreview = memo(function MarkdownPreview({
 /** Fallback for anything we won't (or can't) load: remote URLs, non-images,
  *  and local files that turned out to be missing or undecodable. */
 function ImageChip({ alt, src, note }: { alt?: string; src?: string; note?: string }) {
+  const { t } = useTranslation();
   return (
     <span className="cth-md-img" title={src}>
-      🖼 {alt || 'image'}{note ? ` — ${note}` : ''}
+      🖼 {alt || t('markdownImage.untitled')}{note ? ` — ${note}` : ''}
     </span>
   );
 }
@@ -128,11 +148,12 @@ function ImageChip({ alt, src, note }: { alt?: string; src?: string; note?: stri
  *  failure so a stale path in a report degrades to the old behaviour instead of
  *  a broken-image glyph. Blob lifetime (create AND revoke) belongs to the hook. */
 function MdImage({ root, rel, alt, src }: { root: string; rel: string; alt?: string; src?: string }) {
+  const { t } = useTranslation();
   const img = useWorkspaceImage(root, rel);
   const [decodeFailed, setDecodeFailed] = useState(false);
-  if (img.status === 'loading') return <ImageChip alt={alt} src={src} note="loading" />;
+  if (img.status === 'loading') return <ImageChip alt={alt} src={src} note={t('markdownImage.loading')} />;
   if (img.status === 'error') return <ImageChip alt={alt} src={src} note={img.error} />;
-  if (decodeFailed) return <ImageChip alt={alt} src={src} note="could not decode" />;
+  if (decodeFailed) return <ImageChip alt={alt} src={src} note={t('markdownImage.decodeFailed')} />;
   return (
     <img
       className="cth-md-image"

@@ -18,7 +18,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/Icon';
 import { useWorkspaceImage } from '@/hooks/useWorkspaceImage';
-import { formatBytes, isSvgPath } from '@shared/imageTypes';
+import { formatBytes } from '@shared/imageTypes';
 import { ideBarStyle, ideTextBtn } from './chrome';
 
 export interface ImagePreviewProps {

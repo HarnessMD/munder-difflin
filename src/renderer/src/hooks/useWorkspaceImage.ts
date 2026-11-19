@@ -31,6 +31,27 @@ export type WorkspaceImageState =
   | { status: 'ready'; url: string; mime: string; size: number }
   | { status: 'error'; error: string };
 
+/** What one `fs:readBinary` round trip settles to. */
+export type WorkspaceImageRead = Awaited<ReturnType<Window['cth']['readBinary']>>;
+
+/**
+ * Run one image read so that EVERY failure comes back as `{ ok: false, error }`
+ * — never as a throw.
+ *
+ * A trailing `.catch()` only sees a REJECTED promise. A read that throws while
+ * being CALLED (the preload bridge missing, or throwing before it returns a
+ * promise) escapes it, and inside an effect that exception unmounts the whole
+ * preview through the error boundary instead of turning one image into a chip.
+ * Taking a thunk puts the call itself inside the `try`.
+ */
+export async function settleImageRead(read: () => Promise<WorkspaceImageRead>): Promise<WorkspaceImageRead> {
+  try {
+    return await read();
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 export function useWorkspaceImage(
   root: string | null | undefined,
   rel: string | null | undefined
@@ -46,7 +67,7 @@ export function useWorkspaceImage(
     let created: string | null = null;
     setState({ status: 'loading' });
 
-    void window.cth.readBinary(root, rel).then((res) => {
+    void settleImageRead(() => window.cth.readBinary(root, rel)).then((res) => {
       // Bail BEFORE creating the URL when the consumer already unmounted — a URL
       // created after cleanup has run would never be revoked by anyone.
       if (!alive) return;

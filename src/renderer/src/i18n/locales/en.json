@@ -1405,5 +1405,13 @@
     "viewSource": "view source",
     "loading": "loading image…",
     "decodeFailed": "could not decode this image — the file may be corrupt or misnamed"
+  },
+  "markdownImage": {
+    "untitled": "image",
+    "notImage": "not a supported image type",
+    "malformedEncoding": "the path has an invalid % escape",
+    "unsafeSegment": "the path encodes a separator or ..",
+    "loading": "loading",
+    "decodeFailed": "could not decode"
   }
 }
