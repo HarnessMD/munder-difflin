@@ -7,6 +7,7 @@ import { Icon } from './Icon';
 import { useStore } from '@/store/store';
 import { MarkdownPreview } from '@/markdown/MarkdownPreview';
 import { useRtl } from '@/i18n/useDirection';
+import { openQuestion as openQuestionShared } from '@shared/humanQuestion';
 
 /** A card on the task kanban. Mirrors HiveTask in the main/preload process —
  *  re-declared locally so the renderer doesn't reach into the preload package
@@ -20,6 +21,11 @@ export interface HumanQA {
    *  answering — the question stays on the card (history is preserved) but
    *  openQuestion() stops returning it, so the card leaves ASK ME. */
   dismissedAt?: string;
+  /** Ask Me options as the god wrote them (validated where shown: normalizeHumanQA). */
+  options?: unknown[];
+  recommended?: number;
+  multi?: boolean;
+  chosen?: number[];
 }
 
 export interface HiveTask {
@@ -36,15 +42,11 @@ export interface HiveTask {
   humanQA?: HumanQA[];
 }
 
-/** The card's currently open question for the human, if any. An entry the human
- *  dismissed (dismissedAt) counts as resolved, same as an answered one. */
+/** The card's currently open question for the human, if any: the shared rule
+ *  (entryClosed), so main and every surface agree. An answer with text or a
+ *  dismissal closes an entry; a done card asks nothing. */
 export function openQuestion(t: HiveTask): HumanQA | undefined {
-  if (!Array.isArray(t.humanQA)) return undefined;
-  for (let i = t.humanQA.length - 1; i >= 0; i--) {
-    const e = t.humanQA[i];
-    if (e && typeof e.q === 'string' && !e.a && !e.dismissedAt) return e;
-  }
-  return undefined;
+  return openQuestionShared(t);
 }
 
 /** Waiting on the human = blocked with an unanswered question on the card. */
@@ -105,7 +107,12 @@ export function parseTasks(raw: unknown): HiveTask[] {
             answeredAt: typeof e.answeredAt === 'string' ? e.answeredAt : undefined,
             // Preserve a dismissal across the 5s re-parse, else the card would
             // resurface on the next poll (openQuestion would see it as open).
-            dismissedAt: typeof e.dismissedAt === 'string' ? e.dismissedAt : undefined
+            dismissedAt: typeof e.dismissedAt === 'string' ? e.dismissedAt : undefined,
+            // Ask Me options survive the re-parse, so a card names the question as shown.
+            ...(Array.isArray(e.options) ? { options: e.options as unknown[] } : {}),
+            ...(typeof e.recommended === 'number' ? { recommended: e.recommended } : {}),
+            ...(e.multi === true ? { multi: true } : {}),
+            ...(Array.isArray(e.chosen) ? { chosen: (e.chosen as unknown[]).filter((n): n is number => typeof n === 'number') } : {})
           }))
         : undefined
     }));

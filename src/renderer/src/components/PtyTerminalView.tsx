@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import '@xterm/xterm/css/xterm.css';
 import { Icon } from './Icon';
-import { acquireTerminal, attachTerminal, detachTerminal, reflowTerminal } from './terminalPool';
+import { CodexHoldPane } from './CodexHoldCard';
+import { acquireTerminal, attachTerminal, detachTerminal, reflowTerminal, requestPtyResize } from './terminalPool';
 import {
   DEFAULT_TERMINAL_FONT_SIZE,
   MAX_TERMINAL_FONT_SIZE,
@@ -178,7 +179,7 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
         // 60ms, 240ms, font-load) used to stack the boot banner three times
         // before the user ever typed anything.
         if (entry.term.cols !== before.cols || entry.term.rows !== before.rows) {
-          window.cth.resizePty(ptyId, entry.term.cols, entry.term.rows);
+          requestPtyResize(ptyId, before, { cols: entry.term.cols, rows: entry.term.rows });
         }
         entry.term.refresh(0, Math.max(0, entry.term.rows - 1));
         initialFitDone = true;
@@ -283,8 +284,9 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
     const entry = acquireTerminal(ptyId, THEMES[ptyThemeRef.current], fontSize);
     entry.term.options.fontSize = fontSize;
     try {
+      const before = { cols: entry.term.cols, rows: entry.term.rows };
       entry.fit.fit();
-      window.cth.resizePty(ptyId, entry.term.cols, entry.term.rows);
+      requestPtyResize(ptyId, before, { cols: entry.term.cols, rows: entry.term.rows });
     } catch { /* host may not be sized yet */ }
   }, [fontSize, ptyId]);
 
@@ -410,10 +412,14 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
           )}
         </div>
       </div>
-      <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
-        flex: 1, minHeight: 0,
-        padding: embedded ? '0 8px 8px' : 0
-      }} />
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
+          flex: 1, minHeight: 0,
+          padding: embedded ? '0 8px 8px' : 0
+        }} />
+        {/* A Codex start main held: the folder's OK, over this agent's terminal (Pam's P8) */}
+        <CodexHoldPane ptyId={ptyId} />
+      </div>
     </div>
   );
 }

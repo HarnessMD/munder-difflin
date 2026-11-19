@@ -35,3 +35,15 @@ reading old commits or an old copy of this file, that is the change you are look
 `maps/office.tmj` and `maps/brooklyn99.tmj` are Tiled JSON maps built on the LimeZu tilesets
 above. Both are imported by `themeRegistry.ts`; a map that nothing imports is not shipped, and
 should be deleted rather than left to imply an asset is in use.
+
+## Star Hike floor art (Prozzta, licensed)
+
+The second floor, Star Hike, lives outside this directory, in [`themes/starhike`](../../../../themes/starhike).
+Its art (`art/*.png`: the crew sheet and three tilesets) and its map (`map/`) are **Artwork by
+Prozzta** (<https://github.com/Prozzta/guppyos>), used under the pack's own licence,
+[`themes/starhike/LICENSE-ARTWORK.md`](../../../../themes/starhike/LICENSE-ARTWORK.md), kept verbatim:
+
+- ✅ May be **edited and used in any commercial or non-commercial project**, and shipped inside one.
+- ❌ May not be resold or distributed as art by itself, edited or not.
+- ⚠️ **Credits are required**: "Artwork by Prozzta", with a link to <https://github.com/Prozzta/guppyos>.
+  The pack's `theme.json` carries that credit, and the theme picker shows it with the floor.

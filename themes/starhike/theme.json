@@ -1,0 +1,409 @@
+{
+ "$comment": "Star Hike bridge pack. Data only: the map, art and crew lines of the stations floor. Artwork by Prozzta, https://github.com/Prozzta/guppyos, under LICENSE-ARTWORK.md.",
+ "schema": 1,
+ "id": "starhike",
+ "label": "Star Hike",
+ "credit": {
+  "text": "Artwork by Prozzta",
+  "url": "https://github.com/Prozzta/guppyos"
+ },
+ "sceneKind": "stations",
+ "map": "map/star-hike-bridge.tmx",
+ "palette": {
+  "background": "#14161b"
+ },
+ "stations": {
+  "layer": "Stuff",
+  "entrance": "Spawn",
+  "captain": "Captain",
+  "seatOrder": [
+   "Captain",
+   "Helm",
+   "Nav",
+   "Chair1",
+   "Chair2",
+   "Chair3",
+   "Chair4",
+   "Chair5",
+   "Chair6"
+  ],
+  "seats": {
+   "Captain": {
+    "facing": "down",
+    "role": "command",
+    "approach": "front"
+   },
+   "Helm": {
+    "facing": "down",
+    "role": "helm",
+    "approach": "back"
+   },
+   "Nav": {
+    "facing": "down",
+    "role": "navigation",
+    "approach": "back"
+   },
+   "Chair1": {
+    "facing": "up",
+    "approach": "back"
+   },
+   "Chair2": {
+    "facing": "up",
+    "approach": "back"
+   },
+   "Chair3": {
+    "facing": "left",
+    "approach": "back"
+   },
+   "Chair4": {
+    "facing": "left",
+    "approach": "back"
+   },
+   "Chair5": {
+    "facing": "right",
+    "approach": "back"
+   },
+   "Chair6": {
+    "facing": "right",
+    "approach": "back"
+   }
+  }
+ },
+ "navigation": {
+  "walkGrid": 4
+ },
+ "spriteRenderer": {
+  "kind": "sheet",
+  "sheet": "art/crew.png",
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "rows": {
+   "down": 0,
+   "up": 1,
+   "left": 4,
+   "right": 6,
+   "sitDown": 2,
+   "sitUp": 3,
+   "sitLeft": 5,
+   "sitRight": 7
+  }
+ },
+ "assets": {
+  "license": "Prozzta artwork licence (LICENSE-ARTWORK.md in this pack): use and edit in any project; do not resell or redistribute the art itself; credit required.",
+  "attribution": "Artwork by Prozzta",
+  "attributionUrl": "https://github.com/Prozzta/guppyos"
+ },
+ "builder": {
+  "outline": "#242234",
+  "eyes": "#ffffff",
+  "swatches": {
+   "skin": {
+    "porcelain": "#fbe3d3",
+    "fair": "#fad6b8",
+    "light": "#eebf93",
+    "medium": "#c98e62",
+    "tan": "#a86b44",
+    "brown": "#8a5638",
+    "deep": "#7b4d34"
+   },
+   "shirt": {
+    "slate": "#56657a",
+    "teal": "#2a8a87",
+    "violet": "#6a55a8",
+    "moss": "#5f8a3c"
+   },
+   "hair": {
+    "black": "#1f1d1d",
+    "brown": "#71413b",
+    "blonde": "#e3c070",
+    "red": "#b0442a",
+    "grey": "#8d8d93",
+    "white": "#ececec"
+   }
+  },
+  "customColours": true,
+  "bodies": [
+   {
+    "id": "crop",
+    "label": "Short crop",
+    "column": 0,
+    "parts": {
+     "skin": {
+      "main": "#fad6b8",
+      "shades": [
+       "#fad6b8",
+       "#f5a097",
+       "#e86a73"
+      ]
+     },
+     "shirt": {
+      "main": "#56657a",
+      "shades": [
+       "#56657a"
+      ]
+     },
+     "hair": {
+      "main": "#242234",
+      "byShape": true
+     }
+    },
+    "portrait": {
+     "crop": [
+      7,
+      4,
+      18,
+      28
+     ]
+    }
+   },
+   {
+    "id": "side-part",
+    "label": "Side part",
+    "column": 2,
+    "parts": {
+     "skin": {
+      "main": "#fad6b8",
+      "shades": [
+       "#fad6b8",
+       "#f5a097",
+       "#e86a73"
+      ]
+     },
+     "shirt": {
+      "main": "#56657a",
+      "shades": [
+       "#56657a"
+      ]
+     },
+     "hair": {
+      "main": "#71413b",
+      "shades": [
+       "#71413b",
+       "#bb7547"
+      ]
+     }
+    },
+    "portrait": {
+     "crop": [
+      7,
+      4,
+      18,
+      28
+     ]
+    }
+   },
+   {
+    "id": "top-bun",
+    "label": "Top bun",
+    "column": 1,
+    "parts": {
+     "skin": {
+      "main": "#fad6b8",
+      "shades": [
+       "#fad6b8",
+       "#f5a097",
+       "#e86a73"
+      ]
+     },
+     "shirt": {
+      "main": "#56657a",
+      "shades": [
+       "#56657a"
+      ]
+     },
+     "hair": {
+      "main": "#71413b",
+      "shades": [
+       "#71413b",
+       "#bb7547"
+      ]
+     }
+    },
+    "portrait": {
+     "crop": [
+      7,
+      1,
+      18,
+      28
+     ]
+    }
+   }
+  ],
+  "presets": [
+   {
+    "id": "rowan",
+    "label": "Cpt Rowan",
+    "bodyId": "side-part",
+    "colors": {
+     "skin": "#fad6b8",
+     "shirt": "#2a8a87",
+     "hair": "#71413b"
+    }
+   },
+   {
+    "id": "idris",
+    "label": "Idris",
+    "bodyId": "crop",
+    "colors": {
+     "skin": "#fbe3d3",
+     "shirt": "#6a55a8",
+     "hair": "#1f1d1d"
+    }
+   },
+   {
+    "id": "amari",
+    "label": "Doc Amari",
+    "bodyId": "side-part",
+    "colors": {
+     "skin": "#fad6b8",
+     "shirt": "#6a55a8",
+     "hair": "#8d8d93"
+    }
+   },
+   {
+    "id": "noor",
+    "label": "Noor",
+    "bodyId": "top-bun",
+    "colors": {
+     "skin": "#7b4d34",
+     "shirt": "#5f8a3c",
+     "hair": "#1f1d1d"
+    }
+   },
+   {
+    "id": "teo",
+    "label": "Teo",
+    "bodyId": "side-part",
+    "colors": {
+     "skin": "#fbe3d3",
+     "shirt": "#56657a",
+     "hair": "#1f1d1d"
+    },
+    "seat": "Nav"
+   },
+   {
+    "id": "ravi",
+    "label": "Ravi",
+    "bodyId": "side-part",
+    "colors": {
+     "skin": "#c98e62",
+     "shirt": "#56657a",
+     "hair": "#1f1d1d"
+    },
+    "seat": "Helm"
+   },
+   {
+    "id": "bram",
+    "label": "Bram",
+    "bodyId": "side-part",
+    "colors": {
+     "skin": "#fad6b8",
+     "shirt": "#5f8a3c",
+     "hair": "#b0442a"
+    }
+   },
+   {
+    "id": "nurse-lin",
+    "label": "Nurse Lin",
+    "bodyId": "top-bun",
+    "colors": {
+     "skin": "#fbe3d3",
+     "shirt": "#6a55a8",
+     "hair": "#e3c070"
+    }
+   },
+   {
+    "id": "ensign-pia",
+    "label": "Ensign Pia",
+    "bodyId": "top-bun",
+    "colors": {
+     "skin": "#eebf93",
+     "shirt": "#56657a",
+     "hair": "#71413b"
+    }
+   }
+  ],
+  "defaults": {
+   "bodyId": "side-part"
+  },
+  "sample": {
+   "bodyId": "side-part",
+   "colors": {
+    "skin": "#fad6b8",
+    "shirt": "#2a8a87",
+    "hair": "#71413b"
+   },
+   "presetId": "rowan"
+  }
+ },
+ "projectDefaults": {
+  "orchestrator": {
+   "appearance": {
+    "bodyId": "side-part",
+    "colors": {
+     "skin": "#fad6b8",
+     "shirt": "#2a8a87",
+     "hair": "#71413b"
+    },
+    "presetId": "rowan"
+   }
+  }
+ },
+ "coffee": {
+  "brewAt": [
+   [
+    462,
+    366
+   ],
+   [
+    478,
+    366
+   ]
+  ],
+  "mugs": {
+   "Captain": [
+    474,
+    176
+   ],
+   "Helm": [
+    436,
+    233
+   ],
+   "Nav": [
+    468,
+    233
+   ],
+   "Chair1": [
+    385,
+    123
+   ],
+   "Chair2": [
+    446,
+    110
+   ],
+   "Chair3": [
+    345,
+    180
+   ],
+   "Chair4": [
+    345,
+    259
+   ],
+   "Chair5": [
+    578,
+    186
+   ],
+   "Chair6": [
+    578,
+    263
+   ]
+  },
+  "cooldown": [
+   180,
+   300
+  ]
+ },
+ "text": {
+  "lines": "lines.json"
+ }
+}

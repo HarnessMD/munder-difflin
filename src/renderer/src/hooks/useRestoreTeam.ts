@@ -2,6 +2,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { useStore, type Agent } from '@/store/store';
 import { buildSpawnCommand, inferAgentProvider, tokenizeCommand, type HarnessConfig } from '@/store/config';
 import { roleForHiveSpawn } from '@shared/agentRole';
+import i18n from '@/i18n';
 
 /** "Restore team" — respawn every worker from the previous session.
  *
@@ -180,7 +181,9 @@ export function useRestoreTeam(config?: HarnessConfig | null): RestoreTeamState 
           } else {
             // Leave it restorable so the user can retry — but record WHY so the
             // outcome is shown on the floor, not buried in the devtools console.
-            failures.push(`${a.name}: ${res.error ?? 'spawn failed'}`);
+            // A held Codex start points at Settings, where it can be allowed (Pam's P8);
+            // main's own reason is English and stays in the log.
+            failures.push(`${a.name}: ${res.codexHold ? i18n.t('codexLayer.heldReason') : (res.error ?? 'spawn failed')}`);
             console.error('[restore] spawn failed for', a.id, res.error);
           }
         } catch (e) {

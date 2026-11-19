@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type SidebarTab } from '@/store/store';
 import { type AccentColorName } from '@/design/tokens';
@@ -7,6 +8,7 @@ import { Icon, type IconName } from './Icon';
 // full Monaco editor + file tree, which superseded the read-only browser.
 const TABS: { key: SidebarTab; labelKey: string; icon: IconName }[] = [
   { key: 'terminal', labelKey: 'sidebar.terminal', icon: 'terminal' },
+  { key: 'history',  labelKey: 'sidebar.history',  icon: 'clock' },
   { key: 'git',      labelKey: 'sidebar.git',      icon: 'code' },
   { key: 'messages', labelKey: 'sidebar.messages', icon: 'bell' },
   { key: 'traces',   labelKey: 'sidebar.traces',   icon: 'web' }
@@ -18,10 +20,22 @@ export interface SidebarTabsProps {
   onChange: (tab: SidebarTab) => void;
 }
 
+/** Below this width the closed tabs show only their icon (Pam's P5). */
+export const COMPACT_TABS_PX = 520;
+
 export function SidebarTabs({ current, accent, onChange }: SidebarTabsProps) {
   const { t } = useTranslation();
+  const row = useRef<HTMLDivElement | null>(null);
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const el = row.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setCompact(el.clientWidth > 0 && el.clientWidth < COMPACT_TABS_PX));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
-    <div style={{
+    <div ref={row} style={{
       display: 'flex',
       gap: 0,
       background: 'var(--cth-cream-200)',
@@ -30,12 +44,17 @@ export function SidebarTabs({ current, accent, onChange }: SidebarTabsProps) {
     }}>
       {TABS.map(tab => {
         const active = current === tab.key;
+        // Compact: a closed tab keeps its icon, with its word as tooltip and label; the open one keeps its word.
+        const iconOnly = compact && !active;
+        const label = t(tab.labelKey);
         return (
           <button
             key={tab.key}
             onClick={() => onChange(tab.key)}
+            title={iconOnly ? label : undefined}
+            aria-label={iconOnly ? label : undefined}
             style={{
-              flex: 1,
+              flex: iconOnly ? '0 1 auto' : 1,
               height: 36,
               padding: '0 10px',
               border: 'none',
@@ -54,7 +73,7 @@ export function SidebarTabs({ current, accent, onChange }: SidebarTabsProps) {
               gap: 6
             }}
           >
-            <Icon name={tab.icon} /> {t(tab.labelKey).toUpperCase()}
+            <Icon name={tab.icon} />{!iconOnly && <> {label.toUpperCase()}</>}
           </button>
         );
       })}

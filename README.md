@@ -556,9 +556,15 @@ source, forks compile with no key and send nothing) are documented in
 > LimeZu is required by that licence** and must stay in place. The Office cast is not LimeZu art. It
 > is drawn procedurally in `portraitArt.ts`. See
 > [`src/renderer/src/assets/ATTRIBUTION.md`](./src/renderer/src/assets/ATTRIBUTION.md).
+>
+> The **Star Hike** floor's art and map (`themes/starhike`) are **Artwork by Prozzta**
+> (<https://github.com/Prozzta/guppyos>), under the pack's own licence in
+> [`themes/starhike/LICENSE-ARTWORK.md`](./themes/starhike/LICENSE-ARTWORK.md). It permits editing and
+> use in any project, not reselling or passing on the art by itself, and **the credit is required**.
 
 The **source code** is licensed under the **MIT License**. See [`LICENSE`](./LICENSE). The MIT grant
-covers the code only; the bundled pixel art is licensed separately from LimeZu and is carved out in
+covers the code only; the bundled pixel art is licensed separately (from LimeZu, and from Prozzta for
+Star Hike) and is carved out in
 [`LICENSE-ASSETS`](./LICENSE-ASSETS). *Munder Difflin* is an affectionate parody and is not affiliated with NBC's *The Office* or
 Dunder Mifflin.
 
