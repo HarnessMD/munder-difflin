@@ -120,6 +120,12 @@ something visible will cost you more time than the screenshot would have.
    change is worth more than a clean one, and it usually saves a review round
    trip. This is asked for, not required.
 
+### If you added or removed UI strings
+
+New keys need a Traditional Chinese (Taiwan) entry too. After you add or remove
+keys in `en.json` and `zh-CN.json`, run `npm run i18n:fill-zh-tw` to fill them in
+for review, then commit `zh-TW.json` and `zh-TW.pending.json`.
+
 ## Where the bar is
 
 We get more pull requests than we can review carefully, so the bar is high and
