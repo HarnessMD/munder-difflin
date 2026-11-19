@@ -1053,6 +1053,11 @@
       "openAtLogin": "APRI ALL'ACCESSO",
       "openAtLoginDesc": "Riapri l'harness dopo il riavvio del computer, così le missioni pianificate riprendono da sole. Nessuna richiesta: si applica subito.",
       "stayAwake": "RESTA ATTIVO CON L'ALIMENTATORE (MANUALE)",
+      "stayAwakeDescMac": "macOS ti permette di impostarlo solo a mano. In Batteria → Opzioni, attiva «Impedisci lo stop automatico quando lo schermo è spento» (con alimentatore), così i timer continuano a partire anche a schermo spento. Senza un'impostazione che impedisca lo stop, il Mac va davvero in stop: il lavoro non si perde e riprende al risveglio.",
+      "stayAwakeDescWindows": "Windows ti permette di impostarlo solo a mano. In Impostazioni → Sistema → Alimentazione e batteria → Schermo e sospensione, imposta «Con alimentazione a batteria, metti il dispositivo in sospensione dopo» e «Quando collegato» su Mai (o aumenta i tempi), così i timer continuano a partire. Senza un'impostazione che impedisca la sospensione, Windows va davvero in sospensione: il lavoro non si perde e riprende al risveglio.",
+      "stayAwakeDescLinux": "Il tuo ambiente desktop ti permette di impostarlo solo a mano. Cerca un pannello delle impostazioni di alimentazione (ad es. Impostazioni di GNOME → Energia, o Impostazioni di sistema di KDE → Gestione energetica) e disattiva la sospensione automatica con l'alimentatore. Senza un'impostazione che impedisca la sospensione, il computer va davvero in sospensione: il lavoro non si perde e riprende al risveglio.",
+      "openBatteryMac": "apri le impostazioni Batteria",
+      "openBatteryWindows": "apri le impostazioni di alimentazione",
       "setItUp": "configura"
     },
     "errPickHome": "Scegli prima la cartella principale dell'harness.",

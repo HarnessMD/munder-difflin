@@ -226,9 +226,10 @@ export function setIntegrationSecret(id: string, plaintext: string, seenUrl: str
  * works at once, and keys an earlier 0.5.8 start held or dropped
  * come back from the copy of the old file (sealedStore.ts, fromOldCopies).
  */
-export function moveOldSecrets(opts: { isAgentKey: (ref: string) => boolean }): MoveResult {
+export function moveOldSecrets(opts: { appKeyFiles: readonly string[]; isAgentKey: (ref: string) => boolean }): MoveResult {
   const records = listRecords();
   return lastMove = secrets().move({
+    appKeyFiles: opts.appKeyFiles,
     sinkOf: (ref) => {
       if (opts.isAgentKey(ref)) return { kind: 'env' };
       const rec = records.find((r) => r.secretRef === ref && authTypeNeedsSecret(r.authType));

@@ -29,6 +29,8 @@
  *     million tries.
  *   - `encodeStoreKey`: the store key's own plain text has a byte below 0x20
  *     in every 16 byte block, so whole or in pieces it is never movable.
+ *   - `sharesRun`: nothing that shares 16 characters with one of the app's
+ *     own keys is moved.
  *   - `decideMove`: an older version's keys do not go away. Each key is
  *     ready at once for what it was used
  *     for, as the older version used it: an agent key for agents, an
@@ -54,6 +56,7 @@ export type SecretUse =
 
 const ENVELOPE_PREFIX = 's1:';
 export const MOVABLE_MAX_BYTES = 4096;
+const RUN = 16;
 
 /** The longest secret a store keeps, in characters. One number, so a save
  *  can refuse a longer one before it writes anything. */
@@ -189,6 +192,15 @@ export function movable(plain: unknown): plain is string {
   return true;
 }
 
+/** Whether two texts share any run of 16 characters. */
+export function sharesRun(a: string, b: string, run = RUN): boolean {
+  if (a.length < run || b.length < run) return false;
+  const seen = new Set<string>();
+  for (let i = 0; i + run <= b.length; i++) seen.add(b.slice(i, i + run));
+  for (let i = 0; i + run <= a.length; i++) if (seen.has(a.slice(i, i + run))) return true;
+  return false;
+}
+
 /** Where a name's secret goes, as the host knows it. */
 export type SecretSink =
   /** An agent's environment: a provider key, a key by name. */
@@ -202,9 +214,11 @@ export type SecretSink =
 
 export type MoveDecision =
   | { ref: string; action: 'seal'; use: SecretUse }
-  | { ref: string; action: 'drop'; reason: 'unreadable' | 'not-printable' | 'no-use' | 'no-address' };
+  | { ref: string; action: 'drop'; reason: 'unreadable' | 'not-printable' | 'app-key' | 'no-use' | 'no-address' };
 
 export interface MoveFacts {
+  /** The plain texts of keys the app keeps for itself in its data folder. */
+  appKeys: readonly string[];
   sinkOf(ref: string): SecretSink;
 }
 
@@ -221,6 +235,7 @@ export interface MoveFacts {
 export function decideMove(ref: string, plain: string | undefined, facts: MoveFacts): MoveDecision {
   if (plain === undefined) return { ref, action: 'drop', reason: 'unreadable' };
   if (!movable(plain)) return { ref, action: 'drop', reason: 'not-printable' };
+  if (facts.appKeys.some((k) => sharesRun(plain, k))) return { ref, action: 'drop', reason: 'app-key' };
   const sink = facts.sinkOf(ref);
   if (sink.kind === 'none') return { ref, action: 'drop', reason: 'no-use' };
   if (sink.kind === 'app') return { ref, action: 'seal', use: { kind: 'app' } };

@@ -1053,6 +1053,11 @@
       "openAtLogin": "GİRİŞTE AÇ",
       "openAtLoginDesc": "Yeniden başlatmadan sonra harness'ı yeniden açar, böylece zamanlanmış görevler kendiliğinden sürer. Onay istenmez; hemen uygulanır.",
       "stayAwake": "PRİZDEYKEN UYANIK KAL (ELLE)",
+      "stayAwakeDescMac": "macOS bu ayarı yalnızca sizin yapmanıza izin verir. Pil → Seçenekler bölümünde \"Ekran kapalıyken otomatik uyumayı engelle\" (güç adaptöründe) ayarını açın; böylece ekran uykudayken de zamanlayıcılar çalışmaya devam eder. Uykuyu engelleyen bir ayar olmadan Mac yine de gerçekten uyur; işler kaybolmaz ve uyanınca telafi edilir.",
+      "stayAwakeDescWindows": "Windows bu ayarı yalnızca sizin yapmanıza izin verir. Ayarlar → Sistem → Güç ve pil → Ekran, boş ekran ve uyku bölümünde \"Pil gücündeyken cihazımı uyku moduna al\" ve \"Prize takılıyken\" seçeneklerini Hiçbir zaman olarak ayarlayın (veya süreyi artırın); böylece zamanlayıcılar çalışmaya devam eder. Uykuyu engelleyen bir ayar olmadan Windows yine de gerçekten uyur; işler kaybolmaz ve uyanınca telafi edilir.",
+      "stayAwakeDescLinux": "Masaüstü ortamınız bu ayarı yalnızca sizin yapmanıza izin verir. Bir Güç Ayarları paneli bulun (ör. GNOME Ayarlar → Güç veya KDE Sistem Ayarları → Güç Yönetimi) ve prizdeyken otomatik uyku/askıya almayı kapatın. Uykuyu engelleyen bir ayar olmadan bilgisayarınız yine de gerçekten uyur; işler kaybolmaz ve uyanınca telafi edilir.",
+      "openBatteryMac": "pil ayarlarını aç",
+      "openBatteryWindows": "güç ayarlarını aç",
       "setItUp": "kur"
     },
     "errPickHome": "Önce bir harness ana klasörü seçin.",

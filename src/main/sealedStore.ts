@@ -12,9 +12,10 @@
  * The host's cipher is asked to decrypt two things here and nothing else:
  *   - the store key file, whose plain text must have the store key's shape;
  *   - in THE MOVE (`move`, at the app's start), the old bare values and the
- *     copies of the old file a 0.5.8 RC start left (`fromOldCopies`). What an
- *     old value turns out to be is never handed to a caller: it is sealed for
- *     a use or dropped, by the rules in sealedSecrets.ts (`decideMove`).
+ *     app's own key files it compares them with, and the copies of the old
+ *     file a 0.5.8 RC start left (`fromOldCopies`). What an old value
+ *     turns out to be is never handed to a caller: it is sealed for a use or
+ *     dropped, by the rules in sealedSecrets.ts (`decideMove`).
  *
  * A host whose cipher is already a key cipher (`createKeyCipher`, never the
  * app's keychain) has no store key file: its own key seals the envelopes.
@@ -66,12 +67,51 @@ export interface HeldSecret {
 }
 
 export interface MoveFacts {
+  /** The files that hold keys the app keeps for itself in its data folder:
+   *  JSON with the key's keychain ciphertext in `sk`. A file that is
+   *  not there has no key to protect; one that is there and cannot be read
+   *  stops the move. */
+  appKeyFiles: readonly string[];
   sinkOf(ref: string): SecretSink;
+}
+
+/** A key file is small; a bigger file is not read. */
+const APP_KEY_FILE_MAX = 64 * 1024;
+
+/**
+ * The files in a data folder that hold a key an app keeps for itself, for
+ * `MoveFacts.appKeyFiles`. Other builds of the app can share this data folder,
+ * and each keeps its own such files, so they are found by their shape, never
+ * by name: a JSON file of at most 64 KB, at the top of the folder or one
+ * folder down, whose `sk` is a string. A JSON file that is there but cannot be
+ * read is listed too, so the move stops instead of guessing. A file that is
+ * not JSON holds no key. Links are not followed.
+ */
+export function appKeyFilesIn(dataDir: string): string[] {
+  const found: string[] = [];
+  const look = (dir: string, depth: number): void => {
+    let names: string[];
+    try { names = readdirSync(dir); } catch { return; }
+    for (const name of names) {
+      const file = join(dir, name);
+      let st: ReturnType<typeof lstatSync>;
+      try { st = lstatSync(file); } catch { continue; }
+      if (st.isDirectory()) { if (depth === 0) look(file, 1); continue; }
+      if (!st.isFile() || !name.endsWith('.json') || st.size > APP_KEY_FILE_MAX) continue;
+      let text: string;
+      try { text = readFileSync(file, 'utf8'); } catch { found.push(file); continue; }
+      let parsed: unknown;
+      try { parsed = JSON.parse(text); } catch { continue; }
+      if (parsed && typeof parsed === 'object' && typeof (parsed as { sk?: unknown }).sk === 'string') found.push(file);
+    }
+  };
+  look(dataDir, 0);
+  return found;
 }
 
 export interface MoveResult {
   /** Why nothing was looked at this time; the old values stay as they are and read as not set. */
-  skipped?: 'no-cipher' | 'key-unreadable' | 'too-many' | 'copy-failed' | 'file-unreadable';
+  skipped?: 'no-cipher' | 'key-unreadable' | 'app-key-unreadable' | 'too-many' | 'copy-failed' | 'file-unreadable';
   decisions: MoveDecision[];
   /** Names a 0.5.8 RC start held, ready again (only when there are any). */
   released?: string[];
@@ -633,6 +673,28 @@ export function createSealedStore(deps: SealedStoreDeps) {
 
   // ─── The move ──────────────────────────────────────────────────────────────
 
+  /** The plain texts of the app's own keys, or null when a file that is there cannot be read (nothing is moved then). */
+  function appKeysOf(host: SecretCipher, files: readonly string[]): string[] | null {
+    const appKeys: string[] = [];
+    for (const file of files) {
+      let text: string;
+      try {
+        text = readFileSync(file, 'utf8');
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException)?.code === 'ENOENT') continue;
+        return null;
+      }
+      try {
+        const sk = (JSON.parse(text) as { sk?: unknown }).sk;
+        if (typeof sk !== 'string') throw new Error('shape');
+        appKeys.push(host.decrypt(Buffer.from(sk, 'base64')));
+      } catch {
+        return null;
+      }
+    }
+    return appKeys;
+  }
+
   /** What the keychain answers for an old bare value, or undefined. A value too long to be a key is never asked about. */
   function oldPlain(host: SecretCipher, blob: string): string | undefined {
     try {
@@ -701,10 +763,14 @@ export function createSealedStore(deps: SealedStoreDeps) {
         if (next !== undefined) { all[ref] = next; released.push(ref); }
       }
       const recovered: string[] = [];
-      for (const ref of lostNow.filter((r) => olds.has(r))) {
-        const plain = oldPlain(host, olds.get(ref)![0]);
-        const d = decideMove(ref, plain, facts);
-        if (d.action === 'seal' && plain !== undefined) { all[ref] = sealSecret(s, ref, d.use, plain); recovered.push(ref); }
+      const toRecover = lostNow.filter((ref) => olds.has(ref));
+      const appKeys = toRecover.length > 0 ? appKeysOf(host, facts.appKeyFiles) : [];
+      if (appKeys !== null) {
+        for (const ref of toRecover) {
+          const plain = oldPlain(host, olds.get(ref)![0]);
+          const d = decideMove(ref, plain, { appKeys, sinkOf: facts.sinkOf });
+          if (d.action === 'seal' && plain !== undefined) { all[ref] = sealSecret(s, ref, d.use, plain); recovered.push(ref); }
+        }
       }
       if (released.length === 0 && recovered.length === 0) return {};
       writeAll(all);
@@ -740,13 +806,15 @@ export function createSealedStore(deps: SealedStoreDeps) {
     // A key cipher never wrote a bare value an app released: there is nothing to move.
     if (!host.available() || host.sealed) return { skipped: 'no-cipher', decisions: [] };
     if (old.length > MOVE_MAX_ENTRIES) return { skipped: 'too-many', decisions: [] };
+    const appKeys = appKeysOf(host, facts.appKeyFiles);
+    if (appKeys === null) return { skipped: 'app-key-unreadable', decisions: [] };
     let s: SecretCipher | null;
     try { s = store('make'); } catch { s = null; }
     if (!s) return { skipped: 'key-unreadable', decisions: [] };
     const decisions: MoveDecision[] = [];
     for (const ref of old) {
       const plain = oldPlain(host, all[ref]);
-      const d = decideMove(ref, plain, facts);
+      const d = decideMove(ref, plain, { appKeys, sinkOf: facts.sinkOf });
       decisions.push(d);
       if (d.action === 'seal' && plain !== undefined) all[ref] = sealSecret(s, ref, d.use, plain);
       else delete all[ref];

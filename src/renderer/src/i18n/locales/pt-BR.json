@@ -1053,6 +1053,11 @@
       "openAtLogin": "ABRIR AO INICIAR SESSÃO",
       "openAtLoginDesc": "Abre o harness de novo depois de reiniciar para que as missões agendadas sejam retomadas sozinhas. Sem confirmação: vale na hora.",
       "stayAwake": "NÃO SUSPENDER NA TOMADA (MANUAL)",
+      "stayAwakeDescMac": "No macOS, só você pode ativar esta opção. Em Bateria → Opções, ative \"Impedir repouso automático quando a tela estiver desligada\" (no adaptador de energia) para os timers continuarem disparando com a tela apagada. Sem uma configuração que impeça a suspensão, o Mac ainda entra em repouso de verdade: o trabalho não se perde e é retomado quando ele acorda.",
+      "stayAwakeDescWindows": "No Windows, só você pode mudar esta opção. Em Configurações → Sistema → Energia e bateria → Tela, apagar e suspender, defina \"Na energia da bateria, colocar meu dispositivo em suspensão\" e \"Quando conectado\" como Nunca (ou aumente os tempos) para os timers continuarem disparando. Sem uma configuração que impeça a suspensão, o Windows ainda entra em suspensão de verdade: o trabalho não se perde e é retomado quando ele volta.",
+      "stayAwakeDescLinux": "No seu ambiente de desktop, só você pode mudar esta opção. Procure um painel de configurações de energia (por exemplo, Configurações do GNOME → Energia, ou Configurações do sistema do KDE → Gerenciamento de energia) e desative o repouso ou a suspensão automática enquanto estiver na tomada. Sem uma configuração que impeça a suspensão, sua máquina ainda entra em repouso de verdade: o trabalho não se perde e é retomado quando ela acorda.",
+      "openBatteryMac": "abrir configurações de Bateria",
+      "openBatteryWindows": "abrir configurações de energia",
       "setItUp": "configurar"
     },
     "errPickHome": "Primeiro escolha uma pasta base para o harness.",

@@ -1053,6 +1053,11 @@
       "openAtLogin": "BEIM ANMELDEN ÖFFNEN",
       "openAtLoginDesc": "Startet den Harness nach einem Neustart erneut, damit geplante Missionen von selbst weiterlaufen. Ohne Rückfrage, gilt sofort.",
       "stayAwake": "AM NETZTEIL WACH BLEIBEN (MANUELL)",
+      "stayAwakeDescMac": "Diese Einstellung kannst unter macOS nur du selbst vornehmen. Aktiviere unter Batterie → Optionen „Automatischen Ruhezustand verhindern, wenn der Bildschirm ausgeschaltet ist“ (mit Netzteil), damit Timer auch bei ausgeschaltetem Bildschirm weiter auslösen. Ohne eine Einstellung, die den Ruhezustand verhindert, schläft der Mac trotzdem wirklich ein. Die Arbeit bleibt erhalten und wird nach dem Aufwachen nachgeholt.",
+      "stayAwakeDescWindows": "Diese Einstellung kannst unter Windows nur du selbst vornehmen. Stelle unter Einstellungen → System → Netzbetrieb und Akku → Bildschirm und Energiesparmodus sowohl „Im Akkubetrieb Gerät in den Energiesparmodus versetzen“ als auch „Bei Netzbetrieb“ auf Nie (oder erhöhe die Werte), damit Timer weiter auslösen. Ohne eine Einstellung, die den Ruhezustand verhindert, schläft Windows trotzdem wirklich ein. Die Arbeit bleibt erhalten und wird nach dem Aufwachen nachgeholt.",
+      "stayAwakeDescLinux": "Diese Einstellung kannst in deiner Desktop-Umgebung nur du selbst vornehmen. Such nach den Energieeinstellungen (z. B. GNOME-Einstellungen → Energie oder KDE-Systemeinstellungen → Energieverwaltung) und deaktiviere den automatischen Ruhezustand/Bereitschaftsmodus im Netzbetrieb. Ohne eine Einstellung, die den Ruhezustand verhindert, schläft dein Rechner trotzdem wirklich ein. Die Arbeit bleibt erhalten und wird nach dem Aufwachen nachgeholt.",
+      "openBatteryMac": "Batterie-Einstellungen öffnen",
+      "openBatteryWindows": "Energieeinstellungen öffnen",
       "setItUp": "einrichten"
     },
     "errPickHome": "Wähle zuerst einen Harness-Stammordner.",

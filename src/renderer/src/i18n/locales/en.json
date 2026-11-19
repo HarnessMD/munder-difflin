@@ -1053,6 +1053,11 @@
       "openAtLogin": "OPEN AT LOGIN",
       "openAtLoginDesc": "Relaunch the harness after a reboot so scheduled missions resume on their own. No prompt — applies immediately.",
       "stayAwake": "STAY AWAKE ON POWER (MANUAL)",
+      "stayAwakeDescMac": "macOS only lets you set this one yourself. In Battery → Options, turn on \"Prevent automatic sleeping when the display is off\" (on power adapter) so timers keep firing with the display asleep. Without a sleep-preventing setting the Mac still truly sleeps — work survives and catches up on wake.",
+      "stayAwakeDescWindows": "Windows only lets you set this one yourself. In Settings → System → Power & battery → Screen, blank & sleep, set \"On battery power, put my device to sleep\" and \"When plugged in\" to Never (or increase them) so timers keep firing. Without a sleep-preventing setting Windows still truly sleeps — work survives and catches up on wake.",
+      "stayAwakeDescLinux": "Your desktop environment only lets you set this one yourself. Look for a Power Settings panel (e.g. GNOME Settings → Power, or KDE System Settings → Power Management) and disable automatic sleep/suspend while on power. Without a sleep-preventing setting your machine still truly sleeps — work survives and catches up on wake.",
+      "openBatteryMac": "open Battery settings",
+      "openBatteryWindows": "open Power settings",
       "setItUp": "set it up"
     },
     "errPickHome": "Pick a harness home folder first.",

@@ -119,6 +119,7 @@ import { integrationActivity, refusalGate } from './integrationActivity';
 import { BrokerGrants } from './brokerAccess';
 import { agentSecretsRoute } from './agentSecrets';
 import * as integrations from './integrations';
+import { appKeyFilesIn } from './sealedStore';
 import { CUSTOM_SECRET_PREFIX, customSecretNames, customSecretRef, secretNameProblem } from '../shared/customSecrets';
 import { validateBaseUrl, buildAuthRequest, resolveUpstreamUrl, probePathFor, probeQueryFor, INTEGRATION_TEMPLATES } from '../shared/integrations';
 import { guardNavigation } from './navigationGuard';
@@ -5120,6 +5121,9 @@ void app.whenReady().then(() => {
   // (sealedStore.ts). Names and counts only are ever logged, never a value.
   try {
     const moved = integrations.moveOldSecrets({
+      // Keys the app keeps for itself in the data folder, this build's or another
+      // build's that shares the folder: a value that matches one is never moved.
+      appKeyFiles: appKeyFilesIn(officePaths().userData()),
       isAgentKey: (ref) => (ref.startsWith('apikey:') && Object.hasOwn(BACKEND_KEY_ENV, ref.slice('apikey:'.length)))
         || (ref.startsWith(CUSTOM_SECRET_PREFIX) && secretNameProblem(ref.slice(CUSTOM_SECRET_PREFIX.length)) === null)
     });

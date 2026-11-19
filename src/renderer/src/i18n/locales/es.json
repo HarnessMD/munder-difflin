@@ -1053,6 +1053,11 @@
       "openAtLogin": "ABRIR AL INICIAR SESIÓN",
       "openAtLoginDesc": "Vuelve a abrir el harness tras un reinicio para que las misiones programadas se reanuden solas. Sin confirmación: se aplica al instante.",
       "stayAwake": "SIN REPOSO CON CARGADOR (MANUAL)",
+      "stayAwakeDescMac": "En macOS, esto solo lo puedes activar tú. En Batería → Opciones, activa \"Evitar el reposo automático cuando la pantalla esté apagada\" (con el adaptador de corriente) para que los temporizadores sigan funcionando con la pantalla apagada. Sin un ajuste que impida el reposo, tu Mac sigue entrando en reposo de verdad: el trabajo no se pierde y se pone al día al despertar.",
+      "stayAwakeDescWindows": "En Windows, esto solo lo puedes cambiar tú. En Configuración → Sistema → Energía y batería → Pantalla, apagado y suspensión, pon \"Con batería, suspender mi dispositivo\" y \"Cuando esté enchufado\" en Nunca (o aumenta los tiempos) para que los temporizadores sigan funcionando. Sin un ajuste que impida la suspensión, Windows sigue suspendiéndose de verdad: el trabajo no se pierde y se pone al día al reactivarse.",
+      "stayAwakeDescLinux": "En tu entorno de escritorio, esto solo lo puedes cambiar tú. Busca un panel de ajustes de energía (por ejemplo, Configuración de GNOME → Energía, o Preferencias del sistema de KDE → Gestión de energía) y desactiva el reposo o la suspensión automáticos mientras esté enchufada. Sin un ajuste que impida el reposo, tu máquina sigue entrando en reposo de verdad: el trabajo no se pierde y se pone al día al despertar.",
+      "openBatteryMac": "abrir ajustes de Batería",
+      "openBatteryWindows": "abrir ajustes de energía",
       "setItUp": "configurarlo"
     },
     "errPickHome": "Primero elige una carpeta base para el harness.",

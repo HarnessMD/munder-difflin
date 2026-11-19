@@ -1053,6 +1053,11 @@
       "openAtLogin": "OUVRIR À LA CONNEXION",
       "openAtLoginDesc": "Relance le harness après un redémarrage pour que les missions planifiées reprennent d'elles-mêmes. Sans confirmation, s'applique immédiatement.",
       "stayAwake": "RESTER ÉVEILLÉ SUR SECTEUR (MANUEL)",
+      "stayAwakeDescMac": "Sous macOS, vous seul pouvez activer ce réglage. Dans Batterie → Options, activez « Empêcher la suspension d'activité automatique lorsque l'écran est éteint » (sur adaptateur secteur) pour que les minuteurs continuent de se déclencher écran éteint. Sans réglage qui empêche la veille, le Mac se met vraiment en veille : le travail est conservé et rattrapé au réveil.",
+      "stayAwakeDescWindows": "Sous Windows, vous seul pouvez activer ce réglage. Dans Paramètres → Système → Alimentation et batterie → Écran et mise en veille, réglez « Sur batterie, mettre mon appareil en veille après » et « Lorsque branché » sur Jamais (ou augmentez les délais) pour que les minuteurs continuent de se déclencher. Sans réglage qui empêche la veille, Windows se met vraiment en veille : le travail est conservé et rattrapé au réveil.",
+      "stayAwakeDescLinux": "Dans votre environnement de bureau, vous seul pouvez activer ce réglage. Cherchez un panneau de paramètres d'alimentation (par ex. Paramètres GNOME → Énergie, ou Configuration du système KDE → Gestion de l'énergie) et désactivez la mise en veille automatique sur secteur. Sans réglage qui empêche la veille, votre ordinateur se met vraiment en veille : le travail est conservé et rattrapé au réveil.",
+      "openBatteryMac": "ouvrir les réglages Batterie",
+      "openBatteryWindows": "ouvrir les paramètres d'alimentation",
       "setItUp": "configurer"
     },
     "errPickHome": "Choisissez d'abord un dossier racine pour le harness.",
