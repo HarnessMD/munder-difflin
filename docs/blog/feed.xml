@@ -24,6 +24,14 @@
     <summary>Amp swapped its Dial for a model selector on 12 Nov 2026. Five Amp alternatives by fit, price and release, checked 19 Nov 2026.</summary>
   </entry>
   <entry>
+    <title>Gemini 4 Neon vs Claude Opus 5.5: Price and Limits (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-neon-vs-claude-opus-5-5/" />
+    <id>https://munderdiffl.in/blog/gemini-4-neon-vs-claude-opus-5-5/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Gemini 4 Neon costs $18 for 1M input plus 1M output tokens, Claude Opus 5.5 costs $24. Limits, agent tools and vendor scores, checked 19 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>Gemini 4 Neon: Price, API and How It Compares (Nov 2026)</title>
     <link href="https://munderdiffl.in/blog/gemini-4-neon/" />
     <id>https://munderdiffl.in/blog/gemini-4-neon/</id>
@@ -32,12 +40,28 @@
     <summary>Gemini 4 Neon came out on 18 Nov 2026: $3 input and $15 output per 1M tokens, the gemini-4-neon model code, where to use it and how it compares.</summary>
   </entry>
   <entry>
+    <title>GitHub Copilot CLI Alternatives: 5 Picks Compared (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/github-copilot-cli-alternatives/" />
+    <id>https://munderdiffl.in/blog/github-copilot-cli-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Five GitHub Copilot CLI alternatives, from Claude Code to Qwen Code, with licences, plans and newest releases checked 19 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>OpenHands Alternatives: 5 Picks After v1.42.0 (Nov 2026)</title>
     <link href="https://munderdiffl.in/blog/openhands-alternatives/" />
     <id>https://munderdiffl.in/blog/openhands-alternatives/</id>
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>OpenHands ships as Agent Canvas, a control center for coding agents. Five alternatives by licence, release and fit, checked 19 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Orca Alternatives: 6 Picks for Parallel Coding Agents (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/orca-alternatives/" />
+    <id>https://munderdiffl.in/blog/orca-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Orca runs coding agents in parallel worktrees, free under MIT. Six Orca alternatives with platforms, licence and price, checked 19 Nov 2026.</summary>
   </entry>
   <entry>
     <title>GPT-6.2 Astra and Sol: Price, Specs and How to Use Them in Codex (Nov 2026)</title>
@@ -300,8 +324,8 @@
     <link href="https://munderdiffl.in/blog/turnstone-alternatives/" />
     <id>https://munderdiffl.in/blog/turnstone-alternatives/</id>
     <published>2026-11-11T00:00:00.000Z</published>
-    <updated>2026-11-11T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Turnstone runs AI teammates on the subscriptions you already pay for, on a Mac. Five alternatives, from Claude Cowork to OpenClaw, checked 11 Nov 2026.</summary>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Turnstone runs AI teammates on the subscriptions you already pay for, on a Mac. Five alternatives, from Claude Cowork to OpenClaw, checked 19 Nov 2026.</summary>
   </entry>
   <entry>
     <title>What is NVIDIA OpenShell? The agent sandbox, explained</title>
@@ -462,29 +486,5 @@
     <published>2026-11-04T00:00:00.000Z</published>
     <updated>2026-11-04T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 3 to 4 Nov 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>Antigravity Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/antigravity-alternatives/" />
-    <id>https://munderdiffl.in/blog/antigravity-alternatives/</id>
-    <published>2026-11-04T00:00:00.000Z</published>
-    <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Antigravity added Gemini 4 Neon, Hydrogen and Orchestrator, but no bring your own key option for more rate limits. Six alternatives by why you are leaving.</summary>
-  </entry>
-  <entry>
-    <title>Gemini CLI Alternatives: 6 Picks Now the Free Tier Has Moved (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/gemini-cli-alternatives/" />
-    <id>https://munderdiffl.in/blog/gemini-cli-alternatives/</id>
-    <published>2026-11-04T00:00:00.000Z</published>
-    <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Gemini CLI lost its free tier on 18 Jun 2026. Six alternatives by reason for leaving, with models and prices checked 4 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Roo Code Alternatives: 6 Picks Now That Roo Code Is Shut Down (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/roo-code-alternatives/" />
-    <id>https://munderdiffl.in/blog/roo-code-alternatives/</id>
-    <published>2026-11-04T00:00:00.000Z</published>
-    <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Roo Code was shut down on 15 May 2026. Six alternatives sorted by why you are leaving, with licences and prices checked 4 Nov 2026.</summary>
   </entry>
 </feed>
