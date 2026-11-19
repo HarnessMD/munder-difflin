@@ -1178,6 +1178,32 @@ export function OfficeFloor() {
       };
       drawAskBoard(0);
 
+      // ─── The conference table: boardroom zone → CONFERENCE ROOM tab ─────────
+      const boardroomZone = mapRenderer.getZone('boardroom');
+      if (boardroomZone) {
+        const confG = new Graphics();
+        confG.eventMode = 'static';
+        confG.cursor = 'pointer';
+        const confX = (boardroomZone.x + boardroomZone.width / 2) * tsB - 18;
+        const confY = (boardroomZone.y + boardroomZone.height / 2) * tsB - 10;
+        confG.position.set(confX, confY);
+        confG.zIndex = Math.floor(boardroomZone.y + boardroomZone.height / 2) * tsB;
+        confG.hitArea = { contains: (x: number, y: number) => x >= 0 && x <= 36 && y >= 0 && y <= 20 };
+        confG.on('pointertap', (ev) => {
+          ev.stopPropagation();
+          const st = useStore.getState();
+          const god = st.agents.find((a) => a.isGod);
+          if (god) st.select(god.id);
+          st.requestCommandCenterTab('conference');
+        });
+        confG.rect(2, 4, 32, 10).fill(0x5a4634);
+        confG.rect(4, 2, 28, 4).fill(0x7a6348);
+        confG.rect(6, 14, 3, 4).fill(0x3e2f24);
+        confG.rect(27, 14, 3, 4).fill(0x3e2f24);
+        charLayer.addChild(confG);
+      }
+
+
       // ─── Board choreography: every ledger move is ACTED on the floor ───────
       // Michael walks over and pins fresh cards; an assigned worker walks to
       // the TODO board, takes its note and carries it home; finishing carries
