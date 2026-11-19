@@ -71,6 +71,14 @@
       .then(function (x) { clearTimeout(timer); return x; });
   }
 
+  // A button's system, always one of SYS's own names: the attribute only picks among them, so nothing read off the
+  // page is ever written back into it.
+  function osOf(a) {
+    var want = a.getAttribute('data-os') || OS;
+    for (var i = 0; i < SYS.length; i++) if (SYS[i].os === want) return SYS[i].os;
+    return null;
+  }
+
   var builds = null, missing = {};
   var ready = Promise.all(SYS.map(read)).then(function (res) {
     builds = {};
@@ -79,7 +87,8 @@
     return builds;
   });
   function point(a) {
-    var os = a.getAttribute('data-os') || OS, b = builds[os];
+    var os = osOf(a), b = os && builds[os];
+    if (!os) return;
     if (b) a.href = b.url;
     else if (missing[os] && a.hasAttribute('data-os')) a.hidden = true;
   }
@@ -92,7 +101,8 @@
   document.addEventListener('click', function (e) {
     var a = e.target && e.target.closest ? e.target.closest('a[data-dl], a[data-os]') : null;
     if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    var os = a.getAttribute('data-os') || OS;
+    var os = osOf(a);
+    if (!os) return;
     if (builds === null) {
       // Clicked before the release folder answered: wait for it rather than send them to another page.
       e.preventDefault();
