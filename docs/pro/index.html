@@ -402,6 +402,7 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
 @media (max-width:560px){.ui .stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ui .grid2{grid-template-columns:minmax(0,1fr)}.ui .bun{grid-template-columns:repeat(2,minmax(0,1fr))}.stap .act{width:100px;margin-left:-50px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
+<link rel="stylesheet" href="../assets/download.css">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -428,7 +429,7 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
       <a class="txt" href="https://harnessmd.com/signin">Sign in</a>
       <!-- Star count: GitHub API on 2026-09-09 said 6,686. Every .starct on the page is written correct and then refreshed live; see updateStars(). -->
       <a class="btn sm" href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span></a>
-      <a class="btn primary sm" href="https://harnessmd.com/download">Download</a>
+      <a class="btn primary sm" data-dl href="https://harnessmd.com/download">Download</a>
     </div>
     <button type="button" class="nav-burger" id="navBurger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
@@ -457,7 +458,7 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
     </div>
     <div class="btn-row">
       <a class="btn primary lg" href="https://app.harnessmd.com/console/license" data-cta="pro-hero">Get PRO</a>
-      <a class="btn lg" href="https://harnessmd.com/download">Download free</a>
+      <a class="btn lg" data-dl href="https://harnessmd.com/download">Download free</a>
     </div>
     <p class="meta">One machine at a time, every floor on it. Switch back to Classic from the titlebar any time.</p>
     <div class="jump" role="navigation" aria-label="On this page">
@@ -813,7 +814,7 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
         <a href="/#pricing">Pricing</a>
         <a href="https://munderdiffl.in/wall.html" target="_blank" rel="noopener">Founders' Wall</a>
         <a href="mailto:girichaitanya11@gmail.com">Contact</a>
-        <a href="https://harnessmd.com/download">Download</a>
+        <a data-dl href="https://harnessmd.com/download">Download</a>
         <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/SECURITY.md" target="_blank" rel="noopener">Security</a>
         <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
         <a href="https://munderdiffl.in/terms.html" target="_blank" rel="noopener">Terms</a>
@@ -1038,5 +1039,6 @@ kbd{font-family:var(--mono);font-size:.78em;padding:1px 6px;border:1px solid var
     document.head.appendChild(s);
   })();
 </script>
+<script src="../assets/download.js" defer></script>
 </body>
 </html>

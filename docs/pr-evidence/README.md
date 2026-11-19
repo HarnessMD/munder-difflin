@@ -19,3 +19,11 @@ Before/after screenshots for pull request evidence, served to the PR body via
   and the local build with the drawn tile images.
 - `before-blog-mg-kit.png` / `after-blog-mg-kit.png` — /blog/assets/mg/demo.html before the blog scene kit
   (the live site has no such page) and after (every kit scene on its still frame, from the local files).
+- `before-one-click-hero.jpg` / `after-one-click-hero-menu.jpg`: the landing hero at 1440 by 900 on a Mac
+  before (one button to harnessmd.com/download) and after (the split button, its arrow opened: every build read
+  from the release folder, with sizes). Local files served from docs/, the live release folder.
+- `after-one-click-note-mac.jpg`, `after-one-click-note-windows.jpg`, `after-one-click-note-linux.jpg`: the card a
+  click opens while the installer downloads, with that system's install steps. Windows and Linux are the same page
+  with that system's user agent.
+- `after-one-click-menu-dark.jpg`: the menu in dark mode.
+- `before-one-click-pricing.jpg` / `after-one-click-pricing.jpg`: /pricing.html before, and after Download free.

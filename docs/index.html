@@ -194,6 +194,29 @@ button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:trans
 .ready .mark::after{transform:none}
 .hero .lede{max-width:760px;margin:26px auto 0}
 .cta-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:34px}
+/* the hero's split button (assets/download.js): the left part downloads this computer's installer, the arrow lists every build */
+.dlsplit{position:relative;display:inline-flex}
+.dlsplit.on .dl-main{border-radius:12px 0 0 12px}
+.dlsplit .dl-more{width:50px;padding:0;margin-left:-1px;border-radius:0 12px 12px 0}
+.dlsplit .dl-more svg{width:18px;height:18px;transition:transform .3s var(--spring)}
+.dlsplit.open .dl-more svg{transform:rotate(180deg)}
+.dlsplit.open{z-index:44}
+.dl-menu{position:absolute;top:calc(100% + 10px);left:50%;width:330px;margin-left:-165px;padding:6px;border-radius:14px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh2);display:grid;gap:2px;text-align:left;animation:dlm .28s var(--out)}
+@keyframes dlm{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.dl-menu a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:9px;color:var(--ink);transition:background .2s}
+.dl-menu a:hover,.dl-menu a:focus-visible{background:rgba(26,25,22,.06)}
+.dl-menu .dl-ic{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:9px;background:var(--raise);border:1px solid var(--line2)}
+.dl-menu .dl-ic svg{width:18px;height:18px}
+.dl-menu .dl-tx{min-width:0}
+.dl-menu b{display:block;font-size:14.5px;font-weight:650;letter-spacing:-.01em}
+.dl-menu .dl-you{margin-left:8px;padding:2px 7px;border-radius:999px;border:1px solid var(--acc-line);background:var(--acc-soft);color:var(--acc-text);font:600 11px/1.3 var(--sans);font-style:normal;vertical-align:1px}
+.dl-menu small{display:block;font-size:12.5px;color:var(--ink3);line-height:1.35}
+.dl-menu .dl-sz{margin-left:auto;padding-left:8px;font:500 12px/1 var(--mono);color:var(--ink3);white-space:nowrap}
+.dl-menu hr{border:0;border-top:1px solid var(--line2);margin:4px 6px}
+.dl-menu .dl-more-links{display:flex;gap:2px}
+.dl-menu .dl-more-links a{flex:1;justify-content:center;padding:9px 10px;font-size:13.5px;font-weight:550;color:var(--ink2)}
+.dl-menu .dl-wait{padding:14px 12px;font-size:13.5px;color:var(--ink3)}
+@media (prefers-reduced-motion:reduce){.dl-menu{animation:none}.dlsplit .dl-more svg{transition:none}}
 .plats{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;margin-top:22px;font-size:14px;color:var(--ink3)}
 .plats .chip{height:30px}
 .plats svg{width:14px;height:14px}
@@ -879,6 +902,7 @@ html[data-theme="dark"] .btn-ink,html[data-theme="dark"] .hav .say,html[data-the
 html[data-theme="dark"] .kicker b,html[data-theme="dark"] .pro,html[data-theme="dark"] .face.dice{background:#2A2824;border-color:#2A2824}
 html[data-theme="dark"] .nav.solid{background:rgba(20,19,17,.84);box-shadow:0 1px 0 rgba(255,255,255,.06)}
 html[data-theme="dark"] .icon-btn:hover,html[data-theme="dark"] .menu.open .menu-btn,html[data-theme="dark"] .nav-menu a:hover,html[data-theme="dark"] .nav-menu a:focus-visible{background:rgba(255,255,255,.08)}
+html[data-theme="dark"] .dl-menu a:hover,html[data-theme="dark"] .dl-menu a:focus-visible{background:rgba(255,255,255,.08)}
 html[data-theme="dark"] .icon-btn.gh:hover{background:var(--panel);border-color:#5A564D}
 html[data-theme="dark"] .site-badge rect{fill:var(--panel);stroke:#5A564D}
 html[data-theme="dark"] .gh-badge path{fill:var(--ink)}
@@ -974,6 +998,7 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
 /* r13:end */
 </style>
 <link rel="stylesheet" href="assets/stapler.css">
+<link rel="stylesheet" href="assets/download.css">
 </head>
 <body>
 <header class="nav" id="nav">
@@ -1010,7 +1035,10 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
     </h1>
     <p class="lede" data-r style="--d:2">Use subscriptions you already pay for to run agents in your personal simulation. Works with most providers like Claude, ChatGPT, Grok, Gemini and more. Give your agents your computer or rent one from us.</p>
     <div class="cta-row" data-r style="--d:3">
-      <a class="btn btn-acc" data-dl data-mag href="https://harnessmd.com/download"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5.5 8.5L10 13l4.5-4.5M4 17h12"/></svg><span data-dl-label>Download</span></a>
+      <div class="dlsplit" data-dl-split>
+        <a class="btn btn-acc dl-main" data-dl href="https://harnessmd.com/download"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5.5 8.5L10 13l4.5-4.5M4 17h12"/></svg><span data-dl-label>Download</span></a><button class="btn btn-acc dl-more" type="button" aria-expanded="false" aria-controls="dlMenu" aria-label="Other downloads: Mac, Windows and Linux" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8l4.5 4.5L14.5 8"/></svg></button>
+        <div class="dl-menu" id="dlMenu" hidden></div>
+      </div>
       <a class="btn btn-line hero-signin" data-mag href="https://harnessmd.com/signin">Sign in</a>
       <a class="btn btn-line" href="#film" data-mag><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 4.6v10.8c0 .6.7 1 1.2.7l8.4-5.4c.5-.3.5-1 0-1.3L7.7 3.9c-.5-.3-1.2.1-1.2.7z"/></svg>Watch it run</a>
     </div>
@@ -1401,7 +1429,7 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
   <div class="wrap">
     <div class="foot-in">
       <div><a class="brand" href="#top"><img src="assets/logo.png" alt="" width="30" height="30"><span>Munder Difflin</span></a><p style="margin-top:14px;max-width:300px;color:#8E887A">Coolest app to use agents. Mac, Windows and Linux.</p></div>
-      <div><h6>Product</h6><a href="https://harnessmd.com/download">Download</a><a href="https://harnessmd.com/signin">Sign in</a><a href="https://munderdiffl.in/pricing.html">Pricing</a><a href="#themes">Simulations</a><a href="#stapler">Stapler</a><a href="#teams">Teams</a><a href="#faq">FAQ</a><a href="https://munderdiffl.in/blog/">Blog</a></div>
+      <div><h6>Product</h6><a href="https://harnessmd.com/download" data-dl>Download</a><a href="https://harnessmd.com/signin">Sign in</a><a href="https://munderdiffl.in/pricing.html">Pricing</a><a href="#themes">Simulations</a><a href="#stapler">Stapler</a><a href="#teams">Teams</a><a href="#faq">FAQ</a><a href="https://munderdiffl.in/blog/">Blog</a></div>
       <div><h6>Community</h6><a href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">GitHub</a><a href="https://discord.gg/SEDzP5ZPk5" target="_blank" rel="noopener">Discord</a><a data-support="wall-link" href="https://munderdiffl.in/wall.html" target="_blank" rel="noopener">Founding Supporters</a><a href="https://munderdiffl.in/contact.html">Contact</a></div>
       <div><h6>Legal</h6><a href="https://munderdiffl.in/privacy.html">Privacy</a><a href="https://munderdiffl.in/terms.html">Terms</a><a href="https://munderdiffl.in/refund.html">Refunds</a></div>
     </div>
@@ -1441,6 +1469,7 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
 <script src="assets/stapler.js" defer></script>
 <script src="assets/office.js" defer></script>
 <script src="assets/brands.js" defer></script>
+<script src="assets/download.js" defer></script>
 <script src="assets/site.js" defer></script>
 <script>
   /* ---- the developers player (13 Nov 2026): the app loop, fetched only near the screen; Watch launch video plays the
@@ -1541,6 +1570,8 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
       var place = function (el) {
         if (el.closest('#navMenu')) return 'drawer';
         if (el.closest('#nav')) return 'nav';
+        if (el.closest('.dl-menu')) return 'hero_menu';
+        if (el.closest('.mddl-note')) return 'install_note';
         if (el.closest('#top')) return 'hero';
         if (el.closest('#buddy')) return 'stapler';
         if (el.closest('footer')) return 'footer';
@@ -1554,8 +1585,11 @@ html[data-theme="dark"] .qa:hover{border-color:#5A564D}
         if (href.charAt(0) === '#') { ph('nav_clicked', { target: href.slice(1) || 'top', button: where }); return; }
         try { u = new URL(a.href, location.href); } catch (e) { return; }
         var host = u.hostname.replace(/^www\./, ''), path = u.pathname;
-        if (host === 'harnessmd.com' && path.indexOf('/download') === 0) {
-          ph('download_clicked', { button: where });
+        if (host === 'harnessmd.com' && (path.indexOf('/download') === 0 || path.indexOf('/releases/') === 0)) {
+          // A button points at the installer itself once assets/download.js has read the release folder, and at
+          // the download page before that or when the folder did not answer. Which one is a page fact, not a person.
+          var inst = /-mac-universal\.dmg$/.test(path) ? 'mac' : /-win-x64-setup\.exe$/.test(path) ? 'win' : /-linux-x86_64\.AppImage$/.test(path) ? 'linux' : 'page';
+          ph('download_clicked', { button: where, installer: inst });
           if (where === 'pricing') ph('plan_clicked', { plan: 'free', action: 'download' });
         } else if (host === 'harnessmd.com' && path.indexOf('/signin') === 0) {
           ph('signin_clicked', { button: where });
