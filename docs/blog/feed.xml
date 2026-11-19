@@ -4,9 +4,41 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-18T00:00:00.000Z</updated>
+  <updated>2026-11-19T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Agent Tools Today, 19 Nov 2026: GPT-6.2 Astra and Sol, Gemini 4 Neon and MAI Code 2</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-19/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-19/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 16 to 19 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Amp Alternatives: 5 Picks for the Coding Agent (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/amp-alternatives/" />
+    <id>https://munderdiffl.in/blog/amp-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>Amp swapped its Dial for a model selector on 12 Nov 2026. Five Amp alternatives by fit, price and release, checked 19 Nov 2026.</summary>
+  </entry>
+  <entry>
+    <title>Gemini 4 Neon: Price, API and How It Compares (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/gemini-4-neon/" />
+    <id>https://munderdiffl.in/blog/gemini-4-neon/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Gemini 4 Neon came out on 18 Nov 2026: $3 input and $15 output per 1M tokens, the gemini-4-neon model code, where to use it and how it compares.</summary>
+  </entry>
+  <entry>
+    <title>OpenHands Alternatives: 5 Picks After v1.42.0 (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/openhands-alternatives/" />
+    <id>https://munderdiffl.in/blog/openhands-alternatives/</id>
+    <published>2026-11-19T00:00:00.000Z</published>
+    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>OpenHands ships as Agent Canvas, a control center for coding agents. Five alternatives by licence, release and fit, checked 19 Nov 2026.</summary>
+  </entry>
   <entry>
     <title>GPT-6.2 Astra and Sol: Price, Specs and How to Use Them in Codex (Nov 2026)</title>
     <link href="https://munderdiffl.in/blog/gpt-6-2-astra-and-sol/" />
@@ -437,7 +469,7 @@
     <id>https://munderdiffl.in/blog/antigravity-alternatives/</id>
     <published>2026-11-04T00:00:00.000Z</published>
     <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Antigravity has no bring your own key option for more rate limits and drops Claude 4.6 on 18 Nov. Six alternatives, prices checked 4 Nov 2026.</summary>
+    <summary>Antigravity added Gemini 4 Neon, Hydrogen and Orchestrator, but no bring your own key option for more rate limits. Six alternatives by why you are leaving.</summary>
   </entry>
   <entry>
     <title>Gemini CLI Alternatives: 6 Picks Now the Free Tier Has Moved (Nov 2026)</title>
@@ -454,37 +486,5 @@
     <published>2026-11-04T00:00:00.000Z</published>
     <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Roo Code was shut down on 15 May 2026. Six alternatives sorted by why you are leaving, with licences and prices checked 4 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Worktrunk Alternatives: 6 Picks for Parallel AI Agents (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/worktrunk-alternatives/" />
-    <id>https://munderdiffl.in/blog/worktrunk-alternatives/</id>
-    <published>2026-11-04T00:00:00.000Z</published>
-    <updated>2026-11-04T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Worktrunk alternatives checked 4 Nov 2026: plain git worktree, Munder Difflin, Claude Squad, Orca, Emdash and Conductor, sorted by why you would leave.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 3 Nov 2026: Astra Edits Weights, Claude Code 2.1.317, Momentic Mo</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-03/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-03/</id>
-    <published>2026-11-03T00:00:00.000Z</published>
-    <updated>2026-11-03T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 2 to 3 Nov 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>T3 Code Alternatives: 6 Picks by Why You Are Leaving (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/t3-code-alternatives/" />
-    <id>https://munderdiffl.in/blog/t3-code-alternatives/</id>
-    <published>2026-11-03T00:00:00.000Z</published>
-    <updated>2026-11-03T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>T3 Code is free but very early by its own account. Six alternatives sorted by why you would leave, with agents and prices checked 3 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 2 Nov 2026: ChatGPT and Codex Shared Limits, Memdoor, T3 Code</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-02/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-02/</id>
-    <published>2026-11-02T00:00:00.000Z</published>
-    <updated>2026-11-02T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and arguments in AI agents from 1 to 2 Nov 2026, each with its source and date.</summary>
   </entry>
 </feed>

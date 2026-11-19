@@ -22,6 +22,8 @@ faq:
 
 In our view the closest OpenCode alternative is Kilo Code, whose CLI is a fork of OpenCode. Claude Code, Codex CLI and Gemini CLI are the big vendor agents, and Crush, Pi and Goose are agents that take many models. Checked 15 Oct 2026.
 
+If you are comparing OpenHands too, our [OpenHands alternatives](/blog/openhands-alternatives/) list puts OpenCode first.
+
 This list is for people weighing a move off OpenCode this week. If you are new to it, read [what is OpenCode](/blog/what-is-opencode/) first. The [Comparisons hub](/blog/topics/comparisons/) has the head to head posts.
 
 ## Why look for an OpenCode alternative now?
