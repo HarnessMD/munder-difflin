@@ -23,7 +23,7 @@ import {
   readdirSync, statSync, lstatSync, realpathSync, rmSync, appendFileSync,
   symlinkSync, unlinkSync, copyFileSync, cpSync, chmodSync
 } from 'node:fs';
-import { join, dirname, basename, isAbsolute, relative } from 'node:path';
+import { join, dirname, basename, isAbsolute, relative, posix, win32 } from 'node:path';
 import { homedir } from 'node:os';
 import { spawnSync, spawn, type ChildProcess } from 'node:child_process';
 import { randomBytes, createHash } from 'node:crypto';
@@ -35,7 +35,10 @@ import {
   canReceiveInbox,
   providerPreset,
   bridgeOf,
-  type AgentProvider
+  directoryAccessOf,
+  directoryArgsForProvider,
+  type AgentProvider,
+  type DirectoryAccessDescriptor
 } from '../shared/agentProvider';
 import { MCP_CATALOG } from '../shared/mcpCatalog';
 import { selectBroadcastTargets } from '../shared/broadcast';
@@ -200,6 +203,112 @@ export interface SpawnInjection {
    *  (today: the proxy-bridge sidecar never bound after retries, so a proxy-tier
    *  agent such as Crush runs without hive events). Human-readable, one line. */
   degraded?: string;
+}
+
+export interface DirectoryGrantInput {
+  /** Hive protocol paths provisioned by ensureAgent before resolution. */
+  required: readonly string[];
+  /** Extension-owned paths: grant only when the provider's policy allows it. */
+  optional?: readonly string[];
+}
+
+export interface DirectoryGrantSkip {
+  path: string;
+  reason: 'invalid' | 'empty' | 'relative' | 'missing' | 'not-directory' | 'inaccessible';
+}
+
+export interface DirectoryGrantResolution {
+  grants: string[];
+  skipped: DirectoryGrantSkip[];
+}
+
+type DirectoryInspection = 'directory' | 'missing' | 'not-directory' | 'inaccessible';
+
+/** Resolve path grants without throwing. Required Hive paths are already created
+ *  by ensureAgent; optional paths are inspected when the provider requires them
+ *  to exist. Lexical normalization deliberately avoids realpathSync: junction,
+ *  symlink and network-path failures must not prevent an otherwise valid spawn. */
+export function resolveDirectoryGrants(
+  access: DirectoryAccessDescriptor,
+  dirs: DirectoryGrantInput,
+  deps: {
+    platform?: NodeJS.Platform;
+    inspectDirectory?: (path: string) => DirectoryInspection;
+  } = {}
+): DirectoryGrantResolution {
+  const platform = deps.platform ?? process.platform;
+  const pathApi = platform === 'win32' ? win32 : posix;
+  const grants: string[] = [];
+  const skipped: DirectoryGrantSkip[] = [];
+  const seen = new Set<string>();
+  const inspectDirectory = deps.inspectDirectory ?? ((path: string): DirectoryInspection => {
+    try {
+      return statSync(path).isDirectory() ? 'directory' : 'not-directory';
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException | undefined)?.code;
+      return code === 'ENOENT' || code === 'ENOTDIR' ? 'missing' : 'inaccessible';
+    }
+  });
+
+  const resolveOne = (raw: unknown, optional: boolean): void => {
+    if (typeof raw !== 'string') {
+      skipped.push({ path: '', reason: 'invalid' });
+      return;
+    }
+    if (raw.trim().length === 0) {
+      skipped.push({ path: raw, reason: 'empty' });
+      return;
+    }
+
+    let normalized: string;
+    try {
+      normalized = pathApi.normalize(raw);
+      const rootLength = pathApi.parse(normalized).root.length;
+      while (normalized.length > rootLength && /[\\/]$/.test(normalized)) {
+        normalized = normalized.slice(0, -1);
+      }
+    } catch {
+      skipped.push({ path: raw, reason: 'invalid' });
+      return;
+    }
+    if (!pathApi.isAbsolute(normalized)) {
+      skipped.push({ path: raw, reason: 'relative' });
+      return;
+    }
+
+    const key = platform === 'win32' ? normalized.toLowerCase() : normalized;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    if (optional && access.requiresExisting) {
+      let inspection: DirectoryInspection;
+      try {
+        inspection = inspectDirectory(normalized);
+      } catch {
+        inspection = 'inaccessible';
+      }
+      if (inspection !== 'directory') {
+        skipped.push({ path: normalized, reason: inspection });
+        return;
+      }
+    }
+    grants.push(normalized);
+  };
+
+  for (const path of dirs.required) resolveOne(path, false);
+  for (const path of dirs.optional ?? []) resolveOne(path, true);
+  return { grants, skipped };
+}
+
+const warnedDirectoryGrants = new Set<string>();
+
+function warnSkippedDirectoryGrants(provider: AgentProvider | undefined, skipped: readonly DirectoryGrantSkip[]): void {
+  for (const item of skipped) {
+    const key = `${provider ?? 'claude'}\0${item.reason}\0${item.path}`;
+    if (warnedDirectoryGrants.has(key)) continue;
+    warnedDirectoryGrants.add(key);
+    console.warn(`[hive] skipped ${provider ?? 'claude'} directory grant (${item.reason}): ${item.path || '<empty>'}`);
+  }
 }
 
 const HOP_CAP = 12;
@@ -855,6 +964,15 @@ export class HiveManager {
       // and is isolated to a per-agent CODEX_HOME so the user's global Codex
       // configuration is never mutated. Both share the HIVE_SOCK wiring below.
       const preArgs: string[] = [];
+      const directoryAccess = directoryAccessOf(meta.provider);
+      if (directoryAccess) {
+        const resolution = resolveDirectoryGrants(
+          directoryAccess,
+          { required: [dir, root], optional: opts.extraWritableDirs }
+        );
+        preArgs.push(...directoryArgsForProvider(meta.provider, resolution.grants));
+        warnSkippedDirectoryGrants(meta.provider, resolution.skipped);
+      }
       let degraded: string | undefined;
       // Dispatch on the structured bridge descriptor (the foundation's `bridgeOf`
       // derives {kind:'hooks'} from the legacy `hookBridge` for agy/codex, and
