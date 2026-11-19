@@ -89,6 +89,6 @@ If you came for a free tier, keep walking. The [auth docs](https://qwenlm.github
 
 ## When should you stay on Gemini CLI?
 
-Stay if your company already pays for Gemini Code Assist Standard or Enterprise. Google's announcement tells those customers "your access remains unchanged" and promises "access to the latest Gemini models and other updates." Scripts built on `gemini -p --output-format json` are another reason not to rush.
+Stay if your company already pays for Gemini Code Assist Standard or Enterprise. Google's announcement tells those customers "your access remains unchanged" and promises "access to the latest Gemini models and other updates." Scripts built on `gemini -p --output-format json` are another reason not to rush. If you are weighing GitHub's terminal agent instead, our [GitHub Copilot CLI alternatives](/blog/github-copilot-cli-alternatives/) page compares five options, checked 19 Nov 2026.
 
 <link rel="stylesheet" href="/blog/assets/media/gemini-cli-alternatives/motion.css"><script defer src="/blog/assets/media/gemini-cli-alternatives/motion.js"></script>

@@ -59,7 +59,7 @@ Six tools. Every row was read on 7 Nov 2026.
 
 ## 1. Orca: the closest match
 
-Orca does what Paradev does and adds Windows. Its [README](https://github.com/stablyai/orca), read 7 Nov 2026, says "Run Claude Code, Codex, and any other coding agent in parallel, each in its own worktree." You can "give a worktree its own cloud VM", and then "Your agents keep running when your laptop sleeps." The [Orca site](https://www.onorca.dev) answers "Is it free?" with "Free and open source."
+Orca does what Paradev does and adds Windows. Its [README](https://github.com/stablyai/orca), read 7 Nov 2026, says "Run Claude Code, Codex, and any other coding agent in parallel, each in its own worktree." You can "give a worktree its own cloud VM", and then "Your agents keep running when your laptop sleeps." The [Orca site](https://www.onorca.dev) answers "Is it free?" with "Free and open source." If Orca is the tool you want to replace, our [Orca alternatives](/blog/orca-alternatives/) page, checked 19 Nov 2026, lists six options.
 
 ## 2. Munder Difflin: a team for all kinds of work
 
