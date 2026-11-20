@@ -3087,6 +3087,8 @@ export class HiveManager {
     for (const id of readdirSync(agentsDir)) {
       const outbox = join(agentsDir, id, 'outbox');
       if (!existsSync(outbox)) continue;
+      // An outbox made outside ensureAgent may lack .sent; a failed archive rename redelivers on every tick.
+      mkdirSync(join(outbox, '.sent'), { recursive: true });
       for (const f of readdirSync(outbox)) {
         if (!f.endsWith('.json')) continue;
         const full = join(outbox, f);
