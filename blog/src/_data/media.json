@@ -6522,5 +6522,38 @@
       "prompt": "Title card: the hero scene in assets/media/github-copilot-cli-alternatives/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "agent-tools-today-2026-11-20": {
+    "inline": {},
+    "title": "Agent Tools Today, 20 Nov 2026: Codex 0.171.0, Claude Code v2.1.329 and Claude on Black Holes",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-20/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily Brief, the title Agent Tools Today, the line 20 Nov 2026 and a muted line Codex, Claude Code and black holes. A lilac metronome swings once and settles upright beside three cards: Codex, Claude Code and Black holes.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-20/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "aider-alternatives": {
+    "inline": {},
+    "title": "Aider Alternatives: 6 Tools Compared (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/aider-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Aider alternatives, the line 6 tools to switch to and a Checked 20 Nov 2026 line. Beside a lilac stopwatch, cards named OpenCode, Munder Difflin, Qwen Code, goose, Codex CLI and Claude Code slide in one by one.",
+      "prompt": "Title card: the hero scene in assets/media/aider-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "goose-alternatives": {
+    "inline": {},
+    "title": "goose Alternatives: 5 Open Source AI Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/goose-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title goose alternatives, the line 5 open source AI agents and a Checked 20 Nov 2026 line. Cards named Hermes Agent, Munder Difflin, OpenCode, OpenHands and Codex CLI slide out of a sky blue birdhouse and settle in a fan.",
+      "prompt": "Title card: the hero scene in assets/media/goose-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
