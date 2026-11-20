@@ -27,3 +27,12 @@ Before/after screenshots for pull request evidence, served to the PR body via
   with that system's user agent.
 - `after-one-click-menu-dark.jpg`: the menu in dark mode.
 - `before-one-click-pricing.jpg` / `after-one-click-pricing.jpg`: /pricing.html before, and after Download free.
+
+## site/pricing-060: the pricing page with today's prices, in the landing page's style
+
+- `before-pricing-060-desktop.jpg` / `before-pricing-060-phone.jpg`: /pricing.html before, with the old $20 for 30
+  days and $150 for 365 days Pro, paid once through Razorpay.
+- `after-pricing-060-desktop.jpg`: the new page at 1440 wide: Free, Pro, Max and Teams, monthly first, the Cloud
+  Office parts, the $19 top up and how paying works.
+- `after-pricing-060-dark.jpg`: the same page in dark mode.
+- `after-pricing-060-phone.jpg`: the same page at 390 wide.
