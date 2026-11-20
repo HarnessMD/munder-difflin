@@ -58,7 +58,7 @@ Aider will never forget to commit. It will also, by default, skip the pre-commit
 
 ## Is Aider still maintained?
 
-Barely: the repo is not archived, but its last commit on main landed on 22 May 2026. PyPI's latest version is 0.86.2, uploaded 12 Feb 2026, the first release since August 2025. On 15 Sep 2026, GitHub's API showed no pull request merged since and 493 open, while 280 new issues had arrived since 1 Jun 2026. When a user asked [where the maintainer had gone](https://github.com/Aider-AI/aider/issues/4613) in October 2025, Paul Gauthier replied: "Unfortunately I've been occupied with other projects recently." Aider's [LLM leaderboard](https://aider.chat/docs/leaderboards/) still says last updated 20 Nov 2025. Claude Code published 29 versions to npm between 17 Aug and 12 Sep 2026.
+Barely: the repo is not archived, but its last commit on main landed on 22 May 2026. PyPI's latest version is 0.86.2, uploaded 12 Feb 2026, the first release since August 2025. On 15 Sep 2026, GitHub's API showed no pull request merged since and 493 open, while 280 new issues had arrived since 1 Jun 2026. When a user asked [where the maintainer had gone](https://github.com/Aider-AI/aider/issues/4613) in October 2025, Paul Gauthier replied: "Unfortunately I've been occupied with other projects recently." Aider's [LLM leaderboard](https://aider.chat/docs/leaderboards/) still says last updated 20 Nov 2025. Claude Code published 29 versions to npm between 17 Aug and 12 Sep 2026. Our [Aider alternatives](/blog/aider-alternatives/) guide compares six tools you can switch to, checked 20 Nov 2026.
 
 ## Which models can Aider and Claude Code use?
 

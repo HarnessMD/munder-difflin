@@ -56,7 +56,7 @@ Seven tools pass, each checked on 26 Oct 2026.
 
 **4. OpenCode.** [OpenCode](https://github.com/anomalyco/opencode) is "The open source AI coding agent", MIT licensed, in the terminal and as a desktop app in beta, with release v1.19.4 on 22 Oct 2026. Its [site](https://opencode.ai) says you can "connect any model from any provider, including Claude, GPT, Gemini and more", lists "75+ LLM providers", local models included, and says "OpenCode is 100% free to use" (26 Oct 2026). Best for: an open source terminal agent on any model.
 
-**5. Goose.** [Goose](https://github.com/aaif-goose/goose) is "a general-purpose AI agent that runs on your machine", as a desktop app and a CLI, "for code, workflows, and everything in between". It "works with 15+ providers", Ollama included, and is part of the Agentic AI Foundation at the Linux Foundation. Apache 2.0, release v1.56.0 on 23 Oct 2026. Best for: one agent for code and other work.
+**5. Goose.** [Goose](https://github.com/aaif-goose/goose) is "a general-purpose AI agent that runs on your machine", as a desktop app and a CLI, "for code, workflows, and everything in between". It "works with 15+ providers", Ollama included, and is part of the Agentic AI Foundation at the Linux Foundation. Apache 2.0, release v1.56.0 on 23 Oct 2026. Best for: one agent for code and other work. See also [goose alternatives](/blog/goose-alternatives/), checked 20 Nov 2026.
 
 **6. Cline.** [Cline](https://github.com/cline/cline) is "The open source coding agent in your IDE, terminal, & desktop", Apache 2.0. Its [pricing page](https://cline.bot/pricing) says "Cline is free for individual developers", with inference bought at cost or paid with your own key, as of 26 Oct 2026. Best for: an open source agent in your editor.
 
