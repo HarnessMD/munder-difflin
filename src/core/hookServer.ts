@@ -739,9 +739,11 @@ export class HookServer {
     // A different agent_id with no agent_type is not a subagent (see below). An engine
     // that puts its own id in agent_id (the Claude/Codex shim keeps one) speaks for the
     // floor agent that sent it, so the sender's id wins and the floor still hears it.
+    // In place, never a copy: the socket and HTTP handlers find a delivered steer by
+    // this same object (steersOut), so a copy would lose the steer's proof and return.
     const sender = typeof payload.hive_agent === 'string' && payload.hive_agent ? payload.hive_agent : undefined;
-    const p: HookPayload = sender && payload.agent_id && payload.agent_id !== sender && !payload.agent_type
-      ? { ...payload, agent_id: sender } : payload;
+    if (sender && payload.agent_id && payload.agent_id !== sender && !payload.agent_type) payload.agent_id = sender;
+    const p = payload;
     const agentId = p.agent_id ?? undefined;
     const event = p.hook_event_name ?? 'Unknown';
     // Inside a Claude Code subagent, agent_id is the subagent's own id, agent_type is

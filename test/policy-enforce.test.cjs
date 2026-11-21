@@ -647,6 +647,23 @@ test('hook: a subagent\'s hooks still reach the facts observer (switchClear coun
   assert.deepEqual(facts, ['sub-5 SubagentStop']);
 });
 
+test('hook: a steer given to an engine that put its own id in agent_id is still tracked (proof, and return on hang-up)', async (t) => {
+  const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-enforce-steer-')));
+  t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
+  const hive = new HiveManager(() => home);
+  await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
+  const control = new ControlRegistry();
+  const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true }), control, undefined);
+  for (const agent_id of ['jim-1', 'codex-thread-1']) {
+    control.steer('jim-1', `use the staging db (${agent_id})`);
+    const payload = { hook_event_name: 'UserPromptSubmit', agent_id, hive_agent: 'jim-1', session_id: 's', prompt: 'go' };
+    const reply = await server.handle(payload);
+    assert.match(reply.hookSpecificOutput.additionalContext, /use the staging db/, agent_id);
+    // The socket and HTTP handlers look the steer up by the object they passed in.
+    assert.equal(server.steersOut.get(payload)?.agentId, 'jim-1', `${agent_id}: tracked on the payload the handler holds`);
+  }
+});
+
 test('hook: pausing or halting an agent stops its subagents too', async (t) => {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-enforce-ctl-')));
   t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
