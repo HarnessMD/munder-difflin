@@ -2512,6 +2512,7 @@
     "status": {
       "loading": "Chargement des règles...",
       "off": "Garde-fou désactivé : rien n'est vérifié et les agents ne reçoivent aucune règle.",
+      "offButLoaded": "L'interrupteur indique désactivé, mais les règles chargées avant restent en vigueur : {{backstops}} contrôles vérifiés. Cela arrive quand config.json est endommagé ou a été modifié à la main. Désactive-le ici, ou répare d'abord les réglages.",
       "noFile": "Garde-fou activé, mais il n'y a pas de fichier de règles : rien n'est vérifié.",
       "broken": "Le fichier de règles est cassé, donc rien n'est vérifié : {{error}}",
       "unapproved": "Le fichier de règles a été modifié en dehors de cet écran, il n'est donc pas chargé. Lis-le ci-dessous, puis accepte-le.",

@@ -137,7 +137,7 @@ export function RulesPanel() {
                 {view.on ? t('rulesPanel.addStarter') : t('rulesPanel.turnOn')}
               </PixelButton>
             )}
-            {view.on && (
+            {(view.on || view.engine.rulesLoaded > 0) && (
               <PixelButton variant="secondary" size="sm" disabled={busy} onClick={() => void run(() => window.cth.guardrailTurnOff(), t('rulesPanel.turnedOff'))}>{t('rulesPanel.turnOff')}</PixelButton>
             )}
           </div>

@@ -2512,6 +2512,7 @@
     "status": {
       "loading": "Kurallar yükleniyor...",
       "off": "Korkuluk kapalı: hiçbir şey denetlenmez ve ajanlara kural verilmez.",
+      "offButLoaded": "Anahtar kapalı görünüyor, ama daha önce yüklenen kurallar hâlâ geçerli: {{backstops}} denetim yapılıyor. Bu, config.json bozuk olduğunda ya da elle değiştirildiğinde olur. Buradan kapat ya da önce ayarları onar.",
       "noFile": "Korkuluk açık ama kural dosyası yok: hiçbir şey denetlenmez.",
       "broken": "Kural dosyası bozuk, bu yüzden hiçbir şey denetlenmez: {{error}}",
       "unapproved": "Kural dosyası bu ekranın dışında değiştirildi, bu yüzden yüklenmedi. Aşağıda oku, sonra kabul et.",

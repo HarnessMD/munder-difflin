@@ -22,6 +22,7 @@ const EN: Record<string, string> = {
   'backstop.onErrorDeny': 'if it cannot be checked: counts as a match', 'backstop.off': 'off',
   'status.loading': 'Loading rules...',
   'status.off': 'Guardrail off: nothing is checked and agents are given no rules.',
+  'status.offButLoaded': 'The switch reads as off, but the rules loaded earlier are still in force: {{backstops}} backstops checked. This happens when config.json is damaged or was edited by hand. Turn it off here, or repair the settings first.',
   'status.noFile': 'Guardrail on, but there is no rules file: nothing is checked.',
   'status.broken': 'The rules file is broken, so nothing is checked: {{error}}',
   'status.unapproved': 'The rules file was changed outside this screen, so it is not loaded. Read it below, then accept it.',
@@ -113,6 +114,10 @@ export function fromDraft(d: Draft, prev?: GuardrailRule): GuardrailRule {
 /** The status line: what the guardrail is doing now, or, marked bad, why it is not. */
 export function statusLine(v: GuardrailView | null, t: Tr = en): { text: string; bad: boolean } {
   if (!v) return { text: t('rulesPanel.status.loading'), bad: false };
+  // The engine reloads only on an operator action, so a switch that reads as off (a
+  // damaged config.json reads as the defaults, or a hand edit) can sit over rules
+  // that are still enforced. Say so, never "nothing is checked".
+  if (!v.on && v.engine.rulesLoaded > 0) return { text: t('rulesPanel.status.offButLoaded', { backstops: v.engine.rulesLoaded }), bad: true };
   if (!v.on) return { text: t('rulesPanel.status.off'), bad: false };
   if (!v.exists) return { text: t('rulesPanel.status.noFile'), bad: true };
   if (v.error) return { text: t('rulesPanel.status.broken', { error: v.error }), bad: true };
