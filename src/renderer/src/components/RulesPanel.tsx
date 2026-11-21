@@ -6,29 +6,30 @@
  * guardrail.json. Main reads, checks, writes and reloads it (guardrailEditor.ts); this
  * screen only edits a draft and sends the whole file back with the fingerprint of the
  * file it showed, so a file changed elsewhere is never overwritten or approved unseen.
+ *
+ * The look is the Settings form's own (settings/classicChrome.ts), and every word is a
+ * `rulesPanel.` key in the locale files. Errors that main sends back are shown as main
+ * wrote them, as on the other Settings sections.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@/store/store';
 import { PixelButton } from './PixelButton';
 import { setLeaveGuard } from './settings/leaveGuard';
+import { settingsKit } from './settings/classicChrome';
 import type { BackstopDoes, GuardrailFile, GuardrailResult, GuardrailRule, GuardrailView } from '../../../shared/guardrail';
-import { DOES, describeBackstop, emptyDraft, fromDraft, statusLine, toDraft, type Draft } from './rulesView';
+import { DOES, describeBackstop, doesLabel, emptyDraft, fromDraft, statusLine, toDraft, type Draft, type Tr } from './rulesView';
 
+const kit = settingsKit;
 const row: CSSProperties = { display: 'flex', gap: 8, alignItems: 'center' };
-const label: CSSProperties = {
-  fontFamily: 'var(--cth-font-display)', fontSize: 8, lineHeight: '12px',
-  color: 'var(--cth-ink-500)', textTransform: 'uppercase',
-};
-const box: CSSProperties = { border: '2px solid var(--cth-ink-300)', background: 'var(--cth-cream-100)', padding: 10 };
-const input: CSSProperties = {
-  width: '100%', padding: '6px 8px', fontFamily: 'var(--cth-font-mono)', fontSize: 12,
-  border: '2px solid var(--cth-ink-300)', background: 'var(--cth-paper-100)', color: 'var(--cth-ink-900)',
-};
+const field: CSSProperties = { ...kit.input, height: 'auto', fontFamily: 'var(--cth-font-mono)', fontSize: 12 };
 const text: CSSProperties = { fontSize: 12, color: 'var(--cth-ink-700)', lineHeight: 1.5 };
-const bad: CSSProperties = { color: 'var(--cth-coral)', fontWeight: 600 };
-const small: CSSProperties = { fontSize: 11, color: 'var(--cth-ink-500)' };
+const small: CSSProperties = { fontSize: 11, color: 'var(--cth-ink-500)', lineHeight: 1.5 };
+const bad: CSSProperties = { ...kit.errorText, fontSize: 12 };
 
 export function RulesPanel() {
+  const { t: i18nT } = useTranslation();
+  const t: Tr = (key, vars) => i18nT(key, vars);
   const agents = useStore((s) => s.agents);
   const [view, setView] = useState<GuardrailView | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -38,12 +39,14 @@ export function RulesPanel() {
   const [busy, setBusy] = useState(false);
 
   // A rule being edited is not dropped without a word when Settings closes or another
-  // section is picked (settings/leaveGuard.ts).
+  // section is picked (settings/leaveGuard.ts). The effect returns the guard's remover.
   const draftRef = useRef(draft);
   draftRef.current = draft;
+  const tRef = useRef(t);
+  tRef.current = t;
   useEffect(() => setLeaveGuard((proceed) => {
     if (!draftRef.current) return false;
-    if (window.confirm('Drop the rule you are editing? It has not been saved.')) { setDraft(null); proceed(); }
+    if (window.confirm(tRef.current('rulesPanel.confirmDrop'))) { setDraft(null); proceed(); }
     return true;
   }), []);
 
@@ -56,12 +59,15 @@ export function RulesPanel() {
     try {
       setView(await window.cth.guardrailRead());
       setLoadErr(null);
-    } catch (e) { setView(null); setLoadErr(`Could not read the rules: ${e instanceof Error ? e.message : String(e)}`); }
+    } catch (e) {
+      setView(null);
+      setLoadErr(tRef.current('rulesPanel.loadFailed', { error: e instanceof Error ? e.message : String(e) }));
+    }
   }, []);
   useEffect(() => { void load(); }, [load]);
 
   const rules = view?.file?.rules ?? [];
-  const status = statusLine(view);
+  const status = statusLine(view, t);
   /** A broken file is not edited here (main refuses too): it may hold rules this screen
    *  never saw. Fix it by hand or delete it. */
   const locked = !!view?.error;
@@ -88,126 +94,116 @@ export function RulesPanel() {
     if (!draft) return;
     const prev = rules.find((r) => r.id === draft.id);
     const rule = fromDraft(draft, prev);
-    if (!draft.allAgents && !draft.picked.length) { setErrors(['Pick at least one agent, or choose all agents.']); return; }
-    if (draft.isNew && rules.some((r) => r.id === rule.id)) { setErrors([`A rule with the id "${rule.id}" already exists.`]); return; }
-    save(draft.isNew ? [...rules, rule] : rules.map((r) => (r.id === draft.id ? rule : r)), draft.isNew ? 'Rule added.' : 'Rule saved.');
+    if (!draft.allAgents && !draft.picked.length) { setErrors([t('rulesPanel.pickAgent')]); return; }
+    if (draft.isNew && rules.some((r) => r.id === rule.id)) { setErrors([t('rulesPanel.idExists', { id: rule.id })]); return; }
+    save(draft.isNew ? [...rules, rule] : rules.map((r) => (r.id === draft.id ? rule : r)),
+      draft.isNew ? t('rulesPanel.ruleAdded') : t('rulesPanel.ruleSaved'));
   };
 
   const setDoes = (r: GuardrailRule, does: BackstopDoes) => {
     const b = r.backstop;
     if (!b || b.does === does) return;
-    save(rules.map((x) => (x.id === r.id ? { ...x, backstop: { ...b, does } } : x)), `${r.id}: now ${DOES.find((d) => d.v === does)?.label ?? does}.`);
+    save(rules.map((x) => (x.id === r.id ? { ...x, backstop: { ...b, does } } : x)),
+      t('rulesPanel.nowDoes', { id: r.id, does: doesLabel(does, t) }));
   };
 
   const toggle = (r: GuardrailRule) => {
     const b = r.backstop;
     if (!b) return;
-    save(rules.map((x) => (x.id === r.id ? { ...x, backstop: { ...b, on: !b.on } } : x)), b.on ? 'Backstop turned off.' : 'Backstop turned on.');
+    save(rules.map((x) => (x.id === r.id ? { ...x, backstop: { ...b, on: !b.on } } : x)),
+      b.on ? t('rulesPanel.backstopTurnedOff') : t('rulesPanel.backstopTurnedOn'));
   };
 
   const remove = (r: GuardrailRule) => {
-    if (!window.confirm(`Delete the rule "${r.principle}"?`)) return;
-    save(rules.filter((x) => x.id !== r.id), 'Rule deleted.');
+    if (!window.confirm(t('rulesPanel.confirmDelete', { principle: r.principle }))) return;
+    save(rules.filter((x) => x.id !== r.id), t('rulesPanel.ruleDeleted'));
   };
 
   const set = (patch: Partial<Draft>) => setDraft((d) => (d ? { ...d, ...patch } : d));
   const nameOf = (id: string) => targetable.find((a) => a.id === id)?.name ?? id;
   const startEdit = (d: Draft) => { setDraft(d); setErrors([]); setNote(null); };
   const canEdit = !!view && !busy && !draft && !locked;
+  const doesOptions = DOES.map((d) => <option key={d.v} value={d.v}>{doesLabel(d.v, t)}</option>);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={label}>Guardrail</div>
-      <div style={{ ...box, ...row, justifyContent: 'space-between' }}>
-        <div style={{ ...text, ...(status.bad || loadErr ? bad : {}) }}>{loadErr ?? status.text}</div>
+      <div style={kit.sectionHeadFlush}>{t('rulesPanel.heading')}</div>
+      <div style={{ ...kit.panel, flexDirection: 'row', ...row, justifyContent: 'space-between' }}>
+        <div style={status.bad || loadErr ? bad : text}>{loadErr ?? status.text}</div>
         {view && (
           <div style={row}>
             {(!view.on || !view.exists) && (
-              <PixelButton variant="primary" size="sm" disabled={busy || locked} onClick={() => void run(() => window.cth.guardrailTurnOn(view.stamp), 'Guardrail on.')}>
-                {view.on ? 'Add the starter rules' : 'Turn on guardrail'}
+              <PixelButton variant="primary" size="sm" disabled={busy || locked} onClick={() => void run(() => window.cth.guardrailTurnOn(view.stamp), t('rulesPanel.turnedOn'))}>
+                {view.on ? t('rulesPanel.addStarter') : t('rulesPanel.turnOn')}
               </PixelButton>
             )}
             {view.on && (
-              <PixelButton variant="secondary" size="sm" disabled={busy} onClick={() => void run(() => window.cth.guardrailTurnOff(), 'Guardrail off. Agents are told their rules were removed.')}>Turn off</PixelButton>
+              <PixelButton variant="secondary" size="sm" disabled={busy} onClick={() => void run(() => window.cth.guardrailTurnOff(), t('rulesPanel.turnedOff'))}>{t('rulesPanel.turnOff')}</PixelButton>
             )}
           </div>
         )}
       </div>
-      {view && !view.exists && (
-        <div style={small}>
-          Turning it on adds three starter rules, all set to Log only: agents write only in their own folder;
-          no mempalace sync or repair; pushing is your call. Make one Block or Ask me when you are ready.
-        </div>
-      )}
-      {view && !view.on && view.exists && !locked && (
-        <div style={small}>
-          A rules file is already there. Read the rules below: turning the guardrail on uses exactly these.
-        </div>
-      )}
+      {view && !view.exists && <div style={small}>{t('rulesPanel.starterNote')}</div>}
+      {view && !view.on && view.exists && !locked && <div style={small}>{t('rulesPanel.fileThere')}</div>}
       {view?.on && view.exists && !view.approved && !locked && view.stamp && (
-        <div style={{ ...box, ...row, justifyContent: 'space-between' }}>
-          <div style={text}>
-            Someone changed the rules file outside this screen. If nobody did it by hand, an agent did. Read the
-            rules below before you accept them.
-          </div>
-          <PixelButton variant="primary" size="sm" disabled={busy} onClick={() => void run(() => window.cth.guardrailAccept(view.stamp as string), 'Accepted. These rules are in effect now.')}>Accept these rules</PixelButton>
+        <div style={{ ...kit.panel, flexDirection: 'row', ...row, justifyContent: 'space-between' }}>
+          <div style={text}>{t('rulesPanel.changedOutside')}</div>
+          <PixelButton variant="primary" size="sm" disabled={busy} onClick={() => void run(() => window.cth.guardrailAccept(view.stamp as string), t('rulesPanel.accepted'))}>{t('rulesPanel.accept')}</PixelButton>
         </div>
       )}
       {view?.text && !locked && (!view.on || !view.approved) && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={label}>The whole file, exactly as it will be used</div>
-          <pre style={{ ...input, margin: 0, maxHeight: 320, overflow: 'auto', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{view.text}</pre>
+          <div style={kit.label}>{t('rulesPanel.wholeFile')}</div>
+          <pre style={{ ...kit.codeBox, margin: 0, maxHeight: 320, overflow: 'auto', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{view.text}</pre>
         </div>
       )}
       {note && <div style={text}>{note}</div>}
-      {errors.length > 0 && !draft && <div style={{ ...box, ...bad, fontSize: 12 }}>{errors.map((e) => <div key={e}>{e}</div>)}</div>}
+      {errors.length > 0 && !draft && <div style={{ ...kit.panel, ...bad }}>{errors.map((e) => <div key={e}>{e}</div>)}</div>}
 
       {(rules.length > 0 || view?.exists) && (
         <div style={{ ...row, justifyContent: 'space-between' }}>
-          <div style={label}>Rules</div>
-          <PixelButton variant="secondary" size="sm" disabled={!canEdit} onClick={() => startEdit(emptyDraft())}>+ Add rule</PixelButton>
+          <div style={kit.label}>{t('rulesPanel.rulesHead')}</div>
+          <PixelButton variant="secondary" size="sm" disabled={!canEdit} onClick={() => startEdit(emptyDraft())}>{t('rulesPanel.addRule')}</PixelButton>
         </div>
       )}
 
-      {view?.file?.defaults?.on_error === 'deny' && (
-        <div style={{ ...text, ...bad }}>A backstop that cannot be checked counts as a match (defaults.on_error: deny).</div>
-      )}
+      {view?.file?.defaults?.on_error === 'deny' && <div style={bad}>{t('rulesPanel.onErrorDeny')}</div>}
       {rules.map((r) => (
-        <div key={r.id} style={{ ...box, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div key={r.id} style={{ ...kit.panel, gap: 6 }}>
           <div style={{ ...row, justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ fontSize: 13, color: 'var(--cth-ink-900)' }}>{r.principle}</div>
-            <div style={{ ...small, whiteSpace: 'nowrap' }}>{r.agents === 'all' ? 'all agents' : r.agents.map(nameOf).join(', ')}</div>
+            <div style={{ ...small, whiteSpace: 'nowrap' }}>{r.agents === 'all' ? t('rulesPanel.allAgentsShort') : r.agents.map(nameOf).join(', ')}</div>
           </div>
-          <div style={{ ...small, fontFamily: 'var(--cth-font-mono)', overflowWrap: 'anywhere' }}>{describeBackstop(r)}</div>
-          {r.backstop?.message && <div style={{ ...small, overflowWrap: 'anywhere' }}>Agents are told when stopped: &quot;{r.backstop.message}&quot;</div>}
-          {r.why && <div style={{ ...small, overflowWrap: 'anywhere' }}>Why: {r.why}</div>}
+          <div style={{ ...small, fontFamily: 'var(--cth-font-mono)', overflowWrap: 'anywhere' }}>{describeBackstop(r, t)}</div>
+          {r.backstop?.message && <div style={{ ...small, overflowWrap: 'anywhere' }}>{t('rulesPanel.toldWhenStopped', { message: r.backstop.message })}</div>}
+          {r.why && <div style={{ ...small, overflowWrap: 'anywhere' }}>{t('rulesPanel.why', { why: r.why })}</div>}
           <div style={{ ...row, flexWrap: 'wrap' }}>
             {r.backstop && (
               <>
-                <select aria-label={`What ${r.id} does`} value={r.backstop.does} disabled={!canEdit}
-                  onChange={(e) => setDoes(r, e.target.value as BackstopDoes)} style={{ fontSize: 12 }}>
-                  {DOES.map((d) => <option key={d.v} value={d.v}>{d.label}</option>)}
+                <select aria-label={t('rulesPanel.whatDoes', { id: r.id })} value={r.backstop.does} disabled={!canEdit}
+                  onChange={(e) => setDoes(r, e.target.value as BackstopDoes)} style={{ ...kit.input, width: 'auto' }}>
+                  {doesOptions}
                 </select>
                 <PixelButton variant="secondary" size="sm" disabled={!canEdit} onClick={() => toggle(r)}>
-                  {r.backstop.on ? 'Backstop off' : 'Backstop on'}
+                  {r.backstop.on ? t('rulesPanel.backstopOff') : t('rulesPanel.backstopOn')}
                 </PixelButton>
               </>
             )}
-            <PixelButton variant="secondary" size="sm" disabled={!canEdit} onClick={() => startEdit(toDraft(r))}>Edit</PixelButton>
-            <PixelButton variant="destructive" size="sm" disabled={!canEdit} onClick={() => remove(r)}>Delete</PixelButton>
+            <PixelButton variant="secondary" size="sm" disabled={!canEdit} onClick={() => startEdit(toDraft(r))}>{t('rulesPanel.edit')}</PixelButton>
+            <PixelButton variant="destructive" size="sm" disabled={!canEdit} onClick={() => remove(r)}>{t('rulesPanel.delete')}</PixelButton>
           </div>
         </div>
       ))}
 
       {draft && (
-        <div style={{ ...box, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={label}>{draft.isNew ? 'New rule' : `Edit rule ${draft.id}`}</div>
-          <div style={label}>Principle: what your agents are told</div>
-          <textarea style={{ ...input, minHeight: 48 }} value={draft.principle}
-            onChange={(e) => set({ principle: e.target.value })} placeholder="Do not push without my approval." />
-          <div style={label}>Applies to</div>
+        <div style={kit.panel}>
+          <div style={kit.label}>{draft.isNew ? t('rulesPanel.newRule') : t('rulesPanel.editRule', { id: draft.id })}</div>
+          <div style={kit.label}>{t('rulesPanel.principleLabel')}</div>
+          <textarea style={{ ...field, minHeight: 48, resize: 'vertical' }} value={draft.principle}
+            onChange={(e) => set({ principle: e.target.value })} placeholder={t('rulesPanel.principlePh')} />
+          <div style={kit.label}>{t('rulesPanel.appliesTo')}</div>
           <div style={{ ...row, flexWrap: 'wrap', ...text }}>
-            <label><input type="checkbox" checked={draft.allAgents} onChange={(e) => set({ allAgents: e.target.checked })} /> All agents</label>
+            <label><input type="checkbox" checked={draft.allAgents} onChange={(e) => set({ allAgents: e.target.checked })} /> {t('rulesPanel.allAgents')}</label>
             {!draft.allAgents && targetable.map((a) => (
               <label key={a.id}>
                 <input type="checkbox" checked={draft.picked.includes(a.id)}
@@ -217,39 +213,36 @@ export function RulesPanel() {
           </div>
           <label style={text}>
             <input type="checkbox" checked={draft.hasBackstop} onChange={(e) => set({ hasBackstop: e.target.checked })} />{' '}
-            Add a backstop: the hook checks every tool call
+            {t('rulesPanel.addBackstop')}
           </label>
           {draft.hasBackstop && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingLeft: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingInlineStart: 12 }}>
               <div style={{ ...row, ...text }}>
-                <span>What it does</span>
-                <select value={draft.does} onChange={(e) => set({ does: e.target.value as BackstopDoes })}>
-                  {DOES.map((d) => <option key={d.v} value={d.v}>{d.label}</option>)}
+                <span>{t('rulesPanel.whatItDoes')}</span>
+                <select value={draft.does} onChange={(e) => set({ does: e.target.value as BackstopDoes })} style={{ ...kit.input, width: 'auto' }}>
+                  {doesOptions}
                 </select>
-                <label><input type="checkbox" checked={draft.on} onChange={(e) => set({ on: e.target.checked })} /> On</label>
+                <label><input type="checkbox" checked={draft.on} onChange={(e) => set({ on: e.target.checked })} /> {t('rulesPanel.on')}</label>
               </div>
-              {draft.does === 'log' && <div style={small}>Log only records what it would have done and lets the call run.</div>}
-              <div style={label}>Tool (comma separated)</div>
-              <input style={input} value={draft.tool} onChange={(e) => set({ tool: e.target.value })} placeholder="Bash" />
-              <div style={label}>Command pattern (regular expression)</div>
-              <input style={input} value={draft.commandMatches} onChange={(e) => set({ commandMatches: e.target.value })} placeholder="^git\s+push\b" />
-              <div style={label}>Or a path pattern</div>
-              <input style={input} value={draft.pathGlob} onChange={(e) => set({ pathGlob: e.target.value })} placeholder="**/secrets/**" />
-              <div style={label}>Message to the agent when stopped (optional)</div>
-              <input style={input} value={draft.message} onChange={(e) => set({ message: e.target.value })} placeholder="Defaults to the principle" />
+              {draft.does === 'log' && <div style={small}>{t('rulesPanel.logNote')}</div>}
+              <div style={kit.label}>{t('rulesPanel.toolLabel')}</div>
+              <input style={field} value={draft.tool} onChange={(e) => set({ tool: e.target.value })} placeholder="Bash" />
+              <div style={kit.label}>{t('rulesPanel.commandLabel')}</div>
+              <input style={field} value={draft.commandMatches} onChange={(e) => set({ commandMatches: e.target.value })} placeholder="^git\s+push\b" />
+              <div style={kit.label}>{t('rulesPanel.pathLabel')}</div>
+              <input style={field} value={draft.pathGlob} onChange={(e) => set({ pathGlob: e.target.value })} placeholder="**/secrets/**" />
+              <div style={kit.label}>{t('rulesPanel.messageLabel')}</div>
+              <input style={field} value={draft.message} onChange={(e) => set({ message: e.target.value })} placeholder={t('rulesPanel.messagePh')} />
             </div>
           )}
-          {errors.length > 0 && <div style={{ ...bad, fontSize: 12 }}>{errors.map((e) => <div key={e}>{e}</div>)}</div>}
+          {errors.length > 0 && <div style={bad}>{errors.map((e) => <div key={e}>{e}</div>)}</div>}
           <div style={row}>
-            <PixelButton variant="primary" size="sm" disabled={busy || !draft.principle.trim()} onClick={saveDraft}>{busy ? 'Saving...' : 'Save'}</PixelButton>
-            <PixelButton variant="secondary" size="sm" disabled={busy} onClick={() => { setDraft(null); setErrors([]); }}>Cancel</PixelButton>
+            <PixelButton variant="primary" size="sm" disabled={busy || !draft.principle.trim()} onClick={saveDraft}>{busy ? t('rulesPanel.saving') : t('rulesPanel.save')}</PixelButton>
+            <PixelButton variant="secondary" size="sm" disabled={busy} onClick={() => { setDraft(null); setErrors([]); }}>{t('rulesPanel.cancel')}</PixelButton>
           </div>
         </div>
       )}
-      <div style={small}>
-        Saved to hive/policy/guardrail.json. A save takes effect at once, and agents are given changed rules on their next prompt.
-        Agents cannot change this file while the guardrail is on.
-      </div>
+      <div style={small}>{t('rulesPanel.footerNote')}</div>
     </div>
   );
 }

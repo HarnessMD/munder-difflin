@@ -23,7 +23,7 @@ const { HookServer } = loadTs('src/core/hookServer.ts');
 const { GuardrailEditor, writeGuardrailFile } = loadTs('src/main/guardrailEditor.ts');
 const { STARTER } = loadTs('src/main/guardrailStarter.ts');
 const { guardrailHash } = loadTs('src/main/guardrail.ts');
-const { statusLine, describeBackstop, fromDraft, toDraft, emptyDraft } = loadTs('src/renderer/src/components/rulesView.ts');
+const { statusLine, describeBackstop, fromDraft, toDraft, emptyDraft, RULES_VIEW_EN } = loadTs('src/renderer/src/components/rulesView.ts');
 
 /** A hive, a hook server and the editor, with the app config held in memory. */
 async function floor(t, cfg = {}) {
@@ -76,7 +76,7 @@ test('turn on with no file: the starter rules, approved, loaded and protected', 
   assert.equal(out.view.approved, true);
   assert.equal(f.server.policyStatus().rulesLoaded, 3);
   assert.equal(await f.denied('Write', { file_path: f.file, content: '{}' }), true, 'the folder is protected at once');
-  assert.match(statusLine(out.view).text, /^Guardrail on: 3 rules given to agents, 3 backstops checked \(0 block or ask\)\.$/);
+  assert.match(statusLine(out.view).text, /^Guardrail on\. Rules given to agents: 3\. Backstops checked: 3 \(0 block or ask\)\.$/);
   assert.deepEqual(f.rows.map((r) => r.kind), ['guardrail-saved', 'guardrail-on']);
 });
 
@@ -389,4 +389,33 @@ test('a rules file that is not valid UTF-8 is refused, so its fingerprint is of 
   const view = f.editor.read();
   assert.match(view.error ?? '', /not valid UTF-8/);
   assert.equal(f.editor.turnOn(view.stamp ?? null).ok, false);
+});
+
+test('the Rules screen speaks every app language: the same keys and the same {{values}} as English', () => {
+  const dir = path.join(__dirname, '..', 'src/renderer/src/i18n/locales');
+  const flat = (o, pre = '') => Object.entries(o).flatMap(([k, v]) => (typeof v === 'object' ? flat(v, `${pre}${k}.`) : [[`${pre}${k}`, v]]));
+  const en = Object.fromEntries(flat(JSON.parse(fs.readFileSync(path.join(dir, 'en.json'), 'utf8')).rulesPanel));
+  // rulesView's English fallback is en.json's text, so tests and the app read the same.
+  for (const [k, v] of Object.entries(RULES_VIEW_EN)) assert.equal(v, en[k], `rulesView EN ${k}`);
+  const vars = (s) => [...s.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]).sort().join(',');
+  const langs = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
+  assert.equal(langs.length, 11);
+  for (const f of langs) {
+    const block = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')).rulesPanel;
+    assert.ok(block, `${f} has rulesPanel`);
+    const mine = Object.fromEntries(flat(block));
+    assert.deepEqual(Object.keys(mine).sort(), Object.keys(en).sort(), `${f}: same keys`);
+    for (const [k, v] of Object.entries(mine)) {
+      assert.ok(v.trim(), `${f} ${k} is empty`);
+      assert.equal(vars(v), vars(en[k]), `${f} ${k}: same {{values}}`);
+      assert.doesNotMatch(v, /[\u2013\u2014]/, `${f} ${k}: no en or em dash`);
+    }
+  }
+});
+
+test('rulesView takes the screen\'s translator', () => {
+  const t = (key, vars = {}) => `<${key.replace('rulesPanel.', '')}${Object.keys(vars).length ? ' ' + JSON.stringify(vars) : ''}>`;
+  assert.equal(statusLine(null, t).text, '<status.loading>');
+  assert.equal(describeBackstop({ id: 'p', principle: 'P.', agents: 'all' }, t), '<backstop.principleOnly>');
+  assert.match(describeBackstop(STARTER.rules[1], t), /^<backstop\.label \{"does":"<does\.log>"\}> · <backstop\.tool \{"v":"Bash"\}>/);
 });
