@@ -168,12 +168,10 @@ export class GuardrailEditor {
   /** "Turn off": nothing is checked or delivered, and agents are told their rules were removed. */
   turnOff(actor = 'operator'): GuardrailResult {
     if (this.d.setConfig({ guardrail: false }) === false) {
-      // A damaged config.json reads as the defaults, where the guardrail is off: it is off
-      // now, but "off" was not saved, so it comes back on once the file is repaired.
-      const offNow = this.d.config().guardrail !== true;
-      return { ok: false, errors: [offNow
-        ? `${CONFIG_PAUSED} The guardrail is off for now, because the damaged file reads as the defaults. Off was not saved: it comes back on when config.json is repaired.`
-        : `${CONFIG_PAUSED} The guardrail was not turned off.`] };
+      // Fail safe: no reload. The engine keeps the rules it loaded, and it reloads only on
+      // an operator action (policy.ts load), never because config.json changed. So once
+      // the file is repaired, the switch and the engine agree again.
+      return { ok: false, errors: ['The guardrail was not turned off: config.json is damaged, so off could not be saved, and the rules stay in force until it is repaired and you turn it off.'] };
     }
     this.d.reload();
     this.d.log({ kind: 'guardrail-off', actor });

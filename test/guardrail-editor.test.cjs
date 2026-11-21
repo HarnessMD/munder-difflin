@@ -363,12 +363,21 @@ test('with the app settings paused (a damaged config.json), nothing claims to be
   assert.match(saved.errors[0], /saved but is not approved/);
   assert.equal(f.config.guardrailApproved, approved, 'the old approval stands, so the new file does not load');
   assert.equal(f.editor.read().approved, false);
-  const off = f.editor.turnOff();
-  assert.equal(off.ok, false);
-  assert.match(off.errors[0], /was not turned off/, 'the config still says on');
-  // A damaged file reads as the defaults: off now, but not saved as off.
-  f.config.guardrail = false;
-  assert.match(f.editor.turnOff().errors[0], /off for now.*comes back on when config\.json is repaired/);
+  const loaded = f.server.policyStatus().rulesLoaded;
+  assert.ok(loaded > 0);
+  // Turn off with the config still reading as on, and with the damaged file reading as
+  // the defaults (off): either way off was not saved, and the rules stay in force.
+  for (const reads of [true, false]) {
+    f.config.guardrail = reads;
+    const off = f.editor.turnOff();
+    assert.equal(off.ok, false);
+    assert.match(off.errors[0], /was not turned off: config\.json is damaged.*the rules stay in force until it is repaired/);
+    assert.equal(f.server.policyStatus().rulesLoaded, loaded, 'no reload: the engine keeps its rules');
+  }
+  // Repaired: the file reads as on again. The switch and the engine agree, with no restart.
+  f.config.guardrail = true;
+  assert.equal(f.editor.read().on, true);
+  assert.equal(f.server.policyStatus().rulesLoaded, loaded, 'switch on, rules loaded');
   assert.equal(f.editor.accept(f.editor.read().stamp).ok, false);
 });
 
