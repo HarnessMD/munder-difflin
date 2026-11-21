@@ -363,7 +363,12 @@ test('with the app settings paused (a damaged config.json), nothing claims to be
   assert.match(saved.errors[0], /saved but is not approved/);
   assert.equal(f.config.guardrailApproved, approved, 'the old approval stands, so the new file does not load');
   assert.equal(f.editor.read().approved, false);
-  assert.equal(f.editor.turnOff().ok, false);
+  const off = f.editor.turnOff();
+  assert.equal(off.ok, false);
+  assert.match(off.errors[0], /was not turned off/, 'the config still says on');
+  // A damaged file reads as the defaults: off now, but not saved as off.
+  f.config.guardrail = false;
+  assert.match(f.editor.turnOff().errors[0], /off for now.*comes back on when config\.json is repaired/);
   assert.equal(f.editor.accept(f.editor.read().stamp).ok, false);
 });
 
