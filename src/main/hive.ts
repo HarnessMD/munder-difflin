@@ -5106,8 +5106,10 @@ process.stdin.on('end', () => {
       const reason = r.reason || r.stopReason || h.permissionDecisionReason || undefined;
       if (event === 'PreToolUse') {
         if (r.decision === 'block' || h.permissionDecision === 'deny' || r.continue === false) out = { decision: 'deny', reason: reason };
-        // A guardrail "ask": agy has no prompt for it, and writing nothing would allow the call.
-        else if (h.permissionDecision === 'ask') out = { decision: 'deny', reason: 'This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ' + (reason || '') };
+        // A guardrail "ask" is agy's own force_ask (agy hooks guide): the person is asked
+        // every time, never answered from a remembered "Always Allow". Writing nothing
+        // would allow the call.
+        else if (h.permissionDecision === 'ask') out = { decision: 'force_ask', reason: reason };
       } else if (event === 'PreInvocation' || event === 'PostInvocation' || event === 'SessionStart') {
         const steps = h.additionalContext ? [{ ephemeralMessage: h.additionalContext }] : [];
         if (event === 'PostInvocation' && r.continue === false) out = { injectSteps: steps, terminationBehavior: 'terminate' };
@@ -5502,7 +5504,8 @@ process.stdin.on('end', () => {
       else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') {
         out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'ask') {
-        // A guardrail "ask": this engine has no prompt for it, and writing nothing would allow the call.
+        // A guardrail "ask": Gemini CLI's hook contract has only allow and deny, so the
+        // stricter one. Writing nothing would allow the call.
         out = { decision: 'deny', reason: 'This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ' + (r.hookSpecificOutput.permissionDecisionReason || '') };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) {
         out = { hookSpecificOutput: { additionalContext: r.hookSpecificOutput.additionalContext } };
@@ -5581,8 +5584,9 @@ process.stdin.on('end', () => {
       else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') {
         out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'ask') {
-        // A guardrail "ask": this engine has no prompt for it, and writing nothing would allow the call.
-        out = { decision: 'deny', reason: 'This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ' + (r.hookSpecificOutput.permissionDecisionReason || '') };
+        // A guardrail "ask" is Grok's own ask: Grok prompts the person, and its hooks still
+        // apply in always-approve mode (Grok's hook docs). Writing nothing would allow the call.
+        out = { decision: 'ask', reason: r.hookSpecificOutput.permissionDecisionReason };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) {
         out = r;
       }

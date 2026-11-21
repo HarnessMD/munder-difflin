@@ -1,9 +1,11 @@
 'use strict';
 /**
  * A guardrail `ask` backstop answers PreToolUse with permissionDecision "ask"
- * (Claude Code's permission prompt). agy, Gemini and Grok have no such prompt, and
- * their shims write nothing for a reply they do not know, which lets the call run.
- * So each of those shims turns an "ask" into a deny that says why.
+ * (Claude Code's permission prompt). The agy, Gemini and Grok shims used to write
+ * nothing for it, which lets the call run. Now each one answers in its engine's words:
+ *  - agy: "force_ask", its own prompt that ignores a remembered "Always Allow";
+ *  - Grok: "ask", its own prompt;
+ *  - Gemini CLI: its hooks have only allow and deny, so deny, saying why.
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -58,9 +60,11 @@ const ENGINES = [
   ['gemini', GEMINI_HOOK_SHIM, [], { hook_event_name: 'BeforeTool', tool_name: 'run_shell_command', tool_input: { command: 'git push' } }],
   ['grok', GROK_HOOK_SHIM, [], { hookEventName: 'pre_tool_use', toolName: 'bash', toolInput: { command: 'git push' } }],
 ];
+/** What each engine is told for an ask: its own prompt where it has one. */
+const ASKED = { agy: 'force_ask', gemini: 'deny', grok: 'ask' };
 
 for (const [name, shim, args, input] of ENGINES) {
-  test(`${name}: a guardrail ask is denied, with the reason, since ${name} cannot ask`, { skip: !POSIX }, async (t) => {
+  test(`${name}: a guardrail ask is never a silent allow (${ASKED[name]}), with the reason`, { skip: !POSIX }, async (t) => {
     const s = await sock(t, reply('ask'));
     const script = path.join(s.dir, `${name}-hook.cjs`);
     fs.writeFileSync(script, shim);
@@ -69,9 +73,9 @@ for (const [name, shim, args, input] of ENGINES) {
     assert.equal(s.got.length, 1, 'the payload reached the socket');
     assert.equal(s.got[0].hook_event_name, 'PreToolUse');
     const out = JSON.parse(r.out);
-    assert.equal(out.decision, 'deny', r.out);
-    assert.match(out.reason, /cannot ask, so the call is denied/);
+    assert.equal(out.decision, ASKED[name], r.out);
     assert.match(out.reason, /\[policy:no-push\] Pushing needs an OK\./);
+    if (name === 'gemini') assert.match(out.reason, /cannot ask, so the call is denied/);
   });
 
   test(`${name}: a deny is still a deny, and an empty reply still writes nothing`, { skip: !POSIX }, async (t) => {
