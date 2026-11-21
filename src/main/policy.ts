@@ -240,8 +240,8 @@ export interface PolicyFile {
 /** Per-evaluation scratch, so one payload is parsed once however many rules read it. */
 interface EvalContext {
   commands: EffectiveCommand[] | null;
-  /** False for an unauthenticated hook: the verdict still applies, but no row is
-   *  written under the agent it claims to be; the hook server logs it instead. */
+  /** False to answer without counting: the verdict still applies, but no row is
+   *  written and the rates do not move. The hook server always records. */
   record: boolean;
 }
 
@@ -908,8 +908,7 @@ export class PolicyEngine {
    * secrets, so the row keeps a digest plus which matcher fired.
    */
   private record(p: PolicyPayload, v: PolicyVerdict, ctx: EvalContext): void {
-    // An unauthenticated call is answered but not counted: forged traffic must not
-    // move the rates an operator reads.
+    // A call evaluated with record: false is answered but not counted.
     if (!ctx.record) return;
     this.stats.matched++;
     if (v.decision === 'deny') this.stats.denied++;

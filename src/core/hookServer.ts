@@ -735,13 +735,20 @@ export class HookServer {
     }
   }
 
-  private handle(p: HookPayload): unknown {
+  private handle(payload: HookPayload): unknown {
+    // A different agent_id with no agent_type is not a subagent (see below). An engine
+    // that puts its own id in agent_id (the Claude/Codex shim keeps one) speaks for the
+    // floor agent that sent it, so the sender's id wins and the floor still hears it.
+    const sender = typeof payload.hive_agent === 'string' && payload.hive_agent ? payload.hive_agent : undefined;
+    const p: HookPayload = sender && payload.agent_id && payload.agent_id !== sender && !payload.agent_type
+      ? { ...payload, agent_id: sender } : payload;
     const agentId = p.agent_id ?? undefined;
     const event = p.hook_event_name ?? 'Unknown';
-    // Inside a Claude Code subagent, agent_id is the subagent's own id and hive_agent
-    // is the floor agent that launched it. The gates and the guardrail answer as that
-    // floor agent: its own-folder exemption, its scoped rules, its pause and HALT. A
-    // subagent is not a floor agent, so nothing else happens for it.
+    // Inside a Claude Code subagent, agent_id is the subagent's own id, agent_type is
+    // set, and hive_agent is the floor agent that launched it. The gates and the
+    // guardrail answer as that floor agent: its own-folder exemption, its scoped rules,
+    // its pause and HALT. A subagent is not a floor agent, so nothing else happens for
+    // it. agent_type is how upstream's own switchClear tells a subagent's payload too.
     const hiveAgent = typeof p.hive_agent === 'string' && p.hive_agent ? p.hive_agent : undefined;
     if (hiveAgent && agentId && hiveAgent !== agentId) {
       // The observer still hears it: switchClear counts a sub agent's SubagentStop,

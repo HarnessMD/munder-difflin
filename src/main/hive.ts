@@ -5106,6 +5106,8 @@ process.stdin.on('end', () => {
       const reason = r.reason || r.stopReason || h.permissionDecisionReason || undefined;
       if (event === 'PreToolUse') {
         if (r.decision === 'block' || h.permissionDecision === 'deny' || r.continue === false) out = { decision: 'deny', reason: reason };
+        // A guardrail "ask": agy has no prompt for it, and writing nothing would allow the call.
+        else if (h.permissionDecision === 'ask') out = { decision: 'deny', reason: 'This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ' + (reason || '') };
       } else if (event === 'PreInvocation' || event === 'PostInvocation' || event === 'SessionStart') {
         const steps = h.additionalContext ? [{ ephemeralMessage: h.additionalContext }] : [];
         if (event === 'PostInvocation' && r.continue === false) out = { injectSteps: steps, terminationBehavior: 'terminate' };
@@ -5499,6 +5501,9 @@ process.stdin.on('end', () => {
       else if (r.decision === 'block') out = { decision: 'deny', reason: r.reason };
       else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') {
         out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason };
+      } else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'ask') {
+        // A guardrail "ask": this engine has no prompt for it, and writing nothing would allow the call.
+        out = { decision: 'deny', reason: 'This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ' + (r.hookSpecificOutput.permissionDecisionReason || '') };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) {
         out = { hookSpecificOutput: { additionalContext: r.hookSpecificOutput.additionalContext } };
       }
@@ -5575,6 +5580,9 @@ process.stdin.on('end', () => {
       else if (r.decision === 'block') out = { decision: 'block', reason: r.reason };
       else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') {
         out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason };
+      } else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'ask') {
+        // A guardrail "ask": this engine has no prompt for it, and writing nothing would allow the call.
+        out = { decision: 'deny', reason: 'This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ' + (r.hookSpecificOutput.permissionDecisionReason || '') };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) {
         out = r;
       }

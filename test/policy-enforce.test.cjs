@@ -417,7 +417,7 @@ test('20d. find is a reader until it is given a mutating action', () => {
 
 async function floor(t, rules) {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-enforce-hook-')));
-  t.after(() => fs.rmSync(home, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'god', name: 'God', provider: 'claude', cwd: home, isGod: true });
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
@@ -606,7 +606,7 @@ test('hook: a subagent is judged as its agent: own folder exempt, scoped rules a
   const events = [];
   f.server.onEvent = (a, ev) => events.push(`${a} ${ev}`);
   const sub = (tool, input, extra = {}) => f.server.handle({
-    hook_event_name: 'PreToolUse', agent_id: 'sub-1234', hive_agent: 'jim-1', session_id: 's', tool_name: tool, tool_input: input, cwd: f.hive.root(), ...extra,
+    hook_event_name: 'PreToolUse', agent_id: 'sub-1234', hive_agent: 'jim-1', agent_type: 'general-purpose', session_id: 's', tool_name: tool, tool_input: input, cwd: f.hive.root(), ...extra,
   });
   const mine = path.join(f.hive.root(), 'agents', 'jim-1', 'notes.md');
   assert.deepEqual(await sub('Write', { file_path: mine, content: 'x' }), {}, 'its agent\'s own folder is exempt');
@@ -632,7 +632,7 @@ test('hook: over HTTP the URL names the agent; a hive_agent in the body is ignor
     });
     req.on('error', reject); req.end(JSON.stringify(body));
   });
-  const sync = { hook_event_name: 'PreToolUse', agent_id: 'sub-77', session_id: 's', tool_name: 'Bash', tool_input: { command: 'mempalace sync' }, cwd: f.hive.root() };
+  const sync = { hook_event_name: 'PreToolUse', agent_id: 'sub-77', agent_type: 'general-purpose', session_id: 's', tool_name: 'Bash', tool_input: { command: 'mempalace sync' }, cwd: f.hive.root() };
   // Jim's sub agent, sent by Jim's CLI to Jim's URL: jim's rule binds it, whatever the body claims.
   assert.equal((await post('jim-1', { ...sync, hive_agent: 'god' })).hookSpecificOutput?.permissionDecision, 'deny');
   // The same call at god's URL is judged as god, whom the rule does not name.
@@ -649,12 +649,12 @@ test('hook: a subagent\'s hooks still reach the facts observer (switchClear coun
 
 test('hook: pausing or halting an agent stops its subagents too', async (t) => {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-enforce-ctl-')));
-  t.after(() => fs.rmSync(home, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
   const control = new ControlRegistry();
   const server = new HookServer(hive, () => null, () => ({ harnessHome: home, guardrail: true }), control, undefined);
-  const sub = (event) => server.handle({ hook_event_name: event, agent_id: 'sub-9', hive_agent: 'jim-1', session_id: 's', tool_name: 'Bash', tool_input: { command: 'ls' } });
+  const sub = (event) => server.handle({ hook_event_name: event, agent_id: 'sub-9', hive_agent: 'jim-1', agent_type: 'general-purpose', session_id: 's', tool_name: 'Bash', tool_input: { command: 'ls' } });
   assert.deepEqual(await sub('PreToolUse'), {});
   control.pause('jim-1', true);
   assert.equal((await sub('PreToolUse')).hookSpecificOutput.permissionDecision, 'deny');
@@ -667,12 +667,32 @@ test('hook: pausing or halting an agent stops its subagents too', async (t) => {
 // reaches the floor under the named agent. But a sender that names the other agent
 // in both fields is believed: one agent posing as another is not stopped (a per-agent
 // token is a later roadmap item). These tests pin both halves.
-test('hook: an agent_id that is not the sender\'s reaches nothing on the floor', async (t) => {
+test('hook: an agent_id that is not the sender\'s reaches nothing on the floor under that id', async (t) => {
   const f = await floor(t, []);
   const events = [];
   f.server.onEvent = (a, ev) => events.push(`${a} ${ev}`);
-  await f.server.handle({ hook_event_name: 'Stop', agent_id: 'jim-1', hive_agent: 'god', session_id: 's' });
+  // As a subagent of the sender: gates only, nothing on the floor.
+  await f.server.handle({ hook_event_name: 'Stop', agent_id: 'jim-1', hive_agent: 'god', agent_type: 'general-purpose', session_id: 's' });
   assert.deepEqual(events, [], 'sent by god, so not jim\'s');
+  // Without agent_type it is not a subagent: it is the sender's own event.
+  await f.server.handle({ hook_event_name: 'Stop', agent_id: 'jim-1', hive_agent: 'god', session_id: 's' });
+  assert.deepEqual(events, ['god Stop'], 'sent by god, so god\'s, never jim\'s');
+});
+
+test('hook: an engine that puts its own id in agent_id still reaches the floor as its agent (Codex)', async (t) => {
+  const jimOnly = { id: 'jim-no-sync', principle: 'Jim never syncs.', agents: ['jim-1'],
+    backstop: { on: true, does: 'block', match: { tool: 'Bash', command_matches: '^mempalace +sync' } } };
+  const f = await floor(t, [jimOnly]);
+  const events = [];
+  f.server.onEvent = (a, ev) => events.push(`${a} ${ev}`);
+  const call = (event, extra = {}) => f.server.handle({ hook_event_name: event, agent_id: 'codex-thread-1', hive_agent: 'jim-1', session_id: 's', cwd: f.hive.root(), ...extra });
+  const r = await call('PreToolUse', { tool_name: 'Bash', tool_input: { command: 'mempalace sync' } });
+  assert.equal(r.hookSpecificOutput.permissionDecision, 'deny', 'jim\'s rule binds it');
+  await call('Stop');
+  assert.ok(events.includes('jim-1 Stop'), `the floor hears jim: ${events.join(', ')}`);
+  assert.ok(!events.some((e) => e.startsWith('codex-thread-1')), 'never under the engine\'s own id');
+  const rows = f.logRows().filter((x) => x.kind === 'policy-match');
+  assert.deepEqual(rows.map((x) => x.agent_id), ['jim-1']);
 });
 
 test('hook: limit, stated: a sender that names another agent in both fields is believed', async (t) => {
