@@ -22,7 +22,7 @@ const EN: Record<string, string> = {
   'backstop.onErrorDeny': 'if it cannot be checked: counts as a match', 'backstop.off': 'off',
   'status.loading': 'Loading rules...',
   'status.off': 'Guardrail off: nothing is checked and agents are given no rules.',
-  'status.offButLoaded': 'The switch reads as off, but the rules loaded earlier are still in force: {{backstops}} backstops checked. This happens when config.json is damaged or was edited by hand. Turn it off here, or repair the settings first.',
+  'status.offButLoaded': 'The switch reads as off, but the rules loaded earlier are still in force. Backstops checked: {{backstops}}. This happens when config.json is damaged or was edited by hand. Repair the settings, then turn it off here.',
   'status.noFile': 'Guardrail on, but there is no rules file: nothing is checked.',
   'status.broken': 'The rules file is broken, so nothing is checked: {{error}}',
   'status.unapproved': 'The rules file was changed outside this screen, so it is not loaded. Read it below, then accept it.',

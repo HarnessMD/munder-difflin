@@ -2512,7 +2512,7 @@
     "status": {
       "loading": "Loading rules...",
       "off": "Guardrail off: nothing is checked and agents are given no rules.",
-      "offButLoaded": "The switch reads as off, but the rules loaded earlier are still in force: {{backstops}} backstops checked. This happens when config.json is damaged or was edited by hand. Turn it off here, or repair the settings first.",
+      "offButLoaded": "The switch reads as off, but the rules loaded earlier are still in force. Backstops checked: {{backstops}}. This happens when config.json is damaged or was edited by hand. Repair the settings, then turn it off here.",
       "noFile": "Guardrail on, but there is no rules file: nothing is checked.",
       "broken": "The rules file is broken, so nothing is checked: {{error}}",
       "unapproved": "The rules file was changed outside this screen, so it is not loaded. Read it below, then accept it.",

@@ -2512,7 +2512,7 @@
     "status": {
       "loading": "Caricamento delle regole...",
       "off": "Guardrail disattivato: non si verifica nulla e gli agenti non ricevono regole.",
-      "offButLoaded": "L'interruttore risulta spento, ma le regole caricate prima sono ancora in vigore: {{backstops}} controlli verificati. Succede quando config.json è danneggiato o è stato modificato a mano. Disattivalo qui, oppure ripara prima le impostazioni.",
+      "offButLoaded": "L'interruttore risulta spento, ma le regole caricate prima sono ancora in vigore. Controlli verificati: {{backstops}}. Succede quando config.json è danneggiato o è stato modificato a mano. Ripara le impostazioni, poi disattivalo qui.",
       "noFile": "Guardrail attivo, ma non c'è un file di regole: non si verifica nulla.",
       "broken": "Il file di regole è rotto, quindi non si verifica nulla: {{error}}",
       "unapproved": "Il file di regole è stato cambiato fuori da questa schermata, quindi non è caricato. Leggilo qui sotto, poi accettalo.",

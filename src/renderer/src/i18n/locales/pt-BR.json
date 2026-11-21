@@ -2512,7 +2512,7 @@
     "status": {
       "loading": "Carregando regras...",
       "off": "Proteção desligada: nada é verificado e os agentes não recebem regras.",
-      "offButLoaded": "O interruptor aparece desligado, mas as regras carregadas antes ainda valem: {{backstops}} verificações ativas. Isso acontece quando config.json está danificado ou foi editado à mão. Desligue aqui, ou repare as configurações antes.",
+      "offButLoaded": "O interruptor aparece desligado, mas as regras carregadas antes ainda valem. Verificações ativas: {{backstops}}. Isso acontece quando config.json está danificado ou foi editado à mão. Repare as configurações e depois desligue aqui.",
       "noFile": "Proteção ligada, mas não há arquivo de regras: nada é verificado.",
       "broken": "O arquivo de regras está quebrado, então nada é verificado: {{error}}",
       "unapproved": "O arquivo de regras foi mudado fora desta tela, então não está carregado. Leia abaixo e depois aceite.",

@@ -2512,7 +2512,7 @@
     "status": {
       "loading": "Cargando reglas...",
       "off": "Barrera desactivada: no se comprueba nada y los agentes no reciben reglas.",
-      "offButLoaded": "El interruptor marca desactivado, pero las reglas cargadas antes siguen en vigor: {{backstops}} controles comprobados. Pasa cuando config.json está dañado o se editó a mano. Desactívala aquí, o repara primero los ajustes.",
+      "offButLoaded": "El interruptor marca desactivado, pero las reglas cargadas antes siguen en vigor. Controles comprobados: {{backstops}}. Pasa cuando config.json está dañado o se editó a mano. Repara los ajustes y luego desactívala aquí.",
       "noFile": "Barrera activada, pero no hay archivo de reglas: no se comprueba nada.",
       "broken": "El archivo de reglas está roto, así que no se comprueba nada: {{error}}",
       "unapproved": "El archivo de reglas se cambió fuera de esta pantalla, así que no está cargado. Léelo abajo y luego acéptalo.",

@@ -181,7 +181,7 @@ test('rulesView: the status line says why nothing is checked', () => {
   // The switch reads as off over rules that are still loaded: said, and marked bad.
   const stale = statusLine(v({ on: false, engine: { loaded: true, rulesLoaded: 2, error: null } }));
   assert.equal(stale.bad, true);
-  assert.match(stale.text, /reads as off, but the rules loaded earlier are still in force: 2 backstops checked/);
+  assert.match(stale.text, /reads as off, but the rules loaded earlier are still in force\. Backstops checked: 2\..*Repair the settings, then turn it off here\./);
   for (const o of [{ on: false }, { exists: false }, { error: 'e' }, { approved: false }, {}]) {
     assert.doesNotMatch(statusLine(v(o)).text, /[\u2013\u2014]/);
   }

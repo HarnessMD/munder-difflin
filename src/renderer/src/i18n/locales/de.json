@@ -2512,7 +2512,7 @@
     "status": {
       "loading": "Regeln werden geladen...",
       "off": "Leitplanke aus: nichts wird geprüft, und Agenten bekommen keine Regeln.",
-      "offButLoaded": "Der Schalter steht auf aus, aber die vorher geladenen Regeln gelten noch: {{backstops}} Absicherungen werden geprüft. Das passiert, wenn config.json beschädigt ist oder von Hand geändert wurde. Schalte sie hier aus oder repariere zuerst die Einstellungen.",
+      "offButLoaded": "Der Schalter steht auf aus, aber die vorher geladenen Regeln gelten noch. Geprüfte Absicherungen: {{backstops}}. Das passiert, wenn config.json beschädigt ist oder von Hand geändert wurde. Repariere die Einstellungen und schalte sie dann hier aus.",
       "noFile": "Leitplanke an, aber es gibt keine Regeldatei: nichts wird geprüft.",
       "broken": "Die Regeldatei ist fehlerhaft, also wird nichts geprüft: {{error}}",
       "unapproved": "Die Regeldatei wurde außerhalb dieses Bildschirms geändert und ist deshalb nicht geladen. Lies sie unten und nimm sie dann an.",
