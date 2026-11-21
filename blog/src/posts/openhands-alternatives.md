@@ -22,7 +22,7 @@ faq:
 
 Our view: OpenCode is the closest OpenHands alternative, because it is also an MIT licensed, open source coding agent that you install and run yourself. Checked 19 Nov 2026.
 
-We make [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Other lists: the [Comparisons hub](/blog/topics/comparisons/) and [OmniAgent alternatives](/blog/omniagent-alternatives/).
+We make [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Other lists: the [Comparisons hub](/blog/topics/comparisons/) and [OmniAgent alternatives](/blog/omniagent-alternatives/). For agents that take a task and work on their own in the cloud, see [Devin alternatives](/blog/devin-alternatives/), checked 21 Nov 2026.
 
 ## What is OpenHands?
 
