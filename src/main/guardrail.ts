@@ -124,7 +124,13 @@ export function readGuardrailBytes(path: string): { text: string | null; error: 
     const opened = fstatSync(fd);
     if (!opened.isFile()) return { text: null, error: `${GUARDRAIL_FILE} is not a regular file` };
     if (opened.nlink !== 1) return { text: null, error: `${GUARDRAIL_FILE} has other names (hard links)` };
-    return { text: readFileSync(fd, 'utf8'), error: null };
+    // The fingerprint is taken of the text, so the text must be the bytes: a file that is
+    // not valid UTF-8 would be read with replacement characters, and two such files
+    // could share a fingerprint.
+    const raw = readFileSync(fd);
+    const text = raw.toString('utf8');
+    if (!Buffer.from(text, 'utf8').equals(raw)) return { text: null, error: `${GUARDRAIL_FILE} is not valid UTF-8` };
+    return { text, error: null };
   } catch (e) {
     return { text: null, error: e instanceof Error ? e.message : String(e) };
   } finally {

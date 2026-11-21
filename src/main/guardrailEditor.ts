@@ -29,7 +29,8 @@ import type { GuardrailFile, GuardrailResult, GuardrailView } from '../shared/gu
 export interface GuardrailEditorDeps {
   policyDir: () => string | null;
   config: () => { guardrail?: boolean; guardrailApproved?: string };
-  setConfig: (patch: { guardrail?: boolean; guardrailApproved?: string }) => void;
+  /** False when the write did not land (a damaged config.json pauses every save). */
+  setConfig: (patch: { guardrail?: boolean; guardrailApproved?: string }) => boolean;
   /** Load guardrail.json again (HookServer.reloadPolicy). */
   reload: () => PolicyStatus;
   status: () => PolicyStatus;
@@ -58,6 +59,9 @@ export function writeGuardrailFile(path: string, text: string, tmp = `${path}.${
     throw e;
   }
 }
+
+/** What the screen says when the app settings could not be written. */
+const CONFIG_PAUSED = 'The app settings could not be saved: config.json is damaged, so saves are paused.';
 
 export class GuardrailEditor {
   constructor(private d: GuardrailEditorDeps) {}
@@ -123,7 +127,9 @@ export class GuardrailEditor {
     } catch (e) {
       return { ok: false, errors: [e instanceof Error ? e.message : String(e)] };
     }
-    this.d.setConfig({ guardrailApproved: guardrailHash(out) });
+    if (this.d.setConfig({ guardrailApproved: guardrailHash(out) }) === false) {
+      return { ok: false, errors: [`${CONFIG_PAUSED} The rules file was saved but is not approved, so it does not load. Repair or reset the settings, then accept it here.`] };
+    }
     const on = this.d.config().guardrail === true;
     const status = on ? this.d.reload() : null;
     this.d.log({
@@ -151,9 +157,9 @@ export class GuardrailEditor {
       if (hash !== stamp) return { ok: false, errors: ['the rules file changed since this screen read it; reload and look at it again'] };
       const g = parseGuardrail(text);
       if (!g.ok) return { ok: false, errors: [`the rules file is broken (${g.error}); fix it by hand or delete it first`] };
-      this.d.setConfig({ guardrailApproved: hash });
+      if (this.d.setConfig({ guardrailApproved: hash }) === false) return { ok: false, errors: [`${CONFIG_PAUSED} The guardrail stays off.`] };
     }
-    this.d.setConfig({ guardrail: true });
+    if (this.d.setConfig({ guardrail: true }) === false) return { ok: false, errors: [`${CONFIG_PAUSED} The guardrail stays off.`] };
     const status = this.d.reload();
     this.d.log({ kind: 'guardrail-on', actor, rules_loaded: status.rulesLoaded, error: status.error });
     return { ok: true, view: this.read() };
@@ -161,7 +167,7 @@ export class GuardrailEditor {
 
   /** "Turn off": nothing is checked or delivered, and agents are told their rules were removed. */
   turnOff(actor = 'operator'): GuardrailResult {
-    this.d.setConfig({ guardrail: false });
+    if (this.d.setConfig({ guardrail: false }) === false) return { ok: false, errors: [`${CONFIG_PAUSED} The guardrail was not turned off.`] };
     this.d.reload();
     this.d.log({ kind: 'guardrail-off', actor });
     return { ok: true, view: this.read() };
@@ -176,7 +182,7 @@ export class GuardrailEditor {
     }
     const g = parseGuardrail(text);
     if (!g.ok) return { ok: false, errors: [`the rules file is broken (${g.error}); fix it by hand or delete it first`] };
-    this.d.setConfig({ guardrailApproved: stamp });
+    if (this.d.setConfig({ guardrailApproved: stamp }) === false) return { ok: false, errors: [`${CONFIG_PAUSED} These rules are not accepted.`] };
     const status = this.d.config().guardrail === true ? this.d.reload() : null;
     this.d.log({ kind: 'guardrail-accepted', actor, rev: g.file.rev, rules_loaded: status?.rulesLoaded ?? null });
     return { ok: true, view: this.read() };

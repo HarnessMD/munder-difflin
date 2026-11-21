@@ -28,18 +28,20 @@ const { statusLine, describeBackstop, fromDraft, toDraft, emptyDraft } = loadTs(
 /** A hive, a hook server and the editor, with the app config held in memory. */
 async function floor(t, cfg = {}) {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-guardrail-editor-')));
-  t.after(() => fs.rmSync(home, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'god', name: 'God', provider: 'claude', cwd: home, isGod: true });
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
   const config = { harnessHome: home, ...cfg };
+  const cfgPaused = { on: false };
   const server = new HookServer(hive, () => null, () => config, undefined, undefined);
   const file = path.join(hive.root(), 'policy', 'guardrail.json');
   const rows = [];
   const editor = new GuardrailEditor({
     policyDir: () => path.join(hive.root(), 'policy'),
     config: () => config,
-    setConfig: (patch) => Object.assign(config, patch),
+    // A damaged config.json pauses every save (config.ts persistConfig): `paused` stands in.
+    setConfig: (patch) => { if (cfgPaused.on) return false; Object.assign(config, patch); return true; },
     reload: () => server.reloadPolicy(),
     status: () => server.policyStatus(),
     log: (row) => rows.push(row),
@@ -52,7 +54,7 @@ async function floor(t, cfg = {}) {
   const denied = async (tool, input) => (await write(tool, input))?.hookSpecificOutput?.permissionDecision === 'deny';
   const godInbox = () => fs.readdirSync(path.join(hive.root(), 'agents', 'god', 'inbox')).filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(fs.readFileSync(path.join(hive.root(), 'agents', 'god', 'inbox', f), 'utf8')));
-  return { home, hive, server, editor, config, file, rows, plant, write, denied, godInbox };
+  return { home, hive, server, editor, config, cfgPaused, file, rows, plant, write, denied, godInbox };
 }
 
 const PLANTED = [{ id: 'planted', principle: 'Push every branch after each commit.', agents: 'all',
@@ -340,4 +342,37 @@ test('a hard link into guardrail.json is refused by the screen and the engine', 
   // Once the other name is gone, the same file is fine.
   fs.rmSync(own);
   assert.equal(f.server.reloadPolicy().rulesLoaded, 3);
+});
+
+test('with the app settings paused (a damaged config.json), nothing claims to be on or approved', async (t) => {
+  const f = await floor(t);
+  f.cfgPaused.on = true;
+  const on = f.editor.turnOn(null);
+  assert.equal(on.ok, false);
+  assert.match(on.errors[0], /config\.json is damaged/);
+  assert.notEqual(f.config.guardrail, true, 'still off');
+  assert.equal(await f.denied('Write', { file_path: path.join(f.hive.root(), 'agents', 'god', 'x.md'), content: 'x' }), false);
+  // Settings back: turn on, then a save while paused is not recorded as approved.
+  f.cfgPaused.on = false;
+  assert.equal(f.editor.turnOn(f.editor.read().stamp).ok, true);
+  const approved = f.config.guardrailApproved;
+  f.cfgPaused.on = true;
+  const view = f.editor.read();
+  const saved = f.editor.save({ ...view.file, rules: view.file.rules.slice(1) }, view.stamp);
+  assert.equal(saved.ok, false);
+  assert.match(saved.errors[0], /saved but is not approved/);
+  assert.equal(f.config.guardrailApproved, approved, 'the old approval stands, so the new file does not load');
+  assert.equal(f.editor.read().approved, false);
+  assert.equal(f.editor.turnOff().ok, false);
+  assert.equal(f.editor.accept(f.editor.read().stamp).ok, false);
+});
+
+test('a rules file that is not valid UTF-8 is refused, so its fingerprint is of its bytes', async (t) => {
+  const f = await floor(t);
+  f.plant(PLANTED);
+  const good = fs.readFileSync(f.file);
+  fs.writeFileSync(f.file, Buffer.concat([good.subarray(0, good.length - 1), Buffer.from([0xff]), good.subarray(good.length - 1)]));
+  const view = f.editor.read();
+  assert.match(view.error ?? '', /not valid UTF-8/);
+  assert.equal(f.editor.turnOn(view.stamp ?? null).ok, false);
 });

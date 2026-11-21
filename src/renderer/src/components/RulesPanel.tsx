@@ -7,9 +7,10 @@
  * screen only edits a draft and sends the whole file back with the fingerprint of the
  * file it showed, so a file changed elsewhere is never overwritten or approved unseen.
  */
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useStore } from '@/store/store';
 import { PixelButton } from './PixelButton';
+import { setLeaveGuard } from './settings/leaveGuard';
 import type { BackstopDoes, GuardrailFile, GuardrailResult, GuardrailRule, GuardrailView } from '../../../shared/guardrail';
 import { DOES, describeBackstop, emptyDraft, fromDraft, statusLine, toDraft, type Draft } from './rulesView';
 
@@ -35,6 +36,16 @@ export function RulesPanel() {
   const [errors, setErrors] = useState<string[]>([]);
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // A rule being edited is not dropped without a word when Settings closes or another
+  // section is picked (settings/leaveGuard.ts).
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+  useEffect(() => setLeaveGuard((proceed) => {
+    if (!draftRef.current) return false;
+    if (window.confirm('Drop the rule you are editing? It has not been saved.')) { setDraft(null); proceed(); }
+    return true;
+  }), []);
 
   const targetable = useMemo(
     () => agents.filter((a) => !a.archived).map((a) => ({ id: a.id, name: a.name })),

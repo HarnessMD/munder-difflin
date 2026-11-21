@@ -1246,8 +1246,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   <span style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>{t('settings.unsavedChanges')}</span>
                 )}
                 <PixelButton variant="secondary" onClick={requestClose}>{t('settings.close')}</PixelButton>
-                {/* Integrations has its own Save in its pane: one Save in view. */}
-                {activeSection !== 'Integrations' && (
+                {/* Integrations and Rules have their own Save in their pane: one Save in view. */}
+                {activeSection !== 'Integrations' && activeSection !== 'Rules' && (
                   <PixelButton variant="primary" onClick={() => void saveAll()} disabled={saveBusy || !dirty || settingsPaused}>
                     {saveBusy ? t('settings.saving') : t('settings.save')}
                   </PixelButton>

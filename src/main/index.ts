@@ -5398,7 +5398,13 @@ ipcMain.handle('config:deleteAvatar', (_evt, id: unknown) => deleteAvatar(id));
 const guardrailEditor = new GuardrailEditor({
   policyDir: () => { const root = hive.root(); return root ? join(root, 'policy') : null; },
   config: () => readConfig(),
-  setConfig: (patch) => { writeConfig(patch); },
+  // writeConfig does not throw on a damaged config.json; it skips the write. So read
+  // back: the screen must not say "on" or "approved" for a write that did not land.
+  setConfig: (patch) => {
+    writeConfig(patch);
+    const now = readConfig();
+    return Object.entries(patch).every(([k, v]) => now[k as keyof typeof now] === v);
+  },
   reload: () => hookServer.reloadPolicy(),
   status: () => hookServer.policyStatus(),
   log: (row) => hive.appendLog(row as Parameters<HiveManager['appendLog']>[0]),
