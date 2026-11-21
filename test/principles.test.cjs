@@ -32,7 +32,7 @@ const RULES = [
 
 async function floor(t, rules = RULES) {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-principles-')));
-  t.after(() => fs.rmSync(home, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'god', name: 'God', provider: 'claude', cwd: home, isGod: true });
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
@@ -101,6 +101,25 @@ test('after a compaction they go back in on the next hook that can carry context
   assert.equal(await f.ctx('UserPromptSubmit'), null);
 });
 
+test('agy: its PreInvocation counts as the prompt, once a session and again after a compaction', async (t) => {
+  const f = await floor(t);
+  const agy = (event, extra = {}) => f.ctx(event, { session_id: 'conv-1', ...extra });
+  assert.match(await agy('PreInvocation') ?? '', /<rules rev="1">/, 'agy has no prompt hook');
+  assert.doesNotMatch(await agy('PreInvocation') ?? '', /<rules/, 'every model step is a PreInvocation: not repeated');
+  await agy('PreCompact');
+  assert.match(await agy('PreInvocation') ?? '', /<rules rev="1">/);
+  assert.match(await agy('PreInvocation', { session_id: 'conv-2' }) ?? '', /<rules rev="1">/, 'a new conversation gets them');
+});
+
+test('a reply the engine drops carries nothing and does not use up the redelivery', async (t) => {
+  const f = await floor(t);
+  await f.ctx('PreInvocation', { session_id: 'conv-1' });
+  await f.ctx('PreCompact', { session_id: 'conv-1' });
+  // agy's shim marks its PostToolUse: agy never reads that reply.
+  assert.equal(await f.ctx('PostToolUse', { session_id: 'conv-1', no_context_reply: true }), null);
+  assert.match(await f.ctx('PreInvocation', { session_id: 'conv-1' }) ?? '', /<rules rev="1">/, 'still due for the next hook agy reads');
+});
+
 test('a resume, or a SessionStart after compaction, gives them again', async (t) => {
   for (const source of ['resume', 'compact']) {
     const f = await floor(t);
@@ -133,7 +152,7 @@ test('a reload that changes them gives them on the next prompt; removing every p
 
 test('rides along with the standing goal in one block', async (t) => {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-principles-goal-')));
-  t.after(() => fs.rmSync(home, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
   fs.mkdirSync(path.join(hive.root(), 'policy'), { recursive: true });

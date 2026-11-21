@@ -73,6 +73,9 @@ interface HookPayload {
   model?: string | { id?: string; display_name?: string };
   /** Set by Claude Code and Codex on payloads sent from INSIDE a sub agent. */
   agent_type?: string;
+  /** Set by a shim whose engine drops this event's reply (agy's PostToolUse):
+   *  context sent back would never be read. */
+  no_context_reply?: boolean;
   input?: number;
   output?: number;
   cache_read?: number;
@@ -688,13 +691,16 @@ export class HookServer {
    * a session, on the first prompt of a new session, on the first hook that can carry
    * context after a compaction or resume (a PostToolUse counts: an agent that compacts
    * mid-task may not see another prompt for a long time), and when a reload changed
-   * them. Otherwise null, so an unchanged set is not repeated on every prompt. The
-   * principles come from the engine, which read guardrail.json at start; with no file
-   * then, always null.
+   * them. Otherwise null, so an unchanged set is not repeated on every prompt. agy
+   * has no prompt hook, so its PreInvocation counts as the prompt, as it does for
+   * identity: the checks below keep that to once a session. A reply the engine will
+   * drop (`noReply`) carries nothing and uses up no mark. The principles come from
+   * the engine, which read guardrail.json at start; with no file then, always null.
    */
-  private rulesToDeliver(agentId: string, event: string, sessionId: string | null): string | null {
+  private rulesToDeliver(agentId: string, event: string, sessionId: string | null, noReply = false): string | null {
+    if (noReply) return null;
     const due = this.rulesDue.has(agentId);
-    if (!(event === 'SessionStart' || event === 'UserPromptSubmit' || (event === 'PostToolUse' && due))) return null;
+    if (!(event === 'SessionStart' || event === 'UserPromptSubmit' || event === 'PreInvocation' || (event === 'PostToolUse' && due))) return null;
     let mine;
     try { mine = this.policyEngine().principles(agentId); } catch { return null; }
     if (!mine) return null; // nothing loaded: deliver nothing, keep any mark for later
@@ -1083,7 +1089,7 @@ export class HookServer {
 
     // The guardrail's principles (rulesToDeliver): with the goal, at the start of a
     // session and again after a compaction or a change.
-    const rules = agentId ? this.rulesToDeliver(agentId, event, p.session_id ?? null) : null;
+    const rules = agentId ? this.rulesToDeliver(agentId, event, p.session_id ?? null, p.no_context_reply === true) : null;
 
     if (steer || roster || goal || style || identity || rules) {
       this.emit(agentId, event, p);

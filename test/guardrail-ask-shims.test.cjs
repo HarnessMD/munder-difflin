@@ -90,3 +90,14 @@ for (const [name, shim, args, input] of ENGINES) {
     assert.equal(allowed.out, '', 'no output is allow');
   });
 }
+
+test('agy: a PostToolUse is marked no_context_reply, since agy drops that reply; PreInvocation is not', { skip: !POSIX }, async (t) => {
+  const s = await sock(t, {});
+  const script = path.join(s.dir, 'agy-hook.cjs');
+  fs.writeFileSync(script, AGY_HOOK_SHIM);
+  for (const event of ['PostToolUse', 'PreInvocation', 'SessionStart']) {
+    await run(script, [event], { conversationId: 'conv-1' }, { AGENT_ID: 'jim-1', HIVE_SOCK: s.file });
+  }
+  assert.deepEqual(s.got.map((p) => [p.hook_event_name, p.no_context_reply === true]),
+    [['PostToolUse', true], ['PreInvocation', false], ['SessionStart', false]]);
+});

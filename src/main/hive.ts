@@ -5126,7 +5126,7 @@ process.stdin.on('end', () => {
     process.exit(0);
   };
   try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
+    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null, no_context_reply: !(event === 'PreInvocation' || event === 'PostInvocation' || event === 'SessionStart') || undefined })) + '\\n'));
     c.setEncoding('utf8');
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
