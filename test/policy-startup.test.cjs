@@ -26,8 +26,12 @@ const EXAMPLE = () => fs.readFileSync(path.join(__dirname, '..', 'examples/polic
 /** A hive with two agents and, when `file` is given, that text as policy/guardrail.json. */
 async function floor(t, file, cfg = {}) {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-policy-start-')));
-  t.after(() => fs.rmSync(home, { recursive: true, force: true }));
   const hive = new HiveManager(() => home);
+  // The hive commits in the background; let that queue finish before the temp hive goes.
+  t.after(async () => {
+    await hive.waitCommitQueue(5000).catch(() => {});
+    fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+  });
   await hive.ensureAgent({ id: 'god', name: 'God', provider: 'claude', cwd: home, isGod: true });
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: path.join(home, 'repo') });
   const dir = path.join(hive.root(), 'policy');
