@@ -51,6 +51,8 @@ Munder Difflin runs a team of agents, and each can run its own engine, such as C
 
 Qwen Code lets you switch models while you work. Its [README](https://github.com/QwenLM/qwen-code), read 20 Nov 2026, calls it "The open-source AI coding agent for your terminal, editor, desktop, browser, and chat." It "Supports OpenAI, Anthropic, Gemini, and Qwen APIs. Any third-party provider or local model (Ollama / vLLM). Switch at runtime." Its `/auth` command takes a Qwen subscription or an API key. It is Apache 2.0 with 30,792 stars on 20 Nov 2026, and [v0.28.0](https://github.com/QwenLM/qwen-code/releases/tag/v0.28.0) came out on 17 Nov 2026. We think it comes closest to Aider's promise of almost any model, local ones included.
 
+For a model to run locally, [Inkling 2 Mini](/blog/inkling-2-mini/) is a new open weights model that Thinking Machines says runs on a laptop, checked 21 Nov 2026.
+
 ## 4. goose: one agent for code and more
 
 goose is one agent with a desktop app and a CLI. Its [README](https://github.com/aaif-goose/goose), read 20 Nov 2026, says "goose is a general-purpose agent for coding, research, writing, automation, and data analysis." You can "Load local models directly inside goose, without a separate model server, or connect to over 85 providers". It is Apache 2.0 with 56,796 stars on 20 Nov 2026, and [v1.60.1](https://github.com/aaif-goose/goose/releases/tag/v1.60.1) came out on 18 Nov 2026. We think it suits people who want one agent for more than code; see [goose alternatives](/blog/goose-alternatives/).

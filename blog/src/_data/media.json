@@ -6555,5 +6555,38 @@
       "prompt": "Title card: the hero scene in assets/media/goose-alternatives/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "agent-tools-today-2026-11-21": {
+    "inline": {},
+    "title": "Agent Tools Today, 21 Nov 2026: Inkling 2 Mini, Claude Code v2.1.330 and DreamCoder",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-21/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily Brief, the title Agent Tools Today, the line 21 Nov 2026 and a muted line Inkling, Claude Code and DreamCoder. A yellow sailboat with a blue sail drifts in over sky waves and settles beside three cards: Inkling, Claude Code and DreamCoder.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-21/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "inkling-2-mini": {
+    "inline": {},
+    "title": "Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/inkling-2-mini/hero.png",
+      "alt": "Title card on white. A pill reading Concepts, the title Inkling 2 Mini, the line Open weights, about 20GB and a Checked 21 Nov 2026 line. A small yellow car rides a sky blue rollercoaster loop three times and stops beside three cards: 26.4B total, 3.4B active and Apache 2.0.",
+      "prompt": "Title card: the hero scene in assets/media/inkling-2-mini/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "devin-alternatives": {
+    "inline": {},
+    "title": "Devin Alternatives: 6 Picks for Autonomous Coding (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/devin-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Devin alternatives, the line 6 agents that take a task and a Checked 21 Nov 2026 line. A sky blue crane game claw drops a yellow card into a tray, then cards named OpenHands, Munder Difflin, Codex, Copilot, Jules and OpenComputer stack beside it.",
+      "prompt": "Title card: the hero scene in assets/media/devin-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
