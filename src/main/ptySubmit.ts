@@ -24,6 +24,7 @@ import {
   PTY_PROOF_POLL_MS,
   promptOnScreen,
   promptTail,
+  PROMPT_TAKEN_EVENTS,
   submitEncodingFor,
   submitStillPending,
   terminalReadyToReceive,
@@ -138,7 +139,7 @@ export class PtySubmitter {
   private typedAts = new Map<string, number>();
   /** Per terminal, the last text that ended with no proof, while it may still sit in the box (R7). `withdrawn`: its
    *  row was crossed out, so it never gets an Enter; the next send still waits while it is in the box. */
-  private unproved = new Map<string, { pid: number; text: string; key: string; typedAt: number; pressed: boolean; withdrawn?: boolean }>();
+  private unproved = new Map<string, { pid: number; text: string; key: string; typedAt: number; pressed: boolean; withdrawn?: boolean; idle?: boolean }>();
   /** The queued messages main has been handed and has not finished, by QueuedMessage.id. */
   private flying = new Map<string, PtySubmitRequest>();
   /** Those whose row was crossed out while main had them: never typed from then on, and never pressed. */
@@ -423,7 +424,7 @@ export class PtySubmitter {
     if (!req.pressOnly && result.outcome !== 'held') {
       this.typedPids.set(req.ptyId, info.pid);
       this.typedAts.set(req.ptyId, this.now() - result.ms);
-      if (result.outcome === 'unconfirmed' && !encoding.slash) this.unproved.set(req.ptyId, { pid: info.pid, text: req.text, key: encoding.key, typedAt: this.now() - result.ms, pressed: false });
+      if (result.outcome === 'unconfirmed' && !encoding.slash) this.unproved.set(req.ptyId, { pid: info.pid, text: req.text, key: encoding.key, typedAt: this.now() - result.ms, pressed: false, idle });
       else this.unproved.delete(req.ptyId);
     }
     // Never the text, never the tail. A draft or a hold is retried on every
@@ -505,6 +506,12 @@ export class PtySubmitter {
     // Never typed onto text in the box (Pam b8r6, cycle 6: B went in after A, one prompt). The earlier send is
     // let go only when its CLI reported it, or the box is seen empty; with no window, nobody can see a box.
     if (this.deps.proof.promptSeen(req.agentId, left.typedAt, promptTail(left.text))) { this.unproved.delete(req.ptyId); return true; }
+    // Antigravity sends no UserPromptSubmit, so promptSeen never comes for it: its PreInvocation is the prompt taken
+    // (PROMPT_TAKEN_EVENTS). One after an idle, pressed send that took longer than the proof wait (a cold or resumed
+    // session) means the box emptied. Without this an agent whose tab was never opened held every later send, for
+    // good (#875). The same rule typeAndSubmit's 'activity' proof uses: idle, pressed, a prompt taken, never a tool.
+    if (req.provider === 'antigravity' && left.idle === true && !left.withdrawn
+      && this.deps.proof.eventSeen(req.agentId, left.typedAt, PROMPT_TAKEN_EVENTS)) { this.unproved.delete(req.ptyId); return true; }
     const seen = await this.deps.probe(req.ptyId, grid).catch(() => null);
     if (seen === undefined) { this.unproved.delete(req.ptyId); return true; }
     const raw = seen?.lines ? inputBoxText(seen.lines) : null;
