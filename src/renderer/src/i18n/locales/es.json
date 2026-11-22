@@ -121,7 +121,19 @@
     "notSent": "sin enviar",
     "gone": "La pregunta cambió o se cerró mientras escribías.",
     "goneKept": "Lo que escribiste, para copiarlo si aún lo necesitas:",
-    "failed": "Tu respuesta sigue en el cuadro. Inténtalo de nuevo."
+    "failed": "Tu respuesta sigue en el cuadro. Inténtalo de nuevo.",
+    "approvals": {
+      "title": "Aprobaciones pendientes: {{count}}",
+      "cardTitle": "Una llamada a {{tool}} necesita tu visto bueno",
+      "folder": "Carpeta",
+      "rule": "Regla",
+      "waiting": "Espera",
+      "until": "hasta las {{time}}",
+      "once": "Aprobar deja que esta misma llamada se ejecute una vez, en 60 minutos. Se le pide al agente que la ejecute de nuevo.",
+      "approve": "Aprobar",
+      "deny": "Denegar",
+      "failed": "Tu respuesta no se guardó. Inténtalo de nuevo."
+    }
   },
   "agentMenu": {
     "open": "Abrir",
@@ -2484,6 +2496,7 @@
     "whatItDoes": "Qué hace",
     "on": "Activado",
     "logNote": "Solo registrar anota lo que habría hecho y deja pasar la llamada.",
+    "askNote": "Preguntarme detiene la llamada y la pone en la tarjeta de aprobaciones de PREGÚNTAME. Cuando apruebas, el agente la ejecuta de nuevo, una vez.",
     "toolLabel": "Herramienta (separadas por comas)",
     "commandLabel": "Patrón de comando (expresión regular)",
     "pathLabel": "O un patrón de ruta",

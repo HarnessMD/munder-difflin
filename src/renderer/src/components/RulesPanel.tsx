@@ -225,6 +225,7 @@ export function RulesPanel() {
                 <label><input type="checkbox" checked={draft.on} onChange={(e) => set({ on: e.target.checked })} /> {t('rulesPanel.on')}</label>
               </div>
               {draft.does === 'log' && <div style={small}>{t('rulesPanel.logNote')}</div>}
+              {draft.does === 'ask' && <div style={small}>{t('rulesPanel.askNote')}</div>}
               <div style={kit.label}>{t('rulesPanel.toolLabel')}</div>
               <input style={field} value={draft.tool} onChange={(e) => set({ tool: e.target.value })} placeholder="Bash" />
               <div style={kit.label}>{t('rulesPanel.commandLabel')}</div>

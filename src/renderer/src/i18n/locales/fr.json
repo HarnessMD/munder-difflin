@@ -121,7 +121,19 @@
     "notSent": "non envoyé",
     "gone": "La question a changé ou a été fermée pendant que vous écriviez.",
     "goneKept": "Ce que vous avez écrit, à copier si vous en avez encore besoin :",
-    "failed": "Votre réponse est toujours dans le champ. Réessayez."
+    "failed": "Votre réponse est toujours dans le champ. Réessayez.",
+    "approvals": {
+      "title": "Approbations en attente : {{count}}",
+      "cardTitle": "Un appel {{tool}} attend ton accord",
+      "folder": "Dossier",
+      "rule": "Règle",
+      "waiting": "Attend",
+      "until": "jusqu'à {{time}}",
+      "once": "Approuver laisse cet appel exact s'exécuter une fois, dans les 60 minutes. On demande à l'agent de le relancer.",
+      "approve": "Approuver",
+      "deny": "Refuser",
+      "failed": "Ta réponse n'a pas été enregistrée. Réessaie."
+    }
   },
   "agentMenu": {
     "open": "Ouvrir",
@@ -2484,6 +2496,7 @@
     "whatItDoes": "Ce qu'il fait",
     "on": "Activé",
     "logNote": "Journal seulement note ce qu'il aurait fait et laisse passer l'appel.",
+    "askNote": "Me demander arrête l'appel et le place sur la carte Approbations dans DEMANDEZ-MOI. Après ton accord, l'agent le relance, une fois.",
     "toolLabel": "Outil (séparés par des virgules)",
     "commandLabel": "Motif de commande (expression régulière)",
     "pathLabel": "Ou un motif de chemin",

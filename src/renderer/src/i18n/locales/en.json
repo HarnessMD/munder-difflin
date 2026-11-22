@@ -121,7 +121,19 @@
     "notSent": "not sent",
     "gone": "The question changed or was closed while you were writing.",
     "goneKept": "What you wrote, to copy if you still need it:",
-    "failed": "Your answer is still in the box. Try again."
+    "failed": "Your answer is still in the box. Try again.",
+    "approvals": {
+      "title": "Approvals waiting: {{count}}",
+      "cardTitle": "A {{tool}} call needs your OK",
+      "folder": "Folder",
+      "rule": "Rule",
+      "waiting": "Waits",
+      "until": "until {{time}}",
+      "once": "Approve lets exactly this call run once, within 60 minutes. The agent is told to run it again.",
+      "approve": "Approve",
+      "deny": "Deny",
+      "failed": "Your answer was not saved. Try again."
+    }
   },
   "agentMenu": {
     "open": "Open",
@@ -2484,6 +2496,7 @@
     "whatItDoes": "What it does",
     "on": "On",
     "logNote": "Log only records what it would have done and lets the call run.",
+    "askNote": "Ask me stops the call and puts it on the Approvals card in ASK ME. After you approve, the agent runs it again, once.",
     "toolLabel": "Tool (comma separated)",
     "commandLabel": "Command pattern (regular expression)",
     "pathLabel": "Or a path pattern",

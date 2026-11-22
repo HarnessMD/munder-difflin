@@ -121,7 +121,19 @@
     "notSent": "nicht gesendet",
     "gone": "Die Frage hat sich geändert oder wurde geschlossen, während du geschrieben hast.",
     "goneKept": "Was du geschrieben hast, zum Kopieren, falls du es noch brauchst:",
-    "failed": "Deine Antwort steht noch im Feld. Versuch es noch einmal."
+    "failed": "Deine Antwort steht noch im Feld. Versuch es noch einmal.",
+    "approvals": {
+      "title": "Wartende Freigaben: {{count}}",
+      "cardTitle": "Ein {{tool}}-Aufruf braucht dein OK",
+      "folder": "Ordner",
+      "rule": "Regel",
+      "waiting": "Wartet",
+      "until": "bis {{time}}",
+      "once": "Freigeben lässt genau diesen Aufruf einmal laufen, innerhalb von 60 Minuten. Der Agent wird gebeten, ihn erneut auszuführen.",
+      "approve": "Freigeben",
+      "deny": "Ablehnen",
+      "failed": "Deine Antwort wurde nicht gespeichert. Versuch es noch einmal."
+    }
   },
   "agentMenu": {
     "open": "Öffnen",
@@ -2484,6 +2496,7 @@
     "whatItDoes": "Was sie tut",
     "on": "An",
     "logNote": "Nur protokollieren hält fest, was sie getan hätte, und lässt den Aufruf laufen.",
+    "askNote": "„Mich fragen“ stoppt den Aufruf und legt ihn auf die Freigaben-Karte in FRAG MICH. Nach deiner Freigabe führt der Agent ihn noch einmal aus, einmal.",
     "toolLabel": "Werkzeug (durch Kommas getrennt)",
     "commandLabel": "Befehlsmuster (regulärer Ausdruck)",
     "pathLabel": "Oder ein Pfadmuster",

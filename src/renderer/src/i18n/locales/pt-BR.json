@@ -121,7 +121,19 @@
     "notSent": "não enviada",
     "gone": "A pergunta mudou ou foi fechada enquanto você escrevia.",
     "goneKept": "O que você escreveu, para copiar se ainda precisar:",
-    "failed": "Sua resposta continua na caixa. Tente de novo."
+    "failed": "Sua resposta continua na caixa. Tente de novo.",
+    "approvals": {
+      "title": "Aprovações aguardando: {{count}}",
+      "cardTitle": "Uma chamada {{tool}} precisa do seu OK",
+      "folder": "Pasta",
+      "rule": "Regra",
+      "waiting": "Aguarda",
+      "until": "até {{time}}",
+      "once": "Aprovar deixa exatamente esta chamada rodar uma vez, em até 60 minutos. O agente é avisado para rodá-la de novo.",
+      "approve": "Aprovar",
+      "deny": "Negar",
+      "failed": "Sua resposta não foi salva. Tente de novo."
+    }
   },
   "agentMenu": {
     "open": "Abrir",
@@ -2484,6 +2496,7 @@
     "whatItDoes": "O que faz",
     "on": "Ligada",
     "logNote": "Só registrar anota o que teria feito e deixa a chamada seguir.",
+    "askNote": "Perguntar a mim para a chamada e a coloca no cartão de Aprovações em PERGUNTE-ME. Depois que você aprova, o agente a roda de novo, uma vez.",
     "toolLabel": "Ferramenta (separadas por vírgula)",
     "commandLabel": "Padrão de comando (expressão regular)",
     "pathLabel": "Ou um padrão de caminho",

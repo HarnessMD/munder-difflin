@@ -121,7 +121,19 @@
     "notSent": "gönderilmedi",
     "gone": "Siz yazarken soru değişti veya kapatıldı.",
     "goneKept": "Yazdıklarınız, hâlâ gerekiyorsa kopyalayın:",
-    "failed": "Yanıtınız hâlâ kutuda. Yeniden deneyin."
+    "failed": "Yanıtınız hâlâ kutuda. Yeniden deneyin.",
+    "approvals": {
+      "title": "Bekleyen onaylar: {{count}}",
+      "cardTitle": "Bir {{tool}} çağrısı onayını bekliyor",
+      "folder": "Klasör",
+      "rule": "Kural",
+      "waiting": "Bekler",
+      "until": "{{time}} saatine kadar",
+      "once": "Onay, tam olarak bu çağrının 60 dakika içinde bir kez çalışmasına izin verir. Ajana onu yeniden çalıştırması söylenir.",
+      "approve": "Onayla",
+      "deny": "Reddet",
+      "failed": "Yanıtın kaydedilmedi. Yeniden dene."
+    }
   },
   "agentMenu": {
     "open": "Aç",
@@ -2484,6 +2496,7 @@
     "whatItDoes": "Ne yapar",
     "on": "Açık",
     "logNote": "Yalnızca kaydet, ne yapacağını kaydeder ve çağrının çalışmasına izin verir.",
+    "askNote": "Bana sor çağrıyı durdurur ve BANA SOR sekmesindeki Onaylar kartına koyar. Onayladığında ajan onu bir kez daha çalıştırır.",
     "toolLabel": "Araç (virgülle ayrılmış)",
     "commandLabel": "Komut kalıbı (düzenli ifade)",
     "pathLabel": "Ya da bir yol kalıbı",

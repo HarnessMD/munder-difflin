@@ -121,7 +121,19 @@
     "notSent": "non inviato",
     "gone": "La domanda è cambiata o è stata chiusa mentre scrivevi.",
     "goneKept": "Ecco cosa avevi scritto, da copiare se ti serve ancora:",
-    "failed": "La tua risposta è ancora nel campo. Riprova."
+    "failed": "La tua risposta è ancora nel campo. Riprova.",
+    "approvals": {
+      "title": "Approvazioni in attesa: {{count}}",
+      "cardTitle": "Una chiamata {{tool}} attende il tuo OK",
+      "folder": "Cartella",
+      "rule": "Regola",
+      "waiting": "Attende",
+      "until": "fino alle {{time}}",
+      "once": "Approva lascia eseguire esattamente questa chiamata una volta, entro 60 minuti. All'agente viene detto di eseguirla di nuovo.",
+      "approve": "Approva",
+      "deny": "Nega",
+      "failed": "La tua risposta non è stata salvata. Riprova."
+    }
   },
   "agentMenu": {
     "open": "Apri",
@@ -2484,6 +2496,7 @@
     "whatItDoes": "Cosa fa",
     "on": "Attivo",
     "logNote": "Solo registro annota cosa avrebbe fatto e lascia passare la chiamata.",
+    "askNote": "Chiedimi ferma la chiamata e la mette nella scheda Approvazioni in CHIEDIMI. Dopo la tua approvazione, l'agente la esegue di nuovo, una volta.",
     "toolLabel": "Strumento (separati da virgole)",
     "commandLabel": "Schema del comando (espressione regolare)",
     "pathLabel": "Oppure uno schema di percorso",
