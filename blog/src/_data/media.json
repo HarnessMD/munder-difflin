@@ -6588,5 +6588,16 @@
       "prompt": "Title card: the hero scene in assets/media/devin-alternatives/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "riemann-hypothesis-ai-proof": {
+    "inline": {},
+    "title": "Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/riemann-hypothesis-ai-proof/hero.png",
+      "alt": "Title card on white. A lilac pill reading Concepts, the title Riemann Hypothesis proof, the line Made with Claude, checked in Lean and a Checked 22 Nov 2026 line. A blue telescope sweeps a row of soft white tiles that light yellow, then three mint cards appear: 17 million lines, Lean and 20 Nov 2026.",
+      "prompt": "Title card: the hero scene in assets/media/riemann-hypothesis-ai-proof/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
