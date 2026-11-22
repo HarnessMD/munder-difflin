@@ -515,9 +515,10 @@ export class PtySubmitter {
     // pressed lets it go: without this every later send was held for good (#875). The rule typeAndSubmit's 'activity'
     // proof uses: idle, pressed, a prompt taken, never a tool. Only unread: a screen that shows the box decides above
     // and below, since PreInvocation is every model step and the text can still be there (Yeman, a597eaea).
-    // No time limit is needed (Dwight, a597eaea): a send on an unread screen is left unproved only while this process
-    // has sent no turn event at all (typeAndSubmit stops pressing without a working hook channel; with one it ends
-    // stuck), so no turn was running when it was typed and the first PreInvocation after it is a new turn.
+    // No time limit is needed (Dwight, a597eaea). typeAndSubmit ends unconfirmed only when its last read showed the
+    // text gone from the box, so nothing of it is left to type onto, or when the screen was unread AND this process
+    // had sent no turn event yet (with one it ends stuck): then no turn was running, and the first PreInvocation
+    // after it is a new turn that took the box.
     if (!seen?.lines && req.provider === 'antigravity' && left.idle === true && left.typedPressed === true && !left.withdrawn
       && this.deps.proof.eventSeen(req.agentId, left.typedAt, PROMPT_TAKEN_EVENTS)) { this.unproved.delete(req.ptyId); return true; }
     // Something else in the box, or a box that cannot be read: held. Ours gets its one Enter below.
