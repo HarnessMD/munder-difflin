@@ -16,7 +16,7 @@ const RULE = '─'.repeat(80);
 /** An agy screen with its input box drawn between two rules, holding `text`. */
 const boxWith = (text) => ['some transcript', RULE, text ? `> ${text}` : '>', RULE, '  status'];
 
-function rig() {
+function rig(opts = {}) {
   const screen = { lines: null };
   let t = 1_000_000;
   const now = () => t;
@@ -34,7 +34,7 @@ function rig() {
     now,
     sleep: async (ms) => { t += ms; }
   });
-  const send = (text) => sub.submit({ ptyId: 'p1', agentId: 'agy1', provider: 'antigravity', source: 'queue', text });
+  const send = (text, extra = {}) => sub.submit({ ptyId: 'p1', agentId: 'agy1', provider: opts.provider ?? 'antigravity', source: 'queue', text, ...extra });
   return { sub, proof, logs, writes, send, screen, advance: (ms) => { t += ms; } };
 }
 
@@ -99,4 +99,55 @@ test('#875 review: a readable empty box after the earlier send lets the next one
   const second = await r.send('second message');
   assert.notEqual(second.outcome, 'held');
   assert.ok(r.writes.slice(before).some((w) => w.includes('second message')));
+});
+
+// Dwight's review of a597eaea: each of these must keep the old hold.
+async function laterSend(r, firstExtra = {}) {
+  const first = await r.send('first wake message for the agent', firstExtra);
+  r.advance(60_000);
+  r.proof.note('agy1', 'PreInvocation');
+  r.advance(60_000);
+  const before = r.writes.length;
+  const second = await r.send('second message');
+  return { first, second, typedSecond: r.writes.slice(before).some((w) => w.includes('second message')) };
+}
+
+test('#875 review (Dwight): with a turn running, an unread send is never left unproved, so nothing old is released', async () => {
+  const r = rig();
+  // A step of a running turn since the process started: the hook channel works.
+  r.proof.note('agy1', 'PreInvocation');
+  r.advance(1_000);
+  const first = await r.send('first wake message for the agent');
+  // The release only acts on an unconfirmed send; this one ends another way (stuck), the 0.6.0 behaviour.
+  assert.notEqual(first.outcome, 'unconfirmed');
+});
+
+test('#875 review: Send now (idle false) as the earlier send keeps the hold', async () => {
+  const r = rig();
+  const { first, second, typedSecond } = await laterSend(r, { idle: false });
+  assert.equal(first.outcome, 'unconfirmed');
+  assert.equal(second.outcome, 'held');
+  assert.equal(typedSecond, false);
+});
+
+test('#875 review: a crossed-out earlier send keeps the hold', async () => {
+  const r = rig();
+  const first = await r.send('first wake message for the agent', { ref: 'q1' });
+  assert.equal(first.outcome, 'unconfirmed');
+  assert.equal(r.sub.withdraw('q1'), true);
+  r.advance(60_000);
+  r.proof.note('agy1', 'PreInvocation');
+  r.advance(60_000);
+  const before = r.writes.length;
+  const second = await r.send('second message');
+  assert.equal(second.outcome, 'held');
+  assert.ok(!r.writes.slice(before).some((w) => w.includes('second message')));
+});
+
+test('#875 review: another provider is unchanged by a PreInvocation', async () => {
+  const r = rig({ provider: 'gemini' });
+  const { first, second, typedSecond } = await laterSend(r);
+  assert.equal(first.outcome, 'unconfirmed');
+  assert.equal(second.outcome, 'held');
+  assert.equal(typedSecond, false);
 });
