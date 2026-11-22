@@ -188,6 +188,38 @@ test('a malformed row in the file is dropped, never read as a grant', (t) => {
   assert.equal(a.check(call()).kind, 'pending');
 });
 
+test('a row read back must be the call it shows, and holds no longer than its state allows', (t) => {
+  const dir = tmpDir(t);
+  const push = call();
+  const pushInput = { command: 'git push origin main' };
+  const far = '2999-01-01T00:00:00.000Z';
+  const row = (over) => ({ id: 'ap-000000000000', key: approvalKey(push), agent_id: 'jim-1', rule_id: 'push', reason: '', tool: 'Bash',
+    call: 'git push origin main', input: pushInput, cwd: '/w/repo', state: 'pending', asked_at: '2026-11-22T11:00:00.000Z', expires_at: far, ...over });
+  fs.writeFileSync(path.join(dir, APPROVALS_FILE), JSON.stringify({ version: 1, entries: [
+    // The card would say echo, the key is the push's: dropped.
+    row({ id: 'ap-111111111111', call: 'echo hello', input: { command: 'echo hello' } }),
+    // The text matches the input, but the key is someone else's call: dropped.
+    row({ id: 'ap-222222222222', key: approvalKey(call({ input: { command: 'echo hello' } })) }),
+    // The input is the push, the text is not: dropped.
+    row({ id: 'ap-333333333333', call: 'echo hello' }),
+    // No input at all: dropped.
+    (({ input: _i, ...r }) => r)(row({ id: 'ap-444444444444' })),
+    // A denied push with a year-long hold: kept, held for 10 minutes from now at most.
+    row({ id: 'ap-555555555555', state: 'denied' }),
+    // An honest open request for another call: kept, waits 60 minutes from now at most.
+    row({ id: 'ap-666666666666', key: approvalKey(call({ input: { command: 'git push origin dev' } })), call: 'git push origin dev', input: { command: 'git push origin dev' } }),
+  ] }));
+  const { a, clock } = desk(t, { dir });
+  assert.deepEqual(a.pending().map((e) => [e.id, e.call]), [['ap-666666666666', 'git push origin dev']], 'only the honest request is on the card');
+  assert.equal(a.check(push).kind, 'denied');
+  clock.t += DENY_HOLD_MS;
+  const asked = a.check(push);
+  assert.equal(asked.kind, 'pending', 'the planted Deny lapsed after 10 minutes');
+  assert.equal(asked.fresh, true);
+  clock.t += REQUEST_TTL_MS - DENY_HOLD_MS;
+  assert.deepEqual(a.pending().map((e) => e.id), [asked.entry.id], 'the planted request lapsed after 60 minutes');
+});
+
 test('one agent cannot fill the card', (t) => {
   const { a } = desk(t);
   for (let i = 0; i < MAX_PENDING_PER_AGENT; i++) assert.equal(a.check(call({ input: { command: `git push origin b${i}` } })).kind, 'pending');
@@ -316,6 +348,24 @@ test('hook: an agent writing the ledger, a message or the file makes no grant', 
     assert.equal(reply.hookSpecificOutput.permissionDecision, 'deny');
     assert.match(reply.hookSpecificOutput.permissionDecisionReason, /^\[policy:policy-self-protection\]/);
   }
+});
+
+test('hook: a request planted before the app reads the file cannot get one call approved as another', async (t) => {
+  const f = await floor(t);
+  const push = { agentId: 'jim-1', ruleId: 'push', tool: 'Bash', input: { command: 'git push origin main' }, cwd: f.home };
+  // Written while the app is closed (hooks allow then): the card would say echo, the key is the push's.
+  fs.writeFileSync(path.join(f.hive.root(), 'policy', APPROVALS_FILE), JSON.stringify({ version: 1, entries: [
+    { id: 'ap-000000000001', key: approvalKey(push), agent_id: 'jim-1', rule_id: 'push', reason: '', tool: 'Bash', call: 'echo hello',
+      input: { command: 'echo hello' }, cwd: f.home, state: 'pending', asked_at: new Date().toISOString(), expires_at: '2999-01-01T00:00:00.000Z' },
+  ] }));
+  const r = await f.send('git push origin main');
+  assert.equal(r.hookSpecificOutput.permissionDecision, 'deny');
+  const id = f.requestId(r);
+  assert.notEqual(id, 'ap-000000000001', 'the planted row is not the push\'s request');
+  assert.deepEqual(f.server.pendingApprovals().map((e) => [e.id, e.call]), [[id, 'git push origin main']], 'the card shows what Approve covers');
+  assert.deepEqual(f.server.decideApproval('ap-000000000001', true), { ok: false, error: 'That request is no longer waiting.' });
+  const again = await f.send('git push origin main');
+  assert.equal(again.hookSpecificOutput.permissionDecision, 'deny', 'nothing was granted');
 });
 
 test('hook: Approve and Deny are reached only over the app\'s IPC', () => {

@@ -15,6 +15,8 @@
  * cannot write that folder while the guardrail is on (the engine's self-protection).
  * A grant is never read back from the file, nor from tasks.json: it is made only by
  * `decide`, which only the app's own window reaches (IPC), and lives in this run.
+ * A row read back from the file is kept only if its key is the hash of the call it
+ * shows, so the card can never show one call while Approve covers another.
  *
  * No electron import, so tests drive it directly with their own clock.
  */
@@ -57,6 +59,9 @@ export interface ApprovalEntry {
   tool: string;
   /** What the operator approves, in full: the command for a shell call, else the input as JSON. */
   call: string;
+  /** The call's input as keyed (cosmetic keys dropped). On load, `key` and `call` are
+   *  worked out again from it, and a row where either differs is dropped. */
+  input: unknown;
   cwd: string | null;
   state: ApprovalState;
   asked_at: string;
@@ -114,8 +119,15 @@ function isEntry(e: unknown): e is ApprovalEntry {
   const x = e as ApprovalEntry;
   return !!x && typeof x === 'object' && typeof x.id === 'string' && typeof x.key === 'string'
     && typeof x.agent_id === 'string' && typeof x.rule_id === 'string' && typeof x.tool === 'string'
-    && typeof x.call === 'string' && (x.state === 'pending' || x.state === 'approved' || x.state === 'denied')
+    && typeof x.call === 'string' && 'input' in x && (x.cwd === null || typeof x.cwd === 'string')
+    && (x.state === 'pending' || x.state === 'approved' || x.state === 'denied')
     && typeof x.asked_at === 'string' && typeof x.expires_at === 'string' && Number.isFinite(at(x.expires_at));
+}
+
+/** The row's key and text are the ones its own input gives. */
+function bound(e: ApprovalEntry): boolean {
+  return e.key === approvalKey({ agentId: e.agent_id, ruleId: e.rule_id, tool: e.tool, input: e.input, cwd: e.cwd })
+    && e.call === callText(e.input);
 }
 
 export class Approvals {
@@ -146,7 +158,13 @@ export class Approvals {
       // A row that is not well formed is dropped. So is every grant: only a click in
       // this run of the app makes one, and a file can be written by hand while the app
       // is closed. Open requests and Denies come back; a lost grant costs a new card.
-      this.entries = list.filter(isEntry).filter((e) => e.state !== 'approved');
+      // A kept row must still be the call it shows: its key and its text are worked out
+      // again from its input. And no row may outlast the hold its state allows from now.
+      const t = this.now();
+      this.entries = list.filter(isEntry).filter((e) => e.state !== 'approved' && bound(e)).map((e) => {
+        const cap = t + (e.state === 'pending' ? REQUEST_TTL_MS : DENY_HOLD_MS);
+        return at(e.expires_at) > cap ? { ...e, expires_at: iso(cap) } : e;
+      });
     } catch {
       this.entries = [];
       this.opts.onDamaged?.();
@@ -204,6 +222,7 @@ export class Approvals {
       reason: call.reason ?? '',
       tool: call.tool,
       call: callText(call.input),
+      input: effectiveInput(call.input),
       cwd: call.cwd ?? null,
       state: 'pending',
       asked_at: iso(t),

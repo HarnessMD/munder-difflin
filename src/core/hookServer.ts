@@ -874,13 +874,13 @@ export class HookServer {
   }
 
   /** The open requests, for the Approvals card. Main's own copy: never tasks.json. */
-  pendingApprovals(): Array<Omit<ApprovalEntry, 'key'> & { agent_name: string }> {
+  pendingApprovals(): Array<Omit<ApprovalEntry, 'key' | 'input'> & { agent_name: string }> {
     try {
       const desk = this.approvalDesk();
       if (!desk) return [];
       desk.sweep();
       const reg = this.hive.registry().agents;
-      return desk.pending().map(({ key: _key, ...e }) => ({ ...e, agent_name: reg[e.agent_id]?.name ?? e.agent_id }));
+      return desk.pending().map(({ key: _key, input: _input, ...e }) => ({ ...e, agent_name: reg[e.agent_id]?.name ?? e.agent_id }));
     } catch { return []; }
   }
 
