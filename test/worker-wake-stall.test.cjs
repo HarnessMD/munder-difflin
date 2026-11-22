@@ -244,3 +244,58 @@ test('a hold is reported once per cooldown per worker, and forget() resets it', 
   w.forget('stanley', 'pty-stanley');
   assert.equal(w.shouldReportHold('stanley', NOW + WORKER_WAKE_COOLDOWN_MS + 1_000), true);
 });
+
+test('isTurnHook credits Antigravity PreInvocation and PostInvocation as turn activity', () => {
+  assert.equal(isTurnHook('PreInvocation'), true);
+  assert.equal(isTurnHook('PostInvocation'), true);
+
+  const w = new WorkerWakeWatchdog();
+  w.noteSpawn('pty-kevin', NOW - 20 * 60_000);
+  w.noteHook('kevin', 'PreInvocation', undefined, NOW - 5_000);
+  assert.equal(w.turnHookAt('kevin'), NOW - 5_000);
+  assert.equal(w.explain(codex({ oldestMailAt: NOW - 10 * 60_000 }), NOW), 'mid-turn');
+});
+
+test('earlierSendClear clears unproved on unopened terminal tabs (lines: null) and on turn activity / Stop', () => {
+  const w = new WorkerWakeWatchdog();
+
+  /* (c) While unsubmitted text sits in the input box with no turn activity, earlierSendClear returns false. */
+  w.stashUnproved('agy-1', 'read your inbox', NOW);
+  assert.equal(w.unprovedFor('agy-1')?.text, 'read your inbox');
+  assert.equal(
+    w.earlierSendClear('agy-1', { lines: ['> read your inbox'], safe: true, pooled: true }, NOW + 1_000),
+    false,
+    'text still in the input box with no turn activity must hold as earlier-in-box'
+  );
+  assert.equal(w.unprovedFor('agy-1')?.text, 'read your inbox');
+
+  /* Once the input box is empty, earlierSendClear returns true and clears unproved. */
+  assert.equal(
+    w.earlierSendClear('agy-1', { lines: ['> '], safe: true, pooled: true }, NOW + 2_000),
+    true,
+    'an empty input box clears unproved'
+  );
+  assert.equal(w.unprovedFor('agy-1') ?? undefined, undefined);
+
+  /* (a) An unopened terminal tab resolves { lines: null, safe: true, pooled: true } — must clear unproved and return true. */
+  w.stashUnproved('agy-1', 'read your inbox', NOW);
+  assert.equal(
+    w.earlierSendClear('agy-1', { lines: null, safe: true, pooled: true }, NOW + 1_000),
+    true,
+    'unopened terminal tab (lines: null) must not deadlock in earlier-in-box'
+  );
+  assert.equal(w.unprovedFor('agy-1') ?? undefined, undefined);
+
+  /* (b) Turn activity / Stop observed via noteHook after stashUnproved clears unproved and lets earlierSendClear return true. */
+  for (const event of ['PreToolUse', 'PostToolUse', 'PreInvocation', 'PostInvocation', 'Stop', 'UserPromptSubmit']) {
+    w.stashUnproved('agy-1', 'read your inbox', NOW);
+    assert.equal(w.unprovedFor('agy-1')?.text, 'read your inbox');
+    w.noteHook('agy-1', event, undefined, NOW + 500);
+    assert.equal(w.unprovedFor('agy-1') ?? undefined, undefined, `${event} after stashUnproved should clear unproved`);
+    assert.equal(
+      w.earlierSendClear('agy-1', { lines: ['> read your inbox'], safe: true, pooled: true }, NOW + 1_000),
+      true,
+      `earlierSendClear should return true after ${event}`
+    );
+  }
+});

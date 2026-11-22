@@ -83,7 +83,7 @@ function hookCommandsUnder(home) {
 
 const usesLauncher = (cmd, launcher) => cmd.startsWith(launcher) || cmd.startsWith(`"${launcher}"`);
 
-async function run(cmd, env) {
+async function run(cmd, env, input = { hook_event_name: 'Stop', session_id: 's1' }) {
   return new Promise((resolve) => {
     const child = spawn('/bin/sh', ['-c', cmd], { env, stdio: ['pipe', 'pipe', 'pipe'] });
     let stderr = '';
@@ -100,7 +100,7 @@ async function run(cmd, env) {
     child.stdin.on('error', (e) => {
       if (e.code !== 'EPIPE') stderr += `stdin: ${e.message}\n`;
     });
-    child.stdin.end(JSON.stringify({ hook_event_name: 'Stop', session_id: 's1' }));
+    child.stdin.end(typeof input === 'string' ? input : JSON.stringify(input));
     child.on('close', (code) => resolve({ code, stderr }));
   });
 }
@@ -461,4 +461,101 @@ test('a hook fires with NO node on PATH, and its payload reaches HIVE_SOCK', { s
   await new Promise((resolve) => setTimeout(resolve, 300));
   assert.ok(received.length > 0, 'nothing arrived at HIVE_SOCK');
   assert.match(received[0], /"hook_event_name"\s*:\s*"Stop"/);
+});
+
+test('installAgyHooks registers SessionStart and UserPromptSubmit and PreInvocation emits UserPromptSubmit once per turn', { skip: !POSIX }, async (t) => {
+  const { home, harness } = isolatedHomes(t, undefined, '/tmp');
+  const hive = new HiveManager(() => harness);
+  hive.ensureHive();
+  hive.installAgyHooks();
+
+  const expectedEvents = [
+    'SessionStart',
+    'UserPromptSubmit',
+    'PreToolUse',
+    'PostToolUse',
+    'PreInvocation',
+    'PostInvocation',
+    'Stop'
+  ];
+  const hookFiles = [
+    path.join(home, '.gemini', 'config', 'hooks.json'),
+    path.join(home, '.gemini', 'antigravity-cli', 'hooks.json')
+  ];
+  let group;
+  for (const file of hookFiles) {
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+    group = parsed['munder-hive'];
+    assert.ok(group, `missing munder-hive group in ${file}`);
+    for (const event of expectedEvents) {
+      assert.ok(
+        Array.isArray(group[event]) && group[event][0]?.hooks?.[0]?.command?.includes('agy-hook.cjs'),
+        `missing ${event} hook in ${file}`
+      );
+    }
+  }
+
+  const sock = path.join(harness, 'hive', 'hooks.sock');
+  try { fs.unlinkSync(sock); } catch { /* not there */ }
+  const frames = [];
+  const server = net.createServer((conn) => {
+    let buf = '';
+    conn.on('error', () => { /* shim may hang up first */ });
+    conn.on('data', (d) => {
+      buf += d.toString('utf8');
+      if (!buf.includes('\n')) return;
+      for (const line of buf.split('\n')) {
+        if (line.trim()) frames.push(JSON.parse(line));
+      }
+      buf = '';
+      conn.write(JSON.stringify({}) + '\n', () => conn.end());
+    });
+  });
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(sock, resolve);
+  });
+  t.after(() => server.close());
+
+  const env = { PATH: STRIPPED_PATH, HIVE_SOCK: sock, AGENT_ID: 'a1', HOME: home };
+  const preCmd = group.PreInvocation[0].hooks[0].command;
+  const postCmd = group.PostInvocation[0].hooks[0].command;
+  const stopCmd = group.Stop[0].hooks[0].command;
+  const payload = JSON.stringify({ conversationId: 'conv-1', lastUserInput: 'read your inbox' });
+
+  const r1 = await run(preCmd, env, payload);
+  assert.equal(r1.code, 0, r1.stderr);
+  const promptsAfterFirst = frames.filter((f) => f.hook_event_name === 'UserPromptSubmit');
+  assert.equal(promptsAfterFirst.length, 1, 'PreInvocation should synthesize one UserPromptSubmit frame');
+  assert.equal(promptsAfterFirst[0].prompt, 'read your inbox');
+  assert.equal(promptsAfterFirst[0].session_id, 'conv-1');
+  assert.equal(promptsAfterFirst[0].agent_id, 'a1');
+
+  const r2 = await run(preCmd, env, payload);
+  assert.equal(r2.code, 0, r2.stderr);
+  assert.equal(
+    frames.filter((f) => f.hook_event_name === 'UserPromptSubmit').length,
+    1,
+    'second PreInvocation in the same turn with identical lastUserInput must not re-emit UserPromptSubmit'
+  );
+
+  const rPost = await run(postCmd, env, payload);
+  assert.equal(rPost.code, 0, rPost.stderr);
+  const r3 = await run(preCmd, env, payload);
+  assert.equal(r3.code, 0, r3.stderr);
+  assert.equal(
+    frames.filter((f) => f.hook_event_name === 'UserPromptSubmit').length,
+    2,
+    'after PostInvocation, the next PreInvocation must emit UserPromptSubmit again'
+  );
+
+  const rStop = await run(stopCmd, env, JSON.stringify({ conversationId: 'conv-1' }));
+  assert.equal(rStop.code, 0, rStop.stderr);
+  const r4 = await run(preCmd, env, payload);
+  assert.equal(r4.code, 0, r4.stderr);
+  assert.equal(
+    frames.filter((f) => f.hook_event_name === 'UserPromptSubmit').length,
+    3,
+    'after Stop, the next PreInvocation must emit UserPromptSubmit again'
+  );
 });

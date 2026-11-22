@@ -2110,6 +2110,8 @@ export class HiveManager {
       hooks: [{ type: 'command', command: command(event), timeout: 0 }]
     });
     const group = {
+      SessionStart: [plain('SessionStart')],
+      UserPromptSubmit: [plain('UserPromptSubmit')],
       PreToolUse: [tool('PreToolUse')],
       PostToolUse: [tool('PostToolUse')],
       PreInvocation: [plain('PreInvocation')],
@@ -3172,6 +3174,8 @@ process.stdin.on('end', () => {
 // hooks.json but the trigger reads ~/.gemini/config/hooks.json — we write BOTH.
 const AGY_HOOK_SHIM = `#!/usr/bin/env node
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const net = require('net');
 const event = process.argv[2] || 'Unknown';
 const agentId = process.env.AGENT_ID || null;
@@ -3184,6 +3188,9 @@ process.stdin.on('end', () => {
   let agy = {};
   try { agy = JSON.parse(data || '{}'); } catch (_) {}
   const tc = agy.toolCall || {};
+  const promptText = typeof agy.prompt === 'string' && agy.prompt
+    ? agy.prompt
+    : (typeof agy.lastUserInput === 'string' && agy.lastUserInput ? agy.lastUserInput : undefined);
   const payload = {
     hook_event_name: event,
     agent_id: agentId,
@@ -3191,33 +3198,81 @@ process.stdin.on('end', () => {
     transcript_path: agy.transcriptPath,
     cwd: Array.isArray(agy.workspacePaths) ? agy.workspacePaths[0] : undefined,
     tool_name: tc.name,
-    tool_input: tc.args
+    tool_input: tc.args,
+    ...(event === 'UserPromptSubmit' && promptText ? { prompt: promptText } : {})
   };
-  let resp = '';
+  // Issue #875: agy's PreInvocation payload carries lastUserInput in its common
+  // fields, and PreInvocation can fire multiple times within one agentic turn
+  // (once per model call). Emit a synthesized UserPromptSubmit frame once per
+  // turn so HookServer / prompt-proof records observe the prompt even when agy
+  // does not fire a standalone UserPromptSubmit hook, and reset turn state on
+  // PostInvocation / Stop / SessionStart.
+  const safeId = String(agentId).replace(/[^a-zA-Z0-9._-]/g, '_');
+  const turnFile = path.join(__dirname, '.agy-turn-' + safeId + '.json');
+  const frames = [];
+  if (event === 'PostInvocation' || event === 'Stop' || event === 'SessionStart') {
+    try { fs.unlinkSync(turnFile); } catch (_) {}
+  } else if (event === 'UserPromptSubmit' && promptText) {
+    try {
+      fs.writeFileSync(turnFile, JSON.stringify({ sessionId: agy.conversationId || null, prompt: promptText }), 'utf8');
+    } catch (_) {}
+  } else if (event === 'PreInvocation' && promptText) {
+    let prev = null;
+    try { prev = JSON.parse(fs.readFileSync(turnFile, 'utf8')); } catch (_) {}
+    const sid = agy.conversationId || null;
+    if (!prev || prev.prompt !== promptText || prev.sessionId !== sid) {
+      try {
+        fs.writeFileSync(turnFile, JSON.stringify({ sessionId: sid, prompt: promptText }), 'utf8');
+      } catch (_) {}
+      frames.push({
+        ...payload,
+        hook_event_name: 'UserPromptSubmit',
+        prompt: promptText
+      });
+    }
+  }
+  frames.push(payload);
+  const responses = [];
   const done = () => {
     // Translate the HookServer's Claude-shaped reply into agy's contract. CRITICAL:
     // agy treats ANY object written to stdout as a decision and FAIL-CLOSES (an
     // empty/decision-less object = DENY). So emit JSON ONLY when there's a real
     // directive (deny/block/steer); otherwise write NOTHING — no output = allow.
     let out = null;
-    try {
-      const r = JSON.parse(resp || '{}');
-      if (r.decision === 'block') out = { decision: 'block', reason: r.reason, stopReason: r.reason, systemMessage: r.reason };
-      else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason };
-      else if (r.continue === false) out = { decision: 'block', stopReason: r.stopReason };
-      else if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) out = { systemMessage: r.hookSpecificOutput.additionalContext };
-    } catch (_) {}
+    const contexts = [];
+    for (const raw of responses) {
+      try {
+        const r = JSON.parse(raw || '{}');
+        if (r.decision === 'block') { out = { decision: 'block', reason: r.reason, stopReason: r.reason, systemMessage: r.reason }; break; }
+        if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') { out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason }; break; }
+        if (r.continue === false) { out = { decision: 'block', stopReason: r.stopReason }; break; }
+        if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) contexts.push(r.hookSpecificOutput.additionalContext);
+      } catch (_) {}
+    }
+    if (!out && contexts.length > 0) out = { systemMessage: contexts.join('\\n\\n') };
     if (out) { try { process.stdout.write(JSON.stringify(out)); } catch (_) {} }
     process.exit(0);
   };
-  try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
-    c.setEncoding('utf8');
-    c.on('data', (d) => { resp += d; });
-    c.on('end', done);
-    c.on('error', () => process.exit(0));
-    setTimeout(() => process.exit(0), 5000).unref();
-  } catch (_) { process.exit(0); }
+  const sendNext = (idx) => {
+    if (idx >= frames.length) { done(); return; }
+    let resp = '';
+    let settled = false;
+    const next = () => {
+      if (settled) return;
+      settled = true;
+      responses.push(resp);
+      sendNext(idx + 1);
+    };
+    try {
+      const c = net.createConnection(sock, () => c.write(JSON.stringify(frames[idx]) + '\\n'));
+      c.setEncoding('utf8');
+      c.on('data', (d) => { resp += d; });
+      c.on('end', next);
+      c.on('error', () => process.exit(0));
+    } catch (_) { process.exit(0); }
+  };
+  setTimeout(() => process.exit(0), 5000).unref();
+  sendNext(0);
 });
 `;
 

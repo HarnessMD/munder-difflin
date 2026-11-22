@@ -101,6 +101,8 @@ export function isTurnHook(event: string | undefined): boolean {
     case 'PreToolUse':
     case 'PostToolUse':
     case 'PostToolUseFailure':
+    case 'PreInvocation':
+    case 'PostInvocation':
     case 'Stop':
     case 'StopFailure':
     case 'SubagentStart':
@@ -109,6 +111,39 @@ export function isTurnHook(event: string | undefined): boolean {
     default:
       return false;
   }
+}
+
+/** A previously submitted prompt whose proof timed out before confirmation. */
+export interface UnprovedSend {
+  text: string;
+  at: number;
+}
+
+/** Terminal screen probe snapshot returned by the renderer's terminal pool.
+ *  When a terminal tab has never been opened in the UI (`!entry.opened`),
+ *  `lines` is `null` even though `safe` and `pooled` are `true`. */
+export interface TerminalScreenProbe {
+  lines?: readonly string[] | null;
+  safe?: boolean;
+  pooled?: boolean;
+}
+
+/** Strip TUI box-drawing / prompt chrome and collapse whitespace for input-box comparison. */
+function normalizePromptBoxText(raw: string): string {
+  return raw.replace(/[─-╿>❯$#|]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function inputBoxEmpty(lines: readonly string[]): boolean {
+  return normalizePromptBoxText(lines.join('\n')).length === 0;
+}
+
+function boxHoldsTail(lines: readonly string[], text: string): boolean {
+  const target = normalizePromptBoxText(text);
+  if (!target) return false;
+  const screen = normalizePromptBoxText(lines.join('\n'));
+  if (!screen) return false;
+  const tail = target.slice(-Math.min(target.length, 48));
+  return screen.includes(tail);
 }
 
 /** One worker's live facts, gathered by the caller each beat. */
@@ -203,6 +238,8 @@ export class WorkerWakeWatchdog {
   /** agentId → when its hold was last reported, so the beat logs a held worker
    *  once per cooldown instead of every 15 s. */
   private lastHoldReportAt = new Map<string, number>();
+  /** agentId → unconfirmed prompt submission stashed when initial proof timed out (#875). */
+  private unproved = new Map<string, UnprovedSend>();
 
   /** Record a PTY spawn so its boot sequence is left alone. */
   noteSpawn(ptyId: string, at = Date.now()): void {
@@ -211,12 +248,59 @@ export class WorkerWakeWatchdog {
 
   /** Feed hook events (from HookServer): a HITL prompt blocks nudges, and any
    *  turn-proving event is activity the stall rule credits — the one channel
-   *  every engine has, telemetry being Claude-only. */
+   *  every engine has, telemetry being Claude-only. Also clears any stashed
+   *  unproved send (#875) once the agent demonstrably takes or finishes a turn. */
   noteHook(agentId: string | undefined, event: string | undefined, message: string | undefined, at = Date.now()): void {
     if (!agentId) return;
     this.hookSeenAt.set(agentId, at);
-    if (isTurnHook(event) && at > (this.lastTurnHookAt.get(agentId) ?? 0)) this.lastTurnHookAt.set(agentId, at);
+    if (isTurnHook(event)) {
+      if (at > (this.lastTurnHookAt.get(agentId) ?? 0)) this.lastTurnHookAt.set(agentId, at);
+      const left = this.unproved.get(agentId);
+      if (left && at >= left.at) this.unproved.delete(agentId);
+    }
     if (classifyHook(event, message) === 'needsHuman') this.lastHumanNeedsAt.set(agentId, at);
+  }
+
+  /** Stash an unconfirmed submission so later sends can check whether it is
+   *  still sitting unsubmitted in the TUI input box. */
+  stashUnproved(agentId: string, text: string, at = Date.now()): void {
+    if (!agentId || !text) return;
+    this.unproved.set(agentId, { text, at });
+  }
+
+  /** The currently stashed unproved submission for an agent, if any. */
+  unprovedFor(agentId: string): UnprovedSend | undefined {
+    return this.unproved.get(agentId);
+  }
+
+  /** Whether an earlier unproved send has cleared the input box (#875).
+   *  A screen that cannot be read (`seen === undefined` or `seen.lines === null`
+   *  when the agent's terminal tab has never been opened in the UI), turn activity
+   *  since the send was stashed, or a box without the stashed tail clears the
+   *  unproved record and allows delivery to proceed instead of deadlocking in
+   *  `held / earlier-in-box`. */
+  earlierSendClear(
+    agentId: string,
+    seen?: TerminalScreenProbe | readonly string[] | null,
+    _now = Date.now()
+  ): boolean {
+    const left = this.unproved.get(agentId);
+    if (!left) return true;
+    const lastTurn = this.turnHookAt(agentId);
+    if (lastTurn > 0 && lastTurn >= left.at) {
+      this.unproved.delete(agentId);
+      return true;
+    }
+    const lines = Array.isArray(seen) ? seen : (seen && 'lines' in seen ? seen.lines : undefined);
+    if (seen === undefined || seen === null || lines === undefined || lines === null) {
+      this.unproved.delete(agentId);
+      return true;
+    }
+    if (inputBoxEmpty(lines) || !boxHoldsTail(lines, left.text)) {
+      this.unproved.delete(agentId);
+      return true;
+    }
+    return false;
   }
 
   /** When the agent's hooks last proved a turn, or 0 when they never have. */
@@ -243,6 +327,7 @@ export class WorkerWakeWatchdog {
     this.hookSeenAt.delete(agentId);
     this.lastTurnHookAt.delete(agentId);
     this.lastHoldReportAt.delete(agentId);
+    this.unproved.delete(agentId);
     if (ptyId) this.spawnedAt.delete(ptyId);
   }
 
