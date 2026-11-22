@@ -17,7 +17,8 @@ const RULE = '─'.repeat(80);
 const boxWith = (text) => ['some transcript', RULE, text ? `> ${text}` : '>', RULE, '  status'];
 
 function rig(opts = {}) {
-  const screen = { lines: null };
+  const screen = { lines: null, reply: 'answer' };
+  let onSleep = null;
   let t = 1_000_000;
   const now = () => t;
   const proof = new HookProofRecord(now);
@@ -27,15 +28,19 @@ function rig(opts = {}) {
     write: (_id, data) => { writes.push(data); return { ok: true }; },
     info: () => ({ pid: 42, cols: 100, rows: 30, hasOutput: true, startedAt: 0 }),
     // A tab never opened: there is a window, but this terminal's screen cannot be read.
-    probe: async () => ({ lines: screen.lines, safe: true, pooled: true }),
+    probe: async () => {
+      if (screen.reply === 'timeout') return null;            // TerminalProbes.request on its 300 ms timeout
+      if (screen.reply === 'throw') throw new Error('probe failed');
+      return { lines: screen.lines, safe: true, pooled: true };
+    },
     proof,
     claudeVersion: async () => null,
     log: (e) => logs.push(e),
     now,
-    sleep: async (ms) => { t += ms; }
+    sleep: async (ms) => { t += ms; if (onSleep) onSleep(); }
   });
   const send = (text, extra = {}) => sub.submit({ ptyId: 'p1', agentId: 'agy1', provider: opts.provider ?? 'antigravity', source: 'queue', text, ...extra });
-  return { sub, proof, logs, writes, send, screen, advance: (ms) => { t += ms; } };
+  return { sub, proof, logs, writes, send, screen, advance: (ms) => { t += ms; }, setOnSleep: (f) => { onSleep = f; } };
 }
 
 test('#875 baseline: an unconfirmed send on an unreadable screen holds the next one', async () => {
@@ -112,7 +117,7 @@ async function laterSend(r, firstExtra = {}) {
   return { first, second, typedSecond: r.writes.slice(before).some((w) => w.includes('second message')) };
 }
 
-test('#875 review (Dwight): with a turn running, an unread send is never left unproved, so nothing old is released', async () => {
+test('#875 review (Dwight): with a turn running before it was typed, an unread send is never left unproved (it ends stuck)', async () => {
   const r = rig();
   // A step of a running turn since the process started: the hook channel works.
   r.proof.note('agy1', 'PreInvocation');
@@ -151,3 +156,41 @@ test('#875 review: another provider is unchanged by a PreInvocation', async () =
   assert.equal(second.outcome, 'held');
   assert.equal(typedSecond, false);
 });
+
+// Round 3 (Dwight and Yeman on f19e3bc3).
+test('#875 round 3 (Dwight): a send that moved (a tool after our Enter, no prompt taken) is never released by a later step', async () => {
+  const r = rig();
+  let noted = false;
+  r.setOnSleep(() => { if (!noted && r.writes.includes('\r')) { noted = true; r.proof.note('agy1', 'PreToolUse', undefined, { tool: 'Read' }); } });
+  const first = await r.send('first wake message for the agent');
+  r.setOnSleep(null);
+  assert.equal(first.outcome, 'unconfirmed');
+  assert.equal(first.moved, true);
+  r.advance(5_000);
+  r.proof.note('agy1', 'PreInvocation');   // the running turn's next model step
+  const before = r.writes.length;
+  const second = await r.send('second message');
+  assert.equal(second.outcome, 'held');
+  assert.ok(!r.writes.slice(before).some((w) => w.includes('second message')));
+});
+
+for (const reply of ['timeout', 'throw']) {
+  test(`#875 round 3 (Yeman): a probe that ${reply === 'timeout' ? 'timed out' : 'threw'} keeps the hold, so a later read of the box still decides`, async () => {
+    const r = rig();
+    const first = await r.send('first wake message for the agent');
+    assert.equal(first.outcome, 'unconfirmed');
+    r.advance(60_000);
+    r.proof.note('agy1', 'PreInvocation');
+    r.screen.reply = reply;
+    const before = r.writes.length;
+    const second = await r.send('second message');
+    assert.equal(second.outcome, 'held');
+    // The renderer answers again and the first text is still in the box: never typed onto it.
+    r.screen.reply = 'answer';
+    r.screen.lines = boxWith('first wake message for the agent');
+    r.advance(60_000);
+    const third = await r.send('third message');
+    assert.equal(third.outcome, 'held');
+    assert.ok(!r.writes.slice(before).some((w) => w.includes('second message') || w.includes('third message')));
+  });
+}
