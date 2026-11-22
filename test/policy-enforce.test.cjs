@@ -446,6 +446,17 @@ test('hook: block denies with the rule id and its message; ask asks; log changes
   assert.deepEqual(kinds, ['no-sync:deny', 'push:ask', 'ls:allow']);
 });
 
+test('hook: an ask to a Codex agent is a deny that says why; Codex would run an ask', async (t) => {
+  const f = await floor(t, [backstop('push', 'ask', '^git +push')]);
+  await f.hive.ensureAgent({ id: 'cody-1', name: 'Cody', provider: 'codex', cwd: f.hive.root() });
+  const codex = await f.server.handle({
+    hook_event_name: 'PreToolUse', agent_id: 'cody-1', session_id: 's', tool_name: 'Bash', tool_input: { command: 'git push origin main' }, cwd: f.hive.root(),
+  });
+  assert.equal(codex.hookSpecificOutput.permissionDecision, 'deny');
+  assert.match(codex.hookSpecificOutput.permissionDecisionReason, /^This rule asks for an OK from the operator\. This engine cannot ask, so the call is denied\. \[policy:push\]/);
+  assert.equal((await f.send('git push origin main')).hookSpecificOutput.permissionDecision, 'ask', 'a Claude agent still asks');
+});
+
 test('hook: with a guardrail.json, writing it is denied even with no backstops on', async (t) => {
   const f = await floor(t, []);
   const file = path.join(f.hive.root(), 'policy', 'guardrail.json');

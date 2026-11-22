@@ -722,11 +722,25 @@ export class HookServer {
         cwd: p.cwd
       });
       if (v.decision === 'allow') return null;
+      const why = `[policy:${v.ruleId}] ${v.reason ?? 'Denied by policy.'}`;
+      // Codex shares Claude's shim, so it would get this "ask" as is. Codex parses a
+      // PreToolUse "ask" but does not support it: it marks the hook failed and runs the
+      // call (Codex hooks guide). So a Codex agent is denied and told why, the same
+      // answer the Gemini shim gives.
+      if (v.decision === 'ask' && agentId && this.hive.registry().agents[agentId]?.provider === 'codex') {
+        return {
+          hookSpecificOutput: {
+            hookEventName: 'PreToolUse',
+            permissionDecision: 'deny',
+            permissionDecisionReason: `This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ${why}`
+          }
+        };
+      }
       return {
         hookSpecificOutput: {
           hookEventName: 'PreToolUse',
           permissionDecision: v.decision,
-          permissionDecisionReason: `[policy:${v.ruleId}] ${v.reason ?? 'Denied by policy.'}`
+          permissionDecisionReason: why
         }
       };
     } catch (e) {
