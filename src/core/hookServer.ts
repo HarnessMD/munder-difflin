@@ -134,12 +134,12 @@ export interface HookUsageEvent {
   agentId: string; event: string; transcriptPath: string; sessionId: string; model: string;
 }
 
-/** Who the Approvals' mail is from. */
 /** Providers whose bridge cannot receive a decision, named rather than left to be
  *  discovered: pi and opencode post fire-and-forget, and the qwen proxy synthesizes
  *  PostToolUse only. Their calls run whatever the hook says. */
 export const NO_DECISION_PROVIDERS: readonly string[] = ['pi', 'opencode', 'qwen'];
 
+/** Who the Approvals' mail is from. */
 export const APPROVALS_SENDER = 'guardrail';
 
 /** A guardrail refusal of a PreToolUse, in Claude's hook words; each shim turns it
@@ -866,7 +866,7 @@ export class HookServer {
       if (p.tool_input === undefined) {
         // Dropped for size by the shim: the card could not show it, and a grant keyed
         // on nothing would cover the next such call, whatever it does.
-        return policyDeny(`${why} Not run: this needs the operator's OK, and the call is too large to show them. Make it smaller.`);
+        return policyDeny(`${why} Not run: this needs the operator's OK, and the call is too large to show them, or came without its input. Make it smaller.`);
       }
       const desk = agentId ? this.approvalDesk() : null;
       if (!agentId || !desk) return policyDeny(`${why} Not run: this needs the operator's OK, and no request could be raised for it.`);
@@ -916,10 +916,12 @@ export class HookServer {
     const approved = e.state === 'approved';
     this.hive.appendLog({ kind: 'approval-decided', request_id: e.id, agent_id: e.agent_id, rule_id: e.rule_id, approved } as Parameters<HiveManager['appendLog']>[0]);
     const where = e.cwd ? `\n(in ${e.cwd})` : '';
+    // The card shows hidden characters as \u{...}: copying this text would be a new call.
+    const escaped = /\\u\{[0-9a-f]+\}/.test(e.call) ? '\nCharacters shown as \\u{...} stand for hidden ones: run your own call, not this text.' : '';
     this.hive.send(approved
       ? {
         to: e.agent_id, act: 'agree', subject: `Approved: request ${e.id}`,
-        body: `The operator approved request ${e.id}. Run exactly the same ${e.tool} call again, character for character and from the same folder, once, before ${e.expires_at}:\n${e.call}${where}\nAny other call needs its own approval. Run it only if you asked for it. If you did not, do not run it and tell god.`,
+        body: `The operator approved request ${e.id}. Run exactly the same ${e.tool} call again, character for character and from the same folder, once, before ${e.expires_at}:\n${e.call}${where}${escaped}\nAny other call needs its own approval. Run it only if you asked for it. If you did not, do not run it and tell god.`,
       }
       : {
         to: e.agent_id, act: 'refuse', subject: `Denied: request ${e.id}`,

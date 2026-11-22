@@ -111,6 +111,7 @@ test('the card shows control and bidi characters as escapes, never as they are',
   assert.equal(callText('Bash', { command: 'echo \u202Etxt.exe' }), 'echo \\u{202e}txt.exe');
   assert.equal(callText('Bash', { command: 'a\u0007b\u2066c\u200Fd' }), 'a\\u{7}b\\u{2066}c\\u{200f}d');
   assert.equal(callText('Bash', { command: 'line1\n\tline2' }), 'line1\n\tline2', 'newline and tab stay');
+  assert.equal(callText('Bash', { command: 'git\u200Bpush\uFEFF\u2028x' }), 'git\\u{200b}push\\u{feff}\\u{2028}x');
   assert.match(callText('Write', { file_path: '/a', content: 'x\u202Ey' }), /x\\u\{202e\}y/);
 });
 
@@ -418,6 +419,18 @@ test('hook: the refusal and the Approved mail say to retry character for charact
   const mail = f.inbox('jim-1').find((m) => m.from === APPROVALS_SENDER);
   assert.match(mail.body, /character for character and from the same folder/);
   assert.match(mail.body, /Run it only if you asked for it\. If you did not, do not run it and tell god\./);
+});
+
+test('hook: the Approved mail says an escaped call is not to be copied', async (t) => {
+  const f = await floor(t);
+  const id = f.requestId(await f.send('git push origin ma\u202Ein'));
+  f.server.decideApproval(id, true);
+  const mail = f.inbox('jim-1').find((m) => m.from === APPROVALS_SENDER);
+  assert.match(mail.body, /git push origin ma\\u\{202e\}in/);
+  assert.match(mail.body, /run your own call, not this text/);
+  const plain = await floor(t);
+  plain.server.decideApproval(plain.requestId(await plain.send('git push origin main')), true);
+  assert.doesNotMatch(plain.inbox('jim-1').find((m) => m.from === APPROVALS_SENDER).body, /not this text/);
 });
 
 test('hook: Approve and Deny are reached only over the app\'s IPC', () => {

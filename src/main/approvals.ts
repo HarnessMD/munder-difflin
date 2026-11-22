@@ -100,10 +100,11 @@ function effectiveInput(tool: string, input: unknown): unknown {
   return out;
 }
 
-/** Control characters (but newline and tab) and the Unicode bidi controls, which could
- *  make a command read on the card differently from what runs. */
+/** Control characters (but newline and tab), the Unicode bidi controls, the zero-width
+ *  characters and the line and paragraph separators, which could make a command read
+ *  on the card differently from what runs. */
 // eslint-disable-next-line no-control-regex
-const HIDDEN = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
+const HIDDEN = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F\u061C\u200B-\u200F\u2028-\u202E\u2066-\u2069\uFEFF]/g;
 const visible = (s: string): string => s.replace(HIDDEN, (c) => `\\u{${c.codePointAt(0)!.toString(16)}}`);
 
 /** The call as the operator reads it: the command for a shell call, else its input. */
