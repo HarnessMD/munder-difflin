@@ -1492,7 +1492,7 @@
     "category": "guides",
     "hero": {
       "file": "assets/media/how-to-install-and-use-munder-difflin/hero.png",
-      "alt": "Title card on white. Large ink type reads Install Munder Difflin 0.5.6 under the line From zero to a working office, with a Beginner's guide pill, beside a shelf going up on two brackets with a spirit level on it, a screwdriver, a hex key and two spare screws.",
+      "alt": "Title card on white. Large ink type reads Install Munder Difflin 0.5.10 under the line From zero to a working office, with a Beginner's guide pill, beside a shelf going up on two brackets with a spirit level on it, a screwdriver, a hex key and two spare screws.",
       "prompt": "",
       "status": "ready"
     },
@@ -1602,6 +1602,24 @@
       "prerequisites-056": {
         "file": "assets/media/how-to-install-and-use-munder-difflin/prerequisites-056.png",
         "alt": "Screenshot of Munder Difflin Settings, Prerequisites, in light mode: uv, git and Node.js marked Found with their paths, and MemPalace marked Not found with its install command and a copy button.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "shot-move": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/shot-move.webp",
+        "alt": "Two screenshots of Munder Difflin 0.5.10 side by side. Left: the Pro sidebar with the Main Office agents and a faded Pam row, and the Cloud Office section lit up yellow under the line Drop to run Pam in Cloud Office. Right: the sheet Run Pam in the Cloud Office, with Stop Pam in your Main Office ticked, the groups Comes with Pam, Does not come and Good to know, and the buttons Cancel and Move.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "autonomy-0510": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/autonomy-0510.webp",
+        "alt": "Settings, Autonomy & Budgets in Munder Difflin 0.5.10, with sample data: Autonomy set to autonomous, Who can add agents set to me and Michael, Michael may add lasting agents set to me and Michael, and the circuit breaker on, with its three limit fields and Hard stop set to steer first.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "prerequisites-0510": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/prerequisites-0510.webp",
+        "alt": "Settings, Prerequisites in Munder Difflin 0.5.10, with sample data: under Agent engines, Claude Code and Codex are marked Found with their paths, Grok is marked Not found with its install command and a copy button, and Kimi Code is marked Found.",
         "prompt": "",
         "status": "ready"
       }
@@ -4296,7 +4314,7 @@
     "category": "guides",
     "hero": {
       "file": "assets/media/your-first-hour-with-munder-difflin/hero.png",
-      "alt": "Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.6, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings.",
+      "alt": "Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.10, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings.",
       "prompt": "",
       "status": "ready"
     },
@@ -4466,6 +4484,24 @@
       "ask-me-056": {
         "file": "assets/media/your-first-hour-with-munder-difflin/ask-me-056.png",
         "alt": "Screenshot of an agent's Inbox in Munder Difflin, light mode: an Ask me list with three questions, each with a task key, a time and an Answer button, above the message box with Send and Steer.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "shot-move": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/shot-move.webp",
+        "alt": "Two screenshots of Munder Difflin 0.5.10 side by side. Left: the Pro sidebar with the Main Office agents and a faded Pam row, and the Cloud Office section lit up yellow under the line Drop to run Pam in Cloud Office. Right: the sheet Run Pam in the Cloud Office, with Stop Pam in your Main Office ticked, the groups Comes with Pam, Does not come and Good to know, and the buttons Cancel and Move.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "pro-sidebar-0510": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/pro-sidebar-0510.webp",
+        "alt": "The Pro sidebar in Munder Difflin 0.5.10, with sample data: Home, Tasks, Inbox, Automations, Memory, Capabilities, Integrations and Stapler, then the Main Office with Add an agent and the agents Michael (orchestrator), Dwight, Jim and Pam, whose row shows Asked you, then Temps.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "ask-me-0510": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/ask-me-0510.webp",
+        "alt": "The Inbox in Munder Difflin 0.5.10, with sample data: the Ask me thread under For you is open, Pam asks whether the pricing page should show prices in euros as well as dollars, and an answer box sits above the buttons Answer and Dismiss.",
         "prompt": "",
         "status": "ready"
       }
