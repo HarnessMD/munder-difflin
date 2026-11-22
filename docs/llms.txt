@@ -250,8 +250,8 @@ Saturday 24 October 2026.
 
 ### guides
 
-- [How to Install Munder Difflin 0.5.6: A Beginner's Guide From Zero to a Working Office](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/): Install Munder Difflin 0.5.6 on macOS, Windows or Linux: what you need first, which AI engine to pick, the sign in, the setup steps and a fix for each failure.
-- [Your First Hour With Munder Difflin 0.5.6: Onboarding From First Sign In to a Working Office](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/): Your first hour with Munder Difflin 0.5.6: sign in, brief your orchestrator, hire a team, schedule work, connect Slack, start temps, then tour the Pro screens.
+- [How to Install Munder Difflin 0.5.10: A Beginner's Guide From Zero to a Working Office](https://munderdiffl.in/blog/how-to-install-and-use-munder-difflin/): Install Munder Difflin 0.5.10 on macOS, Windows or Linux: which AI engine to pick, the sign in, first open, the Cloud Office and a fix for each failure.
+- [Your First Hour With Munder Difflin 0.5.10: Onboarding From First Sign In to a Working Office](https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/): Your first hour with Munder Difflin 0.5.10: sign in, brief your orchestrator on Home, hire a team, schedule work, tour Pro, then meet the Cloud Office.
 - [AI Agent Use Cases From a Real Company: Every Agent on Our Floor and the Job It Does](https://munderdiffl.in/blog/ai-agent-use-cases-our-office/): We run our company on Munder Difflin. Every seat on our floor: what each AI agent does, how its work starts, what comes out, and how to copy it.
 - [How to Get the Most Out of Your Claude Code Max Plan](https://munderdiffl.in/blog/claude-code-max-plan-tips/): Stretch a Claude Code Max plan: model choice, context hygiene, prompt caching, subagents and unattended runs, checked against Anthropic's own pages.
 - [Codex Max Plan? What ChatGPT Pro Gives You in Codex (Oct 2026)](https://munderdiffl.in/blog/codex-max-plan-tips/): There is no Codex Max plan. ChatGPT Pro costs $100, $200 or $500 a month (Oct 2026) with no five hour limit: how the weekly limit works and how to stretch it.
