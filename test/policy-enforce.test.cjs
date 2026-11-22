@@ -441,27 +441,28 @@ const backstop = (id, does, command_matches, message) => ({
   id, principle: `Principle ${id}.`, agents: 'all', backstop: { on: true, does, match: { tool: 'Bash', command_matches }, ...(message ? { message } : {}) },
 });
 
-test('hook: block denies with the rule id and its message; ask asks; log changes nothing', async (t) => {
+test('hook: block denies with the rule id and its message; ask is refused onto the Approvals card; log changes nothing', async (t) => {
   const f = await floor(t, [backstop('no-sync', 'block', '^mempalace +sync', 'Do not sync.'), backstop('push', 'ask', '^git +push'), backstop('ls', 'log', '^ls')]);
   assert.deepEqual((await f.send('sudo mempalace sync')).hookSpecificOutput,
     { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: '[policy:no-sync] Do not sync.' });
-  assert.deepEqual((await f.send('git push origin main')).hookSpecificOutput,
-    { hookEventName: 'PreToolUse', permissionDecision: 'ask', permissionDecisionReason: '[policy:push] Principle push.' });
+  const asked = (await f.send('git push origin main')).hookSpecificOutput;
+  assert.equal(asked.permissionDecision, 'deny');
+  assert.match(asked.permissionDecisionReason, /^\[policy:push\] Principle push\. Not run: this needs the operator's OK\. Request ap-[0-9a-f]{12} is on the Approvals card in ASK ME\./);
   assert.deepEqual(await f.send('ls -la'), {});
   assert.deepEqual(await f.send('pwd'), {});
   const kinds = f.logRows().filter((r) => r.kind === 'policy-match').map((r) => `${r.rule_id}:${r.decision}`);
   assert.deepEqual(kinds, ['no-sync:deny', 'push:ask', 'ls:allow']);
 });
 
-test('hook: an ask to a Codex agent is a deny that says why; Codex would run an ask', async (t) => {
+test('hook: an ask is the same refusal for a Codex agent as for a Claude agent', async (t) => {
   const f = await floor(t, [backstop('push', 'ask', '^git +push')]);
   await f.hive.ensureAgent({ id: 'cody-1', name: 'Cody', provider: 'codex', cwd: f.hive.root() });
   const codex = await f.server.handle({
     hook_event_name: 'PreToolUse', agent_id: 'cody-1', session_id: 's', tool_name: 'Bash', tool_input: { command: 'git push origin main' }, cwd: f.hive.root(),
   });
   assert.equal(codex.hookSpecificOutput.permissionDecision, 'deny');
-  assert.match(codex.hookSpecificOutput.permissionDecisionReason, /^This rule asks for an OK from the operator\. This engine cannot ask, so the call is denied\. \[policy:push\]/);
-  assert.equal((await f.send('git push origin main')).hookSpecificOutput.permissionDecision, 'ask', 'a Claude agent still asks');
+  assert.match(codex.hookSpecificOutput.permissionDecisionReason, /^\[policy:push\] .*on the Approvals card in ASK ME/);
+  assert.equal((await f.send('git push origin main')).hookSpecificOutput.permissionDecision, 'deny', 'a Claude agent is refused the same way');
 });
 
 test('hook: with a guardrail.json, writing it is denied even with no backstops on', async (t) => {

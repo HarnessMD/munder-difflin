@@ -5421,6 +5421,10 @@ ipcMain.handle('guardrail:accept', (_evt, stamp: unknown) => {
   const s = stampArg(stamp);
   return s ? guardrailEditor.accept(s) : { ok: false, errors: ['no file to accept'] };
 });
+// The Approvals card. Approve and Deny exist only here: no hook, hive message or file
+// an agent can write reaches decideApproval, so a grant is always the operator's.
+ipcMain.handle('guardrail:approvals', () => hookServer.pendingApprovals());
+ipcMain.handle('guardrail:decide', (_evt, id: unknown, approve: unknown) => hookServer.decideApproval(id, approve === true));
 ipcMain.handle('config:ensureHome', (_evt, path: unknown) => {
   if (typeof path !== 'string' || path.length === 0) return { ok: false, error: 'invalid path' };
   return ensureHarnessHome(path);

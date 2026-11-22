@@ -134,7 +134,9 @@ test('save: checked, approved, loaded; a stale or broken file is never overwritt
   assert.equal(saved.ok, true, JSON.stringify(saved));
   assert.equal(saved.view.file.rev, 2);
   assert.equal(f.config.guardrailApproved, saved.view.stamp);
-  assert.equal((await f.write('Bash', { command: 'git push origin main' }))?.hookSpecificOutput?.permissionDecision, 'ask', 'in force at once');
+  const asked = (await f.write('Bash', { command: 'git push origin main' }))?.hookSpecificOutput;
+  assert.equal(asked?.permissionDecision, 'deny', 'in force at once: an ask is refused and put on the Approvals card');
+  assert.match(asked?.permissionDecisionReason ?? '', /on the Approvals card in ASK ME/);
   // The same stamp again is stale now.
   assert.equal(f.editor.save({ ...on.file, rules }, on.stamp).ok, false);
   // The engine's own check runs on every backstop, including the ones that are off.

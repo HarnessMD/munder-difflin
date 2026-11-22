@@ -37,6 +37,8 @@ import type { HookFacts } from '../shared/switchClear';
 import { renderResponseStyle } from '../shared/responseStyle';
 import type { HookHttpEndpoint } from '../main/hookTransport';
 import { PolicyEngine, type PolicyStatus } from '../main/policy';
+import { Approvals, GRANT_TTL_MS, MAX_PENDING_PER_AGENT, type ApprovalEntry } from '../main/approvals';
+import { join } from 'node:path';
 import { renderPrinciples } from '../main/principles';
 
 /** Maximum JSON payload bytes in one newline-delimited hook frame. */
@@ -130,6 +132,15 @@ type PathOwner = 'nobody' | 'other' | 'self';
 /** A hook boundary that may carry fresh token totals in its transcript (#629). */
 export interface HookUsageEvent {
   agentId: string; event: string; transcriptPath: string; sessionId: string; model: string;
+}
+
+/** Who the Approvals' mail is from. */
+export const APPROVALS_SENDER = 'guardrail';
+
+/** A guardrail refusal of a PreToolUse, in Claude's hook words; each shim turns it
+ *  into its own engine's deny. */
+function policyDeny(reason: string): unknown {
+  return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason } };
 }
 
 export class HookServer {
@@ -478,6 +489,7 @@ export class HookServer {
   stop(): void {
     this.stopped = true;
     if (this.retryTimer) { clearTimeout(this.retryTimer); this.retryTimer = null; }
+    if (this.approvalsTimer) { clearInterval(this.approvalsTimer); this.approvalsTimer = null; }
     // Synchronous (quit and relaunch paths cannot wait for a probe): the file
     // at the path is ours → close, and libuv removes it; missing → close, the
     // unlink is a no-op; a DIFFERENT file → someone else bound the path after
@@ -600,6 +612,9 @@ export class HookServer {
   /** The guardrail engine (policy.ts). Built on first use, so a hive with no
    *  guardrail.json pays nothing. */
   private policy: PolicyEngine | null = null;
+  /** The guardrail's Approvals (main/approvals.ts), made on the first ask. */
+  private approvals: Approvals | null = null;
+  private approvalsTimer: ReturnType<typeof setInterval> | null = null;
 
   private policyAnnounced = false;
   /** The guardrail's load status, once per app run: from start(), or from the first
@@ -765,7 +780,7 @@ export class HookServer {
 
   /**
    * The guardrail's answer to a PreToolUse, or null to let the call run: a `block`
-   * backstop denies, an `ask` backstop asks (Claude Code's permission prompt), a `log`
+   * backstop denies, an `ask` backstop goes to the Approvals (askReply), a `log`
    * backstop only records. Fully inert with no guardrail.json. An engine error lets
    * the call run, the same posture as the hook transport itself.
    */
@@ -784,30 +799,112 @@ export class HookServer {
       });
       if (v.decision === 'allow') return null;
       const why = `[policy:${v.ruleId}] ${v.reason ?? 'Denied by policy.'}`;
-      // Codex shares Claude's shim, so it would get this "ask" as is. Codex parses a
-      // PreToolUse "ask" but does not support it: it marks the hook failed and runs the
-      // call (Codex hooks guide). So a Codex agent is denied and told why, the same
-      // answer the Gemini shim gives.
-      if (v.decision === 'ask' && agentId && this.hive.registry().agents[agentId]?.provider === 'codex') {
-        return {
-          hookSpecificOutput: {
-            hookEventName: 'PreToolUse',
-            permissionDecision: 'deny',
-            permissionDecisionReason: `This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ${why}`
-          }
-        };
-      }
-      return {
-        hookSpecificOutput: {
-          hookEventName: 'PreToolUse',
-          permissionDecision: v.decision,
-          permissionDecisionReason: why
-        }
-      };
+      if (v.decision === 'ask') return this.askReply(agentId, v.ruleId ?? '', v.reason, p, why);
+      return policyDeny(why);
     } catch (e) {
       console.error('[policy] evaluate failed:', e);
       return null;
     }
+  }
+
+  /** The Approvals, or null with no hive. Pending requests that lapse are swept once a
+   *  minute, so an agent waiting on one is told even when nothing else happens. */
+  private approvalDesk(): Approvals | null {
+    if (this.approvals) return this.approvals;
+    const root = this.hive.root();
+    if (!root) return null;
+    const log = (row: Record<string, unknown>) => this.hive.appendLog(row as Parameters<HiveManager['appendLog']>[0]);
+    this.approvals = new Approvals(join(root, 'policy'), {
+      onDamaged: () => log({ kind: 'approvals-damaged' }),
+      onExpired: (list) => {
+        for (const e of list) {
+          log({ kind: 'approval-expired', request_id: e.id, agent_id: e.agent_id, rule_id: e.rule_id });
+          this.hive.send({
+            to: e.agent_id, act: 'inform', subject: `Approval request ${e.id} expired`,
+            body: `Request ${e.id} waited 60 minutes with no answer and was dropped. If you still need it, run the same call again to put it on a new card:\n${e.call}`,
+          }, APPROVALS_SENDER);
+        }
+        this.approvalsChanged();
+      },
+    });
+    this.approvalsTimer = setInterval(() => { try { this.approvals?.sweep(); } catch { /* next minute */ } }, 60_000);
+    this.approvalsTimer.unref?.();
+    return this.approvals;
+  }
+
+  private approvalsChanged(): void {
+    try { this.getWebContents()?.send('guardrail:approvalsChanged'); } catch { /* window gone */ }
+  }
+
+  /**
+   * An ask backstop matched. A hook cannot wait for a person (every shim gives up
+   * after a few seconds, and the call then runs), so an ask never opens the engine's
+   * own prompt: the same answer on every engine. The call is refused and put on the
+   * Approvals card in ASK ME; after Approve, the same call runs once. The refusal
+   * never depends on the card: any error still denies.
+   */
+  private askReply(agentId: string | undefined, ruleId: string, reason: string | undefined, p: HookPayload, why: string): unknown | null {
+    const log = (row: Record<string, unknown>) => this.hive.appendLog(row as Parameters<HiveManager['appendLog']>[0]);
+    try {
+      const desk = agentId ? this.approvalDesk() : null;
+      if (!agentId || !desk) return policyDeny(`${why} Not run: this needs the operator's OK, and no request could be raised for it.`);
+      const r = desk.check({ agentId, ruleId, reason, tool: p.tool_name ?? '', input: p.tool_input, cwd: p.cwd ?? null });
+      if (r.kind === 'granted') {
+        log({ kind: 'approval-used', request_id: r.entry.id, agent_id: agentId, rule_id: ruleId });
+        this.approvalsChanged();
+        return null;
+      }
+      if (r.kind === 'denied') {
+        return policyDeny(`${why} Not run: the operator denied this call (request ${r.entry.id}). Do not run it again.`);
+      }
+      if (r.kind === 'full') {
+        return policyDeny(`${why} Not run: ${MAX_PENDING_PER_AGENT} of your calls already wait for the operator. End your turn and wait for their answers.`);
+      }
+      if (r.fresh) {
+        log({ kind: 'approval-requested', request_id: r.entry.id, agent_id: agentId, rule_id: ruleId, tool: r.entry.tool });
+        const name = this.hive.registry().agents[agentId]?.name ?? agentId;
+        this.notify(name, `Approval needed: ${r.entry.call.length > 120 ? r.entry.call.slice(0, 117) + '...' : r.entry.call}`);
+        this.approvalsChanged();
+      }
+      return policyDeny(`${why} Not run: this needs the operator's OK. Request ${r.entry.id} is on the Approvals card in ASK ME. End your turn and wait for a message about it. If it says "Approved", run exactly the same call again, within ${GRANT_TTL_MS / 60_000} minutes. If it says "Denied", do not run it.`);
+    } catch (e) {
+      console.error('[policy] approvals failed:', e);
+      return policyDeny(`${why} Not run: this needs the operator's OK.`);
+    }
+  }
+
+  /** The open requests, for the Approvals card. Main's own copy: never tasks.json. */
+  pendingApprovals(): Array<Omit<ApprovalEntry, 'key'> & { agent_name: string }> {
+    try {
+      const desk = this.approvalDesk();
+      if (!desk) return [];
+      desk.sweep();
+      const reg = this.hive.registry().agents;
+      return desk.pending().map(({ key: _key, ...e }) => ({ ...e, agent_name: reg[e.agent_id]?.name ?? e.agent_id }));
+    } catch { return []; }
+  }
+
+  /** The operator's Approve or Deny. Only the app's own window reaches this (IPC):
+   *  no hook, message or file an agent can write calls it. */
+  decideApproval(id: unknown, approve: unknown): { ok: boolean; error?: string } {
+    const desk = this.approvalDesk();
+    if (!desk) return { ok: false, error: 'no hive is open' };
+    const e = desk.decide(id, approve === true);
+    if (!e) return { ok: false, error: 'That request is no longer waiting.' };
+    const approved = e.state === 'approved';
+    this.hive.appendLog({ kind: 'approval-decided', request_id: e.id, agent_id: e.agent_id, rule_id: e.rule_id, approved } as Parameters<HiveManager['appendLog']>[0]);
+    const where = e.cwd ? `\n(in ${e.cwd})` : '';
+    this.hive.send(approved
+      ? {
+        to: e.agent_id, act: 'agree', subject: `Approved: request ${e.id}`,
+        body: `The operator approved request ${e.id}. Run exactly the same ${e.tool} call again, once, before ${e.expires_at}:\n${e.call}${where}\nAny other call needs its own approval.`,
+      }
+      : {
+        to: e.agent_id, act: 'refuse', subject: `Denied: request ${e.id}`,
+        body: `The operator denied request ${e.id}. Do not run it:\n${e.call}${where}\nThe same call is refused until ${e.expires_at}.`,
+      }, APPROVALS_SENDER);
+    this.approvalsChanged();
+    return { ok: true };
   }
 
   private handle(payload: HookPayload): unknown {
