@@ -42,7 +42,7 @@ export function ApprovalsPanel({ onCount }: { onCount?: (n: number) => void }) {
     setError(null);
     try {
       const r = await window.cth.guardrailDecide(id, approve);
-      if (!r.ok) setError(r.error ?? translate('askMe.approvals.failed'));
+      if (!r.ok) setError(translate(r.error === 'gone' ? 'askMe.approvals.gone' : 'askMe.approvals.failed'));
     } catch {
       setError(translate('askMe.approvals.failed'));
     } finally {

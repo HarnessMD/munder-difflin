@@ -132,7 +132,8 @@
       "once": "Approve lets exactly this call run once, within 60 minutes. The agent is told to run it again.",
       "approve": "Approve",
       "deny": "Deny",
-      "failed": "Your answer was not saved. Try again."
+      "failed": "Your answer was not saved. Try again.",
+      "gone": "That request is no longer waiting."
     }
   },
   "agentMenu": {

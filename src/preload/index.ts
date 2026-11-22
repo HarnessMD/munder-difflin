@@ -959,7 +959,7 @@ const api = {
   /** The guardrail's open approval requests (the Approvals card in ASK ME). */
   guardrailApprovals: (): Promise<ApprovalView[]> => ipcRenderer.invoke('guardrail:approvals'),
   /** The operator's Approve or Deny of one request. The only way a grant is made. */
-  guardrailDecide: (id: string, approve: boolean): Promise<{ ok: boolean; error?: string }> =>
+  guardrailDecide: (id: string, approve: boolean): Promise<{ ok: boolean; error?: 'gone' | 'failed' }> =>
     ipcRenderer.invoke('guardrail:decide', id, approve),
   /** A request was raised, decided, used or expired; returns unsubscribe fn. */
   onGuardrailApprovalsChanged: (cb: () => void): (() => void) => {

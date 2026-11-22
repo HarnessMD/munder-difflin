@@ -132,7 +132,8 @@
       "once": "Onay, tam olarak bu çağrının 60 dakika içinde bir kez çalışmasına izin verir. Ajana onu yeniden çalıştırması söylenir.",
       "approve": "Onayla",
       "deny": "Reddet",
-      "failed": "Yanıtın kaydedilmedi. Yeniden dene."
+      "failed": "Yanıtın kaydedilmedi. Yeniden dene.",
+      "gone": "Bu istek artık beklemiyor."
     }
   },
   "agentMenu": {

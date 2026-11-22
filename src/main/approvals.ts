@@ -34,9 +34,14 @@ export const DENY_HOLD_MS = 10 * 60 * 1000;
 /** Open requests one agent may have at once, so a loop cannot fill the card. */
 export const MAX_PENDING_PER_AGENT = 20;
 
-/** Input keys that do not change what a call does: Claude Code's Bash
- *  `description` is reworded by the model on every try. */
+/** Input keys that do not change what a shell call does: Claude Code's Bash
+ *  `description` is reworded by the model on every try. Only for shell tools: for an
+ *  MCP tool, `description` is often the payload (an issue's body), so it stays. */
 const COSMETIC_KEYS = new Set(['description', 'timeout']);
+/** Shell tools whose input we know: Claude Code's and Codex's `Bash`, Gemini CLI's
+ *  `run_shell_command`. Another engine's shell tool keeps every key, which can only
+ *  cost a second card when the model rewords its description. */
+const SHELL_TOOLS = new Set(['Bash', 'run_shell_command']);
 
 export interface ApprovalCall {
   agentId: string;
@@ -87,28 +92,35 @@ function canonical(v: unknown): string {
   return JSON.stringify(v ?? null) ?? 'null';
 }
 
-function effectiveInput(input: unknown): unknown {
+function effectiveInput(tool: string, input: unknown): unknown {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return input ?? null;
+  if (!SHELL_TOOLS.has(tool)) return input;
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(input as Record<string, unknown>)) if (!COSMETIC_KEYS.has(k)) out[k] = v;
   return out;
 }
 
+/** Control characters (but newline and tab) and the Unicode bidi controls, which could
+ *  make a command read on the card differently from what runs. */
+// eslint-disable-next-line no-control-regex
+const HIDDEN = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
+const visible = (s: string): string => s.replace(HIDDEN, (c) => `\\u{${c.codePointAt(0)!.toString(16)}}`);
+
 /** The call as the operator reads it: the command for a shell call, else its input. */
-export function callText(input: unknown): string {
-  const eff = effectiveInput(input);
+export function callText(tool: string, input: unknown): string {
+  const eff = effectiveInput(tool, input);
   if (eff && typeof eff === 'object' && !Array.isArray(eff)) {
     const o = eff as Record<string, unknown>;
     const keys = Object.keys(o);
-    if (typeof o.command === 'string' && keys.length === 1) return o.command;
-    if (Array.isArray(o.command) && keys.length === 1 && o.command.every((a) => typeof a === 'string')) return o.command.join(' ');
+    if (typeof o.command === 'string' && keys.length === 1) return visible(o.command);
+    if (Array.isArray(o.command) && keys.length === 1 && o.command.every((a) => typeof a === 'string')) return visible(o.command.join(' '));
   }
-  return canonical(eff);
+  return visible(canonical(eff));
 }
 
 /** The one key a request and its grant share. */
 export function approvalKey(call: ApprovalCall): string {
-  const body = canonical({ a: call.agentId, r: call.ruleId, t: call.tool, i: effectiveInput(call.input), c: call.cwd ?? null });
+  const body = canonical({ a: call.agentId, r: call.ruleId, t: call.tool, i: effectiveInput(call.tool, call.input), c: call.cwd ?? null });
   return 'sha256:' + createHash('sha256').update(body).digest('hex');
 }
 
@@ -127,7 +139,7 @@ function isEntry(e: unknown): e is ApprovalEntry {
 /** The row's key and text are the ones its own input gives. */
 function bound(e: ApprovalEntry): boolean {
   return e.key === approvalKey({ agentId: e.agent_id, ruleId: e.rule_id, tool: e.tool, input: e.input, cwd: e.cwd })
-    && e.call === callText(e.input);
+    && e.call === callText(e.tool, e.input);
 }
 
 export class Approvals {
@@ -221,8 +233,8 @@ export class Approvals {
       rule_id: call.ruleId,
       reason: call.reason ?? '',
       tool: call.tool,
-      call: callText(call.input),
-      input: effectiveInput(call.input),
+      call: callText(call.tool, call.input),
+      input: effectiveInput(call.tool, call.input),
       cwd: call.cwd ?? null,
       state: 'pending',
       asked_at: iso(t),

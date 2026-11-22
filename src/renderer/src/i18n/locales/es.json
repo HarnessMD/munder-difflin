@@ -132,7 +132,8 @@
       "once": "Aprobar deja que esta misma llamada se ejecute una vez, en 60 minutos. Se le pide al agente que la ejecute de nuevo.",
       "approve": "Aprobar",
       "deny": "Denegar",
-      "failed": "Tu respuesta no se guardó. Inténtalo de nuevo."
+      "failed": "Tu respuesta no se guardó. Inténtalo de nuevo.",
+      "gone": "Esa solicitud ya no está esperando."
     }
   },
   "agentMenu": {

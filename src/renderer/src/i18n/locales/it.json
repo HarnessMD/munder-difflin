@@ -132,7 +132,8 @@
       "once": "Approva lascia eseguire esattamente questa chiamata una volta, entro 60 minuti. All'agente viene detto di eseguirla di nuovo.",
       "approve": "Approva",
       "deny": "Nega",
-      "failed": "La tua risposta non è stata salvata. Riprova."
+      "failed": "La tua risposta non è stata salvata. Riprova.",
+      "gone": "Questa richiesta non è più in attesa."
     }
   },
   "agentMenu": {

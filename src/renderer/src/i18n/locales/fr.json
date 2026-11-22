@@ -132,7 +132,8 @@
       "once": "Approuver laisse cet appel exact s'exécuter une fois, dans les 60 minutes. On demande à l'agent de le relancer.",
       "approve": "Approuver",
       "deny": "Refuser",
-      "failed": "Ta réponse n'a pas été enregistrée. Réessaie."
+      "failed": "Ta réponse n'a pas été enregistrée. Réessaie.",
+      "gone": "Cette demande n'attend plus."
     }
   },
   "agentMenu": {

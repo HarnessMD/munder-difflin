@@ -132,7 +132,8 @@
       "once": "Aprovar deixa exatamente esta chamada rodar uma vez, em até 60 minutos. O agente é avisado para rodá-la de novo.",
       "approve": "Aprovar",
       "deny": "Negar",
-      "failed": "Sua resposta não foi salva. Tente de novo."
+      "failed": "Sua resposta não foi salva. Tente de novo.",
+      "gone": "Esse pedido não está mais esperando."
     }
   },
   "agentMenu": {

@@ -132,7 +132,8 @@
       "once": "Freigeben lässt genau diesen Aufruf einmal laufen, innerhalb von 60 Minuten. Der Agent wird gebeten, ihn erneut auszuführen.",
       "approve": "Freigeben",
       "deny": "Ablehnen",
-      "failed": "Deine Antwort wurde nicht gespeichert. Versuch es noch einmal."
+      "failed": "Deine Antwort wurde nicht gespeichert. Versuch es noch einmal.",
+      "gone": "Diese Anfrage wartet nicht mehr."
     }
   },
   "agentMenu": {

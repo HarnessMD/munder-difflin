@@ -95,9 +95,23 @@ test('a reworded Bash description or a timeout is the same call; the command is 
   assert.equal(approvalKey(base), approvalKey(call()));
   assert.notEqual(approvalKey(base), approvalKey(call({ input: { command: 'git push  origin main' } })));
   assert.notEqual(approvalKey(base), approvalKey(call({ input: { command: 'git push origin main', run_in_background: true } })));
-  assert.equal(callText({ command: 'ls', description: 'x' }), 'ls');
-  assert.equal(callText({ command: ['git', 'push'] }), 'git push');
-  assert.equal(callText({ file_path: '/a', content: 'b' }), '{"content":"b","file_path":"/a"}');
+  assert.equal(callText('Bash', { command: 'ls', description: 'x' }), 'ls');
+  assert.equal(callText('run_shell_command', { command: 'ls', description: 'x' }), 'ls');
+  assert.equal(callText('Bash', { command: ['git', 'push'] }), 'git push');
+  assert.equal(callText('Write', { file_path: '/a', content: 'b' }), '{"content":"b","file_path":"/a"}');
+});
+
+test('outside shell tools, description is part of the call: shown, and keyed', () => {
+  const issue = (description) => call({ tool: 'mcp__tracker__create_issue', input: { title: 'T', description } });
+  assert.notEqual(approvalKey(issue('harmless')), approvalKey(issue('something else entirely')));
+  assert.equal(callText('mcp__tracker__create_issue', { title: 'T', description: 'harmless' }), '{"description":"harmless","title":"T"}');
+});
+
+test('the card shows control and bidi characters as escapes, never as they are', () => {
+  assert.equal(callText('Bash', { command: 'echo \u202Etxt.exe' }), 'echo \\u{202e}txt.exe');
+  assert.equal(callText('Bash', { command: 'a\u0007b\u2066c\u200Fd' }), 'a\\u{7}b\\u{2066}c\\u{200f}d');
+  assert.equal(callText('Bash', { command: 'line1\n\tline2' }), 'line1\n\tline2', 'newline and tab stay');
+  assert.match(callText('Write', { file_path: '/a', content: 'x\u202Ey' }), /x\\u\{202e\}y/);
 });
 
 test('an unanswered request expires after 60 minutes, and its agent is told', (t) => {
@@ -235,17 +249,18 @@ test('the card shows well formed rows only, oldest first', () => {
 
 // --- Through the hook server -------------------------------------------------------
 
-async function floor(t) {
+const PUSH_RULE = { id: 'push', principle: 'Pushing is my call.', agents: 'all', backstop: { on: true, does: 'ask', match: { tool: 'Bash', command_matches: '^git +push' } } };
+
+async function floor(t, rules = [PUSH_RULE]) {
   const home = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'md-approvals-hook-')));
   t.after(() => fs.rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }));
   const hive = new HiveManager(() => home);
   await hive.ensureAgent({ id: 'god', name: 'God', provider: 'claude', cwd: home, isGod: true });
   await hive.ensureAgent({ id: 'jim-1', name: 'Jim', provider: 'claude', cwd: home });
   await hive.ensureAgent({ id: 'cody-1', name: 'Cody', provider: 'codex', cwd: home });
+  await hive.ensureAgent({ id: 'otto-1', name: 'Otto', provider: 'opencode', cwd: home });
   fs.mkdirSync(path.join(hive.root(), 'policy'), { recursive: true });
-  fs.writeFileSync(path.join(hive.root(), 'policy', 'guardrail.json'), JSON.stringify({ version: 1, rev: 1, rules: [
-    { id: 'push', principle: 'Pushing is my call.', agents: 'all', backstop: { on: true, does: 'ask', match: { tool: 'Bash', command_matches: '^git +push' } } },
-  ] }));
+  fs.writeFileSync(path.join(hive.root(), 'policy', 'guardrail.json'), JSON.stringify({ version: 1, rev: 1, rules }));
   const events = [];
   const sink = { send: (channel) => events.push(channel) };
   // The operator approved guardrail.json as it is (what the Rules screen records).
@@ -305,7 +320,7 @@ test('hook: Deny mails the agent and refuses the same call with no new card', as
   assert.equal(r.hookSpecificOutput.permissionDecision, 'deny');
   assert.match(r.hookSpecificOutput.permissionDecisionReason, /the operator denied this call/);
   assert.equal(f.server.pendingApprovals().length, 0);
-  assert.deepEqual(f.server.decideApproval(id, true), { ok: false, error: 'That request is no longer waiting.' });
+  assert.deepEqual(f.server.decideApproval(id, true), { ok: false, error: 'gone' });
 });
 
 test('hook: every engine gets the same refusal; another agent\'s grant does not cover it', async (t) => {
@@ -363,9 +378,46 @@ test('hook: a request planted before the app reads the file cannot get one call 
   const id = f.requestId(r);
   assert.notEqual(id, 'ap-000000000001', 'the planted row is not the push\'s request');
   assert.deepEqual(f.server.pendingApprovals().map((e) => [e.id, e.call]), [[id, 'git push origin main']], 'the card shows what Approve covers');
-  assert.deepEqual(f.server.decideApproval('ap-000000000001', true), { ok: false, error: 'That request is no longer waiting.' });
+  assert.deepEqual(f.server.decideApproval('ap-000000000001', true), { ok: false, error: 'gone' });
   const again = await f.send('git push origin main');
   assert.equal(again.hookSpecificOutput.permissionDecision, 'deny', 'nothing was granted');
+});
+
+test('hook: an engine that cannot be stopped gets no card and no mail, so Approve never runs a call twice', async (t) => {
+  const f = await floor(t, [{ ...PUSH_RULE, backstop: { on: true, does: 'ask', match: { tool: 'Bash' } } }]);
+  for (const input of [{ command: 'git push origin main' }, undefined]) {
+    // OpenCode sends no tool_input, so a rule on the tool alone matches there too.
+    const r = await f.server.handle({ hook_event_name: 'PreToolUse', agent_id: 'otto-1', session_id: 's', tool_name: 'Bash', tool_input: input, cwd: f.home });
+    assert.equal(r.hookSpecificOutput.permissionDecision, 'deny');
+    assert.equal(f.requestId(r), undefined);
+  }
+  assert.equal(f.server.pendingApprovals().length, 0);
+  assert.deepEqual(f.inbox('otto-1').filter((m) => m.from === APPROVALS_SENDER), []);
+  assert.ok(f.logRows().some((r) => r.kind === 'approval-unenforceable' && r.agent_id === 'otto-1' && r.provider === 'opencode'));
+});
+
+test('hook: a call whose input was dropped for size is refused with no card', async (t) => {
+  // A rule on the tool alone still matches a call the shim sent with no input.
+  const f = await floor(t, [{ ...PUSH_RULE, backstop: { on: true, does: 'ask', match: { tool: 'Bash' } } }]);
+  const r = await f.server.handle({ hook_event_name: 'PreToolUse', agent_id: 'jim-1', session_id: 's', tool_name: 'Bash', cwd: f.home });
+  assert.equal(r.hookSpecificOutput.permissionDecision, 'deny');
+  assert.match(r.hookSpecificOutput.permissionDecisionReason, /too large to show them/);
+  assert.equal(f.requestId(r), undefined);
+  assert.equal(f.server.pendingApprovals().length, 0);
+  // The same rule on a call that has its input still goes on the card.
+  assert.ok(f.requestId(await f.send('ls')));
+});
+
+test('hook: the refusal and the Approved mail say to retry character for character, from the same folder, and only if the agent asked', async (t) => {
+  const f = await floor(t);
+  const r = await f.send('git push origin main');
+  const why = r.hookSpecificOutput.permissionDecisionReason;
+  assert.match(why, /character for character/);
+  assert.ok(why.includes(`from the same folder (${f.home})`), why);
+  f.server.decideApproval(f.requestId(r), true);
+  const mail = f.inbox('jim-1').find((m) => m.from === APPROVALS_SENDER);
+  assert.match(mail.body, /character for character and from the same folder/);
+  assert.match(mail.body, /Run it only if you asked for it\. If you did not, do not run it and tell god\./);
 });
 
 test('hook: Approve and Deny are reached only over the app\'s IPC', () => {
