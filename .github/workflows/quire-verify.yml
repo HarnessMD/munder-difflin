@@ -175,7 +175,13 @@ jobs:
           npm ci
           npm run build
 
-      # Onboarding shows Claude Code as installed; no sign-in is needed for that.
+      # The app spawns `claude` from PATH (AGENT_PROVIDER_PRESETS in
+      # src/shared/agentProvider.ts), so the binary has to exist before a Run can hire an
+      # agent. The app would self-heal if it were missing -- `installCommand` runs
+      # visibly in the agent's own terminal after pre-spawn detection -- but doing it
+      # here keeps an npm install out of the evidence, and keeps onboarding's engine step
+      # showing Claude Code as INSTALLED, which is what the onboarding Trail asserts.
+      # The token above signs this CLI in; it does not install it.
       - name: Install Claude Code
         if: env.HAS_TOKEN == 'true'
         run: npm install --global @anthropic-ai/claude-code
