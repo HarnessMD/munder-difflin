@@ -181,15 +181,83 @@ test('glossary: settled terms, measure word, quotes, Han/Latin spacing', () => {
   assert.equal(applyGlossary('執行命令'), '執行指令');
 });
 
-test('glossary: naming decisions — AI 代理人, 工作者 (before agent), 協調者', () => {
+test('glossary: naming decisions — AI 代理人, 臨時工 (before agent), 協調者', () => {
   assert.equal(applyGlossary('該智慧體正在執行'), '該 AI 代理人正在執行'); // space before, none after
   assert.equal(applyGlossary('停止，智慧體將退出'), '停止，AI 代理人將退出'); // none beside full-width punctuation
   assert.equal(applyGlossary('AI 智慧體'), 'AI 代理人'); // not AI AI 代理人
   assert.equal(applyGlossary('Cursor Agent CLI'), 'Cursor Agent CLI'); // product name
   assert.equal(applyGlossary('像 ~/HarnessAgents 這樣'), '像 ~/HarnessAgents 這樣'); // path
-  assert.equal(applyGlossary('僱傭工作智慧體'), '僱傭工作者');
-  assert.equal(applyGlossary('隔離工人'), '隔離工作者');
+  assert.equal(applyGlossary('僱傭工作智慧體'), '僱傭臨時工');
+  assert.equal(applyGlossary('隔離工人'), '隔離臨時工');
+  assert.equal(applyGlossary('一名臨時工'), '一名臨時工');
   assert.equal(applyGlossary('排程者'), '協調者');
+  assert.equal(applyGlossary('編排者的預算'), '協調者的預算');
+});
+
+test('glossary: a bare 代理 is the agent; 代理人, 代理伺服器 and 代理框架 are not touched', () => {
+  assert.equal(applyGlossary('有代理正在這裡執行'), '有 AI 代理人正在這裡執行');
+  assert.equal(applyGlossary('啟動代理。'), '啟動 AI 代理人。');
+  assert.equal(applyGlossary('AI 代理'), 'AI 代理人'); // not AI AI 代理人
+  assert.equal(applyGlossary('該智慧體'), '該 AI 代理人'); // not AI 代理人人
+  assert.equal(applyGlossary('透過代理伺服器連線'), '透過代理伺服器連線');
+  assert.equal(applyGlossary('AI 代理人與代理框架'), 'AI 代理人與代理框架');
+});
+
+test('glossary: token is capitalised in Chinese prose only', () => {
+  assert.equal(applyGlossary('不報告 token 數'), '不報告 Token 數');
+  assert.equal(applyGlossary('看板精簡閾值（token）'), '看板精簡門檻（Token）');
+  for (const s of ['Access token', 'bot token', 'token-cap', 'tokens 數']) assert.equal(applyGlossary(s), s);
+});
+
+test('glossary: 0.6.0 wording', () => {
+  assert.equal(applyGlossary('執行鉤子'), '執行 hook');
+  assert.equal(applyGlossary('歸檔'), '封存');
+  assert.equal(applyGlossary('正在讀收件箱'), '正在讀收件匣');
+  assert.equal(applyGlossary('金鑰與憑據'), '金鑰與憑證');
+  assert.equal(applyGlossary('沒有套餐限額'), '沒有方案限額');
+  assert.equal(applyGlossary('移到賬本旁'), '移到帳本旁');
+  assert.equal(applyGlossary('在 Slack 話題裡'), '在 Slack 討論串裡');
+  assert.equal(applyGlossary('不復制工作階段'), '不複製工作階段');
+  assert.equal(applyGlossary('才打開它'), '才開啟它');
+  assert.equal(applyGlossary('字首單詞'), '字首單字');
+  assert.equal(applyGlossary('蜂巢郵件'), 'hive 郵件');
+  assert.equal(applyGlossary('新增 channels:read 許可權'), '新增 channels:read 權限');
+});
+
+test('glossary: wording the reviewed strings already use', () => {
+  assert.equal(applyGlossary('未儲存的更改'), '未儲存的變更');
+  assert.equal(applyGlossary('從列表中移除'), '從清單中移除');
+  assert.equal(applyGlossary('更改將會丟失'), '變更將會遺失');
+  assert.equal(applyGlossary('關閉其他標籤頁'), '關閉其他分頁');
+  assert.equal(applyGlossary('本地端點'), '本機端點');
+  assert.equal(applyGlossary('本地化'), '本地化'); // localisation, not local
+  assert.equal(applyGlossary('當前檔案'), '目前檔案');
+  assert.equal(applyGlossary('自定義 API'), '自訂 API');
+  assert.equal(applyGlossary('高階'), '進階');
+});
+
+test('glossary: characters s2twp leaves in mainland form', () => {
+  assert.equal(applyGlossary('在檔案中搜索'), '在檔案中搜尋');
+  assert.equal(applyGlossary('純文本'), '純文字');
+  assert.equal(applyGlossary('發來私信'), '發來私訊');
+  assert.equal(applyGlossary('身份驗證'), '身分驗證');
+  assert.equal(applyGlossary('字母和下劃線'), '字母和底線');
+  assert.equal(applyGlossary('去掉開頭的斜槓'), '去掉開頭的斜線');
+  assert.equal(applyGlossary('在 3 個頻道里'), '在 3 個頻道裡');
+  assert.equal(applyGlossary('請回復一份草稿'), '請回覆一份草稿');
+});
+
+test('glossary: UI terms', () => {
+  assert.equal(applyGlossary('在資源管理器中顯示'), '在檔案總管中顯示');
+  assert.equal(applyGlossary('AI 提供商'), 'AI 供應商');
+  assert.equal(applyGlossary('目前提供方'), '目前供應商');
+  assert.equal(applyGlossary('服務商金鑰'), '供應商金鑰');
+  assert.equal(applyGlossary('服務返回 {{status}}'), '服務回傳 {{status}}');
+  assert.equal(applyGlossary('返回上一頁'), '返回上一頁'); // "go back" is left alone
+  assert.equal(applyGlossary('如何獲取'), '如何取得');
+  assert.equal(applyGlossary('新建檔案'), '新增檔案');
+  assert.equal(applyGlossary('在側邊欄新增'), '在側欄新增');
+  assert.equal(applyGlossary('拖動以調整'), '拖曳以調整');
 });
 
 test('glossary: pixel-font labels get full-width, unspaced ＡＩ代理人', () => {
@@ -212,8 +280,9 @@ test('glossary: dashes are never touched (zh-TW follows zh-CN key by key)', () =
 });
 
 test('glossary: applying it twice changes nothing more', () => {
-  for (const s of ['令牌用量', '在Slack中開啟終端', '終端機', '應用程式', '重新啟動', '工作者', '唯讀',
-    '一個<strong>CLI 智慧體</strong>是', '該 AI 代理人', 'AI 智慧體', '協調者']) {
+  for (const s of ['令牌用量', '在Slack中開啟終端', '終端機', '應用程式', '重新啟動', '臨時工', '唯讀',
+    '一個<strong>CLI 智慧體</strong>是', '該 AI 代理人', 'AI 智慧體', '協調者', '有代理正在', 'AI 代理',
+    '不報告 token 數', 'Token', '執行鉤子', '執行 hook', '討論串', '封存', '更改', '本地', '提供方', '服務返回 {{status}}', '搜索']) {
     assert.equal(applyGlossary(applyGlossary(s)), applyGlossary(s), s);
   }
 });
