@@ -83,7 +83,6 @@
   },
   "agentCard": {
     "boss": "老闆",
-    "contextTitle": "上下文：{{used}} / {{limit}} Token（{{pct}}%）",
     "contextGaugeTitle": "上下文指示列——AI 代理人回報活動後開始填充",
     "doingTasks": "正在執行 {{count}} 項任務——點選開啟",
     "doingTasksPlural": "正在執行 {{count}} 項任務——點選開啟",
@@ -106,7 +105,43 @@
     "viewAnswersHistory": "開啟包含完整問答歷史的任務詳細資訊",
     "blockingDownstream": "阻塞 {{count}} 個下游任務",
     "blockingDownstreamPlural": "阻塞 {{count}} 個下游任務",
-    "more": "… 還有 {{count}} 個"
+    "more": "… 還有 {{count}} 個",
+    "kind": {
+      "choose": "選擇",
+      "question": "問題"
+    },
+    "pickAny": "可多選",
+    "asked": "提問於 {{when}}",
+    "recommended": "推薦",
+    "notePlaceholder": "其他想法，或補充說明（可選）…（Ctrl+Enter 傳送）",
+    "answerWith": "回答：{{choice}}",
+    "pickFirst": "選一個選項，或寫下說明",
+    "answered": "已回答",
+    "answeredAt": "回答於 {{when}}",
+    "notSent": "未傳送",
+    "gone": "你在輸入時，這個問題已被修改或關閉。",
+    "goneKept": "你寫的內容，需要時可以複製：",
+    "failed": "你的回答還在輸入框裡。請再試一次。"
+  },
+  "agentMenu": {
+    "open": "開啟",
+    "message": "發訊息",
+    "pauseTools": "暫停工具",
+    "resumeTools": "恢復工具",
+    "hold": "保留 1:1",
+    "release": "解除 1:1",
+    "rename": "重新命名",
+    "addNote": "新增備註",
+    "editNote": "編輯備註",
+    "archive": "封存"
+  },
+  "agentRow": {
+    "crashed": "已崩潰",
+    "stopped": "已停止",
+    "finished": "已完成",
+    "contextTitle": "上下文已用 {{pct}}%",
+    "noSession": "無工作階段",
+    "oneOnOne": "你的 1:1，協調者不會打擾它"
   },
   "agentStrip": {
     "privateNote": "私人筆記 · {{name}}",
@@ -127,6 +162,7 @@
   },
   "sidebar": {
     "terminal": "終端機",
+    "history": "歷史",
     "git": "Git",
     "messages": "訊息",
     "traces": "追蹤"
@@ -149,55 +185,28 @@
     "fullscreenDesc": "此終端機已在聚焦模式中開啟。按 Esc 或離開聚焦模式將其帶回此處。",
     "noPty": "沒有 PTY",
     "noPtyDesc": "該 AI 代理人沒有即時終端機。透過「新增 AI 代理人」生成一個，即可使用終端機分頁。",
-    "killConfirm": "關閉 {{name}}？PTY 處理程序將被終止，AI 代理人將被封存（保留在歷史中，移出樓層）。",
+    "killConfirm": "關閉 {{name}}？PTY 處理程序將被終止，AI 代理人將被封存（保留在歷史中，移出樓層）。有未提交變更的工作資料夾會被保留。",
     "ideTip": "開啟 IDE：瀏覽並編輯 {{project}} 中的檔案，並以差異檢視未提交的變更。",
     "terminalTip": "在 {{cwd}} 中開啟你的系統終端機應用程式 —— 位於該 AI 代理人資料夾中的一般 shell，與該 AI 代理人自己的終端機相互獨立。",
     "openIde": "開啟 IDE",
     "ide": "IDE",
     "openTerminalAria": "在該 AI 代理人的資料夾中開啟系統終端機"
   },
-  "settingsHero": {
-    "sponsoredBy": "贊助商",
-    "visit": "造訪",
-    "whatsNew": "新功能",
-    "whatsNewTitle": "顯示上次告知你的更新的版本說明",
-    "starOnGitHub": "在 GitHub 上加星",
-    "reportProblem": "回報問題",
-    "fullChangelog": "完整變更記錄 →",
-    "announcement": "公告",
-    "proLaunch": "v0.5.0 與 Munder Difflin Pro 一同發布。",
-    "proCommunityFree": "社群版保持免費、開源，並持續獲得更新。",
-    "proParagraph": "Pro 版推出時即帶來新功能與整合，全年還會陸續推出更多，功能始終領先社群版，適合想充分發揮程式設計 AI 代理人與代理框架（agent harness） 潛力的重度使用者。Pro 路線圖也包括行動版應用程式。",
-    "foundersWallTitle": "在 Founders' Wall 上嗎？",
-    "foundersWallBody": "免費獲得一個月的 Munder Difflin Pro，之後年度方案享 5 折。僅限榜上前 100 位。",
-    "seeTheWall": "檢視榜單",
-    "joinDiscord": "加入 Discord"
-  },
-  "officeTheme": {
-    "title": "辦公室主題",
-    "tvShow": "電視劇辦公室主題",
-    "experimental": "實驗性",
-    "desc": "把像素辦公室換成電視劇風格。切換後會換上一批全新的角色。",
-    "current": "目前",
-    "soon": "即將推出",
-    "notBuiltYet": "{{label}} 尚未建置——暫時顯示辦公室。",
-    "switchAborted": "切換中止——終端機無法關閉：{{error}}",
-    "confirmTitle": "把辦公室切換為「{{label}}」？",
-    "startsFreshCast": "換上全新角色",
-    "deleteCount": "你的 {{count}} 個目前 AI 代理人將被刪除——它們的終端機會關閉，進行中的工作會停止。",
-    "deleteCountPlural": "你的 {{count}} 個目前 AI 代理人將被刪除——它們的終端機會關閉，進行中的工作會停止。",
-    "onlyCarries": "只有 {{god}} 會保留。",
-    "stillWorking": "⚠ {{count}} 個 AI 代理人仍在工作。",
-    "stillWorkingPlural": "⚠ {{count}} 個 AI 代理人仍在工作。",
-    "cantUndo": "此操作無法復原。",
-    "switching": "切換中…",
-    "deleteSwitch": "刪除 {{count}} 個 AI 代理人並切換"
-  },
   "settings": {
+    "codexFolders": {
+      "title": "你允許的 Codex 資料夾",
+      "desc": "在這些資料夾裡的 Codex AI 代理人會執行該資料夾自己的 hook、MCP 伺服器和規則。撤回後，從它下次啟動起不再執行。",
+      "withdraw": "撤回",
+      "empty": "沒有。如果 Codex AI 代理人的資料夾有自己的 Codex 設定，它會等你同意後再啟動。",
+      "waitingTitle": "等待你同意",
+      "waitingDesc": "一名臨時工，或透過語音僱用的 AI 代理人，曾試圖在這些資料夾中啟動。它沒有可以詢問你的介面，所以沒有啟動。只有在信任其程式碼儲存庫時才允許。",
+      "allow": "允許"
+    },
     "title": "設定",
     "changeHomeTitle": "變更主資料夾",
     "resetTitle": "重設一切？",
     "close": "關閉",
+    "save": "儲存",
     "change": "變更…",
     "apply": "套用中…",
     "moveAndRestart": "遷移並重新啟動",
@@ -209,8 +218,7 @@
       "prerequisites": "先決條件",
       "agentsModels": "ＡＩ代理人與模型",
       "autonomyBudgets": "自主權與預算",
-      "connections": "連線",
-      "voice": "語音",
+      "voice": "協調者的語音",
       "memoryKnowledge": "記憶與知識"
     },
     "changeHome": {
@@ -225,21 +233,22 @@
     },
     "general": {
       "homeFolder": "主資料夾",
+      "openLastHive": "啟動時跳過設定檔選擇",
+      "openLastHiveDesc": "直接重新開啟此資料夾，不再詢問要開啟哪個設定檔。適用於無人值守的機器，否則選擇介面會讓整個樓層一直停著，直到有人點選。",
       "environment": "環境",
       "keepAwake": "AI 代理人執行時保持 Mac 喚醒",
       "keepAwakeDesc": "防止螢幕進入睡眠，讓排程任務和終端機準時觸發。較耗電——最好接上電源使用。",
       "simpleMode": "用通俗方式解釋",
       "simpleModeDesc": "AI 代理人用日常語言而不是工程術語向你回報。",
+      "graphics": "圖形",
+      "graphicsDesc": "應用程式如何繪製終端機和樓層。「自動」在顯示卡（GPU）可用時使用顯示卡，不可用時使用處理器（CPU）。如果樓層或終端機一直空白或閃爍，請選「僅 CPU」。下次啟動時生效。",
       "notifications": "通知",
       "desktopNotifications": "桌面通知",
       "desktopNotificationsDesc": "AI 代理人完成或需要你輸入時跳出系統通知。",
       "maintenance": "維護",
       "autoCompact": "排程自動壓縮",
-      "autoCompactDesc": "依排程為每個 AI 代理人排入 /compact（預設每小時一次；間隔在觸發器分頁設定）。預設關閉——不開啟的話，長時間執行的 AI 代理人可能會超出上下文。",
-      "autoUpdate": "自動更新",
-      "autoUpdateDesc": "背景檢查 GitHub Releases 並下載更新；由你選擇何時重新啟動。絕不會自行重新啟動。",
-      "telemetry": "匿名使用統計",
-      "telemetryDesc": "少量匿名事件（開啟應用程式、生成 AI 代理人、使用功能）——絕不包含提示詞、程式碼、路徑或 AI 代理人輸出。完整清單見 TELEMETRY.md。",
+      "autoCompactDesc": "當 AI 代理人的上下文超過門檻時，在其回合結束時壓縮。不報告 Token 數的引擎改為依計時器壓縮。預設開啟。在「自動化」中設定門檻和計時器（Classic 中為「觸發器」）。",
+      "telemetry": "使用資料",
       "language": "語言",
       "languageDesc": "選擇應用程式介面的語言。預設為英文。",
       "dangerZone": "危險區域",
@@ -252,8 +261,6 @@
     "agentsModels": {
       "defaultModel": "預設 AI 代理人模型",
       "defaultModelDesc": "每個新生成、使用 Claude 的 AI 代理人（含 {{godName}}）都使用此模型，除非個別 AI 代理人另行選擇。在模型選擇器中標記為「· 預設」。",
-      "savedNote": "已儲存——適用於新生成的 AI 代理人",
-      "saveFailed": "儲存失敗",
       "advanced": "進階",
       "maxTurns": "每次執行最大回合數",
       "unlimited": "無限制",
@@ -264,14 +271,15 @@
       "autoOn": "自主模式——AI 代理人無需詢問即可行動",
       "autoOff": "先詢問——AI 代理人在工具核准前暫停",
       "autoDesc": "適用於新生成的 AI 代理人（每個 AI 代理人的指令仍可覆寫）。",
+      "lasting": "{{god}} 可以新增常駐 AI 代理人",
+      "lastingOn": "{{god}} 無需詢問你即可新增一個留在名冊上的 AI 代理人。每一個都會消耗你未批准的 Token，並會列在你的收件匣中。",
+      "lastingOff": "只有你。{{god}} 的請求會等待，你開啟此項後就會執行。",
+      "lastingYes": "我和 {{god}}",
+      "lastingNo": "只有我",
       "autonomous": "自主",
       "askFirst": "先詢問",
       "breaker": "斷路器",
       "breakerDesc": "防範失控的 AI 代理人與支出。AI 代理人超過這些上限時，斷路器會先引導、再約束、最後停止它。",
-      "floorBudget": "全樓層 Token 預算",
-      "budgetPlaceholder": "例如 1000000",
-      "budgetEquals": "= {{value}} Token",
-      "budgetTotal": "整個樓層的 Token 總數",
       "velocity": "Token 速度（tok/分）",
       "velocityPlaceholder": "例如 200000",
       "repeatedLimit": "重複工具上限",
@@ -281,25 +289,52 @@
       "hardStopDesc": "觸發時直接終止 AI 代理人，而不僅是約束。關閉 = 先引導（建議）。",
       "killOnTrip": "觸發即終止",
       "steerFirst": "先引導",
-      "saved": "已儲存"
+      "hygiene": "封存",
+      "hygieneDesc": "舊卡片會移到帳本旁的封存區，並可在任務頁的「已封存」下繼續搜尋。等待過久的問題只會被標記，不會被封存。看板超過 Token 上限時，會請 {{godName}} 精簡一次；精簡前完整內容先儲存到 board-archive.md。",
+      "ticketPrefix": "工單編號字首",
+      "ticketPrefixHint": "三個大寫字母或數字，首位為字母。新卡片的編號形如 {{example}}。",
+      "hygieneField": {
+        "doneArchiveDays": "已完成任務封存等待天數",
+        "staleFlagDays": "無人處理任務標記等待天數",
+        "staleArchiveDays": "無人處理任務封存等待天數",
+        "askNagDays": "未回答問題提醒等待天數",
+        "boardTokenCap": "看板精簡門檻（Token）"
+      }
     },
     "memory": {
-      "semanticMemory": "語意記憶",
+      "semanticMemory": "跨記憶搜尋",
       "crossSession": "跨工作階段回憶",
-      "crossSessionDesc": "AI 代理人的 markdown 記憶會建立索引，以便即時搜尋。嵌入模型在記憶面板中設定。",
+      "crossSessionDesc": "AI 代理人的筆記會建立索引，團隊可以依語意搜尋，而不只是精確字詞。",
       "kg": "知識圖譜",
       "kgTitle": "企業知識庫",
       "kgDesc": "新增你的文件、圖片和 PDF；AI 代理人會透過 kg 工具依需要查詢。",
       "adding": "新增中…",
       "addFiles": "新增檔案…",
       "docCount": "已索引 {{count}} 個文件",
-      "docCountPlural": "已索引 {{count}} 個文件"
+      "docCountPlural": "已索引 {{count}} 個文件",
+      "modelDesc": "「快速」支援英文。「多語言」支援所有語言，會下載更大的模型。",
+      "folder": "記憶資料夾",
+      "noFolder": "AI 代理人第一次寫下筆記時建立。",
+      "reveal": "在資料夾中顯示",
+      "codex": {
+        "title": "在搜尋中包含 Codex 記憶",
+        "desc": "把 Codex AI 代理人自己記住的內容複製到搜尋中，讓其他 AI 代理人也能找到。只複製記憶，不複製工作階段或日誌。在你開啟之前保持關閉：Codex 記憶可能包含個人或客戶的資訊。",
+        "on": "已複製到搜尋",
+        "off": "不複製"
+      }
     },
     "connections": {
+      "responder": {
+        "heading": "誰來回答收到的訊息",
+        "hint": "Slack 請求或隊友的訊息會交給這個 AI 代理人。如果它沒有在執行，則由 {{godName}} 接手。",
+        "orchestrator": "{{godName}}（推薦）",
+        "temp": "一名臨時工",
+        "tempClone": "一名臨時工，分身自 {{name}}"
+      },
       "slack": "Slack",
       "slackIntegration": "Slack 整合",
       "showSlackHelp": "顯示 Slack 連線步驟",
-      "slackDesc": "把 Slack 頻道的訊息直接送進 {{godName}} 的佇列。",
+      "slackDesc": "團隊在 Slack 討論串裡發出工作，並在同一討論串裡讀到回覆。由 {{godName}} 回答，除非你在本頁頂部選擇了其他 AI 代理人。",
       "connected": "● 已連線",
       "notConnected": "○ 未連線",
       "signingSecret": "簽名金鑰",
@@ -333,34 +368,117 @@
       "rotate": "輪換",
       "mode": "模式",
       "webhooksHint": "呼叫方把請求 POST 到 webhook 的 URL，並在 x-md-webhook-secret 請求標頭中附上金鑰。每個 webhook 都會依自己的 JSON schema 驗證請求本文——可在 {{godName}} 指令中心的觸發器分頁中編輯，所有傳入內容的歷史也都存放在那裡。",
-      "organisation": "組織",
-      "orgKey": "組織金鑰",
-      "orgKeyDesc": "隊友的安裝用這個金鑰找到你的安裝。",
-      "apiKey": "API 金鑰",
-      "orgKeyPlaceholder": "貼上你的組織金鑰",
-      "orgConfigOnly": "目前僅限設定。組織訊息服務尚不存在，所以這裡的金鑰不會啟動任何傳輸——它會被儲存、顯示在觸發器分頁中，然後等待。"
+      "slackWay": {
+        "heading": "Slack 如何聯絡辦公室",
+        "laptop": "一次只能用一種方式。每種方式都需要辦公室保持開啟、筆電保持喚醒。",
+        "polling": {
+          "label": "定時檢查訊息",
+          "hint": "推薦。只需一個 Token，無需公開網址。停機後會補上錯過的訊息。",
+          "foot": "辦公室定時向 Slack 詢問新訊息。電腦休眠期間到達的訊息會在下一次檢查時收到。"
+        },
+        "help": {
+          "polling": "連線 Slack，定時檢查訊息\n\n1. api.slack.com/apps › Create New App › From scratch。命名為 Munder Difflin 並選擇你的工作區。\n2. OAuth & Permissions › Bot Token Scopes：新增 channels:history、groups:history、chat:write 和 files:read。安裝到工作區。\n3. 把 Bot User OAuth Token（xoxb）填入這裡的Bot Token，把頻道 id 填入頻道。\n4. 把機器人邀請進該頻道：/invite @MunderDifflin\n5. 點選測試連線，然後點選開啟。不需要 Event Subscriptions，也不需要 Request URL。",
+          "socket": "連線 Slack，保持連線\n\n1. api.slack.com/apps › Create New App › From scratch。命名為 Munder Difflin 並選擇你的工作區。\n2. OAuth & Permissions › Bot Token Scopes：新增 channels:history、groups:history、chat:write 和 files:read。安裝到工作區，把 Bot User OAuth Token（xoxb）填入這裡的Bot Token。\n3. Socket Mode › Enable Socket Mode。Basic Information › App Level Tokens › Generate，權限 connections:write。把 Token（xapp）填入這裡的App Token。\n4. Event Subscriptions › Enable Events › Subscribe to bot events：新增 message.channels 和 message.groups。不需要 Request URL。儲存，若 Slack 要求則重新安裝。\n5. 把機器人邀請進頻道：/invite @MunderDifflin，把頻道 id 填入頻道，點選測試連線，然後點選開啟。",
+          "webhook": "連線 Slack，讓 Slack 呼叫辦公室\n\n1. api.slack.com/apps › Create New App › From scratch。命名為 Munder Difflin 並選擇你的工作區。\n2. Basic Information › Signing Secret：複製到這裡的簽名金鑰。\n3. OAuth & Permissions › Bot Token Scopes：新增 chat:write、channels:history 和 groups:history。安裝到工作區，然後把 Bot User OAuth Token（xoxb）填入這裡的Bot Token。\n4. 點選下面的啟動，啟動 webhook 並獲得 Request URL。\n5. Event Subscriptions › Enable Events › Request URL：貼上這裡的 Request URL，等待 Slack 顯示綠色對勾。\n6. Event Subscriptions › Subscribe to bot events：新增 message.channels 和 message.groups。\n7. Event Subscriptions › Subscribe to events on behalf of users（若 Slack 要求，先新增對應的使用者 Token 權限 channels:history 和 groups:history）：新增 message.channels 和 message.groups。\n8. 儲存變更，若 Slack 提示則重新安裝，然後把機器人邀請進你的頻道：/invite @MunderDifflin\n\nRequest URL 每次啟動都會變化，重新啟動後需要重新貼上。"
+        },
+        "socket": {
+          "label": "保持連線",
+          "hint": "即時。兩個 Token，無需公開網址。補漏檢查會涵蓋停機期間。",
+          "foot": "辦公室與 Slack 保持一條開啟的連線，每則訊息都能即時聽到。電腦休眠時不會有訊息到達；之後由補收檢查取回。"
+        },
+        "webhook": {
+          "label": "讓 Slack 呼叫辦公室",
+          "hint": "進階。需要簽名金鑰、埠和隧道。停機期間的訊息會遺失。"
+        },
+        "botTokenHint": "Slack App › OAuth & Permissions › Bot User OAuth Token",
+        "appToken": "App Token",
+        "appTokenHint": "Slack App › Basic Information › App Level Tokens，權限 connections:write",
+        "checkEvery": "檢查間隔",
+        "checkEveryHint": "辦公室向 Slack 詢問新訊息的頻率",
+        "catchupEvery": "補漏間隔",
+        "catchupEveryHint": "補上連線中斷期間到達的訊息",
+        "tempCwd": "臨時工的工作目錄",
+        "tempCwdPlaceholder": "最新 AI 代理人的資料夾",
+        "tempCwdHint": "臨時工處理每條 Slack 請求時開啟的資料夾。",
+        "choose": "選擇",
+        "turnOn": "開啟",
+        "turnOff": "關閉",
+        "onBtn": "已開啟",
+        "saved": "已儲存",
+        "on": "已開啟",
+        "startFailed": "啟動失敗",
+        "tunnelMissing": "已啟動，但隧道不可用",
+        "stoppedForSwitch": "已停止；請為新方式點選開啟",
+        "notYet": "尚未",
+        "secondsAgo": "{{n}} 秒前",
+        "minutesAgo": "{{n}} 分鐘前",
+        "inSeconds": "{{n}} 秒後",
+        "inMinutes": "{{n}} 分鐘後",
+        "off": "關閉",
+        "everySeconds": "{{n}} 秒",
+        "everyMinute": "1 分鐘",
+        "everyMinutes": "{{n}} 分鐘",
+        "everyHour": "1 小時",
+        "status": {
+          "polling": "正以 @{{bot}} 檢查 {{team}}，上次檢查 {{ago}}，下次 {{next}}",
+          "socket": "已以 @{{bot}} 連線到 {{team}}，socket 重新整理於 {{ago}}",
+          "catchup": "上次補漏 {{ago}}",
+          "reconnecting": "正在重新連線 Slack"
+        }
+      },
+      "proactive": {
+        "label": "主動在 Slack 中發訊息",
+        "offHint": "關閉。辦公室只在別人已經發起的討論串裡回覆。",
+        "onHint": "開啟。辦公室也可以先發訊息，並在請求到達時立即回一句「收到」。",
+        "what": "這不影響對來自 Slack 的工作的回覆，那些始終回到各自的討論串裡。"
+      },
+      "diag": {
+        "test": "測試連線",
+        "testing": "正在測試…",
+        "noToken": "在上面貼上Bot Token，然後點測試連線。它會檢查 Token 並找出你的頻道，不會儲存任何東西。",
+        "missing": "仍然缺少：{{fields}}。",
+        "authFail": "Slack 拒絕了該 Token：{{error}}",
+        "ok": "已連線到 {{team}}，身分為 @{{bot}}。",
+        "socketOk": "即時連線可以開啟。",
+        "socketFail": "長連線沒有開啟：{{error}}"
+      },
+      "channelPick": {
+        "label": "頻道",
+        "one": "正在使用 #{{name}}。這是機器人唯一所在的頻道。",
+        "choose": "機器人在 {{n}} 個頻道裡。選擇它應該關注的那個：",
+        "none": "機器人還沒有加入任何頻道。在 Slack 裡，到你想讓它關注的頻道執行 /invite @{{bot}}，然後再點一次測試連線。",
+        "needScope": "此應用程式無法列出頻道，所以需要手動填寫 id。在 Slack App 中新增 channels:read 和 groups:read 權限並重新安裝，這裡就會自動填好。",
+        "error": "無法列出頻道：{{error}}。請改為手動填寫 id。",
+        "anyChannel": "機器人所在的每一個頻道。保持連線會即時聽到每個頻道，因此不需要 id。",
+        "catchupNeedsChannel": "如果你也想要補收檢查，請選一個頻道。沒有頻道時，電腦休眠期間到達的訊息之後不會被補收。",
+        "manual": "頻道 id",
+        "manualHint": "會取代上面的選擇。留空則使用上面的選擇。",
+        "privateTag": "私密"
+      },
+      "advanced": {
+        "show": "進階",
+        "hide": "進階",
+        "hint": "連線方式、由誰處理請求、時間間隔，以及發訊息。"
+      },
+      "saveBtn": "儲存",
+      "scopes": {
+        "needs": "需要以下權限",
+        "where": "Slack App › OAuth & Permissions › Bot Token Scopes。新增後重新安裝到工作區，再貼上 Token。",
+        "appNeeds": "App Token 需要 {{scope}}，在 Basic Information › App Level Tokens 中取得。",
+        "allGranted": "該 Token 已具備所需的全部權限。",
+        "missing": "該 Token 缺少 {{scopes}}。請在 Slack App 中新增，重新安裝，然後再次貼上 Token。",
+        "unknown": "Slack 沒有說明該 Token 具備哪些權限，請對照上面的清單自行確認。"
+      },
+      "boundPort": "正在監聽埠 {{port}}。",
+      "boundPortMoved": "埠 {{from}} 已被佔用，本次工作階段改為監聽 {{port}}。本機呼叫端必須使用 {{port}}。已儲存的埠沒有改變。"
     },
     "voice": {
-      "freeFlow": "自由輸入",
-      "freeFlowTitle": "自由輸入（語音聽寫）",
-      "freeFlowDesc": "按住說話聽寫：開口說話，Groq Whisper 就會把文字放進佇列編輯器。",
-      "groqKey": "Groq API 金鑰",
-      "groqPlaceholder": "gsk_...（在 console.groq.com 免費取得金鑰）",
-      "model": "模型",
-      "fast": "whisper-large-v3-turbo（快速）",
-      "accurate": "whisper-large-v3（準確）",
-      "freeFlowHint": "兩種聽寫方式：點選佇列編輯器傳送鍵上方的麥克風按鈕（點選開始錄音，再點一次轉錄）；或在檢視任意 AI 代理人終端機時按住 Option（⌥）說話、鬆手轉錄。兩種方式都會把文字放進編輯器草稿，供你傳送前檢查。首次錄音時 macOS 會請求麥克風權限。",
-      "realtime": "即時 {{godName}}",
-      "voiceChat": "與 {{godName}} 語音對話",
-      "voiceChatDesc": "即時與協調者對話。從 {{godName}} 的分頁開啟；在這裡選擇語音迴路使用的麥克風和喇叭。",
       "openaiKey": "OpenAI API 金鑰 · 語音",
       "openaiKeyDesc1": "與 {{godName}} 對話使用 OpenAI 的 Realtime API——透過與 {{model}} 的即時連線，語音輸入、語音輸出。這和你的 AI 代理人所用的 Claude 訂閱是不同的服務，所以需要另外的 OpenAI API 金鑰。",
-      "openaiKeyDesc2": "在下方貼上一次即可。金鑰會在這臺電腦上加密儲存，之後不再顯示——每次語音工作階段都會用它產生一個短期 Token，金鑰本身永遠不會離開你的電腦。它和「AI 代理人與模型」中列出的 OpenAI 金鑰是同一把；在任一處設定即可。",
       "keyPlaceholderSaved": "金鑰已儲存——貼上新金鑰即可更換",
       "save": "儲存",
       "keySaved": "金鑰已儲存——Talk 已就緒。從 {{godName}} 的卡片啟動。",
       "noKey": "尚無金鑰——儲存金鑰前 Talk 保持停用。",
-      "keySavedNote": "金鑰已儲存——Talk 已就緒。",
       "couldNotSave": "無法儲存金鑰。",
       "idleDisconnect": "閒置自動中斷連線",
       "30s": "30 秒",
@@ -370,12 +488,260 @@
       "5m": "5 分鐘",
       "10m": "10 分鐘",
       "never": "關閉（永不）",
-      "idleDisconnectDesc": "沒有人說話時，語音工作階段要保持多久才自動關閉。即使關閉此功能，支出上限仍會阻止失控的工作階段。"
+      "idleDisconnectDesc": "沒有人說話時，語音工作階段要保持多久才自動關閉。即使關閉此功能，支出上限仍會阻止失控的工作階段。",
+      "title": "協調者的語音"
     },
     "saved": "已儲存",
     "saving": "儲存中…",
     "unsavedChanges": "有未儲存的變更",
-    "unsavedWarning": "你有尚未儲存的設定。仍要關閉並捨棄這些設定嗎？"
+    "unsavedWarning": "你有尚未儲存的設定。仍要關閉並捨棄這些設定嗎？",
+    "worktrees": {
+      "title": "工作樹",
+      "refresh": "重新整理",
+      "desc": "每個隔離的 AI 代理人和每個臨時工都在專案的一份獨立副本中工作。工作合併後應用程式會移除副本，崩潰的 AI 代理人留下未儲存工作的副本會被保留。其餘的會一直留在這裡佔用磁碟，直到你刪除它們。",
+      "loading": "正在讀取磁碟",
+      "empty": "磁碟上沒有工作樹。",
+      "totalOne": "1 個資料夾",
+      "totalMany": "{{count}} 個資料夾",
+      "totalSize": "共 {{size}}",
+      "totalSoFar": "目前 {{size}}，已測量 {{done}} / {{count}}",
+      "measuring": "測量中",
+      "checking": "正在檢查內容",
+      "detached": "無分支",
+      "ageToday": "今天建立",
+      "ageOne": "1 天前建立",
+      "ageMany": "{{count}} 天前建立",
+      "live": "有 AI 代理人正在這裡執行",
+      "liveHint": "有 AI 代理人正在此資料夾中執行。請先停止該 AI 代理人。",
+      "notWorktree": "不是任何專案的工作樹。如不需要，請手動刪除。",
+      "notWorktreeHint": "應用程式只刪除能交還給 git 的工作樹。",
+      "clean": "沒有未儲存的內容",
+      "unknown": "無法讀取其中內容",
+      "uncommittedOne": "1 個未提交的檔案",
+      "uncommittedMany": "{{count}} 個未提交的檔案",
+      "notInBaseOne": "1 個提交不在 {{base}} 中",
+      "notInBaseMany": "{{count}} 個提交不在 {{base}} 中",
+      "onlyHereOne": "1 個提交不在任何其他分支上",
+      "onlyHereMany": "{{count}} 個提交不在任何其他分支上",
+      "delete": "刪除",
+      "deleting": "正在刪除",
+      "deleteFolder": "刪除資料夾",
+      "deleteAnyway": "仍然刪除",
+      "keep": "保留",
+      "confirmClean": "此資料夾中沒有未儲存的內容。要刪除嗎？",
+      "confirmUnread": "應用程式尚未讀完此資料夾。如果其中有工作，會再次詢問你。",
+      "confirmUnknown": "應用程式無法讀取此資料夾中的內容。其中未提交的內容將永久遺失。",
+      "loseOne": "1 個未提交的檔案將永久遺失。",
+      "loseMany": "{{count}} 個未提交的檔案將永久遺失。",
+      "keepOne": "1 個未合併的提交會保留在分支 {{branch}} 上。只刪除資料夾。",
+      "keepMany": "{{count}} 個未合併的提交會保留在分支 {{branch}} 上。只刪除資料夾。",
+      "refused": {
+        "gitFailed": "Git 拒絕移除：{{error}}",
+        "notOurs": "此資料夾不是應用程式可以刪除的。"
+      }
+    },
+    "frame": {
+      "about": "這是什麼？",
+      "aboutField": "關於 {{name}}",
+      "partlySaved": "已儲存，但有一項變更未儲存：{{error}}",
+      "onSave": "按儲存後生效。"
+    },
+    "conn": {
+      "answeredBy": "由誰回覆",
+      "appliesOnSave": "按「儲存」後生效。",
+      "state": {
+        "connected": "已連線",
+        "needs": "還需要 {{fields}}",
+        "notConnected": "未連線",
+        "off": "關閉"
+      },
+      "slack": {
+        "switch": "使用 Slack",
+        "field": {
+          "botToken": "Bot Token",
+          "appToken": "App Token",
+          "channelId": "頻道 ID",
+          "signingSecret": "簽名金鑰"
+        },
+        "botTokenInfo": "以 xoxb 開頭。Slack App › OAuth & Permissions › Bot User OAuth Token。",
+        "appTokenInfo": "以 xapp 開頭。Slack App › Basic Information › App Level Tokens，權限 connections:write。有了它，訊息發出後立刻送達。",
+        "channelInfo": "要回覆的頻道。預設是所有頻道：Bot 加入的每一個頻道，在 Slack 把 Bot 加進某個頻道，它就會在那裡回覆。只想在部分頻道回覆時，取消勾選「所有頻道」，再勾選要的頻道；「測試連線」會列出它們。發給 Bot 的私訊始終會回覆。",
+        "signingSecretInfo": "Slack App › Basic Information › Signing Secret。Slack 用它為每次呼叫這臺電腦簽名。",
+        "anyChannel": "Bot 加入的所有頻道",
+        "allChannels": "所有頻道",
+        "pickChannels": "選擇一個或多個頻道",
+        "channelsCount": "{{n}} 個頻道",
+        "listChannels": "按「測試連線」列出 Bot 所在的頻道，或填入多個 id，用逗號分隔。",
+        "noneMeansAll": "一個都不勾選時，它會在 Bot 加入的每個頻道回覆。",
+        "answeredByInfo": "誰來處理 Slack 請求。同事發來的訊息也交給同一個 AI 代理人。該 AI 代理人停止時由 {{godName}} 回覆。",
+        "way": {
+          "socket": "即時：訊息發出後立刻送達。",
+          "polling": "每分鐘檢查一次頻道。加上 App Token 即可改為即時。",
+          "webhook": "Slack 呼叫這臺 Mac 的公開網址。"
+        },
+        "howTo": "如何取得",
+        "steps": "最快的方式：用清單建立應用程式。\n1. 點上方的「複製清單」。\n2. api.slack.com/apps › Create New App › From a manifest。選擇你的工作區，貼上清單，然後點 Next 和 Create。\n3. Install App › Install to Workspace › Allow。把 Bot User OAuth Token（xoxb）複製到「Bot Token」。\n4. Basic Information › App Level Tokens › Generate Token and Scopes：新增 connections:write，然後點 Generate。把 Token（xapp）複製到「App Token」。「定時檢查」方式不需要它。\n5. 在 Slack 裡，在每個需要它回答的頻道輸入 /invite @{{handle}}。大家也可以直接給它發訊息。點「測試連線」，然後儲存。\n\nSlack 改成一步步引導？在「What it can respond to in Slack?」這一步新增機器人事件 {{events}}。\n\n手動建立的應用程式？它需要機器人權限 {{scopes}}。「自動」和「即時」還需要：開啟 Socket Mode；在 Event Subscriptions › Subscribe to bot events 中新增機器人事件 {{events}}；在 App Home › Messages Tab 中開啟並允許傳送訊息。每次修改後重新安裝應用程式。「定時檢查」不需要任何事件。",
+        "wayLabel": "連線方式",
+        "wayInfo": "自動：有App Token 時即時接收，沒有時每分鐘檢查一次。即時方式需要在 Slack App 中新增機器人事件；在第一則訊息即時到達之前，辦公室也會每分鐘檢查一次。下方欄位隨方式變化。",
+        "wayChoice": {
+          "auto": "自動",
+          "socket": "即時（socket 模式）",
+          "polling": "定時檢查",
+          "webhook": "Slack 呼叫這臺 Mac（webhook）"
+        },
+        "copyManifest": "複製清單",
+        "manifestCopied": "已複製",
+        "manifestInfo": "一次貼上即可設定 Slack App 的權限、事件和私訊。",
+        "liveMissing": "Slack 沒有把這些傳送到即時連線：{{events}}。這些訊息仍會透過每分鐘一次的檢查送達。想立即收到，請在 Slack App 的 Event Subscriptions › Subscribe to bot events 中新增它們，然後重新安裝應用程式。",
+        "catchupOff": "每分鐘一次的檢查已關閉，所以連線中斷期間錯過的訊息不會被補收：{{error}}"
+      },
+      "webhook": {
+        "answeredByInfo": "webhook 沒有指定自己的 AI 代理人時，由誰處理。該 AI 代理人停止時由 {{godName}} 回覆。"
+      },
+      "inbound": {
+        "defaultAgent": "預設 AI 代理人",
+        "form": {
+          "title": "新增傳入 webhook",
+          "type": "Webhook 類型",
+          "typeChoice": {
+            "custom": "空白（任意工具）",
+            "github": "GitHub",
+            "linear": "Linear",
+            "telegram": "Telegram"
+          },
+          "accepts": "接受的請求",
+          "acceptsInfo": "依此 schema 驗證的 JSON 請求主體。必須包含 message 欄位；title、kind 和 from 可選。",
+          "acceptsService": {
+            "github": "GitHub 自己的事件負載：pull request、Issue 和留言。",
+            "linear": "Linear 自己的事件負載：Issue 和留言。",
+            "telegram": "Telegram 的更新負載：別人發給你機器人的訊息。"
+          },
+          "badSchema": "schema 不是有效的 JSON。",
+          "auth": "驗證方式",
+          "authChoice": {
+            "header": "請求標頭中的金鑰",
+            "bearer": "Bearer Token",
+            "hmac": "簽名的請求主體（HMAC SHA-256）"
+          },
+          "authService": {
+            "github": "GitHub 用金鑰為每次投遞簽名（X-Hub-Signature-256）。把金鑰貼上到 GitHub。",
+            "linear": "Linear 用它自己的簽名金鑰為每次投遞簽名（Linear-Signature）。在 Linear 建立 webhook 後把它貼上到這裡。",
+            "telegram": "Telegram 在 X-Telegram-Bot-Api-Secret-Token 中傳送金鑰。儲存時會用它註冊你的機器人。"
+          },
+          "goesTo": "交給哪個 AI 代理人",
+          "prompt": "附加到每個事件的提示詞",
+          "afterSave": "按下儲存後，網址和金鑰會出現在清單中。",
+          "confirm": "新增 webhook"
+        },
+        "changedByAgent": "已被 AI 代理人修改，請重新載入。你在這裡對 webhook 的修改沒有儲存。",
+        "reload": "重新載入",
+        "creatingAddress": "正在建立網址…",
+        "addressFailed": "無法建立網址：{{error}}",
+        "addressTimedOut": "網址還沒有出現。請檢查網路連線後重試。",
+        "retry": "重試",
+        "deleteNamed": "刪除 {{name}}",
+        "deleteConfirm": "儲存時刪除",
+        "deleteOnSave": "按下儲存後刪除。",
+        "undo": "撤銷",
+        "delete": "刪除",
+        "keep": "保留"
+      }
+    },
+    "integ": {
+      "howTo": "如何連線",
+      "saveFailed": "Webhook 無法儲存。",
+      "defaultAgent": "預設 AI 代理人",
+      "more": "更多",
+      "guardrails": "給每則訊息加上安全規則",
+      "enabled": "{{name}} 開啟",
+      "receiving": "正在接收",
+      "paused": "已暫停",
+      "urlInfo": "把它貼上到對方服務裡。網址是公開的，只有帶金鑰的呼叫端能進來。",
+      "urlAfterSave": "儲存後顯示",
+      "promptInfo": "AI 代理人對這裡的每則訊息應該做什麼。會隨每則訊息一起傳送。",
+      "field": {
+        "name": "名稱",
+        "description": "說明",
+        "prompt": "指示",
+        "url": "網址",
+        "secret": "金鑰"
+      },
+      "secretInfo": {
+        "custom": "呼叫端在請求標頭 x-md-webhook-secret 中傳送它。",
+        "github": "把它貼上到 GitHub 上該 webhook 的 Secret 欄位。",
+        "linear": "Linear 會產生自己的簽名金鑰。從 Linear 上該 webhook 的頁面複製並貼上到這裡。"
+      },
+      "promptPlaceholder": {
+        "custom": "例如：這些來自客服臺，請回覆一份草稿答案。",
+        "github": "例如：審查新的 pull request，並留言指出你發現的問題。",
+        "linear": "例如：當 Issue 分配給 AI 代理人時，開始處理。",
+        "telegram": "例如：簡短回答關於我們產品的問題。"
+      },
+      "sourceName": {
+        "custom": "Webhook",
+        "github": "GitHub",
+        "linear": "Linear",
+        "telegram": "Telegram"
+      },
+      "github": {
+        "title": "GitHub",
+        "info": "GitHub 把儲存庫事件（pull request、Issue、留言）發給你選的 AI 代理人。",
+        "inboundOnly": "事件會送到 AI 代理人。暫時還不會把回覆發回 GitHub。",
+        "steps": "1. 按「連線」，再按「儲存」，網址會顯示在這裡。\n2. 在 GitHub：你的儲存庫 › Settings › Webhooks › Add webhook。\n3. Payload URL 填這裡的網址，Content type 選 application/json，Secret 填這裡的金鑰。\n4. 選擇需要的事件，然後 Add webhook。GitHub 會先發一個 ping，它會被忽略。"
+      },
+      "linear": {
+        "title": "Linear",
+        "info": "Linear 把 Issue 和留言事件發給你選的 AI 代理人。",
+        "inboundOnly": "事件會送到 AI 代理人。暫時還不會把回覆發回 Linear。",
+        "steps": "1. 按「連線」，再按「儲存」，網址會顯示在這裡。\n2. 在 Linear：Settings › API › Webhooks › New webhook。貼上網址，選擇資源類型並建立。\n3. 把 Linear 為該 webhook 顯示的簽名金鑰複製到這裡的「金鑰」，再按一次「儲存」。"
+      },
+      "telegram": {
+        "title": "Telegram",
+        "info": "發給你的 Telegram bot 的訊息會送到你選的 AI 代理人。",
+        "inboundOnly": "訊息會送到 AI 代理人。暫時還不會把回覆發回 Telegram。",
+        "steps": "1. 在 Telegram 給 @BotFather 發 /newbot，按步驟操作，它會給你一個 bot Token。\n2. 按「連線」，貼上 bot Token，按「儲存」。應用程式會告訴 Telegram 把訊息發到哪裡。\n3. 給你的 bot 發訊息，訊息會送到 AI 代理人。",
+        "botToken": "Bot Token",
+        "botTokenInfo": "來自 @BotFather。按「儲存」時用一次來連線 bot，不會儲存。",
+        "registerFailed": "Telegram 沒有接受這個 bot：{{error}}"
+      },
+      "custom": {
+        "defaultName": "Webhook",
+        "namePlaceholder": "客服臺",
+        "descriptionPlaceholder": "簡單說明誰會呼叫它",
+        "promptPlaceholder": "AI 代理人對每次呼叫應該做什麼"
+      },
+      "list": {
+        "open": "開啟自動化",
+        "same": "這些就是「自動化」裡的 webhook 自動化。在這裡修改，那裡也會同步。",
+        "none": "還沒有 webhook。",
+        "to": "發給 {{name}}",
+        "edit": "編輯"
+      }
+    },
+    "keys": {
+      "providers": {
+        "info": "自備金鑰的引擎所用的金鑰：OpenCode、Crush、pi.dev 和 Qwen。加密儲存，不再顯示；引擎在 AI 代理人啟動時讀取金鑰。Claude Code 和 Codex 使用各自的登入。"
+      },
+      "envVar": "AI 代理人以 {{name}} 讀取。",
+      "willSave": "按儲存後生效。",
+      "willRemove": "按儲存後移除。",
+      "remove": "移除",
+      "undo": "撤銷",
+      "live": "金鑰儲存後，正在執行的 AI 代理人即可立即使用，無需重新啟動。",
+      "custom": {
+        "notConnection": "{{id}} 連線不會讀取此項。請把它的金鑰放到那個連線裡，在「AI 代理人使用的應用程式」下。",
+        "info": "為 AI 代理人需要的任何東西設定名稱和值，例如服務 Token。加密儲存在本機，之後不再顯示。每個 AI 代理人都會以該名稱的環境變數讀取它。AI 代理人使用的應用程式不會讀取這些值。",
+        "name": "名稱",
+        "value": "值",
+        "willReplace": "按儲存後替換已儲存的值。",
+        "problem": {
+          "shape": "只能使用大寫字母、數字和底線。",
+          "long": "名稱不能超過 64 個字元。",
+          "reserved": "這個名稱由應用程式自己設定。請換一個名稱。",
+          "empty": "請填寫名稱。"
+        }
+      }
+    }
   },
   "commandCenter": {
     "title": "指令中心",
@@ -397,7 +763,7 @@
       "graph": "圖譜",
       "activity": "動態",
       "skills": "技能",
-      "workers": "工作者"
+      "workers": "臨時工"
     },
     "terminalFullscreen": "終端機已以全螢幕開啟。按 Esc 帶回此處。",
     "noTerminal": "{{name}} 沒有即時終端機。",
@@ -414,32 +780,32 @@
     "agents": "ＡＩ代理人",
     "godTag": "（上帝）",
     "toolCalls": "{{count}} 次工具呼叫",
-    "rate": "速率",
-    "budget": "預算",
-    "meterTitle": "累計工作階段用量：{{used}} / {{limit}} Token{{note}}——非上下文視窗",
-    "agentLimit": "（AI 代理人限額——工作 Token，不計快取讀取）",
-    "floorBudget": "（樓層預算）",
     "ctx": "上下文",
     "contextTitle": "上下文視窗：{{used}} / {{limit}} Token（{{pct}}%）",
     "noStatusTick": "尚無狀態回報",
     "modelRestarts": "{{provider}} 模型（重新啟動 AI 代理人）",
     "restartContinue": "重新啟動並繼續",
     "restartContinueTitle": "終止並重新生成 {{name}}，接續它目前的對話——可修復損壞或亂碼的終端機，且不會遺失上下文",
+    "restartOnLine": "重新啟動",
+    "commandLineHint": "該 AI 代理人實際執行的指令列。編輯後按重新啟動即可依此指令啟動。",
     "engine": "引擎：",
     "apply": "套用",
     "confirmRestartEngine": "這會重新啟動 {{name}}；換到不同引擎後，原本的對話無法接續。",
-    "restartFailed": "重新啟動失敗。",
     "archived": "已封存（{{count}}）",
     "showClosed": "顯示已關閉的 AI 代理人",
     "hideClosed": "隱藏已關閉的 AI 代理人",
+    "reopen": "重新開啟",
+    "reopening": "正在重新開啟…",
+    "reopenTitle": "重新開啟該 AI 代理人：沿用同一 id、工作目錄與記憶，並恢復上次工作階段",
+    "reopenFailed": "無法重新開啟：{{error}}",
+    "alreadyOpen": "已經開啟",
+    "forgetTitle": "永久移除：將該 AI 代理人從清單中徹底刪除",
     "directories": "目錄",
     "noRepos": "沒有已註冊的儲存庫。",
     "openInTerminal": "在 Terminal.app 中開啟",
     "issues": "Issue",
     "fetching": "取得中…",
     "fetchIssues": "取得 Issue",
-    "noRepoSelected": "未選擇儲存庫。",
-    "fetchFailed": "無法取得 Issue。",
     "noIssues": "尚未取得任何 Issue。",
     "assign": "指派",
     "textSearch": "文字搜尋（看板、任務、記憶）",
@@ -460,16 +826,10 @@
     "logEscalate": "呈報給人類：{{subject}}",
     "logApprovalGranted": "已核准",
     "logApprovalDenied": "核准遭拒",
-    "tokenLimitTitle": "設定該 AI 代理人的 Token 上限（工作 Token：輸入 + 輸出 + 快取寫入；不計快取讀取）",
-    "tokenLimit": "上限 {{value}}",
-    "setLimit": "設定上限",
     "saveLimit": "儲存上限",
-    "fleetTokens": "Σ {{value}} tok",
     "fleetInputs": "輸入 {{value}}（快取 {{pct}}%）",
     "fleetRate": "{{value}} tok/分",
-    "telemetryNote": "來自每個 AI 代理人的 OpenTelemetry 即時資料 · 長條圖顯示已用 Token 與各自上限的對比，否則為 {{cap}} 樓層預算",
-    "defaultBudgetNote": "（預設——請在設定中設定樓層 Token 預算）",
-    "openIssue": "GitHub Issue #{{num}}：{{title}}",
+    "telemetryNote": "即時來自每個 AI 代理人的 OpenTelemetry · 依週期的 Token 限額在協調者的「預算與斷路器」分頁中設定",
     "deliveryResumeAria": "繼續整個樓層的自動投遞",
     "deliveryHoldAria": "暫停整個樓層的自動投遞",
     "openIdeAria": "開啟 IDE"
@@ -559,7 +919,6 @@
     "descriptionPlaceholder": "職責 —— 這個 AI 代理人負責什麼，而不是它目前的狀態",
     "goal": "目標（選填）",
     "goalPlaceholder": "每次提示都會附加的長期指示",
-    "importHire": "匯入 hire",
     "importHireDesc": "「匯入 hire」會從 .json 清單載入現成的 AI 代理人——它會填好下方所有欄位供你檢查。在你按下「生成」之前，不會啟動任何東西。",
     "generateWithAI": "用 AI 生成一個…",
     "hideAIPrompt": "隱藏 AI 提示詞",
@@ -577,6 +936,8 @@
     "skipHire": "跳過 hire"
   },
   "onboarding": {
+    "homeHoldsWorkspace": "{{path}} 已有一個工作區。繼續則照原樣開啟，或選擇其他資料夾。",
+    "homeIsFile": "{{path}} 是檔案，不是資料夾。請選擇其他資料夾。",
     "titles": {
       "persona": "歡迎來到 MUNDER DIFFLIN",
       "welcome": "認識你的辦公室",
@@ -601,8 +962,8 @@
     },
     "welcome": {
       "headline": "你的分身以及它經營的樓層",
-      "descPlain": "你的分身經營著一間小小的 AI 員工辦公室，你在一個螢幕上就能看到全部。裡面有：",
-      "desc": "你的分身協調著一群 AI 程式設計 AI 代理人——持續運作、看得見、全在本機。裡面有：",
+      "descPlain": "你的分身經營著一個由 AI 代理人組成的小辦公室，你在一個螢幕上看到全部。裡面有：",
+      "desc": "你的分身協調著一群程式設計 AI 代理人——持續運作、看得見、全在本機。裡面有：",
       "features": {
         "engines": {
           "label": "十一大引擎，一間辦公室",
@@ -659,8 +1020,8 @@
       "cliAgentPlain": "<strong>CLI AI 代理人</strong>是在你電腦上執行的 AI 程式設計助手 —— 常見的有 Claude Code（Anthropic）、Codex（OpenAI）和 Antigravity（Google Gemini）。<strong>你的分身</strong>則是全天候執行、打理整間辦公室的那一個。我們建議使用 Claude Code 搭配 Opus 4.8（1M）。其他引擎之後隨時可以新增或切換。",
       "cliAgent": "每個選項都是一個 <strong>CLI 引擎</strong>（Claude Code、Codex、Antigravity/Gemini，或像 Qwen 這樣的本機 Proxy）。標記 INSTALLED 的引擎已安裝在這臺電腦上；INSTALLS ON FIRST RUN 表示應用程式會在 {{godName}} 第一次啟動時安裝它。<strong>你的分身</strong>（{{godName}}）是統籌整個 hive 的引擎。建議：Claude Code · Opus 4.8 · 1M。之後可為個別 AI 代理人接上其他供應商。",
       "recommended": "建議",
-      "workersOnly": "僅限工作者",
-      "workersOnlyHint": "還無法處理 hive 郵件，因此不能擔任你的分身——但仍可用於僱用工作者。",
+      "workersOnly": "僅限臨時工",
+      "workersOnlyHint": "暫時無法接收 hive 郵件，因此不能執行你的分身。僱用臨時工時仍然可用。",
       "model": "模型",
       "modelNote": "這裡只設定 {{godName}} 的引擎。之後可為個別 AI 代理人使用其他供應商。"
     },
@@ -691,88 +1052,37 @@
       "notificationsDesc": "AI 代理人需要你或終端機需要搶救時提醒你——即使你不在。第一次觸發時你的系統可能會請求權限。",
       "openAtLogin": "登入時啟動",
       "openAtLoginDesc": "電腦重新開機後自動重新啟動 harness，讓排程任務自行繼續。無提示——立即生效。",
-      "shareStats": "共享匿名使用統計",
-      "shareStatsDesc": "少量匿名事件（開啟應用程式、生成 AI 代理人、使用功能），用於改進 Munder Difflin——絕不包含提示詞、程式碼、檔案路徑或 AI 代理人輸出。完整清單見 TELEMETRY.md；可隨時在設定中變更。",
       "stayAwake": "接上電源時保持喚醒（手動）",
       "stayAwakeDescMac": "macOS 只允許你自己設定這一項。在「電池」→「選項」中，開啟「顯示器關閉時防止自動進入睡眠」（使用電源轉接器時），這樣顯示器睡眠時計時器也能繼續觸發。沒有防止睡眠的設定，Mac 仍會真正進入睡眠——工作會保留，並在喚醒後補上。",
       "stayAwakeDescWindows": "Windows 只允許你自己設定這一項。在「設定」→「系統」→「電源與電池」→「螢幕與睡眠」中，將「使用電池電源時，讓我的裝置在以下時間後進入睡眠」和「接上電源時，讓我的裝置在以下時間後進入睡眠」設為「永不」（或延長時間），這樣計時器才能繼續觸發。沒有防止睡眠的設定，Windows 仍會真正進入睡眠——工作會保留，並在喚醒後補上。",
       "stayAwakeDescLinux": "你的桌面環境只允許你自己設定這一項。請找到電源設定面板（例如 GNOME「設定」→「電源」，或 KDE「系統設定」→「電源管理」），並在接上電源時關閉自動睡眠／暫停。沒有防止睡眠的設定，系統仍會真正進入睡眠——工作會保留，並在喚醒後補上。",
       "openBatteryMac": "開啟電池設定",
       "openBatteryWindows": "開啟電源設定",
-      "setItUp": "開始設定",
-      "next": "下一步"
+      "setItUp": "開始設定"
     },
     "errPickHome": "請先選擇 harness 主資料夾。",
     "errCreateHome": "無法建立 harness 主資料夾",
     "errEngineNotInstalled": "{{label}} 尚未安裝。請先安裝它並點選「重新檢查」，或選擇其他引擎。"
   },
   "office": {
-    "gpuError": "辦公樓層失去了 GPU 上下文。\n\n同時使用 GPU 的終端機太多了。\n關閉幾個 AI 代理人終端機，或重新啟動應用程式，即可恢復顯示。",
-    "errand": {
-      "water": [
-        "給植物澆水 🌿",
-        "給植物們喝點水",
-        "它們長得真快"
-      ],
-      "window": [
-        "開窗透透氣 🍃",
-        "一點新鮮空氣",
-        "今天微風不錯"
-      ],
-      "dispenser": [
-        "接點水喝 💧",
-        "補水時間",
-        "保持精神"
-      ],
-      "fridge": [
-        "冰箱裡有什麼好東西？",
-        "誰拿走了我的優格？",
-        "隨便看看…"
-      ],
-      "shelf": [
-        "看看書架 📚",
-        "有什麼新東西嗎？",
-        "好東西真多"
-      ],
-      "bin": [
-        "把廢紙清掉 🗑️",
-        "收拾桌子的日子",
-        "稍微整理一下"
-      ],
-      "smoke": [
-        "這層樓自己就能運轉 🚬",
-        "老闆休息一下。",
-        "思考人生 🚬",
-        "我宣布……休息一下"
-      ]
+    "conn": {
+      "git": {
+        "host": {
+          "label": "git 主機網址",
+          "help": "必須以 https:// 開頭。SSH 位址暫不可用。",
+          "notHttps": "網址必須以 https:// 開頭。",
+          "hostOnly": "只輸入主機，例如 https://github.com，後面不要加任何內容。"
+        },
+        "user": {
+          "label": "User name",
+          "help": "你在這個主機上的使用者名稱。"
+        },
+        "token": {
+          "label": "Access token"
+        }
+      }
     },
-    "suckUp": [
-      "{{godName}}，已經交付了 {{done}} 個任務。加薪嗎？🥺",
-      "老闆，這週完成了 {{done}} 個任務！",
-      "一如既往的好眼光，老闆！",
-      "我正要去做那件事！",
-      "今天領帶不錯，{{godName}}",
-      "努力工作，老闆！💪",
-      "史上最好的老闆。真心話。"
-    ],
-    "gossip": [
-      "他到底寫過程式碼沒有？",
-      "又一個拖了一小時的「快速同步」…",
-      "「世界上最好的老闆」——那個杯子是他自己買的",
-      "他把我的任務據為己有，說是他的主意",
-      "說真的，那股雪茄味…",
-      "他澆了那盆植物。就一盆。他自己的。",
-      "你聽見了嗎？「我宣布……休息一下」"
-    ],
-    "cheer": [
-      "完成！✔",
-      "漂亮",
-      "收工",
-      "上線 🚀",
-      "又搞定一個",
-      "拿下了",
-      "記入戰績"
-    ],
+    "gpuError": "辦公樓層失去了 GPU 上下文。\n\n同時使用 GPU 的終端機太多了。\n關閉幾個 AI 代理人終端機，或重新啟動應用程式，即可恢復顯示。",
     "mugs": {
       "empty": "沒有乾淨的杯子了…",
       "brewing": "正在泡一杯新的 ☕",
@@ -782,16 +1092,114 @@
       "waiting": "等待中",
       "needsYou": "需要你",
       "compacting": "正在壓縮上下文",
-      "looping": "迴圈中——斷路器已啟動",
-      "runningFloor": "正在管理樓層",
-      "idle": "閒置"
+      "looping": "迴圈中，斷路器已就緒",
+      "runningFloor": "正在管理辦公室",
+      "idle": "閒置",
+      "live": {
+        "thinking": "正在思考",
+        "resumed": "已恢復",
+        "readingInbox": "正在讀收件匣",
+        "readingMessage": "正在讀新訊息",
+        "startingUp": "正在啟動",
+        "reconnecting": "正在重新連線",
+        "breakerCleared": "斷路器已解除",
+        "revivedAfterSleep": "休眠後已恢復",
+        "startedFresh": "已重新開始，未找到上次工作階段",
+        "worktreeGone": "工作樹已不存在，正在使用基礎儲存庫",
+        "spawned": "剛啟動",
+        "awaiting": "等待中",
+        "waitingOnYou": "在等你",
+        "waitingOnOrchestrator": "在等協調者",
+        "asking": "正在提問",
+        "using": "正在使用 {{tool}}",
+        "restarting": "正在重新啟動",
+        "continuing": "正在繼續",
+        "recreatingTerminal": "正在重建終端機",
+        "switchingTo": "正在切換到 {{engine}}"
+      }
     }
   },
+  "error": {
+    "tag": "錯誤",
+    "panel": "無法顯示 {{where}}。應用程式的其他部分不受影響。",
+    "app": "應用程式出錯，停止了繪製。你的 AI 代理人仍在執行。",
+    "tryAgain": "重試",
+    "reload": "重新載入視窗"
+  },
+  "recovery": {
+    "title": "視窗在 {{time}} 崩潰，已重新載入。",
+    "body": "你的 AI 代理人一直在執行。崩潰前的終端機輸出不會再顯示，新的輸出照常出現。",
+    "ok": "好"
+  },
+  "integrity": {
+    "paused": "已暫停",
+    "title": "無法讀取 {{file}}，對它的變更已暫停。",
+    "body": "應用程式沒有覆寫它，並保留了一份副本：{{copy}}。修好檔案或放回一份完好的副本後，變更會自動恢復。",
+    "defaults": "在此之前，應用程式使用預設設定執行。",
+    "show": "顯示檔案",
+    "file": {
+      "config": "你的設定檔案（config.json）",
+      "tasks": "任務看板（tasks.json）",
+      "registry": "AI 代理人清單（registry.json）"
+    },
+    "saveBlocked": "未儲存：無法讀取你的設定檔案，所以變更已暫停。"
+  },
+  "graphics": {
+    "auto": "自動",
+    "gpu": "GPU",
+    "cpu": "僅 CPU",
+    "drawing": "目前繪製方式：{{what}}",
+    "onCpu": "處理器（CPU）",
+    "onCpuFallback": "處理器（CPU），因為顯示卡無法使用",
+    "onGpuNoName": "顯示卡（GPU），暫時還不知道名稱",
+    "unknown": "未知，系統還沒有報告",
+    "restartNeeded": "已儲存。「{{mode}}」在重新啟動後生效。",
+    "restartNow": "立即重新啟動",
+    "confirm": "重新啟動會停止 {{count}} 個正在執行的 AI 代理人。現在重新啟動嗎？",
+    "restart": "重新啟動",
+    "later": "稍後",
+    "saveFailed": "無法儲存圖形設定，沒有任何改變。"
+  },
+  "codexLayer": {
+    "tag": "未啟動",
+    "title": "{{agent}} 尚未啟動。這個資料夾有自己的 Codex 設定。",
+    "body": "如果 {{agent}} 在這裡啟動，Codex 還會載入程式碼儲存庫裡的這些檔案，未經審查。它們可以啟動 MCP 伺服器、執行 hook、設定指令規則：",
+    "kind": {
+      "config": "設定，可以啟動 MCP 伺服器",
+      "hooks": "hook，在 AI 代理人的事件發生時執行的指令",
+      "rules": "指令規則，決定它可以執行什麼",
+      "agents": "AI 代理人檔案，可以啟動 MCP 伺服器並設定 AI 代理人的指示",
+      "hookFiles": "hook 檔案，可以執行指令"
+    },
+    "more": "還有 {{count}} 個檔案",
+    "more_one": "還有 1 個檔案",
+    "unreadable": "這裡沒有應用程式能讀取的設定檔案；為安全起見，仍把這個資料夾算在內",
+    "allowAll": "允許這些資料夾並啟動",
+    "trust": "只有在信任這個程式碼儲存庫時才允許。之後可以在設定的「AI 代理人與模型」中撤回。",
+    "allow": "允許此資料夾並啟動",
+    "notNow": "暫不"
+  },
+  "history": {
+    "prompt": "提示詞",
+    "reply": "回覆",
+    "start": "本次工作階段開始",
+    "compacted": "對話已壓縮",
+    "loadOlder": "載入更早的",
+    "jump": "跳到最新",
+    "footer": "唯讀，來自 {{engine}} 自己的工作階段記錄。",
+    "cut": "（已截斷）",
+    "empty": "還沒有內容。AI 代理人第一次回覆後，這裡會顯示歷史。",
+    "unsupported": "這個引擎沒有應用程式能讀取的記錄。終端機是唯一的歷史。",
+    "readFailed": "無法讀取歷史。應用程式稍後會再試一次。"
+  },
+  "where": {
+    "history": "歷史"
+  },
   "setupPanel": {
+    "versionNotice": "已安裝 {{installed}}。本應用程式基於 {{pinned}} 測試。未做任何變更。",
     "title": "先決條件",
     "checking": "正在檢查已安裝的工具…",
     "summary": "{{ready}} / {{total}} 就緒{{missing}}",
-    "summaryMissing": " · {{count}} 個建議項目未安裝",
     "recheck": "重新檢查",
     "checkingBtn": "檢查中…",
     "statusReady": "就緒",
@@ -800,7 +1208,6 @@
     "recommended": "建議",
     "docs": "文件 →",
     "askDesc": "{{godName}} 可以為你安裝 {{count}} 個尚未安裝的建議工具。這會填好他的分派框——在你按下分派前不會執行任何東西。",
-    "askDescPlural": "{{godName}} 可以為你安裝 {{count}} 個尚未安裝的建議工具。這會填好他的分派框——在你按下分派前不會執行任何東西。",
     "allReady": "所有建議項目都已安裝。上方的個別引擎都是選用的——只需設定你實際使用的。",
     "askMichael": "請 {{godName}} 幫你全部設定好",
     "sections": {
@@ -820,34 +1227,14 @@
   },
   "aiEngines": {
     "providers": "AI 引擎供應商（BYOK）",
-    "providersDesc": "OpenCode、Crush、pi.dev 和 Qwen 引擎的 API 金鑰與本機端點。金鑰以唯寫方式儲存（靜態加密；之後不再顯示），只在這些引擎啟動時使用。Claude Code 和 Codex 使用各自的登入。",
-    "apiKeys": "API 金鑰",
-    "setCheck": "已設定 ✓",
-    "keyStoredPlaceholder": "••••••••（已儲存——輸入以更換）",
+    "providersDesc": "OpenCode、Crush、pi.dev 和 Qwen 引擎的本機端點和預設模型。它們的 API 金鑰在「整合」的「金鑰與憑證」下。Claude Code 和 Codex 使用各自的登入。",
     "keyPlaceholder": "貼上 {{label}} 金鑰",
-    "saved": "已儲存",
-    "failed": "失敗",
-    "cleared": "已清除",
     "localEndpoint": "本機端點 · 預設模型（依引擎）",
     "defaultModelPlaceholder": "預設模型（供應商/模型）",
     "runningOpenModels": "要執行開源模型？逐步指南：",
     "runOnOpenModels": "在開源模型上執行 Munder Difflin",
     "setUpMacMini": "在 Mac Mini 上設定",
     "autoModeCaveat": "⚠ 在自動模式下，這些引擎會以完整的檔案系統與 shell 存取權限執行（沒有沙箱）——就像 Claude 的略過模式。到「一般」關閉自動模式，就能讓它們先詢問。以真實模型呼叫進行的端到端驗證，仍待你的金鑰或本機 LLM。"
-  },
-  "mcpDefaults": {
-    "title": "預設 MCP 伺服器",
-    "desc": "這些伺服器會併入每個新 AI 代理人的工作階段設定。安全伺服器預設開啟；寫入/金鑰類伺服器在你同意前保持關閉。變更在下次生成 AI 代理人時生效——正在執行的 AI 代理人不受影響。",
-    "toggleNote": "{{id}}：{{state}}",
-    "couldNotSave": "無法儲存",
-    "tiers": {
-      "safeReadonly": "安全且唯讀（預設開啟）",
-      "write": "寫入存取（需要同意）",
-      "secret": "需要金鑰 / API 金鑰（需要同意）",
-      "safeReadonlyNote": "這些伺服器只讀取資料，不需要金鑰，且限定在 AI 代理人工作區內。每個新 AI 代理人都會啟用它們。",
-      "writeNote": "這些伺服器可以修改工作區之外的狀態。預設關閉——審核後再啟用。",
-      "secretNote": "這些伺服器需要 API 金鑰或憑證。預設關閉——新增憑證並在同意後啟用。"
-    }
   },
   "devicePicker": {
     "microphone": "麥克風",
@@ -868,23 +1255,15 @@
     "helpWorking": "{{godName}} 正在執行工具——麥克風已靜音（點選停止）",
     "noKeyTitle": "Talk 需要你的 OpenAI API 金鑰（用於 Realtime 語音 API）。可在設定 → 語音中新增。",
     "whyDisabled": "為什麼 Talk 被停用？",
-    "popoverBody": "使用此功能需要一個 OpenAI API 金鑰。",
-    "setItUpNow": "現在就去設定"
+    "popoverBody": "通話需要 OpenAI API 金鑰。金鑰只儲存在這臺電腦上，OpenAI 依語音分鐘計費。",
+    "setItUpNow": "現在就去設定",
+    "createKeyAt": "在此建立金鑰："
   },
   "updatesSection": {
     "title": "更新",
     "onVersion": "你目前使用 v{{v}}",
     "checkingDetail": "正在檢查新版本…",
     "availableHeadline": "v{{version}} 已可用",
-    "availableDetail": "你目前使用 v{{v}}。立即下載——下載完成後會請你重新啟動。",
-    "downloadBtn": "下載 v{{version}}",
-    "downloadingHeadline": "正在下載 v{{version}}",
-    "downloadingDetail": "已完成 {{percent}}%。你可以繼續工作；重新啟動由你自己決定。",
-    "downloadedHeadline": "v{{version}} 已可安裝",
-    "downloadedDetail": "重新啟動 Munder Difflin 以完成更新（目前為 v{{v}}）。",
-    "restartBtn": "重新啟動以更新",
-    "manualDetail": "這個安裝版本無法自動更新——請從發布頁面下載。",
-    "manualDetailReason": "這個安裝版本無法自動更新（{{reason}}）——請從發布頁面下載。",
     "openReleaseBtn": "開啟發布頁面",
     "errorHeadline": "更新檢查失敗",
     "errorDetail": "{{message}}（你目前使用 v{{v}}）。",
@@ -893,11 +1272,7 @@
     "latestDetail": "你已經是最新版本——無需安裝。",
     "checkAgainBtn": "再次檢查",
     "idleDetail": "更新每 6 小時自動檢查一次。想確認的話可以現在檢查。",
-    "checkBtn": "檢查更新",
-    "downloadManually": "手動下載",
-    "downloadManuallyTitle": "下載 v{{version}} 安裝程式並自行取代應用程式",
-    "manualDownloadingTitle": "<b>v{{version}} 正在你的瀏覽器中下載。</b>",
-    "manualDownloadingBody": "下載完成後，結束本應用程式，將新版本覆蓋安裝到目前版本之上，重新開啟並選擇同一個專案。在 {{os}} 上："
+    "checkBtn": "檢查更新"
   },
   "triggersTab": {
     "intro": "所有無需你輸入就能啟動工作的方式。",
@@ -906,22 +1281,11 @@
     "context": "上下文",
     "contextBlurb": "在 AI 代理人的上下文逐漸填滿時壓縮或清空。",
     "webhooks": "Webhook",
-    "webhooksBlurb": "讓外部系統把工作送進來。",
-    "organisation": "組織",
-    "organisationBlurb": "讓隊友的 Munder Difflin 傳訊息給你的 Munder Difflin。"
-  },
-  "orgSection": {
-    "acceptMessages": "接受來自你組織的訊息",
-    "key": "組織金鑰",
-    "keyPlaceholder": "貼上你的金鑰",
-    "trust": "信任",
-    "settingsOnly": "目前僅限設定。組織訊息服務尚不存在，所以這裡的金鑰不會啟動任何連線，也不會傳送或接收任何內容。它會儲存好，等服務就緒後使用。",
-    "noKeyWarning": "此項已開啟但沒有設定金鑰，所以目前還沒有隊友能聯絡到你。",
-    "noKey": "無金鑰"
+    "webhooksBlurb": "讓外部系統把工作送進來。"
   },
   "contextSection": {
     "loading": "稍等…",
-    "intro": "規則只有在兩個條件都成立時才會觸發：距離上次執行已超過設定的間隔，「且」該 AI 代理人的上下文用量至少達到指示列的比例。指示列設為 0% 表示只看時間。",
+    "intro": "壓縮在 AI 代理人的回合結束、且上下文達到或超過門檻時執行。不報告 Token 數的引擎改由計時器壓縮。清空依自己的計時器執行，且上下文至少要達到它的門檻。門檻為 0% 意味著只看計時器。",
     "compact": "壓縮",
     "compactBlurb": "對上下文做摘要，讓對話繼續下去。",
     "clear": "清空",
@@ -936,10 +1300,22 @@
     "off": "關閉。",
     "hintEvery": "每 {{interval}} 一次，前提是上下文超過 {{pct}}%。",
     "noSoonerThan": "最短間隔",
-    "contextBar": "上下文指示列",
+    "contextBar": "上下文門檻",
     "contextBarHint": "視窗至少要滿到多少才能執行。0% = 只看時間。",
-    "bigWindows": "大型視窗的指示列",
-    "bigWindowsHint": "用於約 1M Token 的視窗；在這種視窗中，即使比例較小也已經是大量文字。"
+    "bigWindows": "大型視窗的門檻",
+    "bigWindowsHint": "用於約 1M Token 的視窗；在這種視窗中，即使比例較小也已經是大量文字。",
+    "hintCompact": "回合結束時達到 {{pct}}%（{{tokens}} Token）即壓縮，1M 視窗為 {{large}}%（{{largeTokens}} Token）。",
+    "fallbackEvery": "備用計時器，用於不報告 Token 數的引擎",
+    "fallbackEveryHint": "報告 Token 數的 AI 代理人不等這個計時器。它在回合結束且達到門檻時壓縮。",
+    "tokensSmall": "在 200k 視窗上是 {{tokens}} Token。",
+    "tokensLarge": "在 1M 視窗上是 {{tokens}} Token。",
+    "compactBarHint": "回合結束時達到這個量就壓縮。",
+    "zeroBarHint": "0% = 只看計時器。",
+    "switchClear": "切換工作時清空",
+    "switchClearBlurb": "當 AI 代理人被喚醒去做另一項工作，且它的工作階段已足夠久時，它先寫好交接檔案，然後上下文被清空，再拿到新工作。",
+    "switchClearHint": "切換工作時，且同一工作階段已持續 {{interval}}。",
+    "switchClearAfter": "僅在工作階段持續超過",
+    "switchClearHeld": "AI 代理人有子 AI 代理人在執行時，清空會等待。沒有清空指令的引擎不受影響。"
   },
   "schedulesSection": {
     "justNow": "剛剛",
@@ -1041,14 +1417,10 @@
     "task": "任務 {{id}}",
     "sectionWebhooks": "Webhook",
     "sectionWebhooksBlurb": "所有送到你的 webhook 端點的內容，以及 {{godName}} 的回覆。",
-    "sectionOrg": "組織",
-    "sectionOrgBlurb": "來自隊友分身節點的訊息，以及 {{godName}} 回覆的內容。",
     "heldOne": "有 1 則訊息暫緩中，等待你核准或拒絕。",
     "heldMany": "有 {{count}} 則訊息暫緩中，等待你核准或拒絕。",
     "decideFailed": "沒有送出。請再試一次。",
     "clearFailed": "無法清除。請再試一次。",
-    "emptyOrgTitle": "這裡還沒有內容，一切正常。",
-    "emptyOrgBody": "隊友訊息功能尚未建置。你現在就能設定組織金鑰並選擇模式，但在傳輸服務推出之前，任何人的分身節點都無法聯絡到你的。推出之後，他們的訊息和我們的回覆都會顯示在這裡。",
     "emptyWebhookTitle": "還沒有 webhook 訊息。",
     "emptyWebhookBody": "當有內容送到你的任一端點時，會顯示在這裡，下方是 {{godName}} 的回覆。目前還沒有任何呼叫。在「Webhook」下新增端點，就能取得可以提供給他人的 URL。",
     "clearConfirm": "刪除全部 {{count}} 則訊息？紀錄將永久消失。",
@@ -1059,17 +1431,13 @@
   },
   "fileTree": {
     "loading": "載入中…",
-    "copyPathTitle": "複製路徑到剪貼簿"
-  },
-  "fileEditor": {
-    "file": "檔案",
-    "edit": "編輯",
-    "preview": "預覽",
-    "editTitle": "編輯原始碼",
-    "previewTitle": "渲染預覽（以已儲存的檔案為準）",
-    "openInIde": "在 IDE 中開啟",
-    "openInIdeTitle": "在完整 IDE 中開啟此檔案",
-    "closeTitle": "關閉（Esc）"
+    "copyPathTitle": "複製路徑到剪貼簿",
+    "namePlaceholder": "名稱",
+    "newFile": "新增檔案",
+    "newFolder": "新增資料夾",
+    "rename": "重新命名",
+    "copyPath": "複製路徑",
+    "moveToBin": "移到廢紙簍"
   },
   "gitTab": {
     "notARepo": "不是 git 儲存庫。",
@@ -1100,7 +1468,6 @@
     "exitFullscreen": "離開聚焦模式（Esc）",
     "addAgent": "新增 AI 代理人",
     "respawnTitle": "從上次工作階段重新生成：{{names}}——ID 相同，記憶和收件匣會自動重新接上",
-    "contextTitle": "上下文：{{used}} / {{limit}} Token（{{pct}}%）",
     "modelTitle": "模型：{{model}}",
     "cliDefault": "CLI 預設",
     "closeAgent": "關閉 {{name}}——結束處理程序並封存 AI 代理人",
@@ -1174,13 +1541,13 @@
   "workersTab": {
     "stopping": "停止中",
     "working": "工作中",
-    "liveWorkers": "執行中的工作者",
-    "liveIntro": "{{godName}} 為處理 Slack 訊息而啟動的隔離工作者——它們會執行到完成、在討論串中回覆，然後自動關閉。",
-    "noneRunning": "目前沒有執行中的工作者。",
+    "liveWorkers": "執行中的臨時工",
+    "liveIntro": "{{godName}} 為每項工作啟動的臨時工。它們跑完任務、在討論串中回覆，然後自動結束。",
+    "noneRunning": "目前沒有執行中的臨時工。",
     "repliesToSlack": "回覆到 Slack 討論串",
     "stoppingEllipsis": "停止中…",
     "stop": "停止",
-    "workerIdTitle": "工作者 / PTY ID",
+    "workerIdTitle": "臨時工 / PTY id",
     "baseBranchTitle": "建立工作樹時所根據的基礎分支",
     "base": "基礎：{{branch}}",
     "upSinceTitle": "自生成以來的時間",
@@ -1192,7 +1559,7 @@
     "tokens": "Token {{value}}",
     "uncapped": "無上限",
     "preserved": "保留的工作樹（{{count}}）",
-    "preservedIntro": "工作樹中仍有未整合工作的已完成工作者——會保留（絕不自動丟棄），並在工作合併到其基礎分支後自動回收。",
+    "preservedIntro": "已結束但工作樹中仍有未合併工作的臨時工。會被保留，不會自動丟棄，工作合併基礎分支後自動回收。",
     "keptAgo": "{{age}} 前保留"
   },
   "memoryGraph": {
@@ -1213,68 +1580,210 @@
     "legendInformTopic": "告知/主題"
   },
   "integrations": {
-    "errLabel": "請為它命名。",
-    "errId": "無法從該名稱產生有效的 ID。",
-    "errBaseUrl": "必須填寫基礎 URL。",
-    "errBaseUrlFormat": "基礎 URL 必須是 https://（或用於本機目標的 http://127.0.0.1 / localhost）。",
-    "errHeader": "請求標頭名稱必須是 1–64 個字元，由 A–Z、0–9 或「-」組成。",
-    "couldNotSave": "無法儲存。",
-    "added": "整合已新增。",
-    "updated": "整合已更新。",
-    "removed": "已移除「{{label}}」。",
-    "couldNotRemove": "無法移除。",
-    "testFailed": "無法執行測試。",
-    "connected": "✓ 已連線",
-    "connectedWith": "✓ 已連線（{{status}}）",
-    "failed": "✕",
-    "backToList": "← 整合",
-    "pickTemplate": "選擇範本",
-    "galleryDesc": "選擇你要連線的服務。範本會設定預設值。未列出的服務請選「自訂 REST」。",
-    "anyHttpApi": "任意 HTTP API",
-    "continue": "繼續",
-    "backToTemplates": "← 範本",
-    "needsSecret": "需要 {{label}}",
-    "publicApi": "公開 API——無需金鑰",
-    "label": "名稱",
-    "labelHint": "顯示在你的清單中。ID",
-    "fixed": "固定",
-    "baseUrl": "基礎 URL",
-    "baseUrlHint": "由 {{label}} 範本設定。",
-    "preset": "預設組合",
-    "authentication": "驗證",
-    "setByTemplate": "由範本設定",
-    "headerName": "請求標頭名稱",
-    "headerHint": "金鑰以 {{header}}: <secret> 的形式傳送。",
-    "saved": "已儲存",
-    "replaceKey": "更換金鑰",
-    "pasteYour": "貼上你的",
-    "writeOnly": "唯寫",
-    "secretDesc": "在主處理程序中加密儲存，之後不再顯示。要變更金鑰，請貼上新的金鑰——舊金鑰無法讀回。",
-    "blankKeepsKey": "留空以保留已儲存的金鑰。",
-    "availability": "可用性",
-    "enabled": "已啟用",
-    "disabled": "已停用",
-    "availableToAll": "✓ 所有工作者皆可使用",
-    "notAvailableYet": "工作者尚無法使用",
-    "addSecretToEnable": "新增金鑰並啟用後即可使用。",
-    "readyOnceSaved": "儲存後即就緒。",
-    "disabledNoUse": "已停用——沒有工作者能使用它。",
-    "v1Note": "v1 會把每個已啟用的整合授予所有工作者。依工作者設定使用範圍的功能即將推出。",
-    "testConnection": "測試連線",
-    "testing": "測試中…",
-    "testAfterSave": "先儲存整合，再測試即時連線。",
-    "testLiveDesc": "使用已儲存的金鑰對基礎 URL 執行一次即時唯讀探測。",
-    "saveIntegration": "儲存整合",
-    "saveChanges": "儲存變更",
-    "title": "整合",
-    "titleDesc": "連線外部工具，讓你的 AI 代理人能讀取它們並對它們執行操作。金鑰在主處理程序中加密儲存，之後不再顯示。",
-    "addIntegration": "新增整合",
-    "empty": "還沒有整合。連線 GitHub 或自訂 REST API，讓你的 AI 代理人可以使用。",
-    "addFirst": "新增你的第一個整合",
-    "count": "{{count}} 個整合 · {{usable}} 個可供工作者使用",
-    "needsSecretShort": "需要金鑰",
-    "test": "測試",
-    "edit": "編輯"
+    "where": {
+      "slack": {
+        "postLine": "AI 代理人可以在 Slack 主動發起訊息，而不只是回覆。"
+      }
+    },
+    "hub": {
+      "head": {
+        "title": "整合"
+      },
+      "tab": {
+        "apps": "應用程式和服務",
+        "providers": "AI 供應商",
+        "keys": "金鑰和機密"
+      },
+      "kind": {
+        "in": "傳入的事件",
+        "inBody": "外部發生了事情，你的辦公室就會醒來處理。",
+        "use": "AI 代理人可以使用",
+        "useBody": "你的 AI 代理人透過登入或 API Token 在其他服務中操作。",
+        "count": "已開啟 {{n}} 個",
+        "all": "顯示全部"
+      },
+      "name": {
+        "slackApp": "Slack App",
+        "githubGit": "用於 git 和 gh 的 GitHub"
+      },
+      "list": {
+        "search": "搜尋應用程式和服務",
+        "connected": "已連線",
+        "webhooks": "Webhook",
+        "others": "所有應用程式和服務",
+        "custom": "自訂 API",
+        "preset": "預設",
+        "addHook": "新增 webhook",
+        "none": "沒有符合的項目。"
+      },
+      "line": {
+        "in": "帶來工作",
+        "use": "AI 代理人可以使用",
+        "both": "帶來工作，AI 代理人也可以使用",
+        "answered": "由 {{name}} 回答",
+        "repos": "{{n}} 個儲存庫",
+        "allRepos": "所有儲存庫",
+        "keyFailed": "金鑰驗證失敗"
+      },
+      "chip": {
+        "connected": "已連線"
+      },
+      "sec": {
+        "in": "傳入的事件",
+        "use": "AI 代理人可以做什麼",
+        "activity": "活動"
+      },
+      "in": {
+        "off": "關閉。連線不會開啟這些事件。",
+        "switch": "發生這些事件時喚醒我的辦公室",
+        "pr": "Pull request",
+        "issues": "Issue",
+        "checks": "失敗的檢查",
+        "push": "推送",
+        "who": "誰來回答",
+        "address": "貼上到 {{app}} 的網址",
+        "secret": "金鑰",
+        "copy": "複製",
+        "noEvents": "{{app}} 本身不會帶來事件。要從 {{app}} 喚醒你的辦公室，請新增 webhook。"
+      },
+      "use": {
+        "gh": {
+          "tokenOnly": "貼上一個 Token。git、gh 和 GitHub API 都使用它。",
+          "tokened": "已用 Token 連線。git、gh 和 GitHub API 都使用它。Token 決定它們能存取哪些儲存庫。",
+          "restart": "正在執行的 AI 代理人重新啟動後才會拿到新 Token。"
+        },
+        "token": "API Token",
+        "tokenSave": "AI 代理人永遠看不到 Token。",
+        "customHelp": "將基礎 URL 指向任意 REST API，然後選擇它接收金鑰的方式：Bearer Token、你命名的標頭、帶字首的標頭、查詢參數、HTTP 基本驗證，或不需要。",
+        "moreFields": "更多設定",
+        "test": "測試連線",
+        "disconnect": "中斷連線",
+        "connect": "連線",
+        "noAct": "Webhook 只帶來事件。這裡沒有任何內容能讓 AI 代理人執行操作。",
+        "keyFailed": "此金鑰未通過測試。通過之前，AI 代理人無法使用 {{app}}。"
+      },
+      "sl": {
+        "what": "大家在 Slack 裡給你的辦公室寫訊息，由你選擇的 AI 代理人在討論串中回答。",
+        "line": "Slack 線路",
+        "useLine": "AI 代理人只透過這條線路回答。Slack 不會作為服務提供給 AI 代理人去其他地方讀取或發文。",
+        "post": "自動在 Slack 發文",
+        "setup": "設定：Token 和頻道"
+      },
+      "prov": {
+        "line": "AI 代理人引擎執行所用的金鑰。"
+      },
+      "keys": {
+        "line": "AI 代理人依名稱使用的你自己的機密。"
+      },
+      "key": {
+        "saved": "已儲存",
+        "unset": "未設定"
+      }
+    },
+    "screen": {
+      "title": "整合",
+      "orchestrator": "協調者",
+      "listLabel": "整合清單",
+      "keysPage": {
+        "title": "金鑰與憑證",
+        "line": "供應商金鑰 {{set}}/{{total}} · 自訂 {{custom}} 個",
+        "chip": "已儲存 {{n}} 個",
+        "back": "全部金鑰與憑證",
+        "noSecrets": "還沒有你自己的金鑰。"
+      },
+      "addSecret": "新增金鑰",
+      "newSecret": "新金鑰",
+      "pickOne": "在左側選擇一個整合。",
+      "foot": {
+        "idle": "不會自動儲存。按「儲存」套用變更。"
+      },
+      "chip": {
+        "slack": {
+          "off": "關閉",
+          "needs": "需要設定",
+          "events": "缺少事件",
+          "live": "即時",
+          "down": "未連線",
+          "starting": "啟動中",
+          "moved": "在辦公室"
+        },
+        "hook": {
+          "unsaved": "未儲存",
+          "off": "關閉",
+          "creating": "啟動中",
+          "ready": "開啟",
+          "failed": "需要檢視",
+          "removing": "儲存時刪除"
+        },
+        "conn": {
+          "off": "關閉",
+          "needsKey": "需要金鑰",
+          "failed": "需要檢視",
+          "passed": "開啟",
+          "ready": "開啟",
+          "removing": "儲存時刪除",
+          "unsaved": "未儲存"
+        },
+        "key": {
+          "pending": "未儲存"
+        }
+      },
+      "line": {
+        "starting": "啟動中",
+        "offAnsweredBy": "已關閉。開啟後由 {{name}} 回覆",
+        "addedOnSave": "按「儲存」後新增",
+        "removedOnSave": "按「儲存」後刪除",
+        "hookFailed": "它的網址沒能建立",
+        "hookCreating": "正在建立網址",
+        "customSecret": "每個 AI 代理人都能讀取",
+        "conn": {
+          "off": "已關閉。AI 代理人無法呼叫",
+          "needsKey": "需要它的金鑰",
+          "failed": "金鑰未通過測試",
+          "passed": "已連線，測試通過",
+          "ready": "已連線"
+        }
+      },
+      "slack": {
+        "needsEvents": "缺少事件：{{events}}",
+        "checkAgain": "再檢查一次",
+        "workspace": "{{team}} 工作區"
+      },
+      "who": {
+        "webhookLead": "誰來接這個 Webhook 的呼叫。沒有指定 AI 代理人的 Webhook 交給下面的預設 AI 代理人。該 AI 代理人停止時由 {{godName}} 回覆。",
+        "thisWebhook": "這個 Webhook",
+        "defaultShared": "所有未指定 AI 代理人的 Webhook 共用。"
+      },
+      "key": {
+        "value": "金鑰",
+        "replace": "新值",
+        "stored": "已儲存。輸入新的即可替換"
+      },
+      "conn": {
+        "removeOnSave": "按「儲存」後會刪除這個連線。"
+      },
+      "activity": {
+        "reading": "讀取中",
+        "empty": "暫無內容",
+        "emptyLine": "經由這個整合進出的內容會顯示在這裡，最新的在前。",
+        "unsaved": "儲存之後才會開始記錄。",
+        "fallback": {
+          "in": "收到了一則內容",
+          "out": "發出了一則內容",
+          "error": "有一項失敗了",
+          "info": "發生了一件事"
+        }
+      },
+      "addSheet": {
+        "customApi": "自訂 API 整合",
+        "webhook": {
+          "github": "Issue、Pull Request 和推送",
+          "linear": "來自 Linear 的 Issue 和留言",
+          "telegram": "發給你的 Telegram 機器人的訊息",
+          "custom": "任何能呼叫網址的服務"
+        }
+      }
+    }
   },
   "kanban": {
     "count": "{{count}} 項任務",
@@ -1305,6 +1814,9 @@
     "heldDraft": "暫緩——{{name}} 的終端機提示列有尚未送出的文字",
     "heldPicker": "暫緩——{{name}} 的終端機中開著斜線指令選擇器",
     "heldExited": "暫緩——{{name}} 的終端機已結束",
+    "heldPrompt": "暫掛：{{name}} 正在終端機裡請求權限或回答。請在那裡回答，在此之前不會輸入任何內容",
+    "wakeUnconfirmed": "未確認：已向 {{name}} 輸入郵件，但沒有跡象表明它已接收。不會自動重新輸入",
+    "wakeUnconfirmedTitle": "再向 {{name}} 輸入一次這些郵件。請先檢視它的終端機：可能已經送達。",
     "sendingOneByOne": "正在逐則傳送給 {{name}}…",
     "pausedTitle": "整個樓層的自動投遞已暫停。可在指令中心繼續投遞，或對下方的訊息使用「立即傳送」。",
     "dropToAttach": "拖放以附加",
@@ -1317,6 +1829,7 @@
     "messagePlaceholder": "傳訊息給 {{name}}",
     "busyPlaceholder": "{{name}} 正在忙——先排隊傳訊息",
     "files": "檔案",
+    "folder": "資料夾",
     "collapse": "收起此訊息",
     "showFull": "顯示完整訊息",
     "seeLess": "收起",
@@ -1324,8 +1837,18 @@
     "sendNowTitle": "即使自動投遞已暫停，仍投遞此訊息。它會移到佇列最前面，終端機一有空就輸入。",
     "sendNow": "立即傳送",
     "sendingWhenFree": "有空時傳送…",
+    "boxGoneChip": "可能已傳送",
+    "boxGoneTitle": "{{name}} 在應用程式確認這則訊息是否送達之前重新啟動了。請檢視對話，然後重新輸入或移除它。在此之前，後面的訊息都不會傳送。",
+    "movedChip": "未確認",
+    "movedTitle": "已在 {{name}} 的終端機中輸入並按下 Enter，但 {{name}} 沒有把它當作提示接收：Enter 可能回答了螢幕上的其他內容。它不會自動重新輸入。請檢視終端機，然後重新輸入或移除它。在此之前，後面的訊息都不會傳送。",
+    "stuckChip": "卡在輸入框中",
+    "stuckTitle": "已輸入到 {{name}} 的終端機但未傳送。它發出之前，後面的訊息都不會傳送。",
+    "pressReturn": "按 Enter",
+    "pressReturnTitle": "再按一次提交鍵。輸入框中的文字將照原樣傳送。",
+    "typeAgain": "重新輸入",
+    "typeAgainTitle": "重新輸入整則訊息。請先清空輸入框，否則兩段文字會連在一起。",
     "removeFromQueue": "從佇列移除",
-    "ffNoKeyTitle": "聽寫需要一個免費的 Groq API 金鑰。點選資訊圖示檢視步驟。",
+    "ffNoKeyTitle": "聽寫需要一個免費的 Groq API 金鑰。點選即可新增。",
     "ffStopTranscribe": "停止並轉錄",
     "ffTitle": "自由輸入——聽寫到佇列。點選，或按住 Option（⌥）。",
     "stop": "停止",
@@ -1333,7 +1856,7 @@
     "ffSetupTitle": "設定聽寫",
     "ffSetupIntro": "說話代替打字。Groq 負責轉錄，其免費額度足以支應——不需信用卡，完全免費。",
     "ffCreateKey": "在以下網址免費建立金鑰",
-    "ffPasteKey": "貼到「設定 → 語音 → Groq API 金鑰」",
+    "ffPasteKey": "貼上到下面並儲存",
     "ffClickOrHold": "點選「語音」，或按住右側 Option 鍵說話",
     "ffHoldHint": "單獨按住一會兒即可開始；放開後會轉錄到編輯器，傳送前可以修改。左右兩個 Option 鍵都可以用，Option + 其他按鍵的組合仍會原封不動地傳到終端機。"
   },
@@ -1344,18 +1867,12 @@
     "noAgent": "無 AI 代理人",
     "noWorkspace": "無工作區",
     "closeIde": "關閉 IDE（Esc）",
-    "expandGit": "展開 git 面板",
-    "collapseGit": "摺疊 git 面板——為檔案樹騰出空間",
-    "rail": {
-      "changes": "變更",
-      "history": "歷史",
-      "compare": "比較"
-    },
     "refresh": "重新整理",
-    "files": "檔案",
     "rev": "版本",
     "img": "圖片",
     "diff": "差異",
+    "discardChanges": "放棄變更",
+    "tabDirtyClose": "關閉。會先詢問你儲存還是放棄變更。",
     "closeTab": "關閉分頁",
     "loadingDiff": "正在載入差異…",
     "binaryDiff": "二進位檔案——無文字差異",
@@ -1369,9 +1886,27 @@
     "preview": "預覽",
     "viewImage": "檢視圖片",
     "copyPath": "複製路徑",
-    "saveTitle": "儲存（Cmd/Ctrl+S）",
     "saved": "已儲存",
-    "save": "儲存"
+    "switchWorkspace": "切換",
+    "switchBlocked": "切換工作區前請先儲存變更",
+    "unsaved": {
+      "title": "未儲存的變更",
+      "tabBody": "如果不儲存就關閉，你對 {{file}} 的變更將會遺失。",
+      "ideBody": "這些檔案有尚未儲存的變更。如果不儲存就關閉 IDE，這些變更將會遺失。",
+      "cancel": "取消",
+      "closeWithout": "不儲存並關閉",
+      "saveAndClose": "儲存並關閉",
+      "discardAll": "全部放棄並關閉",
+      "saveAll": "全部儲存並關閉",
+      "saving": "正在儲存…",
+      "failed": "無法儲存 {{files}}，沒有關閉任何內容。"
+    },
+    "openBlocked": "{{file}} 在 {{name}} 的工作區。請先在這裡儲存或放棄變更，然後再開啟。",
+    "here": "目前",
+    "emptyWhy": "IDE 會開啟某個 AI 代理人的工作目錄，而此視窗中還沒有 AI 代理人擁有工作目錄。",
+    "emptyStep1": "在側欄新增一個 AI 代理人。",
+    "emptyStep2": "新增時為它指定一個工作目錄。",
+    "emptyStep3": "從該 AI 代理人再次開啟 IDE。"
   },
   "gitPanes": {
     "jumpConfirm": "把儲存庫跳至 {{sha}}（「{{subject}}」）？\n\n這會進入分離 HEAD 狀態。若工作目錄有未提交的變更，或有 AI 代理人正在執行，將自動阻止。",
@@ -1405,5 +1940,502 @@
     "viewSource": "檢視原始碼",
     "loading": "正在載入圖片…",
     "decodeFailed": "無法解碼此圖片——檔案可能已損壞或副檔名有誤"
+  },
+  "pro": {
+    "agentSleep": {
+      "waking": "正在喚醒",
+      "wakingDetail": "正在恢復此 AI 代理人的工作階段。準備就緒前，你的訊息會保留在佇列中。",
+      "detail": "此 AI 代理人正在休眠以節省資源。傳送訊息即可喚醒它，並繼續同一段對話。",
+      "wake": "喚醒",
+      "wakeTitle": "喚醒 {{name}}",
+      "wakeFailed": "無法喚醒 {{name}}。"
+    },
+    "agent": {
+      "restartToApply": "重新啟動後依這一行啟動。"
+    },
+    "sheet": {
+      "command": "指令",
+      "useResolved": "使用自動產生的指令",
+      "commandOtherEngine": "這一行會啟動 {{engine}}，但目前供應商是 {{picked}}。請把供應商選為 {{engine}}，或修改這一行。"
+    },
+    "autos": {
+      "hookAnsweredByHint": "這個來源的請求交給哪個 AI 代理人。保持為 {{godName}} 時，由「整合」裡設定的 webhook 預設 AI 代理人決定。所選 AI 代理人停止時由 {{godName}} 回覆。"
+    },
+    "status": {
+      "sleeping": "休眠中"
+    },
+    "dialog": {
+      "cancel": "取消"
+    },
+    "conn": {
+      "label": "名稱",
+      "id": "識別碼",
+      "baseUrl": "基礎 URL",
+      "baseUrlFixed": "由 {{kind}} 預設決定。",
+      "auth": "身分驗證",
+      "authKind": {
+        "none": "無（公開 API）",
+        "bearer": "Bearer Token",
+        "header": "自訂標頭",
+        "github": "GitHub Token",
+        "prefix": "帶字首的標頭",
+        "query": "查詢參數",
+        "basic": "HTTP 基本驗證"
+      },
+      "header": "標頭名稱",
+      "secretKeep": "已儲存金鑰。留空以保留，或貼上新金鑰以替換。",
+      "enabled": "已啟用",
+      "ok": "已連線",
+      "okStatus": "已連線（{{status}}）",
+      "fail": "失敗：{{error}}",
+      "testFailed": "測試未能執行。",
+      "remove": "移除",
+      "removeFailed": "無法移除該連線。",
+      "saveFailed": "無法儲存該連線。",
+      "errLabel": "請為連線命名。",
+      "errUrl": "基礎 URL 必須以 https://（或 http://localhost）開頭。",
+      "errHeader": "標頭名稱只能包含字母、數字和連字元。",
+      "kind": {
+        "github": "GitHub 介面",
+        "git": "Git repositories"
+      },
+      "authWhy": {
+        "none": "不向請求新增任何內容。適用於無需金鑰的介面。",
+        "bearer": "傳送 Authorization: Bearer 和你的金鑰。最常見的方式，Stripe、Notion 和 Sentry 都用它。",
+        "header": "把金鑰單獨放在你指定的標頭裡。當文件只給出標頭名，金鑰前沒有任何單字時選它。 如果文件給的是 ID 加金鑰，請改選 HTTP basic。",
+        "prefix": "在你指定的標頭裡先寫一個單字，再寫金鑰。當文件在金鑰前顯示 Token、ApiKey 或 SSWS 時選它。",
+        "query": "把金鑰作為查詢參數附在每個 URL 上。天氣、新聞和地圖類介面常用這種方式。",
+        "basic": "以 HTTP 基本驗證傳送使用者名稱和金鑰。Atlassian、Twilio 和 Mailgun 接受電子郵件加 Token 的組合。",
+        "github": "傳送 Authorization: Bearer 和你的 Token，並附上 GitHub REST 介面需要的兩個標頭。"
+      },
+      "headerHint": "供應商文件裡的標頭名。只能包含字母、數字和連字元。",
+      "prefix": "字首單字",
+      "prefixHint": "一個單字。金鑰前的空格會自動補上。",
+      "param": "查詢參數",
+      "paramHint": "供應商文件裡的參數名。",
+      "user": "使用者",
+      "userHint": "組合的左半部分，通常是電子郵件。金鑰是右半部分，儲存在加密儲存中。",
+      "probe": "測試路徑",
+      "probeHint": "可選。測試時呼叫的基礎 URL 下的唯讀路徑，例如 plans?count=1。留空則測試基礎 URL 本身。",
+      "keyRejected": "金鑰被拒絕（{{status}}）。請檢查金鑰；若為 HTTP basic，也請檢查使用者。",
+      "pathNotFound": "已連到服務，但找不到測試路徑（404）。請設定測試路徑以檢查金鑰。",
+      "sends": "實際傳送的內容",
+      "sendsNothing": "不向請求新增任何內容。",
+      "sendsMasked": "星號所在的位置就是金鑰的位置。金鑰本身不會再次顯示。",
+      "docs": "{{kind}} 文件",
+      "errPrefix": "字首必須是一個由字母、數字或連字元組成的單字。",
+      "errParam": "參數名只能包含字母、數字、點、底線和連字元。",
+      "errUser": "請填寫組合中的使用者名稱，且不能包含冒號。",
+      "errDuplicate": "已有連線使用該識別碼。請修改名稱。"
+    },
+    "limits": {
+      "title": "用量限額",
+      "chipNone": "限額",
+      "checking": "正在檢查",
+      "checkNow": "立即檢查",
+      "checkNowTip": "立即檢查。每個引擎最多每 5 分鐘詢問一次。",
+      "upToAge": "資料最早來自 {{time}} 前",
+      "ageTag": "{{time}} 前",
+      "asOf": "{{time}} 前更新",
+      "minutes": "{{m}} 分鐘",
+      "hours": "{{h}} 小時 {{m}} 分鐘",
+      "h5": "5 小時",
+      "weekly": "每週",
+      "weeklyLimit": "每週限額",
+      "h5Limit": "5 小時限額",
+      "weeklyCredits": "每週額度",
+      "used": "已用 {{pct}}%",
+      "left": "剩餘 {{pct}}%",
+      "noReading": "暫無讀數",
+      "notInstalled": "未安裝",
+      "chipUnit": "頂欄始終顯示已用百分比。",
+      "resetShortOn": "{{day}} {{time}}",
+      "resetsInMin": "{{m}} 分鐘後重設",
+      "resetsIn": "{{h}} 小時 {{m}} 分鐘後重設",
+      "resetsOn": "{{day}} {{time}} 重設",
+      "resetPassed": "已於 {{time}} 重設。之後還沒有新資料。",
+      "near": "接近限額",
+      "reached": "已達限額",
+      "notUpdated": "未更新",
+      "notAvailable": "不可用",
+      "whyOpencode": "OpenCode 不向應用程式提供可讀取的限額。如果你使用 OpenCode Go，請在其控制台檢視。",
+      "notInstalledHere": "這臺電腦上沒有安裝 {{engine}}。",
+      "apiKeyNoLimits": "{{engine}} 使用 API 金鑰登入，API 金鑰沒有方案限額。",
+      "planApiKey": "API 金鑰",
+      "grokNone": "應用程式啟動後 Grok Build 還沒有執行。下次執行後會顯示資料。",
+      "grokNotRead": "應用程式無法從這個版本的 Grok Build 讀取限額。",
+      "upToAgeMost": "大部分資料最早來自 {{time}} 前",
+      "planNoteHere": "方案來自這臺電腦的登入。以其他方式登入的 AI 代理人可能不同。",
+      "lastSeenRunning": "最後讀取於 {{engine}} 執行時",
+      "creditNote": "每週額度用量",
+      "loading": "正在讀取用量限額，可能需要一點時間。",
+      "readFailed": "剛才無法讀取用量限額。",
+      "noLimits": "{{engine}} 沒有報告任何限額。",
+      "claudeNone": "應用程式啟動後還沒有 Claude Code AI 代理人回覆。下一次回覆後，用量條會顯示資料。",
+      "failedOld": "剛才無法讀取 {{engine}}。這些資料是 {{time}} 前的。",
+      "failedNone": "剛才無法讀取 {{engine}}。",
+      "failedRetry": "點選「立即檢查」可重試，最多每 5 分鐘一次。",
+      "notReadYet": "還沒有 {{engine}} 的資料。",
+      "foot": "Claude Code 和 Codex 的資料在其 AI 代理人工作時傳來，Grok Build 的資料在其執行時傳來。開啟此面板時讀取 Antigravity，最多每 5 分鐘一次。",
+      "fromAgent": "來自 {{agent}} 的上一次回覆",
+      "askedEngine": "由應用程式詢問 {{engine}}",
+      "chipAria": "用量限額。最接近限額：{{engine}}，{{window}} 已用 {{pct}}%。{{reset}}",
+      "cellTip": "{{engine}}，{{window}}：已用 {{pct}}%。{{reset}}",
+      "showInBar": "在頂欄顯示",
+      "show": "顯示",
+      "engines": "引擎",
+      "lookAll": "全部引擎",
+      "lookClosest": "僅最接近的",
+      "lookIcon": "僅圖示"
+    },
+    "chrome": {
+      "windowMenu": "選單"
+    },
+    "boot": {
+      "restoring": "正在恢復你的 AI 代理人…（還剩 {{count}} 個）",
+      "note": "正在從上次中斷處重新連線每個工作階段。",
+      "skip": "不再等待，直接進入"
+    },
+    "saveBar": {
+      "unsaved": "有未儲存的變更",
+      "save": "儲存",
+      "saving": "正在儲存…",
+      "discard": "放棄變更",
+      "saved": "設定已儲存。",
+      "leaveTitle": "儲存變更嗎？",
+      "leaveBody": "此頁面上有些設定尚未儲存。請儲存，或放棄變更後繼續。"
+    }
+  },
+  "avatars": {
+    "picker": {
+      "cast": "Munder Difflin",
+      "yours": "你的頭像",
+      "presets": "預設",
+      "showPresets": "顯示 {{count}} 個預設",
+      "hidePresets": "隱藏預設",
+      "preset": "預設 {{n}}"
+    }
+  },
+  "ide": {
+    "search": {
+      "placeholder": "在此工作區中搜尋",
+      "caseTitle": "區分大小寫",
+      "wordTitle": "全字相符",
+      "regexTitle": "正規表示式",
+      "none": "沒有符合的項目",
+      "count": "{{hits}} 處，{{files}} 個檔案",
+      "truncated": "僅顯示前面的結果。請縮小搜尋範圍以檢視其餘部分。",
+      "working": "正在搜尋…",
+      "hint": "輸入即可搜尋工作區中的每個檔案。檔名和內容都會給出結果。",
+      "nameCount": "{{n}} 個檔名",
+      "sectionNames": "檔名",
+      "sectionText": "檔案內容"
+    },
+    "status": {
+      "pathLabel": "檔案路徑",
+      "position": "第 {{line}} 行，第 {{col}} 欄",
+      "selected": "已選 {{n}} 個字元",
+      "lines": "{{n}} 行",
+      "bytesTitle": "此緩衝區以 UTF-8 計算的大小",
+      "eolNone": "單行",
+      "eolMixed": "換行字元混用",
+      "eolMixedTitle": "此檔案同時使用 LF 和 CRLF 換行字元。",
+      "plainText": "純文字",
+      "unsaved": "未儲存",
+      "saving": "儲存中",
+      "saveFailed": "儲存失敗",
+      "onDisk": "沒有未儲存的變更",
+      "loadingFile": "正在開啟檔案…",
+      "save": "儲存",
+      "branch": "分支"
+    },
+    "keys": {
+      "title": "鍵盤快捷鍵",
+      "save": "儲存目前檔案",
+      "newFile": "新增檔案",
+      "findFile": "依名稱尋找檔案",
+      "findText": "在檔案中尋找文字",
+      "closeIde": "關閉 IDE",
+      "findInFile": "在目前檔案中尋找",
+      "replace": "在目前檔案中替換",
+      "palette": "指令面板",
+      "goToLine": "跳至指定行",
+      "goToSymbol": "跳至符號"
+    },
+    "create": {
+      "title": "新增檔案",
+      "inFolder": "位於 {{folder}}",
+      "theWorkspace": "工作區根目錄",
+      "placeholder": "name.ts，或 docs/name.md",
+      "willCreate": "將建立 {{path}}",
+      "willMakeFolders": "會先建立這些資料夾：{{folders}}",
+      "confirm": "建立",
+      "creating": "正在建立…",
+      "aimHere": "把新檔案放進這個資料夾",
+      "badEmpty": "請輸入名稱。",
+      "badAbsolute": "名稱相對於工作區，請去掉開頭的斜線。",
+      "badTraversal": "名稱中的路徑層級不能是 . 或 ..",
+      "badFolderNotFile": "這指向一個資料夾，請在斜線後面補上檔名。",
+      "badNullByte": "該名稱包含檔名無法容納的字元。",
+      "badTooLong": "該名稱太長。",
+      "badSpacePadded": "名稱不能以空格開頭或結尾。",
+      "noteNoExtension": "沒有副檔名，因此會以純文字開啟。",
+      "noteNested": "斜線會建立資料夾。",
+      "noteHidden": "以點開頭，檔案樹預設會隱藏它。",
+      "errExists": "{{folder}} 中已經有同名的東西了。",
+      "errNoParent": "資料夾 {{folder}} 還不存在。",
+      "errPermission": "你沒有權限在 {{folder}} 中寫入。",
+      "errReadOnly": "{{folder}} 位於唯讀檔案系統上。",
+      "errOutsideRoot": "該路徑超出了工作區，因此被拒絕。",
+      "errNameRefused": "檔案系統拒絕了這個名稱。",
+      "errNoSpace": "磁碟已沒有剩餘空間。"
+    },
+    "find": {
+      "indexing": "正在讀取檔案清單…",
+      "none": "沒有符合的檔案",
+      "indexTruncated": "檔案清單在 {{n}} 個檔案處停止，因此之後的結果不會出現。",
+      "listTruncated": "顯示 {{total}} 項中的 {{shown}} 項。再多輸入一些以縮小範圍。"
+    },
+    "md": {
+      "outline": "大綱",
+      "outlineToggle": "顯示標題大綱",
+      "noHeadings": "這份文件沒有標題，因此沒有可跳至的位置。以 # 開頭的一行就能建立標題。",
+      "untitledHeading": "（空標題）",
+      "words": "{{n}} 個字",
+      "readingTime": "大約 {{n}} 分鐘讀完",
+      "tasks": "已勾選 {{total}} 項中的 {{done}} 項"
+    },
+    "frame": {
+      "home": "首頁",
+      "close": "關閉",
+      "collapseAll": "摺疊所有資料夾",
+      "resize": "拖曳以調整側欄寬度",
+      "openFile": "開啟檔案",
+      "homeSubtitle": "{{folder}}，分支 {{branch}} · {{count}} 個已變更",
+      "changedCount": "{{count}} 個已變更"
+    },
+    "tabs": {
+      "closeOthers": "關閉其他分頁",
+      "closeRight": "關閉右側分頁",
+      "duplicate": "複製分頁",
+      "reveal": "在檔案總管中顯示",
+      "newHome": "新分頁",
+      "menu": "分頁操作"
+    },
+    "side": {
+      "explorer": "檔案總管",
+      "search": "搜尋",
+      "git": "原始碼",
+      "explorerTitle": "檔案總管",
+      "searchTitle": "在檔案中搜尋",
+      "gitTitle": "原始碼管理"
+    },
+    "git": {
+      "changes": "變更",
+      "history": "歷史",
+      "compare": "比較",
+      "changesHint": "點選檔案即可檢視它與 HEAD 的差異。歷史和比較也以同樣的方式開啟 REV 分頁。"
+    },
+    "quick": {
+      "placeholder": "在此工作區中搜尋檔案或文字",
+      "files": "檔案",
+      "inFiles": "檔案內容",
+      "commands": "指令",
+      "showAll": "在搜尋分頁中顯示全部 {{n}} 項",
+      "none": "沒有與 {{query}} 符合的內容"
+    },
+    "home": {
+      "newFileHint": "在目前資料夾中",
+      "openFile": "開啟檔案",
+      "openFileHint": "依名稱尋找",
+      "findInFiles": "在程式碼中搜尋",
+      "findInFilesHint": "每個檔案的每一行",
+      "recent": "最近",
+      "changed": "已變更",
+      "recentEmpty": "還沒有開啟過任何檔案。"
+    }
+  },
+  "responseStyle": {
+    "title": "回覆風格",
+    "desc": "每個 AI 代理人回答時遵循的說明，對全部六個引擎生效。",
+    "label": "風格說明",
+    "counter": "{{used}} / {{max}} 個字元",
+    "atCap": "已達上限，請精簡後再新增。",
+    "reset": "恢復預設",
+    "usingDefault": "正在使用預設說明。",
+    "edited": "已由你修改。",
+    "claudeStyleLabel": "Claude Code 輸出風格",
+    "claudeStyleDesc": "Claude Code 內建輸出風格設定。從這裡啟動的 AI 代理人預設使用 Concise（簡潔），可以節省 Token。其他引擎則使用上面的說明。",
+    "claudeStyleOff": "關閉（Claude Code 預設）",
+    "claudeStyleApplies": "在 AI 代理人下次啟動或重新啟動時生效。",
+    "reach": "Claude、Codex、Gemini 和 Grok 會在下一輪對話中立即生效。Cursor 和 Copilot 會在應用程式傳送的下一則訊息中生效。"
+  },
+  "newFloor": {
+    "title": "新樓層：從哪裡開始？",
+    "blurb": "一個樓層就是一個 hive，擁有自己的視窗和處理程序。選擇一個包含 hive 的資料夾，或選擇一個新資料夾，應用程式會在其中建立一個全新的 hive。本視窗所在的 hive 留在這裡；已在另一個樓層開啟的 hive 不能再開啟一次。",
+    "remembered": "最近使用",
+    "free": "作為樓層開啟",
+    "openHere": "已在本樓層開啟",
+    "openElsewhere": "已在另一個樓層開啟（pid {{pid}}）",
+    "missing": "資料夾已不存在",
+    "opening": "正在開啟…",
+    "openExisting": "開啟現有資料夾…",
+    "createNew": "建立新資料夾…",
+    "errCurrent": "該資料夾就是本樓層目前所在的 hive。",
+    "errHeld": "該資料夾已在另一個樓層開啟（pid {{pid}}）。請先關閉那個樓層，或選擇其他資料夾。",
+    "errSameData": "樓層不能使用本樓層自己的資料資料夾。",
+    "errInvalid": "應用程式無法開啟該資料夾。",
+    "errMkdir": "無法建立該資料夾：{{detail}}",
+    "errNoSpawner": "在獨立樓層中開啟 hive 的功能尚未包含在此版本中。選擇器和鎖已就緒；每個樓層一個處理程序的功能隨後推出。",
+    "errSpawn": "新樓層未能啟動：{{detail}}"
+  },
+  "integrationActivity": {
+    "slackIn": "{{who}} 在 {{where}} 發來訊息",
+    "slackInDm": "{{who}} 發來私訊",
+    "slackInAnon": "{{where}} 收到一則訊息",
+    "slackOut": "已在 {{where}} 回覆",
+    "slackOutFailed": "在 {{where}} 的回覆沒有發出（{{error}}）",
+    "slackStartedPolling": "Slack 已啟動，定時檢查新訊息",
+    "slackStartedSocket": "Slack 已啟動，使用即時連線",
+    "slackStartedWebhook": "Slack 已啟動，透過公開連結接收事件",
+    "slackFailed": "Slack 無法啟動（{{error}}）",
+    "slackRefused": "Slack 沒有啟動：{{error}}",
+    "slackStopped": "Slack 已停止",
+    "slackTempNotQueued": "臨時工無法接手一則 Slack 訊息，已轉給 {{godName}}",
+    "slackConnected": "即時連線已建立",
+    "slackDisconnected": "即時連線已中斷，正在重新連線",
+    "slackRateLimited": "Slack 要求辦公室放慢速度，檢查間隔已拉長",
+    "slackNote": "Slack：{{detail}}",
+    "slackSetByAgent": "{{agent}} 修改了 Slack 設定",
+    "agentChangeFailed": "{{agent}} 請求的修改沒有生效",
+    "webhookIn": "收到一次呼叫，已交給 {{agent}}",
+    "webhookInTemp": "收到一次呼叫，由一名臨時工接手",
+    "webhookHeld": "收到一次呼叫，正在等你批准",
+    "webhookApproved": "你批准了一次待批呼叫，已交給 {{agent}}",
+    "webhookApprovedTemp": "你批准了一次待批呼叫，由一名臨時工接手",
+    "webhookDeclined": "你拒絕了一次待批呼叫",
+    "webhookDone": "一次呼叫的答覆已就緒，呼叫端可以取回",
+    "webhookRefusedAuth": "一次呼叫被拒絕：金鑰或簽名不符",
+    "webhookRefusedBody": "一次呼叫被拒絕：請求內容不符合這個 webhook 的要求",
+    "webhookRefusedSize": "一次呼叫被拒絕：內容太大",
+    "webhookRefusedRate": "一次呼叫被拒絕：一分鐘內呼叫太多",
+    "webhookError": "一次呼叫的回應狀態為 {{status}}",
+    "webhookAddedByAgent": "{{agent}} 建立了這個 webhook",
+    "webhookEditedByAgent": "{{agent}} 修改了這個 webhook",
+    "webhookSecretRotatedByAgent": "{{agent}} 為這個 webhook 換了新金鑰",
+    "webhookRemovedByAgent": "{{agent}} 刪除了這個 webhook",
+    "connCall": "{{agent}} 發起了一次 {{method}} 呼叫，回應 {{status}}",
+    "connCallFailed": "{{agent}} 發起了一次 {{method}} 呼叫，服務回傳 {{status}}",
+    "connUnreachable": "{{agent}} 發起了一次 {{method}} 呼叫，但連不上服務",
+    "connDenied": "{{agent}} 被拒絕：這個連線已關閉，或沒有向它開放",
+    "connNoKey": "{{agent}} 無法使用：這個連線沒有儲存金鑰",
+    "connBadRequest": "{{agent}} 發起的一次 {{method}} 呼叫沒有被辦公室轉送",
+    "connCallCut": "{{agent}} 的一次 {{method}} 呼叫在答覆完成前中斷了",
+    "connTestOk": "測試通過，服務回傳 {{status}}",
+    "connTestFailed": "測試失敗，服務回傳 {{status}}",
+    "connTestUnreachable": "測試失敗，連不上服務",
+    "secretRead": "{{agent}} 讀取了它",
+    "secretMissing": "{{agent}} 請求讀取它，但這個名稱下沒有儲存任何內容"
+  },
+  "quitWarning": {
+    "title": "現在結束？",
+    "runningOne": "還有 1 個 AI 代理人在執行",
+    "runningMany": "還有 {{count}} 個 AI 代理人在執行",
+    "killBody": "全部終止並結束會立刻結束所有正在執行的 AI 代理人工作階段。AI 代理人在記憶體中尚未儲存的內容會遺失。",
+    "killKeeps": "已儲存的一切都會保留：任務、記憶、檔案，以及磁碟上已有的對話記錄。隨後應用程式關閉。",
+    "keep": "讓它們繼續執行",
+    "killAll": "全部終止並結束",
+    "killing": "正在終止…"
+  },
+  "skillInstall": {
+    "refused": {
+      "too-many-files": "該技能的檔案數超過了安裝器可取得的 {{files}} 個上限。",
+      "too-large": "該技能的體積超過了安裝器可取得的 {{mb}} MB 上限。",
+      "file-too-large": "{{name}} 有 {{fileMb}} MB，安裝器單個檔案最多取得 {{mb}} MB。",
+      "too-deep": "該技能的資料夾層級超過了安裝器可進入的 {{levels}} 層。"
+    }
+  },
+  "terminal": {
+    "starting": "正在啟動 {{name}} 的工作階段…",
+    "pathLinkFailed": "無法開啟此連結。路徑可能不可用，或位於另一臺電腦上。",
+    "cliMissing": {
+      "title": "這臺電腦上沒有安裝 {{label}}。",
+      "customTitle": "這臺電腦上找不到指令 {{bin}}。",
+      "npmWhat": "點選「安裝」會在下方終端機中執行這條指令。完成後，請先登入，再啟動 AI 代理人。",
+      "nodeWhat": "這臺電腦上沒有 Node.js。「安裝」會先從 nodejs.org 安裝 Node.js {{version}}（經總和檢查碼驗證），然後執行這條指令。完成後，請先登入，再啟動 AI 代理人。",
+      "nativeWhat": "「安裝」會執行 {{label}} 內建的安裝程式，不需要 Node.js。完成後，請先登入，再啟動 AI 代理人。",
+      "manualNodeWhat": "這臺電腦上沒有 Node.js，應用程式也無法在這裡為它執行安裝程式。請先從 nodejs.org 安裝 Node.js，在終端機中執行下面這行指令，然後點選「再次檢查」。",
+      "manualWhat": "應用程式沒有 {{label}} 的安裝程式。請依其文件說明安裝，然後點選「再次檢查」。",
+      "customWhat": "請檢查 AI 代理人設定中的指令，安裝所需內容，然後點選「再次檢查」。",
+      "failed": "安裝以結束代碼 {{code}} 結束。最後幾行：",
+      "refused": "什麼都沒有發生：{{error}}。",
+      "install": "安裝",
+      "retry": "重試",
+      "check": "再次檢查",
+      "working": "處理中…",
+      "docs": "開啟文件"
+    },
+    "cliLogin": {
+      "title": "登入後繼續",
+      "titleKey": "此引擎需要 API 金鑰",
+      "deviceWhat": "開啟連結並登入，然後在頁面上輸入此代碼。網站確認後，AI 代理人會在這裡自動啟動。",
+      "browserWhat": "開啟連結並在那裡登入。網站確認後，AI 代理人會在這裡自動啟動。",
+      "pasteWhat": "開啟連結並在那裡登入。網站隨後會顯示一個代碼：貼上到下方，AI 代理人會在這裡繼續。",
+      "keyWhat": "把金鑰貼上到下方。它只儲存在本應用程式的金鑰庫中，並在 AI 代理人啟動時交給引擎。儲存後請重新啟動 AI 代理人。",
+      "openLink": "開啟連結",
+      "copy": "複製",
+      "copied": "代碼已複製",
+      "paste": "繼續",
+      "pastePlaceholder": "貼上頁面上的代碼",
+      "keyPlaceholder": "貼上 API 金鑰",
+      "saveKey": "儲存金鑰",
+      "keySaved": "金鑰已儲存。重新啟動 AI 代理人即可使用。",
+      "useTerminal": "改用終端機",
+      "refused": "什麼都沒有發生：{{error}}。",
+      "signedIn": "已登入。AI 代理人正在執行。",
+      "copyLink": "複製連結",
+      "linkCopied": "連結已複製",
+      "linkFromTerminal": "此連結來自終端機，而非本應用程式。只有在確認無誤時才開啟它。",
+      "deviceWhatSetup": "開啟連結並登入，在頁面上輸入此代碼。網站確認後，點選下方的「設定完成，啟動 AI 代理人」。",
+      "browserWhatSetup": "開啟連結並在那裡登入。網站確認後，點選下方的「設定完成，啟動 AI 代理人」。"
+    },
+    "cliSetup": {
+      "holdMissing": "請先安裝 CLI",
+      "holdInstalling": "等待安裝完成",
+      "holdSignin": "等待你啟動 AI 代理人",
+      "manual": "手動設定"
+    }
+  },
+  "projectIde": {
+    "title": "此專案上的 AI 代理人",
+    "refresh": "重新讀取",
+    "backToProject": "回到專案",
+    "uncommitted": "未提交的檔案：{{count}}",
+    "unmerged": "不在 {{base}} 上的提交：{{count}}",
+    "unknown": "Git 無法說明此資料夾的內容。",
+    "working": "工作中",
+    "idle": "閒置",
+    "temp": "臨時工",
+    "openFiles": "開啟檔案",
+    "showing": "正在顯示其檔案",
+    "compare": "比較",
+    "comparing": "正在比較",
+    "changedSince": "自 {{base}} 以來的變更",
+    "nothingSince": "自 {{base}} 以來沒有變更。",
+    "notCommitted": "未提交",
+    "compareLabel": "{{name}} 自 {{base}} 以來",
+    "noBase": "此資料夾沒有可比較的分支。",
+    "noAgents": "還沒有 AI 代理人在此專案上工作。",
+    "noGit": "此資料夾沒有 git，因此沒有分支，也無法比較。",
+    "askGit": "請 {{name}} 設定 git",
+    "askedGit": "已請 {{name}} 設定 git。",
+    "askGitText": "請在 {{path}} 中設定 git，讓在那裡工作的每個 AI 代理人都有自己的分支。不要變更其中的其他內容。",
+    "worksIn": "在 {{folder}} 中工作",
+    "wholeFolder": "在整個資料夾中工作",
+    "openBlocked": "請先儲存或放棄此處的變更，然後再次開啟 {{name}}。"
+  },
+  "usageNotice": {
+    "telemetryOff": "它已被停止，因為它的 Token 計數已關閉。請從 ~/.claude/settings.json 的 env 部分以及啟動它的指令中刪除 CLAUDE_CODE_ENABLE_TELEMETRY 和所有 OTEL_ 設定，然後重新啟動它。如果你的組織管理你的 Claude Code 設定，請聯絡管理員。",
+    "engineNotCounted": "在免費方案中，此引擎暫時無法啟動，因為應用程式無法統計它的 Token。Claude、Codex、Antigravity、Grok、Qwen 和 Crush 可以使用，Pro 或 Max 可解鎖所有引擎。"
   }
 }
