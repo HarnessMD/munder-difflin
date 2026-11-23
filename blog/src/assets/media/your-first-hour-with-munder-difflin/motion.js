@@ -63,7 +63,7 @@
     w: 960, h: 540, dur: 4, still: 2.6,
     build(svg) {
       txt(svg, 66, 92, "From first sign in to a working office", { "font-size": 25, "font-weight": 500, fill: MUTE });
-      const L = ["Your First Hour", "With Munder Difflin", "0.5.6"].map((s, i) => txt(svg, 62, 176 + i * 74, s, { "font-size": 76, "font-weight": 700 }));
+      const L = ["Your First Hour", "With Munder Difflin", "0.5.10"].map((s, i) => txt(svg, 62, 176 + i * 74, s, { "font-size": 76, "font-weight": 700 }));
       const w = Math.max(...L.map((n) => n.getComputedTextLength()));
       if (w > 556) L.forEach((n) => n.setAttribute("font-size", Math.floor((76 * 556) / w)));
       el("path", { d: `M68 344 H${Math.round(56 + L[2].getComputedTextLength())}`, stroke: YEL, "stroke-width": 14, "stroke-linecap": "round" }, svg);
@@ -101,16 +101,16 @@
     },
   };
 
-  /* ---- hour: a bus route with six stops, one for each part of the hour; the bus takes the hairpin a little fast ---- */
+  /* ---- hour: a bus route with seven stops, one for each part of the hour; the bus takes the hairpin a little fast ---- */
   SC.hour = {
-    dur: 14, still: 12.4,
+    dur: 16, still: 14.0,
     build(svg, api) {
       head(svg, "Your first hour", "tap a stop");
-      const X0 = 122, XE = 634, R1 = 222, R2 = 406, RAD = 92, RUN = XE - X0, ARC = Math.PI * RAD, LEN = 2 * RUN + ARC;
-      const S = [0, 216, 432, RUN + ARC + 80, RUN + ARC + 296, LEN];
-      const LIT = [0.8, 2.6, 4.6, 7.3, 9.3, 11.3], DEP = [1.6, 3.5, 5.5, 8.2, 10.2];
-      const ST = [["Minute 0", ["sign in"]], ["Minute 10", ["a first job"]], ["Minute 20", ["a small team"]], ["Minute 35", ["work that starts", "without you"]], ["Minute 45", ["temps and tokens"]], ["Minute 50", ["the Pro screens"]]];
-      const SAY = ["Minute 0: sign in", "Minute 10: give your orchestrator one real job", "Minute 20: hire a small team", "Minute 35: set up work that starts without you", "Minute 45: temps and tokens", "Minute 50: learn the Pro screens"];
+      const X0 = 96, XE = 634, R1 = 222, R2 = 406, RAD = 92, RUN = XE - X0, ARC = Math.PI * RAD, LEN = 2 * RUN + ARC;
+      const S = [0, 172, 344, 516, RUN + ARC + 80, RUN + ARC + 309, LEN];
+      const LIT = [0.8, 2.6, 4.4, 6.2, 8.9, 10.7, 12.5], DEP = [1.6, 3.4, 5.2, 7.0, 9.7, 11.5];
+      const ST = [["Minute 0", ["sign in"]], ["Minute 10", ["a first job"]], ["Minute 20", ["a small team"]], ["Minute 35", ["work that starts", "without you"]], ["Minute 45", ["temps and tokens"]], ["Minute 50", ["the Pro screens"]], ["Minute 55", ["the Cloud Office"]]];
+      const SAY = ["Minute 0: sign in", "Minute 10: give your orchestrator one real job", "Minute 20: hire a small team", "Minute 35: set up work that starts without you", "Minute 45: temps and tokens", "Minute 50: learn the Pro screens", "Minute 55: the Cloud Office"];
       /* where the bus is at distance s along the route, and how far round the hairpin it has come */
       const at = (s) => {
         if (s <= RUN) return [X0 + s, R1, 0];
@@ -118,14 +118,14 @@
         return [XE - (s - RUN - ARC), R2, Math.PI];
       };
       /* trees and a pond, because it is a map */
-      const trees = [[700, 164, 17], [744, 160, 23], [668, 494, 15], [710, 498, 23], [752, 492, 17]].map(([x, y, r]) => {
+      const trees = [[718, 164, 17], [758, 160, 23], [668, 494, 15], [710, 498, 23], [752, 492, 17]].map(([x, y, r]) => {
         const g = el("g", {}, svg);
         el("path", { d: `M${x} ${y} V${y - r - 10}`, stroke: INK, "stroke-width": 3.5, "stroke-linecap": "round" }, g);
         el("circle", { cx: x, cy: y - r - 14, r, fill: MINT, stroke: INK, "stroke-width": 2.5 }, g);
         return { g, x, y };
       });
-      el("ellipse", { cx: 662, cy: 314, rx: 36, ry: 24, fill: SKY, stroke: INK, "stroke-width": 2.5 }, svg);
-      const rip = el("ellipse", { cx: 662, cy: 314, fill: "none", stroke: "#fff", "stroke-width": 3 }, svg);
+      el("ellipse", { cx: 672, cy: 330, rx: 36, ry: 24, fill: SKY, stroke: INK, "stroke-width": 2.5 }, svg);
+      const rip = el("ellipse", { cx: 672, cy: 330, fill: "none", stroke: "#fff", "stroke-width": 3 }, svg);
       /* the road, and the part of it the bus has already driven */
       const D = `M${X0} ${R1} H${XE} A${RAD} ${RAD} 0 0 1 ${XE} ${R2} H${X0}`;
       el("path", { d: D, fill: "none", stroke: INK, "stroke-width": 18, "stroke-linecap": "round" }, svg);
@@ -142,10 +142,10 @@
       const send = (i) => { ov = { s: cur, to: S[i], t0: api.now() }; api.seek(LIT[i] - 0.8); };
       const stops = ST.map(([m, nm], i) => {
         const [x, y] = at(S[i]), g = el("g", {}, svg);
-        el("rect", { x: x - 102, y: y - 112, width: 204, height: nm.length > 1 ? 192 : 162, rx: 16, fill: "#fff", "fill-opacity": 0, stroke: INK, "stroke-width": 2, class: "mg-ring" }, g);
+        el("rect", { x: x - 86, y: y - 112, width: 172, height: nm.length > 1 ? 192 : 162, rx: 16, fill: "#fff", "fill-opacity": 0, stroke: INK, "stroke-width": 2, class: "mg-ring" }, g);
         const p = pill(g, m, SOFT);
         const dot = el("circle", { cx: x, cy: y, r: 12, fill: "#fff", stroke: INK, "stroke-width": 3 }, g);
-        const names = nm.map((s, j) => txt(g, x, y + 44 + j * 27, s, { "text-anchor": "middle", "font-size": 22, fill: MUTE }));
+        const names = nm.map((s, j) => fit(txt(g, x, y + 44 + j * 27, s, { "text-anchor": "middle", "font-size": 22, fill: MUTE }), 160));
         button(g, `Send the bus to ${m.toLowerCase()}: ${nm.join(" ")}`, () => send(i));
         return { x, y, p, r: p.firstChild, dot, names };
       });
@@ -164,10 +164,10 @@
       const sp = el("g", { "pointer-events": "none" }, svg); star(sp, 0, 0, 13, YEL);
       const cap = strip(svg, 508, 740);
       return (t, now) => {
-        const out = seg(t, 13.2, 13.45), vis = 1 - out, home = t >= 13.45;
+        const out = seg(t, 15.2, 15.45), vis = 1 - out, home = t >= 15.45;
         let s = home ? 0 : LEN, last = 0, turn = 1;
-        for (let i = 0; i < 6; i++) if (t >= LIT[i]) last = i;
-        if (!home) for (let i = 0; i < 5; i++) if (t < LIT[i + 1]) { s = lerp(S[i], S[i + 1], io(seg(t, DEP[i], LIT[i + 1]))); break; }
+        for (let i = 0; i < ST.length; i++) if (t >= LIT[i]) last = i;
+        if (!home) for (let i = 0; i < ST.length - 1; i++) if (t < LIT[i + 1]) { s = lerp(S[i], S[i + 1], io(seg(t, DEP[i], LIT[i + 1]))); break; }
         /* after a tap the bus drives from where it was to the stop that was tapped, then turns to face the route again */
         if (ov) {
           const k = (now - ov.t0) / 0.8;
@@ -178,9 +178,9 @@
         const [x, y, a] = at(s);
         const face = lerp(1, -1, io(seg(a, 1.15, 2.0))) * turn, lean = 13 * Math.sin(a);
         const ta = t - LIT[last], hop = !ov && ta > 0 && ta < 1.2 ? 4 * Math.exp(-6 * ta) * Math.abs(Math.sin(15 * ta)) : 0;
-        const idle = t > 11.9 && !home ? 0.8 * Math.sin(now * 14) : 0;
+        const idle = t > 13.1 && !home ? 0.8 * Math.sin(now * 14) : 0;
         bus.setAttribute("transform", `translate(${x.toFixed(2)} ${(y - 8 - hop + idle).toFixed(2)}) rotate(${lean.toFixed(2)}) scale(${face.toFixed(3)} 1)`);
-        bus.setAttribute("opacity", (home ? seg(t, 13.5, 13.75) : vis).toFixed(2));
+        bus.setAttribute("opacity", (home ? seg(t, 15.5, 15.75) : vis).toFixed(2));
         wh.forEach((w) => w.w.setAttribute("transform", `translate(${w.x} -8) rotate(${((s / 8) * 57.3).toFixed(1)})`));
         done.setAttribute("stroke-dasharray", `${s.toFixed(1)} ${LEN + 40}`);
         done.setAttribute("opacity", vis.toFixed(2));
@@ -194,7 +194,7 @@
           st.dot.setAttribute("r", (12 + 3 * bump).toFixed(2));
           st.names.forEach((n) => n.setAttribute("fill", lit ? INK : MUTE));
         });
-        tf(sp, 182, 366, (land(seg(t, 11.5, 11.9), 2.6) * (home ? 0 : vis) * (1 + 0.12 * Math.sin(now * 3))).toFixed(3), (now * 20).toFixed(1));
+        tf(sp, X0 + 60, 366, (land(seg(t, 12.7, 13.1), 2.6) * (home ? 0 : vis) * (1 + 0.12 * Math.sin(now * 3))).toFixed(3), (now * 20).toFixed(1));
         trees.forEach((tr, i) => tr.g.setAttribute("transform", `rotate(${(1.6 * Math.sin(now * 1.4 + i * 1.3)).toFixed(2)} ${tr.x} ${tr.y})`));
         const rp = (now * 0.4 + 0.35) % 1;
         rip.setAttribute("rx", (6 + 24 * rp).toFixed(1)); rip.setAttribute("ry", (4 + 15 * rp).toFixed(1)); rip.setAttribute("opacity", (1 - rp).toFixed(2));
@@ -660,7 +660,7 @@
         });
         const press = Math.max(...PR.map((a) => bump(t, a))), [px, py] = at(t);
         ptr.setAttribute("transform", `translate(${(px + 2 * press).toFixed(2)} ${(py + 3 * press).toFixed(2)})`);
-        say(cap, t < 1.0 || t >= 13.2 ? "Under Settings, then Connections" : t < 2.0 ? "One bot can listen to Every channel the bot is in" : t < 3.6 ? "You choose the agent under Who answers inbound messages" : t < 6.2 ? "Send work from a channel and read the answer in the same thread" : t < 9.0 ? "A direct message to the bot is always answered" : t < 10.4 ? "The reply comes back in the same thread" : t < 12.0 ? "If Slack fails to start, it now comes back by itself" : "Read the answer in the same thread", 700);
+        say(cap, t < 1.0 || t >= 13.2 ? "Under Settings, then Connections" : t < 2.0 ? "One bot can listen to Every channel the bot is in" : t < 3.6 ? "You choose the agent under Who answers inbound messages" : t < 6.2 ? "Send work from a channel and read the answer in the same thread" : t < 9.0 ? "A direct message to the bot is always answered" : t < 10.4 ? "The reply comes back in the same thread" : t < 12.0 ? "If Slack fails to start, it comes back by itself" : "Read the answer in the same thread", 700);
       };
     },
   };
@@ -875,7 +875,7 @@
         rows[0].setAttribute("fill", t >= 3.9 && t < 6.4 ? YEL : SOFT);
         rows[1].setAttribute("fill", t >= 7.7 && t < 11.9 ? YEL : SOFT);
         tf(keep, 601, 432, (1 + 0.12 * Math.sin(Math.PI * seg(t, 12.0, 12.35))).toFixed(3));
-        say(cap, t < 0.5 || t >= 13.3 ? "Two defaults in 0.5.6 keep sessions small" : t < 3.9 ? "Long sessions fill an agent's context" : t < 6.4 ? "Compact when context fills summarises a long session" : t < 7.7 ? "and carries the summary forward" : t < 11.2 ? "Clear on a switch of work clears the session" : t < 12.0 ? "and leaves a handoff file to carry the thread" : "Both rules are in Automations under Context", 700);
+        say(cap, t < 0.5 || t >= 13.3 ? "Two rules keep sessions small" : t < 3.9 ? "Long sessions fill an agent's context" : t < 6.4 ? "Compact when context fills summarises a long session" : t < 7.7 ? "and carries the summary forward" : t < 11.2 ? "Clear on a switch of work clears the session" : t < 12.0 ? "and leaves a handoff file to carry the thread" : "Both rules are in Automations under Context", 700);
       };
     },
   };
@@ -1208,6 +1208,254 @@
         tf(agK, 0, 0, 1);
         agK.setAttribute("opacity", t < 8.35 ? 0 : Math.min(1, ak * 3 * (1 - out)).toFixed(2));
         say(cap, t < 0.7 || t >= 13.3 ? "Turn on Show the stapler" : t < 1.55 ? "The Stapler is a small window that floats above every app" : t < 2.9 ? "Then click it for its ring" : t < 5.0 ? "Screenshot captures a region of the screen" : t < 6.9 ? "and sends it to an agent with a note" : t < 9.2 ? "When you see a bug in any app, do not describe it. Staple it" : "Its ring offers Screenshot, Record message, Record meeting and Make invisible", 700);
+      };
+    },
+  };
+
+  /* ---- cloud: the laptop shuts its lid and a moon comes up, while the Cloud Office keeps working; mail goes both ways.
+     Tapping the cloud shows what comes with it ---- */
+  SC.cloud = {
+    dur: 9, still: 7.6,
+    build(svg, api) {
+      const mid = { "text-anchor": "middle" };
+      const LX = 150, HY = 336, LW = 172, LH = 122, CX = 612, CY = 262, A0 = 262, A1 = 440, AY = 312, TG = 4.4;
+      /* the moon waits behind the laptop and comes up once the lid is shut */
+      const moon = el("g", {}, svg);
+      el("path", { d: "M14.5 -23.95 A28 28 0 1 0 14.5 23.95 A24 24 0 0 1 14.5 -23.95 Z", fill: LIL, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round" }, moon);
+      /* the laptop: a soft white lid that folds down onto its base */
+      const lid = el("rect", { x: LX - LW / 2, width: LW, rx: 10, fill: SOFT, stroke: INK, "stroke-width": 3 }, svg);
+      const scr = el("g", {}, svg);
+      el("rect", { x: LX - LW / 2 + 13, y: HY - LH + 13, width: LW - 26, height: LH - 26, rx: 6, fill: "#fff", stroke: INK, "stroke-width": 2.5 }, scr);
+      [[SKY, 86], [LIL, 62], [MINT, 74]].forEach(([c, w], j) => el("rect", { x: LX - 54, y: HY - LH + 34 + 22 * j, width: w, height: 10, rx: 5, fill: c, stroke: INK, "stroke-width": 2 }, scr));
+      el("path", { d: `M${LX - 104} ${HY} H${LX + 104} L${LX + 116} ${HY + 16} Q${LX + 119} ${HY + 22} ${LX + 112} ${HY + 22} H${LX - 112} Q${LX - 119} ${HY + 22} ${LX - 116} ${HY + 16} Z`, fill: SOFT, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round" }, svg);
+      el("path", { d: `M${LX - 22} ${HY + 8} H${LX + 22}`, stroke: INK, "stroke-width": 3, "stroke-linecap": "round" }, svg);
+      /* the arrow between them, with a head at each end; a dot rides each way along it */
+      const arw = el("g", {}, svg);
+      el("path", { d: `M${A0} ${AY} L${A0 + 24} ${AY - 19} V${AY - 8} H${A1 - 24} V${AY - 19} L${A1} ${AY} L${A1 - 24} ${AY + 19} V${AY + 8} H${A0 + 24} V${AY + 19} Z`, fill: YEL, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round" }, arw);
+      const ride = [0, 1].map(() => el("circle", { r: 3, fill: "#fff", stroke: INK, "stroke-width": 1.5 }, arw));
+      const lab = txt(svg, (A0 + A1) / 2, AY - 34, "Mail both ways", Object.assign({ "font-size": 23, "font-weight": 700 }, mid));
+      fit(lab, A1 - A0 + 10);
+      /* the cloud, which is the button; a mint card inside reads Cloud Office and its three dots keep blinking */
+      const cg = el("g", {}, svg), cloud = el("g", {}, cg);
+      el("rect", { x: CX - 186, y: CY - 112, width: 372, height: 222, rx: 26, fill: "#fff", "fill-opacity": 0, stroke: INK, "stroke-width": 2, class: "mg-ring" }, cg);
+      el("path", { d: "M-110 94 H115 C157 94 162 26 117 20 C123 -46 53 -65 34 -27 C24 -88 -68 -95 -75 -32 C-117 -49 -153 -9 -129 27 C-170 36 -162 94 -110 94 Z", fill: SKY, stroke: INK, "stroke-width": 3, "stroke-linejoin": "round" }, cloud);
+      el("rect", { x: -98, y: -10, width: 196, height: 84, rx: 14, fill: MINT, stroke: INK, "stroke-width": 3 }, cloud);
+      fit(txt(cloud, 0, 24, "Cloud Office", Object.assign({ "font-size": 27, "font-weight": 700 }, mid)), 176);
+      const dots = [-24, 0, 24].map((x) => el("circle", { cx: x, cy: 51, r: 7, fill: YEL, stroke: INK, "stroke-width": 2.5 }, cloud));
+      button(cg, "Show what comes with a Cloud Office", () => api.seek(TG - 0.4));
+      /* the tags: two rows under the picture; each one comes out from behind the cloud */
+      const TAGS = [["Its own orchestrator", "2 vCPU", "4 GB memory"], ["100 GB disk", "From $138 a month"]];
+      const tags = [];
+      TAGS.forEach((row, r) => {
+        const ps = row.map((s) => pill(svg.insertBefore(el("g", { "pointer-events": "none" }), cg), s, SOFT));
+        const ws = ps.map((p) => parseFloat(p.firstChild.getAttribute("width")));
+        let x = 400 - (ws.reduce((a, b) => a + b, 0) + 16 * (ws.length - 1)) / 2;
+        ps.forEach((p, i) => { const g = mv(p.parentNode); tags.push({ g, x: x + ws[i] / 2, y: 446 + 54 * r }); x += ws[i] + 16; });
+      });
+      return (t, now) => {
+        const out = seg(t, 8.3, 8.9), bk = io(out);
+        /* the lid shuts, and opens again at the end of the loop */
+        const k = 1 - io(seg(t, 0.9, 1.8)) * (1 - bk), h = Math.max(10, LH * k);
+        lid.setAttribute("y", (HY - h).toFixed(2)); lid.setAttribute("height", h.toFixed(2));
+        scr.setAttribute("transform", `translate(0 ${HY}) scale(1 ${k.toFixed(4)}) translate(0 ${-HY})`);
+        scr.setAttribute("opacity", seg(k, 0.3, 0.7).toFixed(2));
+        /* the moon comes up over it */
+        const mr = io(seg(t, 1.8, 3.0)) * (1 - bk);
+        tf(moon, LX + 8, (lerp(322, 152, mr) + 2.5 * mr * Math.sin(now * 1.2)).toFixed(2), 1, (-30 + 12 * mr).toFixed(2));
+        moon.setAttribute("opacity", seg(mr, 0, 0.35).toFixed(2));
+        /* the cloud floats, and gives a small squash when it is tapped */
+        const sq = Math.sin(Math.PI * seg(t, TG - 0.4, TG - 0.05));
+        cloud.setAttribute("transform", `translate(${CX} ${(CY + 3 * Math.sin(now * 1.1)).toFixed(2)}) scale(${(1 + 0.05 * sq).toFixed(3)} ${(1 - 0.05 * sq).toFixed(3)})`);
+        dots.forEach((d, i) => {
+          const b = Math.max(0, Math.sin(now * 4.2 - i * 0.9));
+          d.setAttribute("cy", (51 - 5 * b).toFixed(2));
+          d.setAttribute("opacity", (1 - 0.4 * b).toFixed(2));
+        });
+        ride.forEach((d, i) => {
+          const p = (now * 0.45 + 0.25) % 1, x = i ? lerp(A1 - 30, A0 + 30, p) : lerp(A0 + 30, A1 - 30, p);
+          d.setAttribute("cx", x.toFixed(2)); d.setAttribute("cy", AY + (i ? 3 : -3));
+          d.setAttribute("opacity", Math.min(1, 4 * Math.min(p, 1 - p)).toFixed(2));
+        });
+        tags.forEach((g, i) => {
+          const a = TG + 0.2 * i, e = io(seg(t, a, a + 0.45)), s = land(seg(t, a, a + 0.5), 2) * (1 - bk);
+          g.g.setAttribute("transform", `translate(${lerp(CX, g.x, e).toFixed(2)} ${lerp(CY + 50, g.y, e).toFixed(2)}) scale(${s.toFixed(3)})`);
+          g.g.setAttribute("opacity", s > 0.02 ? 1 : 0);
+        });
+      };
+    },
+  };
+
+  /* ---- move: the 0.5.10 sidebar. The Writer row is dragged from the Main Office onto the Cloud Office, which lights up,
+     and the drop opens the Run in sheet. A tap plays the way back ---- */
+  SC.move = {
+    dur: 10, still: 8.0,
+    build(svg, api) {
+      const X0 = 28, X1 = 772, Y0 = 24, Y1 = 576, SB = 388, L = 44, R = 372, DL = 24, MT = 40, CT = 348, RH = 37;
+      const mid = { "text-anchor": "middle" }, cap = { "font-size": 13, "font-weight": 700, fill: MUTE, "letter-spacing": 1.3 };
+      const bar = (p, x, y, w, h = 7) => el("rect", { x, y, width: w, height: h, rx: h / 2, fill: MUTE, opacity: 0.3 }, p);
+      const chev = (p, x, y) => el("path", { d: `M${x - 4} ${y - 2} l4 4 l4 -4`, fill: "none", stroke: MUTE, "stroke-width": 1.8, "stroke-linecap": "round", "stroke-linejoin": "round" }, p);
+      let back = false, lastT = 0, held = false;
+      /* the sidebar, soft white, with the window's plain area to its right */
+      el("path", { d: `M${X0 + 16} ${Y0} H${SB} V${Y1} H${X0 + 16} Q${X0} ${Y1} ${X0} ${Y1 - 16} V${Y0 + 16} Q${X0} ${Y0} ${X0 + 16} ${Y0} Z`, fill: SOFT }, svg);
+      /* the soft yellow a section turns while a row is held over it, with its line at the top */
+      const hi = (y, h, s) => {
+        const g = el("g", { opacity: 0 }, svg);
+        el("rect", { x: 34, y, width: 348, height: h, rx: 12, fill: "#fff" }, g);
+        el("rect", { x: 34, y, width: 348, height: h, rx: 12, fill: YEL, "fill-opacity": 0.26, stroke: YEL, "stroke-width": 3 }, g);
+        fit(txt(g, 46, y + 19, s, { "font-size": 14.5, "font-weight": 700 }), 326);
+        return g;
+      };
+      const hiM = hi(MT - 8, 336 - MT + 8 + DL + 4, "Drop to bring Writer back to the Main Office");
+      const hiC = hi(CT - 8, Y1 - 4 - CT + 8, "Drop to run Writer in Cloud Office");
+      /* a section: its heading, Add an agent, the Agents group and its rows */
+      const add = (p, y) => {
+        el("rect", { x: L, y, width: R - L, height: 28, rx: 8, fill: "#fff", stroke: MUTE, "stroke-opacity": 0.55, "stroke-width": 1.5, "stroke-dasharray": "4 4" }, p);
+        el("path", { d: `M${L + 10} ${y + 14} h12 M${L + 16} ${y + 8} v12`, stroke: INK, "stroke-width": 2, "stroke-linecap": "round" }, p);
+        bar(p, L + 32, y + 10.5, 84, 8);
+      };
+      const group = (p, y) => {
+        [[0, 0], [7, 0], [0, 7], [7, 7]].forEach(([a, b]) => el("rect", { x: L + 8 + a, y: y + 5 + b, width: 5.5, height: 5.5, rx: 1.2, fill: "none", stroke: MUTE, "stroke-width": 1.5 }, p));
+        bar(p, L + 32, y + 8, 52, 8);
+        chev(p, R - 14, y + 12);
+      };
+      const row = (p, top, c, i, nm, orch) => {
+        const g = el("g", {}, p), y = top + RH / 2;
+        el("circle", { cx: L + 18, cy: y, r: 11, fill: c, stroke: INK, "stroke-width": 2 }, g);
+        if (nm) txt(g, L + 38, y - 2, nm, { "font-size": 16, "font-weight": 700 });
+        else bar(g, L + 38, y - 11, [62, 54, 40, 48][i], 9);
+        if (orch) el("rect", { x: L + 108, y: y - 11, width: 46, height: 11, rx: 5.5, fill: YEL, opacity: 0.6 }, g);
+        bar(g, L + 38, y + 5, [58, 70, 52, 62][i]);
+        el("circle", { cx: R - 36, cy: y, r: 3.8, fill: "none", stroke: MUTE, "stroke-width": 1.5 }, g);
+        bar(g, R - 28, y - 3.5, 22);
+        return g;
+      };
+      const gM = el("g", {}, svg);
+      chev(gM, L + 8, MT + 17); txt(gM, L + 20, MT + 22, "MAIN OFFICE", cap);
+      add(gM, MT + 32); group(gM, MT + 66);
+      const mainRows = [LIL, SKY, LIL, SKY].map((c, i) => row(gM, MT + 96 + RH * i, c, i, i === 3 ? "Writer" : null, i === 0));
+      el("circle", { cx: L + 16, cy: MT + 258, r: 6.5, fill: "none", stroke: INK, "stroke-width": 1.8 }, gM);
+      el("path", { d: `M${L + 16} ${MT + 254} V${MT + 258} H${L + 19}`, fill: "none", stroke: INK, "stroke-width": 1.6, "stroke-linecap": "round" }, gM);
+      bar(gM, L + 32, MT + 254.5, 44, 8);
+      el("path", { d: `M${L + 9} ${MT + 277} h5 l2 2 h7 v9 h-14 Z`, fill: "none", stroke: INK, "stroke-width": 1.6, "stroke-linejoin": "round" }, gM);
+      bar(gM, L + 32, MT + 278.5, 58, 8);
+      const gC = el("g", {}, svg);
+      chev(gC, L + 8, CT + 17); txt(gC, L + 20, CT + 22, "CLOUD OFFICE", cap);
+      el("rect", { x: R - 64, y: CT + 9, width: 62, height: 18, rx: 9, fill: MINT, stroke: INK, "stroke-width": 1.5 }, gC);
+      el("circle", { cx: R - 53, cy: CT + 18, r: 3.2, fill: "#fff", stroke: INK, "stroke-width": 1.2 }, gC);
+      el("rect", { x: R - 45, y: CT + 15, width: 34, height: 6, rx: 3, fill: "#fff" }, gC);
+      bar(gC, L + 20, CT + 31, 54);
+      add(gC, CT + 46); group(gC, CT + 80);
+      [SKY, LIL].forEach((c, i) => row(gC, CT + 110 + RH * i, c, i + 1, null, i === 0));
+      const cloudW = row(gC, CT + 110 + RH * 2, SKY, 3, "Writer", false);
+      el("path", { d: `M${SB} ${Y0} V${Y1}`, stroke: INK, "stroke-width": 2, "pointer-events": "none" }, svg);
+      /* a white veil over the sidebar while the sheet is open */
+      const veil = el("rect", { x: X0, y: Y0, width: SB - X0, height: Y1 - Y0, fill: "#fff", opacity: 0 }, svg);
+      /* the Run in sheet: a title, the ticked Stop line, what comes with Writer and what does not, then Cancel and Move */
+      const sheet = (title, stop, gone) => {
+        const g = el("g", { "pointer-events": "none", opacity: 0 }, svg), x0 = 318, x1 = 758, cx = x0 + 22, S0 = 34, F = S0 + 302 + 48 * gone.length;
+        el("rect", { x: x0, y: S0, width: x1 - x0, height: F + 80 - S0, rx: 16, fill: "#fff", stroke: INK, "stroke-width": 2.5 }, g);
+        el("circle", { cx: cx + 11, cy: S0 + 33, r: 11, fill: SKY, stroke: INK, "stroke-width": 2 }, g);
+        fit(txt(g, cx + 32, S0 + 40, title, { "font-size": 19, "font-weight": 700 }), x1 - 52 - cx - 32);
+        el("path", { d: `M${x1 - 32} ${S0 + 27} l12 12 M${x1 - 20} ${S0 + 27} l-12 12`, stroke: MUTE, "stroke-width": 2, "stroke-linecap": "round" }, g);
+        el("path", { d: `M${x0} ${S0 + 62} H${x1} M${x0} ${F + 20} H${x1}`, stroke: INK, "stroke-width": 1.5, opacity: 0.25 }, g);
+        bar(g, cx, S0 + 78, 372, 8); bar(g, cx, S0 + 94, 232, 8);
+        el("rect", { x: cx, y: S0 + 114, width: x1 - 22 - cx, height: 64, rx: 10, fill: "#fff", stroke: INK, "stroke-width": 1.8 }, g);
+        el("rect", { x: cx + 14, y: S0 + 127, width: 18, height: 18, rx: 4, fill: YEL, stroke: INK, "stroke-width": 1.8 }, g);
+        const tk = el("path", { d: "M-5 0 l3.5 4 l7 -8", fill: "none", stroke: INK, "stroke-width": 2.6, "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+        fit(txt(g, cx + 42, S0 + 142, stop, { "font-size": 16, "font-weight": 700 }), x1 - 36 - cx - 42);
+        bar(g, cx + 42, S0 + 153, 300); bar(g, cx + 42, S0 + 164, 196);
+        txt(g, cx + 2, S0 + 204, "COMES WITH WRITER", Object.assign({}, cap, { "font-size": 12.5 }));
+        el("rect", { x: cx, y: S0 + 214, width: x1 - 22 - cx, height: 50, rx: 10, fill: "#fff", stroke: INK, "stroke-width": 1.8 }, g);
+        el("circle", { cx: cx + 20, cy: S0 + 233, r: 8, fill: SOFT, stroke: MUTE, "stroke-width": 1.5 }, g);
+        el("path", { d: `M${cx + 16} ${S0 + 233} l3 3 l5 -6`, fill: "none", stroke: INK, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" }, g);
+        txt(g, cx + 42, S0 + 238, "Memory, skills and settings", { "font-size": 15, "font-weight": 600 });
+        bar(g, cx + 42, S0 + 248, 244);
+        txt(g, cx + 2, S0 + 290, "DOES NOT COME", Object.assign({}, cap, { "font-size": 12.5 }));
+        el("rect", { x: cx, y: S0 + 300, width: x1 - 22 - cx, height: 48 * gone.length + 2, rx: 10, fill: "#fff", stroke: INK, "stroke-width": 1.8 }, g);
+        gone.forEach((s, j) => {
+          const y = S0 + 301 + 48 * j;
+          if (j) el("path", { d: `M${cx} ${y} H${x1 - 22}`, stroke: INK, "stroke-width": 1.5, opacity: 0.2 }, g);
+          el("circle", { cx: cx + 20, cy: y + 19, r: 8, fill: SOFT, stroke: MUTE, "stroke-width": 1.5 }, g);
+          el("path", { d: `M${cx + 16} ${y + 19} h8`, stroke: MUTE, "stroke-width": 2, "stroke-linecap": "round" }, g);
+          txt(g, cx + 42, y + 24, s, { "font-size": 15, "font-weight": 600, fill: MUTE });
+          bar(g, cx + 42, y + 33, [258, 292, 236][j]);
+        });
+        const by = F + 32, cn = el("g", {}, g), mvb = el("g", {}, g);
+        el("rect", { x: x1 - 22 - 70 - 10 - 80, y: by, width: 80, height: 34, rx: 9, fill: "#fff", stroke: INK, "stroke-width": 1.8 }, cn);
+        txt(cn, x1 - 22 - 70 - 10 - 40, by + 23, "Cancel", Object.assign({ "font-size": 15, "font-weight": 700 }, mid));
+        el("rect", { x: x1 - 92, y: by, width: 70, height: 34, rx: 9, fill: YEL, stroke: INK, "stroke-width": 1.8 }, mvb);
+        txt(mvb, x1 - 57, by + 23, "Move", Object.assign({ "font-size": 15, "font-weight": 700 }, mid));
+        return { g, tk, tx: cx + 23, ty: S0 + 136, mvb, mc: [x1 - 57, by + 17], rest: [x1 - 40, by + 27] };
+      };
+      const SO = sheet("Run Writer in the Cloud Office", "Stop Writer in your Main Office", ["The open conversation", "Keys", "Mail and tasks"]);
+      const SBk = sheet("Run Writer in the Main Office", "Stop Writer in your Cloud Office", ["The open conversation", "Mail and tasks"]);
+      /* the floating copy of the row, and the pointer that carries it */
+      const fl = mv(el("g", { "pointer-events": "none", opacity: 0 }, svg)), FLX = 110;
+      el("rect", { x: -6, y: -RH / 2, width: 214, height: RH, rx: 10, fill: "#fff", stroke: INK, "stroke-width": 2 }, fl);
+      el("circle", { cx: 18, cy: 0, r: 11, fill: SKY, stroke: INK, "stroke-width": 2 }, fl);
+      txt(fl, 38, -2, "Writer", { "font-size": 16, "font-weight": 700 });
+      bar(fl, 38, 5, 62);
+      const ptr = mv(el("path", { d: "M0 0 V24 L6 18.5 L10.5 28 L15 26 L10.8 17 H18 Z", fill: INK, stroke: "#fff", "stroke-width": 1.6, "stroke-linejoin": "round", "pointer-events": "none", opacity: 0 }, svg));
+      /* below the window nothing shows; the window's edge goes on last, so the border stays even */
+      el("rect", { x: 0, y: Y1, width: 800, height: 600 - Y1, fill: "#fff", "pointer-events": "none" }, svg);
+      el("rect", { x: X0, y: Y0, width: X1 - X0, height: Y1 - Y0, rx: 16, fill: "none", stroke: INK, "stroke-width": 2.5, "pointer-events": "none" }, svg);
+      /* the whole scene is the button: it plays the way back */
+      const hit = el("g", {}, svg);
+      el("rect", { x: 12, y: 10, width: 776, height: 580, rx: 20, fill: "#fff", "fill-opacity": 0, stroke: INK, "stroke-width": 2, class: "mg-ring" }, hit);
+      button(hit, "Play the way back to the Main Office", () => { back = true; held = true; api.seek(0); });
+      const MR = MT + 96 + RH * 3 + RH / 2, CR = CT + 110 + RH * 2 + RH / 2;
+      const path = (t, a, b, t0, t1, bow) => { const e = io(seg(t, t0, t1)); return [lerp(a[0], b[0], e) + bow * Math.sin(Math.PI * e), lerp(a[1], b[1], e)]; };
+      return (t) => {
+        if (t < lastT - 1 && !held) back = false;
+        held = false; lastT = t;
+        const end = seg(t, 9.2, 9.7);
+        let P, po, fo, fs, m = 0, c = 0, wm = 1, wc = 0, so = 0, sb = 0, tk = 1, pr = 0;
+        if (!back) {
+          const G = [L + FLX, MR], D = [L + 150, CT + 126], M = SO.rest;
+          P = t < 1.3 ? path(t, [250, 196], G, 0.4, 1.0, 0) : t < 4.6 ? path(t, G, D, 1.3, 3.0, 34) : path(t, D, M, 4.6, 5.6, 0);
+          po = seg(t, 0.2, 0.5) * (1 - end);
+          fo = seg(t, 1.0, 1.25) * (1 - seg(t, 3.15, 3.35));
+          fs = 1 + 0.03 * seg(t, 1.0, 1.25) - 0.07 * seg(t, 3.15, 3.35);
+          wm = 1 - 0.65 * seg(t, 1.0, 1.25) * (1 - seg(t, 3.3, 3.6));
+          c = oc(seg(t, 2.05, 2.35)) * (1 - io(seg(t, 3.3, 3.6)));
+          so = oc(seg(t, 3.5, 4.1)) * (1 - end);
+          tk = land(seg(t, 4.2, 4.5), 2.4);
+        } else {
+          const G = [L + FLX, CR], D = [L + 150, MT + 150], A = SO.rest, M = SBk.rest;
+          P = t < 1.6 ? A : t < 2.6 ? path(t, A, G, 1.6, 2.3, 0) : t < 5.9 ? path(t, G, D, 2.6, 4.3, 34) : path(t, D, M, 5.9, 6.9, 0);
+          po = 1 - end;
+          pr = Math.sin(Math.PI * seg(t, 0.45, 0.75));
+          so = 1 - io(seg(t, 0.8, 1.2));
+          wm = 1 - 0.55 * seg(t, 1.0, 1.4);
+          wc = oc(seg(t, 1.2, 1.6)) * (1 - 0.65 * seg(t, 2.3, 2.55) * (1 - seg(t, 4.6, 4.9)));
+          fo = seg(t, 2.3, 2.55) * (1 - seg(t, 4.45, 4.65));
+          fs = 1 + 0.03 * seg(t, 2.3, 2.55) - 0.07 * seg(t, 4.45, 4.65);
+          m = oc(seg(t, 3.5, 3.8)) * (1 - io(seg(t, 4.6, 4.9)));
+          sb = oc(seg(t, 4.8, 5.4)) * (1 - end);
+          tk = land(seg(t, 5.5, 5.8), 2.4);
+        }
+        /* a section opens a line at its top while it is lit, so what is under it steps down */
+        gM.setAttribute("transform", `translate(0 ${(DL * m).toFixed(2)})`);
+        gC.setAttribute("transform", `translate(0 ${(DL * (m + c)).toFixed(2)})`);
+        hiM.setAttribute("opacity", m.toFixed(2));
+        hiC.setAttribute("opacity", c.toFixed(2)); hiC.setAttribute("transform", `translate(0 ${(DL * m).toFixed(2)})`);
+        mainRows[3].setAttribute("opacity", wm.toFixed(2));
+        cloudW.setAttribute("opacity", wc.toFixed(2));
+        cloudW.setAttribute("transform", `translate(${(-14 * (1 - oc(seg(t, 1.2, 1.6))) * (back ? 1 : 0)).toFixed(2)} 0)`);
+        /* the sheets slide up into place */
+        [[SO, so], [SBk, sb]].forEach(([S, v]) => {
+          S.g.setAttribute("opacity", v.toFixed(2));
+          S.g.setAttribute("transform", `translate(0 ${(26 * (1 - v)).toFixed(2)})`);
+        });
+        [[SO, back ? 1 : tk], [SBk, back ? tk : 0]].forEach(([S, k]) => tf(S.tk, S.tx, S.ty, k.toFixed(3)));
+        const [mx, my] = SO.mc;
+        SO.mvb.setAttribute("transform", `translate(${mx} ${my}) scale(${(1 - 0.08 * pr).toFixed(3)}) translate(${-mx} ${-my})`);
+        veil.setAttribute("opacity", (0.5 * Math.max(so, sb)).toFixed(2));
+        /* the copy rides under the pointer */
+        fl.setAttribute("opacity", (0.95 * fo).toFixed(2));
+        fl.setAttribute("transform", `translate(${(P[0] - FLX).toFixed(2)} ${P[1].toFixed(2)}) rotate(${(-2 * fo).toFixed(2)} ${FLX} 0) scale(${fs.toFixed(3)})`);
+        ptr.setAttribute("opacity", po.toFixed(2));
+        ptr.setAttribute("transform", `translate(${P[0].toFixed(2)} ${(P[1] + 2 * pr).toFixed(2)})`);
       };
     },
   };
