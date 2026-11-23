@@ -4,8 +4,9 @@
  * language (i18n/index.ts), so nobody who already uses the app is moved.
  *
  * `wanted` is navigator.languages in order of preference. An exact code wins (pt-BR), then the language part (pt picks
- * pt-BR, de-AT picks de). Chinese is matched as Simplified only: zh, zh-CN, zh-SG, zh-Hans; a Traditional Chinese
- * system (zh-TW, zh-HK, zh-MO, zh-Hant) is not moved to Simplified and goes on to its next language.
+ * pt-BR, de-AT picks de). Chinese is matched by script, never across it: a Traditional Chinese system (zh-TW, zh-HK,
+ * zh-MO, zh-Hant) picks zh-TW, and zh, zh-CN, zh-SG, zh-Hans pick zh-CN. When the matching script is not offered, the
+ * system goes on to its next language rather than being moved to the other script.
  */
 export function systemLanguageOf(wanted: readonly string[] | null | undefined, offered: readonly string[]): string {
   const lower = new Map(offered.map((c) => [c.toLowerCase(), c]));
@@ -14,6 +15,10 @@ export function systemLanguageOf(wanted: readonly string[] | null | undefined, o
     const tag = raw.trim().replace(/_/g, '-').toLowerCase();
     const base = tag.split('-')[0];
     if (base === 'zh') {
+      if (/^zh-(tw|hk|mo|hant)(-.*)?$/.test(tag)) {
+        if (lower.has('zh-tw')) return lower.get('zh-tw')!;
+        continue;
+      }
       if (/^zh(-(cn|sg|hans)(-.*)?)?$/.test(tag) && lower.has('zh-cn')) return lower.get('zh-cn')!;
       continue;
     }
