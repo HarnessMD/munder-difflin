@@ -23,7 +23,9 @@ faq:
 
 OpenCode 2.0 is what Anomaly calls "a major overhaul", and it has three breaking changes: plugins, the server API and the terminal config file. Anomaly's [2.0 post](https://anoma.ly/notes/opencode-2-0/) lists the new parts, and the [Migrate from V1 guide](https://opencode.ai/v2/docs/migrate-v1/) says other supported 1.x behaviour is "intended to remain compatible". Checked 15 Oct 2026.
 
-For the basics, read [what is OpenCode](/blog/what-is-opencode/), and the [Concepts hub](/blog/topics/concepts/) explains the terms. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+The newer [OpenCode 2.3](/blog/opencode-2-3/), released 13 Nov 2026, makes background subagents the default and quiets the TUI transcript.
+
+For the basics, read [what is OpenCode](/blog/what-is-opencode/), and the [Concepts hub](/blog/topics/concepts/) explains the terms. [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 ## What is new in OpenCode 2.0?
 
@@ -101,6 +103,6 @@ Two more catches in the Migrate from V1 guide: V2 "does not run language servers
 
 ## OpenCode in Munder Difflin
 
-Munder Difflin runs OpenCode as one of its engines, starting the `opencode` CLI you have installed. For comparisons, see [OpenCode vs Claude Code](/blog/opencode-vs-claude-code/) and [Claude Code alternatives](/blog/claude-code-alternatives/).
+Munder Difflin's [README](https://github.com/HarnessMD/munder-difflin), read 13 Nov 2026, names OpenCode among the agent CLIs it "Wraps". For comparisons, see [OpenCode vs Claude Code](/blog/opencode-vs-claude-code/) and [Claude Code alternatives](/blog/claude-code-alternatives/).
 
 <link rel="stylesheet" href="/blog/assets/media/opencode-2-0/motion.css"><script defer src="/blog/assets/media/opencode-2-0/motion.js"></script>

@@ -1,0 +1,74 @@
+/* ── SEASON: Halloween (design/season.ts, on by default) ─────────────────────
+   Keyed on data-cth-season, a third axis beside skin and theme. It swaps
+   token VALUES only, like a skin: the accent becomes pumpkin orange and the
+   grounds pick up a candle warm tint in light and a night purple in dark.
+   Status colours never change: a season must not change what a dot means.
+   No red anywhere (house rule): orange, purple, green, black. Setting the
+   season to 'none' (Settings, General, Theme: General) drops every rule below. */
+:root[data-cth-season='halloween'][data-cth-skin='professional']:not([data-cth-theme='dark']) {
+  --cth-cream-50:  #F7F1E8;
+  --cth-cream-200: #EFE7DA;
+  --cth-paper-200: #FAF5EE;
+  --cth-ink-300:   #E2D8C8;
+  --cth-ink-100:   #EFE7DA;
+  --cth-accent: #F59A3C;
+  --cth-accent-hover: #FFB067;
+  --cth-accent-ink: #1E1208;
+  --cth-accent-text: #A4520A;
+  --cth-accent-soft: #FDE9D3;
+  --cth-accent-line: #F2BD86;
+  /* The selected row: a subtle orange (founder, 30 Sep), lighter than the soft
+     accent so a chip on a selected row still shows. */
+  --cth-surface-active: #FCEDDB;
+  --cth-season-glow: rgba(245, 154, 60, 0.45);
+  --cth-season-ink: #2B2238;
+  --cth-season-purple: #7B4FB0;
+  --cth-season-bat: #2B2238;
+  --cth-season-ghost: #FBF8FF;
+  --cth-season-flame: #FFE08A;
+  --cth-season-orange: #F59A3C;
+  --cth-season-orange-hi: #FFB067;
+  --cth-season-orange-sh: #A4520A;
+}
+:root[data-cth-season='halloween'][data-cth-skin='professional'][data-cth-theme='dark'] {
+  --cth-cream-50:  #15111B;
+  --cth-cream-100: #1C1724;
+  --cth-cream-200: #251E2F;
+  --cth-cream-300: #2C2437;
+  --cth-paper-100: #1C1724;
+  --cth-paper-200: #211B2A;
+  --cth-ink-300:   #362C42;
+  --cth-ink-100:   #2A2334;
+  --cth-accent: #FF9F45;
+  --cth-accent-hover: #FFB870;
+  --cth-accent-ink: #1E1208;
+  --cth-accent-text: #FFAE62;
+  --cth-accent-soft: #3A2517;
+  --cth-accent-line: #74441F;
+  /* The selected row: a dim orange brown, above the rail ground, calmer than
+     the soft accent. */
+  --cth-surface-active: #2C2119;
+  --cth-season-glow: rgba(255, 159, 69, 0.5);
+  --cth-season-ink: #0E0B13;
+  --cth-season-purple: #A77BE0;
+  --cth-season-bat: #9A7AC6;
+  --cth-season-ghost: #EDE6F7;
+  --cth-season-flame: #FFE08A;
+  --cth-season-orange: #FF9F45;
+  --cth-season-orange-hi: #FFB870;
+  --cth-season-orange-sh: #C9661A;
+}
+:root[data-cth-season='halloween'][data-cth-skin='office'] {
+  --cth-season-glow: rgba(245, 154, 60, 0.45);
+  --cth-season-ink: #2B2238;
+  --cth-season-purple: #7B4FB0;
+  --cth-season-bat: #2B2238;
+  --cth-season-ghost: #FBF8FF;
+  --cth-season-flame: #FFE08A;
+  --cth-season-orange: #F59A3C;
+  --cth-season-orange-hi: #FFB067;
+  --cth-season-orange-sh: #A4520A;
+}
+:root[data-cth-season='halloween'][data-cth-skin='office'][data-cth-theme='dark'] {
+  --cth-season-bat: #9A7AC6;
+}

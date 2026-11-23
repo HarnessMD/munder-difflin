@@ -78,7 +78,7 @@ Git already does the core job. Its [docs](https://git-scm.com/docs/git-worktree)
 
 ## 2. Munder Difflin: if you want a team, not only worktrees
 
-Munder Difflin is what we make, and it fits if you want agents that share work across research, writing, ops and coding. Its [README](https://github.com/HarnessMD/munder-difflin), read 4 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." It runs on engines such as Claude Code, Codex and Gemini CLI, takes work from Slack and webhooks, and adds tools through MCP servers, skills and plugins. A Cloud Office and a mobile app are coming soon. Agents run while your computer runs. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Munder Difflin is what we make, and it fits if you want agents that share work across research, writing, ops and coding. Its [README](https://github.com/HarnessMD/munder-difflin), read 4 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." It runs on engines such as Claude Code, Codex and Gemini CLI, takes work from Slack and webhooks, and adds tools through MCP servers, skills and plugins. Agents run on your computer, or in its Cloud Office, always on, with your computer off. A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Claude Squad: if you want to stay in the terminal
 

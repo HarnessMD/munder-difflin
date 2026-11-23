@@ -85,3 +85,24 @@ export function patchTaskInLedger(
   const list = Array.isArray(rawTasks) ? rawTasks : [];
   return list.map((entry) => (idOf(entry) === id ? { ...(entry as RawTask), ...patch } : entry));
 }
+
+/**
+ * Many cards patched in ONE pass (0.5.3, Dismiss all "all at once", founder on
+ * rc.4): the next ledger and the ids that were patched. A card that is not in
+ * the ledger is skipped, never a reason to drop the rest. Card order and every
+ * unpatched field are kept; the caller writes `next` once.
+ */
+export function applyTaskPatches<T extends { id?: unknown }>(
+  tasks: readonly T[],
+  patches: ReadonlyArray<{ id: string; patch: object }>
+): { next: T[]; applied: string[] } {
+  const next = tasks.slice();
+  const applied: string[] = [];
+  for (const { id, patch } of patches) {
+    const index = next.findIndex((task) => task?.id === id);
+    if (index < 0) continue;
+    next[index] = { ...next[index], ...patch, id };
+    applied.push(id);
+  }
+  return { next, applied };
+}

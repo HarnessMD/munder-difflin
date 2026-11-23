@@ -10,7 +10,7 @@ export type StatusKind =
   // prompt, which holds its queue. Never stored on the agent (the pty parser
   // would overwrite it); derived at render, see `hasTerminalDraft`. Without it
   // a held queue looked identical to an idle agent doing nothing.
-  | 'typing';
+  | 'typing' | 'sleeping';
 
 export interface PixelBadgeProps {
   status: StatusKind;
@@ -19,6 +19,7 @@ export interface PixelBadgeProps {
 }
 
 const colorByStatus: Record<StatusKind, string> = {
+  sleeping: 'var(--cth-status-idle)',
   idle:     'var(--cth-status-idle)',
   thinking: 'var(--cth-status-thinking)',
   working:  'var(--cth-status-working)',
@@ -34,7 +35,8 @@ const colorByStatus: Record<StatusKind, string> = {
 // i18n key per status. "blocked" is reserved for the god agent waiting on YOU,
 // so it reads as "needs you"; sub-agents waiting on god/another agent are
 // "waiting", which is honest about who they're actually stalled on.
-const labelKeyByStatus: Record<StatusKind, string> = {
+export const labelKeyByStatus: Record<StatusKind, string> = {
+  sleeping: 'Sleeping',
   idle:     'badge.idle',
   thinking: 'badge.thinking',
   working:  'badge.working',

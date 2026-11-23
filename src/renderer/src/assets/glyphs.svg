@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+<!--
+  Munder Difflin — Professional role glyphs
+  Pam (pam-mt6kt8lf) · DESIGN-PROFESSIONAL.md section 9
+
+  Ten role glyphs, one family, drawn together and tested together at 16px.
+  Thin single weight line drawings, monochrome, stroke 1.5 on a 24 grid, so at
+  16px the stroke lands on 1px. They inherit currentColor and they NEVER carry
+  colour of their own.
+
+  Use:  <svg class="glyph"><use href="glyphs.svg#g-engineering"/></svg>
+  Inline the file once per document if you need it to work offline from file://.
+
+  THE CONSTRAINT: distinguishable from each other at 16px in ONE colour.
+  Three pairs were the risk and each is separated on silhouette, not detail:
+    unassigned / generic     a plain box against a box with a heavy centre dot
+    metrics / growth         a zigzag inside an axis against one diagonal with
+                             an arrowhead crossing a rule
+    orchestrator / community three small filled dots in a hierarchy against two
+                             large open circles side by side
+-->
+
+  <!-- Michael — orchestrator. A small node tree, three connected dots. -->
+  <symbol id="g-orchestrator" viewBox="0 0 24 24">
+    <path d="M12 7.5v4.5M6 12h12M6 12v4M18 12v4" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="12" cy="5.5" r="2" fill="currentColor"/>
+    <circle cx="6" cy="18" r="2" fill="currentColor"/>
+    <circle cx="18" cy="18" r="2" fill="currentColor"/>
+  </symbol>
+
+  <!-- Kevin — engineering. Angle brackets. -->
+  <symbol id="g-engineering" viewBox="0 0 24 24">
+    <path d="M9.5 7.5 4.5 12l5 4.5M14.5 7.5 19.5 12l-5 4.5" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </symbol>
+
+  <!-- Pam — design. A pen nib. The slit and the point are what carry it small. -->
+  <symbol id="g-design" viewBox="0 0 24 24">
+    <path d="M12 3.5 18 12.5 12 20.5 6 12.5Z" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M12 15v5.5" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round"/>
+    <circle cx="12" cy="10.8" r="1.5" fill="currentColor"/>
+  </symbol>
+
+  <!-- Ryan — metrics. A line chart, axis plus zigzag. -->
+  <symbol id="g-metrics" viewBox="0 0 24 24">
+    <path d="M5 4.5v15h15" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="m7.5 15.5 3.5-4 3 2.5 4.5-6" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <!-- Oscar — finance. A ledger line: ruled rows with a money column. -->
+  <symbol id="g-finance" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M12 5.8v12.4M9.4 9.9h5.2M9.4 14.1h5.2" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- Jim — growth. An upward arrow through a bar. -->
+  <symbol id="g-growth" viewBox="0 0 24 24">
+    <path d="M4 14.5h16" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round"/>
+    <path d="M6.5 19.5 18 8" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round"/>
+    <path d="M12.5 7.5H18.5V13.5" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <!-- Angela — community. Two overlapping circles. -->
+  <symbol id="g-community" viewBox="0 0 24 24">
+    <circle cx="9.25" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <circle cx="14.75" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  </symbol>
+
+  <!-- Creed — unassigned. A plain square outline. -->
+  <symbol id="g-unassigned" viewBox="0 0 24 24">
+    <rect x="5" y="5" width="14" height="14" rx="2.5" fill="none"
+          stroke="currentColor" stroke-width="1.5"/>
+  </symbol>
+
+  <!-- Any custom agent — generic. A dot in a square. -->
+  <symbol id="g-generic" viewBox="0 0 24 24">
+    <rect x="5" y="5" width="14" height="14" rx="2.5" fill="none"
+          stroke="currentColor" stroke-width="1.5"/>
+    <circle cx="12" cy="12" r="2.6" fill="currentColor"/>
+  </symbol>
+
+  <!-- Any agent whose work is written correspondence — correspondence.
+       The TENTH role glyph. Section 9 permits nine to twelve and this one is
+       earned: `andy` is the only unmapped cast member with a real role,
+       "email research and drafting", and it maps to none of the other nine.
+       Deliberately an envelope rather than a document, because the tray shape
+       is already spent on the n-inbox navigation icon and a second tray in the
+       same rail would read as the same thing twice. -->
+  <symbol id="g-correspondence" viewBox="0 0 24 24">
+    <rect x="4" y="6.5" width="16" height="11" rx="2" fill="none"
+          stroke="currentColor" stroke-width="1.5"/>
+    <path d="m4.8 7.8 7.2 5.4 7.2-5.4" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <!-- ── Navigation icons ───────────────────────────────────────────────────
+       NOT part of the role family. The rail needs plain line icons for its
+       non agent rows and the brief specifies nine ROLE glyphs, which stays
+       nine. Same drawing language so the rail reads as one set. -->
+
+  <symbol id="n-new" viewBox="0 0 24 24">
+    <rect x="4.5" y="4.5" width="15" height="15" rx="3" fill="none"
+          stroke="currentColor" stroke-width="1.5"/>
+    <path d="M12 8.5v7M8.5 12h7" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="n-dashboard" viewBox="0 0 24 24">
+    <rect x="4.5" y="4.5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <rect x="13.5" y="4.5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <rect x="4.5" y="13.5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <rect x="13.5" y="13.5" width="6" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  </symbol>
+
+  <symbol id="n-inbox" viewBox="0 0 24 24">
+    <path d="M4 12.5 6.5 5.5h11L20 12.5v5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z"
+          fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M4 12.5h4l1.5 2.5h5l1.5-2.5h4" fill="none" stroke="currentColor"
+          stroke-width="1.5" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="n-check" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="n-alert" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M12 8v4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="12" cy="15.75" r="1.05" fill="currentColor"/>
+  </symbol>
+
+</svg>

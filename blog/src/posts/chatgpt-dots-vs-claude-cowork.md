@@ -96,6 +96,6 @@ More options sit in [ChatGPT Dots alternatives](/blog/chatgpt-dots-alternatives/
 
 Yes, but they are separate subscriptions, so you pay OpenAI and Anthropic.
 
-Munder Difflin fits alongside either when you want agents on your own machine. It runs agents on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. Today the agents run on your computer; a Cloud Office and a mobile app are coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) covers setup, and [Munder Difflin vs ChatGPT Dots](/blog/munder-difflin-vs-chatgpt-dots/) puts it next to Dots.
+Munder Difflin fits alongside either when you want agents on your own machine. It runs agents on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. The agents run on your computer, or in its Cloud Office, always on, with your computer off; a mobile app is coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) covers setup, and [Munder Difflin vs ChatGPT Dots](/blog/munder-difflin-vs-chatgpt-dots/) puts it next to Dots.
 
 <link rel="stylesheet" href="/blog/assets/media/chatgpt-dots-vs-claude-cowork/motion.css"><script defer src="/blog/assets/media/chatgpt-dots-vs-claude-cowork/motion.js"></script>

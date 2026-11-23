@@ -90,7 +90,7 @@ It messages you first. You talk to it "through text or voice", the product page 
 Use something with no waitlist. If you are outside the US, on a Team plan, or simply still waiting, three places to start:
 
 1. [Claude Duet alternatives](/blog/claude-duet-alternatives/): our list of proactive agents you can use today.
-2. [Munder Difflin](https://harnessmd.com/download): free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The Cloud Office and a mobile app are coming soon. Setup is in our [install guide](/blog/how-to-install-and-use-munder-difflin/). Unlike Duet, it runs on your computer, so that computer has to be on while it works.
+2. [Munder Difflin](https://harnessmd.com/download): free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon. Setup is in our [install guide](/blog/how-to-install-and-use-munder-difflin/). When it runs on your own computer, that computer has to be on.
 3. [Build your own Claude Duet](/blog/build-your-own-claude-duet/): a daily brief you set up yourself.
 
 More guides like this one sit on our [guides page](/blog/topics/guides/).

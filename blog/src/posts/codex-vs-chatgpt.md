@@ -105,6 +105,6 @@ For other coding agents, see [Codex vs Claude Code](/blog/codex-cli-vs-claude-co
 
 Yes. Codex is one CLI among several, and they can run side by side.
 
-Munder Difflin is one place to do that. It runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. The agents run on your computer today; a Cloud Office and a mobile app are coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) walks through setup.
+Munder Difflin is one place to do that. It runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. The agents run on your computer, or in its Cloud Office, always on, with your computer off; a mobile app is coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) walks through setup.
 
 <link rel="stylesheet" href="/blog/assets/media/codex-vs-chatgpt/motion.css"><script defer src="/blog/assets/media/codex-vs-chatgpt/motion.js"></script>

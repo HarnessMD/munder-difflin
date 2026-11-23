@@ -65,7 +65,7 @@ The [models page](https://antigravity.google/docs/models/) lists Gemini 4 Argon,
 
 ## 2. Munder Difflin: if one agent at a time is the bottleneck
 
-[Munder Difflin](https://harnessmd.com/download) is ours, for several agents on research, writing, ops and code side by side. Engines such as Claude Code, Codex and Gemini CLI do the work, so Gemini CLI can stay as one engine. Slack and webhooks bring jobs in; MCP servers, skills and plugins add tools. A Cloud Office and a mobile app are coming soon. Today, agents run while your computer runs. See [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is ours, for several agents on research, writing, ops and code side by side. Engines such as Claude Code, Codex and Gemini CLI do the work, so Gemini CLI can stay as one engine. Slack and webhooks bring jobs in; MCP servers, skills and plugins add tools. Agents run on your computer, or in its Cloud Office, always on, with your computer off. A mobile app is coming soon. See [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Claude Code: if you want Anthropic's models
 
@@ -89,6 +89,6 @@ If you came for a free tier, keep walking. The [auth docs](https://qwenlm.github
 
 ## When should you stay on Gemini CLI?
 
-Stay if your company already pays for Gemini Code Assist Standard or Enterprise. Google's announcement tells those customers "your access remains unchanged" and promises "access to the latest Gemini models and other updates." Scripts built on `gemini -p --output-format json` are another reason not to rush.
+Stay if your company already pays for Gemini Code Assist Standard or Enterprise. Google's announcement tells those customers "your access remains unchanged" and promises "access to the latest Gemini models and other updates." Scripts built on `gemini -p --output-format json` are another reason not to rush. If you are weighing GitHub's terminal agent instead, our [GitHub Copilot CLI alternatives](/blog/github-copilot-cli-alternatives/) page compares five options, checked 19 Nov 2026.
 
 <link rel="stylesheet" href="/blog/assets/media/gemini-cli-alternatives/motion.css"><script defer src="/blog/assets/media/gemini-cli-alternatives/motion.js"></script>

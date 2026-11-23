@@ -14,8 +14,8 @@ successful release never touches.
   download buttons into 404s the moment the tag ships. This is also enforced in CI on `release/**`,
   but run it locally before you tag. After publishing, `npm run check:links -- --live` HEADs every
   URL and requires 200.
-- [ ] **`package.json` version is the real release version** (not an `-rc` string), and `RELEASE.md`,
-  `build/release-notes.md` and `CHANGELOG.md` all name that same version.
+- [ ] **`package.json` version is the real release version** (not an `-rc` string), and `RELEASE.md`
+  and `CHANGELOG.md` both name that same version.
 
 ## The proving hop (rehearse on prereleases, before the real release)
 

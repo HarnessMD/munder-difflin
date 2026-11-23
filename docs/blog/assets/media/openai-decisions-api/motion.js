@@ -99,7 +99,7 @@
     build(svg, api) {
       txt(svg, 44, 62, "You pay only for input tokens", { "font-size": 32, "font-weight": 700 });
       txt(svg, 756, 62, "tap a slot", { "text-anchor": "end", "font-size": 20, fill: MUTE, "font-weight": 500 });
-      txt(svg, 44, 98, "gpt-6-luna on /v1/decisions. OpenAI's guide, 7 Oct 2026", { "font-size": 20, "font-weight": 500, fill: MUTE });
+      txt(svg, 44, 98, "gpt-6-luna on /v1/decisions. OpenAI's guide, 12 Nov 2026", { "font-size": 20, "font-weight": 500, fill: MUTE });
       const IX = 301, OX = 515, TOP = 190, BOT = 410;
       const tok = (col) => el("rect", { x: -11, y: -11, width: 22, height: 22, rx: 6, fill: col, stroke: INK, "stroke-width": 2.5, "pointer-events": "none" }, svg);
       const ins = Array.from({ length: 5 }, () => tok(SKY)), uin = tok(SKY);
@@ -161,12 +161,11 @@
     },
   };
 
-  /* ---- 3. three picture cards meet a turnstile: one passes, two are stopped ---- */
+  /* ---- 3. three picture cards meet a turnstile: two pass, one is stopped ---- */
   SC.turnstile = {
-    dur: 12, still: 9.8,
+    dur: 12, still: 10,
     build(svg) {
-      txt(svg, 44, 62, "Images: inline only", { "font-size": 32, "font-weight": 700 });
-      txt(svg, 756, 62, "in beta", { "text-anchor": "end", "font-size": 20, fill: MUTE, "font-weight": 500 });
+      txt(svg, 44, 62, "Images: base64 or URL", { "font-size": 32, "font-weight": 700 });
       const CX = 400, CY = 286;
       el("path", { d: "M44 459 H756", stroke: INK, "stroke-width": 3, "stroke-linecap": "round" }, svg);
       el("rect", { x: CX - 62, y: 440, width: 124, height: 18, rx: 9, fill: SOFT, stroke: INK, "stroke-width": 3 }, svg);
@@ -188,7 +187,14 @@
       const hub = el("circle", { cx: CX, cy: CY, r: 11, fill: SOFT, stroke: INK, "stroke-width": 2.5 }, svg);
       const ok = chip(svg, "passes", MINT), no = chip(svg, "not supported", SOFT);
       const cap = strip(svg, 510, 740);
-      const LX = 240, HOME = 170, PASS = 630;
+      const LX = 240, HOME = 170, PASS = 630, MID = 271;
+      /* a passed card crosses on the hub line, then moves up or down to its own row so the next one has room */
+      const passed = (g, t, a, y) => {
+        const arrive = io(seg(t, a, a + 0.8)), p = io(seg(t, a + 0.8, a + 2)), m = io(seg(t, a + 2, a + 2.5));
+        tf(g, -150 + (LX + 150) * arrive + (PASS - LX) * p, CY + (y - CY) * m);
+        g.setAttribute("opacity", t < a ? 0 : 1);
+        return p;
+      };
       const stopped = (g, t, a, y) => {
         const arrive = io(seg(t, a, a + 0.8)), jig = t > a + 0.8 && t < a + 1.4 ? Math.sin((t - a - 0.8) * 32) * 5 * (1 - (t - a - 0.8) / 0.6) : 0, back = io(seg(t, a + 1.4, a + 2.2));
         tf(g, -150 + (LX + 150) * arrive + jig + (HOME - LX) * back, CY + (y - CY) * back);
@@ -197,16 +203,15 @@
       };
       return (t) => {
         const out = 1 - seg(t, 11.2, 11.7);
-        const a1 = io(seg(t, 0.5, 1.3)), p1 = io(seg(t, 1.3, 2.5));
-        tf(A, -150 + (LX + 150) * a1 + (PASS - LX) * p1, CY); A.setAttribute("opacity", (t < 0.5 ? 0 : 1) * out);
-        const j2 = stopped(B, t, 3.4, 196), j3 = stopped(C, t, 6, 376), j = j2 || j3;
-        B.setAttribute("opacity", +B.getAttribute("opacity") * out); C.setAttribute("opacity", +C.getAttribute("opacity") * out);
-        arms.setAttribute("transform", `translate(${CX} ${CY}) rotate(${-90 + 120 * p1 + j * 0.9})`);
-        hub.setAttribute("fill", p1 > 0 && p1 < 1 ? MINT : j ? INK : SOFT);
-        const k1 = ob(seg(t, 2.5, 2.9)) * out, k2 = ob(seg(t, 5.5, 5.9)) * out;
-        tf(ok, PASS, 196, cl(k1, 0, 1.2)); show(ok, k1);
-        tf(no, HOME, 286, cl(k2, 0, 1.2)); show(no, k2);
-        cap.textContent = t < 3.4 || t >= 11.2 ? "Images must be inline base64 data URLs" : t < 8.4 ? "Hosted image URLs and file_id inputs are not supported" : "Images must be inline base64 data URLs. OpenAI's guide, 7 Oct 2026";
+        const p1 = passed(A, t, 0.5, 160), p2 = passed(B, t, 3.4, 376), j = stopped(C, t, 6.4, 376);
+        [A, B, C].forEach((g) => g.setAttribute("opacity", +g.getAttribute("opacity") * out));
+        arms.setAttribute("transform", `translate(${CX} ${CY}) rotate(${-90 + 120 * p1 + 120 * p2 + j * 0.9})`);
+        hub.setAttribute("fill", (p1 > 0 && p1 < 1) || (p2 > 0 && p2 < 1) ? MINT : j ? INK : SOFT);
+        /* "passes" pops after A settles, steps aside while B crosses its row, pops again once B settles */
+        const k1 = Math.max(ob(seg(t, 3, 3.4)) * (1 - io(seg(t, 4.2, 4.45))), ob(seg(t, 5.9, 6.3))) * out, k2 = ob(seg(t, 8.6, 9)) * out;
+        tf(ok, PASS, MID, cl(k1, 0, 1.2)); show(ok, k1);
+        tf(no, HOME, MID, cl(k2, 0, 1.2)); show(no, k2);
+        cap.textContent = t >= 6.4 && t < 9.6 ? "file_id inputs are not supported" : "Inline base64 data URLs or HTTP or HTTPS URLs";
       };
     },
   };
@@ -256,7 +261,7 @@
       txt(svg, 64, 92, "Concepts", { "font-family": MONO, "font-size": 24, "font-weight": 700, fill: MUTE });
       txt(svg, 64, 176, "OpenAI Decisions API", { "font-size": 76, "font-weight": 700 });
       el("path", { d: "M66 204 H800", stroke: YEL, "stroke-width": 14, "stroke-linecap": "round" }, svg);
-      txt(svg, 64, 258, "Checked 7 Oct 2026", { "font-size": 25, "font-weight": 500, fill: MUTE });
+      txt(svg, 64, 258, "Checked 12 Nov 2026", { "font-size": 25, "font-weight": 500, fill: MUTE });
       el("rect", { x: 56, y: 462, width: 848, height: 20, rx: 10, fill: SOFT, stroke: INK, "stroke-width": 3 }, svg);
       [[220, YEL, 0], [480, MINT, 1], [740, LIL, 0]].forEach(([x, col, rung]) => {
         const g = el("g", { transform: `translate(${x} 462)` }, svg), dip = rung ? 9 : 0;

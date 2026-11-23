@@ -476,7 +476,7 @@ function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; labe
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-const MARKER_ACTS: MessageAct[] = ['request', 'inform', 'propose', 'query', 'agree', 'refuse', 'done'];
+const MARKER_ACTS: MessageAct[] = ['request', 'inform', 'propose', 'query', 'agree', 'refuse', 'done', 'note'];
 
 /** Speech-act → colour. Mirrors ACT_COLOR in MessageEnvelope.ts so the graph
  *  speaks the same visual language as the floor's flying envelopes. */

@@ -59,11 +59,11 @@ Six tools. Every row was read on 7 Nov 2026.
 
 ## 1. Orca: the closest match
 
-Orca does what Paradev does and adds Windows. Its [README](https://github.com/stablyai/orca), read 7 Nov 2026, says "Run Claude Code, Codex, and any other coding agent in parallel, each in its own worktree." You can "give a worktree its own cloud VM", and then "Your agents keep running when your laptop sleeps." The [Orca site](https://www.onorca.dev) answers "Is it free?" with "Free and open source."
+Orca does what Paradev does and adds Windows. Its [README](https://github.com/stablyai/orca), read 7 Nov 2026, says "Run Claude Code, Codex, and any other coding agent in parallel, each in its own worktree." You can "give a worktree its own cloud VM", and then "Your agents keep running when your laptop sleeps." The [Orca site](https://www.onorca.dev) answers "Is it free?" with "Free and open source." If Orca is the tool you want to replace, our [Orca alternatives](/blog/orca-alternatives/) page, checked 19 Nov 2026, lists six options.
 
 ## 2. Munder Difflin: a team for all kinds of work
 
-Munder Difflin is ours, and it aims wider than code. Agents run while your computer runs. Its [README](https://github.com/HarnessMD/munder-difflin), read 7 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human." It runs engines such as Claude Code, Codex and Gemini CLI. Work can arrive from Slack or a webhook, and agents add tools through MCP servers, skills and plugins. The README also lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Munder Difflin is ours, and it aims wider than code. Agents run on your computer, or in its Cloud Office, always on, with your computer off. Its [README](https://github.com/HarnessMD/munder-difflin), read 7 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human." It runs engines such as Claude Code, Codex and Gemini CLI. Work can arrive from Slack or a webhook, and agents add tools through MCP servers, skills and plugins. The README also lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Orchestrator.inc: if pull requests are the job
 

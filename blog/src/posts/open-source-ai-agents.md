@@ -24,6 +24,8 @@ faq:
 
 The best open source AI agents right now are OpenClaw for a personal assistant, [Munder Difflin](https://harnessmd.com/download) for a team of agents on your computer, Hermes Agent for memory that learns, and OpenCode or Cline for coding. All ten picks below are MIT or Apache 2.0, checked on their repos on 1 Oct 2026.
 
+Eigent's agent workforce is compared in [Eigent alternatives](/blog/eigent-alternatives/).
+
 ## What is an open source AI agent?
 
 It is a program that calls a language model in a loop and uses tools to finish a goal, with code you may read, change and share. The model is a separate question: open code does not make the model open. [Is Claude Code open source?](/blog/is-claude-code-open-source/) shows where that line sits for one popular agent.
@@ -34,7 +36,7 @@ It is a program that calls a language model in a loop and uses tools to finish a
 
 **1. OpenClaw.** [OpenClaw](https://github.com/openclaw/openclaw) is a personal assistant that runs on your own computer and answers in Discord, iMessage, Slack, Teams, Telegram, WhatsApp and 20+ more channels. Its README says state, memory and credentials live on your hardware, and that it has no paid tier, hosted service or token. Best for: one assistant for your personal life.
 
-**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app (MIT) that runs a team of named AI agents on your own computer. Each agent runs on a CLI engine you already use, such as Claude Code, Codex, Gemini CLI, OpenCode or Cursor, and keeps its own `memory.md`, inbox and outbox. You can put missions on schedules, and a Slack trigger feeds requests to Michael, the orchestrator who hands work out. The limits: agents run only while your computer does, you install and sign in to each CLI yourself, and anonymous usage telemetry is on by default (you can turn it off in Settings). Best for: project work spread over several engines. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+**2. Munder Difflin.** [Munder Difflin](https://harnessmd.com/download) is what we make: a free and open source desktop app (MIT) that runs a team of named AI agents on your own computer. Each agent runs on a CLI engine you already use, such as Claude Code, Codex, Gemini CLI, OpenCode or Cursor, and keeps its own `memory.md`, inbox and outbox. You can put missions on schedules, and a Slack trigger feeds requests to Michael, the orchestrator who hands work out. The limits: you install and sign in to each CLI yourself, and anonymous usage telemetry is on by default (you can turn it off in Settings). Best for: project work spread over several engines. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 **3. Hermes Agent.** [Hermes Agent](https://github.com/NousResearch/hermes-agent) from Nous Research is built around a learning loop: it curates its own memory, writes skills after complex tasks and searches its past sessions. It has a built in cron scheduler, talks over Telegram, Slack, Signal and more, and runs on a laptop, a VPS or serverless backends. Best for: a server agent that improves with use. Our [Hermes Agent explainer](/blog/what-is-hermes-agent/) covers the install command, the models it takes and what it costs.
 

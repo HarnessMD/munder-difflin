@@ -15,7 +15,7 @@ faq:
   - q: "Can Munder Difflin work with my business apps like Claude Duet?"
     a: "Yes, through what you connect. Its agents do research, writing, email drafts, analysis, ops and code, and reach other apps through MCP servers, skills and plugins you add, plus Slack and webhooks. Duet comes with more than 6,000 connectors in the Claude Marketplace, ready from your Claude account."
   - q: "Does Munder Difflin work while my computer is off?"
-    a: "Today its agents run on your computer, and the app has a setting that keeps it awake while agents are live. The Munder Difflin Cloud Office, coming soon, runs agents in the cloud so work goes on with your computer off, and a dedicated mobile app is also coming soon. Claude Duet already runs in Anthropic's virtual machine."
+    a: "Yes, in the Munder Difflin Cloud Office, which runs agents in the cloud, always on, so work goes on with your computer off. On your own computer, the app has a setting that keeps it awake while agents are live. A dedicated mobile app is coming soon. Claude Duet already runs in Anthropic's virtual machine."
   - q: "Can I use both?"
     a: "Yes. They do not overlap much. Duet can brief you on your inbox and invoices in the morning, while a Munder Difflin team runs your research, reports, ops and code on a schedule. Both can use the same Claude subscription, so watch your usage page."
 ---
@@ -30,7 +30,7 @@ One agent versus a team. Duet is a single agent: you talk to it "in one ongoing 
 
 <figure class="mg" data-scene="team"><img src="/blog/assets/media/claude-duet-vs-munder-difflin/team.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On the left, under Claude Duet, message bubbles stack in one ongoing thread. On the right, under Munder Difflin, terminal tiles for Claude Code, Codex, Gemini CLI and OpenCode pass envelopes through a central Shared hive box. Tap Add an agent to add a Qwen Code tile."><figcaption>One thread versus a team that shares a hive. Based on Anthropic's Duet pages and the Munder Difflin README, 22 Oct 2026.</figcaption></figure>
 
-Where they run differs too. Duet "has a virtual machine with its own browser", so it keeps working with your laptop and phone off. Munder Difflin runs on macOS, Windows or Linux, and today its agents work while that computer is awake. Its Cloud Office, coming soon, moves them to the cloud so work goes on with the computer off.
+Where they run differs too. Duet "has a virtual machine with its own browser", so it keeps working with your laptop and phone off. Munder Difflin runs on macOS, Windows or Linux, and its agents work there while that computer is awake. Its Cloud Office runs them in the cloud, always on, so work goes on with the computer off.
 
 ## How do they keep you in control?
 
@@ -58,13 +58,13 @@ Choose by the work you want off your plate. Our read of both, on 22 Oct 2026:
 | --- | --- | --- |
 | Built for | Professionals and small business owners | All kinds of knowledge work, coding included |
 | Shape | One agent, one thread | A team of named agents |
-| Runs on | Anthropic's virtual machine | Your computer; Cloud Office coming soon |
+| Runs on | Anthropic's virtual machine | Your computer, or the Cloud Office, always on |
 | Works with | More than 6,000 connectors and plugins | MCP servers, skills and plugins; engines such as Claude Code, Codex and Gemini CLI |
 | Acts first by | Morning brief, checks every few hours | Schedules, Slack and webhooks |
 | Access | Pro and Max in the US, by waitlist | Free download, macOS, Windows, Linux |
 | Source | Closed | Open source (MIT) |
 
-Be honest about the catch on our side. Today Munder Difflin needs a computer that stays awake, an engine such as Claude Code installed and signed in, and a little setup per agent. Duet needs none of that: Anthropic says setup "requires minimal work" because your memory, skills and connected apps carry over from your Claude account.
+Be honest about the catch on our side. Munder Difflin needs an engine such as Claude Code installed and signed in, a little setup per agent, and a computer that stays awake unless agents run in the Cloud Office. Duet needs none of that: Anthropic says setup "requires minimal work" because your memory, skills and connected apps carry over from your Claude account.
 
 Duet is the better pick if your day is email, invoices, payroll and contracts, and you are in the US on Pro or Max. Munder Difflin is the better pick if you want a team that splits research, writing, analysis, ops and code, if you are outside the US, or if you want several engines at once. [Build your own Claude Duet](/blog/build-your-own-claude-duet/) shows a morning brief agent, step by step, and [Claude Duet alternatives](/blog/claude-duet-alternatives/) lists more options. New to Munder Difflin? Start with [your first hour](/blog/your-first-hour-with-munder-difflin/).
 

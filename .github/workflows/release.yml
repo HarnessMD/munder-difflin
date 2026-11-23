@@ -1,152 +1,29 @@
 name: Release
 
-# Build installers for every platform and publish them to a GitHub Release
-# whenever a v* tag is pushed. Run manually (workflow_dispatch) to dry-build
-# without publishing.
+# Releases are source only. A pushed v* tag becomes a GitHub Release whose body
+# is RELEASE.md, and GitHub attaches its own source archives. Nothing is built,
+# signed or uploaded here, so the job needs no secrets.
 on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-latest
-            args: --mac
-          - os: windows-2022
-            args: --win
-          - os: ubuntu-latest
-            args: --linux
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      # node-gyp (used to rebuild native node-pty) imports distutils, which was
-      # removed in Python 3.12. Pin 3.11 and install setuptools so the distutils
-      # shim is available across all runners.
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Provide distutils for node-gyp
-        run: python -m pip install --upgrade setuptools
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Compile (electron-vite → out/)
-        run: npm run build
-        env:
-          # Anonymous product analytics (TELEMETRY.md). The PostHog project key
-          # is public/write-only, but only official release builds inject it —
-          # forks without the secret compile with '' and analytics no-ops.
-          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-          POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
-
-      - name: Package installers
-        # GH_TOKEN lets electron-builder skip its own publish; we upload via the
-        # release step below for full control over the asset set.
-        run: npx electron-builder ${{ matrix.args }} --publish never
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # macOS code signing + notarization — MUST be macOS-only. CSC_LINK is the
-          # Apple Developer ID .p12; if it leaks into the Windows/Linux runners,
-          # electron-builder tries to sign those targets with the mac cert and the
-          # build hard-fails ("cannot extract publisher name"). So gate on the OS.
-          #   APPLE_CERTIFICATE_P12       = base64 of the "Developer ID Application" .p12
-          #   APPLE_CERTIFICATE_PASSWORD  = that .p12's export password (REQUIRED if P12 set,
-          #                                 else electron-builder imports with an empty
-          #                                 password and fails "MAC verification failed")
-          # All optional: with the secrets unset every runner builds unsigned and stays green.
-          CSC_LINK: ${{ matrix.os == 'macos-latest' && secrets.APPLE_CERTIFICATE_P12 || '' }}
-          CSC_KEY_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
-          APPLE_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_ID || '' }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.APPLE_APP_SPECIFIC_PASSWORD || '' }}
-          APPLE_TEAM_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_TEAM_ID || '' }}
-
-      - name: Generate checksums
-        shell: bash
-        run: |
-          cd dist
-          # hash only the distributable artifacts, not blockmaps/yml
-          files=$(ls *.dmg *.zip *.exe *.AppImage 2>/dev/null || true)
-          [ -z "$files" ] && { echo "no artifacts to hash"; exit 0; }
-          if command -v sha256sum >/dev/null 2>&1; then
-            sha256sum $files > "SHA256SUMS-${{ matrix.os }}.txt"
-          else
-            shasum -a 256 $files > "SHA256SUMS-${{ matrix.os }}.txt"
-          fi
-          cat "SHA256SUMS-${{ matrix.os }}.txt"
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}-dist
-          # zip + latest*.yml + blockmaps feed electron-updater (auto-update):
-          # latest-mac.yml points Squirrel.Mac at the zip; nsis/AppImage use
-          # latest.yml/latest-linux.yml + blockmaps for differential download.
-          path: |
-            dist/*.dmg
-            dist/*.zip
-            dist/*.exe
-            dist/*.AppImage
-            dist/*.blockmap
-            dist/latest*.yml
-            dist/SHA256SUMS-*.txt
-          if-no-files-found: warn
-
-  publish:
+  release:
     name: Publish release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Flatten + merge checksums
-        run: |
-          mkdir -p release
-          find artifacts -type f \( -name '*.dmg' -o -name '*.zip' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.blockmap' -o -name 'latest*.yml' \) -exec cp {} release/ \;
-          cat artifacts/*/SHA256SUMS-*.txt > release/SHA256SUMS.txt 2>/dev/null || true
-          ls -la release
-
       - name: Publish to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          # RELEASE.md is the human-facing notes; GitHub shows it as the body.
           body_path: RELEASE.md
-          # A tag carrying a pre-release suffix (v0.4.4-rc.1, -beta.2 …) publishes
-          # as a PRE-RELEASE. This is load-bearing, not cosmetic: the in-app
-          # updater polls /releases/latest, and GitHub excludes pre-releases from
-          # that endpoint. So an rc gets a real, public, shareable download page
-          # WITHOUT offering itself to every installed copy of the app — which is
-          # exactly what you want for a build that needs testing on a platform the
-          # authors cannot run. A clean `vX.Y.Z` tag is unaffected and still ships
-          # as the latest release to everyone.
+          # A tag with a suffix (v0.6.1-rc.1, v0.6.1-beta.2) publishes as a
+          # prerelease. GitHub leaves prereleases out of releases/latest, the one
+          # endpoint the in-app notice polls, so an rc never tells installed
+          # copies it exists. A clean vX.Y.Z tag becomes the latest release.
           prerelease: ${{ contains(github.ref_name, '-') }}
-          fail_on_unmatched_files: false
-          files: |
-            release/*.dmg
-            release/*.zip
-            release/*.exe
-            release/*.AppImage
-            release/*.blockmap
-            release/latest*.yml
-            release/SHA256SUMS.txt

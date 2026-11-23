@@ -24,6 +24,10 @@ faq:
 
 Our view: Orca is the closest AionUi alternative, because it is also a free desktop app that runs Claude Code, Codex and other agent CLIs side by side. AionUi is a free, Apache 2.0 desktop app for macOS, Windows and Linux, with a WebUI and a Team mode, and it stays a strong pick. Checked 9 Nov 2026.
 
+If LobeHub is also on your shortlist, see [LobeHub alternatives](/blog/lobehub-alternatives/).
+
+Rowboat, an open source AI coworker, has [its own list](/blog/rowboat-alternatives/).
+
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More head to heads live in our [Comparisons hub](/blog/topics/comparisons/) and [Herdr alternatives](/blog/herdr-alternatives/).
 
 ## What is AionUi?
@@ -62,7 +66,7 @@ Orca is a free desktop app that runs several agent CLIs at once. Its [README](ht
 
 ## 2. Munder Difflin: a team for all kinds of work
 
-Munder Difflin is ours, and like AionUi it covers more than code. Agents run while your computer runs. Its [README](https://github.com/HarnessMD/munder-difflin), read 9 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human." Agents run on engines such as Claude Code, Codex and Gemini CLI, take work from Slack or a webhook, and add tools through MCP servers, skills and plugins. A Cloud Office and a mobile app are coming soon. It suits mixed work: research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Munder Difflin is ours, and like AionUi it covers more than code. Agents run on your computer, or in its Cloud Office, always on, with your computer off. Its [README](https://github.com/HarnessMD/munder-difflin), read 9 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human." Agents run on engines such as Claude Code, Codex and Gemini CLI, take work from Slack or a webhook, and add tools through MCP servers, skills and plugins. A mobile app is coming soon. It suits mixed work: research, writing, ops and code. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. OpenWork: the Cowork style desktop app
 

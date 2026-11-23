@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useStore, type Agent, type QueuedMessage, type StationKind, type ToolKind } from '@/store/store';
+import { startedRowPatch } from './startedRow';
 import {
   buildSpawnCommand,
   ASSISTANT_MODEL,
@@ -11,18 +12,35 @@ import {
 import {
   clearCommandForProvider,
   compactionCommandForProvider,
+  isCompactionCommand,
   remoteControlCommandForProvider,
-  terminalReadyToReceive
+  promptTail,
+  tailMatches,
+  wakeOptionsFor,
+  type SubmitResult
 } from '../../../shared/providerAutomation';
-import { DEFAULT_CONTEXT_TRIGGER, type ContextRule } from '../../../shared/triggers';
+import { type ContextRule } from '../../../shared/triggers';
 import type { AgentProvider } from '../../../shared/agentProvider';
 import { bridgeOf, providerPreset } from '../../../shared/agentProvider';
 import { isDurableRole, preferredAgentRole, roleForHiveSpawn } from '../../../shared/agentRole';
-import { inboxNudgeText } from '../../../shared/hiveNudge';
+import { inboxNudgeText, isInboxNudge, wakesReceiver } from '../../../shared/hiveNudge';
+import { isHandoffRequest } from '../../../shared/switchClear';
+import { isSteer } from '../../../shared/inboxThread';
+import { sizeClearReady } from '../../../shared/codexSizeClear';
+import { commandWithModel } from '../../../shared/liveModel';
+import { effectiveGodCommand } from '../../../shared/godCommand';
+import { agentExitOf } from '../../../shared/agentExit';
+import { godRunning, refusedBecauseAlive } from '../../../shared/godBoot';
 import { resolveGodName } from '../../../shared/godIdentity';
-import { acquireTerminal, resetTerminal, isTerminalAutomationSafe } from '@/components/terminalPool';
-import { canDeliverToAgent, deliverWithAcknowledgement, checkPrecondition } from './queueDelivery';
-import { OFFICE_CAST, DEFAULT_CHARACTER } from '@/scene/office/cast';
+import { resolveResponder } from '../../../shared/responder';
+import { RESPONSE_STYLE_TAG, renderResponseStyle } from '../../../shared/responseStyle';
+import { acquireTerminal, resetTerminal, isTerminalAutomationSafe, terminalAutomationBlockFor } from '@/components/terminalPool';
+import { TURN_END_READING_MS, compactAwaited, decideContextTrigger } from '../../../shared/contextTriggerDecide';
+import { canDeliverToAgent, canSendNowMidTurn, deliverWithAcknowledgement, promptSeenSince, STUCK_MAX_AUTO_PRESSES, checkPrecondition, FORCE_COMPACT_CARRY_ON, forceCompactDue, statusAfterDelivery, statusWhenBreakerClears, stuckHeadAction, stuckHeadsReleasedBy } from './queueDelivery';
+import { forgetExitedTerminals } from '../../../shared/openQuestion';
+import { openQuestions } from '@/store/openQuestions';
+import { OFFICE_CAST, DEFAULT_CHARACTER } from '@/scene/office/castRoster';
+import { terminalWorkOrderPrompt } from '../../../shared/terminalWorkOrder';
 
 const GOD_ID = 'god';
 /** Accent palette for MAIN-spawned (voice-hired) agents — picked deterministically
@@ -70,6 +88,28 @@ function withStandingGoal(agent: Agent, text: string): string {
   return `<goal>\n${goal}\n</goal>\n\n${text}`;
 }
 
+/** Prepend the house RESPONSE STYLE brief for the same engines, and for the same
+ *  reason: cursor and copilot have no hook bridge, so `additionalContext` (which
+ *  carries this to claude/codex/gemini/grok on every prompt) never reaches them.
+ *  Rendered by the SHARED renderer, never by a copy of the string here, so the
+ *  two delivery paths cannot drift apart. Unlike the goal there is always a
+ *  brief: an unset value normalizes to the shipped default. */
+function withResponseStyle(agent: Agent, text: string, style: string | undefined): string {
+  if (usesHookStandingGoal(agent)) return text;
+  if (text.includes(`<${RESPONSE_STYLE_TAG}>`)) return text;
+  return `${renderResponseStyle(style)}\n\n${text}`;
+}
+
+/** Everything a no-hook engine must carry in front of the text we type, in the
+ *  same order the hook channel uses (main/hooks.ts): HOW to answer, then WHAT to
+ *  do, then the message itself. One helper so neither submit site can pick up
+ *  one of the two and forget the other. */
+function withStandingContext(agent: Agent, text: string, style: string | undefined): string {
+  // A Custom engine may be a shell, where each typed line runs as a command. This stays on the engines we know.
+  if (inferAgentProvider(agent.command, agent.provider) === 'custom') return text;
+  return withResponseStyle(agent, withStandingGoal(agent, text), style);
+}
+
 // The first thing Michael (god) is told on a fresh spawn — orient him and put
 // him to work running the floor. Kept terse and action-oriented.
 const INITIAL_GOD_PROMPT = [
@@ -77,83 +117,129 @@ const INITIAL_GOD_PROMPT = [
   '1. Read your memory.md and drain every message in your inbox.',
   '2. Review board.md + tasks.json and the current roster of agents (active vs archived).',
   '3. Check fleet health: read fleet.json in the hive root for every agent\'s live tokens, cost, status, breaker level, and inbox backlog (`claude agents` will NOT show your hive\'s agents). Flag anyone stalled, over-budget, or breaker-armed.',
-  '4. Skim COMMANDS.md (hive root) for the Claude Code commands you can use — and run `mempalace wake-up` for a memory digest if the CLI is available.',
+  '4. Skim COMMANDS.md (hive root) for the Claude Code commands you can use.',
   'Then begin orchestrating: triage requests, delegate work to the team, and keep everyone unblocked. You are fully autonomous — there is no approval queue, so handle tool-permission prompts in this session yourself (the human can approve them remotely from their phone).'
 ].join('\n');
 
-// Per-pty submission chain. Every submitToPty for a given pty is appended here so
-// two callers (e.g. the boot sequence's /remote-control and the inbox-wake nudge)
-// can NEVER interleave their text + Enter — which jammed them onto one line and
-// produced "Unknown command: /remote-control<next prompt>".
-const writeChains = new Map<string, Promise<void>>();
-const readyPids = new Map<string, number>();
-
-async function waitForTerminalReady(
-  ptyId: string,
-  provider: AgentProvider,
-  timeoutMs = 30_000
-): Promise<void> {
-  const started = Date.now();
-  while (Date.now() - started < timeoutMs) {
-    const live = await window.cth.listPtys();
-    const pty = live.find((entry) => entry.id === ptyId);
-    if (!pty) throw new Error(`PTY exited before becoming ready: ${ptyId}`);
-    if (readyPids.get(ptyId) === pty.pid) return;
-    if (terminalReadyToReceive(pty.hasOutput, Date.now() - started, provider)) {
-      readyPids.set(ptyId, pty.pid);
-      return;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  throw new Error(`PTY did not become ready within ${timeoutMs}ms: ${ptyId}`);
-}
-
 /**
- * Type a line into an agent's Claude Code TUI and actually submit it.
+ * Type a message into an agent's terminal and submit it.
  *
- * Writing the text and the carriage return in a single chunk makes the TUI
- * treat the whole thing as a paste, so the "\r" lands as a newline inside the
- * input box instead of submitting — the command just sits there as text. We
- * send the text first, then the Enter as a separate keystroke a tick later so
- * the prompt is registered and executed. Idle autonomous agents thus act on a
- * dispatched instruction on their own.
+ * Main does the work (src/main/ptySubmit.ts, autosend 0.5.5): one serial chain
+ * per terminal, shared with main's own inbox nudge so the two can never jam
+ * their text together; the readiness wait; the bytes each CLI needs (for Claude,
+ * small bracketed pastes and CSI u Enter, because the CLI reads any 64 bytes of
+ * plain input as a paste and a Return inside a paste is a newline); proof from
+ * the CLI's own UserPromptSubmit hook; a key press again, alone, when there is
+ * none; and one log.jsonl line per delivery.
  *
- * Submissions to the same pty are serialized (and each settles for `settleMs`
- * after Enter) so concurrent callers can't jam their input together.
- *
- * The text is wrapped in bracketed-paste markers (ESC[200~ … ESC[201~) so the
- * TUI treats it as ONE paste: embedded newlines land as literal newlines in the
- * input box. Without them, every "\n" in a multi-line message acted as Enter —
- * the message submitted line-by-line in fragments (the agent saw only the last
- * chunk). The closing Enter, sent a tick later, submits the whole block. (#24) */
-function submitToPty(
+ * Throws when the terminal is gone, never became ready, or a write failed
+ * (#36: a dead pty must not look delivered). Otherwise returns the outcome.
+ */
+async function submitToPty(
   ptyId: string,
   text: string,
   provider: AgentProvider,
-  settleMs = 250
-): Promise<void> {
-  const prev = writeChains.get(ptyId) ?? Promise.resolve();
-  const next = prev.catch(() => { /* a failed prior write must not stall the chain */ }).then(async () => {
-    await waitForTerminalReady(ptyId, provider);
-    // Bracketed paste (ESC[200~ … ESC[201~) only matters for MULTI-LINE text, so a
-    // stray "\n" doesn't submit early (#24). Single-line text (nudges, slash
-    // commands) is sent raw — some TUIs (Antigravity's agy) treat the paste
-    // markers as literal input and never submit, so skipping them is more robust.
-    const payload = text.includes('\n') ? `\x1b[200~${text}\x1b[201~` : text;
-    // writePty NEVER rejects for a dead pty — it resolves { ok:false, error:
-    // 'no pty: …' } — so an unchecked await here made every failed delivery look
-    // successful (the queue-drain then destroyed the message it had already
-    // popped, #36). Surface the failure as a rejection; the chain itself is
-    // immune (the prev.catch above absorbs it for the next writer).
-    const wrote = await window.cth.writePty(ptyId, payload);
-    if (!wrote?.ok) throw new Error(wrote?.error ?? `pty write failed: ${ptyId}`);
-    await new Promise((r) => setTimeout(r, 140));
-    const submitted = await window.cth.writePty(ptyId, '\r');
-    if (!submitted?.ok) throw new Error(submitted?.error ?? `pty write failed: ${ptyId}`);
-    await new Promise((r) => setTimeout(r, settleMs));
+  opts: { agentId?: string; source: 'queue' | 'seed' | 'god-boot' | 'remote-control'; settleMs?: number; idle?: boolean; pressOnly?: boolean; person?: boolean; ref?: string }
+): Promise<SubmitResult> {
+  const res = await window.cth.submitToPty({ ptyId, text, provider, ...opts, settleMs: opts.settleMs ?? 250 });
+  if (!res?.ok || !res.result) throw new Error(res?.error ?? `pty submit failed: ${ptyId}`);
+  if (res.result.outcome !== 'submitted') {
+    console.warn(`[queue] ${ptyId}: ${opts.source} delivery ${res.result.outcome} after ${res.result.presses} presses`);
+  }
+  return res.result;
+}
+
+/** A late proof (autosend, 0.5.5): the CLI reported a prompt whose tail
+ *  matches a queue head marked stuck, so that message did go after all (a slow
+ *  machine, or the person pressed Return in the terminal). Settle it as sent
+ *  and let the queue move. */
+function releaseStuckByProof(fromAgent: string | undefined, tail: string): void {
+  const st = useStore.getState();
+  for (const { queueId, messageId } of stuckHeadsReleasedBy(st.messageQueues, fromAgent, tail, Date.now(), tailMatches)) {
+    st.settleHumanSend(queueId, messageId, 'delivered');
+    st.removeQueuedMessage(queueId, messageId);
+  }
+}
+
+/** A person's sends that left with no proof, per agent: a late prompt from the CLI still moves one to delivered. */
+const unproved = new Map<string, Array<{ queueId: string; messageId: string; tail: string }>>();
+const UNPROVED_KEPT = 8;
+
+/** Per terminal, the queued send main is submitting now: pty:began marks it typing (Pam b6g, Home words 1). */
+const submitting = new Map<string, { queueId: string; messageId: string }>();
+
+/**
+ * Prompts the CLI reported that no row was waiting for, per agent. A hook can reach this window after main has
+ * returned on the screen's word and before the send's acknowledge has run (A5). There is no row yet for
+ * proveLate to find, so the prompt is kept here for that acknowledge to read.
+ */
+const promptsSeen = new Map<string, Array<{ tail: string; at: number }>>();
+const PROMPTS_SEEN_KEPT = 8;
+
+function keepPrompt(fromAgent: string | undefined, tail: string): void {
+  if (!fromAgent) return;
+  promptsSeen.set(fromAgent, [...(promptsSeen.get(fromAgent) ?? []), { tail, at: Date.now() }].slice(-PROMPTS_SEEN_KEPT));
+}
+
+/** Did the CLI report this send's prompt before its acknowledge ran? A prompt proves one send, so it is used up. */
+function provedBeforeAcknowledge(agentId: string, tail: string, since: number): boolean {
+  const seen = promptsSeen.get(agentId);
+  if (!seen) return false;
+  const at = promptSeenSince(seen, tail, since, tailMatches);
+  if (at < 0) return false;
+  seen.splice(at, 1);
+  return true;
+}
+
+/** No proof this long after a send, from a CLI that reports its prompts: Not delivered. Proof came 55 to 93 s late under load (Pam, R1). */
+const NOT_DELIVERED_AFTER_MS = 180_000;
+
+/**
+ * Is this send's prompt in the agent's own session file, typed after `since`? A hook can be lost in a CLI too slow
+ * to send it in time (Pam b8r6: none came for 7 minutes, the session holds the prompt), so Not delivered never rests
+ * on the hook alone. Read through the History tab's reader, by agent id; nothing of the text leaves this check.
+ */
+async function promptInSession(agentId: string, tail: string, since: number): Promise<boolean> {
+  try {
+    const page = await window.cth.historyPage({ agentId, limit: 150 });
+    return page.ok && page.items.some((i) => i.kind === 'user' && i.at !== null && i.at >= since - 2_000 && !i.truncated && tailMatches(promptTail(i.text), tail));
+  } catch {
+    return false;
+  }
+}
+
+/** Say Not delivered on a send still unproved after NOT_DELIVERED_AFTER_MS, unless its session holds the prompt.
+ *  It stays unproved: a late prompt moves it on. */
+function notDeliveredLater(agentId: string, queueId: string, messageId: string, tail: string, typedAt: number): void {
+  const sentStill = (): boolean => !!unproved.get(agentId)?.some((r) => r.messageId === messageId)
+    && useStore.getState().sentLog[queueId]?.find((e) => e.id === messageId)?.status === 'sent';
+  setTimeout(() => {
+    if (!sentStill()) return;
+    void promptInSession(agentId, tail, typedAt).then((inSession) => {
+      if (!sentStill()) return;
+      if (inSession) {
+        const left = (unproved.get(agentId) ?? []).filter((r) => r.messageId !== messageId);
+        if (left.length) unproved.set(agentId, left);
+        else unproved.delete(agentId);
+      }
+      useStore.getState().settleHumanSend(queueId, messageId, inSession ? 'delivered' : 'failed');
+    });
+  }, NOT_DELIVERED_AFTER_MS);
+}
+
+/** Settle the rows this late prompt proves. False when it proved none. */
+function proveLate(fromAgent: string | undefined, tail: string): boolean {
+  const rows = fromAgent ? unproved.get(fromAgent) : undefined;
+  if (!fromAgent || !rows) return false;
+  const st = useStore.getState();
+  const left = rows.filter((r) => {
+    if (!tailMatches(tail, r.tail)) return true;
+    st.settleHumanSend(r.queueId, r.messageId, 'delivered');
+    return false;
   });
-  writeChains.set(ptyId, next);
-  return next;
+  if (left.length) unproved.set(fromAgent, left);
+  else unproved.delete(fromAgent);
+  return left.length < rows.length;
 }
 
 /** Wrap a user message as an enrich task for the assistant. The assistant's
@@ -164,32 +250,6 @@ function enrichTaskPrompt(text: string): string {
     '',
     '(Identify the relevant project, cd in, gather READ-ONLY context, then send the improved,',
     'self-contained prompt to Michael via an outbox message with "to":"god". Do not do the task yourself.)'
-  ].join('\n');
-}
-
-function terminalWorkOrderPrompt(msg: {
-  id: string;
-  from: string;
-  act: string;
-  subject: string;
-  body: string;
-  requiresReply: boolean;
-  createdAt: string;
-}): string {
-  return [
-    'WORK ORDER FROM HIVE',
-    `Message: ${msg.id}`,
-    `From: ${msg.from}`,
-    `Subject: ${msg.subject}`,
-    `Act: ${msg.act}${msg.requiresReply ? ' (reply expected)' : ''}`,
-    `Issued: ${msg.createdAt}`,
-    '',
-    msg.body,
-    '',
-    'Notes:',
-    '- This arrived through your terminal because this provider does not support hive inbox.',
-    '- Work in your current cwd.',
-    '- When done, report changes, validation, blockers, and next step in this terminal.'
   ].join('\n');
 }
 
@@ -225,50 +285,6 @@ function stationForTool(tool: string): { station: StationKind; carry?: ToolKind 
   return { station: 'desk' };
 }
 
-/** At/above this window size an agent counts as "large context" and is judged
- *  against `minContextPctLargeWindow` instead. Sits between the two real-world
- *  window sizes the app ever sees (200k and 1M) so neither lands ambiguously. */
-const LARGE_CONTEXT_WINDOW = 500_000;
-
-/**
- * How full this agent's context window is, 0-100, or null when we have no
- * reading at all.
- *
- * Two sources feed the store and only one is exact: the status-line shim pushes
- * real `contextTokens` + `contextLimit` (effect 2d), while the transcript poll
- * (2c) backfills tokens ONLY. So an agent can legitimately know its token count
- * without knowing its window — infer the window the same way 2c does rather
- * than throwing the token reading away.
- */
-function contextFillPct(a: Agent): number | null {
-  if (a.contextTokens === undefined || !Number.isFinite(a.contextTokens)) return null;
-  const limit = a.contextLimit && a.contextLimit > 0
-    ? a.contextLimit
-    : (/1m/i.test(a.model ?? '') ? 1_000_000 : 200_000);
-  return (a.contextTokens / limit) * 100;
-}
-
-/**
- * The context-pressure gate: is this agent full enough to be worth interrupting?
- *
- * `minContextPct` of 0 disables the gate (the rule's cadence alone fires it).
- *
- * FAIL-OPEN when we have no reading. That is the deliberate choice: context
- * telemetry arrives over the Claude status-line/hook path, so most non-Claude
- * providers report nothing at all. Failing closed there would silently reinstate
- * the very bug this replaces — a fleet that never compacts — only harder to
- * notice. An unmetered agent therefore falls back to time-only firing, which is
- * exactly the old behaviour and no worse.
- */
-function passesContextPressure(a: Agent, rule: ContextRule): boolean {
-  const large = (a.contextLimit ?? 0) >= LARGE_CONTEXT_WINDOW;
-  const bar = large ? rule.minContextPctLargeWindow : rule.minContextPct;
-  if (!(bar > 0)) return true;
-  const pct = contextFillPct(a);
-  if (pct === null) return true;
-  return pct >= bar;
-}
-
 /**
  * The renderer-side glue for the hive:
  *   1. spawns the god agent into Michael's room when none is running,
@@ -276,6 +292,8 @@ function passesContextPressure(a: Agent, rule: ContextRule): boolean {
  *   3. wakes idle agents that have unread inbox messages so collaboration
  *      doesn't stall while an agent sits at its prompt.
  */
+/** Which agents have a multiple choice question open (0.5.3 bug 19): store/openQuestions.ts. */
+
 export function useHive(config: HarnessConfig | null): void {
   // Per-agent dedup for the inbox-wake nudge: every inbox message id we have
   // already nudged this agent about. A SET, not a high-water mark.
@@ -302,6 +320,9 @@ export function useHive(config: HarnessConfig | null): void {
   // in the context-trigger effect: an idle agent's token count is frozen, so
   // without this the pressure gate re-fires on the identical number every cycle.
   const lastCompactUsed = useRef<Record<string, number>>({});
+  // When a compact was typed into each agent, until its CLI says it ended (PostCompact, SessionStart). One
+  // need, one compact: the turn end road queues no other meanwhile (contextTriggerDecide.ts compactAwaited).
+  const compactTypedAt = useRef<Record<string, number>>({});
   // Per-agent timestamp of the last queued-message we submitted. Guards against
   // re-sending the next message before the agent's hooks have flipped it to
   // 'working' (there's a short window where it still reads 'idle' right after we
@@ -313,6 +334,7 @@ export function useHive(config: HarnessConfig | null): void {
   // bounds retries — after MAX_SEND_ATTEMPTS failed writes the message is
   // dropped WITH a console.warn instead of being silently destroyed.
   const inFlightSends = useRef<Set<string>>(new Set());
+  const queueInFlight = useRef<Set<string>>(new Set());
   const sendFailures = useRef<Record<string, number>>({});
   // In-flight spawn guard so a re-render / StrictMode double-mount can't spawn
   // Michael twice (the window between the listPtys check and spawnPty is racy).
@@ -351,6 +373,83 @@ export function useHive(config: HarnessConfig | null): void {
   // 'stopped' the avatar is pinned to 'looping' and hook events must NOT flip it
   // back to 'working' (the flicker the spec calls out); only a genuine Stop clears it.
   const breakerLevel = useRef<Record<string, string>>({});
+  // The LIVE house response style. Both typing paths below run inside intervals
+  // whose effect deps are `[config?.onboardingComplete]`, so reading `config`
+  // out of those closures would pin whatever was saved when the interval
+  // started, and a Settings edit would not reach cursor/copilot until a restart.
+  // App re-renders on every config write (onConfigChanged), so rewriting the ref
+  // on each render is what makes "edit it and the next message carries it" true.
+  const responseStyle = useRef<string | undefined>(undefined);
+  responseStyle.current = config?.responseStyle;
+  // The LIVE compact rule, the person's own saved one (0.5.6). A turn end reads
+  // it from a listener that was set up once, so it is a ref rewritten on every
+  // render, like the style above. Never a default: no saved rule, no compact.
+  const compactRule = useRef<ContextRule | undefined>(undefined);
+  compactRule.current = config?.contextTrigger?.compact;
+  // Set by the context trigger effect (#6). The hook listener (#2) calls it
+  // when an agent's turn ends, and the context gauge (#2d) calls it with
+  // `late` when a token count lands just after. Null until #6 is up.
+  const compactAtTurnEnd = useRef<((agentId: string, late?: boolean) => void) | null>(null);
+  // Clear on a switch of work (0.5.6, shared/switchClear.ts). Per agent, the
+  // clear command the drain (#4) queued behind a hand off request. Set when the
+  // request is typed, gone when the clear is typed or dropped. Main holds the
+  // rest of the state (the work, the session clock, open sub agents); a window
+  // reload loses only this. The queued clear carries its own mark
+  // (QueuedMessage.switchClear), which the reload keeps, so the drain still
+  // asks main before it types that clear.
+  const switchClears = useRef<Record<string, string>>({});
+  /** Is that clear still in the agent's queue? While it is, no compact is
+   *  queued for the agent. A clear that left the queue any other way (a person
+   *  removed it, three failed sends) ends the wait here. */
+  const switchClearPending = (agentId: string): boolean => {
+    const clear = switchClears.current[agentId];
+    if (!clear) return false;
+    if ((useStore.getState().messageQueues[agentId] ?? []).some((m) => m.text === clear)) return true;
+    delete switchClears.current[agentId];
+    return false;
+  };
+  // Per agent, a hand off request that was typed and is still in the input
+  // box: the queue item it stands at, the wake it stood in for, and its tail.
+  const handoffInBox = useRef<Record<string, { itemId: string; wake: string; tail: string }>>({});
+  /** The hand off request went in. Its clear goes to the back of the queue,
+   *  then the wake it stood in for, so the order is hand off, clear, wake. The
+   *  queue types the clear when the hand off turn has ended, at an idle prompt
+   *  like any message, and asks main first (hive:switchClearGate). A Codex
+   *  file too large has no wake to follow: an empty one is not queued (the
+   *  store drops empty text). */
+  const queueSwitchClear = (a: Agent, wake = ''): void => {
+    const clear = clearCommandForProvider(inferAgentProvider(a.command, a.provider));
+    const { enqueueMessage } = useStore.getState();
+    if (clear) { switchClears.current[a.id] = clear; enqueueMessage(a.id, clear, { switchClear: true }); }
+    enqueueMessage(a.id, wake, { precondition: 'inbox-nonempty' });
+  };
+  // A Codex conversation file past 100 MB (0.5.6, shared/codexSizeClear.ts).
+  // The agents main last said were too large: tried on main's word and again at
+  // each turn end, until main says no hand off is due.
+  const codexSizeDue = useRef<Set<string>>(new Set());
+  // Of those, the agents the orchestrator asked to clear (shared/askedClear.ts):
+  // the same road on any engine that can be cleared.
+  const askedClearDue = useRef<Set<string>>(new Set());
+  /** At the next idle moment (no turn open, nothing queued), queue the hand off
+   *  request main writes, and the clear behind it as a switch of work does. The
+   *  drain types both at an idle prompt; the clear asks main's gate first. */
+  const queueCodexSizeClear = async (agentId: string): Promise<void> => {
+    const ready = (): Agent | undefined => {
+      const { agents, messageQueues } = useStore.getState();
+      const a = agents.find((x) => x.id === agentId);
+      if (!a?.ptyId || a.sleeping || a.status === 'sleeping') return undefined;
+      const idle = canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, Date.now()), QUIESCE_IDLE_MS, openQuestions.isOpen(a.id), !!a.exit);
+      return sizeClearReady({ provider: inferAgentProvider(a.command, a.provider), idle, queued: (messageQueues[a.id] ?? []).length, asked: askedClearDue.current.has(a.id) }) ? a : undefined;
+    };
+    if (!ready()) return;
+    const handoff = await window.cth.hiveCodexSizeClearText(agentId).catch(() => null);
+    if (!handoff) { codexSizeDue.current.delete(agentId); askedClearDue.current.delete(agentId); return; }
+    // Still idle with nothing queued after the ask: else the next turn end.
+    const a = ready();
+    if (!a) return;
+    useStore.getState().enqueueMessage(a.id, handoff);
+    queueSwitchClear(a);
+  };
 
   // 0) Heal roster `description` from hive `role` when the floor caption was
   //    overwritten by a status string ("on standby") after hire.
@@ -372,6 +471,26 @@ export function useHive(config: HarnessConfig | null): void {
     }).catch(() => { /* hive not ready yet */ });
   }, [config?.onboardingComplete]);
 
+  // Sleep is owned by main; opening a terminal never asks for a start.
+  useEffect(() => {
+    if (!config?.onboardingComplete) return;
+    let stopped = false;
+    const read = () => { void window.cth.hiveRegistry().then((reg) => {
+      if (stopped) return;
+      for (const row of useStore.getState().agents) {
+        const fact = reg.agents[row.id] as { sleeping?: boolean; waking?: boolean } | undefined;
+        const asleep = fact?.sleeping === true;
+        const waking = fact?.waking === true;
+        if (row.sleeping !== asleep || !!row.waking !== waking) useStore.getState().updateAgent(row.id, {
+          sleeping: asleep, waking, ...(asleep ? { exit: undefined, status: 'sleeping', action: 'Sleeping' } : row.status === 'sleeping' ? { status: 'idle', action: 'idle' } : {})
+        });
+      }
+    }).catch(() => {}); };
+    read();
+    const timer = setInterval(read, 2000);
+    return () => { stopped = true; clearInterval(timer); };
+  }, [config?.onboardingComplete]);
+
   // 1) Bootstrap the god agent (source of truth = live PTYs, to dodge restarts).
   useEffect(() => {
     if (!config?.onboardingComplete || !config.harnessHome) return;
@@ -379,16 +498,30 @@ export function useHive(config: HarnessConfig | null): void {
     useStore.getState().setGodStatus('booting');
     const t = setTimeout(async () => {
       if (cancelled) return;
-      const live = await window.cth.listPtys().catch(() => []);
-      if (live.some((p) => p.id === GOD_PTY)) { // already running — keep restored entry
+      // A listing that FAILED is not an empty floor (shared/godBoot.ts). It used to
+      // be read as "he is not running": his row was removed, a second spawn was
+      // refused by main as a duplicate, and the floor said "failed" with no
+      // orchestrator row while he was alive. 'unknown' falls through to the spawn
+      // attempt below, where main's own refusal settles it, and his row is not
+      // touched until a spawn has actually worked.
+      const listing = await window.cth.listPtys().then(
+        (l) => ({ answered: true, ids: l.map((p) => p.id) }),
+        () => ({ answered: false, ids: [] as string[] })
+      );
+      if (godRunning(listing, GOD_PTY) === 'yes') { // already running — keep restored entry
+        if (!cancelled) useStore.getState().setGodStatus('ready');
+        return;
+      }
+      // Dev switch (main: `--no-god`): a UI check must not spend money on an
+      // orchestrator it will never talk to. `ready` with no god on the floor
+      // is the honest state: nothing is booting, nothing failed.
+      if (await window.cth.devNoGod?.().catch(() => false)) {
         if (!cancelled) useStore.getState().setGodStatus('ready');
         return;
       }
       // Synchronous guard (no await between check and set) → exactly one spawn.
       if (cancelled || godSpawning.current) return;
       godSpawning.current = true;
-      useStore.getState().removeAgent(GOD_ID); // clear any stale restored entry
-
       // A prior rename (Edit Agent panel → renameAgent() → hive.ts's renameAgent())
       // persists straight into registry.json, so read it back here rather than
       // hardcoding DEFAULT_GOD_NAME below — otherwise a custom name reverts on
@@ -398,7 +531,8 @@ export function useHive(config: HarnessConfig | null): void {
 
       const godProvider = config.godProvider ?? 'claude';
       const godModel = config.godModel;
-      const command = buildSpawnCommand(config, godModel, godProvider);
+      // A hand edited line wins over the derived one (0.5.3 bug 20).
+      const command = effectiveGodCommand(config.godCommand, buildSpawnCommand(config, godModel, godProvider), godProvider);
       const [exe, ...args] = tokenizeCommand(command.trim());
       const res = await window.cth.spawnPty({
         id: GOD_PTY,
@@ -417,18 +551,17 @@ export function useHive(config: HarnessConfig | null): void {
         hive: { id: GOD_ID, name: godName, provider: godProvider, cwd: config.harnessHome!, isGod: true, role: 'orchestrator (god)' }
       });
       if (cancelled) { godSpawning.current = false; return; }
-      if (!res.ok) { godSpawning.current = false; useStore.getState().setGodStatus('failed'); return; }
       const god: Agent = {
         id: GOD_ID,
         name: godName,
         character: 'michael',
         accent: 'lemon',
-        description: 'god — runs the floor, triages requests, escalates only critical calls to you',
+        description: 'Runs the office, sorts requests, and asks you only about critical calls.',
         project: 'hive',
         tmuxTarget: '',
         cwd: config.harnessHome!,
         status: 'idle',
-        action: 'running the floor',
+        action: '',
         progress: 0,
         currentStation: 'desk',
         ptyId: GOD_PTY,
@@ -438,7 +571,30 @@ export function useHive(config: HarnessConfig | null): void {
         isGod: true,
         recentTextTs: Date.now()
       };
-      useStore.getState().addAgent(god);
+      if (!res.ok) {
+        godSpawning.current = false;
+        // Main refusing a duplicate is proof he is ALIVE, whatever the listing
+        // said. His restored row stays; if there is none, he gets one. No boot
+        // sequence is typed into a session that is already running.
+        if (refusedBecauseAlive(res.error)) {
+          if (!useStore.getState().agents.some((a) => a.id === GOD_ID)) useStore.getState().addAgent(god, { keepSelection: useStore.getState().selectedId !== null });
+          useStore.getState().setGodStatus('ready');
+          return;
+        }
+        useStore.getState().setGodStatus('failed');
+        return;
+      }
+      // Clear any stale restored ROW, and only the row: a message the person
+      // parked for Michael before quitting stays in his queue and drains once he
+      // is back and idle, like every other agent's (0.5.2; without keepQueue the
+      // store dropped it here, persisted, before the row below was re-added).
+      // AFTER the spawn worked, never before: see the listing above.
+      // He takes the selection back only if he had it: his start is no reason to move anyone else's.
+      // With nobody selected he takes it, as before: keepSelection keeps a null now.
+      const selectedBefore = useStore.getState().selectedId;
+      const godWasSelected = selectedBefore === GOD_ID;
+      useStore.getState().removeAgent(GOD_ID, { keepQueue: true });
+      useStore.getState().addAgent(god, { keepSelection: selectedBefore !== null && !godWasSelected });
       useStore.getState().setGodStatus('ready');
 
       // Kick Michael off once his TUI is up. Always re-enable remote control so
@@ -457,15 +613,17 @@ export function useHive(config: HarnessConfig | null): void {
           const remoteCommand = remoteControlCommandForProvider(godProvider, godName);
           if (remoteCommand) {
             // settleMs pauses the chain ~1.5s after /remote-control before the
-            // orientation prompt (fresh spawns only) is submitted next.
-            await submitToPty(GOD_PTY, remoteCommand, godProvider, REMOTE_CONTROL_SETTLE_MS);
+            // orientation prompt (fresh spawns only) is submitted next. Main types it only at a
+            // box it has seen and leaves the menu it can open (ptySubmit.ts). With no box in
+            // time it is not typed, and the rest still goes.
+            await submitToPty(GOD_PTY, remoteCommand, godProvider, { agentId: GOD_ID, source: 'remote-control', settleMs: REMOTE_CONTROL_SETTLE_MS }).catch(() => undefined);
           }
           if (!cancelled && !resumedGod) {
             // A type-into-tui god (Crush) can't ride its hive protocol on argv, so the
             // main process hands it back as seedPrompt — type it FIRST (identity), then
-            // the orientation kick. Serialized via writeChains so they can't jam. (ondev-b)
-            if (res.seedPrompt) await submitToPty(GOD_PTY, res.seedPrompt, godProvider);
-            await submitToPty(GOD_PTY, INITIAL_GOD_PROMPT, godProvider);
+            // the orientation kick. Serialized by main's per-terminal chain so they can't jam. (ondev-b)
+            if (res.seedPrompt) await submitToPty(GOD_PTY, res.seedPrompt, godProvider, { agentId: GOD_ID, source: 'god-boot' });
+            await submitToPty(GOD_PTY, INITIAL_GOD_PROMPT, godProvider, { agentId: GOD_ID, source: 'god-boot' });
           }
         } catch { /* PTY may have died during startup */ }
         finally { bootGraceUntil.current[GOD_ID] = 0; }
@@ -481,13 +639,27 @@ export function useHive(config: HarnessConfig | null): void {
       const { updateAgent, agents } = useStore.getState();
       const self = agents.find((a) => a.id === e.agentId);
       if (!self) return;
+      // A hook event is proof of life: whatever died has been replaced.
+      if (self.exit) updateAgent(e.agentId, { exit: undefined });
       // Breaker precedence (#5C): a constrained/stopped agent stays 'looping'
       // regardless of in-flight tool/prompt/compact events.
       const blevel = breakerLevel.current[e.agentId];
       const breakerArmed = blevel === 'constrained' || blevel === 'stopped';
+      // 0.5.3 bug 19. Fed BEFORE the status chain and outside the breaker guard:
+      // the drains ask this tracker directly, so a breaker pinned agent, whose
+      // status never leaves 'looping', is held too.
+      const question = openQuestions.note(e.agentId, e.event, e.tool);
+      // The compact typed into it ended, or a new session began: its need is met.
+      if (e.event === 'PostCompact' || e.event === 'SessionStart') delete compactTypedAt.current[e.agentId];
       // Hook events are the authoritative status source for real agents (the
       // pty-stream parser only refines the on-floor action/station).
-      if (e.event === 'PreCompact') {
+      if (question === 'open') {
+        // A menu is on screen and waiting for a person. Not `working`: the
+        // quiescence fallback would turn the menu's silence into `idle`, and
+        // `idle` is what lets the drain type. Same split as a permission prompt:
+        // only the orchestrator escalates to the human.
+        if (!breakerArmed) updateAgent(e.agentId, { status: self.isGod ? 'blocked' : 'waiting', action: 'asking a question', carrying: undefined });
+      } else if (e.event === 'PreCompact') {
         // #5C — agent entered /compact; show it's boxing up context, not frozen.
         if (!breakerArmed) updateAgent(e.agentId, { status: 'compacting', action: 'compacting context', carrying: undefined });
       } else if (e.event === 'PostCompact') {
@@ -497,6 +669,16 @@ export function useHive(config: HarnessConfig | null): void {
         if (!breakerArmed) updateAgent(e.agentId, { status: 'working', currentStation: m.station, carrying: m.carry, action: `using ${e.tool}` });
         useStore.getState().bumpToolCount(e.agentId); // usage proxy for the command center
       } else if (e.event === 'PostToolUse' || e.event === 'UserPromptSubmit') {
+        if (e.event === 'UserPromptSubmit' && e.promptTail) {
+          releaseStuckByProof(e.agentId, e.promptTail);
+          if (!proveLate(e.agentId, e.promptTail)) keepPrompt(e.agentId, e.promptTail);
+        }
+        // 0.5.6: a hand off request that sat in the input box went after all.
+        const boxed = handoffInBox.current[e.agentId];
+        if (boxed && e.event === 'UserPromptSubmit' && e.promptTail && tailMatches(e.promptTail, boxed.tail)) {
+          delete handoffInBox.current[e.agentId];
+          queueSwitchClear(self, boxed.wake);
+        }
         // A turn is in progress (prompt submitted / tool just finished) — keep
         // it working so it doesn't flicker idle between tool calls.
         if (!breakerArmed) updateAgent(e.agentId, { status: 'working' });
@@ -509,6 +691,7 @@ export function useHive(config: HarnessConfig | null): void {
         // inbox-wake nudge (idle-only) could never reach it — its mail would sit
         // undrained. Treat it as idle; a follow-up tool/turn re-sets working.
         if (!breakerArmed) updateAgent(e.agentId, { status: 'idle', action: 'idle', carrying: undefined });
+        compactAtTurnEnd.current?.(e.agentId);
       } else if (e.event === 'Stop' || e.event === 'SubagentStop') {
         // A blocked Stop means the agent is being re-engaged to process its
         // inbox — it's NOT idle, so keep it working until it genuinely stops.
@@ -518,6 +701,12 @@ export function useHive(config: HarnessConfig | null): void {
           // A genuine stop clears any breaker override — the run is over.
           breakerLevel.current[e.agentId] = 'healthy';
           updateAgent(e.agentId, { status: 'idle', action: 'idle', carrying: undefined });
+          // 0.5.6: the turn ended. An agent at or over its token bar gets its
+          // compact queued now (effect 6). Stop only: a subagent finishing is
+          // not the end of the agent's own turn.
+          if (e.event === 'Stop') compactAtTurnEnd.current?.(e.agentId);
+          // A Codex file main said is too large: this turn end may be the moment.
+          if (e.event === 'Stop' && codexSizeDue.current.has(e.agentId)) void queueCodexSizeClear(e.agentId);
         }
       } else if (e.event === 'Notification' && !breakerArmed) {
         // Claude Code fires Notification for two very different situations:
@@ -540,13 +729,28 @@ export function useHive(config: HarnessConfig | null): void {
           // Only the god agent escalates to the human; sub-agents are autonomous
           // and read as "waiting" (parked on god, not on you).
           updateAgent(e.agentId, { status: self.isGod ? 'blocked' : 'waiting' });
-        } else {
+        } else if (!openQuestions.isOpen(e.agentId)) {
           // Idle notification — responded, nothing to do. Linger, don't flag.
+          // Not while a question is open: the same Notification fires for a menu
+          // nobody has answered, and that agent is waiting, not idle.
           updateAgent(e.agentId, { status: 'idle', action: 'idle', carrying: undefined });
         }
       }
     });
   }, []);
+
+  // Main has typed the first byte of the send it is submitting there: from now Home says Sent, not Queued.
+  useEffect(() => window.cth.onPtyBegan?.((ptyId) => {
+    const s = submitting.get(ptyId);
+    if (s) useStore.getState().setQueuedMessageTyping(s.queueId, s.messageId);
+  }), []);
+
+  // A steer is proved when main has written the hook reply that carries it. Until then it says sent.
+  useEffect(() => window.cth.onSteerLanded?.((e) => {
+    const st = useStore.getState();
+    const row = (st.sentLog[e.agentId] ?? []).find((r) => isSteer(r.id) && r.status === 'sent' && tailMatches(e.tail, promptTail(r.text)));
+    if (row) st.settleHumanSend(e.agentId, row.id, 'delivered', Date.now());
+  }), []);
 
   // 2b) Consume circuit-breaker state (#7C.4/#5C). Lane A's breaker policy (#6)
   //     pushes BreakerState on `control:breakerState`; this gives it PRECEDENCE
@@ -559,8 +763,13 @@ export function useHive(config: HarnessConfig | null): void {
       if (!agents.some((a) => a.id === s.agentId)) return;
       if (s.level === 'constrained' || s.level === 'stopped') {
         updateAgent(s.agentId, { status: 'looping', action: s.reason || 'breaker armed', carrying: undefined });
+        return;
       }
-      // 'healthy'/'steering' clear the pin; the next hook event refreshes status.
+      // 'healthy'/'steering' clear the pin, and take `looping` off with it: an
+      // agent that stopped sends no hook event to do so (queueDelivery.ts).
+      const self = agents.find((a) => a.id === s.agentId);
+      const cleared = statusWhenBreakerClears(self?.status ?? '', !!self?.exit);
+      if (cleared) updateAgent(s.agentId, cleared);
     });
   }, []);
 
@@ -580,10 +789,14 @@ export function useHive(config: HarnessConfig | null): void {
         try {
           const ctx = await window.cth.agentContext(a.id);
           if (ctx === null) continue;
+          // After a window reload the store has no window size, and the sidebar
+          // shows no context line without one (Pam, round 8). Main kept the last
+          // real size; a guess is never stored, as 200k would misread a 1M window.
+          const known = (await window.cth.agentContextLimit?.(a.id).catch(() => null)) ?? null;
           const hinted = /1m/i.test(a.model ?? '') ? 1_000_000 : 200_000;
-          const limit = Math.max(hinted, ctx > 200_000 ? 1_000_000 : 0);
+          const limit = known ?? Math.max(hinted, ctx > 200_000 ? 1_000_000 : 0);
           const progress = Math.max(0, Math.min(8, Math.round((ctx / limit) * 8)));
-          updateAgent(a.id, { contextTokens: ctx, progress });
+          updateAgent(a.id, known ? { contextTokens: ctx, contextLimit: known, progress } : { contextTokens: ctx, progress });
         } catch { /* ignore — try again next tick */ }
       }
     };
@@ -595,6 +808,44 @@ export function useHive(config: HarnessConfig | null): void {
   // 2d) Push-based context gauge: the status-line shim forwards the session's
   //     EXACT context accounting (tokens + real window size) after every
   //     response — no probing, no transcript guesswork.
+  // 0.5.3 feature 18: an agent's process ended on its own. The row says so and
+  // offers Restart in its details panel. Status goes to idle so the dot and the
+  // active count stop claiming work that is no longer happening.
+  useEffect(() => {
+    return window.cth.onHiveAgentExited?.(({ agentId, exitCode, signal, printMode }) => {
+      if (!agentId) return;
+      // A print mode run (Copilot -p) that exited 0 finished its task (batch 2).
+      const exit = agentExitOf(exitCode, signal, Date.now(), printMode === true);
+      useStore.getState().updateAgent(agentId, { exit, status: 'idle', action: exit.verdict, carrying: undefined });
+      openQuestions.forget(agentId);
+    });
+  }, []);
+
+  // The CLI would not reopen this agent's session, so main started it
+  // again with none. Not a death: no Crashed row, only the words a Restart that
+  // found no session already uses.
+  useEffect(() => {
+    return window.cth.onHiveAgentStartedFresh?.(({ agentId }) => {
+      if (!agentId) return;
+      useStore.getState().updateAgent(agentId, { exit: undefined, status: 'idle', action: 'started fresh, last session not found', carrying: undefined });
+      openQuestions.forget(agentId);
+    });
+  }, []);
+
+  useEffect(() => {
+    // 0.5.3 bug 2(a): the model the agent is actually running, told to us when it
+    // changes. The sidebar is a pure function of the store's `model`, so this is
+    // what makes a `/model` inside the CLI show up. The saved command is rewritten
+    // with it so the next restore comes back on the same model.
+    return window.cth.onHiveModelUpdate(({ agentId, model }) => {
+      if (!agentId || typeof model !== 'string' || !model.trim()) return;
+      const a = useStore.getState().agents.find((x) => x.id === agentId);
+      if (!a || a.model === model) return;
+      const provider = inferAgentProvider(a.command, a.provider);
+      useStore.getState().updateAgent(agentId, { model, command: commandWithModel(a.command, model, provider) || a.command });
+    });
+  }, []);
+
   useEffect(() => {
     return window.cth.onHiveContextUpdate(({ agentId, tokens, limit }) => {
       // Defense-in-depth: the main process already filters limit > 0, but the
@@ -603,6 +854,9 @@ export function useHive(config: HarnessConfig | null): void {
       if (!Number.isFinite(limit) || limit <= 0 || !Number.isFinite(tokens)) return;
       const progress = Math.max(0, Math.min(8, Math.round((tokens / limit) * 8)));
       useStore.getState().updateAgent(agentId, { contextTokens: tokens, contextLimit: limit, progress });
+      // 0.5.6: this count can land a moment after the Stop hook. If the agent's
+      // turn just ended, the bar is checked again with it (effect 6).
+      compactAtTurnEnd.current?.(agentId, true);
     });
   }, []);
 
@@ -635,7 +889,7 @@ export function useHive(config: HarnessConfig | null): void {
   }, [config?.onboardingComplete]);
 
   // 2e) PROVIDER-AGNOSTIC PTY-QUIESCENCE IDLE FALLBACK (the linchpin that makes
-  //     canReceiveInbox:true safe for the live-unverified OpenCode/Crush/pi bridges).
+  //     canReceiveInbox:true safe for the not yet live tested OpenCode/Crush/pi bridges).
   //     Hook events are the authoritative status source, but a bridge whose turn-end
   //     signal (Stop/session.idle/agent_end) doesn't fire leaves the agent pinned
   //     'working' — and BOTH delivery paths (#3 nudge, #4 queue-drain) are idle-gated,
@@ -649,13 +903,26 @@ export function useHive(config: HarnessConfig | null): void {
   useEffect(() => {
     if (!config?.onboardingComplete) return;
     const iv = setInterval(async () => {
-      const ptys = await window.cth.listPtys().catch(() => []);
+      // A listing that FAILED and a floor with no terminals both used to arrive
+      // here as an empty list. They are opposite facts, and the open question
+      // holds below must only be dropped on the second one.
+      let listed = true;
+      const ptys = await window.cth.listPtys().catch(() => { listed = false; return []; });
       const lastOut: Record<string, number> = {};
       for (const p of ptys) lastOut[p.id] = p.lastOutputAt;
       // Publish BEFORE the early return and before the 'working' filter below,
       // so the drain (#4) also gets a reading for breaker-pinned agents — and so
       // a vanished PTY clears its entry instead of leaving a stale one.
       ptyLastOutput.current = lastOut;
+      // A terminal that has exited takes its open question with it (B19 follow
+      // up). SessionStart clears the flag on a respawn, but an agent that died
+      // with a menu up and is never respawned would otherwise keep it. Before the
+      // early return: no live terminals at all is exactly when every flag is stale.
+      // ONLY ON A LISTING THAT ANSWERED. Dropping a hold is the dangerous
+      // direction: it is what lets a delivery press Return into a menu. One
+      // failed poll must not be able to do that, so a failure forgets nothing
+      // and the next poll, four seconds on, decides.
+      forgetExitedTerminals(openQuestions, useStore.getState().agents, { listed, liveIds: new Set(Object.keys(lastOut)) });
       if (!ptys.length) return;
       const now = Date.now();
       const { agents, updateAgent } = useStore.getState();
@@ -693,6 +960,10 @@ export function useHive(config: HarnessConfig | null): void {
       const agents = useStore.getState().agents.filter((a) => a.ptyId);
       for (const a of agents) {
         try {
+          // A held agent is the operator's 1:1: no machine wake for it, so a
+          // nudge can never fuse onto whatever the human is typing. The inbox
+          // itself is untouched — the mail waits for the hold to lift.
+          if (a.onHold) continue;
           const inbox = await window.cth.hiveInbox(a.id);
           // Nudge on any id we have not nudged for yet (#130's per-id Set).
           // Draining shrinks the set and introduces nothing new, so this POLL
@@ -708,17 +979,28 @@ export function useHive(config: HarnessConfig | null): void {
           // on the floor when the agent is god.
           const seen = nudged.current[a.id] ?? (nudged.current[a.id] = new Set());
           const fresh = inbox.filter((m) => m.id && !seen.has(m.id));
-          if (fresh.length) {
-            // Name the ids: the nudge is queued now and typed whenever the agent
-            // next goes idle, so it can arrive long after the agent drained and
-            // filed this very mail. Carrying the ids is what lets it tell
-            // "already handled" from "woken for nothing". The queue keeps only
-            // one nudge pending per agent (see enqueueMessage), so a suppressed
-            // copy's ids stay unnamed — hence the text points at the pending
-            // inbox as the authority rather than at the list.
+          // 26 Oct 2026: a note wakes like any message. Only the app's own
+          // notes about a temp wait for the next wake, 30 minutes at most
+          // (wakesReceiver). So only mail that wakes queues a nudge.
+          //
+          // The queue keeps one nudge pending per agent (see enqueueMessage).
+          // While one waits, this mail is left unmarked: the wake carries the
+          // messages now, so an id marked here with no wake of its own would
+          // never be shown to the agent. The waiting wake is written when it
+          // is typed and takes this mail with it; if it was typed a moment
+          // too early, the next poll queues one for what it missed.
+          const waiting = (useStore.getState().messageQueues[a.id] ?? []).some((q) => isInboxNudge(q.text));
+          if (!waiting && fresh.some((m) => wakesReceiver(m))) {
+            // The absolute inbox path names the file of a message too long to
+            // type (#559); a failed lookup still queues the nudge without it.
+            const inboxPath = await window.cth.hiveInboxPath(a.id).catch(() => null);
+            // The messages themselves, waiting notes included. This copy is
+            // what the queue shows; the drain asks main for the text again at
+            // the moment it types (hive:wakeText), so what the agent reads is
+            // the mail pending then.
             useStore.getState().enqueueMessage(
               a.id,
-              inboxNudgeText(fresh.map((m) => m.id)),
+              inboxNudgeText(fresh, inboxPath, wakeOptionsFor(inferAgentProvider(a.command, a.provider))),
               { precondition: 'inbox-nonempty' }
             );
             for (const m of fresh) seen.add(m.id);
@@ -742,7 +1024,7 @@ export function useHive(config: HarnessConfig | null): void {
     const iv = setInterval(() => {
       const { agents, updateAgent } = useStore.getState();
       for (const a of agents) {
-        if (!a.ptyId || a.isGod || !a.seedPrompt || seeded.current.has(a.id)) continue;
+        if (a.sleeping || !a.ptyId || a.isGod || !a.seedPrompt || seeded.current.has(a.id)) continue;
         seeded.current.add(a.id);
         const ptyId = a.ptyId;
         const seed = a.seedPrompt;
@@ -765,8 +1047,9 @@ export function useHive(config: HarnessConfig | null): void {
           }
           submitToPty(
             ptyId,
-            withStandingGoal(live, seed),
-            inferAgentProvider(live.command, live.provider)
+            withStandingContext(live, seed, responseStyle.current),
+            inferAgentProvider(live.command, live.provider),
+            { agentId: live.id, source: 'seed' }
           )
             .catch(() => { /* pty may have died */ });
         }, SEED_BOOT_MS);
@@ -786,8 +1069,30 @@ export function useHive(config: HarnessConfig | null): void {
     // still thinks is idle) is dropped WITH a console.warn — bounded so the drain
     // never spins forever on a corpse, loud so the loss is diagnosable. (#113)
     const MAX_SEND_ATTEMPTS = 3;
-    const inFlight = new Set<string>();
+    // Held across a re-run of this effect: a drain started before it is still typing, and a new set would let the
+    // next pass type the same head again (Creed, 54076318: one message typed twice 2 s apart after a restart).
+    const inFlight = queueInFlight.current;
     const sendFailures: Record<string, number> = {};
+    // Force compact: the queued compacts Escape was pressed for, by message
+    // id, so one is pressed for once and gets its carry on once delivered.
+    const forced = new Map<string, number>();
+
+    // Stop a busy agent's turn so its waiting compact runs (forceCompactDue).
+    // Marked before the first await, so the next pass cannot press again; a
+    // guard that holds it unmarks it, and a later pass tries again.
+    const pressForCompact = async (a: Agent, head: QueuedMessage): Promise<void> => {
+      forced.set(head.id, Date.now());
+      const ptyId = a.ptyId;
+      const control = await window.cth.controlSnapshot(a.id).catch(() => null);
+      const now = Date.now();
+      const held = !ptyId || !control || control.paused || control.halted || control.autoDeliveryPaused
+        || (bootGraceUntil.current[a.id] ?? 0) >= now
+        // A draft the person is writing, or a menu they opened: Escape is theirs.
+        || !isTerminalAutomationSafe(ptyId, now)
+        || useStore.getState().messageQueues[a.id]?.[0]?.id !== head.id;
+      if (held) { forced.delete(head.id); return; }
+      void window.cth.writePty(ptyId, '\x1b');
+    };
 
 
     // Send the front of `srcId`'s queue into `target`'s pty (verbatim or wrapped),
@@ -803,11 +1108,19 @@ export function useHive(config: HarnessConfig | null): void {
       const { messageQueues, removeQueuedMessage } = useStore.getState();
       const next = messageQueues[srcId]?.[0];
       if (!next || !target?.ptyId) return { sent: false };
+      // A person has the head open in the queue's inline editor (5 Sep 2026). Typing it now would send the half-rewritten original, so
+      // the drain waits. The flag cannot starve the queue: it is released on
+      // save, cancel and composer unmount, and persistQueues strips it so no
+      // stored copy survives a dead renderer.
+      if (next.editing) return { sent: false };
       const now = Date.now();
+      // "Send now" into a CLI that takes input mid-turn (founder, 25 Sep 2026)
+      // skips the idle gate and the cooldown: the CLI's own queue holds it.
+      const jump = next.now === true && canSendNowMidTurn(target.status, inferAgentProvider(target.command, target.provider), openQuestions.isOpen(target.id));
       // Idle, or breaker-pinned with a terminal that has genuinely gone quiet.
       // This gate is a don't-type-mid-stream safety check, so `manual` does NOT
       // bypass it — "send now" releases the auto-delivery PAUSE below, not this.
-      if (!canDeliverToAgent(target.status, ptyQuietMs(target.ptyId, now), QUIESCE_IDLE_MS)) {
+      if (!jump && !canDeliverToAgent(target.status, ptyQuietMs(target.ptyId, now), QUIESCE_IDLE_MS, openQuestions.isOpen(target.id), !!target.exit)) {
         return { sent: false };
       }
       const control = await window.cth.controlSnapshot(target.id);
@@ -819,43 +1132,107 @@ export function useHive(config: HarnessConfig | null): void {
       // Hold queued messages until the target finishes its boot sequence.
       if ((bootGraceUntil.current[target.id] ?? 0) >= now) return { sent: false };
       // The user owns the prompt: a draft they are writing, or a menu they
-      // opened, holds delivery. Both blocks expire after half an hour, and when
-      // one does we simply type after whatever is there — automation never
-      // erases the user's text and never closes the user's menu.
+      // opened, holds delivery. A draft holds until the box is empty, at any age:
+      // typing after it would send the two as one prompt (Pam b8 row 6). A menu
+      // expires after half an hour. Automation never erases the user's text and
+      // never closes the user's menu.
+      // A draft holds the whole queue untyped, so Home says Queued, not Sent; no timer, it is the person's text.
+      useStore.getState().setQueueDraft(srcId, terminalAutomationBlockFor(target.ptyId, now) === 'draft');
       if (!isTerminalAutomationSafe(target.ptyId, now)) return { sent: false };
-      if (now - (lastFlush.current[target.id] ?? 0) < FLUSH_COOLDOWN_MS) return { sent: false };
+      // A head stuck in the input box (autosend, 0.5.5) is never typed again:
+      // the key alone, at most three automatic passes, then the person decides
+      // from the row (Press Return, Type again). The queue holds behind it.
+      const stuck = next.stuck;
+      if (stuck && stuckHeadAction(stuck, now - (lastFlush.current[target.id] ?? 0), FLUSH_COOLDOWN_MS) === 'wait') return { sent: false };
+      if (!jump && !stuck && now - (lastFlush.current[target.id] ?? 0) < FLUSH_COOLDOWN_MS) return { sent: false };
       // Last gate before we type: re-check the message's delivery-time
       // precondition. A queue item is decided at enqueue time and delivered an
       // arbitrary interval later, and the inbox nudge is only worth sending if
       // there is still something in the inbox — the agent routinely drains it in
       // the very turn the nudge was queued from. Stale ones are DROPPED, not
       // deferred, so they cannot park at the queue head and starve the rest.
-      if (await checkPrecondition(next, () => window.cth.hiveInbox(srcId)) === 'drop') {
+      // Not for a stuck head: its text is already in the box.
+      if (!stuck && await checkPrecondition(next, () => window.cth.hiveInbox(srcId)) === 'drop') {
         removeQueuedMessage(srcId, next.id);
         return { sent: false };
       }
+      // 0.5.6: the wake carries the mail, so its text is written NOW, as it is
+      // typed, not when it was queued: main gives every pending message no
+      // earlier wake has carried (mail that came since is in, mail the agent
+      // already has in front of it is out). Null means there is none, and the
+      // nudge is dropped like the stale one above. A failed ask types the
+      // queued text. Not for a stuck head: its text is already in the box.
+      let wake: string | null | undefined;
+      if (!stuck && next.precondition === 'inbox-nonempty' && isInboxNudge(next.text)) {
+        wake = await window.cth.hiveWakeText(srcId).catch(() => undefined);
+        if (wake === null) {
+          removeQueuedMessage(srcId, next.id);
+          return { sent: false };
+        }
+      }
+      // 0.5.6, clear on a switch of work. Main may hand back a hand off request
+      // in place of the wake: the wake is for other work than the agent is on,
+      // and its session is old enough (shared/switchClear.ts).
+      const handoff = typeof wake === 'string' && isHandoffRequest(wake);
+      // Typed afresh (the process that held it in its box is gone): what was
+      // remembered about the box no longer holds.
+      if (!stuck && handoffInBox.current[target.id]?.itemId === next.id) delete handoffInBox.current[target.id];
+      // And this head may be the clear queued behind such a request. Main says
+      // whether it goes: held while a sub agent is open, with no ceiling, and
+      // dropped when the switch has ended (a wake went in first). Known by its
+      // own mark as well as by this window's note, which a reload empties: a
+      // clear typed unasked could land after a wake the watchdog typed.
+      if (!stuck && (next.switchClear || switchClears.current[target.id] === next.text)) {
+        const gate = await window.cth.hiveSwitchClearGate(target.id).catch(() => 'hold' as const);
+        if (gate === 'hold') return { sent: false };
+        if (gate === 'drop') {
+          delete switchClears.current[target.id];
+          removeQueuedMessage(srcId, next.id);
+          return { sent: false };
+        }
+      }
+      // Crossed out while this pass waited on the calls above. Nothing awaits from here to the hand over to
+      // main, so a cross after this check reaches main after the send does, and main drops it (pty:withdraw).
+      if (!useStore.getState().messageQueues[srcId]?.some((m) => m.id === next.id)) return { sent: false };
       const flightKey = `${srcId}:${next.id}`;
       if (inFlight.has(flightKey)) return { sent: false };
       inFlight.add(flightKey);
       lastFlush.current[target.id] = now;
+      // `instruction` (when present) is the authoritative text to type into
+      // the PTY; UI/card surfaces continue to show the readable `text`.
+      const typed = withStandingContext(target, wrap ? wrap(next) : (wake ?? next.instruction ?? next.text), responseStyle.current);
+      const typedAt = Date.now();
+      submitting.set(target.ptyId!, { queueId: srcId, messageId: next.id });
       try {
         const sent = await deliverWithAcknowledgement(
-          // `instruction` (when present) is the authoritative text to type into
-          // the PTY; UI/card surfaces continue to show the readable `text`.
           () => submitToPty(
             target.ptyId!,
-            withStandingGoal(
-              target,
-              wrap ? wrap(next) : (next.instruction ?? next.text)
-            ),
-            inferAgentProvider(target.command, target.provider)
+            typed,
+            inferAgentProvider(target.command, target.provider),
+            { agentId: target.id, source: 'queue', idle: !jump, pressOnly: !!stuck, ref: next.id, ...(next.person ? { person: true } : {}) }
           ),
-          () => {
+          (hookProved) => {
+            const proved = hookProved || provedBeforeAcknowledge(target.id, promptTail(typed), typedAt);
+            // Settle BEFORE the queue drops the message. The thread reads the
+            // sent log, and a message that left the queue with nothing recorded
+            // in its place is exactly the disappearance being fixed (founder,
+            // 3 Sep 2026); it is only ever a person's send that has a row here.
+            useStore.getState().settleHumanSend(srcId, next.id, proved ? 'delivered' : 'sent', typedAt);
+            if (!proved && useStore.getState().sentLog[srcId]?.some((e) => e.id === next.id)) {
+              unproved.set(target.id, [...(unproved.get(target.id) ?? []), { queueId: srcId, messageId: next.id, tail: promptTail(typed) }].slice(-UNPROVED_KEPT));
+            }
             removeQueuedMessage(srcId, next.id);
+            // An engine whose CLI reports its prompts: with no prompt by then, the person is told it was not
+            // delivered, never left on Sent for good (Pam, round 6; Stanley, A3 x1). A late prompt still proves it.
+            if (!proved && !wakeOptionsFor(inferAgentProvider(target.command, target.provider)).selfFile) notDeliveredLater(target.id, srcId, next.id, promptTail(typed), typedAt);
             // Zero the gauge on a DELIVERED /clear — the new session's context
             // isn't known until statusLine fires after the first post-clear
             // response, so leaving it at the old value shows a stale-full bar.
-            if (next.text.trim().toLowerCase() === '/clear') {
+            // The clear on a switch of work is zeroed the same way, whatever
+            // the engine calls its clear command.
+            const switchCleared = switchClears.current[target.id] === next.text;
+            if (switchCleared) delete switchClears.current[target.id];
+            if (next.text.trim().toLowerCase() === '/clear' || switchCleared) {
               useStore.getState().updateAgent(target.id, {
                 contextTokens: 0,
                 contextLimit: undefined,
@@ -864,8 +1241,65 @@ export function useHive(config: HarnessConfig | null): void {
             }
           }
         );
+        // A person was typing in that terminal when main came to type: nothing
+        // was typed and nothing failed. The next pass tries again.
+        // Held behind an earlier send still in the box: never typed, so the receipt says Queued, not Sent (Kevin, PR 778).
+        useStore.getState().setQueuedMessageBehind(srcId, next.id, sent === 'behind');
+        if (sent === 'held' || sent === 'behind') return { sent: false };
+        // The process that held the text exited or was replaced (G4): its box
+        // is gone. Clear the mark; the next pass types the message again.
+        // F30: not a person's message. It may have gone in with no proof reaching
+        // anyone, and typing it again ran a person's request twice after a Restart.
+        // Its row asks instead (StuckQueueNotice); a prompt with its tail still releases it.
+        if (sent === 'gone' && next.person && stuck) {
+          const { pressNow: _pressed, ...kept } = stuck;
+          useStore.getState().setQueuedMessageStuck(srcId, next.id, { ...kept, presses: STUCK_MAX_AUTO_PRESSES, boxGone: true });
+          return { sent: false };
+        }
+        if (sent === 'gone') {
+          useStore.getState().setQueuedMessageStuck(srcId, next.id, null);
+          return { sent: false };
+        }
+        // Typed and pressed, and the agent moved with no prompt taken (trigger-prompt-058): the Enter may have
+        // answered something on its screen, or the prompt's hook was lost. Never typed again by itself, and no press
+        // either: the row asks (Type again), the queue holds behind it, and a prompt with its tail still releases it.
+        if (sent === 'moved') {
+          useStore.getState().setQueuedMessageTyping(srcId, next.id);
+          useStore.getState().setQueuedMessageStuck(srcId, next.id, {
+            agentId: target.id, typedAt, tail: promptTail(typed), presses: STUCK_MAX_AUTO_PRESSES, moved: true
+          });
+          return { sent: false };
+        }
+        // Still in the input box after every press: mark the head and hold the
+        // queue. A later hook with this tail releases it (see the hook listener).
+        if (sent === 'stuck') {
+          // Typed, so the receipt says Sent: this is its mark.
+          useStore.getState().setQueuedMessageTyping(srcId, next.id);
+          useStore.getState().setQueuedMessageStuck(srcId, next.id, {
+            agentId: target.id,
+            typedAt: stuck?.typedAt ?? now,
+            tail: stuck?.tail ?? promptTail(typed),
+            presses: stuck ? stuck.presses + (stuck.pressNow ? 0 : 1) : 0
+          });
+          // A hand off request left in the box: remembered, so its clear and
+          // the wake are queued when it goes (a later press, or a late proof).
+          if (handoff) handoffInBox.current[target.id] = { itemId: next.id, wake: next.text, tail: promptTail(typed) };
+          return { sent: false };
+        }
         if (sent) {
           delete sendFailures[next.id];
+          // A compact went in, the app's or the person's: no other is queued until it ends.
+          if (isCompactionCommand(next.text)) compactTypedAt.current[target.id] = Date.now();
+          // 0.5.6: what went in was a hand off request, now or from the box.
+          const boxed = handoffInBox.current[target.id]?.itemId === next.id ? handoffInBox.current[target.id] : undefined;
+          if (boxed) delete handoffInBox.current[target.id];
+          if (handoff || boxed) queueSwitchClear(target, boxed?.wake ?? next.text);
+          // 0.5.3 bug 7: we just started a turn in this agent and we are the one
+          // party that knows it. Say so now rather than wait for a hook that a
+          // hookless engine never sends (queueDelivery.ts statusAfterDelivery).
+          const bl = breakerLevel.current[target.id];
+          const mark = statusAfterDelivery(next.instruction ?? next.text, bl === 'constrained' || bl === 'stopped', !!target.exit);
+          if (mark) useStore.getState().updateAgent(target.id, mark);
           return { sent: true, message: next };
         }
         // Failed write (dead/crashed pty the store still thinks is idle): retry
@@ -875,6 +1309,7 @@ export function useHive(config: HarnessConfig | null): void {
         sendFailures[next.id] = attempts;
         if (attempts >= MAX_SEND_ATTEMPTS) {
           delete sendFailures[next.id];
+          useStore.getState().settleHumanSend(srcId, next.id, 'failed');
           removeQueuedMessage(srcId, next.id);
           console.warn(
             `[queue-drain] dropping message ${next.id} for ${target.id} after ${attempts} failed pty writes ` +
@@ -884,6 +1319,7 @@ export function useHive(config: HarnessConfig | null): void {
         return { sent: false };
       } finally {
         inFlight.delete(flightKey);
+        if (submitting.get(target.ptyId!)?.messageId === next.id) submitting.delete(target.ptyId!);
       }
     };
 
@@ -925,17 +1361,31 @@ export function useHive(config: HarnessConfig | null): void {
       const byId = (id: string) => agents.find((a) => a.id === id);
       const now = Date.now();
 
+      for (const [id, at] of forced) if (now - at > 60 * 60_000) forced.delete(id);
       for (const a of agents) {
         // Same gate as dispatch() — this pre-filter runs first, so relaxing only
         // the one inside dispatch would have changed nothing.
-        if (!a.ptyId || !canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, now), QUIESCE_IDLE_MS)) continue;
         if (!messageQueues[a.id]?.length) continue;
+        const head = messageQueues[a.id][0];
+        if (forceCompactDue({
+          force: compactRule.current?.force === true, head, isCompact: isCompactionCommand(head.text),
+          status: a.status, provider: inferAgentProvider(a.command, a.provider),
+          questionOpen: openQuestions.isOpen(a.id), pressed: forced.has(head.id), now
+        })) void pressForCompact(a, head);
+        // A "send now" head goes to a CLI that takes input mid-turn at once.
+        const jump = messageQueues[a.id][0].now === true && canSendNowMidTurn(a.status, inferAgentProvider(a.command, a.provider), openQuestions.isOpen(a.id));
+        if (!a.ptyId || (!jump && !canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, now), QUIESCE_IDLE_MS, openQuestions.isOpen(a.id), !!a.exit))) continue;
                 void dispatch(a.id, a).then(({ sent, message }) => {
           if (sent && message?.slack) void ensureSlackCard(message);
           // Write the compact latch only once delivery genuinely happened — see
           // the comment in fire() above.
           if (sent && message?.compactUsed !== undefined) {
             lastCompactUsed.current[a.id] = message.compactUsed;
+          }
+          // A forced compact stopped the agent's turn: once it is in, the
+          // agent is told to carry on, ahead of anything else waiting.
+          if (sent && message && forced.delete(message.id)) {
+            useStore.getState().enqueueMessage(a.id, FORCE_COMPACT_CARRY_ON, { front: true });
           }
         });
       }
@@ -954,38 +1404,40 @@ export function useHive(config: HarnessConfig | null): void {
     return () => { unsub(); if (debounce) clearTimeout(debounce); clearInterval(iv); };
   }, [config?.onboardingComplete]);
 
-  // 5) Pipe inbound Slack messages into Michael's queue. The main-process Slack
-  //    webhook server pushes each verified message here via IPC; enqueueing to
-  //    GOD_ID lands it in Michael's queue exactly as if the user had typed it
-  //    into the composer — effect #4 above then drains it to his PTY.
-  //    We immediately ack in the triggering thread and stash the thread coords
-  //    so the office can post its summary back later.
+  // 5) Pipe inbound Slack messages into the responder's queue (0.5.2, founder
+  //    ruling, Option A: one responder for every inbound channel). Main emits
+  //    this event for EVERY Slack message and sends the configured id along;
+  //    it is resolved here against the agents that are actually running, and
+  //    anything else (unset, archived, the assistant, an unknown id) falls
+  //    back to Michael, never to nowhere. Main applies the same rule, from
+  //    the same shared module. Enqueueing lands the
+  //    text in that agent's queue exactly as if the user had typed it, effect
+  //    #4 drains it to the PTY, and the card gets the thread. The gated
+  //    "received" post is main's, so there is no slackReply here.
   useEffect(() => {
     if (!config?.onboardingComplete) return;
     return window.cth.onSlackMessage((msg) => {
       const hasFiles = Array.isArray(msg.files) && msg.files.length > 0;
       if (!msg?.text?.trim() && !hasFiles) return;
       let text = msg.text.trim();
-      // Append local file paths so the agent (Claude Code) can Read them directly.
+      // Local paths so the agent can Read the attachments directly.
       if (hasFiles) {
-        const fileLines = msg.files!.map((f) => `- ${f.path} (${f.name})`).join('\n');
+        const fileLines = msg.files!.map((f) => `${f.path} (${f.name})`).join('\n');
         text = text ? `${text}\n\nAttached files:\n${fileLines}` : `Attached files:\n${fileLines}`;
       }
       const slack = { channel: msg.channel, thread_ts: msg.thread_ts };
-      // `text` (raw user request + any attachment lines) drives the human-facing
-      // kanban card title/description. The autonomy preamble — supplied verbatim
-      // by main, the authoritative source — is prepended ONLY to god's working
-      // instruction (what gets typed into his PTY), so the board stays readable
-      // while every Slack-origin god-session runs under the autonomy policy. When
-      // main sends no preamble (older build), god just gets the raw text.
-      const instruction = msg.autonomyPreamble ? `${msg.autonomyPreamble}${text}` : undefined;
-      useStore.getState().enqueueMessage(GOD_ID, text, { slack, instruction });
-      // Immediate "queued" acknowledgement in the originating Slack thread.
-      void window.cth.slackReply({
-        channel: msg.channel,
-        thread_ts: msg.thread_ts,
-        text: ':hourglass_flowing_sand: *Received.* Your request has been queued — the team is on it and will reply here when done.'
-      });
+      // The raw text drives the human facing card; the preamble, built by main
+      // per message, goes only into the working instruction. 0.5.6: main sends
+      // two, and who takes the message picks: the orchestrator's (route it,
+      // hand it over) or the chosen agent's (it is yours, answer it yourself).
+      // What came with the message (the thread so far, the messages it points
+      // to) rides in the instruction too, never on the card.
+      const active = useStore.getState().agents.filter((a) => !a.archived && !a.isAssistant).map((a) => a.id);
+      const to = resolveResponder(msg.responder, active, GOD_ID);
+      const preamble = to === GOD_ID ? msg.autonomyPreamble : (msg.agentPreamble ?? msg.autonomyPreamble);
+      const body = msg.context ? `${text}\n\n${msg.context}` : text;
+      const instruction = preamble ? `${preamble}${body}` : undefined;
+      useStore.getState().enqueueMessage(to, text, { slack, instruction });
     });
   }, [config?.onboardingComplete]);
 
@@ -1010,8 +1462,13 @@ export function useHive(config: HarnessConfig | null): void {
     if (!config?.onboardingComplete) return;
     const offSpawn = window.cth.onHiveAgentSpawned?.((rec) => {
       if (!rec?.id) return;
-      // addAgent is idempotent, but bail early if the renderer already carded it.
-      if (useStore.getState().agents.some((a) => a.id === rec.id)) return;
+      // Already carded: a row that is down takes the terminal main started (startedRow.ts); one that is up is this window's own start.
+      const listed = useStore.getState().agents.find((a) => a.id === rec.id);
+      if (listed) {
+        const patch = startedRowPatch(listed, rec);
+        if (patch) useStore.getState().updateAgent(rec.id, patch);
+        return;
+      }
       // An explicit character wins; otherwise infer it from the name, which is
       // what makes "spawn one called Meredith" land on the Meredith avatar with
       // nothing else asked for. The explicit field covers what inference cannot
@@ -1043,13 +1500,16 @@ export function useHive(config: HarnessConfig | null): void {
         action: 'starting up',
         progress: 0,
         currentStation: 'desk',
-        ptyId: rec.id,
+        ptyId: rec.ptyId ?? rec.id,
         command: rec.command,
+        // The model main actually started the worker on (0.5.3 bug 7). Without it
+        // the row reads "CLI default" for a worker running a named model.
+        model: rec.model,
         provider: rec.provider as Agent['provider'],
         isGod: false,
         recentTextTs: Date.now()
       };
-      useStore.getState().addAgent(agent);
+      useStore.getState().addAgent(agent, { keepSelection: true });
     });
     const offArchive = window.cth.onHiveAgentArchived?.((e) => {
       if (e?.id) useStore.getState().archiveAgent(e.id);
@@ -1088,60 +1548,66 @@ export function useHive(config: HarnessConfig | null): void {
   //
   //    Dedupe generalises to both actions: keyed on the command's own verb, so a
   //    queued `/compact` blocks a second compact without blocking a `/clear`.
+  //
+  //    COMPACT BY TOKENS (0.5.6). An agent that reports a token count is no
+  //    longer compacted on the timer. Its compact is queued when its turn ends
+  //    at or over its bar in tokens (shared/contextBar.ts): no time gap, and the
+  //    same gate, dedupe and latch as below. The timer is the fallback for an
+  //    engine that reports no count, and it skips every agent the turn end owns.
   useEffect(() => {
     if (!config?.onboardingComplete) return;
 
-       const fire = (action: 'compact' | 'clear', rule: ContextRule): void => {
-      const { agents, messageQueues, enqueueMessage } = useStore.getState();
-      const now = Date.now();
-      for (const a of agents) {
-        if (!a.ptyId) continue;
-        // Gate #109-2: don't enqueue a context command for an agent that cannot
-        // currently receive one (e.g. god 'blocked' on a human prompt). Enqueuing
-        // anyway left a stuck /compact at the head of the queue that dedupe then
-        // collapsed every subsequent hourly attempt against, forever — the exact
-        // same check the drain itself uses immediately before typing, so a
-        // command is never queued in a state the drain would refuse to deliver.
-        if (!canDeliverToAgent(a.status, ptyQuietMs(a.ptyId, now), QUIESCE_IDLE_MS)) continue;
-        const provider = inferAgentProvider(a.command, a.provider);
-        const command = action === 'clear'
-          ? clearCommandForProvider(provider, rule.message)
-          : compactionCommandForProvider(provider, rule.message);
-        // No trustworthy command for this CLI (Crush's palette-only TUI, Copilot's
-        // print mode, an unknown custom binary) — leave its terminal alone.
-        if (!command) continue;
-        if (!passesContextPressure(a, rule)) continue;
-        const verb = command.trimStart().split(/\s+/)[0];
-        const queued = messageQueues[a.id] ?? [];
-        if (queued.some((m) => m.text.trimStart().startsWith(verb))) continue;
-        // The latch, compact only. `used` reaches this gate from Claude's status
-        // line, which only reports after an API call. A /compact on an agent that
-        // has done nothing since the last one makes no call at all — Claude refuses
-        // it locally with "Not enough messages to compact" — so the count stays
-        // byte-identical and the pressure gate passes on the same number the next
-        // cycle, and the next. Seen in the wild: /compact every hour for 15 straight
-        // hours at exactly 400958 tokens, then 11 more at exactly 221772, each a
-        // no-op the agent still had to read and answer. Higher thresholds make it
-        // rarer, not absent: any agent parked above its bar repeats forever.
-        //
-        // So remember the count at the last compact queued and skip while it is
-        // byte-identical. Deliberately equality and not "hasn't grown": the rule's
-        // thresholds own that decision, and an agent still above them deserves its
-        // /compact whether the count moved up or down. A frozen count is the one
-        // state those thresholds cannot reason about, because nothing they could do
-        // would ever change it. /clear needs no equivalent — the queue drain zeroes
-        // the store reading when it lands.
-               const used = a.contextTokens ?? 0;
-        if (action === 'compact' && lastCompactUsed.current[a.id] === used) continue;
+    // `only` is the one agent whose turn just ended. Absent, this is the timer
+    // and every agent is looked at. `asked`: an agent asked for this compact
+    // (compact-requests/), so the bar is the asker's, not checked here.
+    // WHO gets the command is decided in src/shared/contextTriggerDecide.ts,
+    // in this order.
+    const queueContext = (action: 'compact' | 'clear', rule: ContextRule, only?: string, asked = false): Promise<void> => {
+      return Promise.resolve().then(() => {
+        const { agents, messageQueues, enqueueMessage } = useStore.getState();
+        const now = Date.now();
+        const sends = decideContextTrigger({
+          action, rule, agents, only, asked,
+          quietMs: (ptyId) => ptyQuietMs(ptyId, now),
+          quiesceMs: QUIESCE_IDLE_MS,
+          questionOpen: (id) => openQuestions.isOpen(id),
+          queued: (id) => (messageQueues[id] ?? []).map((m) => m.text),
+          lastCompactUsed: lastCompactUsed.current,
+          // No compact while the clear on a switch of work is queued for it.
+          holdCompact: switchClearPending,
+          // Nor while the last one typed has not ended.
+          compactPending: (id) => compactAwaited(compactTypedAt.current[id], now)
+        });
         // The latch is written at successful DELIVERY (see the flush() dispatch
-        // callback below), not here. Writing it at enqueue time recorded
-        // "already compacted at N tokens" for a compaction that might never
-        // actually happen — e.g. blocked by the gate just above, or a failed
-        // send — silently latching out every future attempt at that count.
-        // compactUsed rides on the queued message so the delivery site knows
-        // which count to latch.
-        enqueueMessage(a.id, command, action === 'compact' ? { compactUsed: used } : undefined);
-      }
+        // callback below), not here: compactUsed rides on the queued message so
+        // the delivery site knows which count to latch. Force compact puts it
+        // ahead of everything waiting (forceCompactDue).
+        for (const s of sends) {
+          enqueueMessage(s.agentId, s.command, s.compactUsed === undefined ? undefined : { compactUsed: s.compactUsed, ...(s.front ? { front: true } : {}) });
+        }
+      });
+    };
+
+    // The timer road. Main sends the person's own rule with the event.
+    const fire = (action: 'compact' | 'clear', rule: ContextRule): void => { void queueContext(action, rule); };
+
+    // The turn end road. The rule is the person's own saved one, from the live
+    // config, never a default. `late` is a token count that landed after the
+    // turn ended: it counts only inside TURN_END_READING_MS, and only while no
+    // compact has been queued for that turn end. One turn end, one compact.
+    const endedAt: Record<string, number> = {};
+    compactAtTurnEnd.current = (agentId, late) => {
+      const rule = compactRule.current;
+      if (!rule?.enabled) return;
+      const now = Date.now();
+      if (late && now - (endedAt[agentId] ?? 0) > TURN_END_READING_MS) return;
+      // Marked before the decision: a late
+      // count that lands meanwhile still finds its turn end. Once a compact is
+      // queued the mark goes, and the queue's own dedupe stops a second one.
+      if (!late) endedAt[agentId] = now;
+      void queueContext('compact', rule, agentId).then(() => {
+        if ((useStore.getState().messageQueues[agentId] ?? []).some((m) => isCompactionCommand(m.text))) delete endedAt[agentId];
+      });
     };
 
     // The typed `onContextTrigger` arrives with the main-process/preload change
@@ -1155,15 +1621,31 @@ export function useHive(config: HarnessConfig | null): void {
       fire(p.action === 'clear' ? 'clear' : 'compact', p.rule);
     });
 
-    // LEGACY fallback: main still emits the old parameterless auto-compact until
-    // it switches over. Treat it as the default compact rule so behaviour is
-    // continuous across that landing. Harmless if both fire — the dedupe above
-    // drops the duplicate.
-    const offLegacy = window.cth.onAutoCompact(
-      () => fire('compact', DEFAULT_CONTEXT_TRIGGER.compact)
-    );
+    // The asked road. Main says so each beat until the compact goes
+    // in, so an agent that is busy now gets it at a later idle prompt. The
+    // person's own saved rule gives the focus text, even when their own
+    // compact is off: the ask is the reason. No saved rule yet, the next beat.
+    const offAsked = window.cth.onCompactAsked?.(({ agentId }) => {
+      const rule = compactRule.current;
+      if (!rule || typeof agentId !== 'string' || !agentId) return;
+      void queueContext('compact', rule, agentId, true);
+    });
 
-    return () => { off?.(); offLegacy?.(); };
+    return () => { off?.(); offAsked?.(); compactAtTurnEnd.current = null; };
+  }, [config?.onboardingComplete]);
+
+  // 6c) A CODEX FILE TOO LARGE (0.5.6, shared/codexSizeClear.ts). Main stats
+  //     each Codex agent's conversation file and says so while one is past
+  //     100 MB, whatever the clear on a switch of work is set to. This window
+  //     acts only for its own agents (queueCodexSizeClear finds none else).
+  useEffect(() => {
+    if (!config?.onboardingComplete) return;
+    return window.cth.onCodexSizeClear(({ agentId, asked }) => {
+      if (typeof agentId !== 'string' || !agentId) return;
+      codexSizeDue.current.add(agentId);
+      if (asked === true) askedClearDue.current.add(agentId);
+      void queueCodexSizeClear(agentId);
+    });
   }, [config?.onboardingComplete]);
 
   // 7) Auto-revive wedged PTYs after the Mac sleeps/locks. Kevin's main-process
@@ -1193,14 +1675,18 @@ export function useHive(config: HarnessConfig | null): void {
         // it if it still exists, else fall back to the base cwd — same as restoreTeam.
         let cwd = a.cwd;
         if (a.worktreePath && (await window.cth.gitIsRepo(a.worktreePath))) cwd = a.worktreePath;
-        await window.cth.killPty(deadId);
+        // 'revive': the process died on its own while the machine slept and we are
+        // about to start it again in the same folder. Without this main removed
+        // that folder, uncommitted work and all, a line before the respawn.
+        await window.cth.killPty(deadId, 'revive');
         // Soft-reset the pooled xterm in place (no-op if none): re-arm input and
         // clear the stale frame so the revived TUI paints clean — like the button.
         resetTerminal(deadId);
         const provider = inferAgentProvider(a.command, a.provider);
         // Prefer the agent's exact recorded command (same model/flags); fall back to
         // a rebuilt one only if it predates the persisted `command` field.
-        const command = (a.command ?? '').trim() || buildSpawnCommand(cfg, a.model, provider);
+        // On the model last seen running (0.5.3 bug 2), same rule as the restore.
+        const command = commandWithModel(a.command, a.model, provider) || buildSpawnCommand(cfg, a.model, provider);
         const [exe, ...args] = tokenizeCommand(command);
         const hive = a.isGod
           ? { id: a.id, name: a.name, cwd, provider, isGod: true, role: roleForHiveSpawn(a) }

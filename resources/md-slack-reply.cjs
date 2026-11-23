@@ -12,6 +12,7 @@
  *
  * Usage:
  *   node md-slack-reply.cjs --channel C123 --thread 1700000000.000100 --text "..."
+ *   node md-slack-reply.cjs --user U123 --text "..."     a direct message to one person
  *   (optional) --config /abs/path/to/slack-reply.json
  *
  * The discovery file is located via, in order: --config, then the
@@ -25,15 +26,16 @@ const http = require('node:http');
 /** Parse `--key value` and `--key=value` pairs from argv. */
 function parseArgs(argv) {
   const out = {};
+  const put = (key, value) => { out[key] = value; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (!a.startsWith('--')) continue;
     const eq = a.indexOf('=');
-    if (eq !== -1) { out[a.slice(2, eq)] = a.slice(eq + 1); continue; }
+    if (eq !== -1) { put(a.slice(2, eq), a.slice(eq + 1)); continue; }
     const key = a.slice(2);
     const next = argv[i + 1];
-    if (next !== undefined && !next.startsWith('--')) { out[key] = next; i++; }
-    else out[key] = true;
+    if (next !== undefined && !next.startsWith('--')) { put(key, next); i++; }
+    else put(key, true);
   }
   return out;
 }
@@ -47,9 +49,12 @@ const args = parseArgs(process.argv.slice(2));
 const channel = args.channel;
 const thread = args.thread || args.thread_ts;
 const text = args.text;
+// A direct message to one person: a Slack user id in place of a channel and a
+// thread. The endpoint refuses anything that is not a user id.
+const user = typeof args.user === 'string' ? args.user : undefined;
 
-if (!channel || !thread || !text || text === true) {
-  fail('required: --channel <id> --thread <ts> --text "<message>"');
+if (!text || text === true || (user ? false : (!channel || !thread))) {
+  fail('required: --channel <id> --thread <ts> --text "<message>", or --user <Slack user id> --text "<message>"');
 }
 
 const configPath = args.config || process.env.MD_SLACK_REPLY_CONFIG;
@@ -67,7 +72,7 @@ if (!cfg || typeof cfg.port !== 'number' || typeof cfg.token !== 'string') {
   fail(`malformed reply config at ${configPath}`);
 }
 
-const body = JSON.stringify({ channel, thread_ts: thread, text });
+const body = JSON.stringify(user ? { user, text } : { channel, thread_ts: thread, text });
 const req = http.request(
   {
     method: 'POST',
@@ -88,7 +93,7 @@ const req = http.request(
       let json = {};
       try { json = JSON.parse(raw); } catch { /* non-JSON body */ }
       if (res.statusCode === 200 && json.ok) {
-        process.stdout.write('Posted reply to Slack thread.\n');
+        process.stdout.write(user ? 'Sent the direct message.\n' : 'Posted reply to Slack thread.\n');
         process.exit(0);
       }
       fail(`reply failed (HTTP ${res.statusCode}): ${json.error || raw || 'unknown error'}`);

@@ -1,0 +1,57 @@
+/* The kit's interactions on real moments (Kit.tsx, rules in kitPlan.ts, art
+   in pieces/). Every rule here lives under the season; with the season off
+   none of these classes is in the page. Only transform and opacity move,
+   every animation runs a fixed count after something real happened, nothing
+   takes the pointer, and everything pauses when the window is hidden or the
+   person asked for reduced motion.
+
+   The boxes that move are this file's own wrappers (cth-k?-) or a part box a
+   piece hands to its caller (cth-pc-strand); a piece's drawing is never
+   touched. */
+
+/* ── 9, ignite: the button is the candle ─────────────────────────────────── */
+/* The wick stands on the button's top edge and the flame lights above it,
+   outside the box, so the button's own size and its focus ring do not
+   change. The press is the button's own transform. */
+.cth-ki-wick { position: absolute; top: -3px; right: 10px; display: block; pointer-events: none; }
+.cth-ki-flame { position: absolute; top: -14px; right: 7px; display: block; pointer-events: none; transform: scale(0); transform-origin: 50% 100%; transition: transform 240ms cubic-bezier(0.3, 1.4, 0.5, 1); }
+.cth-ki-fire { display: block; transform-origin: 50% 100%; }
+[data-cth-ignite]:hover .cth-ki-flame, [data-cth-ignite]:focus-visible .cth-ki-flame { transform: scale(1); }
+[data-cth-ignite]:hover .cth-ki-fire, [data-cth-ignite]:focus-visible .cth-ki-fire { animation: cth-ki-flicker 1.4s ease-in-out infinite; }
+:root[data-cth-season='halloween'] [data-cth-ignite]:active:not(:disabled) { transform: scale(0.96); }
+@keyframes cth-ki-flicker { 0%, 100% { transform: scale(1, 1) rotate(0deg); } 25% { transform: scale(0.9, 1.1) rotate(-4deg); } 50% { transform: scale(1.06, 0.94) rotate(3deg); } 75% { transform: scale(0.95, 1.05) rotate(-1deg); } }
+
+/* ── 13, boo: a ghost pops from behind the copy button, ducks back ───────── */
+.cth-kg { position: absolute; left: 50%; top: -19px; margin-left: -8px; z-index: -1; opacity: 0; pointer-events: none; display: block; animation: cth-kg-boo 1200ms ease-out 1 both; }
+@keyframes cth-kg-boo { 0% { transform: translateY(18px); opacity: 0; } 20% { transform: translateY(-2px); opacity: 1; } 30% { transform: translateY(0); } 75% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(18px); opacity: 0; } }
+
+/* ── 24, the summoning palette: a keycap press, a sheet that settles ─────── */
+kbd[data-cth-keycap='1'] { animation: cth-kk-press 200ms ease-out 1; }
+@keyframes cth-kk-press { 0% { transform: translateY(0); } 40% { transform: translateY(1px) scale(0.96); } 100% { transform: translateY(0); } }
+.cth-kk-sheet { animation: cth-kk-settle 200ms ease-out 1 both; }
+@keyframes cth-kk-settle { 0% { transform: translateY(-4px) scale(0.985); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+/* ── 10, the web spun checkbox: three strands out of the top left corner ─── */
+.cth-kn { position: relative; display: inline-flex; flex-shrink: 0; }
+/* The strands fan right and down from their origin (Pam's contract); turned
+   half round on the box's top left corner they fan up and left, out of the
+   box and away from the label. The turn is static; the growth is each
+   strand's own. */
+.cth-kn-strands { position: absolute; left: 1px; top: 1px; display: block; pointer-events: none; transform: rotate(180deg); transform-origin: 0 0; }
+.cth-kn-strands .cth-pc-strand { animation: cth-kn-spin 700ms ease-out 1 both; }
+.cth-kn-strands .cth-pc-strand-2 { animation-delay: 60ms; }
+.cth-kn-strands .cth-pc-strand-3 { animation-delay: 120ms; }
+@keyframes cth-kn-spin { 0% { transform: scale(0); opacity: 1; } 60% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+
+/* ── the window hidden, and reduced motion ───────────────────────────────── */
+:root[data-cth-window='hidden'] .cth-ki-fire, :root[data-cth-window='hidden'] .cth-kg,
+:root[data-cth-window='hidden'] kbd[data-cth-keycap='1'], :root[data-cth-window='hidden'] .cth-kk-sheet,
+:root[data-cth-window='hidden'] .cth-kn-strands .cth-pc-strand { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cth-ki-flame, .cth-ki-fire, .cth-kg, kbd[data-cth-keycap], .cth-kk-sheet, .cth-kn-strands .cth-pc-strand { animation: none !important; transition: none !important; }
+  .cth-kg { opacity: 0; }
+  /* Still pieces the person can see: the tooltip's ghost peeks; the strands
+     are not drawn. */
+  .cth-kn-strands { opacity: 0; }
+}

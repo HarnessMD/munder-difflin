@@ -25,6 +25,8 @@ faq:
 
 An MCP server is a small program that gives an AI agent access to something it doesn't have built in: a database, an issue tracker, a browser, your files. It speaks the Model Context Protocol, an open standard, so any compliant AI application can connect the same way, without custom code to wire each one up.
 
+Google's A2UI 1.0, released 11 Nov 2026, has web and Flutter renderers that work inside MCP Apps, as our [A2UI explainer](/blog/what-is-a2ui/) covers; to run several agents side by side, see our [Herdr alternatives](/blog/herdr-alternatives/) guide.
+
 If you already use one AI coding CLI, this layer matters more once you run several agents at once in a [multi-agent harness](/blog/what-is-a-multi-agent-harness/), because each agent reaches its databases and issue trackers through the servers it has been given, and which agent gets which server becomes your call.
 
 ## What is an MCP server?

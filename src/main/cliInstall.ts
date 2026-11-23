@@ -7,10 +7,37 @@
  */
 import type { AgentProvider, ProviderInstallInfo } from '../shared/agentProvider';
 import { installInfoForProvider } from '../shared/agentProvider';
+import type { CliMissingState } from '../shared/cliMissing';
 import type { NodeInstaller } from './nodeInstall';
 import { buildNodeInstallScript } from './nodeInstall';
 
 export type InstallRungKind = 'npm' | 'node-then-npm' | 'native' | 'manual';
+
+/** The card's state for a missing CLI (I2): the rung the ladder would run and
+ *  the exact command, said before anything runs. The same inputs as
+ *  buildMissingCliScript, so what the card promises is what Install does. */
+export function describeMissingCli(
+  provider: AgentProvider,
+  bin: string,
+  npmAvailable: boolean,
+  platform: string = process.platform,
+  nodeInstaller?: NodeInstaller | null
+): CliMissingState {
+  const info = installInfoForProvider(provider, platform);
+  const rung = chooseInstallRung(info, npmAvailable, nodeInstaller);
+  const safeBin = (bin || provider).replace(/[^A-Za-z0-9._-]/g, '') || provider;
+  return {
+    provider,
+    label: info.label,
+    bin: safeBin,
+    rung: rung.kind,
+    command: rung.command ?? null,
+    manualCommand: rung.kind === 'manual' ? (info.command ?? null) : null,
+    nodeMissing: rung.nodeMissing,
+    ...(rung.kind === 'node-then-npm' && nodeInstaller ? { nodeVersion: nodeInstaller.version } : {}),
+    ...(info.docsUrl ? { docsUrl: info.docsUrl } : {})
+  };
+}
 
 /** Pick which rung of the install ladder to run, given what this machine has.
  *
@@ -99,8 +126,8 @@ export function buildMissingCliScript(
         'echo.',
         cmd,
         'echo.',
-        'echo   [done] If it succeeded, the agent launches automatically.',
-        'echo   If it failed, run the command above manually, then restart the agent.'
+        'echo   [done] If it succeeded, the next step shows above the message box.',
+        'echo   If it failed, run the command above by hand, then press Check again on the card.'
       );
     } else {
       if (rung.nodeMissing) {
@@ -164,13 +191,17 @@ export function buildMissingCliScript(
       `__clirc=$?`,
       `echo ''`,
       `if [ $__clirc -eq 0 ]; then`,
-      `  echo '  [done] Installed — launching the agent…'`,
+      `  echo '  [done] Installed. The next step shows above the message box.'`,
       `else`,
-      `  echo "  [x] Install exited with code $__clirc — finish it manually:"`,
+      `  echo "  [x] Install exited with code $__clirc. Press Set up manually on the card, or run:"`,
       `  echo '    ${cmd}'`,
       ...(docs ? [`  echo '    Docs: ${docs}'`] : []),
-      `  echo '  Then restart the agent to launch it.'`,
-      `fi`
+      `  echo '  Then press Setup complete, start agent above the message box.'`,
+      `fi`,
+      // The installer's own exit code is the script's: without this the last
+      // echo made every install exit 0, a failed one included, and main moved
+      // on to sign in for a CLI that was not there (batch 2).
+      `exit $__clirc`
     );
   } else if (rung.nodeMissing) {
     // The honest dead end: no node, and this vendor ships no node-free installer.
@@ -191,4 +222,110 @@ export function buildMissingCliScript(
     );
   }
   return lines.join(String.fromCharCode(10));
+}
+
+/**
+ * The sign in step after a clean install (0.5.3, batch 2): the provider's own
+ * login command, run in the SAME terminal so the install output stays above
+ * it. `binPath` is the binary the install just produced, resolved by main; the
+ * login args are the trusted constants from shared/cliSetup.ts. The person
+ * finishes the sign in there, then presses "Setup complete, start agent" above
+ * the message box, which discards this terminal and starts the agent fresh.
+ */
+export function buildLoginScript(binPath: string, args: readonly string[], label: string, platform: string = process.platform): string {
+  const rule = '------------------------------------------------------------';
+  const safeArgs = args.map((a) => a.replace(/[^A-Za-z0-9._-]/g, '')).filter(Boolean);
+  if (platform === 'win32') {
+    // cmd.exe line, no double quotes (see buildMissingCliScript): the bare
+    // binary name, which the install just put on PATH.
+    const name = (binPath.split(/[\\/]/).pop() || binPath).replace(/[^A-Za-z0-9._-]/g, '');
+    return [
+      'echo.', `echo ${rule}`,
+      `echo   Sign in to ${label}. When it says you are signed in,`,
+      'echo   press Setup complete, start agent above the message box.',
+      `echo ${rule}`, 'echo.',
+      [name, ...safeArgs].join(' ')
+    ].join(' & ');
+  }
+  const quoted = `'${binPath.replace(/'/g, `'\\''`)}'`;
+  return [
+    `echo ''`,
+    `echo '${rule}'`,
+    `echo '  Sign in to ${label}. When it says you are signed in,'`,
+    `echo '  press Setup complete, start agent above the message box.'`,
+    `echo '${rule}'`,
+    `echo ''`,
+    [quoted, ...safeArgs].join(' ')
+  ].join(String.fromCharCode(10));
+}
+
+/**
+ * "Set up manually" (0.5.3, batch 4, founder 24 Sep 2026: "showing them set up
+ * manually button that opens the terminal with the command that starts the
+ * terminal with the agent provider that is causing the issues"). Runs in the
+ * agent's own pty with the agent's own environment (its CLI home included),
+ * so what the person fixes here is what the agent reads.
+ *
+ *   install  the install failed: the install command runs, and the person is
+ *            told to run the CLI after it and sign in.
+ *   signin   the CLI is here but the sign in failed or cannot be seen: the CLI
+ *            itself runs, and the person signs in inside it.
+ *
+ * Either way the terminal then stays open at the person's own shell, so they
+ * can try again or check the agent works, and "Setup complete, start agent"
+ * above the message box discards it and starts the agent. `exec` is the
+ * trusted install constant or the resolved binary; `shown` is what the person
+ * reads. Everything put into echo text is sanitised to plain characters.
+ */
+export function buildManualSetupScript(o: {
+  reason: 'install' | 'signin';
+  label: string;
+  binName: string;
+  shown: string;
+  exec: string;
+}, platform: string = process.platform): string {
+  const rule = '------------------------------------------------------------';
+  // Safe inside single quotes (posix) and in a cmd.exe echo: no quote, no &,
+  // no < or >. `^|` is how a Windows install constant spells its pipe.
+  const plain = (v: string): string => v.replace(/[^A-Za-z0-9 ._@/:+=|^\u00b7-]/g, '');
+  const label = plain(o.label);
+  const bin = plain(o.binName);
+  const shown = plain(o.shown);
+  if (platform === 'win32') {
+    // cmd.exe line, no double quotes (see buildMissingCliScript). A bare
+    // `cmd` at the end leaves the person at a prompt in this same window.
+    return [
+      'echo.', `echo ${rule}`,
+      `echo   Set up ${label} by hand. This terminal has the agent settings.`,
+      `echo   It runs:  ${shown}`,
+      ...(o.reason === 'install' ? [`echo   When the install ends, run ${bin} here and sign in.`] : ['echo   Sign in inside it.']),
+      'echo   Once the agent works here, press Setup complete, start agent',
+      'echo   above the message box.',
+      `echo ${rule}`, 'echo.',
+      o.exec,
+      'echo.',
+      'cmd'
+    ].join(' & ');
+  }
+  const run = o.reason === 'install' ? o.exec : `'${o.exec.replace(/'/g, `'\\''`)}'`;
+  return [
+    `echo ''`,
+    `echo '${rule}'`,
+    `echo '  Set up ${label} by hand. This terminal has the agent settings.'`,
+    `echo '  It runs:  ${shown}'`,
+    o.reason === 'install'
+      ? `echo '  When the install ends, run ${bin} here and sign in.'`
+      : `echo '  Sign in inside it.'`,
+    `echo '  Once the agent works here, press Setup complete, start agent'`,
+    `echo '  above the message box.'`,
+    `echo '${rule}'`,
+    `echo ''`,
+    run,
+    `echo ''`,
+    `echo '  Your shell. Run it again, or check ${bin} works, then press'`,
+    `echo '  Setup complete, start agent above the message box.'`,
+    // The person's own interactive shell, so rc files (and any PATH line the
+    // installer just added) apply to what they type next.
+    `exec "\${SHELL:-/bin/sh}" -il`
+  ].join(String.fromCharCode(10));
 }

@@ -22,6 +22,8 @@ faq:
 
 Claude Opus 5.5 is the stronger coding model on every shared score we found; Mistral Large 4 costs about a tenth per output token and is the one you can download and run yourself. Pick Opus for the hardest agent work, Mistral for volume, cost or data that must stay in house. Checked 29 Oct 2026.
 
+We put Qwen4-Max against the same model in [Qwen4-Max vs Claude Opus 5.5](/blog/qwen4-max-vs-claude-opus-5-5/).
+
 If you run agents on your own work, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. This page sits in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## Mistral Large 4 vs Claude Opus 5.5 at a glance (checked 29 Oct 2026)
@@ -87,6 +89,6 @@ For other match ups, see [Gemini 4 Argon vs Claude Opus 5.5](/blog/gemini-4-argo
 
 Yes. A common split is the strong hosted model for planning and review, and the cheaper or local one for bulk work.
 
-Munder Difflin runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. Some engines accept a local base URL, so an open model can drive them; see [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/). A Cloud Office and a mobile app are coming soon; [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) covers setup.
+Munder Difflin runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI, takes work in from Slack and webhooks, and connects tools through MCP servers, skills and plugins. Some engines accept a local base URL, so an open model can drive them; see [running Munder Difflin on open models](/blog/run-munder-difflin-on-open-models/). Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon. [How to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 <link rel="stylesheet" href="/blog/assets/media/mistral-large-4-vs-claude-opus-5-5/motion.css"><script defer src="/blog/assets/media/mistral-large-4-vs-claude-opus-5-5/motion.js"></script>

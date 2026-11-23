@@ -11,6 +11,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { skillInstallError } from './skillInstallError';
 import { PixelButton } from './PixelButton';
 import type { LocalSkill, CatalogSkill } from '../../../preload';
 
@@ -123,7 +124,7 @@ export function SkillsTab({ agentCwd }: { agentCwd?: string }) {
         setAction((a) => ({ ...a, [c.url]: { done: t('skillsTab.installed') } }));
         void loadLocal(); // the installed pane must reflect it immediately
       } else {
-        setAction((a) => ({ ...a, [c.url]: { error: res.error } }));
+        setAction((a) => ({ ...a, [c.url]: { error: skillInstallError(t, res, t('skillsTab.installFailed')) } }));
       }
     } catch (e) {
       setAction((a) => ({ ...a, [c.url]: { error: e instanceof Error ? e.message : t('skillsTab.installFailed') } }));

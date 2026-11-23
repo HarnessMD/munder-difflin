@@ -243,4 +243,4 @@ page](https://github.com/chaitanyagiri/munder-difflin/releases) has macOS, Windo
 Munder Difflin is free and open source. The Pro annual plan is on a launch offer at $150 USD, adjusted for
 purchasing power so it is as low as $100 a year in some countries. If this is your first look, [your first
 hour with Munder Difflin](/blog/your-first-hour-with-munder-difflin/) is the fastest way in, and [why we
-built it](/blog/why-we-built-munder-difflin/) explains the idea behind the floor.
+built it](/blog/why-we-built-munder-difflin/) explains the idea behind the floor. The newest release is [0.5.10](/blog/munder-difflin-0-5-10/), where only the orchestrator starts with the app.

@@ -51,7 +51,8 @@ for (const m of releaseMd.matchAll(assetRe)) {
   }
   assets.add(`Munder-Difflin-${m[1]}-${m[2]}`);
 }
-if (assets.size === 0) problems.push('RELEASE.md advertises no download assets at all — did the table move?');
+// From 0.6.0 releases are source only, so RELEASE.md may name no installer at
+// all. Any installer name it still carries must match package.json.
 
 // — 2. source tarball tags too; a stale tag silently ships last release's source —
 for (const m of releaseMd.matchAll(/archive\/refs\/tags\/v(\d+\.\d+\.\d+)/g)) {
@@ -108,8 +109,8 @@ async function head(url, label) {
 }
 
 async function checkLive() {
-  const base = 'https://github.com/chaitanyagiri/munder-difflin/releases/latest/download/';
-  for (const name of [...assets, 'SHA256SUMS.txt']) await head(base + name, name);
+  const base = 'https://github.com/HarnessMD/munder-difflin/releases/latest/download/';
+  for (const name of assets) await head(base + name, name);
   for (const url of siteAssets) await head(url, url);
 }
 

@@ -17,10 +17,12 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import { useStore } from '@/store/store';
 import { setupPrompt, type ToolStatus, type ToolKind } from '../../../shared/toolCatalog';
+import { PixelButton } from './PixelButton';
+import { ToolVersionNotice } from './ToolVersionNotice';
+import { BooCopied } from './season/Kit';
 
 const SECTIONS: { kind: ToolKind; titleKey: string; blurbKey: string }[] = [
   { kind: 'prerequisite', titleKey: 'setupPanel.sections.prerequisites.title', blurbKey: 'setupPanel.sections.prerequisites.blurb' },
@@ -80,6 +82,8 @@ function ToolRow({ tool }: { tool: ToolStatus }) {
         </div>
       )}
 
+      <ToolVersionNotice tool={tool} />
+
       {/* Missing WITH a scripted install: the exact command, one click to copy. */}
       {!tool.found && tool.installCommand && (
         <div style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
@@ -94,9 +98,9 @@ function ToolRow({ tool }: { tool: ToolStatus }) {
             style={{
               flexShrink: 0, fontFamily: 'var(--cth-font-ui)', fontSize: 11, padding: '0 8px',
               background: 'var(--cth-cream-200)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
-              border: 'none', cursor: 'pointer', color: 'var(--cth-ink-900)'
+              border: 'none', cursor: 'pointer', color: 'var(--cth-ink-900)', position: 'relative', isolation: 'isolate'
             }}
-          >{copied ? t('common.copy') + ' ✓' : t('common.copy')}</button>
+          >{copied ? t('common.copy') + ' ✓' : t('common.copy')}{copied && <BooCopied />}</button>
         </div>
       )}
 
@@ -159,7 +163,7 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
               : t('setupPanel.summary', { ready: readyCount, total: tools.length, missing: missingEssential.length })}
           </div>
         </div>
-        <PixelButton variant="ghost" size="md" onClick={() => void refresh()} disabled={busy}>
+        <PixelButton variant="ghost" onClick={() => void refresh()} disabled={busy}>
           {busy ? t('setupPanel.checkingBtn') : t('setupPanel.recheck')}
         </PixelButton>
       </div>
@@ -176,12 +180,7 @@ export function SetupPanel({ onDone }: { onDone?: () => void } = {}) {
             ? t('setupPanel.askDesc', { count: missingEssential.length })
             : t('setupPanel.allReady')}
         </div>
-        <PixelButton
-          variant="primary"
-          size="md"
-          onClick={askMichael}
-          disabled={missingEssential.length === 0}
-        >
+        <PixelButton variant="primary" onClick={askMichael} disabled={missingEssential.length === 0}>
           <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
             <Icon name="sparkle" /> {t('setupPanel.askMichael')}
           </span>

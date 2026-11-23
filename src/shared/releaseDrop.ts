@@ -517,8 +517,52 @@ export const DEFAULT_DROP_HTML = `<style>
  * directive denies rather than allows, so script-src, connect-src, frame-src and
  * object-src are all closed without being named. Only the media a launch page
  * needs is opened back up, and only over https or data:.
+ *
+ * THIS POLICY IS NOT THE LAST WORD. A srcdoc frame inherits the policy of the
+ * page holding it, and a child can only narrow that, never widen it. What a
+ * drop may really load is this list INTERSECTED with the one in
+ * `src/renderer/index.html`. 0.5.2 shipped broken pictures, and every drop
+ * before it shipped in fallback fonts, because img-src and font-src here asked
+ * for things the parent refused. test/csp-parent-allows-drop.test.cjs reads
+ * both files; change either one and run it.
  */
-export function buildDropSrcDoc(html: string): string {
+/** The app's own theme, light or dark (renderer/src/design/theme.ts). */
+export type DropTheme = 'light' | 'dark';
+
+/**
+ * Pins every `prefers-color-scheme` media feature in an authored drop to the
+ * APP's theme. Inside the frame that feature reads the computer's appearance,
+ * and the app's theme is its own switch, so an app in light on a Mac in dark
+ * used to show the dark drop (founder, 1 Oct: "dark mode should just see dark
+ * mode release drop and bright mode should just see bright mode release drop").
+ *
+ * Each feature becomes one that always holds or one that never does. Both must
+ * PARSE: an unknown feature such as `(prefers-color-scheme:nope)` evaluates as
+ * unknown, so `not (…)` around it is false too, and an authored
+ * `not (prefers-color-scheme:light)` would silently break. `(min-width:0px)` and
+ * `(max-width:-1px)` parse, and `not` flips them (Chromium 130, matchMedia).
+ *
+ * Only CSS is touched: the contents of <style> blocks and `media` attributes on
+ * tags (a <picture>'s <source>). Prose that mentions the feature stays as written.
+ * Pure string work, so the frame still runs no script.
+ */
+// In dark, the frame's own scrollbar and any form control go dark with the
+// drop. Light adds nothing, so a light drop is byte for byte what it was. An
+// authored `color-scheme` rule comes later in the document and still wins.
+const DARK_SCHEME_CSS = ':root{color-scheme:dark}';
+const MQ_ALWAYS = '(min-width:0px)';
+const MQ_NEVER = '(max-width:-1px)';
+const SCHEME_FEATURE = /\(\s*prefers-color-scheme\s*:\s*(dark|light)\s*\)/gi;
+
+export function pinColorScheme(html: string, theme: DropTheme): string {
+  const pin = (css: string): string =>
+    css.replace(SCHEME_FEATURE, (_m, scheme: string) => (scheme.toLowerCase() === theme ? MQ_ALWAYS : MQ_NEVER));
+  return html
+    .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style\s*>)/gi, (_m, open: string, css: string, close: string) => open + pin(css) + close)
+    .replace(/(<[a-z][^>]*?\smedia\s*=\s*)("[^"]*"|'[^']*'|[^\s>]+)/gi, (_m, head: string, value: string) => head + pin(value));
+}
+
+export function buildDropSrcDoc(html: string, theme: DropTheme = 'light'): string {
   const csp = [
     "default-src 'none'",
     'img-src https: data: blob:',
@@ -552,10 +596,10 @@ export function buildDropSrcDoc(html: string): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="${csp}">
-<style>${FRAME_FONT_CSS}${FRAME_BASE_CSS}</style>
+<style>${FRAME_FONT_CSS}${FRAME_BASE_CSS}${theme === 'dark' ? DARK_SCHEME_CSS : ''}</style>
 </head>
 <body>
-${stripActiveContent(html)}
+${pinColorScheme(stripActiveContent(html), theme)}
 </body>
 </html>`;
 }

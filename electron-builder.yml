@@ -2,37 +2,10 @@ appId: in.munderdiffl.app
 productName: Munder Difflin
 copyright: Copyright © 2026 Chaitanya Giri
 
-# Where electron-updater looks for new versions (latest*.yml + assets on GitHub
-# releases). The release workflow still uploads assets itself (--publish never);
-# this block only stamps app-update.yml into the packaged app so the updater
-# knows which repo to poll.
-publish:
-  provider: github
-  owner: chaitanyagiri
-  repo: munder-difflin
-
-# Bake the update toast's "What's new" list straight into latest*.yml.
-#
-# Without this, electron-updater has nothing to read: parseUpdateInfo yaml-loads
-# the channel file, finds releaseNotes null, and falls back to computeReleaseNotes
-# over GitHub's releases.atom feed. That feed carries GitHub's RENDERED HTML of
-# RELEASE.md, not its markdown, so the digest sees no `##` headings at all and
-# scans for bullets instead. The only line in 53KB that looks like a bullet is
-# `* { box-sizing: border-box; }` inside RELEASE.md's <style> block, so the
-# toast's entire what's-new list was one CSS rule.
-#
-# A present releaseNotes means the feed is never consulted. That is the whole
-# point: the toast is drawn by the ALREADY RUNNING app, so a parser fix reaches
-# only people who have already upgraded, while this is a field every existing
-# client on every old version already reads.
-#
-# Keep this file short and free of HTML. It is sized for a 340px toast (5
-# bullets, 280 chars total), NOT for the release page, which stays RELEASE.md.
-releaseInfo:
-  releaseNotesFile: build/release-notes.md
-
-# Notarize + staple after signing, but only when APPLE_* creds are in the env
-# (the hook no-ops otherwise, so contributor builds still work). Root-level hook.
+# Notarize + staple after signing, but only when APPLE_* creds are in the env.
+# Public releases are source only and unsigned, so the hook does nothing in a
+# normal build; it is kept so a person who signs their own build can notarize
+# it too. Root-level hook.
 afterSign: build/notarize.cjs
 
 # Register the munderdifflin:// URL scheme (shareable-hires deep link) in the
@@ -62,6 +35,10 @@ files:
 extraResources:
   - from: resources/md-slack-reply.cjs
     to: md-slack-reply.cjs
+  # The keys and secrets helper: a running agent uses a key saved in Settings
+  # after it started, through the integration broker, no restart.
+  - from: resources/md-secret.cjs
+    to: md-secret.cjs
   # Knowledge Graph agent CLI + its pure-JS core. Agents invoke `node
   # <resources>/kg.cjs` out-of-process; kg-core.cjs ships beside it so the CLI's
   # `require('./kg-core.cjs')` resolves outside the asar.
@@ -123,8 +100,7 @@ mac:
   #   To sign: install your "Developer ID Application" cert into the keychain.
   #   (Override with CSC_LINK=<path-to.p12> + CSC_KEY_PASSWORD for CI.)
   # Notarization happens in the root-level `afterSign` hook (top of this file).
-  # dmg is what humans download; zip is what Squirrel.Mac (electron-updater)
-  # actually updates from — latest-mac.yml points at it. Both universal.
+  # A dmg to open and a zip of the same app, both universal.
   target:
     - target: dmg
       arch: [universal]

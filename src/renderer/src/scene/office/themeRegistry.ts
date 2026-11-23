@@ -1,16 +1,10 @@
-// Theme registry — the pluggable "office theme" contract.
-//
-// Phase 0 of the TV-show-offices feature (card tvshow-phase0-abstraction):
-// extract the ~40% of constants that were hard-coded inside OfficeFloor.tsx
-// (errand spots, coffee-economy tile coords, prop anchors, seat names, tileset
-// URLs, palette, monitor gids) into a ThemeConfig so the scene becomes
-// swappable per show. This phase ships the EXISTING office unchanged as
-// `theme: 'office'`: every value below is copied byte-for-byte from the old
-// in-file literals, so the office renders and behaves identically.
+// The office floor's layout contract: the constants the scene reads (errand
+// spots, coffee economy tiles, prop anchors, seat names, tileset URLs, palette,
+// monitor gids), kept as data beside the map so OfficeFloor.tsx stays generic.
+// There is one office: the default one.
 //
 // The engine (TiledMapRenderer / BFS pathfinding / Camera / sprite animation)
-// is already fully generic and needs no change. cast.ts is read-only here
-// (uncommitted human WIP) — the office theme references its existing exports.
+// is fully generic and needs no change.
 
 import type { Texture } from 'pixi.js';
 import { colors } from '@/design/tokens';
@@ -27,17 +21,7 @@ import a5FloorsWallsUrl from '@/assets/tilesets/a5-office-floors-walls.png?url';
 import interiorsUrl from '@/assets/tilesets/interiors.png?url';
 // .tmj is Tiled JSON; imported as raw text and parsed by the loader.
 import officeMapRaw from '@/assets/maps/office.tmj?raw';
-import brooklyn99MapRaw from '@/assets/maps/brooklyn99.tmj?raw';
-
-/** Theme identifiers. Only `office` exists in Phase 0; the five TV-show themes
- *  (friends, brooklyn99, siliconvalley, got, hogwarts) land in later phases. */
-export type ThemeId =
-  | 'office'
-  | 'friends'
-  | 'brooklyn99'
-  | 'siliconvalley'
-  | 'got'
-  | 'hogwarts';
+import { OFFICE_FLOOR } from './framing';
 
 export interface Tile { x: number; y: number; }
 export type Facing = 'up' | 'down' | 'left' | 'right';
@@ -117,9 +101,8 @@ export interface ThemeCast {
   defaultCharacter: string;
 }
 
-/** The full contract a theme must supply. See report §A (theme contract). */
+/** Everything the scene reads about the office. */
 export interface ThemeConfig {
-  id: ThemeId;
   /** Raw Tiled JSON text; parsed + tileset-patched by themeLoader. */
   mapRaw: string;
   /** Ordered atlases — order matches both the texture load order and the map's
@@ -137,13 +120,14 @@ export interface ThemeConfig {
   monitor: MonitorConfig;
   palette: PaletteConfig;
   cast: ThemeCast;
+  /** The part of the map shown inside the shared edge (FloorEdge.tsx), in map px: the camera fits it and the canvas is its shape. */
+  art: Readonly<{ x: number; y: number; w: number; h: number }>;
 }
 
-/** The existing office, expressed as a theme. Values are copied verbatim from
- *  the former in-file constants in OfficeFloor.tsx / DeskScreen.ts. */
+/** The office. */
 export const OFFICE_THEME: ThemeConfig = {
-  id: 'office',
   mapRaw: officeMapRaw,
+  art: OFFICE_FLOOR,
   tilesets: [
     // office-tileset.png — embedded in the map (firstgid 1); keep the map's copy.
     { url: officeTilesetUrl, embedded: true },
@@ -215,85 +199,3 @@ export const OFFICE_THEME: ThemeConfig = {
     defaultCharacter: DEFAULT_CHARACTER,
   },
 };
-
-/** Brooklyn Nine-Nine — the 99th precinct (TV-show offices Phase 2, structure).
- *  The map (brooklyn99.tmj) is a precinct bullpen: Captain Holt's glass office
- *  in the back corner (`desk-ceo`), an 8-desk detective bullpen (`pc-1..8`), a
- *  briefing room (boardroom zone) + break room (cafeteria zone) with the coffee
- *  economy. PLACEHOLDER ART: the map reuses the office tileset gids, so the
- *  tilesets / monitor / palette / cast below reuse the office theme verbatim —
- *  Pam's license-clean B99 tileset + cast likenesses (§C/§D) drop into those
- *  same seams later. Only the layout-bound anchors (seats, café, coffee, props,
- *  errands) are authored to brooklyn99.tmj's own coordinates. */
-export const BROOKLYN99_THEME: ThemeConfig = {
-  id: 'brooklyn99',
-  mapRaw: brooklyn99MapRaw,
-  // PLACEHOLDER: brooklyn99.tmj uses the office gid space, so the same atlases
-  // (office-tileset embedded @1, a5 @513, interiors @1025) resolve every tile.
-  tilesets: OFFICE_THEME.tilesets,
-  primarySeatNames: [
-    'desk-ceo',                                            // Captain Holt's glass office
-    'pc-1', 'pc-2', 'pc-3', 'pc-4',                        // bullpen — front row
-    'pc-5', 'pc-6', 'pc-7', 'pc-8',                        // bullpen — back row
-  ],
-  cafeSeatNames: ['cafe-seat-1', 'cafe-seat-2', 'cafe-seat-3', 'cafe-seat-4'],
-  cafeStands: [
-    ['cafe-stand-coffee', 'coffee'],
-    ['cafe-stand-vending', 'vending'],
-  ],
-  coffee: {
-    trayTile: { x: 33, y: 18 },
-    trayStand: { x: 33, y: 19 },
-    machineStand: { x: 30, y: 21 },
-    sinkTile: { x: 31, y: 18 },
-    sinkStand: { x: 31, y: 19 },
-    maxCups: 4,
-  },
-  anchors: {
-    calendar: { x: 4, y: 1 },   // briefing-room top wall → TRIGGERS
-    boards: { x: 14, y: 1 },    // over the bullpen → TASKS
-    clock: { x: 1, y: 1 },      // top-left corner → CLOSING TIME
-  },
-  // Placeholder errand anchors authored to brooklyn99.tmj's open floor (verified
-  // walkable against the map's collision layer + desk stamps). The godOnly spots
-  // sit inside Holt's glass office.
-  errandSpots: [
-    // public plants around the bullpen
-    { kind: 'water', stand: { x: 2, y: 13 }, facing: 'left', fx: { x: 1, y: 13 }, duration: 4.5 },
-    { kind: 'water', stand: { x: 24, y: 15 }, facing: 'right', fx: { x: 25, y: 15 }, duration: 4.5 },
-    { kind: 'water', stand: { x: 13, y: 15 }, facing: 'down', fx: { x: 13, y: 16 }, duration: 4.5 },
-    // Captain Holt's glass office — god's domain (plant + cigar at the window)
-    { kind: 'water', stand: { x: 28, y: 6 }, facing: 'up', fx: { x: 28, y: 5 }, duration: 4.5, godOnly: true },
-    { kind: 'smoke', stand: { x: 34, y: 2 }, facing: 'up', fx: { x: 34, y: 0 }, duration: 18, godOnly: true },
-    // public windows on the north wall — wind streaks drift in
-    { kind: 'window', stand: { x: 14, y: 1 }, facing: 'up', fx: { x: 14, y: 0 }, duration: 5 },
-    { kind: 'window', stand: { x: 22, y: 1 }, facing: 'up', fx: { x: 22, y: 0 }, duration: 5 },
-    // water dispensers (bullpen + entrance corridor)
-    { kind: 'dispenser', stand: { x: 8, y: 15 }, facing: 'down', fx: { x: 8, y: 16 }, duration: 3.5 },
-    { kind: 'dispenser', stand: { x: 17, y: 20 }, facing: 'down', fx: { x: 17, y: 21 }, duration: 3.5 },
-    // break-room fridge + shelf (by the coffee economy)
-    { kind: 'fridge', stand: { x: 29, y: 21 }, facing: 'up', fx: { x: 29, y: 20 }, duration: 3.2 },
-    { kind: 'shelf', stand: { x: 34, y: 18 }, facing: 'up', fx: { x: 34, y: 17 }, duration: 4 },
-    // garbage bins (entrance + break room)
-    { kind: 'bin', stand: { x: 19, y: 20 }, facing: 'left', fx: { x: 18, y: 20 }, duration: 2.6 },
-    { kind: 'bin', stand: { x: 34, y: 15 }, facing: 'up', fx: { x: 34, y: 14 }, duration: 2.6 },
-  ],
-  // PLACEHOLDER: brooklyn99.tmj paints the office desk stamp (monitor gid 365).
-  monitor: OFFICE_THEME.monitor,
-  // PLACEHOLDER: office palette + cast until Pam's B99 art (§C/§D) lands.
-  palette: OFFICE_THEME.palette,
-  cast: OFFICE_THEME.cast,
-};
-
-/** All registered themes. Phase 0 ships only the office; show themes register
- *  here as their content lands (Phase 2). */
-export const THEMES: Partial<Record<ThemeId, ThemeConfig>> = {
-  office: OFFICE_THEME,
-  brooklyn99: BROOKLYN99_THEME,
-};
-
-/** Look up a theme by id, falling back to the office theme if unknown/missing
- *  (a bad/absent show bundle must never break the floor — see report §E). */
-export function getTheme(id: ThemeId): ThemeConfig {
-  return THEMES[id] ?? OFFICE_THEME;
-}

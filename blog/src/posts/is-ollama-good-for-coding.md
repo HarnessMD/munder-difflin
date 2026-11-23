@@ -21,7 +21,9 @@ faq:
 
 Ollama is good for coding on scoped, private work if you pull a recent tool calling model that fits your memory and raise its context window. It does not yet replace Claude or GPT on long agent runs. Ollama only runs the model; the model and your memory decide the rest.
 
-You can pick, size and wire local models by hand, or use [Munder Difflin](https://harnessmd.com/download), a free and open source desktop app that runs several coding agents side by side, each on its own engine and model. As of 0.5.2, its Add agent screen offers eight local Ollama models for OpenCode, Crush and Pi agents, each tooltip showing a rough memory figure and the `ollama pull` command, while Claude Code agents stay on your Claude login. It will not pull the model or set Ollama's context for you; the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers the rest of setup.
+If you run models with llama.cpp instead, our page on [llama.cpp 1.0](/blog/llama-cpp-1-0/) covers what changed on 13 Nov 2026.
+
+You can pick, size and wire local models by hand, or use [Munder Difflin](https://harnessmd.com/download), free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer, each agent on its own engine and model. As of 0.5.2, its Add agent screen offers eight local Ollama models for OpenCode, Crush and Pi agents, each tooltip showing a rough memory figure and the `ollama pull` command, while Claude Code agents stay on your Claude login. It will not pull the model or set Ollama's context for you; the [install guide](/blog/how-to-install-and-use-munder-difflin/) covers the rest of setup.
 
 ## Can Ollama write code?
 

@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { PixelButton } from './PixelButton';
 import { PixelBadge } from './PixelBadge';
 import { useStore } from '@/store/store';
-import { MarkdownPreview } from '@/markdown/MarkdownPreview';
 import { type HiveTask, type HumanQA, openQuestion, waitsOnHuman } from './TasksKanban';
 import { compareByNewestAsk } from './askMeOrder';
+import { saveAnswer, saveDismissal, sendAnswerNotice, withDismissal } from './askMeActions';
+import { picksKey, recordAnswer } from './humanQuestion';
+import { AskClosed, AskNotSentRow, AskOptions, AskTags, AskText, askAnswerState, askButtonLabel, draftFor, failedOn, nextPicks, openAsksKey, settleNotSents, takeClosedUnsents, takeStrandedAnswers, waitingById, withClosedAsks, type AskNotSent } from './AskChoices';
 import { isComposingKey } from '@shared/imeGuard';
 import { useRtl } from '@/i18n/useDirection';
 
@@ -54,6 +56,9 @@ export function AskMeTab() {
   // view, and a half-typed answer must survive the round trip.
   const drafts = useStore((s) => s.answerDrafts);
   const setAnswerDraft = useStore((s) => s.setAnswerDraft);
+  // Picks on an ask with options live beside the drafts, for the same reason.
+  const picks = useStore((s) => s.answerPicks);
+  const setAnswerPicks = useStore((s) => s.setAnswerPicks);
   const openTaskDetail = useStore((s) => s.openTaskDetail);
   const [sending, setSending] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -82,54 +87,71 @@ export function AskMeTab() {
     .filter(waitsOnHuman)
     .sort((a, b) => compareByNewestAsk(openQuestion(a), openQuestion(b)));
 
+  // Why a card's last answer was not sent: until it sends or its
+  // question closes. A card whose question closed under the answer stays, read
+  // only, until its ✕ (State: not sent, question closed); settleNotSent.
+  const [notSent, setNotSent] = useState<Readonly<Record<string, AskNotSent>>>({});
+  const markNotSent = (id: string, v: AskNotSent | null) => setNotSent((m) => {
+    if (v) return { ...m, [id]: v };
+    if (!(id in m)) return m;
+    const rest: Record<string, AskNotSent> = { ...m };
+    delete rest[id];
+    return rest;
+  });
+  const asksKey = openAsksKey(tasks);
+  // The cards this tab last showed waiting, to tell a question that closed.
+  const shown = useRef<ReadonlyMap<string, HiveTask>>(new Map());
+  useEffect(() => {
+    // Text left unsent on a question that changed shows once, to copy;
+    // on one that closed elsewhere, the card stays closed with it.
+    const stranded = takeStrandedAnswers(tasks);
+    const closed = takeClosedUnsents(shown.current, tasks);
+    shown.current = waitingById(tasks);
+    setNotSent((m) => settleNotSents(m, tasks, stranded, closed));
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- asksKey stands for tasks
+  }, [asksKey, notSent]);
+  const cards = withClosedAsks(waiting, notSent);
+
   /**
-   * Apply `patch` to the OPEN humanQA entry of one card, on the RAW ledger.
-   * Returns whether it landed.
-   *
-   * Re-reads tasks.json first rather than writing this view's 5s-old snapshot,
-   * because `hive:writeTasks` treats the incoming array as the card MEMBERSHIP:
-   * writing our snapshot back would delete any card the god added since the last
-   * poll. Re-locating the open question by its text also means an answer can
-   * never land on a different question the god swapped in underneath us — in
-   * that case nothing is written and the draft is kept.
+   * An answer or a dismissal changes ONE humanQA entry, in main, on the card as
+   * it is on disk (askMeActions.saveAnswer / saveDismissal): this
+   * view's 5 s old snapshot is never written back, so an entry the god added or
+   * edited since the last poll stays. When that entry is no longer open
+   * ('gone': answered, dismissed or rewritten underneath us) nothing is written;
+   * the box empties and what was written shows under it, to copy.
    */
 
   const sendAnswer = async (task: HiveTask) => {
-    const text = (drafts[task.id] ?? '').trim();
     const open = openQuestion(task);
+    // The note, or the picked options plus the note (humanQuestion.composeAnswer).
+    const answer = askAnswerState(open, draftFor(drafts[task.id], open), picks[task.id]);
+    const text = answer.text.trim();
+    const chosen = answer.picked.length ? answer.picked : undefined;
     if (!text || !open || sending) return;
     setSending(task.id);
+    const empty = () => { setAnswerDraft(task.id, picksKey(open), ''); setAnswerPicks(task.id, picksKey(open), []); };
     try {
-      // 1) Document the answer ON the card.
-      const next = tasks.map((t) => {
-        if (t.id !== task.id) return t;
-        const qa = (t.humanQA ?? []).map((e) =>
-          e === open || (e.q === open.q && !e.a)
-            ? { ...e, a: text, answeredAt: new Date().toISOString() }
-            : e
-        );
-        return { ...t, humanQA: qa };
-      });
-      const updated = next.find((candidate) => candidate.id === task.id);
-      const result = updated
-        ? await window.cth.hivePatchTask(task.id, { humanQA: updated.humanQA })
-        : { ok: false };
-      if (!result.ok) throw new Error('task changed before answer could be saved');
-      setTasks(next);
-      // 2) Tell the god, so the card gets unblocked and work continues.
-      await window.cth.hiveSend({
-        to: 'god',
-        act: 'inform',
-        subject: `HUMAN ANSWER on task "${task.title}"`,
-        body: [
-          `The human answered the open question on task ${task.id} ("${task.title}"):`,
-          `Q: ${open.q}`,
-          `A: ${text}`,
-          'The answer is also recorded in the card\'s humanQA. Act on it, unblock the card, and continue the work.'
-        ].join('\n')
-      }, 'human');
-      setAnswerDraft(task.id, '');
-    } catch { /* leave the draft so the user can retry */ }
+      // 1) Document the answer ON the card (main changes that one entry).
+      const result = await saveAnswer(task, open, text, chosen);
+      if (!result.ok) {
+        // Gone: the question changed or closed meanwhile. The box empties for
+        // the new one and what was written shows below it, to copy. Any other
+        // failure keeps the answer in the box.
+        if (result.error === 'gone') { empty(); markNotSent(task.id, { why: 'gone', kept: text, was: { task, open, picked: answer.picked } }); void refresh(); }
+        else markNotSent(task.id, failedOn(open));
+        setSending(null);
+        return;
+      }
+      // The box empties first: once the card shows another question, text
+      // still in it would read as unsent (takeStrandedAnswer).
+      empty();
+      setTasks(tasks.map((t) => (t.id === task.id ? { ...t, humanQA: recordAnswer(t.humanQA, open, { text, chosen }) } : t)));
+      // 2) Tell the agent that asked, so the card gets unblocked and work
+      // continues. The answer is on the card already, so a failed notice is
+      // only logged.
+      await sendAnswerNotice(task, open, text, chosen);
+      markNotSent(task.id, null);
+    } catch { markNotSent(task.id, failedOn(open)); }
     setSending(null);
   };
 
@@ -141,21 +163,15 @@ export function AskMeTab() {
   const dismiss = async (task: HiveTask) => {
     const open = openQuestion(task);
     if (!open || sending === task.id) return;
-    const next = tasks.map((t) => {
-      if (t.id !== task.id) return t;
-      const qa = (t.humanQA ?? []).map((e) =>
-        e === open || (e.q === open.q && !e.a && !e.dismissedAt)
-          ? { ...e, dismissedAt: new Date().toISOString() }
-          : e
-      );
-      return { ...t, humanQA: qa };
-    });
+    const next = tasks.map((t) => (t.id === task.id ? { ...t, humanQA: withDismissal(t.humanQA, open) } : t));
+    // Dismissed by the person: its note and what was in its box go first, so
+    // the card does not come back as a closed one with unsent text.
+    markNotSent(task.id, null);
+    setAnswerDraft(task.id, picksKey(open), '');
+    setAnswerPicks(task.id, picksKey(open), []);
     setTasks(next); // optimistic — the card disappears immediately
     try {
-      const updated = next.find((candidate) => candidate.id === task.id);
-      const result = updated
-        ? await window.cth.hivePatchTask(task.id, { humanQA: updated.humanQA })
-        : { ok: false };
+      const result = await saveDismissal(task, open);
       if (!result.ok) throw new Error('task changed before ask could be dismissed');
     } catch {
       setTasks(tasks); // restore on failure so the user can retry
@@ -167,7 +183,7 @@ export function AskMeTab() {
     // memory viewer uses. Pixelify Sans (font-ui) is too chunky for prose like
     // questions and answers. Display/badge bits keep their explicit faces.
     <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', background: 'var(--cth-paper-200)', padding: 10, display: 'flex', flexDirection: 'column', gap: 10, fontFamily: 'var(--cth-font-mono)' }}>
-      {waiting.length === 0 && (
+      {cards.length === 0 && (
         <div style={{ textAlign: 'center', padding: '24px 12px', color: 'var(--cth-ink-500)', fontSize: 12 }}>
           {translate('askMe.emptyTitle')}<br />
           <span style={{ fontSize: 11, color: 'var(--cth-ink-300)' }}>
@@ -175,9 +191,15 @@ export function AskMeTab() {
           </span>
         </div>
       )}
-      {waiting.map((t) => {
+      {cards.map((t) => {
+        // Kept after its question closed under the answer: read only, and its ✕
+        // only takes it off this list (the entry is already closed).
+        const closed = !waiting.includes(t);
         const open = openQuestion(t)!;
-        const stuck = dependentsTree(t.id, tasks);
+        const stuck = closed ? [] : dependentsTree(t.id, tasks);
+        const note = draftFor(drafts[t.id], open);
+        const answer = askAnswerState(open, note, picks[t.id]);
+        const label = askButtonLabel(translate, answer, note);
         return (
           <div key={t.id} style={{
             background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)',
@@ -204,7 +226,7 @@ export function AskMeTab() {
                   The card's Q&A history is preserved (the question stays on the
                   card, just marked dismissed). */}
               <button
-                onClick={() => void dismiss(t)}
+                onClick={() => (closed ? markNotSent(t.id, null) : void dismiss(t))}
                 disabled={sending === t.id}
                 title={translate('askMe.dismissTitle')}
                 aria-label={translate('askMe.dismissAria')}
@@ -221,23 +243,31 @@ export function AskMeTab() {
             </div>
 
             <div style={{ padding: 9, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {closed ? <AskClosed state={notSent[t.id]} size={15} /> : (<>
               {/* The question, rendered as markdown. The god writes these with
                   emphasis, lists, `code` and links; as plain text the asterisks
                   and backticks were on screen literally. The card variant keeps
                   this card's mono face and turns a single newline into a break, so
                   a question with no markdown in it looks exactly as it did. */}
-              <div dir={rtl ? 'auto' : undefined} style={{ fontSize: 15, lineHeight: '19px', color: 'var(--cth-ink-900)' }}>
-                <MarkdownPreview source={open.q} variant="card" />
+              {answer.shown && <AskTags entry={answer.shown} />}
+              <div style={{ lineHeight: '19px' }}>
+                <AskText q={open.q} size={15} />
               </div>
+              {answer.shown && (
+                <AskOptions
+                  entry={answer.shown} picked={answer.picked} disabled={sending === t.id}
+                  onToggle={(i) => setAnswerPicks(t.id, picksKey(open), nextPicks(answer, i))}
+                />
+              )}
 
               {/* answer box */}
               <textarea
                 dir={rtl ? 'auto' : undefined}
-                value={drafts[t.id] ?? ''}
-                onChange={(e) => setAnswerDraft(t.id, e.target.value)}
+                value={note}
+                onChange={(e) => setAnswerDraft(t.id, picksKey(open), e.target.value)}
                 onKeyDown={(e) => { if (isComposingKey(e)) return; if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) void sendAnswer(t); }}
-                rows={3}
-                placeholder={translate('askMe.answerPlaceholder')}
+                rows={answer.hasOptions ? 2 : 3}
+                placeholder={translate(answer.hasOptions ? 'askMe.notePlaceholder' : 'askMe.answerPlaceholder')}
                 style={{
                   width: '100%', boxSizing: 'border-box', padding: '6px 8px', resize: 'vertical',
                   background: 'var(--cth-paper-100)', border: 'none',
@@ -246,13 +276,14 @@ export function AskMeTab() {
                   color: 'var(--cth-ink-900)', outline: 'none'
                 }}
               />
+              <AskNotSentRow state={notSent[t.id]} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <PixelButton
                   variant="primary" size="sm"
-                  disabled={!(drafts[t.id] ?? '').trim() || sending === t.id}
+                  disabled={!answer.text.trim() || sending === t.id}
                   onClick={() => void sendAnswer(t)}
                 >
-                  {sending === t.id ? translate('askMe.sending') : translate('askMe.respond')}
+                  {sending === t.id ? translate('askMe.sending') : (label ?? translate('askMe.respond'))}
                 </PixelButton>
                 {(t.humanQA?.filter((e) => e.a).length ?? 0) > 0 && (
                   <button
@@ -273,6 +304,7 @@ export function AskMeTab() {
                   </button>
                 )}
               </div>
+              </>)}
 
               {/* the cascade: what's stuck behind this answer */}
               {stuck.length > 0 && (

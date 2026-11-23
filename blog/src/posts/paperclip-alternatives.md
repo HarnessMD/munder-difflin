@@ -61,7 +61,7 @@ AionUi runs agents as a team, like Paperclip, but in a desktop app. Its [README]
 
 ## 2. Munder Difflin: a team for all kinds of work
 
-Munder Difflin is ours, and it puts the team in a desktop app. Its [README](https://github.com/HarnessMD/munder-difflin), read 9 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human." It runs engines such as Claude Code, Codex and Gemini CLI, takes work from Slack and webhooks, and adds tools through MCP servers, skills and plugins. A Cloud Office and a mobile app are coming soon. It suits anyone who wants research, writing, ops and code from one team. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+Munder Difflin is ours, and it puts the team in a desktop app. Its [README](https://github.com/HarnessMD/munder-difflin), read 9 Nov 2026, describes "A GOD orchestrator you talk to. It routes tasks, adjudicates traffic, and escalates only what needs a human." It runs engines such as Claude Code, Codex and Gemini CLI, takes work from Slack and webhooks, and adds tools through MCP servers, skills and plugins. Its Cloud Office runs agents in the cloud, always on, so work goes on with your computer off; a mobile app is coming soon. It suits anyone who wants research, writing, ops and code from one team. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. LobeHub: agents in your team chat
 

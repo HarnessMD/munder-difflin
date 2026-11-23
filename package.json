@@ -1,8 +1,8 @@
 {
   "name": "munder-difflin",
-  "version": "0.4.6",
+  "version": "0.6.0",
   "private": true,
-  "description": "Clones for you and your team, working 24/7 — a free, local-first multi-agent harness that turns the CLI coding agent you already run into a clone of you, coordinating an office of agents on your machine.",
+  "description": "Clones for you and your team, working 24/7 \u2014 a free, local-first multi-agent harness that turns the CLI coding agent you already run into a clone of you, coordinating an office of agents on your machine.",
   "main": "out/main/index.js",
   "author": "Chaitanya Giri",
   "homepage": "https://munderdiffl.in/",
@@ -47,9 +47,10 @@
     "@xterm/addon-webgl": "^0.19.0",
     "@xterm/xterm": "^5.5.0",
     "better-sqlite3": "^11.10.0",
+    "blobatar": "^2.7.0",
     "commit-graph": "^2.4.0",
-    "electron-updater": "^6.8.9",
     "i18next": "^26.3.6",
+    "libsodium-wrappers": "^0.8.4",
     "localtunnel": "^2.0.2",
     "monaco-editor": "^0.52.2",
     "node-pty": "^1.0.0",
@@ -61,16 +62,19 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "tunnelmole": "^2.4.0",
+    "ws": "^8.21.3",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@electron/notarize": "^2.5.0",
     "@electron/rebuild": "^3.7.0",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/libsodium-wrappers": "^0.7.14",
     "@types/localtunnel": "^2.0.4",
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.3.2",
     "electron": "^32.2.0",
     "electron-builder": "^25.1.8",
@@ -83,5 +87,8 @@
     "app-builder-lib": {
       "@electron/rebuild": "$@electron/rebuild"
     }
+  },
+  "engines": {
+    "node": ">=20 <25"
   }
 }

@@ -1492,7 +1492,7 @@
     "category": "guides",
     "hero": {
       "file": "assets/media/how-to-install-and-use-munder-difflin/hero.png",
-      "alt": "Title card on white. Large ink type reads Install Munder Difflin 0.5.6 under the line From zero to a working office, with a Beginner's guide pill, beside a shelf going up on two brackets with a spirit level on it, a screwdriver, a hex key and two spare screws.",
+      "alt": "Title card on white. Large ink type reads Install Munder Difflin 0.5.10 under the line From zero to a working office, with a Beginner's guide pill, beside a shelf going up on two brackets with a spirit level on it, a screwdriver, a hex key and two spare screws.",
       "prompt": "",
       "status": "ready"
     },
@@ -1602,6 +1602,24 @@
       "prerequisites-056": {
         "file": "assets/media/how-to-install-and-use-munder-difflin/prerequisites-056.png",
         "alt": "Screenshot of Munder Difflin Settings, Prerequisites, in light mode: uv, git and Node.js marked Found with their paths, and MemPalace marked Not found with its install command and a copy button.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "shot-move": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/shot-move.webp",
+        "alt": "Two screenshots of Munder Difflin 0.5.10 side by side. Left: the Pro sidebar with the Main Office agents and a faded Pam row, and the Cloud Office section lit up yellow under the line Drop to run Pam in Cloud Office. Right: the sheet Run Pam in the Cloud Office, with Stop Pam in your Main Office ticked, the groups Comes with Pam, Does not come and Good to know, and the buttons Cancel and Move.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "autonomy-0510": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/autonomy-0510.webp",
+        "alt": "Settings, Autonomy & Budgets in Munder Difflin 0.5.10, with sample data: Autonomy set to autonomous, Who can add agents set to me and Michael, Michael may add lasting agents set to me and Michael, and the circuit breaker on, with its three limit fields and Hard stop set to steer first.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "prerequisites-0510": {
+        "file": "assets/media/how-to-install-and-use-munder-difflin/prerequisites-0510.webp",
+        "alt": "Settings, Prerequisites in Munder Difflin 0.5.10, with sample data: under Agent engines, Claude Code and Codex are marked Found with their paths, Grok is marked Not found with its install command and a copy button, and Kimi Code is marked Found.",
         "prompt": "",
         "status": "ready"
       }
@@ -3151,11 +3169,11 @@
     "youtube": []
   },
   "gemini-4-carbon": {
-    "title": "Gemini 4 Carbon: Price, Access and How It Compares to Argon (Oct 2026)",
+    "title": "Gemini 4 Carbon: Price, Access and How It Compares to Argon (Nov 2026)",
     "category": "concepts",
     "hero": {
       "file": "assets/media/gemini-4-carbon/hero.png",
-      "alt": "Title card on white. Gemini 4 Carbon in large ink type, a Concepts pill, the line Early access, Argon's price, Checked 29 Oct 2026, and two blocks labelled Argon and Carbon on a two step podium",
+      "alt": "Title card on white. Gemini 4 Carbon in large ink type, a Concepts pill, the line Open now, Argon's price, Checked 14 Nov 2026, and two blocks labelled Argon and Carbon on a two step podium",
       "prompt": "Still of the hero scene in assets/media/gemini-4-carbon/motion.js.",
       "status": "ready"
     },
@@ -3526,6 +3544,17 @@
       "file": "assets/media/agent-tools-today/hero.png",
       "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
       "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "claude-fable-5-2": {
+    "title": "Claude Fable 5.2: price, fast mode, Mythos 5.2 and when to pick it",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-fable-5-2/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title Claude Fable 5.2, the line Price, fast mode and when to pick it, and a Checked 10 Nov 2026 line. Two small identical mugs labelled Fable 5.2 and Mythos 5.2 sit underneath.",
+      "prompt": "Title card: the hero scene in assets/media/claude-fable-5-2/motion.js, shot at 1600 by 900.",
       "status": "ready"
     },
     "inline": {}
@@ -4285,7 +4314,7 @@
     "category": "guides",
     "hero": {
       "file": "assets/media/your-first-hour-with-munder-difflin/hero.png",
-      "alt": "Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.6, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings.",
+      "alt": "Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.10, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings.",
       "prompt": "",
       "status": "ready"
     },
@@ -4455,6 +4484,24 @@
       "ask-me-056": {
         "file": "assets/media/your-first-hour-with-munder-difflin/ask-me-056.png",
         "alt": "Screenshot of an agent's Inbox in Munder Difflin, light mode: an Ask me list with three questions, each with a task key, a time and an Answer button, above the message box with Send and Steer.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "shot-move": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/shot-move.webp",
+        "alt": "Two screenshots of Munder Difflin 0.5.10 side by side. Left: the Pro sidebar with the Main Office agents and a faded Pam row, and the Cloud Office section lit up yellow under the line Drop to run Pam in Cloud Office. Right: the sheet Run Pam in the Cloud Office, with Stop Pam in your Main Office ticked, the groups Comes with Pam, Does not come and Good to know, and the buttons Cancel and Move.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "pro-sidebar-0510": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/pro-sidebar-0510.webp",
+        "alt": "The Pro sidebar in Munder Difflin 0.5.10, with sample data: Home, Tasks, Inbox, Automations, Memory, Capabilities, Integrations and Stapler, then the Main Office with Add an agent and the agents Michael (orchestrator), Dwight, Jim and Pam, whose row shows Asked you, then Temps.",
+        "prompt": "",
+        "status": "ready"
+      },
+      "ask-me-0510": {
+        "file": "assets/media/your-first-hour-with-munder-difflin/ask-me-0510.webp",
+        "alt": "The Inbox in Munder Difflin 0.5.10, with sample data: the Ask me thread under For you is open, Pam asks whether the pricing page should show prices in euros as well as dollars, and an answer box sits above the buttons Answer and Dismiss.",
         "prompt": "",
         "status": "ready"
       }
@@ -5807,5 +5854,808 @@
       "status": "ready"
     },
     "inline": {}
+  },
+  "claude-sheets-whiteboards-data": {
+    "title": "Claude Sheets, Whiteboards and Data: what launched on 10 Nov 2026",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/claude-sheets-whiteboards-data/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title Claude Sheets, Whiteboards and Data, the line What launched and who gets it, and a Checked 10 Nov 2026 line. A small easel, seed tray and barometer sit in a row underneath.",
+      "prompt": "Title card: the hero scene in assets/media/claude-sheets-whiteboards-data/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-11": {
+    "title": "Agent Tools Today, 11 Nov 2026: Claude Sheets and Whiteboards, AlphaProof Code, Strands Decider",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-browse-vs-agent-browser": {
+    "title": "OpenCode Browse vs agent-browser: Your Browser or a CLI (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/opencode-browse-vs-agent-browser/hero.png",
+      "alt": "Title card on white. A pill reading Versus, the title OpenCode Browse vs agent-browser, the line Two browser tools for coding agents and a Checked 11 Nov 2026 line. Two small puzzle trays labelled Browse and agent-browser sit underneath.",
+      "prompt": "Title card: the hero scene in assets/media/opencode-browse-vs-agent-browser/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "turnstone-alternatives": {
+    "title": "Turnstone Alternatives: 5 Tools Like Turnstone for AI Teammates (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/turnstone-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Turnstone alternatives, the line 5 tools like Turnstone for AI teammates and a Checked 11 Nov 2026 line. Five small tiles named Claude Cowork, Munder Difflin, Grok Bot, Perplexity Teammates and OpenClaw slide in under a grey tile labelled Turnstone.",
+      "prompt": "Title card: the hero scene in assets/media/turnstone-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "reason-machines-alternatives": {
+    "title": "Reason Machines Alternatives: 5 Tools Like Reason for Team Coding Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/reason-machines-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Reason Machines alternatives, the line 5 tools like Reason for team coding agents and a Checked 11 Nov 2026 line. Five small tiles named Devin, Munder Difflin, OpenAI Codex cloud, Claude Code on the web and Cursor Cloud Agents slide in under a grey tile labelled Reason Machines.",
+      "prompt": "Title card: the hero scene in assets/media/reason-machines-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "maxxwell-alternatives": {
+    "title": "Maxxwell Alternatives: 5 Tools for Running Many Coding Agents at Once (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/maxxwell-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Maxxwell alternatives, the line 5 tools for running many coding agents at once and a Checked 11 Nov 2026 line. Five small tiles named Orca, Munder Difflin, Paradev, AionUi and Agent Deck slide in under a grey tile labelled Maxxwell.",
+      "prompt": "Title card: the hero scene in assets/media/maxxwell-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-nvidia-openshell": {
+    "title": "What is NVIDIA OpenShell? The agent sandbox, explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-nvidia-openshell/hero.png",
+      "alt": "Title card on white. A pill reading Explainer, the title What is NVIDIA OpenShell?, the line The agent sandbox, explained and a Checked 11 Nov 2026 line. Under it a small glass terrarium holds a sprout labelled Agent.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-nvidia-openshell/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-12": {
+    "title": "Agent Tools Today, 12 Nov 2026: AWS Emulator, Gemini Decisions API, Agents and a Maya Site",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-decisions-api-vs-openai-decisions-api": {
+    "title": "Gemini Decisions API vs OpenAI Decisions API: Price, Inputs and Limits",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-decisions-api-vs-openai-decisions-api/hero.png",
+      "alt": "Title card on white. A pill reading Versus, the title Gemini Decisions API vs OpenAI Decisions API, the line Price, inputs and limits side by side and a Checked 12 Nov 2026 line. A blue card named Gemini Decisions API and a lilac card named OpenAI Decisions API slide in side by side with a yellow vs badge between them.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-decisions-api-vs-openai-decisions-api/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "marblism-alternatives": {
+    "title": "Marblism Alternatives: 5 Tools Like Marblism for AI Employees (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/marblism-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Marblism alternatives, the line 5 tools like Marblism for AI employees and a Checked 12 Nov 2026 line. Five small tiles named Sintra, Munder Difflin, Lindy, Grok Bot and Claude Cowork slide in under a grey tile labelled Marblism.",
+      "prompt": "Title card: the hero scene in assets/media/marblism-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "what-is-a2ui": {
+    "title": "What is A2UI? Google's A2UI 1.0, explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-a2ui/hero.png",
+      "alt": "Title card on white. A pill reading Explainer, the title What is A2UI?, the line Google's A2UI 1.0, explained and a Checked 12 Nov 2026 line. Three tiles named Agent, A2UI and Your app slide in from the right, joined by arrows.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-a2ui/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-13": {
+    "title": "Agent Tools Today, 13 Nov 2026: Gemini 4 Hydrogen, Edge0-145B and Anthropic's IPO Page",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-4-hydrogen": {
+    "title": "Gemini 4 Hydrogen: Price vs Argon, Where to Use It and When to Pick It (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-hydrogen/hero.png",
+      "alt": "Title card on white. A pill reading New model, the title Gemini 4 Hydrogen, the line Price vs Argon, where to use it, when to pick it and a Checked 13 Nov 2026 line. Three tiles slide in: Hydrogen $1.50 in, Argon $2.00 in and Carbon $2.00 in.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-4-hydrogen/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "rowboat-alternatives": {
+    "title": "Rowboat Alternatives: 5 Tools Like Rowboat for an AI Coworker (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/rowboat-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Rowboat alternatives, the line 5 tools like Rowboat for an AI coworker and a Checked 13 Nov 2026 line. Five small tiles named AnythingLLM, Munder Difflin, Eigent, AionUi and Claude Cowork slide in under a grey tile labelled Rowboat.",
+      "prompt": "Title card: the hero scene in assets/media/rowboat-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "pentagon-alternatives": {
+    "title": "Pentagon Alternatives: 5 Tools Like Pentagon for AI Teammates (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/pentagon-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Pentagon alternatives, the line 5 tools like Pentagon for AI teammates and a Checked 13 Nov 2026 line. Five small tiles named Rowboat, Munder Difflin, Agent Relay, Perplexity Teammates and Claude Cowork slide in under a grey tile labelled Pentagon.",
+      "prompt": "Title card: the hero scene in assets/media/pentagon-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "llama-cpp-1-0": {
+    "title": "llama.cpp 1.0: What Changed and What to Check Before Upgrading",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/llama-cpp-1-0/hero.png",
+      "alt": "Title card on white. A pill reading New release, the title llama.cpp 1.0, the line What changed and what to check before upgrading and a Checked 13 Nov 2026 line. Three tiles slide in: 35 removed, NextN API and MoE expert cache.",
+      "prompt": "Title card: the hero scene in assets/media/llama-cpp-1-0/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "opencode-2-3": {
+    "title": "OpenCode 2.3: background subagents, quieter transcripts and upgrade notes",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/opencode-2-3/hero.png",
+      "alt": "Title card on white. A pill reading New version, the title OpenCode 2.3, the line Background subagents by default and what else changed and a Checked 13 Nov 2026 line. Three tiles slide in: Background subagents, Quieter transcripts and Jump to message.",
+      "prompt": "Title card: the hero scene in assets/media/opencode-2-3/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-relay-alternatives": {
+    "title": "Agent Relay Alternatives: 5 Tools for Agents That Talk to Each Other (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/agent-relay-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Agent Relay alternatives, the line 5 tools like Agent Relay for agents that talk to each other and a Checked 14 Nov 2026 line. Five small tiles named Rowboat, Munder Difflin, Agent Mail, Claude Code agent teams and Orca slide in under a grey tile labelled Agent Relay.",
+      "prompt": "Title card: the hero scene in assets/media/agent-relay-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "nimbalyst-alternatives": {
+    "title": "Nimbalyst Alternatives: 5 Tools Like Nimbalyst for Parallel Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/nimbalyst-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Nimbalyst alternatives, the line 5 tools like Nimbalyst for parallel agents and a Checked 14 Nov 2026 line. Five small tiles named Orca, Munder Difflin, T3 Code, Paradev and Emdash Classic slide in under a grey tile labelled Nimbalyst.",
+      "prompt": "Title card: the hero scene in assets/media/nimbalyst-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-14": {
+    "title": "Agent Tools Today, 14 Nov 2026: llama.cpp 1.0, OpenCode 2.3 and Two Claude Outages",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-15": {
+    "title": "Agent Tools Today, 15 Nov 2026: Antigravity's /teamwork, GLM-5.3 on Two DGX Stations and Lovable Apps",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "openwork-alternatives": {
+    "title": "OpenWork Alternatives: 5 Desktop AI Agent Apps for Office Work (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/openwork-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title OpenWork alternatives, the line 5 desktop AI agent apps like OpenWork for office work and a Checked 14 Nov 2026 line. Five small tiles named Eigent, Munder Difflin, AionUi, Claude Cowork and goose slide in under a grey tile labelled OpenWork.",
+      "prompt": "Title card: the hero scene in assets/media/openwork-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "eigent-alternatives": {
+    "title": "Eigent Alternatives: 5 Tools for Teams of AI Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/eigent-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Eigent alternatives, the line 5 tools like Eigent for teams of AI agents and a Checked 14 Nov 2026 line. Five small tiles named AionUi, Munder Difflin, Rowboat, Claude Cowork and CrewAI slide in under a grey tile labelled Eigent.",
+      "prompt": "Title card: the hero scene in assets/media/eigent-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "sintra-alternatives": {
+    "title": "Sintra Alternatives: 5 Tools Like Sintra AI for Small Business (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/sintra-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Sintra alternatives, the line 5 tools like Sintra for small business and a Checked 14 Nov 2026 line. Five small tiles named Marblism, Munder Difflin, Lindy, Claude Cowork and Relevance AI slide in under a grey tile labelled Sintra.",
+      "prompt": "Title card: the hero scene in assets/media/sintra-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "make-money-with-gta-6": {
+    "title": "How to Make Money From GTA 6: 6 Hustles and the AI Agent Workflow for Each",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/make-money-with-gta-6/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title Make money from GTA 6, the line 6 hustles and the AI agent workflow for each and a Checked 16 Nov 2026 line. Six small tiles named Clipping, Channels, Guide site, Editing, Streaming and Community slide in around a tile reading You approve.",
+      "prompt": "Title card: the hero scene in assets/media/make-money-with-gta-6/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-clipping-farm": {
+    "title": "GTA 6 Clipping Farm: How to Run One With a Team of AI Agents",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-clipping-farm/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title GTA 6 clipping farm, the line A few honest accounts and a team of AI agents and a Checked 16 Nov 2026 line. Six small tiles named Scout, Cutter, Captioner, Writer, Tracker and You slide in along a thin line.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-clipping-farm/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-youtube-channel-ideas": {
+    "title": "GTA 6 YouTube Channel Ideas: 6 Content Channels an AI Agent Team Can Help Run",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-youtube-channel-ideas/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title GTA 6 YouTube channel ideas, the line 6 content channels an AI agent team can help run and a Checked 16 Nov 2026 line. Six small tiles named News, Map, Mission, Comparisons, Tips and Places slide in as two rows.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-youtube-channel-ideas/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-guide-site": {
+    "title": "Start a GTA 6 Guide Site or Newsletter With AI Agents (the Way This Blog Runs)",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-guide-site/hero.png",
+      "alt": "Title card on white. A pill reading Use Cases, the title GTA 6 guide site or newsletter, the line Run it with AI agents, the way this blog runs and a Checked 16 Nov 2026 line. Six small tiles named Notes, Brief, Draft, Fact check, Your edit and Publish slide in along a thin line.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-guide-site/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "agent-tools-today-2026-11-16": {
+    "title": "Agent Tools Today, 16 Nov 2026: Qwen4-Max, Browser Use 1.0.6 and an Open Source Essay",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "qwen4-max": {
+    "title": "Qwen4-Max: Price, Specs and How to Use It in Claude Code (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/qwen4-max/hero.png",
+      "alt": "Title card on white. A pill reading Concepts, the title Qwen4-Max, the line Price, specs and how to use it in Claude Code and Qwen Code and a Checked 16 Nov 2026 line. Four small tiles reading 1M context, $1.50 input, $4.50 output and Token Plan slide in along a thin line.",
+      "prompt": "Title card: the hero scene in assets/media/qwen4-max/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "qwen4-max-vs-claude-opus-5-5": {
+    "inline": {},
+    "title": "Qwen4-Max vs Claude Opus 5.5: Price, Limits and Claude Code Setup (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/qwen4-max-vs-claude-opus-5-5/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Qwen4-Max vs Claude Opus 5.5, the line Price, limits and Claude Code setup and a Checked 16 Nov 2026 line. Two tiles joined by a thin line read Qwen4-Max $6.00 and Claude Opus 5.5 $24.00, labelled 1M input plus 1M output.",
+      "prompt": "Title card: the hero scene in assets/media/qwen4-max-vs-claude-opus-5-5/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "lobehub-alternatives": {
+    "inline": {},
+    "title": "LobeHub Alternatives: 5 Chat and Agent Workspaces Compared (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/lobehub-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title LobeHub alternatives, the line 5 AI workspaces like LobeHub and a Checked 16 Nov 2026 line. Five tiles named LibreChat, Munder Difflin, Open WebUI, Cherry Studio and Jan slide in under a grey LobeHub tile.",
+      "prompt": "Title card: the hero scene in assets/media/lobehub-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "browser-use-alternatives": {
+    "inline": {},
+    "title": "Browser Use Alternatives: 5 Picks After the 1.0 Rewrite (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/browser-use-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Browser Use alternatives, the line 5 tools for AI agents that drive a browser and a Checked 16 Nov 2026 line. Tiles named Stagehand, Munder Difflin, Skyvern, Playwright MCP and +1 slide in under a grey Browser Use tile.",
+      "prompt": "Title card: the hero scene in assets/media/browser-use-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "grok-bot-pricing": {
+    "inline": {},
+    "title": "Grok Bot Pricing in Nov 2026: Premium $30, Super $100, Ultra $200",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/grok-bot-pricing/hero.png",
+      "alt": "Title card on white. A pill reading Pricing, the title Grok Bot pricing, the line What each plan costs in Nov 2026 and a Checked 16 Nov 2026 line. Three price tags slide in on a thin line: Premium $30, Super $100 and Ultra $200, a month, x.ai, 16 Nov 2026.",
+      "prompt": "Title card: the hero scene in assets/media/grok-bot-pricing/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "munder-difflin-0-5-10": {
+    "title": "Munder Difflin 0.5.10: Sleeping Agents and a Drag to the Cloud Office",
+    "category": "story",
+    "hero": {
+      "file": "assets/media/munder-difflin-0-5-10/hero.png",
+      "alt": "Title card on white. A pill reading Release, the title Munder Difflin 0.5.10, the line Sleeping agents and the Cloud Office and a 17 Nov 2026 line. Desk lamps, only the first lit, sit under a sky blue cloud, with a mint tile on a dotted line between them.",
+      "prompt": "Title card: the hero scene in assets/media/munder-difflin-0-5-10/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gpt-6-2-astra-and-sol": {
+    "inline": {},
+    "title": "GPT-6.2 Astra and Sol: Price, Specs and How to Use Them in Codex (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gpt-6-2-astra-and-sol/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title GPT 6.2 Astra and Sol, the line OpenAI's new pair of models and a Checked 18 Nov 2026 line. A lilac tile reads GPT 6.2 Astra, $8 in per 1M tokens, under a small yellow star, and a sky blue tile reads GPT 6.2 Sol, $2 in per 1M tokens, under a small yellow sun.",
+      "prompt": "Title card: the hero scene in assets/media/gpt-6-2-astra-and-sol/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "gemini-4-neon": {
+    "inline": {},
+    "title": "Gemini 4 Neon: Price, API and How It Compares (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gemini-4-neon/hero.png",
+      "alt": "Title card on white. A pill reading Concepts, the title Gemini 4 Neon, the line Price, API and how it compares and a Checked 19 Nov 2026 line. Three yellow price tags slide in on a thin line: Input $3.00, Output $15.00 and Caching $0.15, per 1M tokens.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-4-neon/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "amp-alternatives": {
+    "inline": {},
+    "title": "Amp Alternatives: 5 Picks for the Coding Agent (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/amp-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Amp alternatives, the line 5 picks for the coding agent and a Checked 19 Nov 2026 line. Tiles named Claude Code, Munder Difflin, Codex CLI, OpenCode and Cursor slide in under a soft Amp tile.",
+      "prompt": "Title card: the hero scene in assets/media/amp-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "openhands-alternatives": {
+    "inline": {},
+    "title": "OpenHands Alternatives: 5 Picks After v1.42.0 (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/openhands-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title OpenHands alternatives, the line 5 picks after v1.42.0 and a Checked 19 Nov 2026 line. Tiles named OpenCode, Munder Difflin, goose, Cline and Claude Code slide in under a soft OpenHands tile.",
+      "prompt": "Title card: the hero scene in assets/media/openhands-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "agent-tools-today-2026-11-19": {
+    "title": "Agent Tools Today, 19 Nov 2026: GPT-6.2 Astra and Sol, Gemini 4 Neon and MAI Code 2",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today/hero.png",
+      "alt": "Hand drawn sketch: a front page with five numbered lines, a clock, and a yellow character reading it out",
+      "prompt": "Series hero for the Agent Tools Today daily brief, drawn in code (media-src/topic-tiles.html?t=news). Reused by every brief.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-day-off-work": {
+    "title": "GTA 6 Day Off Work? Skip the Excuse, Let AI Agents Prep Your Queue",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-day-off-work/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 day off work in large ink type with a short yellow underline, the line Skip the excuse. Book it honestly in muted text, and on the right a phone outline where three notification cards stack in with a soft bounce: Leave request: approved, Queue: prepped by agents, You: playing.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-day-off-work/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-productivity": {
+    "title": "GTA 6 Productivity: How Teams Keep Shipping in Launch Week (an AI Agent Playbook)",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-productivity/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 launch week productivity in large ink type with a short yellow underline, the line How teams keep shipping while everyone plays in muted text, and three small Kanban columns named Queued, Doing and Approved with four cards flying into Approved one by one.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-productivity/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "make-money-while-playing-gta-6": {
+    "title": "Make Real Money While Playing GTA 6: A Freelancer's AI Agent Setup",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/make-money-while-playing-gta-6/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title Make money while playing GTA 6 in large ink type with a short yellow underline, the line A freelancer's AI agent setup in muted text, and on the right a small receipt printer feeding a receipt that prints Drafts ready, Invoices drafted, Approved by you, line by line.",
+      "prompt": "Title card: the hero scene in assets/media/make-money-while-playing-gta-6/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-business-ideas": {
+    "title": "GTA 6 Business Ideas: 9 Real Ways to Profit From the Launch, and the AI Agents That Do the Prep",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-business-ideas/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 business ideas in large ink type with a short yellow underline, the line 9 real ways to profit, and the agents that do the prep in muted text, and on the right a small slot machine whose three reels land on Your words, Your design and Your time under a sunburst.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-business-ideas/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-content-creator": {
+    "title": "GTA 6 Content Creator Kit: Clips, Thumbnails, Titles and a Posting Plan From an AI Agent Team",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-content-creator/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 content creator kit in large ink type with a short yellow underline, the line Clips, thumbnails, titles, a posting plan in muted text, and on the right a three panel comic strip filling panel by panel: a clip strip, a thumbnail frame, a calendar, ending with a small stamp reading You approve.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-content-creator/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-discord-server": {
+    "title": "GTA 6 Discord Server: How to Start, Grow and Moderate One With AI Agents",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-discord-server/hero.png",
+      "alt": "Title card on soft paper: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 Discord server in large ink type with a short yellow underline, the line Start, grow and moderate one with AI agents in muted text, and on the right three layered paper cutout cards named general, spoilers and events that pop up in turn with parallax depth.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-discord-server/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-streaming-setup": {
+    "title": "GTA 6 Streaming Setup: Overlays, Rules and an AI Agent Crew Off Camera",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/gta-6-streaming-setup/hero.png",
+      "alt": "Title card on white: a yellow pill reading Use Cases at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 streaming setup in large ink type with a short yellow underline, the line Overlays, rules and an AI agent crew off camera in muted text, and on the right a daylight synthwave horizon: a yellow sun of horizontal bars rising over a lilac perspective grid, with a small LIVE chip in aqua blinking on.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-streaming-setup/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-tracker": {
+    "title": "GTA 6 Tracker: Build a Morning Brief of News, Servers and Sales With AI Agents",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-tracker/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 tracker in large ink type with a short yellow underline, the line News, servers and sales in one morning brief in muted text, and on the right a radar disc on white whose sweep lights four blips labelled Newswire, Status, Stores and Earnings, then a small card reading Brief at 07:00.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-tracker/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-download-size": {
+    "title": "GTA 6 Download Size: How Many GB on PS5 and Xbox, and How Long It Takes",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-download-size/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 download size in large ink type with a short yellow underline, the line How many GB, and how long it takes in muted text, and on the right an isometric plate on which blocks stack into a tower with a chip reading 212 GB.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-download-size/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-editions-price": {
+    "title": "GTA 6 Editions and Price: Every Edition in Dollars, Pounds and Rupees",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-editions-price/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 editions and price in large ink type with a short yellow underline, the line Every edition in dollars, pounds, euros and rupees in muted text, and on the right a small split flap board whose rows riffle to STANDARD 79.99 and ULTIMATE 99.99, then a USD chip flips to GBP, EUR and INR.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-editions-price/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "is-gta-6-on-pc": {
+    "title": "Is GTA 6 on PC? What Rockstar Has Said, and Your Options",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/is-gta-6-on-pc/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title Is GTA 6 on PC? in large ink type with a short yellow underline, the line What Rockstar has said, and your options in muted text, and on the right a small light terminal window where a command types out and prints PC: not announced with a blinking cursor.",
+      "prompt": "Title card: the hero scene in assets/media/is-gta-6-on-pc/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-online-release-date": {
+    "title": "GTA 6 Online Release Date: What Rockstar Has Confirmed",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/gta-6-online-release-date/hero.png",
+      "alt": "Title card on white: a yellow pill reading News at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 online release date in large ink type with a short yellow underline, the line What Rockstar has confirmed so far in muted text, and on the right the words SINGLE PLAYER slam in on a grid, then a yellow block slams in reading NO DATE YET.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-online-release-date/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-review-scores": {
+    "title": "GTA 6 Review Scores: Metacritic, OpenCritic and What Critics Actually Said",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/gta-6-review-scores/hero.png",
+      "alt": "Title card on white: a yellow pill reading News at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 review scores in large ink type with a short yellow underline, the line Metacritic, OpenCritic and what critics said in muted text, and on the right a small HIGH SCORES panel where a counter ticks up to 99 and a NEW HIGH SCORE tag blinks.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-review-scores/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-how-long-to-beat": {
+    "title": "GTA 6 How Long to Beat: Story Length in Hours, Every Source",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-how-long-to-beat/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 how long to beat in large ink type with a short yellow underline, the line Story length in hours, every source in muted text, and on the right a row of square Isotype cells filling one by one up to a chip reading 80 h, with a small clock icon ticking.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-how-long-to-beat/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-engine": {
+    "title": "GTA 6 Engine: What Powers It, and What Developers Can Learn From RAGE",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gta-6-engine/hero.png",
+      "alt": "Title card on white: a yellow pill reading Concepts at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 engine in large ink type with a short yellow underline, the line What powers it, and what developers can learn in muted text, and on the right a blueprint of a simple abstract engine block drafting itself line by line with a title block reading RAGE (reported).",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-engine/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-marketing": {
+    "title": "GTA 6 Marketing: 7 Lessons for Founders From Rockstar's Launch",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/gta-6-marketing/hero.png",
+      "alt": "Title card on white: a yellow pill reading Concepts at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 marketing in large ink type with a short yellow underline, the line 7 launch lessons for founders in muted text, and on the right an Art Deco sunburst fan opens on a centre axis behind a plaque reading 7 LESSONS.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-marketing/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-map": {
+    "title": "GTA 6 Map: Leonida, Vice City and How Big It Is Next to GTA 5",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-map/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 map in large ink type with a short yellow underline, the line Leonida, Vice City and how big it is in muted text, and on the right an abstract transit diagram drawing on, three lines meeting at an interchange capsule reading Leonida, with white stops.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-map/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-characters": {
+    "title": "GTA 6 Characters: Jason, Lucia and the Cast, Explained Without Spoilers",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-characters/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 characters in large ink type with a short yellow underline, the line Jason, Lucia and the cast, no spoilers in muted text, and on the right two dossier cards with plain geometric silhouettes flip in, then a stamp lands reading NO SPOILERS.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-characters/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-refund": {
+    "title": "GTA 6 Refund: How to Get Your Money Back on PlayStation and Xbox",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/gta-6-refund/hero.png",
+      "alt": "Title card on white: a yellow pill reading Guides at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 refund in large ink type with a short yellow underline, the line How to get your money back on PS5 and Xbox in muted text, and on the right a small Swiss flowchart: a dot travels from a diamond reading Where did you pay? to two boxes, PS Store and Xbox, ending at a yellow box reading The store decides.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-refund/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-sales": {
+    "title": "GTA 6 Sales: Preorders, Records and How Much It Has Made So Far",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/gta-6-sales/hero.png",
+      "alt": "Title card on white: a yellow pill reading News at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 sales in large ink type with a short yellow underline, the line Preorders, records and what is official in muted text, and on the right a small low poly island with an odometer whose digits roll and settle on 11 with a flag reading Estimate.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-sales/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gta-6-for-ai-agents": {
+    "title": "I Built a GTA 6 Style City for My Claude Code and Codex Agents. They Work While I Play the Real GTA 6",
+    "category": "story",
+    "hero": {
+      "file": "assets/media/gta-6-for-ai-agents/hero.png",
+      "alt": "Title card on white: a yellow pill reading Story at top left, a Checked 19 Nov 2026 line at top right in muted text, the title GTA 6 AI agents in large ink type with a short yellow underline, the line My office works while I play in muted text, and on the right a crop of the pixel art motel lobby with tilt shift blur where crew sprites type at desks and one walks a DONE envelope to the Boss, with a small chip reading You: playing.",
+      "prompt": "Title card: the hero scene in assets/media/gta-6-for-ai-agents/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    },
+    "inline": {}
+  },
+  "gemini-4-neon-vs-claude-opus-5-5": {
+    "inline": {},
+    "title": "Gemini 4 Neon vs Claude Opus 5.5: Price and Limits (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/gemini-4-neon-vs-claude-opus-5-5/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Gemini 4 Neon vs Claude Opus 5.5, the line Price, limits and scores and a Checked 19 Nov 2026 line. A sky card reading Gemini 4 Neon $18.00 and a lilac card reading Claude Opus 5.5 $24.00 slide in side by side above a small label, 1M input plus 1M output.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-4-neon-vs-claude-opus-5-5/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "orca-alternatives": {
+    "inline": {},
+    "title": "Orca Alternatives: 6 Picks for Parallel Coding Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/orca-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title Orca alternatives, the line 6 picks for parallel coding agents and a Checked 19 Nov 2026 line. Tiles named T3 Code, Munder Difflin, Emdash, Paradev, Herdr and Conductor slide in under a soft Orca tile.",
+      "prompt": "Title card: the hero scene in assets/media/orca-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "github-copilot-cli-alternatives": {
+    "inline": {},
+    "title": "GitHub Copilot CLI Alternatives: 5 Picks Compared (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/github-copilot-cli-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Alternatives, the title GitHub Copilot CLI alternatives, the line 5 picks for the terminal agent and a Checked 19 Nov 2026 line. Tiles named Claude Code, Munder Difflin, Codex CLI, OpenCode and Qwen Code slide in under a soft Copilot CLI tile.",
+      "prompt": "Title card: the hero scene in assets/media/github-copilot-cli-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "agent-tools-today-2026-11-20": {
+    "inline": {},
+    "title": "Agent Tools Today, 20 Nov 2026: Codex 0.171.0, Claude Code v2.1.329 and Claude on Black Holes",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-20/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily Brief, the title Agent Tools Today, the line 20 Nov 2026 and a muted line Codex, Claude Code and black holes. A lilac metronome swings once and settles upright beside three cards: Codex, Claude Code and Black holes.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-20/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "aider-alternatives": {
+    "inline": {},
+    "title": "Aider Alternatives: 6 Tools Compared (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/aider-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Aider alternatives, the line 6 tools to switch to and a Checked 20 Nov 2026 line. Beside a lilac stopwatch, cards named OpenCode, Munder Difflin, Qwen Code, goose, Codex CLI and Claude Code slide in one by one.",
+      "prompt": "Title card: the hero scene in assets/media/aider-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "goose-alternatives": {
+    "inline": {},
+    "title": "goose Alternatives: 5 Open Source AI Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/goose-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title goose alternatives, the line 5 open source AI agents and a Checked 20 Nov 2026 line. Cards named Hermes Agent, Munder Difflin, OpenCode, OpenHands and Codex CLI slide out of a sky blue birdhouse and settle in a fan.",
+      "prompt": "Title card: the hero scene in assets/media/goose-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "agent-tools-today-2026-11-21": {
+    "inline": {},
+    "title": "Agent Tools Today, 21 Nov 2026: Inkling 2 Mini, Claude Code v2.1.330 and DreamCoder",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-21/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily Brief, the title Agent Tools Today, the line 21 Nov 2026 and a muted line Inkling, Claude Code and DreamCoder. A yellow sailboat with a blue sail drifts in over sky waves and settles beside three cards: Inkling, Claude Code and DreamCoder.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-21/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "inkling-2-mini": {
+    "inline": {},
+    "title": "Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026)",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/inkling-2-mini/hero.png",
+      "alt": "Title card on white. A pill reading Concepts, the title Inkling 2 Mini, the line Open weights, about 20GB and a Checked 21 Nov 2026 line. A small yellow car rides a sky blue rollercoaster loop three times and stops beside three cards: 26.4B total, 3.4B active and Apache 2.0.",
+      "prompt": "Title card: the hero scene in assets/media/inkling-2-mini/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "devin-alternatives": {
+    "inline": {},
+    "title": "Devin Alternatives: 6 Picks for Autonomous Coding (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/devin-alternatives/hero.png",
+      "alt": "Title card on white. A pill reading Comparisons, the title Devin alternatives, the line 6 agents that take a task and a Checked 21 Nov 2026 line. A sky blue crane game claw drops a yellow card into a tray, then cards named OpenHands, Munder Difflin, Codex, Copilot, Jules and OpenComputer stack beside it.",
+      "prompt": "Title card: the hero scene in assets/media/devin-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "agent-tools-today-2026-11-24": {
+    "inline": {},
+    "title": "Agent Tools Today, 24 Nov 2026: GLM-5.4, OpenCode v2.4.0 and Shirudo",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-24/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily Brief, the title Agent Tools Today, the line 24 Nov 2026 and a muted line GLM 5.4, OpenCode and Shirudo. A yellow windmill with blue sails turns slowly beside three lilac cards: GLM 5.4, OpenCode and Shirudo.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-24/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "opencode-2-4": {
+    "inline": {},
+    "title": "OpenCode 2.4: built in browser, automations and upgrade notes",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/opencode-2-4/hero.png",
+      "alt": "Title card on white. A yellow pill reading Version, the title OpenCode 2.4, the line A browser the agent can drive, and automations on a schedule, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading v2.4.0: 23 Nov 2026 under a small sky periscope, and a sky tile reading Latest on npm: 2.4.1 under a small yellow alarm clock.",
+      "prompt": "Title card: the hero scene in assets/media/opencode-2-4/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-shirudo": {
+    "inline": {},
+    "title": "What is Shirudo? OpenAI and Cisco's open source Linux shield",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-shirudo/hero.png",
+      "alt": "Title card on white. A yellow pill reading Explainer, the title What is Shirudo?, the line OpenAI and Cisco's open source Linux shield, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading Announced 23 Nov 2026 under a small yellow star, and a sky tile reading No restart under a small mint umbrella.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-shirudo/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }

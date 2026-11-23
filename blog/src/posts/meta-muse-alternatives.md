@@ -59,7 +59,7 @@ Seven, checked on 30 Oct 2026.
 
 ## 2. Munder Difflin: a team of agents for your work
 
-[Munder Difflin](https://harnessmd.com/download) is what we make. It runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI. Each agent has its own memory and inbox, and they share a task board. Work comes in from Slack and webhooks, and tools connect through MCP servers, skills and plugins. A Cloud Office and a mobile app are coming soon. The catch: agents run while your computer runs.
+[Munder Difflin](https://harnessmd.com/download) is what we make. It runs a team of agents for research, writing, ops and coding on engines such as Claude Code, Codex and Gemini CLI. Each agent has its own memory and inbox, and they share a task board. Work comes in from Slack and webhooks, and tools connect through MCP servers, skills and plugins. Agents run on your computer, or in its Cloud Office, always on, with your computer off. A mobile app is coming soon.
 
 ## 3. Grok Bot: hosted bots that keep working
 

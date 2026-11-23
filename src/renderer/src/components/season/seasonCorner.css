@@ -1,0 +1,190 @@
+/* The Halloween corner of a queue input area (SeasonCorner.tsx).
+   It lies over the input area's root and changes no layout. Nothing in it
+   takes the pointer but the pumpkin's drawn shape. Every animation moves only
+   transform or opacity. The one loop that can run for long is the dozing
+   glow, and it stops with the window (data-cth-window) and with reduced
+   motion. */
+
+.cth-sc {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+/* Arabic: the corner sits at the end of the line, the art mirrored. */
+:root[dir='rtl'] .cth-sc { transform: scaleX(-1); }
+
+/* ── cobweb and spider: the top corner, drawn over the text ────────────── */
+/* Round 7, R7-2b (founder: "the cobweb should be small before and more web
+   grows out as we hover and spider drops"): at rest the web is the small
+   light one, 56 px (WEB_PX), the piece's own ink-500 strands at 0.55. A
+   pointer on it grows it 1.5 times out of the corner (WEB_GROWN_PX, a
+   transform: the box never changes) and its strands gain contrast: ink-700,
+   a darker ink than rest in the light themes, a lighter one in the dark
+   themes. The growth and the opacity move; the ink swaps. It goes back with
+   the spider's climb (data-web, SeasonCorner.tsx). */
+.cth-sc-web {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  opacity: 0.55;
+  transform-origin: 100% 0;
+  /* This transition plays on the way back (R7-4, founder: "the spider web
+     should go back a bit quickly"): shorter than the way out, which the
+     grown rule carries. */
+  transition: opacity 0.25s ease-in, transform 0.25s ease-in;
+}
+.cth-sc-web > svg { display: block; }
+/* The web steps back while the draft has text under it, or messages are queued. */
+.cth-sc[data-web='faded'] .cth-sc-web { opacity: 0.25; }
+.cth-sc[data-web='grown'] .cth-sc-web { transform: scale(1.5); opacity: 0.85; transition: opacity 0.4s ease, transform 0.4s ease-out; }
+.cth-sc[data-web='grown'] .cth-pc-web g { stroke: var(--cth-ink-700); }
+
+/* The spider's own box: the grown web's size, never scaled, clipped so an
+   up spider is out of sight. */
+.cth-sc-drop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 84px;
+  height: 84px;
+  overflow: hidden;
+}
+
+/* The spider is up in the corner until the pointer is on the web
+   (data-spider='down', SeasonCorner.tsx). Up is the base state, so the
+   first paint never shows it rising. Up: fast, the way a startled spider
+   goes. */
+.cth-sc-spider {
+  position: absolute;
+  top: 0;
+  right: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(-44px);
+  transition: transform 0.18s ease-in;
+}
+.cth-sc-thread { width: 1px; height: 26px; background: var(--cth-ink-500); }
+.cth-sc-spiderbody svg { display: block; }
+/* Down: slow, with one small bounce at the end of the thread. */
+.cth-sc[data-spider='down'] .cth-sc-spider {
+  transform: translateY(0);
+  transition: transform 1.1s cubic-bezier(0.3, 1.45, 0.5, 1);
+}
+.cth-sc[data-hover='on'] .cth-sc-spiderbody { animation: cth-sc-wiggle 0.5s ease-in-out 2; }
+@keyframes cth-sc-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-16deg); }
+  75%      { transform: rotate(16deg); }
+}
+
+/* ── pumpkin: resting on the top edge, above the web ───────────────────── */
+/* Its base sits on the root's 1 px top border and no body is in the box
+   (founder, 30 Sep 2026). The body is drawn to 40 of 42 units, so the drawn
+   base is 1 px above the element's bottom: a 2 px sink lands it on the line.
+   The offset follows the height, so another size cannot hang inside again. */
+.cth-sc-pumpkin {
+  position: absolute;
+  top: calc(var(--cth-sc-sink, 2px) - var(--cth-sc-h, 22px));
+  right: 20px;
+  width: var(--cth-sc-w, 25px);
+  height: var(--cth-sc-h, 22px);
+}
+.cth-sc-lean {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  transition: transform 0.3s ease;
+}
+.cth-sc-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cth-sc-hit { pointer-events: auto; cursor: pointer; }
+
+/* Faces: only the one that matches the mood is shown. */
+.cth-sc-face { opacity: 0; transition: opacity 0.3s ease; }
+.cth-sc[data-mood='awake'] .cth-sc-face-awake,
+.cth-sc[data-mood='dozing'] .cth-sc-face-dozing,
+.cth-sc[data-mood='surprised'] .cth-sc-face-surprised,
+.cth-sc[data-mood='out'] .cth-sc-face-out { opacity: 1; }
+
+/* The candle. Two boxes: the outer one holds the level (how much context is
+   left, written by the component), the inner one holds the mood's own light. */
+.cth-sc-level { position: absolute; inset: -9px; transition: opacity 0.8s ease; }
+.cth-sc-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--cth-season-glow), transparent);
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+.cth-sc[data-mood='dozing'] .cth-sc-glow { animation: cth-sc-doze 5.5s ease-in-out infinite; }
+.cth-sc[data-mood='out'] .cth-sc-glow { opacity: 0; }
+@keyframes cth-sc-doze {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.75; }
+}
+
+/* Needs you: one start, then still. */
+.cth-sc[data-mood='surprised'] .cth-sc-lean { animation: cth-sc-start 0.45s ease-out 1; }
+@keyframes cth-sc-start {
+  0%   { transform: translateY(0) scale(1); }
+  35%  { transform: translateY(-5px) scale(1.08); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Click: a wink and one hop. */
+.cth-sc-wink { opacity: 0; }
+.cth-sc-hop { animation: cth-sc-hop 0.5s ease-out 1; }
+.cth-sc-hop .cth-sc-wink { animation: cth-sc-wink 0.5s linear 1; }
+@keyframes cth-sc-hop {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-7px); }
+  70%      { transform: translateY(0); }
+  85%      { transform: translateY(-2px); }
+}
+@keyframes cth-sc-wink {
+  0%, 100% { opacity: 0; }
+  15%, 80% { opacity: 1; }
+}
+
+/* A compact just ended: the candle is lit again. */
+.cth-sc-flare .cth-sc-level { animation: cth-sc-flare 0.9s ease-out 1; }
+@keyframes cth-sc-flare {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.7); }
+  100% { transform: scale(1); }
+}
+
+/* ── ghost mail: leaves from the send button's corner ──────────────────── */
+.cth-sc-ghost {
+  position: absolute;
+  right: 40px;
+  bottom: 30px;
+  opacity: 0;
+}
+.cth-sc-ghost svg { display: block; }
+.cth-sc-go { animation: cth-sc-mail 0.9s ease-out 1; }
+@keyframes cth-sc-mail {
+  0%   { transform: translate(0, 6px) scale(0.6); opacity: 0; }
+  18%  { transform: translate(0, -4px) scale(1); opacity: 1; }
+  60%  { transform: translate(5px, -30px) scale(1); opacity: 0.9; }
+  100% { transform: translate(-3px, -54px) scale(0.92); opacity: 0; }
+}
+
+/* The window is off screen: nothing runs. */
+:root[data-cth-window='hidden'] .cth-sc * { animation-play-state: paused !important; }
+
+/* Reduced motion: every piece is still and the moods change by a plain swap.
+   The ghost is never started (SeasonCorner.tsx). The spider is shown or
+   hidden with no travel: up is hidden, and a pointer on the web shows it
+   where it hangs. It is never held down: held down it would sit on "Clear
+   all" and on the queue note while messages are queued. */
+@media (prefers-reduced-motion: reduce) {
+  .cth-sc *, .cth-sc-hop, .cth-sc-go { animation: none !important; transition: none !important; }
+  .cth-sc[data-spider='up'] .cth-sc-spider { opacity: 0; }
+  .cth-sc[data-mood='dozing'] .cth-sc-glow { opacity: 0.55; }
+}

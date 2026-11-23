@@ -20,6 +20,24 @@ import { AGENT_PROVIDER_PRESETS } from './agentProvider';
 
 export type ToolKind = 'prerequisite' | 'memory' | 'engine';
 
+/**
+ * The MemPalace release this app is tested with, and the Python it runs on.
+ *
+ * Unpinned, `uv tool install mempalace` gave every new user the newest release:
+ * 3.10.0 on 29 Sep 2026, the version in the Windows freeze report. 3.3.5 on
+ * Python 3.10 is what this floor has run for four months. Both pass the app's
+ * mine, search and wake-up on macOS and read and write each other's palaces,
+ * so the pin can be raised later with nothing to migrate
+ * (hive/shared/eng/perf-0.5.5/REVIEW-D1-mempalace-pin.md).
+ *
+ * An existing install is never changed: a different version gets a notice
+ * row with this command to copy, and nothing else.
+ */
+export const MEMPALACE_PIN = { version: '3.3.5', python: '3.10' } as const;
+export const MEMPALACE_INSTALL = `uv tool install mempalace==${MEMPALACE_PIN.version} --python ${MEMPALACE_PIN.python}`;
+/** The same install over whatever version is there. Shown, never run. */
+export const MEMPALACE_SWITCH = `${MEMPALACE_INSTALL} --force`;
+
 export interface ToolSpec {
   /** Stable row id. For a probed binary this is also the name we look up. */
   id: string;
@@ -64,8 +82,8 @@ const BASE_TOOLS: ToolSpec[] = [
     why: 'Meaning-based recall across everything your agents have learned. Without it they still keep plain markdown notes, but cannot search them by meaning.',
     essential: true,
     install: {
-      posix: 'uv tool install mempalace',
-      win32: 'uv tool install mempalace'
+      posix: MEMPALACE_INSTALL,
+      win32: MEMPALACE_INSTALL
     },
     note: 'Needs uv first.'
   },
@@ -133,6 +151,20 @@ export interface ToolStatus extends ToolSpec {
   detail?: string;
   /** `install` already resolved for the running platform. */
   installCommand: string;
+  /** The installed version, when the probe could read one. */
+  version?: string;
+  /** The version this app is tested with, for a tool that has one. */
+  pinnedVersion?: string;
+  /** The command that installs the pinned version over another one. */
+  switchCommand?: string;
+}
+
+/** The notice for a tool installed at a version other than the pinned one, or
+ *  null. A notice, not a failure: the tool still counts as found, nothing is
+ *  blocked, and nothing is run. No notice when the version could not be read. */
+export function versionNotice(tool: ToolStatus): { installed: string; pinned: string; command: string } | null {
+  if (!tool.found || !tool.version || !tool.pinnedVersion || tool.version === tool.pinnedVersion) return null;
+  return { installed: tool.version, pinned: tool.pinnedVersion, command: tool.switchCommand ?? tool.installCommand };
 }
 
 /**

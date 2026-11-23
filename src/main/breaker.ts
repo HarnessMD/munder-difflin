@@ -27,6 +27,7 @@
 import { createHash } from 'node:crypto';
 import type { CircuitBreakerConfig } from './config';
 import type { AgentUsageSample } from './usage';
+import { workTokens } from './tokenUsage';
 
 export type BreakerLevel = 'healthy' | 'steering' | 'constrained' | 'stopped';
 
@@ -37,7 +38,14 @@ export interface BreakerState {
   level: BreakerLevel;
   reason: string;
   ts: number;
+  /** Which signal tripped, as a closed word (0.5.8 metrics, `breaker_action.cause`): the reason text never leaves the
+   *  machine, this does. Only while tripping. */
+  cause?: BreakerCause;
 }
+
+/** The signal that tripped: a loop of identical calls, no progress, spend (token limits, cost cap, token velocity),
+ *  or anything else (an error storm). */
+export type BreakerCause = 'no_progress' | 'repeat_loop' | 'spend' | 'other';
 
 /** What the beat should do this tick for one agent. `action` fires only when the
  *  level ESCALATES (so a durable steer message isn't re-sent every beat). */
@@ -64,27 +72,16 @@ export interface BreakerInput {
    *  the first question. Optional, so a caller with no workspace notion for an
    *  agent omits it and nothing about that agent changes. */
   lastWorkAt?: number;
+  /** 0.5.6: why this agent is over a token limit for its period (its own, or
+   *  the office's with this agent the biggest user), from
+   *  @shared/tokenLimits `overLimits`. Absent when it is within every limit. */
+  limitReason?: string;
 }
 
 const LEVELS: BreakerLevel[] = ['healthy', 'steering', 'constrained', 'stopped'];
 const rank = (l: BreakerLevel): number => LEVELS.indexOf(l);
 const actionFor = (l: BreakerLevel): BreakerAction =>
   l === 'steering' ? 'steer' : l === 'constrained' ? 'constrain' : l === 'stopped' ? 'stop' : 'none';
-
-/** Total tokens in a cumulative sample (all kinds), 0 when unknown. The figure
- *  for display and cost, and the one the floor budget (costCapTokens) sums. */
-const tokensOf = (s: AgentUsageSample | null): number =>
-  s ? s.input + s.output + s.cacheRead + s.cacheCreation : 0;
-
-/** Tokens an agent's own WORK put through the model — prompt input, generated
- *  output, context newly written to the cache — 0 when unknown. Excludes
- *  cacheRead: cached context is re-billed on every request, so that part of the
- *  total grows with the request count against a large fixed context, not with
- *  what the agent does (#189: 98.6% and 99.2% of the counted figure at the rows
- *  where two agents crossed a 4M cap, 4–6 minutes into a session). A per-agent
- *  BUDGET is tested against this; tokensOf() stays the display/cost figure. */
-const workTokensOf = (s: AgentUsageSample | null): number =>
-  s ? s.input + s.output + s.cacheCreation : 0;
 
 const DEFAULTS = {
   enabled: true,
@@ -106,6 +103,16 @@ const PROGRESS_TOOL_WINDOW_MS = 300_000;
 /** Consecutive tripping beats the no-progress arm needs before it fires — a
  *  one-beat blip (inbox ack, statusline burst) never steers on its own. */
 const NO_PROGRESS_BEATS = 2;
+/** How long a loop or an error storm that has gone quiet still stands (0.5.6).
+ *  While it stands the level is held: not raised, because nothing new has
+ *  happened, and not lowered, because one quiet beat does not prove the loop
+ *  is over. After it the count starts again. The progress window, because it
+ *  answers the same question over the same span: is this still going on. */
+const STALE_EVIDENCE_MS = PROGRESS_TOOL_WINDOW_MS;
+/** The same message is not sent to the same agent twice inside this (0.5.6).
+ *  A signal that trips, clears and trips again went healthy in between, so
+ *  each trip was a "first" steer: four in fifteen minutes on a live floor. */
+const RESEND_COOLDOWN_MS = 10 * 60_000;
 
 interface AgentBreakerState {
   level: BreakerLevel;
@@ -133,12 +140,32 @@ interface AgentBreakerState {
   lastUserPromptAt: number;
   /** Consecutive beats the no-progress condition held (debounce counter). */
   noProgressBeats: number;
+  /** When the no-progress condition last held, so a count left over from an
+   *  episode that ended does not carry into the next one. */
+  lastNoProgressAt: number;
+  /** When the latest identical tool call ran, and the repeat count the loop
+   *  arm last tripped on. The count only says what the LAST calls were, and it
+   *  stays true for as long as the agent does nothing: an agent that obeyed a
+   *  steer by stopping read as looping on every beat after, was constrained
+   *  thirty seconds later for doing what it was told, and stayed pinned. So
+   *  the arm trips on a NEW identical call only (count above `loopJudged`). */
+  lastRepeatAt: number;
+  loopJudged: number;
+  /** The same two for the error storm. */
+  lastErrorAt: number;
+  errorJudged: number;
+  /** The beat that stored `lastSample`. */
+  lastSampleAt: number;
+  /** When a steer and a constrain message last went out (resend cooldown).
+   *  Never sent is minus infinity, not 0: a beat can be handed any clock. */
+  lastSteerAt: number;
+  lastConstrainAt: number;
 }
 
 export class CircuitBreaker {
   private agents = new Map<string, AgentBreakerState>();
 
-  constructor(private getConfig: () => CircuitBreakerConfig & { costCapUsd?: number; costCapTokens?: number; agentTokenCaps?: Record<string, number> }) {}
+  constructor(private getConfig: () => CircuitBreakerConfig & { costCapUsd?: number; agentTokenCaps?: Record<string, number> }) {}
 
   private cfg() {
     const c = this.getConfig() ?? {};
@@ -149,7 +176,6 @@ export class CircuitBreaker {
       errorStormLimit: c.errorStormLimit ?? DEFAULTS.errorStormLimit,
       tokenVelocityPerMin: c.tokenVelocityPerMin ?? DEFAULTS.tokenVelocityPerMin,
       costCapUsd: c.costCapUsd,
-      costCapTokens: c.costCapTokens,
       agentTokenCaps: c.agentTokenCaps
     };
   }
@@ -160,7 +186,9 @@ export class CircuitBreaker {
       s = {
         level: 'healthy', reason: '', lastSample: null, repeatKey: null, repeatCount: 0,
         errorCount: 0, compactingUntil: 0, lastDistinctToolAt: 0, lastUserPromptAt: 0,
-        noProgressBeats: 0
+        noProgressBeats: 0, lastNoProgressAt: 0, lastRepeatAt: 0, loopJudged: 0,
+        lastErrorAt: 0, errorJudged: 0, lastSampleAt: 0,
+        lastSteerAt: Number.NEGATIVE_INFINITY, lastConstrainAt: Number.NEGATIVE_INFINITY
       };
       this.agents.set(agentId, s);
     }
@@ -185,19 +213,24 @@ export class CircuitBreaker {
   recordToolUse(agentId: string, toolName: string | undefined, toolInput: unknown, now = Date.now()): void {
     const s = this.get(agentId);
     const key = this.toolKey(toolName, toolInput);
+    s.lastRepeatAt = now;
     if (key === s.repeatKey) {
       s.repeatCount += 1;
     } else {
       s.repeatKey = key;
       s.repeatCount = 1;
+      s.loopJudged = 0;
       s.errorCount = 0; // a distinct tool call = progress; clear the error storm
+      s.errorJudged = 0;
       s.lastDistinctToolAt = now;
     }
   }
 
   /** An api_error / retry occurred (no forward progress). */
-  recordError(agentId: string): void {
-    this.get(agentId).errorCount += 1;
+  recordError(agentId: string, now = Date.now()): void {
+    const s = this.get(agentId);
+    s.errorCount += 1;
+    s.lastErrorAt = now;
   }
 
   /** A human submitted a prompt to this agent (UserPromptSubmit hook). Stamps
@@ -281,33 +314,24 @@ export class CircuitBreaker {
       if (total <= cfg.costCapUsd) topSpender = null; // under cap — nobody blamed
     }
 
-    // Token cap (the user-facing budget): same floor-wide logic on total tokens.
-    let topTokenSpender: string | null = null;
-    if (typeof cfg.costCapTokens === 'number' && cfg.costCapTokens > 0) {
-      let total = 0; let max = -1;
-      for (const i of inputs) {
-        const tok = tokensOf(i.sample);
-        total += tok;
-        if (tok > max) { max = tok; topTokenSpender = i.agentId; }
-      }
-      if (total <= cfg.costCapTokens) topTokenSpender = null; // under cap
-    }
+    // The token limits per period (shared/tokenLimits): the beat marks who is
+    // over (`limitReason`) and `evaluate` trips on it. Each agent's own cap with
+    // no period (`agentTokenCaps`, the token cap editor) is checked there too.
 
     for (const input of inputs) {
       const s = this.get(input.agentId);
       const trip = this.evaluate(
         input, s, cfg, nowMs,
-        input.agentId === topSpender, cfg.costCapUsd,
-        input.agentId === topTokenSpender, cfg.costCapTokens
+        input.agentId === topSpender, cfg.costCapUsd
       );
       // remember the cumulative baseline for next beat's velocity diff
-      if (input.sample) s.lastSample = input.sample;
+      if (input.sample) { s.lastSample = input.sample; s.lastSampleAt = nowMs; }
 
       const ceiling: BreakerLevel = cfg.hardStop ? 'stopped' : 'constrained';
       let target = s.level;
       if (trip.tripping) {
         target = LEVELS[Math.min(rank(s.level) + 1, rank(ceiling))];
-      } else {
+      } else if (!trip.holding) {
         target = LEVELS[Math.max(rank(s.level) - 1, 0)]; // recover one level
       }
       const changed = target !== s.level;
@@ -315,9 +339,18 @@ export class CircuitBreaker {
       s.level = target;
       s.reason = trip.tripping ? trip.reason : (changed ? 'recovering — signals cleared' : s.reason);
 
+      // The level always moves; the MESSAGE is not repeated inside the cooldown.
+      // A stop is a kill, not a message, and is never held back.
+      let action: BreakerAction = escalated ? actionFor(target) : 'none';
+      if (action === 'steer') {
+        if (nowMs - s.lastSteerAt < RESEND_COOLDOWN_MS) action = 'none'; else s.lastSteerAt = nowMs;
+      } else if (action === 'constrain') {
+        if (nowMs - s.lastConstrainAt < RESEND_COOLDOWN_MS) action = 'none'; else s.lastConstrainAt = nowMs;
+      }
+
       decisions.push({
-        state: { agentId: input.agentId, level: target, reason: s.reason, ts: nowMs },
-        action: escalated ? actionFor(target) : 'none',
+        state: { agentId: input.agentId, level: target, reason: s.reason, ts: nowMs, ...(trip.tripping && trip.cause ? { cause: trip.cause } : {}) },
+        action,
         changed
       });
     }
@@ -331,38 +364,48 @@ export class CircuitBreaker {
     cfg: ReturnType<CircuitBreaker['cfg']>,
     nowMs: number,
     isTopSpender: boolean,
-    costCapUsd: number | undefined,
-    isTopTokenSpender: boolean,
-    costCapTokens: number | undefined
-  ): { tripping: boolean; reason: string } {
-    // (b) repeated identical tool calls
+    costCapUsd: number | undefined
+  ): { tripping: boolean; reason: string; holding?: boolean; cause?: BreakerCause } {
+    // `holding`: a loop or an error storm that tripped, has not grown since,
+    // and has not been quiet long enough to call over. The level stays where
+    // it is. The other arms are still read, so a hold never hides a new trip.
+    let holding = false;
+    // (b) repeated identical tool calls. Trips on a NEW identical call only
+    // (see `loopJudged`): the same count read twice is the same evidence.
     if (s.repeatCount >= cfg.repeatedToolLimit) {
-      return { tripping: true, reason: `looping: ${s.repeatCount}× identical tool call (${s.repeatKey?.split(':')[0] ?? '?'})` };
+      if (s.repeatCount > s.loopJudged) {
+        s.loopJudged = s.repeatCount;
+        return { tripping: true, reason: `looping: ${s.repeatCount}× identical tool call (${s.repeatKey?.split(':')[0] ?? '?'})` , cause: 'repeat_loop' };
+      }
+      if (nowMs - s.lastRepeatAt < STALE_EVIDENCE_MS) holding = true;
+      else { s.repeatCount = 0; s.loopJudged = 0; } // the loop stopped; the count starts again
     }
-    // (b) api_error storm
+    // (b) api_error storm. The same rule: a new error trips, a quiet storm is
+    // held, and one that has been quiet for the window is over.
     if (s.errorCount >= cfg.errorStormLimit) {
-      return { tripping: true, reason: `error storm: ${s.errorCount} consecutive api errors/retries` };
+      if (s.errorCount > s.errorJudged) {
+        s.errorJudged = s.errorCount;
+        return { tripping: true, reason: `error storm: ${s.errorCount} consecutive api errors/retries` , cause: 'other' };
+      }
+      if (nowMs - s.lastErrorAt < STALE_EVIDENCE_MS) holding = true;
+      else { s.errorCount = 0; s.errorJudged = 0; }
     }
-    // (a) per-agent token limit — this agent's own WORK tokens over its configured
-    // cap. Measured without cacheRead (#189): tested against the all-kinds total,
-    // a cap is a timer on session length — context re-read on every request
-    // dominates it — and an agent stopped four minutes in for re-reads it does not
-    // control learns to distrust the breaker. The reason names both figures so an
-    // operator can see what tripped and what the agent cost.
+    // (a) 0.5.6: a token limit for a period (a day, a week). The beat counted
+    // it, in work tokens: cache reads left out (#189), since context re-read on
+    // every request would make any limit a timer on session length.
+    if (input.limitReason) return { tripping: true, reason: input.limitReason , cause: 'spend' };
+    // (a) the agent's own token cap (the token cap editor): its work tokens
+    // over the cap, cache reads left out for the same reason (#189).
     const perAgentCap = cfg.agentTokenCaps?.[input.agentId];
-    if (typeof perAgentCap === 'number' && perAgentCap > 0) {
-      const work = workTokensOf(input.sample);
+    if (typeof perAgentCap === 'number' && perAgentCap > 0 && input.sample) {
+      const work = workTokens(input.sample);
       if (work > perAgentCap) {
-        return { tripping: true, reason: `token limit: ${work.toLocaleString()} work tokens over the agent cap of ${perAgentCap.toLocaleString()} (${tokensOf(input.sample).toLocaleString()} total incl. cache reads)` };
+        return { tripping: true, reason: `token limit: ${work.toLocaleString()} work tokens over the agent cap of ${perAgentCap.toLocaleString()}`, cause: 'spend' };
       }
     }
     // (a) cost cap — floor total over cap, this agent is the biggest spender
     if (isTopSpender && typeof costCapUsd === 'number') {
-      return { tripping: true, reason: `cost cap: floor total over $${costCapUsd} (top spender $${(input.sample?.usd ?? 0).toFixed(2)})` };
-    }
-    // (a) token cap — floor total tokens over cap, this agent is the biggest spender
-    if (isTopTokenSpender && typeof costCapTokens === 'number') {
-      return { tripping: true, reason: `token cap: floor total over ${costCapTokens.toLocaleString()} tokens (top spender ${tokensOf(input.sample).toLocaleString()})` };
+      return { tripping: true, reason: `cost cap: floor total over $${costCapUsd} (top spender $${(input.sample?.usd ?? 0).toFixed(2)})` , cause: 'spend' };
     }
     // (a) token-velocity spike — diff cumulative output across consecutive beats.
     // Skipped entirely while a compaction is in flight (+ trailing grace): a
@@ -371,11 +414,15 @@ export class CircuitBreaker {
     // the breaker on idle agents.
     if (input.sample && s.lastSample && nowMs >= s.compactingUntil) {
       const dOut = input.sample.output - s.lastSample.output;
-      const dMin = (input.sample.ts - s.lastSample.ts) / 60_000;
+      // Per minute over the time the tokens had to arrive in: never less than
+      // the gap between the two beats. A sample's `ts` is when its last usage
+      // report landed, and two reports a few seconds apart on either side of a
+      // beat made an ordinary turn read as several times its real rate.
+      const dMin = Math.max(input.sample.ts - s.lastSample.ts, nowMs - s.lastSampleAt) / 60_000;
       if (dOut > 0 && dMin > 0) {
         const velocity = dOut / dMin;
         if (velocity > cfg.tokenVelocityPerMin) {
-          return { tripping: true, reason: `token velocity ${Math.round(velocity)}/min > ${cfg.tokenVelocityPerMin}/min` };
+          return { tripping: true, reason: `token velocity ${Math.round(velocity)}/min > ${cfg.tokenVelocityPerMin}/min` , cause: 'spend' };
         }
         // (c) no-progress: burning output tokens while not coordinating. A recent
         // DISTINCT tool call counts as progress too — background workflows and
@@ -402,15 +449,20 @@ export class CircuitBreaker {
         // #425: a live human conversation is progress too, on the same window.
         const humanActive = nowMs - s.lastUserPromptAt < PROGRESS_TOOL_WINDOW_MS;
         if (!input.progressing && !toolActive && !workActive && !humanActive) {
+          // Beats close together. One left from an episode that ended is not
+          // the first half of the next: without this the debounce was spent
+          // for good after the first trip.
+          if (nowMs - s.lastNoProgressAt > PROGRESS_TOOL_WINDOW_MS) s.noProgressBeats = 0;
+          s.lastNoProgressAt = nowMs;
           s.noProgressBeats += 1;
           if (s.noProgressBeats >= NO_PROGRESS_BEATS) {
-            return { tripping: true, reason: 'no-progress: generating tokens without coordinating (stale log/files)' };
+            return { tripping: true, reason: 'no-progress: generating tokens without coordinating (stale log/files)' , cause: 'no_progress' };
           }
         } else {
           s.noProgressBeats = 0;
         }
       }
     }
-    return { tripping: false, reason: '' };
+    return { tripping: false, reason: '', holding };
   }
 }

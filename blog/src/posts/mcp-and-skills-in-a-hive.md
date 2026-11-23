@@ -33,6 +33,8 @@ design principle that makes a hive practical is that **every agent is a genuine 
 so your existing setup is inherited, not replaced. This post explains exactly how that works and how to
 scope tools when you want different agents to have different capabilities.
 
+If you want your agents to drive a browser, [OpenCode Browse vs agent-browser](/blog/opencode-browse-vs-agent-browser/) compares an MCP server that uses your own browser with a CLI that runs its own.
+
 ## Why inheritance is automatic
 
 Start from what a hive agent actually *is*. When the harness spawns an agent, it doesn't reimplement

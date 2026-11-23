@@ -1,11 +1,11 @@
 /**
  * Release-note digest — turns a GitHub release body into 3-5 short lines.
  *
- * The updater has always carried `notes` (electron-updater's
- * `info.releaseNotes`, i.e. the release body) on the `available` /
- * `downloaded` / `available-manual` states, and the UI has always thrown it
- * away. The update toast is the only notification this app ever raises, so the
- * one moment we have someone's attention we were spending on a version number.
+ * The updater carries `notes` (the release body, from the same releases/latest
+ * reply that names the version) on the `available` state, and the UI used to
+ * throw it away. The update toast is the only notification this app ever
+ * raises, so the one moment we have someone's attention we were spending on a
+ * version number.
  *
  * Why this is not just `body.slice(0, 280)`:
  *
@@ -67,21 +67,15 @@ const FULL_CHANGELOG_RE = /^\s*\**\s*full\s+changelog\s*\**\s*:/i;
 const BARE_URL_RE = /^\s*<?https?:\/\/\S+>?\s*$/i;
 
 /**
- * GitHub's releases.atom feed carries the release body as RENDERED HTML, not as
- * the markdown that produced it, and electron-updater falls back to that feed
- * whenever the channel yml has no releaseNotes. So this parser has to survive
- * HTML even though every one of its tests fed it markdown.
+ * The release body is markdown with raw HTML in it, and an older updater read
+ * it as RENDERED HTML from GitHub's releases.atom feed. So this parser has to
+ * survive HTML even though most of its tests feed it markdown.
  *
- * Untreated, rendered HTML has no `##` headings, so the what's-new section is
- * never found and the bullet scan takes over. In OUR body the only line that
- * looks like a markdown bullet is `* { box-sizing: border-box; }` from the
- * <style> block, because `*` followed by a space IS the bullet syntax. The
- * shipped toast said exactly that and nothing else.
- *
- * Belt and braces only: the real fix is releaseInfo.releaseNotesFile in
- * electron-builder.yml, which puts markdown in the yml so the feed is never
- * read. This just makes a future release that forgets the yml degrade to
- * something correct rather than to CSS.
+ * Untreated, a <style> block is CSS on every line, and in OUR body the line
+ * `* { box-sizing: border-box; }` looks like a markdown bullet, because `*`
+ * followed by a space IS the bullet syntax. A shipped toast once said exactly
+ * that and nothing else. Rendered HTML also has no `##` headings, so the
+ * what's-new section would never be found without the HTML forms below.
  */
 const STYLE_SCRIPT_RE = /<(style|script)\b[^>]*>[\s\S]*?<\/\1>/gi;
 const HTML_HEADING_RE = /^\s*<h[1-6]\b[^>]*>/i;

@@ -14,6 +14,12 @@
  * an entry to `LANGUAGES` (Settings → General exposes the picker from that
  * list). Give it `dir: 'rtl'` if it is a right-to-left script. No other code
  * needs to change.
+ *
+ * A locale file may also be the empty object `{}`: the language is offered in
+ * the picker and reads English everywhere until its translation lands, which
+ * replaces that one file and nothing else (0.5.8: de, fr, it, ja, ko and tr
+ * arrive this way, each from its own stream). test/i18n-locales.test.cjs holds
+ * every file to one of the two shapes: empty, or the whole key tree.
  */
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -22,6 +28,14 @@ import en from './locales/en.json';
 import zhCN from './locales/zh-CN.json';
 import zhTW from './locales/zh-TW.json';
 import ar from './locales/ar.json';
+import es from './locales/es.json';
+import ptBR from './locales/pt-BR.json';
+import de from './locales/de.json';
+import fr from './locales/fr.json';
+import it from './locales/it.json';
+import ja from './locales/ja.json';
+import ko from './locales/ko.json';
+import tr from './locales/tr.json';
 
 /**
  * The languages the Settings picker offers, in display order.
@@ -35,9 +49,17 @@ import ar from './locales/ar.json';
  */
 export const LANGUAGES = [
   { code: 'en', label: 'English', dir: 'ltr' },
+  { code: 'de', label: 'Deutsch', dir: 'ltr' },
+  { code: 'es', label: 'Español', dir: 'ltr' },
+  { code: 'fr', label: 'Français', dir: 'ltr' },
+  { code: 'it', label: 'Italiano', dir: 'ltr' },
+  { code: 'pt-BR', label: 'Português (Brasil)', dir: 'ltr' },
+  { code: 'tr', label: 'Türkçe', dir: 'ltr' },
+  { code: 'ar', label: 'العربية', dir: 'rtl' },
+  { code: 'ja', label: '日本語', dir: 'ltr' },
+  { code: 'ko', label: '한국어', dir: 'ltr' },
   { code: 'zh-CN', label: '简体中文', dir: 'ltr' },
-  { code: 'zh-TW', label: '繁體中文', dir: 'ltr' },
-  { code: 'ar', label: 'العربية', dir: 'rtl' }
+  { code: 'zh-TW', label: '繁體中文', dir: 'ltr' }
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]['code'];
@@ -67,7 +89,17 @@ export function directionFor(lng: string | undefined | null): 'rtl' | 'ltr' {
 
 const STORAGE_KEY = 'cth.language';
 
-const SUPPORTED: readonly string[] = LANGUAGES.map((l) => l.code);
+/** Every locale file, by code. */
+const RESOURCES: Record<LanguageCode, object> = { en, 'zh-CN': zhCN, 'zh-TW': zhTW, ar, es, 'pt-BR': ptBR, de, fr, it, ja, ko, tr };
+
+/**
+ * The languages the picker OFFERS: those whose file holds strings. A file that is
+ * still `{}` (its stream has not landed) would read English everywhere, so it is
+ * not offered, and a saved pick of it starts in English until the file lands.
+ */
+export const OFFERED_LANGUAGES = LANGUAGES.filter((l) => Object.keys(RESOURCES[l.code]).length > 0);
+
+const SUPPORTED: readonly string[] = OFFERED_LANGUAGES.map((l) => l.code);
 
 /**
  * The orchestrator's display name, for every string that talks about it.
@@ -100,6 +132,14 @@ function detectLanguage(): string {
   return 'en';
 }
 
+/** Whether a language was ever picked on this machine (Settings, or onboarding's picker). */
+export function hasSavedLanguage(): boolean {
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    return !!saved && SUPPORTED.includes(saved as LanguageCode);
+  } catch { return false; }
+}
+
 /** Switch language now and persist the choice for next launch. */
 export function setLanguage(lng: string): void {
   void i18n.changeLanguage(lng);
@@ -113,11 +153,19 @@ void i18n
       en: { translation: en },
       'zh-CN': { translation: zhCN },
       'zh-TW': { translation: zhTW },
-      ar: { translation: ar }
+      ar: { translation: ar },
+      es: { translation: es },
+      'pt-BR': { translation: ptBR },
+      de: { translation: de },
+      fr: { translation: fr },
+      it: { translation: it },
+      ja: { translation: ja },
+      ko: { translation: ko },
+      tr: { translation: tr }
     },
     lng: detectLanguage(),
     fallbackLng: 'en',
-    supportedLngs: ['en', 'zh-CN', 'zh-TW', 'ar'],
+    supportedLngs: ['en', 'zh-CN', 'zh-TW', 'ar', 'es', 'pt-BR', 'de', 'fr', 'it', 'ja', 'ko', 'tr'],
     // Resources are bundled inline, so nothing ever suspends — the string is
     // there at init time. Keeping this false lets every component call
     // useTranslation() without wrapping the tree in <Suspense>.

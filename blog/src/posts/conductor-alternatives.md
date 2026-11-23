@@ -24,7 +24,7 @@ faq:
 
 Our view: Emdash is the closest Conductor alternative for local work, and Orca is the one if you relied on Conductor Cloud. Conductor is joining Meta, has stopped new sign ups, and starts deleting Cloud data on 20 Nov 2026, so export first. Checked 6 Nov 2026.
 
-Paradev, formerly Superset, also calls itself a Conductor alternative, and our [Paradev alternatives](/blog/paradev-alternatives/) page compares six tools like it.
+Paradev, formerly Superset, also calls itself a Conductor alternative, and our [Paradev alternatives](/blog/paradev-alternatives/) page compares six tools like it. Maxxwell, which adds an orchestrator agent, gets the same treatment in [Maxxwell alternatives](/blog/maxxwell-alternatives/).
 
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More pages like this sit in our [Comparisons hub](/blog/topics/comparisons/).
 
@@ -68,7 +68,7 @@ The [Orca site](https://www.onorca.dev) FAQ says "Orca is completely free and op
 
 ## 2. Munder Difflin: if you want a team, not a row of worktrees
 
-[Munder Difflin](https://harnessmd.com/download) is what we make. It runs on engines such as Claude Code, Codex and Gemini CLI, and connects tools through MCP servers, skills and plugins, plus Slack and webhooks. Agents run while your computer runs. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A Cloud Office and a mobile app are coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+[Munder Difflin](https://harnessmd.com/download) is what we make. It runs on engines such as Claude Code, Codex and Gemini CLI, and connects tools through MCP servers, skills and plugins, plus Slack and webhooks. Agents run on your computer, or in its Cloud Office, always on, with your computer off. Its [README](https://github.com/HarnessMD/munder-difflin), read 6 Nov 2026, lists "Per-agent git worktrees. Optional isolation so parallel agents never collide on branches." A mobile app is coming soon. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## 3. Emdash: if you want Conductor's shape, open source
 
@@ -97,6 +97,8 @@ The [LICENSE](https://github.com/anthropics/claude-code/blob/main/LICENSE.md) sa
 ## What did we leave out?
 
 Crystal. Its [README](https://github.com/stravu/crystal), read 6 Nov 2026, says it "has been deprecated and replaced by Nimbalyst", deprecated in February 2026. Our older [Conductor alternative](/blog/conductor-claude-code-alternative/) page predates the Meta news.
+
+For tools like Nimbalyst, see [Nimbalyst alternatives](/blog/nimbalyst-alternatives/).
 
 ## Which one should you pick?
 

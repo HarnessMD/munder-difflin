@@ -42,7 +42,7 @@
       el("rect", { x: 390, y: 260, width: 260, height: 240, fill: SOFT, stroke: INK, "stroke-width": 3 }, stage);
       const blocks = [
         { x: 160, top: 270, fill: SKY, name: "Argon", tag: "Open now", tagFill: MINT, tagW: 150, fall: 0.6 },
-        { x: 420, top: 150, fill: LIL, name: "Carbon", tag: "Early access", tagFill: YEL, tagW: 190, fall: 2.2 },
+        { x: 420, top: 150, fill: LIL, name: "Carbon", tag: "Open now", tagFill: MINT, tagW: 150, fall: 2.2 },
       ].map((b) => {
         const g = el("g", {}, stage);
         el("rect", { x: b.x, y: b.top, width: 200, height: 110, rx: 14, fill: b.fill, stroke: INK, "stroke-width": 3 }, g);
@@ -68,15 +68,15 @@
     },
   };
 
-  /* ---- 2. three ticket stubs tear off in rollout order ---- */
+  /* ---- 2. three ticket stubs tear off in rollout order, all open by 10 Nov ---- */
   SC.ticket = {
     dur: 8, still: 5.5,
     build(svg, api) {
       el("rect", { x: 40, y: 112, width: 720, height: 40, rx: 12, fill: SOFT, stroke: INK, "stroke-width": 3 }, svg);
       const stubs = [
         { lines: ["Cyber", "defenders"], fill: YEL, tick: true },
-        { lines: ["Trusted", "partners"], fill: SKY },
-        { lines: ["Developers"], fill: LIL },
+        { lines: ["Developers"], fill: SKY, tick: true },
+        { lines: ["Ultra", "subscribers"], fill: LIL, tick: true },
       ].map((s, i) => {
         const x = 65 + i * 240, g = el("g", {}, svg);
         el("path", { d: `M${x + 30} 156 V164 M${x + 160} 156 V164`, stroke: INK, "stroke-width": 3, "stroke-linecap": "round" }, svg);
@@ -171,8 +171,8 @@
       txt(svg, 64, 214, "Gemini 4", { "font-size": 88, "font-weight": 700 });
       txt(svg, 64, 306, "Carbon", { "font-size": 88, "font-weight": 700 });
       el("path", { d: "M66 334 H330", stroke: LIL, "stroke-width": 14, "stroke-linecap": "round" }, svg);
-      txt(svg, 64, 392, "Early access, Argon's price", { "font-size": 30, "font-weight": 500, fill: MUTE });
-      txt(svg, 64, 452, "Checked 29 Oct 2026", { "font-size": 20, "font-weight": 500, fill: MUTE });
+      txt(svg, 64, 392, "Open now, Argon's price", { "font-size": 30, "font-weight": 500, fill: MUTE });
+      txt(svg, 64, 452, "Checked 14 Nov 2026", { "font-size": 20, "font-weight": 500, fill: MUTE });
       el("path", { d: "M540 470 H910", stroke: INK, "stroke-width": 3, "stroke-linecap": "round" }, svg);
       el("rect", { x: 560, y: 380, width: 160, height: 90, fill: SOFT, stroke: INK, "stroke-width": 3 }, svg);
       el("rect", { x: 720, y: 270, width: 160, height: 200, fill: SOFT, stroke: INK, "stroke-width": 3 }, svg);

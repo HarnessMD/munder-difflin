@@ -21,10 +21,13 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import type { BoundPort } from '../shared/boundPort';
+import { keepTunnel, type KeptTunnel } from './tunnel';
+import { isSlackUserId, type SlackPlace, type SlackRef } from '../shared/slackBrief';
 // NOTE: `tunnelmole` is an ESM-only package. The Electron main process is bundled
 // as CommonJS, so a static `import` gets externalized into `require('tunnelmole')`
 // and throws ERR_REQUIRE_ESM at load. It is imported dynamically inside
-// `openTunnel()` instead — Rollup preserves dynamic import() in CJS output, which
+// main/tunnel.ts instead — Rollup preserves dynamic import() in CJS output, which
 // can load ESM. Do not hoist this back to a top-level import.
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -33,17 +36,29 @@ const {
   ActivatedThreads: _ActivatedThreads,
   SeenEvents: _SeenEvents,
   dedupKey: _dedupKey,
+  slackFileUrl,
+  isSlackHost,
+  looksLikeHtmlStub,
+  SLACK_FILE_MAX_REDIRECTS,
 } = require('./slack-trigger.cjs') as {
     shouldTrigger: (
       ev: SlackPayload['event'],
       botUserId: string | null,
-      channelId: string | undefined,
+      channelId: string | readonly string[] | undefined,
       activatedThreads: _IActivatedThreads
-    ) => { trigger: boolean; text: string; files: _SlackEventFile[] };
+    ) => SlackTriggerResult;
     ActivatedThreads: new (maxSize?: number) => _IActivatedThreads;
     SeenEvents: new (maxSize?: number) => _ISeenEvents;
     dedupKey: (ev: SlackPayload['event']) => string;
+    slackFileUrl: (file: { url_private?: string; url_private_download?: string }) => string | undefined;
+    isSlackHost: (host: string) => boolean;
+    looksLikeHtmlStub: (contentType: string | undefined, head: Buffer | string) => boolean;
+    SLACK_FILE_MAX_REDIRECTS: number;
   };
+
+/** The pure Slack file download helpers (defined in slack-trigger.cjs so they
+ *  stay unit testable without electron), for index.ts's downloadSlackFile. */
+export const slackFileHelpers = { slackFileUrl, isSlackHost, looksLikeHtmlStub, SLACK_FILE_MAX_REDIRECTS };
 
 interface _IActivatedThreads {
   add(threadTs: string): void;
@@ -61,24 +76,44 @@ interface _ISeenEvents {
 export interface SlackEventFile {
   id?: string;
   url_private: string;
+  /** Preferred download URL (Content-Disposition attachment); may be absent. */
+  url_private_download?: string;
   name?: string;
   mimetype?: string;
   size?: number;
 }
-// Internal alias used within this module.
-type _SlackEventFile = SlackEventFile;
+
+/** What slack-trigger.cjs answers for one event (0.5.6: where it was written
+ *  and the messages shared into it ride along). */
+export interface SlackTriggerResult { trigger: boolean; text: string; files: SlackEventFile[]; place?: SlackPlace; shares?: SlackRef[] }
+
+/** Stamp where a message was written, who wrote it and what was shared into
+ *  it. One function for the three transports, so none can leave a part out. */
+export function withSlackContext(msg: SlackInboundMessage, ev: { user?: unknown } | null | undefined, res: Pick<SlackTriggerResult, 'place' | 'shares'>): SlackInboundMessage {
+  if (res.place) msg.place = res.place;
+  if (typeof ev?.user === 'string' && ev.user) msg.user = ev.user;
+  if (res.shares && res.shares.length > 0) msg._shares = res.shares;
+  return msg;
+}
 
 export interface SlackWebhookServerOptions {
   /** Local TCP port the HTTP server binds to (and the tunnel forwards to). */
   port: number;
   /** Slack app signing secret (Basic Information → Signing Secret). Required. */
   signingSecret: string;
-  /** Optional channel id filter — when set, events from other channels are dropped. */
-  channelId?: string;
+  /** Optional channel filter: one id or several. When set, events from other
+   *  channels are dropped; a direct message is never filtered (0.5.6). */
+  channelId?: string | readonly string[];
   /** Called once per accepted, de-mentioned message — with the Slack thread
    *  coordinates needed to reply back in the originating thread. May be async
    *  (e.g. to download file attachments before forwarding via IPC). */
   onMessage: (m: SlackInboundMessage) => void | Promise<void>;
+  /** How the public tunnel is opened. The app leaves this out and gets
+   *  tunnelmole; a test passes its own so no network is touched. */
+  openTunnel?: (port: number) => Promise<string>;
+  /** The tunnelmole tunnel closed (the service ends each one after 12 hours)
+   *  and was reopened at this new public root (main/tunnel.ts). */
+  onTunnelUrl?: (url: string) => void;
 }
 
 /** A verified, de-mentioned inbound Slack message plus the coordinates needed to
@@ -98,6 +133,12 @@ export interface SlackInboundMessage {
   files?: { path: string; name: string; mimetype: string }[];
   /** INTERNAL: raw Slack file metadata; consumed + stripped by index.ts onMessage. */
   _rawFiles?: SlackEventFile[];
+  /** 0.5.6: where it was written. Absent reads as a channel. */
+  place?: SlackPlace;
+  /** 0.5.6: the Slack user id of the person who wrote it. */
+  user?: string;
+  /** INTERNAL, 0.5.6: messages shared into this one, read by index.ts. */
+  _shares?: SlackRef[];
 }
 
 /** Reject request bodies larger than this — Slack event payloads are tiny; the
@@ -113,10 +154,19 @@ const SLACK_API_TIMEOUT_MS = 12_000;
 
 export class SlackWebhookServer {
   private server: Server | null = null;
-  private tunnelUrl: string | null = null;
-  private readonly port: number;
+  /** The port this server is bound to, or will try first. It moves when the
+   *  asked for port is taken (0.5.3, bug 11), and the tunnel follows it. */
+  private port: number;
+  /** The port config asked for. Only ever reported, never bound again. */
+  private readonly requestedPort: number;
+  /** Set when the asked for port was taken and the server moved off it. */
+  private movedFromPort: number | undefined;
+  private readonly tunnelOpener?: (port: number) => Promise<string>;
+  private readonly onTunnelUrl?: (url: string) => void;
+  /** The kept tunnelmole tunnel, when the app opened it (not a test's opener). */
+  private tunnel: KeptTunnel | null = null;
   private readonly signingSecret: string;
-  private readonly channelId?: string;
+  private readonly channelId?: string | readonly string[];
   private readonly onMessage: (m: SlackInboundMessage) => void | Promise<void>;
   /** Bot's own Slack user id — learned from `authorizations[].user_id` on the
    *  first event_callback. Used to detect <@BOTID> text mentions. */
@@ -132,8 +182,11 @@ export class SlackWebhookServer {
 
   constructor(opts: SlackWebhookServerOptions) {
     this.port = opts.port;
+    this.requestedPort = opts.port;
+    this.tunnelOpener = opts.openTunnel;
+    this.onTunnelUrl = opts.onTunnelUrl;
     this.signingSecret = opts.signingSecret;
-    this.channelId = opts.channelId?.trim() || undefined;
+    this.channelId = typeof opts.channelId === 'string' ? (opts.channelId.trim() || undefined) : opts.channelId;
     this.onMessage = opts.onMessage;
   }
 
@@ -144,58 +197,94 @@ export class SlackWebhookServer {
    * (offline, loca.lt down, timed out) the server keeps running and we report
    * the tunnel error without a URL.
    */
-  async start(): Promise<{ ok: boolean; url?: string; error?: string }> {
+  async start(): Promise<{ ok: boolean; url?: string; error?: string; port?: number; movedFrom?: number }> {
     if (this.server) return { ok: false, error: 'already running' };
     if (!this.signingSecret) return { ok: false, error: 'missing signing secret' };
+    let movedFrom: number | undefined;
     try {
-      await this.listen();
+      await this.listen(this.requestedPort);
     } catch (e) {
-      this.stop();
-      return { ok: false, error: `failed to bind port ${this.port}: ${errMsg(e)}` };
+      // 0.5.3, bug 11 (GaryP, 10 Sep 2026): "failed to bind port 3847:
+      // EADDRINUSE" after an upgrade, because an older Munder process still
+      // held the port, and Slack stayed off until he found and killed it.
+      // Nothing outside this process knows the local port: Slack talks to the
+      // tunnel's public address, and the tunnel is opened below to whatever
+      // port was bound. So a taken port is not a reason to stay off. Take a
+      // free one, the way fileShare's ensureServer does.
+      if ((e as NodeJS.ErrnoException)?.code !== 'EADDRINUSE') {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort}: ${errMsg(e)}` };
+      }
+      try {
+        await this.listen(0);
+        movedFrom = this.requestedPort;
+        this.movedFromPort = movedFrom;
+      } catch (e2) {
+        this.stop();
+        return { ok: false, error: `failed to bind port ${this.requestedPort} (in use) or any free port: ${errMsg(e2)}` };
+      }
     }
+    const bound = { port: this.port, ...(movedFrom !== undefined ? { movedFrom } : {}) };
     try {
       const url = await this.openTunnel();
       if (!url) throw new Error('tunnelmole returned empty URL');
-      this.tunnelUrl = url;
-      // tunnelmole runs in the background; there is no close handle to wire here.
-      return { ok: true, url };
+      // main/tunnel.ts keeps it open: a close reopens it and onTunnelUrl hears the new root.
+      return { ok: true, url, ...bound };
     } catch (e) {
       // Surface the tunnel failure rather than silently returning ok:true with no url.
-      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}` };
+      return { ok: false, error: `tunnel unavailable: ${errMsg(e)}`, ...bound };
     }
   }
 
-  /** Close the HTTP server. Idempotent and best-effort.
-   *  Note: tunnelmole has no documented close handle; teardown is best-effort. */
+  /** Where the server really is, for Settings (shared/boundPort.ts). Empty when
+   *  it is not bound. */
+  boundPort(): BoundPort {
+    if (!this.server) return {};
+    return { port: this.port, ...(this.movedFromPort !== undefined ? { movedFrom: this.movedFromPort } : {}) };
+  }
+
+  /** Close the HTTP server and its tunnel. Idempotent and best-effort. */
   stop(): void {
-    this.tunnelUrl = null;
+    this.tunnel?.close();
+    this.tunnel = null;
+    this.movedFromPort = undefined;
     try { this.server?.close(); } catch { /* noop */ }
     this.server = null;
   }
 
-  private listen(): Promise<void> {
+  private listen(port: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const server = createServer((req, res) => this.handleRequest(req, res));
       const onError = (e: Error): void => reject(e);
       server.once('error', onError);
-      server.listen(this.port, () => {
+      server.listen(port, () => {
         server.off('error', onError);
         this.server = server;
+        // Port 0 means "any": read back the one the system gave.
+        const addr = server.address();
+        this.port = addr && typeof addr === 'object' ? addr.port : port;
         resolve();
       });
     });
   }
 
   private async openTunnel(): Promise<string> {
-    // TODO: optional persistent domain — pass `domain` here when config carries one.
-    // Dynamic import keeps the ESM-only `tunnelmole` out of the CJS require graph.
-    const { tunnelmole } = await import('tunnelmole');
-    return new Promise<string>((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('timed out')), TUNNEL_START_TIMEOUT_MS);
-      tunnelmole({ port: this.port })
-        .then((url) => { clearTimeout(timer); resolve(url); })
-        .catch((e) => { clearTimeout(timer); reject(e); });
+    if (this.tunnelOpener) return this.tunnelOpener(this.port);
+    // TODO: optional persistent domain, when config carries one.
+    const port = this.port;
+    this.tunnel?.close();
+    const tunnel = await keepTunnel({
+      name: 'slack',
+      port,
+      startTimeoutMs: TUNNEL_START_TIMEOUT_MS,
+      listening: () => this.server?.listening === true && this.port === port,
+      onUrl: (url) => { this.onTunnelUrl?.(url); },
+      onDown: () => { if (this.tunnel === tunnel) this.tunnel = null; }
     });
+    // Stopped while it opened: let it go rather than keep a tunnel nothing serves.
+    if (!this.server) { tunnel.close(); throw new Error('stopped'); }
+    this.tunnel = tunnel;
+    return tunnel.url;
   }
 
   /** Buffer the raw body (needed verbatim for the HMAC) under a size cap, then
@@ -250,9 +339,8 @@ export class SlackWebhookServer {
       if (authUserId && !this.botUserId) this.botUserId = authUserId;
 
       const ev = payload.event;
-      const { trigger, text: rawText, files: rawFiles } = _shouldTrigger(
-        ev, this.botUserId, this.channelId, this.activatedThreads
-      );
+      const fired = _shouldTrigger(ev, this.botUserId, this.channelId, this.activatedThreads);
+      const { trigger, text: rawText, files: rawFiles } = fired;
       if (trigger) {
         const text = stripLeadingMention(rawText);
         const channel = typeof ev.channel === 'string' ? ev.channel : '';
@@ -268,7 +356,7 @@ export class SlackWebhookServer {
           const dupKey = _dedupKey(ev);
           const isDuplicate = dupKey ? this.seenEvents.seen(dupKey) : false;
           if (!isDuplicate) {
-            const msg: SlackInboundMessage = { text, channel, ts, thread_ts };
+            const msg = withSlackContext({ text, channel, ts, thread_ts }, ev, fired);
             if (rawFiles.length > 0) msg._rawFiles = rawFiles;
             try { void this.onMessage(msg); } catch { /* delivery is best-effort */ }
           }
@@ -321,6 +409,10 @@ interface SlackPayload {
     subtype?: string;
     bot_id?: string;
     channel?: string;
+    /** 'im' for a direct message, 'mpim' for a group one (message events only). */
+    channel_type?: string;
+    /** The Slack user id of the person who wrote it. */
+    user?: string;
     text?: string;
     /** Message timestamp — Slack's per-message id, used as the reply thread root. */
     ts?: string;
@@ -330,6 +422,7 @@ interface SlackPayload {
     files?: {
       id?: string;
       url_private?: string;
+      url_private_download?: string;
       name?: string;
       mimetype?: string;
       size?: number;
@@ -337,8 +430,9 @@ interface SlackPayload {
   };
 }
 
-/** Strip a single leading `<@BOTID>` app-mention so "@bot do X" enqueues "do X". */
-function stripLeadingMention(text: string): string {
+/** Strip a single leading `<@BOTID>` app-mention so "@bot do X" enqueues "do X".
+ *  Exported (0.4.11) so the polling and Socket Mode transports strip the same way. */
+export function stripLeadingMention(text: string): string {
   return text.replace(/^\s*<@[A-Z0-9]+>\s*/i, '').trim();
 }
 
@@ -352,13 +446,20 @@ function errMsg(e: unknown): string {
  * is passed in by the caller: it lives in main's config and never leaves the
  * main process, and is NEVER logged. Resolves Slack's `{ ok, error? }`.
  */
+/** What every post reports, token excluded. */
+export interface SlackPostRecord { channel: string; thread_ts: string; text: string; ok: boolean; error?: string }
+let postSink: ((r: SlackPostRecord) => void) | null = null;
+/** Main installs the ledger here (slackHistory.ts). One sink for the three
+ *  callers of postSlackReply, so no post can happen off the record. */
+export function setSlackPostSink(sink: ((r: SlackPostRecord) => void) | null): void { postSink = sink; }
+
 export function postSlackReply(opts: {
   botToken: string;
   channel: string;
   thread_ts: string;
   text: string;
 }): Promise<{ ok: boolean; error?: string }> {
-  return new Promise((resolve) => {
+  return new Promise<{ ok: boolean; error?: string }>((resolve) => {
     if (!opts.botToken) { resolve({ ok: false, error: 'missing bot token' }); return; }
     // CLAUSE-1 guard (fix-slack-integration): refuse any send that lacks an
     // EXPLICIT channel + thread target. A blank/whitespace thread_ts would post
@@ -391,13 +492,62 @@ export function postSlackReply(opts: {
     });
     req.on('error', (e) => resolve({ ok: false, error: errMsg(e) }));
     // Node has no default socket timeout, so a peer that accepts the connection
-    // but never responds (stalled middlebox, network partition after handshake)
-    // would leave this promise pending forever — wedging the done-summary poller
-    // (its finally never runs) and hanging the loopback /reply handler. Destroy
-    // with an error so the 'error' handler resolves the usual transient path.
+    // but never responds would leave this promise pending forever, wedging the
+    // done summary poller (its finally never runs) and hanging the loopback
+    // /reply handler. Destroy with an error so the 'error' handler resolves the
+    // usual transient path.
     req.setTimeout(SLACK_API_TIMEOUT_MS, () => req.destroy(new Error('timed out')));
     req.write(body);
     req.end();
+  }).then((r) => {
+    // Recorded after the fact so a ledger fault can never block the post; the
+    // sink is wrapped because it is main's code running on Slack's callback.
+    try { postSink?.({ channel: opts.channel, thread_ts: opts.thread_ts, text: opts.text, ok: r.ok, error: r.error }); } catch { /* ledger only */ }
+    return r;
+  });
+}
+
+/**
+ * A direct message to one person (0.5.6, founder 12 Oct 2026: "being able to
+ * send DMs to users"). `chat.postMessage` takes a user id as the channel and
+ * posts into the bot's own direct message with that person. The only target
+ * without a thread that this module will post to, and only for a Slack user
+ * id: a channel still needs its thread (the guard in postSlackReply).
+ * Recorded like every post, under the conversation Slack answers with.
+ */
+export function postSlackDm(opts: { botToken: string; user: string; text: string }): Promise<{ ok: boolean; error?: string; channel?: string; ts?: string }> {
+  return new Promise<{ ok: boolean; error?: string; channel?: string; ts?: string }>((resolve) => {
+    if (!opts.botToken) { resolve({ ok: false, error: 'missing bot token' }); return; }
+    const user = String(opts.user ?? '').trim();
+    if (!isSlackUserId(user)) { resolve({ ok: false, error: 'a direct message needs a Slack user id (U… or W…)' }); return; }
+    if (!String(opts.text ?? '').trim()) { resolve({ ok: false, error: 'missing text' }); return; }
+    const body = JSON.stringify({ channel: user, text: opts.text });
+    const req = httpsRequest({
+      method: 'POST',
+      hostname: 'slack.com',
+      path: '/api/chat.postMessage',
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'content-length': Buffer.byteLength(body),
+        authorization: `Bearer ${opts.botToken}`
+      }
+    }, (res) => {
+      const chunks: Buffer[] = [];
+      res.on('data', (c: Buffer) => chunks.push(c));
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(Buffer.concat(chunks).toString('utf8')) as { ok?: boolean; error?: string; channel?: string; ts?: string };
+          resolve({ ok: json.ok === true, error: json.error, channel: json.channel, ts: json.ts });
+        } catch { resolve({ ok: false, error: 'bad response from Slack' }); }
+      });
+    });
+    req.on('error', (e) => resolve({ ok: false, error: errMsg(e) }));
+    req.setTimeout(SLACK_API_TIMEOUT_MS, () => req.destroy(new Error('timed out')));
+    req.write(body);
+    req.end();
+  }).then((r) => {
+    try { postSink?.({ channel: r.channel ?? String(opts.user ?? '').trim(), thread_ts: r.ts ?? '', text: opts.text, ok: r.ok, error: r.error }); } catch { /* ledger only */ }
+    return r;
   });
 }
 
@@ -478,25 +628,39 @@ export class SlackReplyServer {
     });
     req.on('end', () => {
       if (aborted) return;
-      let parsed: { channel?: string; thread_ts?: string; text?: string };
+      let parsed: { channel?: string; thread_ts?: string; text?: string; user?: string };
       try { parsed = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
       catch { res.writeHead(400); res.end(JSON.stringify({ ok: false, error: 'bad json' })); return; }
       const botToken = this.getBotToken();
       if (!botToken) { res.writeHead(503); res.end(JSON.stringify({ ok: false, error: 'no bot token' })); return; }
-      if (!parsed.channel || !parsed.thread_ts || !parsed.text) {
-        res.writeHead(400); res.end(JSON.stringify({ ok: false, error: 'channel, thread, text required' })); return;
-      }
-      const thread_ts = parsed.thread_ts;
-      postSlackReply({ botToken, channel: parsed.channel, thread_ts, text: parsed.text })
-        .then((r) => {
-          // A successful DIRECT reply means the agent already answered this thread —
-          // tell main so the done-summary poller treats it as a fallback and skips it.
-          if (r.ok) { try { this.onReplied?.(thread_ts); } catch { /* never break the reply */ } }
-          res.writeHead(r.ok ? 200 : 502, { 'content-type': 'application/json' }); res.end(JSON.stringify(r));
-        })
-        .catch((e) => { res.writeHead(500); res.end(JSON.stringify({ ok: false, error: errMsg(e) })); });
+      this.post(res, botToken, parsed);
     });
     req.on('error', () => { if (!aborted) { try { res.writeHead(400); res.end(); } catch { /* socket gone */ } } });
+  }
+
+  /** Post one reply or direct message, the text already final. */
+  private post(res: ServerResponse, botToken: string, parsed: { channel?: string; thread_ts?: string; text?: string; user?: string }): void {
+    // 0.5.6: `user` in place of a channel and a thread is a direct message
+    // to that person. It answers no thread, so nothing is marked as replied.
+    if (parsed.user) {
+      if (!parsed.text) { res.writeHead(400); res.end(JSON.stringify({ ok: false, error: 'user, text required' })); return; }
+      postSlackDm({ botToken, user: parsed.user, text: parsed.text })
+        .then((r) => { res.writeHead(r.ok ? 200 : 502, { 'content-type': 'application/json' }); res.end(JSON.stringify(r)); })
+        .catch((e) => { res.writeHead(500); res.end(JSON.stringify({ ok: false, error: errMsg(e) })); });
+      return;
+    }
+    if (!parsed.channel || !parsed.thread_ts || !parsed.text) {
+      res.writeHead(400); res.end(JSON.stringify({ ok: false, error: 'channel, thread, text required' })); return;
+    }
+    const thread_ts = parsed.thread_ts;
+    postSlackReply({ botToken, channel: parsed.channel, thread_ts, text: parsed.text })
+      .then((r) => {
+        // A successful DIRECT reply means the agent already answered this thread —
+        // tell main so the done-summary poller treats it as a fallback and skips it.
+        if (r.ok) { try { this.onReplied?.(thread_ts); } catch { /* never break the reply */ } }
+        res.writeHead(r.ok ? 200 : 502, { 'content-type': 'application/json' }); res.end(JSON.stringify(r));
+      })
+      .catch((e) => { res.writeHead(500); res.end(JSON.stringify({ ok: false, error: errMsg(e) })); });
   }
 
   /** Constant-time match of the request's reply token against the session token. */
