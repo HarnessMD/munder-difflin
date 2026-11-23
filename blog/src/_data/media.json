@@ -6624,5 +6624,16 @@
       "prompt": "Title card: the hero scene in assets/media/devin-alternatives/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "glm-5-4": {
+    "inline": {},
+    "title": "GLM-5.4: Z.ai's first loop transformer model, explained",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/glm-5-4/hero.png",
+      "alt": "Title card on white. A pill reading Launch, the title GLM 5.4, the line Z.ai's first loop transformer model and a Checked 24 Nov 2026 line. A lilac tile reads 28 layers, run twice, under a small loop arrow, and a sky tile reads API coming soon, under a small yellow star.",
+      "prompt": "Title card: the hero scene in assets/media/glm-5-4/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
