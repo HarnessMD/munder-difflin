@@ -9,7 +9,8 @@ Munder Difflin is an Electron desktop app. Quire does not open it by URL: the op
 - Agents run real CLIs with the operator's subscriptions. Hire agents only on cheap models (Claude Code: Haiku 5.5 or Sonnet 5.5). Never pick Opus or Fable for an agent you hire.
 - Scratch repository for agent work: `/tmp/md-sample` (a git repo). Agents may create or edit files only there.
 - Harness home for onboarding: `/tmp/md-harness`.
-- In CI (`.github/workflows/quire-*.yml`) the job builds the app and starts it on a virtual display with a fresh profile, so a Run begins at the onboarding wizard unless it completes onboarding itself. Claude Code is installed but not signed in, so agents cannot do work there; checks that need a reply from an agent are `blocked`. The runner is a throwaway, so a Run may set up what it needs outside the app — installing a skill into `~/.claude/skills`, writing fixtures — and should say in the handoff what it set up.
+- In CI (`.github/workflows/quire-*.yml`) the job builds the app and starts it on a virtual display with a fresh profile, so a Run begins at the onboarding wizard unless it completes onboarding itself. The runner is a throwaway, so a Run may set up what it needs outside the app — installing a skill into `~/.claude/skills`, writing fixtures — and should say in the handoff what it set up.
+- Claude Code is installed in CI. Whether it is **signed in** depends on the `CLAUDE_CODE_OAUTH_TOKEN` secret. Signed in, a Run may hire an agent and wait for a real reply — on a cheap model only, as above. Signed out, agents cannot do work and a check that needs an agent's reply is `blocked`; say which check and why rather than reporting it passed.
 
 ## Safe actions
 

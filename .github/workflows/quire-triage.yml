@@ -57,6 +57,16 @@ jobs:
     env:
       QUIRE_BROWSER_CDP: "9222"
       MD_USER_DATA: /tmp/md-userdata
+      # Signs Claude Code in so a Run can hire an agent and get a real reply. The app
+      # keeps this variable when it builds an agent's environment (CLAUDE_CONFIG_KEEP in
+      # src/main/ptyEnv.ts), so exporting it here is the operator path the app expects.
+      # Unset, the CLI is installed but signed out and agent-reply checks are blocked.
+      #
+      # Note what this costs: the credential lives in the same job as the Run, which
+      # reads untrusted report text and can run shell commands. It buys agent checks at
+      # the price of being reachable there, unlike the GitHub token we deliberately keep
+      # out. Scope and rotate it accordingly.
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
     outputs:
       triage: ${{ steps.issue.outputs.triage }}
       number: ${{ steps.issue.outputs.number }}
@@ -192,8 +202,10 @@ jobs:
             yourself, write the files or fixtures it needs, and get the app into the state it
             describes. Say in the handoff what you set up, so a reader knows the starting
             point. Report a check blocked only for something this machine cannot be given,
-            such as credentials to sign an agent in, or a native OS dialog the browser cannot
-            see.
+            such as a native OS dialog the browser cannot see, or an agent that turns out
+            not to be signed in. Claude Code may be signed in here: if the report needs an
+            agent to actually do work, hire one and wait for its reply rather than
+            assuming it cannot. Keep to the cheap models the runbook names.
 
             A report that proposes a patch is still a report: check the behavior it
             describes, not the patch.

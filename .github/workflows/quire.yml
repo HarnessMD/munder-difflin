@@ -1,5 +1,9 @@
-name: Quire · Re-check a fixed issue on main
+name: Quire · main
 
+# What Quire checks on main. Today that is one thing: an issue the merged pull request
+# claimed to fix gets re-checked on main's own build. Anything else main should answer
+# for belongs in this file too.
+#
 # A Trail's main lane is what anyone reading it later sees first, and until something
 # runs there it keeps the last answer it was given. Triage answers it from main's build
 # ("this reproduces"); verification answers the pull request's own lane ("the fix
@@ -126,6 +130,11 @@ jobs:
     env:
       QUIRE_BROWSER_CDP: "9222"
       MD_USER_DATA: /tmp/md-userdata
+      # Signs Claude Code in so a Run can hire an agent and get a real reply. The app
+      # keeps this variable when it builds an agent's environment (CLAUDE_CONFIG_KEEP in
+      # src/main/ptyEnv.ts), so exporting it here is the operator path the app expects.
+      # Unset, the CLI is installed but signed out and agent-reply checks are blocked.
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -207,8 +216,11 @@ jobs:
             the issue needs instead of stopping at it: install a skill into
             ~/.claude/skills, write files or fixtures, and get the app into the state the
             report described. Say in the handoff what you set up. Report a check blocked
-            only for something this machine cannot be given, such as credentials to sign
-            an agent in, or a native OS dialog the browser cannot see.
+            only for something this machine cannot be given, such as a native OS dialog
+            the browser cannot see, or an agent that turns out not to be signed in. Claude
+            Code may be signed in here: if the issue needs an agent to actually do work,
+            hire one and wait for its reply rather than assuming it cannot. Keep to the
+            cheap models the runbook names.
 
       # Job outputs cannot carry a handoff, and a matrix cannot carry per-entry outputs
       # at all, so each entry's result travels as its own artifact.

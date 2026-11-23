@@ -100,9 +100,6 @@ jobs:
 
   verify:
     needs: plan
-    # Without this the checks list shows the whole matrix entry, issue title included,
-    # which reads like a sentence rather than a check name.
-    name: verify · ${{ matrix.trail }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -117,6 +114,16 @@ jobs:
     env:
       QUIRE_BROWSER_CDP: "9222"
       MD_USER_DATA: /tmp/md-userdata
+      # Signs Claude Code in so a Run can hire an agent and get a real reply. The app
+      # keeps this variable when it builds an agent's environment (CLAUDE_CONFIG_KEEP in
+      # src/main/ptyEnv.ts), so exporting it here is the operator path the app expects.
+      # Unset, the CLI is installed but signed out and agent-reply checks are blocked.
+      #
+      # Note what this costs: the credential lives in the same job as the Run, which
+      # reads the pull request's untrusted text and can run shell commands. It buys agent
+      # checks at the price of being reachable there, unlike the GitHub token we
+      # deliberately keep out. Scope and rotate it accordingly.
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
       # Secrets are absent on pull requests from forks. Skip the build rather than
       # spending ten minutes on a Run that cannot start.
       HAS_TOKEN: ${{ secrets.QUIRE_API_TOKEN != '' }}
@@ -243,8 +250,11 @@ jobs:
             If this change touches nothing a person can see — build config, types, tests,
             comments — say so plainly and check only that the app still starts and the
             office floor loads. Do not invent a user-facing claim to test. Report a check
-            blocked only for something this machine cannot be given, such as credentials
-            to sign an agent in, or a native OS dialog the browser cannot see.
+            blocked only for something this machine cannot be given, such as a native OS
+            dialog the browser cannot see, or an agent that turns out not to be signed in.
+            Claude Code may be signed in here: if the change affects what an agent does,
+            hire one and wait for its reply rather than assuming it cannot. Keep to the
+            cheap models the runbook names.
 
             --- BEGIN PULL REQUEST #${{ github.event.pull_request.number }} ---
             Title: ${{ github.event.pull_request.title }}
