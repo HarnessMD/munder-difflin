@@ -4,9 +4,17 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-24T00:00:00.000Z</updated>
+  <updated>2026-11-25T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>What is Skills over MCP? Plus MCP Tasks and Elicitation</title>
+    <link href="https://munderdiffl.in/blog/what-is-skills-over-mcp/" />
+    <id>https://munderdiffl.in/blog/what-is-skills-over-mcp/</id>
+    <published>2026-11-25T00:00:00.000Z</published>
+    <updated>2026-11-25T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Skills over MCP lets an MCP server ship skills with its tools. What it is, plus MCP Tasks, Elicitation and File Uploads, who gets them, and the docs.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 24 Nov 2026: GLM-5.4, OpenCode v2.4.0 and Shirudo</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-24/" />
@@ -478,13 +486,5 @@
     <published>2026-11-14T00:00:00.000Z</published>
     <updated>2026-11-14T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Sintra sells 12 named AI helpers to small businesses. Five alternatives compared by how they run, open source status and price, checked 14 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 13 Nov 2026: Gemini 4 Hydrogen, Edge0-145B and Anthropic&#39;s IPO Page</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-13/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-13/</id>
-    <published>2026-11-13T00:00:00.000Z</published>
-    <updated>2026-11-13T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 12 to 13 Nov 2026, each with its source and date.</summary>
   </entry>
 </feed>

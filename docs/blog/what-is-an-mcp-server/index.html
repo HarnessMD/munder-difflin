@@ -199,7 +199,7 @@
 <p>Three roles do the work: a host, a client and a server. The <strong>host</strong> is the AI application, Claude Code or Claude Desktop, say. It opens one <strong>client</strong> for every server it connects to, and each client keeps a dedicated connection to its server (checked 11 Sep 2026, <a href="https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture">MCP architecture</a>). Client and server exchange JSON-RPC 2.0 messages, and the spec says MCP takes some inspiration from the Language Server Protocol that editors use for programming languages (checked 11 Sep 2026, <a href="https://modelcontextprotocol.io/specification/2026-07-28">MCP specification</a>). Those messages travel over one of two transports: stdio for a server running as a local process, or Streamable HTTP for one running remotely, which typically serves many clients at once.</p>
 <p>A client can ask a server which protocol versions and features it supports with one <code>server/discover</code> request, then fetch the actual tools, resources and prompts with <code>tools/list</code>, <code>resources/list</code> and <code>prompts/list</code>, and those lists can change while you work (checked 11 Sep 2026, <a href="https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture">MCP architecture</a>).</p>
 <h2 id="what-does-an-mcp-server-actually-give-an-agent" tabindex="-1">What does an MCP server actually give an agent? <a class="anchor" href="#what-does-an-mcp-server-actually-give-an-agent" aria-hidden="true">#</a></h2>
-<p>Three things, formally called primitives: tools, resources and prompts. <strong>Tools</strong> are functions the agent can call to do something, like running a query or filing a ticket. <strong>Resources</strong> are data the agent can read for context, like a file’s contents or a database record. <strong>Prompts</strong> are ready made templates the user picks, often shown as slash commands (<a href="https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts">MCP server concepts</a>), so a server can ship its own few-shot examples alongside its tools (checked 11 Sep 2026, <a href="https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture">MCP architecture</a>).</p>
+<p>Three things, formally called primitives: tools, resources and prompts. <strong>Tools</strong> are functions the agent can call to do something, like running a query or filing a ticket. <strong>Resources</strong> are data the agent can read for context, like a file’s contents or a database record. <strong>Prompts</strong> are ready made templates the user picks, often shown as slash commands (<a href="https://modelcontextprotocol.io/docs/2026-07-28/learn/server-concepts">MCP server concepts</a>), so a server can ship its own few-shot examples alongside its tools (checked 11 Sep 2026, <a href="https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture">MCP architecture</a>). On 24 Nov 2026 <a href="https://claude.com/resources/articles/skills-over-mcp-tasks-and-more">Anthropic</a> put Skills over MCP in public beta and made Tasks generally available in Claude; see our <a href="/blog/what-is-skills-over-mcp/">explainer</a>.</p>
 <p>Claude Code is one MCP host among several, and not every host handles all three: client and server each declare what they support, so check your client’s docs (checked 11 Sep 2026, <a href="https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture">MCP architecture</a>). Here’s the Claude Code command that manages those servers from the client side, checked on 11 Sep 2026:</p>
 <pre class="language-bash"><code class="language-bash">$ claude <span class="token parameter variable">--version</span>
 <span class="token number">2.1</span>.268 <span class="token punctuation">(</span>Claude Code<span class="token punctuation">)</span>
@@ -293,6 +293,22 @@ Commands:
       <h2>Related in Concepts</h2>
       <div class="post-grid">
         <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-skills-over-mcp/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-skills-over-mcp/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-skills-over-mcp/">What is Skills over MCP? Plus MCP Tasks and Elicitation</a></h3>
+    <p class="dek">Skills over MCP lets an MCP server ship skills with its tools. What it is, plus MCP Tasks, Elicitation and File Uploads, who gets them, and the docs.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-skills-over-mcp/" aria-label="Read: What is Skills over MCP? Plus MCP Tasks and Elicitation">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
   <a class="thumb t-concepts" href="/blog/opencode-2-4/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opencode-2-4/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -321,22 +337,6 @@ Commands:
     <div class="foot">
       <span class="tag kind">Concepts</span>
       <a class="more" href="/blog/what-is-claude-ship/" aria-label="Read: What is Claude Ship? Anthropic&#39;s pull request agents">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-concepts">
-  <a class="thumb t-concepts" href="/blog/what-is-shirudo/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-shirudo/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-11-24">Nov 24, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/what-is-shirudo/">What is Shirudo? OpenAI and Cisco&#39;s open source Linux shield</a></h3>
-    <p class="dek">Shirudo is OpenAI and Cisco&#39;s open source eBPF runtime that shields running Linux systems until a patch lands. How shields work, Codex&#39;s role, limits.</p>
-    <div class="foot">
-      <span class="tag kind">Concepts</span>
-      <a class="more" href="/blog/what-is-shirudo/" aria-label="Read: What is Shirudo? OpenAI and Cisco&#39;s open source Linux shield">Read →</a>
     </div>
   </div>
 </article>
