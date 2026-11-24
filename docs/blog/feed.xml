@@ -16,6 +16,22 @@
     <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 21 to 24 Nov 2026, each with its source and date.</summary>
   </entry>
   <entry>
+    <title>AGENTS.md Best Practices: What to Write, Who Reads It (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/agents-md-best-practices/" />
+    <id>https://munderdiffl.in/blog/agents-md-best-practices/</id>
+    <published>2026-11-24T00:00:00.000Z</published>
+    <updated>2026-11-24T00:00:00.000Z</updated><category term="Guides" />
+    <summary>AGENTS.md best practices from the format&#39;s site and vendor docs, checked 24 Nov 2026: what to write, where files go, which tools read it.</summary>
+  </entry>
+  <entry>
+    <title>CrewAI Alternatives: 6 Picks for Teams of Agents (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/crewai-alternatives/" />
+    <id>https://munderdiffl.in/blog/crewai-alternatives/</id>
+    <published>2026-11-24T00:00:00.000Z</published>
+    <updated>2026-11-24T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>CrewAI is a free MIT framework with a cloud from Basic to Enterprise. Six CrewAI alternatives by licence, language and release, checked 24 Nov 2026.</summary>
+  </entry>
+  <entry>
     <title>OpenCode 2.4: built in browser, automations and upgrade notes</title>
     <link href="https://munderdiffl.in/blog/opencode-2-4/" />
     <id>https://munderdiffl.in/blog/opencode-2-4/</id>
@@ -24,12 +40,28 @@
     <summary>OpenCode 2.4 adds a desktop browser the agent can drive, automations on a timer, cron or MCP event, and generate_video. Upgrade notes, checked 24 Nov 2026.</summary>
   </entry>
   <entry>
+    <title>What is Claude Ship? Anthropic&#39;s pull request agents</title>
+    <link href="https://munderdiffl.in/blog/what-is-claude-ship/" />
+    <id>https://munderdiffl.in/blog/what-is-claude-ship/</id>
+    <published>2026-11-24T00:00:00.000Z</published>
+    <updated>2026-11-24T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude Ship is Anthropic&#39;s set of GitHub pull request agents: Code Review, PR Steward and Claude Approvals. Plans, billing, limits and the /ship command.</summary>
+  </entry>
+  <entry>
     <title>What is Shirudo? OpenAI and Cisco&#39;s open source Linux shield</title>
     <link href="https://munderdiffl.in/blog/what-is-shirudo/" />
     <id>https://munderdiffl.in/blog/what-is-shirudo/</id>
     <published>2026-11-24T00:00:00.000Z</published>
     <updated>2026-11-24T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Shirudo is OpenAI and Cisco&#39;s open source eBPF runtime that shields running Linux systems until a patch lands. How shields work, Codex&#39;s role, limits.</summary>
+  </entry>
+  <entry>
+    <title>What is Superpowers? The skills library for coding agents</title>
+    <link href="https://munderdiffl.in/blog/what-is-superpowers/" />
+    <id>https://munderdiffl.in/blog/what-is-superpowers/</id>
+    <published>2026-11-24T00:00:00.000Z</published>
+    <updated>2026-11-24T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Superpowers (obra/superpowers) is an open source skills library that gives coding agents a set workflow. What is inside, how to install it, its limits.</summary>
   </entry>
   <entry>
     <title>Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026)</title>
@@ -454,37 +486,5 @@
     <published>2026-11-14T00:00:00.000Z</published>
     <updated>2026-11-14T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Sintra sells 12 named AI helpers to small businesses. Five alternatives compared by how they run, open source status and price, checked 14 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 13 Nov 2026: Gemini 4 Hydrogen, Edge0-145B and Anthropic&#39;s IPO Page</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-13/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-13/</id>
-    <published>2026-11-13T00:00:00.000Z</published>
-    <updated>2026-11-13T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 12 to 13 Nov 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>Gemini 4 Hydrogen: Price vs Argon, Where to Use It and When to Pick It (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/gemini-4-hydrogen/" />
-    <id>https://munderdiffl.in/blog/gemini-4-hydrogen/</id>
-    <published>2026-11-13T00:00:00.000Z</published>
-    <updated>2026-11-13T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Gemini 4 Hydrogen costs $1.50 in and $7.50 out per 1M tokens (13 Nov 2026). Where you can use it, what Orchestrator does, and Hydrogen or Argon.</summary>
-  </entry>
-  <entry>
-    <title>llama.cpp 1.0: What Changed and What to Check Before Upgrading</title>
-    <link href="https://munderdiffl.in/blog/llama-cpp-1-0/" />
-    <id>https://munderdiffl.in/blog/llama-cpp-1-0/</id>
-    <published>2026-11-13T00:00:00.000Z</published>
-    <updated>2026-11-13T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>llama.cpp 1.0 drops the deprecated API, adds FP8 KV caches and an MoE expert cache, and hardens llama-server. What changed. Checked 13 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>OpenCode 2.3: background subagents, quieter transcripts and upgrade notes</title>
-    <link href="https://munderdiffl.in/blog/opencode-2-3/" />
-    <id>https://munderdiffl.in/blog/opencode-2-3/</id>
-    <published>2026-11-13T00:00:00.000Z</published>
-    <updated>2026-11-13T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>OpenCode 2.3 runs every subagent in the background, folds tool calls into one activity row and adds Jump to message. Upgrade notes, checked 13 Nov 2026.</summary>
   </entry>
 </feed>

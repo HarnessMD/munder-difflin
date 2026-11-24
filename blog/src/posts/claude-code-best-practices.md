@@ -93,7 +93,7 @@ Run `/clear` between unrelated tasks. Anthropic's best practices page says that 
 
 ## 9. Run several sessions side by side
 
-Run several sessions in parallel. Anthropic's best practices page lists worktrees, the desktop app, cloud sessions, agent view (research preview) and agent teams (experimental and disabled by default). It also suggests a Writer and Reviewer pair, because "a fresh context improves code review". Our [multiple sessions guide](/blog/manage-multiple-claude-code-sessions/) covers the setups.
+Run several sessions in parallel. Anthropic's best practices page lists worktrees, the desktop app, cloud sessions, agent view (research preview) and agent teams (experimental and disabled by default). It also suggests a Writer and Reviewer pair, because "a fresh context improves code review". Our [multiple sessions guide](/blog/manage-multiple-claude-code-sessions/) covers the setups. On GitHub, [Claude Ship](/blog/what-is-claude-ship/) (Anthropic, 23 Nov 2026) reviews pull requests.
 
 ## Claude Code best practices at a glance, from Anthropic's docs, checked 15 Oct 2026
 

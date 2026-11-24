@@ -47,7 +47,7 @@ Eight projects pass three tests: an open source licence, a commit in the last th
 
 **3. OpenHands.** [OpenHands](https://github.com/OpenHands/OpenHands) now leads its README with Agent Canvas, which "turns your coding agents into a self-hosted, always-on engineering team". It runs its own agent or Claude Code, Codex, Gemini, Pi and OpenCode, on a laptop or a server. MIT. Best for: a coding team that keeps working with your laptop shut.
 
-**4. CrewAI.** [CrewAI](https://github.com/crewAIInc/crewAI) is "an open-source Python framework" for multi agent workflows, with "role-based AI agents". It is a library you code against, not an app; a paid AMP Suite adds a control plane. MIT. Best for: Python developers building their own office.
+**4. CrewAI.** [CrewAI](https://github.com/crewAIInc/crewAI) is "an open-source Python framework" for multi agent workflows, with "role-based AI agents". It is a library you code against, not an app; a paid AMP Suite adds a control plane. MIT. Best for: Python developers building their own office. Our [CrewAI alternatives](/blog/crewai-alternatives/) list, checked 24 Nov 2026, has other options.
 
 **5. AG2.** [AG2](https://github.com/ag2ai/ag2), formerly AutoGen, is "an open-source programming framework for building AI agents and facilitating cooperation among multiple agents". Apache 2.0. Best for: AutoGen style teams that still get updates.
 

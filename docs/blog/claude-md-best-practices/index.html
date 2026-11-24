@@ -259,7 +259,7 @@
 <figure class="mg" data-scene="gauge"><img src="/blog/assets/media/claude-md-best-practices/gauge.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A tall white measuring tube fills with blue lines of text up to a yellow mark labelled 200 lines. Extra lilac lines float off to the side into three small trays labelled Rules, Skills and Imports, and the tube level settles below the mark."><figcaption>Target under 200 lines per file; move the rest into rules or skills.</figcaption></figure>
 <h2 id="does-claude-code-read-agentsmd" tabindex="-1">Does Claude Code read <code>AGENTS.md</code>? <a class="anchor" href="#does-claude-code-read-agentsmd" aria-hidden="true">#</a></h2>
 <p>Yes, from v2.1.277, but not next to a <code>CLAUDE.md</code> by default. The memory docs say Claude reads <code>AGENTS.md</code> when you have no <code>CLAUDE.md</code>, <code>.claude/CLAUDE.md</code> or <code>CLAUDE.local.md</code> in your working folder or above it. Add any one of those and <code>AGENTS.md</code> stops loading.</p>
-<p>To keep one file for every agent, import <code>AGENTS.md</code> from <code>CLAUDE.md</code>, or set <strong>Project instructions</strong> in <code>/config</code> to <code>claude-md-and-agents-md</code> so Claude reads both. Codex, OpenCode and Pi all read <code>AGENTS.md</code>, so one shared file keeps a mixed team in step.</p>
+<p>To keep one file for every agent, import <code>AGENTS.md</code> from <code>CLAUDE.md</code>, or set <strong>Project instructions</strong> in <code>/config</code> to <code>claude-md-and-agents-md</code> so Claude reads both. Codex, OpenCode and Pi all read <code>AGENTS.md</code>, so one shared file keeps a mixed team in step. Our <a href="/blog/agents-md-best-practices/"><code>AGENTS.md</code> best practices</a> guide covers what to write in that shared file.</p>
 <figure class="mg" data-scene="junction"><img src="/blog/assets/media/claude-md-best-practices/junction.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A small blue cart rolls along a white rail toward a junction with two tracks, one to a card labelled Claude file and one to a card labelled Agents file. A yellow switch flips the cart toward the Agents file when the Claude file card fades out, then a third track appears labelled Both."><figcaption>By default Claude Code reads the shared agents file only when it finds no Claude file of its own, per Anthropic's memory docs on 26 Oct 2026.</figcaption></figure>
 <h2 id="how-do-you-keep-claudemd-up-to-date" tabindex="-1">How do you keep <code>CLAUDE.md</code> up to date? <a class="anchor" href="#how-do-you-keep-claudemd-up-to-date" aria-hidden="true">#</a></h2>
 <p>Treat it like code. The best practices page says to check it into git and review it when things go wrong. Run <code>/init</code> for a starter file, <code>/context</code> to confirm it loaded and <code>/memory</code> to list and open your memory files. From v2.1.283, <code>/doctor prompt-audit</code> looks for stale instructions, missing files and contradictions, and changes nothing until you say so.</p>
@@ -366,6 +366,22 @@
       <h2>Related in Guides</h2>
       <div class="post-grid">
         <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/agents-md-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/agents-md-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-24">Nov 24, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/agents-md-best-practices/">AGENTS.md Best Practices: What to Write, Who Reads It (Nov 2026)</a></h3>
+    <p class="dek">AGENTS.md best practices from the format&#39;s site and vendor docs, checked 24 Nov 2026: what to write, where files go, which tools read it.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/agents-md-best-practices/" aria-label="Read: AGENTS.md Best Practices: What to Write, Who Reads It (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
   <a class="thumb t-guides" href="/blog/gta-6-characters/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gta-6-characters/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
@@ -394,22 +410,6 @@
     <div class="foot">
       <span class="tag kind">Guides</span>
       <a class="more" href="/blog/gta-6-day-off-work/" aria-label="Read: GTA 6 Day Off Work? Skip the Excuse, Let AI Agents Prep Your Queue">Read →</a>
-    </div>
-  </div>
-</article>
-<article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/gta-6-discord-server/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gta-6-discord-server/hero.png" alt="" loading="lazy" decoding="async" /></a>
-  <div class="body">
-    <div class="meta">
-      <time datetime="2026-11-19">Nov 19, 2026</time>
-      <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
-    </div>
-    <h3><a href="/blog/gta-6-discord-server/">GTA 6 Discord Server: How to Start, Grow and Moderate One With AI Agents</a></h3>
-    <p class="dek">Set up a GTA 6 Discord server from Discord&#39;s own help pages: a spoiler channel, AutoMod, onboarding, a mod rota, and AI agents that draft for you to approve.</p>
-    <div class="foot">
-      <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/gta-6-discord-server/" aria-label="Read: GTA 6 Discord Server: How to Start, Grow and Moderate One With AI Agents">Read →</a>
     </div>
   </div>
 </article>
