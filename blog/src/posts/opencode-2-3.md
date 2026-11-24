@@ -23,6 +23,8 @@ faq:
 
 OpenCode 2.3 makes every subagent run in the background and folds tool calls into one quiet activity row, so the parent session keeps working while the transcript shows less. Anomaly published [v2.3.0](https://github.com/anomalyco/opencode/releases/tag/v2.3.0) on GitHub on 13 Nov 2026 at 08:55 UTC. Checked 13 Nov 2026.
 
+OpenCode 2.4 followed on 23 Nov 2026 with a built in desktop browser and automations, per the [v2.4.0 notes](https://github.com/anomalyco/opencode/releases/tag/v2.4.0); see [OpenCode 2.4](/blog/opencode-2-4/).
+
 New to the tool? [What is OpenCode](/blog/what-is-opencode/) covers the basics, the [Concepts hub](/blog/topics/concepts/) explains the terms, and [OpenCode 2.0](/blog/opencode-2-0/) covers the rewrite this release builds on. If you run Claude Code subagents too, our [Max plan guide](/blog/claude-code-max-plan-tips/) covers that side.
 
 ## What is new in OpenCode 2.3?
