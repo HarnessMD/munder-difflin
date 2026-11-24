@@ -6624,5 +6624,38 @@
       "prompt": "Title card: the hero scene in assets/media/devin-alternatives/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "agent-tools-today-2026-11-24": {
+    "inline": {},
+    "title": "Agent Tools Today, 24 Nov 2026: GLM-5.4, OpenCode v2.4.0 and Shirudo",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-24/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily Brief, the title Agent Tools Today, the line 24 Nov 2026 and a muted line GLM 5.4, OpenCode and Shirudo. A yellow windmill with blue sails turns slowly beside three lilac cards: GLM 5.4, OpenCode and Shirudo.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-24/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "opencode-2-4": {
+    "inline": {},
+    "title": "OpenCode 2.4: built in browser, automations and upgrade notes",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/opencode-2-4/hero.png",
+      "alt": "Title card on white. A yellow pill reading Version, the title OpenCode 2.4, the line A browser the agent can drive, and automations on a schedule, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading v2.4.0: 23 Nov 2026 under a small sky periscope, and a sky tile reading Latest on npm: 2.4.1 under a small yellow alarm clock.",
+      "prompt": "Title card: the hero scene in assets/media/opencode-2-4/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-shirudo": {
+    "inline": {},
+    "title": "What is Shirudo? OpenAI and Cisco's open source Linux shield",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-shirudo/hero.png",
+      "alt": "Title card on white. A yellow pill reading Explainer, the title What is Shirudo?, the line OpenAI and Cisco's open source Linux shield, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading Announced 23 Nov 2026 under a small yellow star, and a sky tile reading No restart under a small mint umbrella.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-shirudo/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }

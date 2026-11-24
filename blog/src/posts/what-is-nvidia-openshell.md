@@ -97,6 +97,8 @@ Four other ways to box an agent in, each read on 11 Nov 2026:
 
 Our view: OpenShell if you need per host rules and keys the agent never sees, Docker if a plain fence will do, Claude Code's sandbox if Claude Code is your only agent.
 
+[Shirudo](/blog/what-is-shirudo/), from OpenAI and Cisco on 23 Nov 2026, is another open source security runtime, one that protects running Linux systems while patches roll out.
+
 If you run several agents side by side, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup.
 
 <link rel="stylesheet" href="/blog/assets/media/what-is-nvidia-openshell/motion.css"><script defer src="/blog/assets/media/what-is-nvidia-openshell/motion.js"></script>
