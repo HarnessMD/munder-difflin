@@ -1,8 +1,9 @@
 ---
 title: "Emdash Alternatives: 6 Tools for Parallel Coding Agents (Nov 2026)"
 seoTitle: "6 Emdash Alternatives (Nov 2026): Agents in Worktrees"
-description: "Emdash's desktop app is now Emdash Classic, and new work moved to Emdash 2.0. Six alternatives for parallel agents in worktrees, checked 6 Nov 2026."
+description: "Emdash's desktop app is now Emdash Classic, and new development moved to Emdash 2.0. Six alternatives for parallel agents in worktrees, checked 24 Nov 2026."
 date: 2026-11-06
+updated: 2026-11-24
 category: comparisons
 categoryLabel: Comparisons
 type: Technical
@@ -11,32 +12,32 @@ secondaryKeywords: ["emdash alternative", "emdash classic", "emdash 2.0", "tools
 tags: ["Comparisons", "Worktrees", "Claude Code", "Codex", "Open Source", "Tools"]
 faq:
   - q: "What is Emdash Classic?"
-    a: "It is the new name for Emdash's open source desktop app. Emdash's blog post of 5 Nov 2026 says \"The current desktop app is now called Emdash Classic. It stays open source and keeps getting fixes.\" New development has moved to Emdash 2.0."
+    a: "It is the new name for Emdash's open source desktop app. Emdash's blog post of 5 Nov 2026, read 24 Nov 2026, says \"The current desktop app is now called Emdash Classic. It stays open source and keeps getting fixes.\" New development has moved to Emdash 2.0."
   - q: "Is Emdash shutting down?"
-    a: "No. The desktop app stays available, open source and maintained with fixes, per emdash.com, read 6 Nov 2026. Version v1.2.11 shipped on 6 Nov 2026. What changed is that new features now go into Emdash 2.0, a cloud product in early access."
+    a: "No. Emdash's Classic page, read 24 Nov 2026, says the desktop app \"stays available and keeps getting fixes, but new development has moved to Emdash 2.0: coding agents for your whole team, in the cloud.\" Version v1.2.13 shipped on 19 Nov 2026, per its GitHub releases. Emdash 2.0 is in early access."
   - q: "What is Emdash 2.0?"
-    a: "Emdash's home page, read 6 Nov 2026, calls it \"Coding agents for your whole team.\" It runs agents on your own infrastructure or Emdash cloud, and takes work from Slack, Linear, GitHub or your phone. It is in early access behind a waitlist, and no price is listed."
+    a: "Emdash's home page, read 24 Nov 2026, calls it \"Coding agents for your whole team.\" It runs agents on your own infrastructure or Emdash cloud, and takes work from Slack, Linear, GitHub or your phone. It is in early access behind a waitlist, and emdash.com lists no price for it."
   - q: "What is the closest alternative to Emdash?"
     a: "Our view: Orca. Its README, read 6 Nov 2026, runs each coding agent in its own worktree, and it adds a mobile app and cloud VMs. It is MIT licensed and runs on macOS, Windows and Linux."
   - q: "Is there a free alternative to Emdash?"
     a: "Yes, several. Orca, Munder Difflin and T3 Code are free and open source, and Orchestrator.inc is free for local use, per their pages read 6 Nov 2026. Worktrunk is a free CLI under MIT or Apache 2.0."
 ---
 
-Our view: Orca is the closest Emdash alternative today, and Emdash itself is still a sound pick. On 5 Nov 2026 Emdash renamed its desktop app Emdash Classic and moved new development to Emdash 2.0, a team cloud product in early access. Checked 6 Nov 2026.
+Our view: Orca is the closest Emdash alternative today, and Emdash itself is still a sound pick. On 5 Nov 2026 Emdash renamed its desktop app Emdash Classic and moved new development to Emdash 2.0. The [home page](https://emdash.com), read 24 Nov 2026, now leads with 2.0: "Coding agents for your whole team."
 
 [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. More pages like this sit in our [Comparisons hub](/blog/topics/comparisons/).
 
 ## What is Emdash?
 
-Emdash is a desktop app for running several coding agents at once, each in its own Git worktree. Its [README](https://github.com/generalaction/emdash), read 6 Nov 2026, says: "Each task runs in its own Git worktree, so you can explore multiple fixes or features at once, review the diffs, and merge what works."
+Emdash's open source desktop app, now called Emdash Classic, runs several coding agents at once, each in its own Git worktree. Its [README](https://github.com/generalaction/emdash), read 24 Nov 2026, says: "Run Claude Code, Codex, OpenCode, and more in separate Git worktrees, on your machine or over SSH."
 
-It runs on macOS, Windows and Linux, and on remote machines over SSH. The [providers page](https://emdash.com/docs/providers) says "Emdash supports 35 coding agent CLIs." Issues can come in from Linear, GitHub, Jira and more. The licence is Apache 2.0, and the [latest release](https://github.com/generalaction/emdash/releases/latest), v1.2.11, shipped on 6 Nov 2026.
+It runs on macOS, Windows and Linux. The [providers page](https://emdash.com/docs/providers), read 24 Nov 2026, says "Emdash supports 35 coding agent CLIs." Issues can come in from Linear, GitHub, Jira and more. The licence is Apache 2.0, and the [latest release](https://github.com/generalaction/emdash/releases/latest), v1.2.13, shipped on 19 Nov 2026.
 
 ## Why look for an Emdash alternative now?
 
 Because new features are going somewhere else. Emdash's post [What's next for Emdash](https://emdash.com/blog/whats-next-for-emdash), dated 5 Nov 2026, says: "We're building Emdash 2.0: coding agents for your whole team." It adds: "The current desktop app is now called Emdash Classic. It stays open source and keeps getting fixes."
 
-The [Classic page](https://emdash.com/classic), read 6 Nov 2026, says new development "has moved to Emdash 2.0" and advises: "If you can, start with 2.0." The [home page](https://emdash.com) describes 2.0 as agents "on your own infrastructure or Emdash cloud", behind an early access form. The v1.2.11 notes add "an in-app signup for Emdash 2.0 early access."
+The [Classic page](https://emdash.com/classic), read 24 Nov 2026, says new development "has moved to Emdash 2.0" and advises: "If you can, start with 2.0." The [home page](https://emdash.com) describes 2.0 as agents "on your own infrastructure or Emdash cloud", behind an early access form. The v1.2.11 notes add "an in-app signup for Emdash 2.0 early access."
 
 Classic still works. If you want a local app that keeps gaining features, or are comparing before you pick, read on.
 
@@ -44,16 +45,16 @@ Classic still works. If you want a local app that keeps gaining features, or are
 
 ## What are the best Emdash alternatives?
 
-Six tools for running agents in parallel. Every row was read on 6 Nov 2026.
+Six tools for running agents in parallel. Licences and releases were checked on GitHub on 24 Nov 2026; the rest was read on 6 Nov 2026.
 
-| Alternative | What it is | Where it runs | Licence, latest release (6 Nov 2026) |
+| Alternative | What it is | Where it runs | Licence, latest release (24 Nov 2026) |
 | --- | --- | --- | --- |
-| Orca | Desktop app for a fleet of coding agents | macOS, Windows, Linux, mobile, SSH hosts, cloud VMs | MIT, v1.4.251 (6 Nov) |
+| Orca | Desktop app for a fleet of coding agents | macOS, Windows, Linux, mobile, SSH hosts, cloud VMs | MIT, v1.4.273 (24 Nov) |
 | Munder Difflin | A team of AI agents for knowledge work, coding included | Your computer | Free and open source |
-| Orchestrator.inc | Main agent plus workers, from task to merged PR | macOS, Windows, Linux, iPhone, Android | Apache 2.0, v0.14.10 (6 Nov) |
-| T3 Code | Control surface for the agents on your machine | Desktop, web, mobile | MIT, v0.1.7 (4 Nov) |
-| Worktrunk | CLI for git worktrees | Your terminal | MIT or Apache 2.0, v0.81.0 (20 Oct) |
-| Claude Code `--worktree` | A flag in Anthropic's own agent | Your terminal | All rights reserved, v2.1.318 (4 Nov) |
+| Orchestrator.inc | Main agent plus workers, from task to merged PR | macOS, Windows, Linux, iPhone, Android | Apache 2.0, v0.15.5 (23 Nov) |
+| T3 Code | Control surface for the agents on your machine | Desktop, web, mobile | MIT, v0.1.11 (20 Nov) |
+| Worktrunk | CLI for git worktrees | Your terminal | MIT or Apache 2.0, v0.83.0 (21 Nov) |
+| Claude Code `--worktree` | A flag in Anthropic's own agent | Your terminal | All rights reserved, v2.1.331 (23 Nov) |
 
 <figure class="mg" data-scene="marbles"><img src="/blog/assets/media/emdash-alternatives/marbles.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, six glass marbles roll down a wooden ramp and each drops into its own groove. The grooves are labelled Orca, Munder Difflin, Orchestrator.inc, T3 Code, Worktrunk and Claude Code. Tapping a marble lifts it back to the top and it rolls into the same groove again."><figcaption>Six Emdash alternatives for running agents in parallel, from each project's own pages, read 6 Nov 2026.</figcaption></figure>
 
@@ -71,11 +72,11 @@ Orchestrator.inc puts one main agent in charge of the workers. Its [README](http
 
 ## 4. T3 Code: if you steer from a phone
 
-T3 Code is a front end for the agents already on your machine. Its [README](https://github.com/pingdotgg/t3code), read 6 Nov 2026, calls it an "agent harness control surface" with a mobile app, a web app and a desktop app. The [T3 Code site](https://t3.codes) says it is "free, open source and fast". The README is honest: "We are very very early in this project. Expect bugs."
+T3 Code is a front end for the agents already on your machine. Its [README](https://github.com/pingdotgg/t3code), read 6 Nov 2026, calls it an "agent harness control surface" with a mobile app, a web app and a desktop app. The [T3 Code site](https://t3.codes) says it is "free, open source and fast". The README warns: "We are very very early in this project. Expect bugs."
 
 ## 5. Worktrunk: if you only want the worktrees
 
-Worktrunk skips the app entirely. Its [README](https://github.com/max-sixty/worktrunk), read 6 Nov 2026, calls it "a CLI for git worktree management, designed for running AI agents in parallel". The command `wt switch -c -x claude feat` makes a worktree and starts Claude Code inside it. We cover the trade offs in [Worktrunk alternatives](/blog/worktrunk-alternatives/).
+Worktrunk skips the app. Its [README](https://github.com/max-sixty/worktrunk), read 6 Nov 2026, calls it "a CLI for git worktree management, designed for running AI agents in parallel". The command `wt switch -c -x claude feat` makes a worktree and starts Claude Code inside it. We cover the trade offs in [Worktrunk alternatives](/blog/worktrunk-alternatives/).
 
 ## 6. Claude Code --worktree: if you add nothing
 

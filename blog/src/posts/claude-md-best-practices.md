@@ -87,7 +87,7 @@ The best practices page asks of every line: "Would removing this cause Claude to
 
 Yes, from v2.1.277, but not next to a `CLAUDE.md` by default. The memory docs say Claude reads `AGENTS.md` when you have no `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md` in your working folder or above it. Add any one of those and `AGENTS.md` stops loading.
 
-To keep one file for every agent, import `AGENTS.md` from `CLAUDE.md`, or set **Project instructions** in `/config` to `claude-md-and-agents-md` so Claude reads both. Codex, OpenCode and Pi all read `AGENTS.md`, so one shared file keeps a mixed team in step.
+To keep one file for every agent, import `AGENTS.md` from `CLAUDE.md`, or set **Project instructions** in `/config` to `claude-md-and-agents-md` so Claude reads both. Codex, OpenCode and Pi all read `AGENTS.md`, so one shared file keeps a mixed team in step. Our [`AGENTS.md` best practices](/blog/agents-md-best-practices/) guide covers what to write in that shared file.
 
 <figure class="mg" data-scene="junction"><img src="/blog/assets/media/claude-md-best-practices/junction.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A small blue cart rolls along a white rail toward a junction with two tracks, one to a card labelled Claude file and one to a card labelled Agents file. A yellow switch flips the cart toward the Agents file when the Claude file card fades out, then a third track appears labelled Both."><figcaption>By default Claude Code reads the shared agents file only when it finds no Claude file of its own, per Anthropic's memory docs on 26 Oct 2026.</figcaption></figure>
 

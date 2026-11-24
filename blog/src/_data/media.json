@@ -6658,6 +6658,50 @@
       "status": "ready"
     }
   },
+  "what-is-claude-ship": {
+    "inline": {},
+    "title": "What is Claude Ship? Anthropic's pull request agents",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-claude-ship/hero.png",
+      "alt": "Title card on white. A yellow pill reading Explainer, the title What is Claude Ship?, the line Anthropic's pull request agents: review, fixes, approval, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading Launched 23 Nov 2026 under a small blue tugboat, and a sky tile reading Team and Enterprise plans under a small yellow buoy.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-claude-ship/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "agents-md-best-practices": {
+    "inline": {},
+    "title": "AGENTS.md Best Practices: What to Write, Who Reads It (Nov 2026)",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/agents-md-best-practices/hero.png",
+      "alt": "Title card on white. A yellow pill reading Guide, the title AGENTS.md best practices, the line One instructions file many coding agents read, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading Codex caps it at 32 KiB by default under a small yellow recipe card, and a sky tile reading Claude Code reads it when there is no CLAUDE.md under a small mint sticky note.",
+      "prompt": "Title card: the hero scene in assets/media/agents-md-best-practices/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-superpowers": {
+    "inline": {},
+    "title": "What is Superpowers? The skills library for coding agents",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-superpowers/hero.png",
+      "alt": "Title card on white. A yellow pill reading Explainer, the title What is Superpowers?, the line The skills library for coding agents, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading MIT licence under a small yellow cape, and a sky tile reading 15 skills under a small blue toolchest.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-superpowers/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "crewai-alternatives": {
+    "inline": {},
+    "title": "CrewAI Alternatives: 6 Picks for Teams of Agents (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/crewai-alternatives/hero.png",
+      "alt": "Title card on white. A yellow pill reading Alternatives, the title CrewAI Alternatives, the line Six picks for building or running a team of agents, and a Checked 24 Nov 2026 line. Two tiles: a lilac tile reading CrewAI 1.15.45: 24 Nov 2026 under a small blue stack of cups, and a sky tile reading MIT licence under a small yellow wagon.",
+      "prompt": "Title card: the hero scene in assets/media/crewai-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
   "glm-5-4": {
     "inline": {},
     "title": "GLM-5.4: Z.ai's first loop transformer model, explained",
