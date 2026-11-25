@@ -136,6 +136,14 @@
     <summary>Superpowers (obra/superpowers) is an open source skills library that gives coding agents a set workflow. What is inside, how to install it, its limits.</summary>
   </entry>
   <entry>
+    <title>Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/" />
+    <id>https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/</id>
+    <published>2026-11-22T00:00:00.000Z</published>
+    <updated>2026-11-22T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean&#39;s community certified it on 21 Nov 2026. What happened and how it was checked.</summary>
+  </entry>
+  <entry>
     <title>Agent Tools Today, 21 Nov 2026: Inkling 2 Mini, Claude Code v2.1.330 and DreamCoder</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-21/" />
     <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-21/</id>
@@ -478,13 +486,5 @@
     <published>2026-11-16T00:00:00.000Z</published>
     <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>Six ways to earn around the GTA 6 launch, what Rockstar reportedly allows, where each payout comes from, and the AI agent workflow that does the prep.</summary>
-  </entry>
-  <entry>
-    <title>Qwen4-Max vs Claude Opus 5.5: Price, Limits and Claude Code Setup (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/qwen4-max-vs-claude-opus-5-5/" />
-    <id>https://munderdiffl.in/blog/qwen4-max-vs-claude-opus-5-5/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Qwen4-Max costs $6 for 1M input plus 1M output tokens, Claude Opus 5.5 costs $24. Limits, Claude Code setup and vendor scores, checked 16 Nov 2026.</summary>
   </entry>
 </feed>
