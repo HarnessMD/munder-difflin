@@ -23,7 +23,9 @@ faq:
 
 ZCode is Z.ai's open source coding workspace: a desktop app, a browser interface and a terminal agent in one Apache-2.0 repo, tuned for Z.ai's GLM models but shipped with templates for other providers. This page reports what its own pages say. Checked 8 Oct 2026.
 
-Other products are also called zcode. This page is about Z.ai's ZCode only. It is one vendor's workspace. If you want several agent CLIs working side by side, that is the layer [Munder Difflin](https://harnessmd.com/download) works at: free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and more explainers sit in the [concepts hub](/blog/topics/concepts/).
+Z.ai launched [GLM-5.4](/blog/glm-5-4/) on 23 Nov 2026, and ZCode is one of the three places it says you can use it today.
+
+Other products are also called zcode. This page is about Z.ai's ZCode only. It is one vendor's workspace. If you want several agents working side by side, that is the layer [Munder Difflin](https://harnessmd.com/download) works at. It is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and more explainers sit in the [concepts hub](/blog/topics/concepts/).
 
 ## What is ZCode and who makes it?
 

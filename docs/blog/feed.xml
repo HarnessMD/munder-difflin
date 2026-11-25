@@ -96,6 +96,14 @@
     <summary>CrewAI is a free MIT framework with a cloud from Basic to Enterprise. Six CrewAI alternatives by licence, language and release, checked 24 Nov 2026.</summary>
   </entry>
   <entry>
+    <title>GLM-5.4: Z.ai&#39;s first loop transformer model, explained</title>
+    <link href="https://munderdiffl.in/blog/glm-5-4/" />
+    <id>https://munderdiffl.in/blog/glm-5-4/</id>
+    <published>2026-11-24T00:00:00.000Z</published>
+    <updated>2026-11-24T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>GLM-5.4 is Z.ai&#39;s first loop transformer model, out 23 Nov 2026. What looping means, where you can use it today and how to set it up in Claude Code.</summary>
+  </entry>
+  <entry>
     <title>OpenCode 2.4: built in browser, automations and upgrade notes</title>
     <link href="https://munderdiffl.in/blog/opencode-2-4/" />
     <id>https://munderdiffl.in/blog/opencode-2-4/</id>
@@ -478,13 +486,5 @@
     <published>2026-11-16T00:00:00.000Z</published>
     <updated>2026-11-16T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Qwen4-Max costs $6 for 1M input plus 1M output tokens, Claude Opus 5.5 costs $24. Limits, Claude Code setup and vendor scores, checked 16 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Qwen4-Max: Price, Specs and How to Use It in Claude Code (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/qwen4-max/" />
-    <id>https://munderdiffl.in/blog/qwen4-max/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Qwen4-Max is Qwen&#39;s new 2.4T flagship with a 1M context: API price, specs, Token Plan, and setup in Claude Code and Qwen Code, checked 16 Nov 2026.</summary>
   </entry>
 </feed>
