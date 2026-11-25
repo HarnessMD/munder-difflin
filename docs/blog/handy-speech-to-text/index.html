@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How to talk instead of typing with Handy, free speech to text — Munder Difflin Blog</title>
+<meta name="description" content="Handy is a free, open source app that types what you say into any text box, on your own computer. Setup, which model to pick, limits and fixes." />
+<link rel="canonical" href="https://munderdiffl.in/blog/handy-speech-to-text/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="How to talk instead of typing with Handy, free speech to text — Munder Difflin Blog" />
+<meta property="og:description" content="Handy is a free, open source app that types what you say into any text box, on your own computer. Setup, which model to pick, limits and fixes." />
+<meta property="og:url" content="https://munderdiffl.in/blog/handy-speech-to-text/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/handy-speech-to-text/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A yellow pill reading AI tools, the title Handy, the line Types what you say into any text box, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading free and open source under a small yellow microphone, and a sky tile reading Mac, Windows and Linux under a small soft white keyboard." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-26T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Getting Started" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="Voice" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="How to talk instead of typing with Handy, free speech to text — Munder Difflin Blog" />
+<meta name="twitter:description" content="Handy is a free, open source app that types what you say into any text box, on your own computer. Setup, which model to pick, limits and fixes." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/handy-speech-to-text/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A yellow pill reading AI tools, the title Handy, the line Types what you say into any text box, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading free and open source under a small yellow microphone, and a sky tile reading Mac, Windows and Linux under a small soft white keyboard." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to talk instead of typing with Handy, free speech to text",
+  "description": "Handy is a free, open source app that types what you say into any text box, on your own computer. Setup, which model to pick, limits and fixes.",
+  "image": ["https://munderdiffl.in/blog/assets/media/handy-speech-to-text/hero.png"],
+  "datePublished": "2026-11-26T00:00:00.000Z",
+  "dateModified": "2026-11-26T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/handy-speech-to-text/" },
+  "keywords": "handy speech to text, handy app, handy dictation, free speech to text, parakeet v3, offline speech to text",
+  "articleSection": "AI tools",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/handy-speech-to-text/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "How to talk instead of typing with Handy, free speech to text", "item": "https://munderdiffl.in/blog/handy-speech-to-text/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Handy free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free and open source, and it needs no account." } },
+    { "@type": "Question", "name": "Does your voice leave your computer?", "acceptedAnswer": { "@type": "Answer", "text": "Not in ordinary use. The speech model runs on your own machine." } },
+    { "@type": "Question", "name": "Which model should you pick?", "acceptedAnswer": { "@type": "Answer", "text": "Parakeet V3 for English and European languages, a Whisper model for other languages." } },
+    { "@type": "Question", "name": "Does it work offline?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, once the app and one model are downloaded." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-ai-tools">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/ai-tools/">AI tools</a>
+    </nav>
+    <h1>How to talk instead of typing with Handy, free speech to text</h1>
+    <p class="dek">Handy is a free, open source app that types what you say into any text box, on your own computer. Setup, which model to pick, limits and fixes.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">AI tools</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/handy-speech-to-text/hero.png" alt="Title card on white. A yellow pill reading AI tools, the title Handy, the line Types what you say into any text box, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading free and open source under a small yellow microphone, and a sky tile reading Mac, Windows and Linux under a small soft white keyboard." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p><a href="https://handy.computer/">Handy</a> is a free and open source app that types what you say into any text box. Hold a shortcut, talk, let go, and your words are pasted at your cursor. The speech model runs on your own computer, and your voice stays there. Checked 25 Nov 2026.</p>
+<p>This guide is on the blog of <a href="https://harnessmd.com/download">Munder Difflin</a>, which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. You do not need it for this guide; its <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<p>Checked on 25 Nov 2026 against the makers’ <a href="https://handy.computer/">website</a>, <a href="https://handy.computer/docs">documentation</a> and <a href="https://github.com/cjpais/Handy">README</a>, at version <a href="https://handy.computer/download">v0.10.2</a>. Names in quotes are the ones those pages use.</p>
+<h2 id="what-is-handy" tabindex="-1">What is Handy? <a class="anchor" href="#what-is-handy" aria-hidden="true">#</a></h2>
+<p>Handy is a <a href="https://handy.computer/">free and open source</a> app for <a href="https://handy.computer/download">Mac, Windows and Linux</a> that turns your speech into text and pastes it wherever your cursor is. It is a dictation tool, not an assistant: “One tool, one job. Transcribe what you say and put it into a text box.”</p>
+<figure class="mg" data-scene="microphone"><img src="/blog/assets/media/handy-speech-to-text/microphone.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow microphone stands beside a soft white text box. A mint sound wave rolls out of the microphone and turns into lilac letters that land in the text box and read One tool, one job, while a blue cursor blinks after them. Tap the microphone to send a new wave and play it again."><figcaption>It types what you say into a text box. Handy home page, read 25 Nov 2026.</figcaption></figure>
+<h2 id="what-do-you-need" tabindex="-1">What do you need? <a class="anchor" href="#what-do-you-need" aria-hidden="true">#</a></h2>
+<p>You need a computer, a microphone and an internet connection for the first setup.</p>
+<p>The computer can be a Mac, a Windows PC or a Linux machine; the <a href="https://handy.computer/download">download page</a> lists no phone version. The recommended model takes about 478 MB of disk space (<a href="https://handy.computer/docs/models">models page</a>).</p>
+<h2 id="how-do-you-set-up-handy-and-dictate-step-by-step" tabindex="-1">How do you set up Handy and dictate, step by step? <a class="anchor" href="#how-do-you-set-up-handy-and-dictate-step-by-step" aria-hidden="true">#</a></h2>
+<p>You download the app, grant two permissions, pick a model, then hold the shortcut and talk.</p>
+<ol>
+<li>Go to <a href="https://handy.computer/">handy.computer</a>, open the <a href="https://handy.computer/download">download page</a> and take the file for your computer. The Homebrew and winget packages “are not maintained by the Handy developers” (<a href="https://github.com/cjpais/Handy">README</a>).</li>
+<li>Install it. On a Mac, grant both permissions Handy asks for: “Microphone” and “Accessibility” (<a href="https://handy.computer/docs">Getting Started</a>). Skip the second and Handy hears you but pastes nothing.</li>
+<li>Pick a model (next section) and wait for the download.</li>
+<li>Click into any text field: “a browser, editor, chat app, anywhere you can type”.</li>
+<li>Hold the shortcut. The default is Option + Space on a Mac and Ctrl + Space on Windows and Linux (<a href="https://handy.computer/docs/general">General settings</a>). “Speak naturally”, then let go. Your words are pasted at the cursor.</li>
+</ol>
+<p>Holding the keys is “Push To Talk”, the default. Turn it off in the General settings and one press starts recording and a second stops it. Shortcuts with the fn key “only work on Apple keyboards” (<a href="https://github.com/cjpais/Handy">README</a>).</p>
+<figure class="mg" data-scene="keyboard"><img src="/blog/assets/media/handy-speech-to-text/keyboard.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white keyboard lies flat. Two keys reading Option and Space glow yellow and press down, a sky label above them reads Push To Talk, and a mint sound wave pulses while they are held. The keys rise, the wave stops and blue lines of text appear in a lilac text box. Tap the keyboard to press the keys again."><figcaption>Hold Option + Space on a Mac, Ctrl + Space on Windows and Linux. Handy General docs, read 25 Nov 2026.</figcaption></figure>
+<h2 id="which-model-should-you-pick" tabindex="-1">Which model should you pick? <a class="anchor" href="#which-model-should-you-pick" aria-hidden="true">#</a></h2>
+<p>Pick Parakeet V3 unless one of the cases below fits (<a href="https://handy.computer/docs">Getting Started</a>, <a href="https://handy.computer/docs/models">Models</a>).</p>
+<ul>
+<li>English or a European language: Parakeet V3, about 478 MB.</li>
+<li>A language outside Europe, or several: Whisper Medium, about 492 MB, or Whisper Small, about 487 MB, on a weaker computer.</li>
+<li>A very slow computer, English only: Moonshine V2 Tiny, about 31 MB.</li>
+<li>The best English on a strong graphics chip: Cohere Transcribe, about 1.8 GB.</li>
+</ul>
+<p>Parakeet writes numbers as words, so use a Whisper model for digits. The <a href="https://handy.computer/docs/faq">FAQ</a> warns that Parakeet “is primarily an English model” and with other speech “may produce English output or gibberish”.</p>
+<h2 id="what-does-it-get-wrong" tabindex="-1">What does it get wrong? <a class="anchor" href="#what-does-it-get-wrong" aria-hidden="true">#</a></h2>
+<p>It writes what it heard, so rambling, restarts and misheard names all come through.</p>
+<ul>
+<li>Names and rare words. Add them under “Custom Words” in “Settings &gt; Advanced” (<a href="https://handy.computer/docs/advanced">Advanced</a>). The makers admit: “This is very imperfect.”</li>
+<li>Long recordings. The <a href="https://handy.computer/docs/faq">FAQ</a> says to keep recordings under 3 to 5 minutes for best results, because current models “do not handle very long audio well”. Longer ones can fail.</li>
+<li>Saying “period” or “comma” does not insert the symbol.</li>
+<li>It is not live: “Handy records a segment, then transcribes it.”</li>
+<li>Whisper can add a stray “thank you” or “bye bye” to a short recording. Parakeet does not.</li>
+<li>It hears only your microphone, not a video call.</li>
+</ul>
+<p>Our view: talk in short takes and read every paste before you send it.</p>
+<figure class="mg" data-scene="speechbubble"><img src="/blog/assets/media/handy-speech-to-text/speechbubble.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a long lilac speech bubble splits into three short sky speech bubbles. Each short bubble drops its words, one at a time, into a soft white text box beside a blinking blue cursor, while a yellow tag above them reads short takes and a mint tick appears next to the text box. Tap a bubble to join them into one long bubble and split it again."><figcaption>Keep recordings under 3 to 5 minutes. Handy FAQ, read 25 Nov 2026.</figcaption></figure>
+<h2 id="is-it-private" tabindex="-1">Is it private? <a class="anchor" href="#is-it-private" aria-hidden="true">#</a></h2>
+<p>Yes for the audio, with three things to know. The <a href="https://handy.computer/privacy">policy</a> says: “During ordinary transcription, Handy does not send your microphone audio or transcription content to the Handy maintainers or to Handy servers.”</p>
+<ul>
+<li>The internet is used for model downloads and update checks. Update checks are on by default and can be turned off in the settings.</li>
+<li>The “History” tab keeps recent transcriptions with their audio on your disk. The policy says this data is protected by your operating system account and file system controls, and Handy does not currently add its own encryption. To keep nothing, set “History Limit” to 0 under “Advanced &gt; History” (<a href="https://handy.computer/docs/history">History</a>).</li>
+<li>Post processing is optional and experimental. With a cloud provider, the text of what you said goes to that company. It is off unless you set it up (<a href="https://handy.computer/docs/post-processing">Post Processing</a>).</li>
+</ul>
+<h2 id="what-if-it-does-not-work" tabindex="-1">What if it does not work? <a class="anchor" href="#what-if-it-does-not-work" aria-hidden="true">#</a></h2>
+<p>Start with the permission and the paste method (<a href="https://handy.computer/docs/troubleshooting">Troubleshooting</a>).</p>
+<ul>
+<li>Nothing is pasted. Check the cursor was in a text field. On a Mac, allow Handy under “System Settings &gt; Privacy &amp; Security &gt; Accessibility”. If your words show in the “History” tab, try another paste method in “Settings &gt; Advanced”. On Windows, an app running as administrator blocks the paste, so run Handy as administrator too. On Linux, Handy “needs a small tool to type into other apps”: xdotool on X11, and on Wayland one that depends on your desktop. On Wayland the shortcut may also work only while Handy’s window is in front (<a href="https://handy.computer/docs/linux">Linux Setup</a>), and the <a href="https://github.com/cjpais/Handy">README</a> calls Wayland support limited.</li>
+<li>Old copied text is pasted. In the Debug settings (Cmd+Shift+D on a Mac, Ctrl+Shift+D elsewhere), raise the paste delay from 60 ms to between 100 and 200 ms.</li>
+<li>Nothing is transcribed. Check the microphone is not muted and a model shows under “Settings &gt; Models”, then try another microphone in “Settings &gt; General”. Bluetooth devices “can have issues with Handy”.</li>
+<li>The shortcut stopped on a Mac. Secure Input is probably active, often from a terminal with “Secure Keyboard Entry” on or a password manager. Turn it off or quit that app.</li>
+<li>It is slow. Try “a smaller model (Moonshine Tiny or Whisper Small)”.</li>
+</ul>
+<p>Also on this blog: <a href="/blog/goblin-tools-magic-todo/">Goblin Tools Magic ToDo: break a scary chore into small steps</a>, <a href="/blog/upscayl-make-a-small-photo-sharp/">How to use Upscayl to make a small photo sharp again</a> and <a href="/blog/gemini-notebook-contract-audio-summary/">Gemini Notebook: turn a long contract into an audio summary</a>. More guides are under <a href="/blog/topics/ai-tools/">AI tools</a>.</p>
+<h2 id="sources" tabindex="-1">Sources <a class="anchor" href="#sources" aria-hidden="true">#</a></h2>
+<p>Checked on 25 Nov 2026:</p>
+<ul>
+<li><a href="https://handy.computer/">Handy home page</a></li>
+<li><a href="https://handy.computer/download">Download Handy</a></li>
+<li><a href="https://handy.computer/about">About Handy</a></li>
+<li><a href="https://handy.computer/docs">Getting Started</a></li>
+<li><a href="https://handy.computer/docs/linux">Linux Setup</a></li>
+<li><a href="https://handy.computer/docs/models">Models</a></li>
+<li><a href="https://handy.computer/docs/general">General</a></li>
+<li><a href="https://handy.computer/docs/advanced">Advanced</a></li>
+<li><a href="https://handy.computer/docs/faq">FAQ</a></li>
+<li><a href="https://handy.computer/docs/troubleshooting">Troubleshooting</a></li>
+<li><a href="https://handy.computer/docs/post-processing">Post Processing</a></li>
+<li><a href="https://handy.computer/docs/history">History</a></li>
+<li><a href="https://handy.computer/privacy">Privacy Policy</a>, effective 18 Sep 2026</li>
+<li><a href="https://github.com/cjpais/Handy">README</a></li>
+</ul>
+<p>This guide is independent. It is not made, checked or paid for by the Handy project.</p>
+<link rel="stylesheet" href="/blog/assets/media/handy-speech-to-text/motion.css"><script defer src="/blog/assets/media/handy-speech-to-text/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is Handy free?</p>
+          <p class="a">Yes. It is free and open source, and it needs no account.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does your voice leave your computer?</p>
+          <p class="a">Not in ordinary use. The speech model runs on your own machine.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Which model should you pick?</p>
+          <p class="a">Parakeet V3 for English and European languages, a Whisper model for other languages.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does it work offline?</p>
+          <p class="a">Yes, once the app and one model are downloaded.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/getting-started/">Getting Started</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/voice/">Voice</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-handy">What is Handy?</a></li><li class="lvl-2"><a href="#what-do-you-need">What do you need?</a></li><li class="lvl-2"><a href="#how-do-you-set-up-handy-and-dictate-step-by-step">How do you set up Handy and dictate, step by step?</a></li><li class="lvl-2"><a href="#which-model-should-you-pick">Which model should you pick?</a></li><li class="lvl-2"><a href="#what-does-it-get-wrong">What does it get wrong?</a></li><li class="lvl-2"><a href="#is-it-private">Is it private?</a></li><li class="lvl-2"><a href="#what-if-it-does-not-work">What if it does not work?</a></li><li class="lvl-2"><a href="#sources">Sources</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/agent-tools-today-2026-11-25/"><span class="k">← Older</span><span class="t">Agent Tools Today, 25 Nov 2026: Skills over MCP, Claude Apps and Ternary Bonsai 2.5</span></a>
+      <a class="pn next" href="/blog/goblin-tools-magic-todo/"><span class="k">Newer →</span><span class="t">Goblin Tools Magic ToDo: break a scary chore into small steps</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in AI tools</h2>
+      <div class="post-grid">
+        <article class="card t-ai-tools">
+  <a class="thumb t-ai-tools" href="/blog/goblin-tools-magic-todo/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/goblin-tools-magic-todo/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/goblin-tools-magic-todo/">Goblin Tools Magic ToDo: break a scary chore into small steps</a></h3>
+    <p class="dek">Magic ToDo on the free Goblin Tools website turns one dreaded chore into small steps. The steps, the limits, the privacy facts and the fixes.</p>
+    <div class="foot">
+      <span class="tag kind">AI tools</span>
+      <a class="more" href="/blog/goblin-tools-magic-todo/" aria-label="Read: Goblin Tools Magic ToDo: break a scary chore into small steps">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-ai-tools">
+  <a class="thumb t-ai-tools" href="/blog/gemini-notebook-contract-audio-summary/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gemini-notebook-contract-audio-summary/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/gemini-notebook-contract-audio-summary/">Gemini Notebook: turn a long contract into an audio summary</a></h3>
+    <p class="dek">Gemini Notebook, once NotebookLM, answers questions about your contract with quotes, maps it and makes a spoken summary. Steps, questions, limits.</p>
+    <div class="foot">
+      <span class="tag kind">AI tools</span>
+      <a class="more" href="/blog/gemini-notebook-contract-audio-summary/" aria-label="Read: Gemini Notebook: turn a long contract into an audio summary">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-ai-tools">
+  <a class="thumb t-ai-tools" href="/blog/upscayl-make-a-small-photo-sharp/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/upscayl-make-a-small-photo-sharp/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/upscayl-make-a-small-photo-sharp/">How to use Upscayl to make a small photo sharp again</a></h3>
+    <p class="dek">Upscayl is a free, open source app that enlarges small or pixelated photos on your own computer. Steps for Windows, Mac and Linux, limits and fixes.</p>
+    <div class="foot">
+      <span class="tag kind">AI tools</span>
+      <a class="more" href="/blog/upscayl-make-a-small-photo-sharp/" aria-label="Read: How to use Upscayl to make a small photo sharp again">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
