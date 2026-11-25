@@ -2,7 +2,7 @@
 title: "What Is Codex? OpenAI's Coding Agent, Its Free Plan and Models"
 description: "Codex is OpenAI's coding agent for your terminal, editor, desktop app and cloud. ChatGPT Free, Go, Plus and Pro include it. Plans and models, 15 Oct 2026."
 date: 2026-10-02
-updated: 2026-10-15
+updated: 2026-11-25
 category: concepts
 categoryLabel: Concepts
 type: Non-technical
@@ -19,12 +19,12 @@ faq:
   - q: "Which models does Codex use?"
     a: "OpenAI's Codex pricing page lists GPT-6.1 Sol and GPT-6 Luna on Plus, and GPT-6 Luna on Free and Go. GPT-5.5 retired from Codex with ChatGPT sign in on 14 Oct 2026; sessions signed in with an API key were not affected. With an API key you get the models your key can access."
   - q: "Can I run Codex and Claude Code together?"
-    a: "Yes. Munder Difflin is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer."
+    a: "Yes. Munder Difflin is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its agents run on engines such as Claude Code, Codex and Gemini CLI."
 ---
 
 Codex is OpenAI's coding agent: it reads your repo, edits files and runs commands to finish a task. It runs in your terminal, your editor, the ChatGPT desktop app and Codex Cloud on OpenAI's machines. ChatGPT Free, Go, Plus, Pro, Business, Edu and Enterprise include it. Checked 15 Oct 2026.
 
-You can run Codex on its own, or inside [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. If several agents on one repo is new to you, [what an agent harness is](/blog/what-is-a-multi-agent-harness/) explains the setup.
+You can run Codex on its own, or inside [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its agents run on engines such as Claude Code, Codex and Gemini CLI. If several agents on one repo is new to you, [what an agent harness is](/blog/what-is-a-multi-agent-harness/) explains the setup.
 
 ## What is OpenAI Codex?
 
@@ -80,7 +80,7 @@ So you can try Codex for nothing, and the cloud integrations start at Plus. Our 
 
 ## Is Codex the same as ChatGPT?
 
-No: ChatGPT is OpenAI's assistant, and Codex is the coding agent that ships with it. They share your account and the desktop app, and the pricing page says ChatGPT Work uses the same pricing, credits and usage limits as Codex. The difference is the job. ChatGPT answers in a conversation; Codex changes files in a repository. With an API key you can run the CLI without any ChatGPT plan.
+No: ChatGPT is OpenAI's assistant, and Codex is the coding agent that ships with it. They share your account and the desktop app, and the pricing page says ChatGPT Work uses the same pricing, credits and usage limits as Codex. OpenAI's [help article](https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits), read 25 Nov 2026, says "Starting in December, Plus, Pro, and Business plans’ usage allowance will be shared across ChatGPT and Codex", and that "A small group of users may see the usage changes before December". The difference is the job. ChatGPT answers in a conversation; Codex changes files in a repository. With an API key you can run the CLI without any ChatGPT plan.
 
 The full comparison: [Codex vs ChatGPT](/blog/codex-vs-chatgpt/).
 
