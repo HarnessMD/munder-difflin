@@ -6822,5 +6822,27 @@
       "prompt": "Title card: the hero scene in assets/media/black-friday-deal-checker/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "goblin-tools-magic-todo": {
+    "inline": {},
+    "title": "Goblin Tools Magic ToDo: break a scary chore into small steps",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/goblin-tools-magic-todo/hero.png",
+      "alt": "Title card on white. A yellow pill reading AI tools, the title Goblin Tools Magic ToDo, the line Break a scary chore into small steps, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading The website is free under a small yellow notepad, and a sky tile reading The spicier, the more steps under a small soft white jar.",
+      "prompt": "Title card: the hero scene in assets/media/goblin-tools-magic-todo/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "handy-speech-to-text": {
+    "inline": {},
+    "title": "How to talk instead of typing with Handy, free speech to text",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/handy-speech-to-text/hero.png",
+      "alt": "Title card on white. A yellow pill reading AI tools, the title Handy, the line Types what you say into any text box, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading free and open source under a small yellow microphone, and a sky tile reading Mac, Windows and Linux under a small soft white keyboard.",
+      "prompt": "Title card: the hero scene in assets/media/handy-speech-to-text/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
