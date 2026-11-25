@@ -92,7 +92,7 @@ Pick by who should drive the browser. Our view:
 - A shell agent that wants a Rust CLI: agent-browser.
 - Hosted browsers, or the old price with `llm='bu-fast'`: Browser Use.
 
-For agents that drive the whole desktop, see [agent-desktop alternatives](/blog/agent-desktop-alternatives/).
+For agents that drive the whole desktop, see [agent-desktop alternatives](/blog/agent-desktop-alternatives/). If your agent needs web data as clean text rather than a browser to drive, see [Firecrawl alternatives](/blog/firecrawl-alternatives/), checked 25 Nov 2026.
 
 <figure class="mg" data-scene="funnel"><img src="/blog/assets/media/browser-use-alternatives/funnel.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a sky blue funnel sits under five lilac chips that read Your code, Team of agents, No code, MCP client and Shell. Tapping a chip drops it into the funnel, and a mint card slides out below with the matching pick: Stagehand, Munder Difflin, Skyvern, Playwright MCP or Rust CLI. Tapping the card sends it back up."><figcaption>Five Browser Use alternatives and who each one suits, from pages read 16 Nov 2026.</figcaption></figure>
 
