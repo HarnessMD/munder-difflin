@@ -6778,5 +6778,16 @@
       "prompt": "Title card: the hero scene in assets/media/upscayl-make-a-small-photo-sharp/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "what-is-skills-over-mcp": {
+    "inline": {},
+    "title": "What is Skills over MCP? Plus MCP Tasks and Elicitation",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-skills-over-mcp/hero.png",
+      "alt": "Title card on white. The title What is Skills over MCP?, the line MCP servers can now ship skills, run tasks and ask for input, and two chips reading Skills over MCP: public beta, 24 Nov 2026 and Tasks and Elicitation: generally available. A yellow guidebook rests on a blue toolbox, with lilac, sky and mint accents.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-skills-over-mcp/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
