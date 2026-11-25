@@ -1,7 +1,7 @@
 ---
 title: "What is Cogentic? Google's AI Agent Team That Writes Math Proofs"
 seoTitle: "What is Cogentic? Google's AI Agent Team for Math Proofs"
-description: "Cogentic is a Google research harness where AI agents find and check math proofs. Its factoring bound is subexponential, not polynomial, and never names RSA."
+description: "Cogentic is a Google research harness where AI agents find and check proofs. Its factoring paper's bound is subexponential, not polynomial; it never names RSA."
 date: 2026-11-26
 category: concepts
 categoryLabel: Concepts
