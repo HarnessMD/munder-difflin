@@ -66,7 +66,7 @@
   "description": "There is no Codex Max plan. ChatGPT Pro costs $100, $200 or $500 a month (Oct 2026) with no five hour limit: how the weekly limit works and how to stretch it.",
   "image": ["https://munderdiffl.in/blog/assets/media/codex-max-plan-tips/hero.png"],
   "datePublished": "2026-09-14T00:00:00.000Z",
-  "dateModified": "2026-10-21T00:00:00.000Z",
+  "dateModified": "2026-11-25T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
   "publisher": {
     "@type": "Organization",
@@ -97,7 +97,7 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "Which ChatGPT Pro plans include Codex?", "acceptedAnswer": { "@type": "Answer", "text": "On OpenAI's Codex pricing page on 21 Oct 2026, ChatGPT Pro comes in plans at $100, $200 or $500 a month, and all of them include Codex. Pro $500 adds Ultrafast mode. The page lists usage estimates for Plus and Standard Business only, and says Pro plans currently have no five hour limit." } },
+    { "@type": "Question", "name": "Which ChatGPT Pro plans include Codex?", "acceptedAnswer": { "@type": "Answer", "text": "On OpenAI's Codex pricing page on 21 Oct 2026, ChatGPT Pro comes in plans at $100, $200 or $500 a month, and all of them include Codex. Pro $500 adds Ultrafast mode. OpenAI's Pro article, read 25 Nov 2026, says \"Pro 200 includes Ultrafast for GPT-6.2 Sol in Codex only.\" The page lists usage estimates for Plus and Standard Business only, and says Pro plans currently have no five hour limit." } },
     { "@type": "Question", "name": "Is there a five hour limit on ChatGPT Pro for Codex?", "acceptedAnswer": { "@type": "Answer", "text": "No. OpenAI's Codex pricing page on 21 Oct 2026 says Pro plans currently have no five hour limit, while its estimates for Plus are per five hour period. Weekly limits may also apply, so check the usage dashboard for your reset time." } },
     { "@type": "Question", "name": "Does Codex code review count against my usage limit?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on where the review runs. OpenAI's pricing page says reviews Codex runs through GitHub, such as tagging @codex on a pull request, count as Code Review usage, while reviews run locally or outside GitHub count toward your general limits. For local reviews, set review_model in config.toml to a smaller model." } },
     { "@type": "Question", "name": "What happens when I hit my Codex usage limit in the middle of a task?", "acceptedAnswer": { "@type": "Answer", "text": "Codex keeps working on the turn already in progress, subject to fair use limits, per OpenAI's pricing page checked 21 Oct 2026. After that, Plus and Pro users can buy credits without upgrading, use an API key at API rates, or wait for the reset shown on the usage page." } },
@@ -189,9 +189,9 @@
     <div class="prose">
       <p>OpenAI has no plan called Codex Max. The plan people mean is ChatGPT Pro, which comes at $100, $200 or $500 a month (OpenAI pricing, checked 21 Oct 2026). To make the most of it, run the smallest model and effort that works, keep one chat per task, and check <code>/status</code> before big jobs.</p>
 <p>Three things muddy the name: Anthropic’s Claude Max plan, OpenAI’s older GPT-5.1-Codex-Max model, and Codex’s <strong>Max</strong> reasoning effort, one of the settings between Light and Ultra (<a href="https://learn.chatgpt.com/docs/models">OpenAI, Models</a>). None is a Codex plan. Still choosing between tools? Our <a href="/blog/codex-cli-vs-claude-code/">Codex CLI vs Claude Code comparison</a> covers that. The habits in <a href="/blog/manage-multiple-claude-code-sessions/">managing several Claude Code sessions</a>, like one scope per session, carry straight over to Codex.</p>
-<p>You can apply every tip below by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, which is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. Each Codex agent signs in with your own Codex login, and you pick its model per agent, from Luna for routine edits to GPT-6.1 Sol for the hard bug. Our <a href="/blog/run-a-mixed-engine-office/">mixed engine office guide</a> shows a layout, and the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<p>You can apply every tip below by hand, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Our <a href="/blog/run-a-mixed-engine-office/">mixed engine office guide</a> shows a layout, and the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
 <h2 id="is-there-a-codex-max-plan" tabindex="-1">Is there a Codex max plan? <a class="anchor" href="#is-there-a-codex-max-plan" aria-hidden="true">#</a></h2>
-<p>No, but ChatGPT Pro is the closest thing. OpenAI’s <a href="https://learn.chatgpt.com/docs/pricing">Codex pricing page</a>, checked on 21 Oct 2026, lists Pro as “Plans at $100, $200, or $500 USD per month”, with Ultrafast mode on Pro $500.</p>
+<p>No, but ChatGPT Pro is the closest thing. OpenAI’s <a href="https://learn.chatgpt.com/docs/pricing">Codex pricing page</a>, checked on 21 Oct 2026, lists Pro as “Plans at $100, $200, or $500 USD per month”. OpenAI’s <a href="https://help.openai.com/en/articles/9793128">Pro article</a>, read 25 Nov 2026, says “Pro 200 includes Ultrafast for GPT-6.2 Sol in Codex only. Pro 500 also includes Ultrafast.”</p>
 <div class="table-scroll">
 <table>
 <thead>
@@ -219,7 +219,7 @@
 <td>Pro $200</td>
 <td>$200</td>
 <td>No</td>
-<td>Everything in Plus</td>
+<td>Everything in Plus; Ultrafast for GPT-6.2 Sol in Codex only (Pro article, 25 Nov 2026)</td>
 </tr>
 <tr>
 <td>Pro $500</td>
@@ -232,7 +232,7 @@
 </div>
 <p>The page links to a comparison of Pro plans but gives no Pro message estimates, so the usage dashboard is the only place to see your own pace.</p>
 <h2 id="does-codex-have-weekly-limits" tabindex="-1">Does Codex have weekly limits? <a class="anchor" href="#does-codex-have-weekly-limits" aria-hidden="true">#</a></h2>
-<p>They may; on Pro right now the weekly limit is the one that matters. OpenAI’s <a href="https://learn.chatgpt.com/docs/pricing">pricing page</a> says local messages and cloud chats share one allowance and that weekly limits may also apply. The same pool covers the Codex CLI, the IDE extension, the ChatGPT desktop app and ChatGPT Work.</p>
+<p>They may; on Pro right now the weekly limit is the one that matters. OpenAI’s <a href="https://learn.chatgpt.com/docs/pricing">pricing page</a> says local messages and cloud chats share one allowance and that weekly limits may also apply. The same pool covers the Codex CLI, the IDE extension, the ChatGPT desktop app and ChatGPT Work. OpenAI’s <a href="https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits">help article</a>, read 25 Nov 2026, says “Starting in December, Plus, Pro, and Business plans’ usage allowance will be shared across ChatGPT and Codex”, with usage “measured in tokens”, and that “A small group of users may see the usage changes before December”.</p>
 <p>The same page says “Pro plans currently have no five-hour limit,” while its estimates for Plus are per five hour period. On Pro, nothing refills after five hours, so a long unattended run keeps drawing down the whole week. Budget by the week, not by the sitting.</p>
 <h2 id="do-cloud-tasks-use-more-than-local-ones" tabindex="-1">Do cloud tasks use more than local ones? <a class="anchor" href="#do-cloud-tasks-use-more-than-local-ones" aria-hidden="true">#</a></h2>
 <p>Often, yes. OpenAI’s pricing page says “Cloud tasks may use more of your allowance than local messages.” Local work in the CLI or IDE runs whichever model you pick, including the cheaper GPT-6 Luna. Code review follows the same split: reviews Codex runs through GitHub count as Code Review usage, while a local <code>/review</code> counts toward your general limits.</p>
@@ -273,7 +273,7 @@ Usage: codex cloud exec [OPTIONS] --env &lt;ENV_ID&gt; [QUERY]
         
         <div class="qa">
           <p class="q">Which ChatGPT Pro plans include Codex?</p>
-          <p class="a">On OpenAI&#39;s Codex pricing page on 21 Oct 2026, ChatGPT Pro comes in plans at $100, $200 or $500 a month, and all of them include Codex. Pro $500 adds Ultrafast mode. The page lists usage estimates for Plus and Standard Business only, and says Pro plans currently have no five hour limit.</p>
+          <p class="a">On OpenAI&#39;s Codex pricing page on 21 Oct 2026, ChatGPT Pro comes in plans at $100, $200 or $500 a month, and all of them include Codex. Pro $500 adds Ultrafast mode. OpenAI&#39;s Pro article, read 25 Nov 2026, says &quot;Pro 200 includes Ultrafast for GPT-6.2 Sol in Codex only.&quot; The page lists usage estimates for Plus and Standard Business only, and says Pro plans currently have no five hour limit.</p>
         </div>
         
         <div class="qa">
