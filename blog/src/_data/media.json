@@ -6702,6 +6702,39 @@
       "status": "ready"
     }
   },
+  "agent-tools-today-2026-11-25": {
+    "inline": {},
+    "title": "Agent Tools Today, 25 Nov 2026: Skills over MCP, Claude Apps and Ternary Bonsai 2.5",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-25/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily brief, the title Agent Tools Today, 25 Nov 2026, the line Skills over MCP, Install as app, Bonsai 2.5, and a Checked 25 Nov line. A small blue clothesline between yellow posts holds three lilac cards on sky pegs.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-25/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-caveman": {
+    "inline": {},
+    "title": "What is Caveman? The token saving skill for coding agents",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-caveman/hero.png",
+      "alt": "Title card on white. A yellow pill reading Explainer, the title What is Caveman?, the line A skill and local proxy that makes coding agents say less and read less, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Apache-2.0 under a small yellow telegram strip, and a sky tile reading v4.2.0, 22 Nov 2026 under a small blue satchel.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-caveman/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-ui-ux-pro-max-skill": {
+    "inline": {},
+    "title": "What is UI UX Pro Max? The design skill for coding agents",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-ui-ux-pro-max-skill/hero.png",
+      "alt": "Title card on white. A yellow pill reading Explainer, the title What is UI UX Pro Max?, the line The design skill for coding agents, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading MIT licence under a small yellow swatchbook, and a sky tile reading 80 searchable UI styles, per the README under a small blue paint roller.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-ui-ux-pro-max-skill/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
   "what-is-skills-over-mcp": {
     "inline": {},
     "title": "What is Skills over MCP? Plus MCP Tasks and Elicitation",
