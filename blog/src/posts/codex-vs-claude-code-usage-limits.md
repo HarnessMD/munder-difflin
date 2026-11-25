@@ -3,6 +3,7 @@ title: "Codex Usage Limits vs Claude Code: What Each Plan Gives You"
 seoTitle: "Codex Usage Limits vs Claude Code Usage Limits (Oct 2026)"
 description: "Codex usage limits vs Claude Code usage limits, checked 10 Oct 2026: the five hour window, weekly limits, credits and how to check usage on each plan."
 date: 2026-10-10
+updated: 2026-11-25
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
@@ -15,7 +16,7 @@ faq:
   - q: "Does Claude Code have a weekly limit?"
     a: "Yes. Anthropic's help article on Claude Code, checked 10 Oct 2026, says both Pro and Max plans have a five hour session limit and a weekly limit, and that Max plans also have a separate weekly limit for Fable. Anthropic gives no number for either limit."
   - q: "Which runs out first, Codex or Claude Code?"
-    a: "No page we opened says, and we ran no test. OpenAI publishes message estimates for Plus. Anthropic publishes multipliers and no counts, so the two cannot be compared on paper. Checked 10 Oct 2026."
+    a: "No page we opened says. OpenAI publishes message estimates for Plus. Anthropic publishes multipliers and no counts, so the two cannot be compared on paper. Checked 10 Oct 2026."
   - q: "How do I check my Codex or Claude Code usage?"
     a: "In Codex, type /status in an active CLI session or open the usage dashboard at chatgpt.com/codex/settings/usage. In Claude Code, run /usage to see your plan limits and when they reset. Both come from each vendor's own docs, checked 10 Oct 2026."
   - q: "What happens when I hit a limit in Codex or Claude Code?"
@@ -24,7 +25,7 @@ faq:
 
 On paper you can count only the Codex limits: OpenAI publishes estimated messages per five hours for ChatGPT Plus, while Anthropic publishes multipliers for Claude Code and no counts. Checked 10 Oct 2026.
 
-This page is one of our [Comparisons](/blog/topics/comparisons/). If you use both tools, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. It fits when you run both plans. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
+This page is one of our [Comparisons](/blog/topics/comparisons/). If you use both tools, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs both as engines. Setup is in [how to install and use Munder Difflin](/blog/how-to-install-and-use-munder-difflin/).
 
 ## Codex vs Claude Code usage limits at a glance (checked 10 Oct 2026)
 
@@ -53,7 +54,7 @@ For Plus and Standard Business seats, the page estimated these local messages pe
 * GPT-6 Sol: 15 to 150
 * GPT-6 Luna: 350 to 3,000
 
-The same page says "Pro plans currently have no five-hour limit", that local messages and cloud chats share one allowance, and that "weekly limits may also apply". It gives no size for the weekly limit and no estimate for Free, Go or Pro. [Codex pricing](/blog/codex-pricing/) covers each plan.
+The same page says "Pro plans currently have no five-hour limit", that local messages and cloud chats share one allowance, and that "weekly limits may also apply". It gives no size for the weekly limit and no estimate for Free, Go or Pro. OpenAI's [help article](https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits), read 25 Nov 2026, says "Starting in December, Plus, Pro, and Business plans’ usage allowance will be shared across ChatGPT and Codex", with usage "measured in tokens", and that "A small group of users may see the usage changes before December". [Codex pricing](/blog/codex-pricing/) covers each plan.
 
 <figure class="mg" data-scene="jugs"><img src="/blog/assets/media/codex-vs-claude-code-usage-limits/jugs.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Four measuring jugs fill one after another to different heights. Each jug has a low mark and a high mark, and the water wobbles between the two without settling on one line."><figcaption>OpenAI publishes ranges, not fixed caps, for Plus. Codex pricing page, 10 Oct 2026. The drawing shows the ranges as jug marks.</figcaption></figure>
 
@@ -69,7 +70,7 @@ Claude Code also shares its limits with the rest of your plan, per the pricing p
 
 ## Which runs out first, Codex or Claude Code?
 
-No page we opened says, and we ran no test. OpenAI gives message estimates for Plus. Anthropic gives multipliers of a Pro allowance it does not size. A count and a ratio cannot be compared.
+No page we opened says. OpenAI gives message estimates for Plus. Anthropic gives multipliers of a Pro allowance it does not size. A count and a ratio cannot be compared.
 
 Two things the sources do say. Pro plans in Codex currently have no five hour limit, so a weekly limit, if one applies, is the only one left. And Claude Code's [error docs](https://code.claude.com/docs/en/errors) warn that a burst of heavy activity "can exhaust the weekly allowance before the session window resets".
 

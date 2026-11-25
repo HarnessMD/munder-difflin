@@ -6735,6 +6735,28 @@
       "status": "ready"
     }
   },
+  "firecrawl-alternatives": {
+    "inline": {},
+    "title": "Firecrawl Alternatives: 5 Picks for AI Agent Web Data (Nov 2026)",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/firecrawl-alternatives/hero.png",
+      "alt": "Title card on white. A yellow pill reading Alternatives, the title Firecrawl Alternatives, the line Five picks for AI agent web data, checked 25 Nov 2026, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Firecrawl: AGPL 3.0, from $16 a month billed yearly under a small blue sieve strip, and a sky tile reading Crawl4AI: Apache 2.0, v0.9.6 under a small yellow bucket.",
+      "prompt": "Title card: the hero scene in assets/media/firecrawl-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-last30days-skill": {
+    "inline": {},
+    "title": "What is last30days? The research skill for AI agents",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-last30days-skill/hero.png",
+      "alt": "Title card on white. A yellow pill reading Explainer, the title What is last30days?, the line The research skill for AI agents, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading MIT licence under a small blue calendar strip, and a sky tile reading v4.6.0, 22 Nov 2026 under a small yellow notebook.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-last30days-skill/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
   "glm-5-4": {
     "inline": {},
     "title": "GLM-5.4: Z.ai's first loop transformer model, explained",
