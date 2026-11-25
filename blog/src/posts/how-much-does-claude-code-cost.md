@@ -91,6 +91,8 @@ Pick the model on purpose and keep context small. From Anthropic's cost docs, ch
 * Lower `/effort` for routine work. Thinking tokens are billed as output tokens.
 * Check `/usage`. On paid plans it flags any habit behind 10% or more of your recent usage (Oct 2026).
 
+Outside Anthropic, [Caveman](/blog/what-is-caveman/) (JuliusBrussee/caveman) is a skill and local proxy that aims to cut tokens.
+
 ## What happens to the bill when you run several agents?
 
 It multiplies. Each agent has its own context window, all drawing on the same plan or API key. Anthropic's cost docs (checked 22 Oct 2026) say agent teams in plan mode use about 7 times the tokens of a single session.
