@@ -34,6 +34,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://munderdiffl.in/blog/upscayl-make-a-small-photo-sharp/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://munderdiffl.in/blog/what-is-caveman/</loc>
     <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
@@ -2292,4 +2304,5 @@
   <url><loc>https://munderdiffl.in/blog/topics/use-cases/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://munderdiffl.in/blog/topics/orchestration/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://munderdiffl.in/blog/topics/memory/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://munderdiffl.in/blog/topics/ai-tools/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
 </urlset>
