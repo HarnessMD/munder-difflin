@@ -37,7 +37,7 @@
     <id>https://munderdiffl.in/blog/what-is-cogentic/</id>
     <published>2026-11-26T00:00:00.000Z</published>
     <updated>2026-11-26T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Cogentic is a Google research harness where AI agents find and check math proofs. Its factoring bound is subexponential, not polynomial, and never names RSA.</summary>
+    <summary>Cogentic is a Google research harness where AI agents find and check proofs. Its factoring paper&#39;s bound is subexponential, not polynomial; it never names RSA.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 25 Nov 2026: Skills over MCP, Claude Apps and Ternary Bonsai 2.5</title>
