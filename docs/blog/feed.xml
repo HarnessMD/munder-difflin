@@ -4,9 +4,17 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-25T00:00:00.000Z</updated>
+  <updated>2026-11-26T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Black Friday 2026: Spot Fake Deals With an AI Agent Team</title>
+    <link href="https://munderdiffl.in/blog/black-friday-deal-checker/" />
+    <id>https://munderdiffl.in/blog/black-friday-deal-checker/</id>
+    <published>2026-11-26T00:00:00.000Z</published>
+    <updated>2026-11-26T00:00:00.000Z</updated><category term="Use Cases" />
+    <summary>Check the price history, not the was price. Black Friday 2026 dates, FTC pricing rules, holiday return dates, Target price match and a checklist.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 25 Nov 2026: Skills over MCP, Claude Apps and Ternary Bonsai 2.5</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-25/" />
@@ -96,6 +104,14 @@
     <summary>CrewAI is a free MIT framework with a cloud from Basic to Enterprise. Six CrewAI alternatives by licence, language and release, checked 24 Nov 2026.</summary>
   </entry>
   <entry>
+    <title>GLM-5.4: Z.ai&#39;s first loop transformer model, explained</title>
+    <link href="https://munderdiffl.in/blog/glm-5-4/" />
+    <id>https://munderdiffl.in/blog/glm-5-4/</id>
+    <published>2026-11-24T00:00:00.000Z</published>
+    <updated>2026-11-24T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>GLM-5.4 is Z.ai&#39;s first loop transformer model, out 23 Nov 2026. What looping means, where you can use it today and how to set it up in Claude Code.</summary>
+  </entry>
+  <entry>
     <title>OpenCode 2.4: built in browser, automations and upgrade notes</title>
     <link href="https://munderdiffl.in/blog/opencode-2-4/" />
     <id>https://munderdiffl.in/blog/opencode-2-4/</id>
@@ -126,6 +142,14 @@
     <published>2026-11-24T00:00:00.000Z</published>
     <updated>2026-11-24T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Superpowers (obra/superpowers) is an open source skills library that gives coding agents a set workflow. What is inside, how to install it, its limits.</summary>
+  </entry>
+  <entry>
+    <title>Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026)</title>
+    <link href="https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/" />
+    <id>https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/</id>
+    <published>2026-11-22T00:00:00.000Z</published>
+    <updated>2026-11-22T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean&#39;s community certified it on 21 Nov 2026. What happened and how it was checked.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 21 Nov 2026: Inkling 2 Mini, Claude Code v2.1.330 and DreamCoder</title>
@@ -462,29 +486,5 @@
     <published>2026-11-16T00:00:00.000Z</published>
     <updated>2026-11-16T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>LobeHub is an agent workspace for web, desktop and your own server, under its own licence. Five alternatives by licence and setup, checked 16 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>How to Make Money From GTA 6: 6 Hustles and the AI Agent Workflow for Each</title>
-    <link href="https://munderdiffl.in/blog/make-money-with-gta-6/" />
-    <id>https://munderdiffl.in/blog/make-money-with-gta-6/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>Six ways to earn around the GTA 6 launch, what Rockstar reportedly allows, where each payout comes from, and the AI agent workflow that does the prep.</summary>
-  </entry>
-  <entry>
-    <title>Qwen4-Max vs Claude Opus 5.5: Price, Limits and Claude Code Setup (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/qwen4-max-vs-claude-opus-5-5/" />
-    <id>https://munderdiffl.in/blog/qwen4-max-vs-claude-opus-5-5/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Qwen4-Max costs $6 for 1M input plus 1M output tokens, Claude Opus 5.5 costs $24. Limits, Claude Code setup and vendor scores, checked 16 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Qwen4-Max: Price, Specs and How to Use It in Claude Code (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/qwen4-max/" />
-    <id>https://munderdiffl.in/blog/qwen4-max/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>Qwen4-Max is Qwen&#39;s new 2.4T flagship with a 1M context: API price, specs, Token Plan, and setup in Claude Code and Qwen Code, checked 16 Nov 2026.</summary>
   </entry>
 </feed>
