@@ -74,7 +74,7 @@ The cutting is ffmpeg's work, not a Munder Difflin feature. What Munder Difflin 
 
 <figure class="mg" data-scene="toolbelt"><img src="/blog/assets/media/make-money-with-gta-6/toolbelt.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A tool belt holds pouches labelled Research, Cutting, Captions, Titles and Tracking, and its buckle reads You approve. Each pouch lifts a small card in turn, and the buckle clicks shut when all of them are done. Tap a pouch to show its one job."><figcaption>One agent per job and one person at the buckle (Munder Difflin README, read 16 Nov 2026).</figcaption></figure>
 
-None of them plays the game, logs in to your accounts or posts for you. Nobody on the board gets a controller, which we think is fair. The same shape writes this blog: see [how our blog writer agent works](/blog/deploy-a-blog-writer-agent/), [every agent on our floor](/blog/ai-agent-use-cases-our-office/) and more in [Use Cases](/blog/topics/use-cases/).
+None of them plays the game, logs in to your accounts or posts for you. Nobody on the board gets a controller, which we think is fair. The same shape writes this blog: see [how our blog writer agent works](/blog/deploy-a-blog-writer-agent/), [every agent on our floor](/blog/ai-agent-use-cases-our-office/) and more in [Use Cases](/blog/topics/use-cases/). It can [check Black Friday deals](/blog/black-friday-deal-checker/).
 
 ## Which rules keep you paid?
 
