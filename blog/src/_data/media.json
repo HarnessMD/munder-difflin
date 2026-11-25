@@ -6844,5 +6844,16 @@
       "prompt": "Title card: the hero scene in assets/media/handy-speech-to-text/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "what-is-cogentic": {
+    "inline": {},
+    "title": "What is Cogentic? Google's AI Agent Team That Writes Math Proofs",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-cogentic/hero.png",
+      "alt": "Title card on white. A sky pill reading Concepts, the title What is Cogentic?, the line Several AI agents try proofs, others check them., and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Six papers, 25 Nov 2026 under a small soft white ledger, and a yellow tile reading Subexponential, not polynomial under a small sky chalkboard.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-cogentic/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
