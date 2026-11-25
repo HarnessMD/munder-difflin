@@ -26,7 +26,7 @@ Every number below is Google describing its own model on its own code. [Munder D
 
 ## How widely does Google use Gemini 4 Argon?
 
-Widely, by Google's count. Google's [Antigravity post](https://antigravity.google/blog/gemini-4-argon-in-google-antigravity) of 13 Oct 2026 says "over 100K users across Alphabet" rely on Argon each month, inside Google's internal version of Antigravity.
+Widely, by Google's count. Google's [Antigravity post](https://antigravity.google/blog/gemini-4-argon-in-google-antigravity) of 13 Oct 2026 says "over 100K users across Alphabet" rely on Argon each month, inside Google's internal version of Antigravity. Google's own proof harness, [Cogentic](/blog/what-is-cogentic/), used "an early version of Gemini 4 Argon" as one of its two base models, its [arXiv paper](https://arxiv.org/abs/2609.40324) of 30 Sep 2026 says.
 
 The same post reports the result: "Over a four-week period, we have seen a 35% increase in agentic code", with "a 30% decrease in post-submit rollbacks". More code and fewer reversals is the claim every vendor wants to make. Google is the one making it about Google.
 
