@@ -6734,5 +6734,27 @@
       "prompt": "Title card: the hero scene in assets/media/what-is-ui-ux-pro-max-skill/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "gemini-notebook-contract-audio-summary": {
+    "inline": {},
+    "title": "Gemini Notebook: turn a long contract into an audio summary",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/gemini-notebook-contract-audio-summary/hero.png",
+      "alt": "Title card on white. A yellow pill reading Guide, the title Gemini Notebook, the line Turn a long contract into an audio summary, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Free with a Google account under a small blue radio, and a sky tile reading The Brief: under two minutes under a small yellow bookmark.",
+      "prompt": "Title card: the hero scene in assets/media/gemini-notebook-contract-audio-summary/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "upscayl-make-a-small-photo-sharp": {
+    "inline": {},
+    "title": "How to use Upscayl to make a small photo sharp again",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/upscayl-make-a-small-photo-sharp/hero.png",
+      "alt": "Title card on white. A yellow pill reading Guide, the title Upscayl: make a small photo sharp again, the line Free, open source, works on your own computer, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading X4 per side under a small blue mosaic strip, and a sky tile reading Pixelated yes, blurred no under a small yellow loupe.",
+      "prompt": "Title card: the hero scene in assets/media/upscayl-make-a-small-photo-sharp/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
