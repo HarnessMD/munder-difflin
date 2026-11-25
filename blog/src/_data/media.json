@@ -6811,5 +6811,16 @@
       "prompt": "Title card: the hero scene in assets/media/riemann-hypothesis-ai-proof/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "black-friday-deal-checker": {
+    "inline": {},
+    "title": "Black Friday 2026: Spot Fake Deals With an AI Agent Team",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/black-friday-deal-checker/hero.png",
+      "alt": "Title card on white. A yellow pill reading Use Cases, the title Black Friday 2026: Spot Fake Deals, the line Check the price history, not the was price., and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Black Friday: Fri 27 Nov 2026 under a small yellow price tag, and a sky tile reading Amazon returns through January 31, 2027 under a small soft white receipt.",
+      "prompt": "Title card: the hero scene in assets/media/black-friday-deal-checker/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }

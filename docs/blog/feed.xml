@@ -4,9 +4,17 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-25T00:00:00.000Z</updated>
+  <updated>2026-11-26T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Black Friday 2026: Spot Fake Deals With an AI Agent Team</title>
+    <link href="https://munderdiffl.in/blog/black-friday-deal-checker/" />
+    <id>https://munderdiffl.in/blog/black-friday-deal-checker/</id>
+    <published>2026-11-26T00:00:00.000Z</published>
+    <updated>2026-11-26T00:00:00.000Z</updated><category term="Use Cases" />
+    <summary>Check the price history, not the was price. Black Friday 2026 dates, FTC pricing rules, holiday return dates, Target price match and a checklist.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 25 Nov 2026: Skills over MCP, Claude Apps and Ternary Bonsai 2.5</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-25/" />
@@ -478,13 +486,5 @@
     <published>2026-11-16T00:00:00.000Z</published>
     <updated>2026-11-16T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>LobeHub is an agent workspace for web, desktop and your own server, under its own licence. Five alternatives by licence and setup, checked 16 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>How to Make Money From GTA 6: 6 Hustles and the AI Agent Workflow for Each</title>
-    <link href="https://munderdiffl.in/blog/make-money-with-gta-6/" />
-    <id>https://munderdiffl.in/blog/make-money-with-gta-6/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>Six ways to earn around the GTA 6 launch, what Rockstar reportedly allows, where each payout comes from, and the AI agent workflow that does the prep.</summary>
   </entry>
 </feed>
