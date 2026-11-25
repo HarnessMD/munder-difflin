@@ -2,6 +2,7 @@
 title: "Codex Pricing: Every Plan, Usage Limit and API Rate (Oct 2026)"
 description: "Codex pricing checked 5 Oct 2026: which ChatGPT plans include Codex, US prices from $0 to $500, how usage limits are counted, credits and API key rates."
 date: 2026-10-05
+updated: 2026-11-25
 category: guides
 categoryLabel: Guides
 type: Non-technical
@@ -10,26 +11,26 @@ secondaryKeywords: ["openai codex pricing", "codex plan", "codex plans", "codex 
 tags: ["Guides", "Codex", "Pricing", "Cost", "Engines"]
 faq:
   - q: "How much does Codex cost?"
-    a: "Codex has no price of its own. It comes with every ChatGPT plan: Free at $0, Go at $8, Plus at $20 and Pro at $100, $200 or $500 a month, plus Business seats from $20 per user a month billed annually ($25 monthly). You can also pay per token with an API key. These are US prices from OpenAI's pricing pages, checked 5 Oct 2026."
+    a: "Codex has no price of its own. It comes with every ChatGPT plan: Free at $0, Go at $8, Plus at $20 and Pro at $100, $200 or $500 a month, plus Business seats from $20 per user a month billed annually ($25 monthly). You can also pay per token with an API key. These are US prices from OpenAI's pricing pages, checked 25 Nov 2026."
   - q: "Is Codex free?"
     a: "Yes, with limits. OpenAI's help centre says Codex is included across ChatGPT plans, including Free and Go, and the ChatGPT pricing page lists limited Codex access on Free. Codex Cloud is not included with Free or Go. Checked 5 Oct 2026."
   - q: "What are the Codex usage limits on Plus?"
-    a: "OpenAI publishes estimates, not fixed caps. On Plus, the Codex pricing page estimates 15 to 160 local messages per five hours on GPT-6.1 Sol and 350 to 3,000 on GPT-6 Luna, and says weekly limits may also apply. The real figure depends on the model, task size and context. Checked 5 Oct 2026."
+    a: "OpenAI publishes estimates, not fixed caps. On 25 Nov 2026 the Codex pricing page still estimated 15 to 160 local messages per five hours on GPT-6.1 Sol and 350 to 3,000 on GPT-6 Luna for Plus, and said weekly limits may also apply. OpenAI's help article, read 25 Nov 2026, adds that \"Starting in December, Plus, Pro, and Business plans’ usage allowance will be shared across ChatGPT and Codex\", with usage \"measured in tokens\", and that \"A small group of users may see the usage changes before December\"."
   - q: "Is it cheaper to use Codex with an API key or a ChatGPT plan?"
     a: "OpenAI does not give a way to compare them. Its pricing page says API token prices are separate from subscription usage and should not be used to estimate included tasks. An API key suits automation such as CI, where you pay only for what runs. A plan suits daily interactive work."
   - q: "What happens when I hit my Codex limit?"
     a: "Codex can finish the turn already in progress, subject to fair use limits. After that, eligible Plus and Pro users can buy credits without changing plans, or wait for the reset time shown on the usage page. OpenAI's help centre says credits are valid for 12 months from purchase."
 ---
 
-Codex has no price of its own. It comes with every ChatGPT plan, from Free at $0 to Pro at $500 a month, or you pay per token with an API key. Verdict: Plus at $20 a month is the right first plan for most developers. These are US prices, checked 5 Oct 2026.
+Codex has no price of its own. It comes with every ChatGPT plan, from Free at $0 to Pro at $500 a month, or you pay per token with an API key. Our view: Plus is the right first plan for most developers. These are US prices, checked 25 Nov 2026.
 
-You can run Codex on its own, or inside [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of coding agents such as Claude Code, Codex and Gemini CLI on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Guides hub](/blog/topics/guides/) has our other Codex walkthroughs.
+You can run Codex on its own, or inside [Munder Difflin](https://harnessmd.com/download), which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the [Guides hub](/blog/topics/guides/) has our other Codex walkthroughs.
 
 ## How much does Codex cost?
 
 Codex costs whatever your ChatGPT plan costs, because OpenAI does not sell it separately. Here is what OpenAI lists, in US dollars:
 
-| Plan | US price (checked 5 Oct 2026) | What OpenAI lists for Codex |
+| Plan | US price (checked 25 Nov 2026) | What OpenAI lists for Codex |
 | --- | --- | --- |
 | Free | $0 | Limited Codex access in the desktop app, no Codex Cloud |
 | Go | $8 a month | Same Codex access as Free, no Codex Cloud |
@@ -38,10 +39,10 @@ Codex costs whatever your ChatGPT plan costs, because OpenAI does not sell it se
 | Pro 200 | $200 a month | More usage than Pro 100 |
 | Pro 500 | $500 a month | Highest included usage, plus Astra Ultrafast |
 | Business, Standard seat | $20 per user a month billed annually, $25 monthly | Desktop and mobile apps, larger cloud machines, admin controls |
-| Business, Premium seat | $100 per user a month billed annually, $125 monthly | 5x the usage of a Standard seat, no five hour limit |
+| Business, Premium seat | $100 per user a month billed annually, $125 monthly | More usage than a Standard seat, no five hour limit |
 | API key | API token rates | CLI, SDK and IDE extension only, no cloud features |
 
-Prices come from OpenAI's [Codex pricing page](https://learn.chatgpt.com/docs/pricing), the [ChatGPT pricing page](https://chatgpt.com/pricing), its [business pricing page](https://openai.com/api/pricing/) and the [Pro tiers article](https://help.openai.com/en/articles/9793128). Business needs two or more users. Pro is billed monthly only, according to the Pro article.
+Sources: OpenAI's [Codex pricing page](https://learn.chatgpt.com/docs/pricing), the [ChatGPT pricing page](https://chatgpt.com/pricing), the [business pricing page](https://openai.com/business/pricing/) and the [Pro tiers article](https://help.openai.com/en/articles/9793128). Business needs two or more users. Pro is billed monthly only, according to the Pro article.
 
 ## Which ChatGPT plans include Codex?
 
@@ -69,9 +70,13 @@ Four rules from the same page decide how fast you get through that:
 * **Pro has no five hour limit right now.** The page says "currently", so treat it as temporary.
 * **Speed costs extra.** Fast mode uses included usage at 2.5x the Standard rate, and GPT-6 Astra Ultrafast at 8x.
 
-OpenAI does not publish message estimates for the Pro tiers on the pages we opened, only that Pro 200 includes more than Pro 100 and Pro 500 the most. One dated catch: new Pro 200 subscriptions carry a lower allowance than before. Anyone with an active Pro 200 subscription between 22 Sep and 10 a.m. Pacific on 29 Sep 2026 keeps the old one through 29 Oct 2026, while the subscription stays active.
+OpenAI does not publish message estimates for the Pro tiers on the pages we opened, only that Pro 200 includes more than Pro 100 and Pro 500 the most.
 
-To see where you stand, type `/status` in a Codex CLI session or open the usage dashboard. See our [Codex plan tips](/blog/codex-max-plan-tips/). See [limits compared](/blog/codex-vs-claude-code-usage-limits/).
+To see where you stand, type `/status` in a Codex CLI session or open the usage dashboard. See our [Codex plan tips](/blog/codex-max-plan-tips/) and [limits compared](/blog/codex-vs-claude-code-usage-limits/).
+
+## What changes in December?
+
+OpenAI's [usage limits article](https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits), read 25 Nov 2026, says "Starting in December, Plus, Pro, and Business plans’ usage allowance will be shared across ChatGPT and Codex". Usage will be "measured in tokens", and "Instant chat will not draw from your usage." OpenAI adds that "A small group of users may see the usage changes before December".
 
 ## What happens when you hit the limit?
 
@@ -114,7 +119,5 @@ Buy the smallest plan that covers your week.
 * **Heavy daily use.** Pro 100 first, since it drops the five hour limit. Step up to Pro 200 only if the weekly limit still stops you. Pro 500 is for people who need Astra Ultrafast.
 * **A team.** Business Standard seats, with Premium seats for the heaviest users. OpenAI lets you mix seat types.
 * **CI and scripts.** An API key, so the pipeline never eats a person's allowance.
-
-Starting low is cheap. Explaining a $500 line to whoever reads the card statement is not.
 
 Still deciding between tools? Our [Codex vs Claude Code comparison](/blog/codex-cli-vs-claude-code/) puts the plans side by side.

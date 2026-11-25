@@ -3,6 +3,7 @@ title: "Codex vs ChatGPT: What Is the Difference? (Oct 2026)"
 seoTitle: "Codex vs ChatGPT (2026): Difference, Plans and Coding"
 description: "Codex is OpenAI's coding agent and ChatGPT is its assistant. Which plans include Codex, the limits, where each runs and which to use, checked 28 Oct 2026."
 date: 2026-10-28
+updated: 2026-11-25
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
@@ -28,7 +29,7 @@ You can also run Codex next to other agents in [Munder Difflin](https://harnessm
 
 ## Codex vs ChatGPT at a glance (checked 28 Oct 2026)
 
-Codex is the coding agent and ChatGPT is the assistant around it; they share your account and your usage.
+Codex is the coding agent and ChatGPT is the assistant around it; they share your account.
 
 | | Codex | ChatGPT |
 | --- | --- | --- |
@@ -44,7 +45,7 @@ Codex is the coding agent and ChatGPT is the assistant around it; they share you
 
 The difference is the job: ChatGPT talks and produces documents, Codex works on code with developer tools. OpenAI's [Use ChatGPT page](https://learn.chatgpt.com/docs/use-chatgpt) puts it in one line: "Use Chat for a question or back-and-forth. Turn on Work in the switcher when you want ChatGPT to carry a larger task through to a reviewable result. Select Codex when you want developer views or more technical detail, especially for software development."
 
-So is Codex part of ChatGPT? Yes. The [desktop app page](https://learn.chatgpt.com/docs/app) tells you to "Choose ChatGPT or Codex" when you send your first message. The [pricing page](https://learn.chatgpt.com/docs/pricing) says "ChatGPT Work usage inside ChatGPT uses the same pricing, credits, and usage limits as Codex."
+So is Codex part of ChatGPT? Yes. The [desktop app page](https://learn.chatgpt.com/docs/app) tells you to "Choose ChatGPT or Codex" when you send your first message. The [pricing page](https://learn.chatgpt.com/docs/pricing) says "ChatGPT Work and Codex share pricing, credits, and usage limits."
 
 Codex also lives outside the app. The [Codex README](https://github.com/openai/codex) says "Codex CLI is a coding agent from OpenAI that runs locally on your computer." GitHub listed the repo under Apache-2.0 on 28 Oct 2026, with release rust-v0.165.0 published on 27 Oct.
 
@@ -60,7 +61,7 @@ No, an API key works too, but a plan decides where you can use Codex. OpenAI's p
 - **Business at $20 per user a month (28 Oct 2026):** for two or more users billed annually, or $25 billed monthly.
 - **API key:** Codex "in the CLI, SDK, or IDE extension", with "No cloud-based features", billed at API pricing.
 
-Limits are estimates, not caps. For Plus and Standard Business, the page estimated local messages "per five-hour period": 15 to 160 on GPT-6.1 Sol and 350 to 3,000 on GPT-6 Luna. It adds that "Weekly limits may also apply" and that "Pro plans currently have no five-hour limit." [Codex pricing](/blog/codex-pricing/) has the credit rates.
+Limits are estimates, not caps. For Plus and Standard Business, the page estimated local messages "per five-hour period": 15 to 160 on GPT-6.1 Sol and 350 to 3,000 on GPT-6 Luna. It adds that "Weekly limits may also apply" and that "Pro plans currently have no five-hour limit." OpenAI's [help article](https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits), read 25 Nov 2026, says "Starting in December, Plus, Pro, and Business plans’ usage allowance will be shared across ChatGPT and Codex", and that "A small group of users may see the usage changes before December". [Codex pricing](/blog/codex-pricing/) has the credit rates.
 
 <figure class="mg" data-scene="ladder"><img src="/blog/assets/media/codex-vs-chatgpt/ladder.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a wooden ladder leans on a wall with rungs labelled Free 0 dollars, Go 8 dollars, Plus 20 dollars and Pro from 100 dollars, as listed on 28 Oct 2026. A small card that reads CLI climbs rung by rung and settles on Plus."><figcaption>Free and Go list the desktop app; Plus at $20 a month was the first card listing the CLI on OpenAI's pricing page, 28 Oct 2026.</figcaption></figure>
 
