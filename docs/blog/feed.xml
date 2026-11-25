@@ -24,6 +24,22 @@
     <summary>Firecrawl is mainly AGPL 3.0 and paid plans start at $16 a month billed yearly. Five alternatives for AI agent web data, checked 25 Nov 2026.</summary>
   </entry>
   <entry>
+    <title>Gemini Notebook: turn a long contract into an audio summary</title>
+    <link href="https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/" />
+    <id>https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/</id>
+    <published>2026-11-25T00:00:00.000Z</published>
+    <updated>2026-11-25T00:00:00.000Z</updated><category term="AI tools" />
+    <summary>Gemini Notebook, once NotebookLM, answers questions about your contract with quotes, maps it and makes a spoken summary. Steps, questions, limits.</summary>
+  </entry>
+  <entry>
+    <title>How to use Upscayl to make a small photo sharp again</title>
+    <link href="https://munderdiffl.in/blog/upscayl-make-a-small-photo-sharp/" />
+    <id>https://munderdiffl.in/blog/upscayl-make-a-small-photo-sharp/</id>
+    <published>2026-11-25T00:00:00.000Z</published>
+    <updated>2026-11-25T00:00:00.000Z</updated><category term="AI tools" />
+    <summary>Upscayl is a free, open source app that enlarges small or pixelated photos on your own computer. Steps for Windows, Mac and Linux, limits and fixes.</summary>
+  </entry>
+  <entry>
     <title>What is Caveman? The token saving skill for coding agents</title>
     <link href="https://munderdiffl.in/blog/what-is-caveman/" />
     <id>https://munderdiffl.in/blog/what-is-caveman/</id>
@@ -470,21 +486,5 @@
     <published>2026-11-15T00:00:00.000Z</published>
     <updated>2026-11-15T00:00:00.000Z</updated><category term="News" />
     <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 14 to 15 Nov 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>Agent Relay Alternatives: 5 Tools for Agents That Talk to Each Other (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/agent-relay-alternatives/" />
-    <id>https://munderdiffl.in/blog/agent-relay-alternatives/</id>
-    <published>2026-11-14T00:00:00.000Z</published>
-    <updated>2026-11-14T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Agent Relay lets teammates&#39; coding agents message each other. We compare 5 alternatives by how they run, licence and price, as of 14 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 14 Nov 2026: llama.cpp 1.0, OpenCode 2.3 and Two Claude Outages</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-14/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-14/</id>
-    <published>2026-11-14T00:00:00.000Z</published>
-    <updated>2026-11-14T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 13 to 14 Nov 2026, each with its source and date.</summary>
   </entry>
 </feed>

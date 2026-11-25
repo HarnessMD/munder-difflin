@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gemini Notebook: turn a long contract into an audio summary — Munder Difflin Blog</title>
+<meta name="description" content="Gemini Notebook, once NotebookLM, answers questions about your contract with quotes, maps it and makes a spoken summary. Steps, questions, limits." />
+<link rel="canonical" href="https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Gemini Notebook: turn a long contract into an audio summary — Munder Difflin Blog" />
+<meta property="og:description" content="Gemini Notebook, once NotebookLM, answers questions about your contract with quotes, maps it and makes a spoken summary. Steps, questions, limits." />
+<meta property="og:url" content="https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/gemini-notebook-contract-audio-summary/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A yellow pill reading Guide, the title Gemini Notebook, the line Turn a long contract into an audio summary, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Free with a Google account under a small blue radio, and a sky tile reading The Brief: under two minutes under a small yellow bookmark." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-25T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Getting Started" />
+<meta property="article:tag" content="Research" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Gemini Notebook: turn a long contract into an audio summary — Munder Difflin Blog" />
+<meta name="twitter:description" content="Gemini Notebook, once NotebookLM, answers questions about your contract with quotes, maps it and makes a spoken summary. Steps, questions, limits." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/gemini-notebook-contract-audio-summary/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A yellow pill reading Guide, the title Gemini Notebook, the line Turn a long contract into an audio summary, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Free with a Google account under a small blue radio, and a sky tile reading The Brief: under two minutes under a small yellow bookmark." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Gemini Notebook: turn a long contract into an audio summary",
+  "description": "Gemini Notebook, once NotebookLM, answers questions about your contract with quotes, maps it and makes a spoken summary. Steps, questions, limits.",
+  "image": ["https://munderdiffl.in/blog/assets/media/gemini-notebook-contract-audio-summary/hero.png"],
+  "datePublished": "2026-11-25T00:00:00.000Z",
+  "dateModified": "2026-11-25T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/" },
+  "keywords": "gemini notebook, gemini notebook audio overview, notebooklm audio overview, notebooklm contract, gemini notebook mind map, notebooklm renamed",
+  "articleSection": "AI tools",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Gemini Notebook: turn a long contract into an audio summary", "item": "https://munderdiffl.in/blog/gemini-notebook-contract-audio-summary/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Gemini Notebook the same as NotebookLM?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Google renamed NotebookLM to Gemini Notebook on 16 Jul 2026 and called it \"the same standalone product\", per its blog post." } },
+    { "@type": "Question", "name": "Is Gemini Notebook free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, with limits. Google's plans page says you can sign up at no charge with a Gmail account. Its usage page says the quota refreshes every 5 hours until you reach a weekly limit. Checked 25 Nov 2026." } },
+    { "@type": "Question", "name": "Can Gemini Notebook read a PDF contract?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. PDF and Word files are supported, and one uploaded file can hold up to 500,000 words or 200MB. Treat it as a first read, not legal advice: Google says not to rely on it for legal advice." } },
+    { "@type": "Question", "name": "What are the Audio Overview formats?", "acceptedAnswer": { "@type": "Answer", "text": "There are four: Deep Dive, the default, with two hosts; The Brief, one speaker with the key takeaways in under two minutes; The Critique; and The Debate." } },
+    { "@type": "Question", "name": "Does Google train on an uploaded contract?", "acceptedAnswer": { "@type": "Answer", "text": "On a personal account, Google says your data \"is not used to train Gemini Notebook unless you provide feedback\". When you share feedback, Google \"may review the full context of that interaction, including your queries, uploads, and the model's responses\". Our view: skip the thumbs up or down in a notebook that holds a private document." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-ai-tools">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/ai-tools/">AI tools</a>
+    </nav>
+    <h1>Gemini Notebook: turn a long contract into an audio summary</h1>
+    <p class="dek">Gemini Notebook, once NotebookLM, answers questions about your contract with quotes, maps it and makes a spoken summary. Steps, questions, limits.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">AI tools</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/gemini-notebook-contract-audio-summary/hero.png" alt="Title card on white. A yellow pill reading Guide, the title Gemini Notebook, the line Turn a long contract into an audio summary, and a Checked 25 Nov 2026 line. Two tiles: a lilac tile reading Free with a Google account under a small blue radio, and a sky tile reading The Brief: under two minutes under a small yellow bookmark." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Gemini Notebook, Google’s <a href="https://support.google.com/gemininotebook/answer/16213268?hl=en">free</a> research tool <a href="https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/">once called NotebookLM</a>, reads a contract you upload, answers questions with quotes from it, draws a mind map and turns it into a spoken Audio Overview. Use it as a first read, then check the clauses that matter yourself. Checked 25 Nov 2026.</p>
+<p>This guide is on the blog of <a href="https://harnessmd.com/download">Munder Difflin</a>, which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. You do not need it for this guide; its <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<h2 id="what-is-gemini-notebook" tabindex="-1">What is Gemini Notebook? <a class="anchor" href="#what-is-gemini-notebook" aria-hidden="true">#</a></h2>
+<p>It is Google’s research tool for questions about files you upload. Google’s <a href="https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/">rename post</a> of 16 Jul 2026 calls it “the same standalone product” as NotebookLM. The <a href="https://support.google.com/gemininotebook/answer/16213268?hl=en">plans page</a> says: “Sign up at no charge by using your gmail account.” Free use has <a href="https://support.google.com/gemininotebook/answer/17670842?hl=en">usage limits</a>.</p>
+<p>One warning: this is a first read, not a replacement for reading the parts that matter, and not legal advice. Google’s <a href="https://support.google.com/gemininotebook/answer/16206563?hl=en">notebook page</a> says: “Don’t rely on Gemini Notebook for medical, legal, financial, or other professional advice.”</p>
+<h2 id="what-do-you-need" tabindex="-1">What do you need? <a class="anchor" href="#what-do-you-need" aria-hidden="true">#</a></h2>
+<p>You need a signed in Google account (a <a href="https://support.google.com/gemininotebook/answer/16164461?hl=en">personal one</a> works), the contract as a PDF or Word file, and a computer.</p>
+<ul>
+<li>One file can hold “up to 500,000 words or up to 200MB” (<a href="https://support.google.com/gemininotebook/answer/16215270?hl=en">sources page</a>).</li>
+<li>The <a href="https://support.google.com/gemininotebook/answer/16212283?hl=en">Mind Maps page</a> says the phone app does not support mind maps yet, so use a browser.</li>
+</ul>
+<h2 id="how-do-you-read-a-contract-with-it-step-by-step" tabindex="-1">How do you read a contract with it, step by step? <a class="anchor" href="#how-do-you-read-a-contract-with-it-step-by-step" aria-hidden="true">#</a></h2>
+<p>Make a notebook, upload the file, then ask.</p>
+<ol>
+<li>Go to <a href="https://notebook.google.com/">notebook.google.com</a> and select “Create new notebook”. Use one per contract; Google says “Each notebook is independent.”</li>
+<li>In the pop up window, select “Upload a source” and pick your contract.</li>
+<li>Read the summary in the “Chat” panel to check the right file went in and could be read.</li>
+<li>Ask one plain question at a time there.</li>
+<li>Hover over a citation for the full quote; select it to jump there in your document.</li>
+</ol>
+<p>Citations “help you check response accuracy” (<a href="https://support.google.com/gemininotebook/answer/16179559?hl=en">chat page</a>), so check the quote for every answer you rely on. No citation, or a quote that says something else? Trust the document, not the answer.</p>
+<figure class="mg" data-scene="magnifier"><img src="/blog/assets/media/gemini-notebook-contract-audio-summary/magnifier.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white contract page with lilac lines lies flat. A sky citation bubble pops up beside it and a dotted blue line runs from the bubble to one line on the page. A yellow magnifier glides along the dotted line and stops over it, the line under the glass turns mint, and a blue label reading check the quote appears. Tap the magnifier to send it to another line and play it again."><figcaption>Citations jump to the quote. Google chat help, read 25 Nov 2026.</figcaption></figure>
+<h2 id="which-questions-should-you-ask-a-contract" tabindex="-1">Which questions should you ask a contract? <a class="anchor" href="#which-questions-should-you-ask-a-contract" aria-hidden="true">#</a></h2>
+<p>Ask about money, then getting out, then who is responsible. Change the words in brackets.</p>
+<ul>
+<li>
+<p>“List every payment this document requires, with its due date.”</p>
+</li>
+<li>
+<p>“Can the [rent, premium, interest rate] change during the term? Quote the clause.”</p>
+</li>
+<li>
+<p>“What fees or penalties can be charged, and what triggers each one?”</p>
+</li>
+<li>
+<p>“What can be deducted from the deposit?”</p>
+</li>
+<li>
+<p>“How can this agreement end early, and what does that cost?”</p>
+</li>
+<li>
+<p>“How much notice must each side give, and in what form?”</p>
+</li>
+<li>
+<p>“Does this renew automatically? If so, when, and how is it stopped?”</p>
+</li>
+<li>
+<p>“Who pays for repairs and maintenance, case by case?”</p>
+</li>
+<li>
+<p>“What does this document forbid?”</p>
+</li>
+<li>
+<p>“What is excluded or not covered?”</p>
+</li>
+<li>
+<p>“Which clauses would a careful reader negotiate or ask about before signing? Quote each one.”</p>
+</li>
+<li>
+<p>“Does any part of this document contradict another part?”</p>
+</li>
+<li>
+<p>“What does this document not say that an agreement like this usually covers?” Treat this answer with extra care: what the file does not say has no quote to cite.</p>
+</li>
+</ul>
+<p>Last: “Explain clause [number] in plain words.” Then read the real clause through its citation.</p>
+<h2 id="how-do-you-make-a-mind-map-and-an-audio-overview" tabindex="-1">How do you make a mind map and an Audio Overview? <a class="anchor" href="#how-do-you-make-a-mind-map-and-an-audio-overview" aria-hidden="true">#</a></h2>
+<p>Select the “Mind Map” chip in the chat for a map, or “Audio Overview” in the “Studio” panel for the spoken summary. The map shows “main topics and related ideas as a branching diagram”; select a node to ask about it.</p>
+<p>The <a href="https://support.google.com/gemininotebook/answer/16212820?hl=en">Audio Overview page</a> lists four formats:</p>
+<ul>
+<li><strong>Deep Dive</strong>, the default: two hosts.</li>
+<li><strong>The Brief</strong>: one speaker, “the key takeaways of a document in under two minutes”. Our view: start here.</li>
+<li><strong>The Critique</strong>: two hosts give “a constructive evaluation”.</li>
+<li><strong>The Debate</strong>: two hosts debate it.</li>
+</ul>
+<p>You can add a prompt; one to try: “Focus on what must be paid, what is not allowed, and how to get out. Skip the definitions.” It “may take a couple of minutes” and runs in the background. Extras: 80+ languages and Download. English only: Shorter or Longer length, and “Interactive mode”, where you select “Join” to question the hosts.</p>
+<figure class="mg" data-scene="radio"><img src="/blog/assets/media/gemini-notebook-contract-audio-summary/radio.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white contract with lilac lines and a sky staple slides into the top of a blue radio. Its lines come out on the radio screen as a mint sound wave, a yellow tag on the radio reads Audio Overview, and a sky dial turns to The Brief. Tap the radio to turn the dial through Deep Dive, The Brief, The Critique and The Debate."><figcaption>The Brief: under two minutes. Google Audio Overview help, read 25 Nov 2026.</figcaption></figure>
+<h2 id="what-does-it-get-wrong-and-how-do-you-check" tabindex="-1">What does it get wrong, and how do you check? <a class="anchor" href="#what-does-it-get-wrong-and-how-do-you-check" aria-hidden="true">#</a></h2>
+<p>Google says it can be wrong: <a href="https://support.google.com/gemininotebook/answer/16212820?hl=en">Audio Overviews</a> “may contain inaccuracies or audio glitches”, and its <a href="https://support.google.com/gemininotebook/answer/16212283?hl=en">Mind Maps page</a> says “Gemini Notebook can be inaccurate; please double check its responses.”</p>
+<p>Our view:</p>
+<ul>
+<li>Treat the audio as a tour; check what matters in the chat.</li>
+<li>A summary leaves things out. A skipped clause can still cost you money.</li>
+<li>With a scan, a thin or odd first summary may mean the text was misread, which spoils later answers.</li>
+<li>It does not know your local law or what is normal in your market.</li>
+<li>Anything with a number, a date or the word “must”: read it yourself in the original. Take what stays unclear to a professional.</li>
+</ul>
+<figure class="mg" data-scene="bookmark"><img src="/blog/assets/media/gemini-notebook-contract-audio-summary/bookmark.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white contract page with lilac lines lies open. A yellow bookmark slides down the page and stops at a line that reads must, the line glows mint, and a blue tag on the bookmark reads read it yourself while a sky dot blinks beside it. Tap the bookmark to move it to the next line and play it again."><figcaption>It can be inaccurate. Google Mind Maps help, read 25 Nov 2026.</figcaption></figure>
+<h2 id="is-your-contract-private" tabindex="-1">Is your contract private? <a class="anchor" href="#is-your-contract-private" aria-hidden="true">#</a></h2>
+<p>On a personal account, Google says your data “is not used to train Gemini Notebook unless you provide feedback”. When you share feedback, Google “may review the full context of that interaction, including your queries, uploads, and the model’s responses” (<a href="https://support.google.com/gemininotebook/answer/16213268?hl=en">plans page</a>).</p>
+<ul>
+<li>Chat history “is retained and kept private to you”. Clear it with “Delete Chat History” in the chat panel’s three dots menu.</li>
+<li>“Avoid uploading documents you don’t have rights to,” says Google.</li>
+<li>Work and school accounts follow Workspace terms and their admin.</li>
+</ul>
+<p>Our view: skip thumbs up or down on private documents, consider blacking out ID numbers, bank details and signatures, and use a personal account for personal papers.</p>
+<h2 id="what-should-you-try-when-it-fails" tabindex="-1">What should you try when it fails? <a class="anchor" href="#what-should-you-try-when-it-fails" aria-hidden="true">#</a></h2>
+<p>Usually a usage limit, an unclear question or the phone app.</p>
+<ul>
+<li><strong>“Limit reached.”</strong> The quota “refreshes every 5 hours until you reach your weekly limit” (<a href="https://support.google.com/gemininotebook/answer/17670842?hl=en">usage page</a>). Check “Settings”, then “Usage”, top right. On the web, “Generate later” waits for your limit; it “may take a couple hours”.</li>
+<li><strong>No answer.</strong> Google names safety flags and unclear phrasing: “Try to rephrase your question to be clearer or more specific.”</li>
+<li><strong>No “Mind Map” chip.</strong> You are probably in the phone app. Use a browser.</li>
+<li><strong>Not offered.</strong> It is for users “above the age of consent” in listed countries (<a href="https://support.google.com/gemininotebook/answer/16164461?hl=en">help page</a>).</li>
+</ul>
+<p>Also on this blog: <a href="/blog/upscayl-make-a-small-photo-sharp/">How to use Upscayl to make a small photo sharp again</a> and <a href="/blog/what-is-gemini-spark/">Gemini Spark: what it is, what it costs and who can get it</a>.</p>
+<h2 id="sources" tabindex="-1">Sources <a class="anchor" href="#sources" aria-hidden="true">#</a></h2>
+<p>Checked on 25 Nov 2026:</p>
+<ul>
+<li><a href="https://support.google.com/gemininotebook/answer/16164461?hl=en">About</a></li>
+<li><a href="https://support.google.com/gemininotebook/answer/16213268?hl=en">Learn about Gemini Notebook’s plans</a></li>
+<li><a href="https://support.google.com/gemininotebook/answer/16206563?hl=en">Create a notebook</a></li>
+<li><a href="https://support.google.com/gemininotebook/answer/16215270?hl=en">Sources</a></li>
+<li><a href="https://support.google.com/gemininotebook/answer/16179559?hl=en">Chat</a></li>
+<li><a href="https://support.google.com/gemininotebook/answer/16212283?hl=en">Mind Maps</a></li>
+<li><a href="https://support.google.com/gemininotebook/answer/16212820?hl=en">Audio Overview</a></li>
+<li><a href="https://support.google.com/gemininotebook/answer/17670842?hl=en">Usage limits</a></li>
+<li><a href="https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/">NotebookLM is now Gemini Notebook</a>, 16 Jul 2026</li>
+</ul>
+<p>This guide is independent. It is not made, checked or paid for by Google.</p>
+<link rel="stylesheet" href="/blog/assets/media/gemini-notebook-contract-audio-summary/motion.css"><script defer src="/blog/assets/media/gemini-notebook-contract-audio-summary/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is Gemini Notebook the same as NotebookLM?</p>
+          <p class="a">Yes. Google renamed NotebookLM to Gemini Notebook on 16 Jul 2026 and called it &quot;the same standalone product&quot;, per its blog post.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is Gemini Notebook free?</p>
+          <p class="a">Yes, with limits. Google&#39;s plans page says you can sign up at no charge with a Gmail account. Its usage page says the quota refreshes every 5 hours until you reach a weekly limit. Checked 25 Nov 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can Gemini Notebook read a PDF contract?</p>
+          <p class="a">Yes. PDF and Word files are supported, and one uploaded file can hold up to 500,000 words or 200MB. Treat it as a first read, not legal advice: Google says not to rely on it for legal advice.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What are the Audio Overview formats?</p>
+          <p class="a">There are four: Deep Dive, the default, with two hosts; The Brief, one speaker with the key takeaways in under two minutes; The Critique; and The Debate.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does Google train on an uploaded contract?</p>
+          <p class="a">On a personal account, Google says your data &quot;is not used to train Gemini Notebook unless you provide feedback&quot;. When you share feedback, Google &quot;may review the full context of that interaction, including your queries, uploads, and the model&#39;s responses&quot;. Our view: skip the thumbs up or down in a notebook that holds a private document.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/getting-started/">Getting Started</a><a class="tag" href="/blog/tags/research/">Research</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-gemini-notebook">What is Gemini Notebook?</a></li><li class="lvl-2"><a href="#what-do-you-need">What do you need?</a></li><li class="lvl-2"><a href="#how-do-you-read-a-contract-with-it-step-by-step">How do you read a contract with it, step by step?</a></li><li class="lvl-2"><a href="#which-questions-should-you-ask-a-contract">Which questions should you ask a contract?</a></li><li class="lvl-2"><a href="#how-do-you-make-a-mind-map-and-an-audio-overview">How do you make a mind map and an Audio Overview?</a></li><li class="lvl-2"><a href="#what-does-it-get-wrong-and-how-do-you-check">What does it get wrong, and how do you check?</a></li><li class="lvl-2"><a href="#is-your-contract-private">Is your contract private?</a></li><li class="lvl-2"><a href="#what-should-you-try-when-it-fails">What should you try when it fails?</a></li><li class="lvl-2"><a href="#sources">Sources</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/upscayl-make-a-small-photo-sharp/"><span class="k">← Older</span><span class="t">How to use Upscayl to make a small photo sharp again</span></a>
+      <a class="pn next" href="/blog/firecrawl-alternatives/"><span class="k">Newer →</span><span class="t">Firecrawl Alternatives: 5 Picks for AI Agent Web Data (Nov 2026)</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in AI tools</h2>
+      <div class="post-grid">
+        <article class="card t-ai-tools">
+  <a class="thumb t-ai-tools" href="/blog/upscayl-make-a-small-photo-sharp/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/upscayl-make-a-small-photo-sharp/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/upscayl-make-a-small-photo-sharp/">How to use Upscayl to make a small photo sharp again</a></h3>
+    <p class="dek">Upscayl is a free, open source app that enlarges small or pixelated photos on your own computer. Steps for Windows, Mac and Linux, limits and fixes.</p>
+    <div class="foot">
+      <span class="tag kind">AI tools</span>
+      <a class="more" href="/blog/upscayl-make-a-small-photo-sharp/" aria-label="Read: How to use Upscayl to make a small photo sharp again">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
