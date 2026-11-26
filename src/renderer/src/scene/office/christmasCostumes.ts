@@ -84,6 +84,11 @@ const FUR_SH: RGB = [94, 84, 76];
 const INK: RGB = [34, 30, 42];
 const INK_HI: RGB = [58, 52, 70];
 const NAVY: RGB = [44, 58, 102];
+/** Antlers and the fur hat are set apart from brown hair: pale horn, dark fur. */
+const HORN: RGB = [222, 196, 150];
+const HORN_SH: RGB = [176, 146, 104];
+const DARK_FUR: RGB = [62, 44, 32];
+const DARK_FUR_HI: RGB = [92, 68, 50];
 
 /** The recipe a costume starts from. Only body clothing changes; the face,
  *  hair and skin stay the person's own so everyone is still recognisable. */
@@ -149,14 +154,15 @@ function elfHat(p: Px, back: boolean): void {
 
 function antlers(p: Px): void {
   clearRows(p, 0, 1);
-  // Two branching antlers on a brown headband.
+  // Two branching antlers on a red headband.
   stamp(p, 0, 0, [
     '.a.a........a.a...',
     '.aaa..a..a..aaa...',
     '..a.aa....aa.a....',
     '..aa..........aa..',
     '...hhhhhhhhhhhh...',
-  ], { a: BROWN_HI, h: BROWN_SH });
+  ], { a: HORN, h: RED });
+  p.set(2, 3, HORN_SH); p.set(15, 3, HORN_SH);
 }
 
 function reindeerNose(p: Px): void {
@@ -166,15 +172,16 @@ function reindeerNose(p: Px): void {
 
 function furHat(p: Px, back: boolean): void {
   clearRows(p, 0, 4);
-  // The Belsnickel's tall fur hat, shaggy at the rim, a pine sprig in front.
+  // The Belsnickel's tall dark fur hat with a shaggy pale brim, a pine sprig
+  // in front.
   stamp(p, 0, 0, [
     '.....ffFffFff.....',
     '....fFffFffFff....',
     '....fffFfffFff....',
     '...FfffffffffffF..',
-    '...ffFfFfFfFfFff..',
-    '..f.F.f.F.f.F.f.f.',
-  ], { f: BROWN_HI, F: BROWN });
+    '..rRrRrRrRrRrRrRr.',
+    '..R.r.R.r.R.r.R.r.',
+  ], { f: DARK_FUR_HI, F: DARK_FUR, r: FUR_HI, R: FUR });
   if (!back) { p.set(6, 1, GREEN); p.set(7, 0, GREEN_HI); p.set(6, 2, GREEN_SH); }
 }
 function furCoat(p: Px, ctx: CostumeCtx): void {

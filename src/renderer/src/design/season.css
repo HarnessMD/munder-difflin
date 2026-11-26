@@ -80,8 +80,15 @@
    is kept to the decorations (ornaments, hats, ribbons): never a button,
    never a status, so red never reads as an error. Status colours never
    change. Keyed on the season and the theme only, so it dresses every skin.
-   Setting the season to 'none' drops every rule below. */
+   The grounds pick up a snowy pine white in light and a pine night in dark;
+   text and border inks stay, so every contrast holds. Setting the season to
+   'none' drops every rule below. */
 :root[data-cth-season='christmas'] {
+  --cth-cream-50:  #FBFCF8;
+  --cth-cream-100: #F3F7F0;
+  --cth-cream-200: #E4ECDD;
+  --cth-paper-100: #FBFCF8;
+  --cth-paper-200: #EAF0E4;
   --cth-accent: #5DB075;
   --cth-accent-hover: #79C28E;
   --cth-accent-ink: #10210F;
@@ -105,6 +112,12 @@
   --cth-season-ink: #1B2A20;
 }
 :root[data-cth-season='christmas'][data-cth-theme='dark'] {
+  --cth-cream-50:  #121815;
+  --cth-cream-100: #17201B;
+  --cth-cream-200: #1F2A23;
+  --cth-cream-300: #29362D;
+  --cth-paper-100: #151D18;
+  --cth-paper-200: #1C251F;
   --cth-accent: #6CC085;
   --cth-accent-hover: #8AD29F;
   --cth-accent-ink: #0E1A10;
