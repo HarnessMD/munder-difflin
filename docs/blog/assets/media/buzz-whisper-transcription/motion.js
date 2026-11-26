@@ -28,7 +28,7 @@
   const hint = (svg, s) => txt(svg, 80, 96, s, { "font-family": MONO, "font-size": 26, "font-weight": 500, fill: MUTE });
   const pad = (g, x, y, w, h, rx) => el("rect", { x, y, width: w, height: h, rx, fill: WHITE, "fill-opacity": 0 }, g);
   const ring = (g, x, y, w, h, rx) => el("rect", { x, y, width: w, height: h, rx, fill: "none", stroke: INK, "stroke-width": 3, "stroke-dasharray": "10 10", "stroke-linecap": "round", class: "mg-ring" }, g);
-  let uid = 0; // a counter for SVG ids, never Math.random
+  let uid = 0; // a counter for SVG ids, so ids are the same on every load
   const blink = (b) => (b <= 0 || b >= 1 ? 1 : 1 - 0.8 * (0.5 - 0.5 * Math.cos(Math.PI * 4 * b)));
 
   const SC = {};
