@@ -29,8 +29,11 @@ export interface HalloweenPlanInput {
    *  board. A wall lamp never hangs over one. Absent: nothing hangs anywhere. */
   decorAt?(x: number, y: number): boolean;
   /** The shared parts of the floor, in tiles: Christmas stands one tree in
-   *  each. Absent: no trees. Halloween ignores it. */
+   *  each. Absent: no trees there. Halloween ignores it. */
   commonAreas?: readonly PlanArea[];
+  /** The boss's private office, in tiles: it gets one tree of its own, the
+   *  only private office that does. */
+  bossOffice?: PlanArea;
 }
 
 export interface PlanArea { x: number; y: number; width: number; height: number; }
@@ -211,8 +214,8 @@ export function planHalloween(input: HalloweenPlanInput): HalloweenPlan {
 
 // ─── Christmas ───────────────────────────────────────────────────────────────
 // WHERE the Christmas props go, by the same rules and from the same map reads
-// as Halloween's: trees stand in the common areas, gifts sit where the desk pumpkins sit, strings of lights
-// hang along the wall faces where the red lamps hang, and a mug of cocoa takes
+// as Halloween's: trees stand in the common areas and one in the boss's office,
+// gifts sit where the desk pumpkins sit, strings of lights hang along the wall faces where the red lamps hang, and a mug of cocoa takes
 // the candy bowl's place on the counter.
 
 export interface PlanTree extends PlanProp {
@@ -328,13 +331,15 @@ export function planChristmas(input: HalloweenPlanInput): ChristmasPlan {
     gifts.push({ x: c.x * ts + 3, y: c.y * ts + ts - 1, z: (c.y + 1) * ts, wrap: Math.floor(tileNoise(c.x, c.y) * 4) });
   }
 
-  // Trees in the common areas, never in a private office.
+  // Trees in the common areas, and one in the boss's office. No other
+  // private office gets one.
   const taken = walkedTiles(input);
   for (const k of avoided) taken.add(k);
   const cornerKeys = new Set(corners.map((c) => `${c.x},${c.y}`));
   const trees: PlanTree[] = [];
-  for (const area of input.commonAreas ?? []) {
-    if (trees.length >= MAX_TREES) break;
+  const areas = (input.commonAreas ?? []).slice(0, MAX_TREES);
+  if (input.bossOffice) areas.push(input.bossOffice);
+  for (const area of areas) {
     const c = treeSpot(input, area, taken, cornerKeys);
     if (!c) continue;
     trees.push({ x: c.x * ts + ts / 2, y: c.y * ts + ts - 1, z: (c.y + 1) * ts, phase: tileNoise(c.x, c.y) });

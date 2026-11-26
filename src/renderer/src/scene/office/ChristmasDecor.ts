@@ -2,8 +2,8 @@ import { Container, Graphics } from 'pixi.js';
 import type { ChristmasPlan, PlanGift, PlanStrand, PlanTree } from './seasonPlan';
 
 // The Christmas dressing of the Classic floor, the twin of SeasonDecor.ts
-// (Halloween): a tree with twinkling lights in a common area or two, gifts
-// under them and on desks, strings of lights along the walls, a mug of cocoa
+// (Halloween): trees with twinkling lights in the common areas and the boss's
+// office, gifts under them and on desks, strings of lights along the walls, a mug of cocoa
 // on the cafe counter and a soft winter evening over the map. Every piece is
 // drawn here in code and added on top of the scene, so nothing is painted
 // into a map and turning the season off leaves exactly the floor there was.

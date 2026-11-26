@@ -1822,6 +1822,7 @@ export function OfficeFloor() {
           desks,
           commonAreas: theme.commonAreas.flatMap((a) =>
             (typeof a === 'string' ? mapRenderer.getZone(a) ?? [] : a)),
+          bossOffice: theme.bossOffice,
           machineStand: theme.coffee.machineStand,
           sinkTile: theme.coffee.sinkTile,
           decorAt: (x, y) => mapRenderer.gidAt('furniture-below', x, y) !== 0

@@ -184,21 +184,28 @@ function realOffice() {
       { ...tile(cafe), width: cafe.width / ts, height: cafe.height / ts },
       { x: hall[0], y: hall[1], width: hall[2], height: hall[3] },
     ],
+    bossOffice: (([, x, y, width, height]) => ({ x: +x, y: +y, width: +width, height: +height }))(
+      theme.match(/bossOffice: \{ x: (\d+), y: (\d+), width: (\d+), height: (\d+) \}/)),
+    bossSeat: spawns.get('desk-ceo'),
   };
 }
 
-test('on the office map: a tree in each common area, off the walkways and the pumpkin spots', () => {
+test("on the office map: a tree in each common area and one in Michael's office, off the walkways and the pumpkin spots", () => {
   const input = realOffice();
   const ts = input.tileSize;
   assert.ok(input.avoid.length > 30, 'seats and stands were read');
   const trees = plan.planChristmas(input).trees.map((t) => ({ x: Math.floor(t.x / ts), y: Math.floor(t.y / ts) }));
-  assert.equal(trees.length, input.commonAreas.length);
+  const areas = [...input.commonAreas, input.bossOffice];
+  assert.equal(trees.length, areas.length);
+  const inside = (t, a) => t.x >= a.x && t.x < a.x + a.width && t.y >= a.y && t.y < a.y + a.height;
+  assert.ok(inside(input.bossSeat, input.bossOffice), "the office is the one with Michael's desk");
+  assert.equal(trees.filter((t) => inside(t, input.bossOffice)).length, 1, "one tree in Michael's office");
   const walked = plan.walkedTiles(input);
   const pumpkins = plan.planHalloween(input).pumpkins.filter((p) => p.size === 'floor')
     .map((p) => `${Math.floor(p.x / ts)},${Math.floor((p.y - 1) / ts)}`);
   trees.forEach((t, i) => {
-    const a = input.commonAreas[i], k = `${t.x},${t.y}`;
-    assert.ok(t.x >= a.x && t.x < a.x + a.width && t.y >= a.y && t.y < a.y + a.height, `${k} is in its common area`);
+    const k = `${t.x},${t.y}`;
+    assert.ok(inside(t, areas[i]), `${k} is in its area`);
     assert.ok(input.isWalkable(t.x, t.y) && !input.decorAt(t.x, t.y), `${k} is bare floor`);
     assert.ok(!walked.has(k), `${k} is on nobody's path`);
     assert.ok(!pumpkins.includes(k), `${k} is not a pumpkin spot`);
