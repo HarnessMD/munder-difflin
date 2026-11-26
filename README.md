@@ -90,13 +90,19 @@ The full design is in [`HIVE.md`](./HIVE.md), [`SPEC.md`](./SPEC.md) and
 
 | | |
 |---|---|
-| <img src="./docs/screenshots/classic/add-agent.png" alt="The Add agent dialog: name, role, engine and model" width="100%"> | <img src="./docs/screenshots/classic/command-center.png" alt="The Command Center with tasks on the board" width="100%"> |
-| **Hire in a few clicks.** Name, role, engine and model, or start from a briefing template. | **Command Center.** The office's task board, next to Michael's terminal, Ask me, triggers, memory and skills. |
-| <img src="./docs/screenshots/classic/settings-engines.png" alt="Settings, Prerequisites: each agent engine and whether it is ready" width="100%"> | |
-| **Settings.** Prerequisites shows each engine and whether it is ready; keys, integrations and MCP servers sit beside it. | |
+| <img src="./docs/screenshots/classic/focus-mode.png" alt="Focus mode: one agent's live terminal fills the window" width="100%"> | <img src="./docs/screenshots/classic/agents.png" alt="The monitor tab: each agent's state, tokens, context, engine and model" width="100%"> |
+| **Focus mode.** One agent fills the window: its live terminal, a note box to steer it, and stop after this step. | **Every agent at a glance.** The monitor tab shows each agent's state, tokens and context, and lets you switch its model and restart it. |
+| <img src="./docs/screenshots/classic/terminal.png" alt="The Researcher's Claude Code terminal, checking a pricing page" width="100%"> | <img src="./docs/screenshots/classic/messages.png" alt="The Researcher's messages tab: a thread from Michael with a reply box" width="100%"> |
+| **Real terminals.** Each agent is the real CLI in its own terminal. Here the Researcher checks a vendor's pricing page. | **Messages.** Michael hands work over in threads. Read them and reply from the agent's messages tab. |
+| <img src="./docs/screenshots/classic/command-center.png" alt="The task board: to do, doing, blocked and done" width="100%"> | <img src="./docs/screenshots/classic/memory.png" alt="The memory tab: text search, semantic search and an agent's memory file" width="100%"> |
+| **Kanban board.** Tasks move through to do, doing, blocked and done, each with its owner. | **Shared memory.** Search what the whole office knows, by exact text or by meaning, and open any agent's memory file. |
+| <img src="./docs/screenshots/classic/triggers.png" alt="The triggers tab: a weekday schedule for the Researcher and a webhook" width="100%"> | <img src="./docs/screenshots/classic/add-agent.png" alt="The Add agent dialog: every engine and model" width="100%"> |
+| **Triggers.** Schedules run a prompt on a clock. Webhooks let an outside system post work in. | **Hire in a few clicks.** Pick each agent's engine and model, or start from a briefing template. |
+| <img src="./docs/screenshots/classic/settings-engines.png" alt="Settings, Prerequisites: each agent engine and whether it is ready" width="100%"> | <img src="./docs/screenshots/classic/configuration.png" alt="Settings, Agents and Models: local endpoints and default models" width="100%"> |
+| **Prerequisites.** Each engine, and whether it is installed and signed in. | **Agents & Models.** Local endpoints and default models for the engines that bring their own, such as OpenCode on Ollama. |
+| <img src="./docs/screenshots/classic/configuration-keys.png" alt="Settings, Integrations, AI providers: API keys, none set" width="100%"> | <img src="./docs/screenshots/classic/budgets.png" alt="Settings, Autonomy and Budgets: ask first, who may hire, circuit breaker" width="100%"> |
+| **Keys.** API keys are stored encrypted and never shown again. Agents read them when they start. | **Autonomy & Budgets.** Ask first or run alone, who may hire, and a circuit breaker for runaway agents and spend. |
 
-- **Memory.** Every agent keeps what it learns, and the whole office shares one memory you can search.
-- **Schedules and webhooks.** Triggers start work on their own, on a schedule or when a service calls in.
 - **Slack.** Send work from a thread and the answer comes back in the same thread.
 - **Keys and integrations.** Save a key once in Settings and give it to the agents that need it.
 - **MCP servers and skills.** Add tools to an agent from the catalog or by hand.
