@@ -6910,5 +6910,16 @@
       "prompt": "Title card: the hero scene in assets/media/duck-ai-private-chat/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "google-workspace-mcp-servers": {
+    "inline": {},
+    "title": "Google Workspace MCP Servers: What They Can Do and How to Connect",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/google-workspace-mcp-servers/hero.png",
+      "alt": "Title card on white. A sky pill reading Guides, the title Google Workspace MCP Servers over a yellow underline, the line Eight servers are GA, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading Gmail: no send tool under a small yellow mailbox with a blue flag, and a mint tile reading 5,000 requests per day under a small blue meter.",
+      "prompt": "Title card: the hero scene in assets/media/google-workspace-mcp-servers/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
