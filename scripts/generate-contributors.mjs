@@ -130,6 +130,10 @@ yet. GitHub records the badge at that instant and will not let it be changed aft
 sequencing mistake and it is not recoverable, so the record lives here instead. The full account is
 in [discussion #353](https://github.com/${REPO}/discussions/353).
 
+From 0.6.0 there is a second way to land here. Some community changes were carried over by hand
+through our Pro codebase and reached main in one commit, the 0.6.0 merge. Their pull requests were
+closed rather than merged, so they are listed here too, each with a note saying what was taken.
+
 Every commit listed here was checked to be in \`main\` before it was added.
 
 | Pull request | Contributor | In main |

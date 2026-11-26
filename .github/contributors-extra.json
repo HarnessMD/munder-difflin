@@ -10,6 +10,10 @@
     "read from the GitHub API at generation time, so a login rename or an avatar change follows",
     "automatically and nobody's name can go stale or be typed wrong.",
     "",
+    "From 0.6.0, community changes carried over by hand through the Pro codebase reached main in",
+    "the 0.6.0 merge commit (67953206, #878). Their pull requests were closed, not merged, so they",
+    "are listed here with that commit and a note saying what was taken.",
+    "",
     "Every commit listed below was verified to be an ancestor of origin/main before it was added.",
     "Adding an entry here credits a person publicly. It is covered by CODEOWNERS for that reason."
   ],
@@ -42,6 +46,51 @@
       "pr": 172,
       "commits": ["7b187d2e", "d41eee90"],
       "note": "Two of the three commits on the branch are in main. The pull request is still open and the third commit is still to be taken."
+    },
+    {
+      "pr": 330,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: the Codex orchestrator default model."
+    },
+    {
+      "pr": 463,
+      "commits": ["67953206"],
+      "note": "Part of this change is in 0.6.0, carried over by hand through #878: hook events reach every floor window."
+    },
+    {
+      "pr": 477,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: Windows hook commands work when the harness path has a space."
+    },
+    {
+      "pr": 503,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: reopen a closed agent instead of only deleting it."
+    },
+    {
+      "pr": 559,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: the inbox wake reminder names the inbox path."
+    },
+    {
+      "pr": 566,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: the harness owns message ids on the outbox path."
+    },
+    {
+      "pr": 582,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: onboarding probes every CLI in one async shell."
+    },
+    {
+      "pr": 605,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: headless hosts can skip the launch picker."
+    },
+    {
+      "pr": 629,
+      "commits": ["67953206"],
+      "note": "Carried over by hand into 0.6.0 through #878: Codex rollout usage reaches the token ledger."
     }
   ]
 }
