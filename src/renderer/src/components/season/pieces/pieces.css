@@ -19,3 +19,8 @@
 
 .cth-pc-strand { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .cth-pc-strand svg { display: block; overflow: visible; }
+
+/* Santa's sleigh (Sleigh.tsx): the body and two leg frames stacked in one box. */
+.cth-pc-sleigh { position: relative; }
+.cth-pc-sleigh > svg { position: absolute; left: 0; top: 0; display: block; }
+.cth-pc-sleigh-legs-b { opacity: 0; }

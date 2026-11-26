@@ -225,3 +225,42 @@ test('the snowfall is gentle, spread out and the same every launch', () => {
   assert.ok(Math.abs(halves[0] - halves[1]) <= 2, 'both sides of the window get snow');
   assert.deepEqual(snow.planSnow(), flakes);
 });
+
+const sleigh = loadTs('src/renderer/src/components/season/sleighPlan.ts');
+
+test("santa's sleigh: three reindeer, Rudolph's red nose in front, as tall as a bat", () => {
+  const team = sleigh.composeTeam();
+  for (const g of [team.body, team.legsA, team.legsB]) {
+    assert.equal(g.length, team.height);
+    for (const row of g) assert.equal(row.length, team.width, 'every row the same width');
+  }
+  assert.ok(team.height * sleigh.PIXEL <= 24, 'the bat scale: about 22 px high');
+  const all = [...team.body, ...team.legsA, ...team.legsB].join('');
+  for (const ch of new Set(all.replace(/\./g, ''))) assert.ok(sleigh.PALETTE[ch], `${ch} has a colour`);
+  const noses = team.body.flatMap((row, y) => [...row].map((c, x) => ({ c, x, y }))).filter((p) => p.c === 'n' || p.c === 'N');
+  assert.equal(noses.length, sleigh.DEER_COUNT);
+  assert.equal(sleigh.DEER_COUNT, 3);
+  const front = noses.reduce((a, b) => (b.x > a.x ? b : a));
+  assert.equal(front.c, 'N', 'the front nose is the red one');
+  assert.equal(noses.filter((p) => p.c === 'N').length, 1, 'only Rudolph glows');
+  assert.equal(sleigh.PALETTE.N, 'var(--cth-season-red)');
+  assert.notDeepEqual(team.legsA, team.legsB, 'two leg frames to gallop');
+  assert.ok(team.body.some((r) => r.includes('s')), 'Santa rides');
+});
+
+test("santa's sleigh flies now and then, along the top, never with reduced motion or a hidden window", () => {
+  assert.ok(sleigh.SLEIGH_CROSS_SHARE <= 0.2, 'mostly quiet: it crosses, then is gone');
+  assert.ok(sleigh.SLEIGH_LOOP_S * sleigh.SLEIGH_CROSS_SHARE >= 4, 'slow enough to see');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'src/renderer/src/components/christmas.css'), 'utf8');
+  const fly = css.slice(css.indexOf('@keyframes cth-xm-sleigh-fly'));
+  const block = fly.slice(0, fly.indexOf('\n}'));
+  const ys = [...block.matchAll(/,\s*(\d+)px\)/g)].map((m) => Number(m[1]));
+  assert.ok(ys.length >= 5);
+  for (const y of ys) assert.ok(y >= 36 && y <= 48, `top ${y}px: under the top bar, above the panels' buttons`);
+  assert.match(css, new RegExp(`cth-xm-sleigh-fly ${sleigh.SLEIGH_LOOP_S}s linear ${sleigh.SLEIGH_FIRST_S}s infinite`));
+  assert.match(css, /data-cth-window='hidden'\] \.cth-xm \* \{ animation-play-state: paused/);
+  assert.match(css, /prefers-reduced-motion: reduce\)\s*\{\s*\.cth-xm \{ display: none; \}/);
+  assert.match(css, /\.cth-xm \{[^}]*pointer-events: none/);
+  const layer = fs.readFileSync(path.join(__dirname, '..', 'src/renderer/src/components/ChristmasLayer.tsx'), 'utf8');
+  assert.match(layer, /<Sleigh className="cth-xm-sleigh" \/>/);
+});

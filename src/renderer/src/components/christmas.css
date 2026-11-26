@@ -33,10 +33,49 @@
   to   { transform: translateX(14px); }
 }
 
+/* ── Santa's sleigh ──────────────────────────────────────────────────────
+   Where Halloween's bats fly: across the top of the window, now and then.
+   It crosses in about seven seconds of every forty six (sleighPlan.ts holds
+   the numbers, test/season-christmas.test.cjs the rules), first six seconds
+   after the window opens. Its path keeps to the band just under the top bar
+   (36 px high) and climbs as it goes, so on the right it passes above the
+   Command Center's buttons; the layer takes no click in any case. */
+.cth-xm-sky { position: absolute; inset: 0 0 auto 0; height: 80px; }
+.cth-xm-sleigh {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-150px, 46px);
+  animation: cth-xm-sleigh-fly 46s linear 6s infinite;
+  will-change: transform;
+}
+@keyframes cth-xm-sleigh-fly {
+  0%    { transform: translate(-150px, 46px); }
+  3.75% { transform: translate(calc(25vw - 150px), 43px); }
+  7.5%  { transform: translate(calc(50vw - 75px), 41px); }
+  11.25%{ transform: translate(calc(75vw), 38px); }
+  15%   { transform: translate(calc(100vw + 10px), 37px); }
+  100%  { transform: translate(calc(100vw + 10px), 37px); }
+}
+/* The deer gallop only while the sleigh is on screen: the two leg frames
+   take turns every 1% of the loop (about half a second) inside the first
+   15%, the crossing. Off screen frame A holds still. Opacity only. */
+.cth-pc-sleigh-legs { will-change: opacity; }
+.cth-xm-sleigh .cth-pc-sleigh-legs-a { animation: cth-xm-gallop-a 46s steps(1, end) 6s infinite; }
+.cth-xm-sleigh .cth-pc-sleigh-legs-b { animation: cth-xm-gallop-b 46s steps(1, end) 6s infinite; }
+@keyframes cth-xm-gallop-a {
+  0%, 2%, 4%, 6%, 8%, 10%, 12%, 14%, 15%, 100% { opacity: 1; }
+  1%, 3%, 5%, 7%, 9%, 11%, 13% { opacity: 0; }
+}
+@keyframes cth-xm-gallop-b {
+  0%, 2%, 4%, 6%, 8%, 10%, 12%, 14%, 15%, 100% { opacity: 0; }
+  1%, 3%, 5%, 7%, 9%, 11%, 13% { opacity: 1; }
+}
+
 /* The window is off screen (season/windowHidden.ts): nothing runs. */
 :root[data-cth-window='hidden'] .cth-xm * { animation-play-state: paused !important; }
 
-/* Reduced motion: nothing falls. */
+/* Reduced motion: nothing falls and nothing flies. */
 @media (prefers-reduced-motion: reduce) {
   .cth-xm { display: none; }
 }

@@ -110,6 +110,11 @@
   /* Snow falls over a light ground: a cool blue grey so the flakes show. */
   --cth-season-flake: #A9BCD6;
   --cth-season-ink: #1B2A20;
+  /* Santa's sleigh (season/sleighPlan.ts): the reindeer, antlers and Santa's face. */
+  --cth-season-deer: #8A5A34;
+  --cth-season-deer-sh: #5E3B20;
+  --cth-season-antler: #C9A86A;
+  --cth-season-skin: #F1C7A0;
 }
 :root[data-cth-season='christmas'][data-cth-theme='dark'] {
   --cth-cream-50:  #121815;
@@ -138,4 +143,9 @@
   --cth-season-snow: #EEF3FA;
   --cth-season-flake: #EEF3FA;
   --cth-season-ink: #0C130E;
+  /* Santa's sleigh (season/sleighPlan.ts): lighter browns so the deer show on the dark ground. */
+  --cth-season-deer: #B07A48;
+  --cth-season-deer-sh: #7A4E2C;
+  --cth-season-antler: #EAD7AE;
+  --cth-season-skin: #F4CFAB;
 }
