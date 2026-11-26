@@ -4,9 +4,25 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-26T00:00:00.000Z</updated>
+  <updated>2026-11-27T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Buzz: free, offline Whisper transcription for a long recording</title>
+    <link href="https://munderdiffl.in/blog/buzz-whisper-transcription/" />
+    <id>https://munderdiffl.in/blog/buzz-whisper-transcription/</id>
+    <published>2026-11-27T00:00:00.000Z</published>
+    <updated>2026-11-27T00:00:00.000Z</updated><category term="AI tools" />
+    <summary>Buzz is a free, open source app that turns audio and video into text on your own computer. Setup, model choice, speaker labels, limits and fixes.</summary>
+  </entry>
+  <entry>
+    <title>How to ask AI a private question with Duck.ai, free, no account</title>
+    <link href="https://munderdiffl.in/blog/duck-ai-private-chat/" />
+    <id>https://munderdiffl.in/blog/duck-ai-private-chat/</id>
+    <published>2026-11-27T00:00:00.000Z</published>
+    <updated>2026-11-27T00:00:00.000Z</updated><category term="AI tools" />
+    <summary>Duck.ai is DuckDuckGo&#39;s free AI chat with no account. What it hides, where chats are saved, how to delete them, the limits and the fixes.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 26 Nov 2026: Cogentic Papers, GRH in Lean and OpenAI&#39;s Polytope Preprint</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-26/" />
@@ -470,21 +486,5 @@
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>Orca runs coding agents in parallel worktrees, free under MIT. Six Orca alternatives with platforms, licence and price, checked 19 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>GPT-6.2 Astra and Sol: Price, Specs and How to Use Them in Codex (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/gpt-6-2-astra-and-sol/" />
-    <id>https://munderdiffl.in/blog/gpt-6-2-astra-and-sol/</id>
-    <published>2026-11-18T00:00:00.000Z</published>
-    <updated>2026-11-18T00:00:00.000Z</updated><category term="Concepts" />
-    <summary>GPT-6.2 Astra and GPT-6.2 Sol are OpenAI&#39;s newest models: API prices, context window, cutoff and how to pick them in Codex, checked 18 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Munder Difflin 0.5.10: Sleeping Agents and a Drag to the Cloud Office</title>
-    <link href="https://munderdiffl.in/blog/munder-difflin-0-5-10/" />
-    <id>https://munderdiffl.in/blog/munder-difflin-0-5-10/</id>
-    <published>2026-11-17T00:00:00.000Z</published>
-    <updated>2026-11-17T00:00:00.000Z</updated><category term="Story" />
-    <summary>In 0.5.10 only the orchestrator starts with the app and other agents wake when a message arrives. You can also drag an agent to your Cloud Office and back.</summary>
   </entry>
 </feed>

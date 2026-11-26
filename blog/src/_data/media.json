@@ -6888,5 +6888,27 @@
       "prompt": "Title card: the hero scene in assets/media/what-is-diagram-design/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "buzz-whisper-transcription": {
+    "inline": {},
+    "title": "Buzz: free, offline Whisper transcription for a long recording",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/buzz-whisper-transcription/hero.png",
+      "alt": "Title card on white. A sky pill reading AI tools, the title Buzz over a yellow underline, the line Turns a recording into text on your own computer, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading Mac, Windows and Linux under small blue headphones, and a mint tile reading Version 1.4.5 under a small yellow cassette.",
+      "prompt": "Title card: the hero scene in assets/media/buzz-whisper-transcription/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "duck-ai-private-chat": {
+    "inline": {},
+    "title": "How to ask AI a private question with Duck.ai, free, no account",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/duck-ai-private-chat/hero.png",
+      "alt": "Title card on white. A sky pill reading AI tools, the title Duck.ai over a yellow underline, the line A free AI chat from DuckDuckGo, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading IP address is removed first under a small yellow envelope, and a mint tile reading Daily limit on usage under a small blue lockbox with a yellow lid.",
+      "prompt": "Title card: the hero scene in assets/media/duck-ai-private-chat/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
