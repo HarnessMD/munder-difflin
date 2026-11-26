@@ -48,6 +48,14 @@
     <summary>Magic ToDo on the free Goblin Tools website turns one dreaded chore into small steps. The steps, the limits, the privacy facts and the fixes.</summary>
   </entry>
   <entry>
+    <title>Google Workspace MCP Servers: What They Can Do and How to Connect</title>
+    <link href="https://munderdiffl.in/blog/google-workspace-mcp-servers/" />
+    <id>https://munderdiffl.in/blog/google-workspace-mcp-servers/</id>
+    <published>2026-11-26T00:00:00.000Z</published>
+    <updated>2026-11-26T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Google Workspace MCP servers went GA on 24 Nov 2026: the eight servers and their tools, setup for Claude and Antigravity, the agent OAuth rule and tiers.</summary>
+  </entry>
+  <entry>
     <title>How to talk instead of typing with Handy, free speech to text</title>
     <link href="https://munderdiffl.in/blog/handy-speech-to-text/" />
     <id>https://munderdiffl.in/blog/handy-speech-to-text/</id>
@@ -478,13 +486,5 @@
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
     <summary>OpenHands ships as Agent Canvas, a control center for coding agents. Five alternatives by licence, release and fit, checked 19 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>Orca Alternatives: 6 Picks for Parallel Coding Agents (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/orca-alternatives/" />
-    <id>https://munderdiffl.in/blog/orca-alternatives/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Orca runs coding agents in parallel worktrees, free under MIT. Six Orca alternatives with platforms, licence and price, checked 19 Nov 2026.</summary>
   </entry>
 </feed>
