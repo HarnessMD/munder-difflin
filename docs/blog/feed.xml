@@ -8,6 +8,14 @@
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
   <entry>
+    <title>Agent Tools Today, 26 Nov 2026: Cogentic Papers, GRH in Lean and OpenAI&#39;s Polytope Preprint</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-26/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-26/</id>
+    <published>2026-11-26T00:00:00.000Z</published>
+    <updated>2026-11-26T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 25 to 26 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
     <title>Black Friday 2026: Spot Fake Deals With an AI Agent Team</title>
     <link href="https://munderdiffl.in/blog/black-friday-deal-checker/" />
     <id>https://munderdiffl.in/blog/black-friday-deal-checker/</id>
@@ -32,12 +40,28 @@
     <summary>Handy is a free, open source app that types what you say into any text box, on your own computer. Setup, which model to pick, limits and fixes.</summary>
   </entry>
   <entry>
+    <title>What is CLI-Anything? A Command Line for Any App, for AI Agents</title>
+    <link href="https://munderdiffl.in/blog/what-is-cli-anything/" />
+    <id>https://munderdiffl.in/blog/what-is-cli-anything/</id>
+    <published>2026-11-26T00:00:00.000Z</published>
+    <updated>2026-11-26T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it.</summary>
+  </entry>
+  <entry>
     <title>What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs</title>
     <link href="https://munderdiffl.in/blog/what-is-cogentic/" />
     <id>https://munderdiffl.in/blog/what-is-cogentic/</id>
     <published>2026-11-26T00:00:00.000Z</published>
     <updated>2026-11-26T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Cogentic is a Google research harness where AI agents find and check proofs. Its factoring paper&#39;s bound is subexponential, not polynomial; it never names RSA.</summary>
+  </entry>
+  <entry>
+    <title>What is diagram-design? The Diagram Skill for Claude Code and Codex</title>
+    <link href="https://munderdiffl.in/blog/what-is-diagram-design/" />
+    <id>https://munderdiffl.in/blog/what-is-diagram-design/</id>
+    <published>2026-11-26T00:00:00.000Z</published>
+    <updated>2026-11-26T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>diagram-design is an open source agent skill that draws diagrams as one HTML + SVG file. What it makes, how to install it, which agents it names.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 25 Nov 2026: Skills over MCP, Claude Apps and Ternary Bonsai 2.5</title>
@@ -172,7 +196,7 @@
     <link href="https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/" />
     <id>https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/</id>
     <published>2026-11-22T00:00:00.000Z</published>
-    <updated>2026-11-22T00:00:00.000Z</updated><category term="Concepts" />
+    <updated>2026-11-26T00:00:00.000Z</updated><category term="Concepts" />
     <summary>Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean&#39;s community certified it on 21 Nov 2026. What happened and how it was checked.</summary>
   </entry>
   <entry>
@@ -462,29 +486,5 @@
     <published>2026-11-17T00:00:00.000Z</published>
     <updated>2026-11-17T00:00:00.000Z</updated><category term="Story" />
     <summary>In 0.5.10 only the orchestrator starts with the app and other agents wake when a message arrives. You can also drag an agent to your Cloud Office and back.</summary>
-  </entry>
-  <entry>
-    <title>Agent Tools Today, 16 Nov 2026: Qwen4-Max, Browser Use 1.0.6 and an Open Source Essay</title>
-    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-16/" />
-    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-16/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="News" />
-    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 15 to 16 Nov 2026, each with its source and date.</summary>
-  </entry>
-  <entry>
-    <title>Browser Use Alternatives: 5 Picks After the 1.0 Rewrite (Nov 2026)</title>
-    <link href="https://munderdiffl.in/blog/browser-use-alternatives/" />
-    <id>https://munderdiffl.in/blog/browser-use-alternatives/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Comparisons" />
-    <summary>Browser Use 1.0 rewrote the library and 1.0.6 made a pricier model the default. Five alternatives by licence, price and fit, checked 16 Nov 2026.</summary>
-  </entry>
-  <entry>
-    <title>GTA 6 Clipping Farm: How to Run One With a Team of AI Agents</title>
-    <link href="https://munderdiffl.in/blog/gta-6-clipping-farm/" />
-    <id>https://munderdiffl.in/blog/gta-6-clipping-farm/</id>
-    <published>2026-11-16T00:00:00.000Z</published>
-    <updated>2026-11-16T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>An honest GTA 6 clipping farm: a few real accounts, paid clipping campaigns, Rockstar&#39;s video rules, and AI agents that cut, caption and track.</summary>
   </entry>
 </feed>

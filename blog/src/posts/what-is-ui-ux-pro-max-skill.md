@@ -134,7 +134,7 @@ Our view: the checklist is the part worth copying even without the skill, since 
 
 ## How does UI UX Pro Max relate to our pages?
 
-Our related pages: [Claude Code Skills: What They Are, Where They Live and How to Write One](/blog/claude-code-skills/), [What is Superpowers? The skills library for coding agents](/blog/what-is-superpowers/) and [What is A2UI? Google's A2UI 1.0, explained](/blog/what-is-a2ui/).
+Our related pages: [Claude Code Skills: What They Are, Where They Live and How to Write One](/blog/claude-code-skills/), [What is Superpowers? The skills library for coding agents](/blog/what-is-superpowers/) and [What is A2UI? Google's A2UI 1.0, explained](/blog/what-is-a2ui/). Another design skill, diagram-design (cathrynlavery/diagram-design), is for diagrams; see [What is diagram-design?](/blog/what-is-diagram-design/).
 
 ## UI UX Pro Max at a glance
 

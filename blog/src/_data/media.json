@@ -6855,5 +6855,38 @@
       "prompt": "Title card: the hero scene in assets/media/what-is-cogentic/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "agent-tools-today-2026-11-26": {
+    "inline": {},
+    "title": "Agent Tools Today, 26 Nov 2026: Cogentic Papers, GRH in Lean and OpenAI's Polytope Preprint",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-26/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily brief, the title Agent Tools Today, 26 Nov 2026, the line Cogentic, GRH in Lean, Hirsch, and a Checked 26 Nov line, beside a small yellow newsstand with a blue awning holding three lilac papers.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-26/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-cli-anything": {
+    "inline": {},
+    "title": "What is CLI-Anything? A Command Line for Any App, for AI Agents",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-cli-anything/hero.png",
+      "alt": "Title card on white. A sky pill reading Concepts, the title What is CLI-Anything?, the line Gives AI agents a command line for existing software, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading Apache 2.0, from HKUDS under a small yellow plug adapter, and a mint tile reading No screenshots, no clicking under a small soft white remote.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-cli-anything/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-diagram-design": {
+    "inline": {},
+    "title": "What is diagram-design? The Diagram Skill for Claude Code and Codex",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-diagram-design/hero.png",
+      "alt": "Title card on white. A sky pill reading Concepts, the title What is Diagram Design?, the line An agent skill that draws diagrams as one HTML + SVG file, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading 52 diagram types under a small yellow stencil, and a mint tile reading MIT licence under a small soft white easel.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-diagram-design/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }

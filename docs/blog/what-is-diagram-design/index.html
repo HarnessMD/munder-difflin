@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What is diagram-design? The agent skill for diagrams</title>
+<meta name="description" content="diagram-design is an open source agent skill that draws diagrams as one HTML + SVG file. What it makes, how to install it, which agents it names." />
+<link rel="canonical" href="https://munderdiffl.in/blog/what-is-diagram-design/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="What is diagram-design? The agent skill for diagrams" />
+<meta property="og:description" content="diagram-design is an open source agent skill that draws diagrams as one HTML + SVG file. What it makes, how to install it, which agents it names." />
+<meta property="og:url" content="https://munderdiffl.in/blog/what-is-diagram-design/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/what-is-diagram-design/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A sky pill reading Concepts, the title What is Diagram Design?, the line An agent skill that draws diagrams as one HTML + SVG file, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading 52 diagram types under a small yellow stencil, and a mint tile reading MIT licence under a small soft white easel." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-26T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="Skills" />
+<meta property="article:tag" content="Claude Code" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="What is diagram-design? The agent skill for diagrams" />
+<meta name="twitter:description" content="diagram-design is an open source agent skill that draws diagrams as one HTML + SVG file. What it makes, how to install it, which agents it names." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/what-is-diagram-design/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A sky pill reading Concepts, the title What is Diagram Design?, the line An agent skill that draws diagrams as one HTML + SVG file, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading 52 diagram types under a small yellow stencil, and a mint tile reading MIT licence under a small soft white easel." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What is diagram-design? The Diagram Skill for Claude Code and Codex",
+  "description": "diagram-design is an open source agent skill that draws diagrams as one HTML + SVG file. What it makes, how to install it, which agents it names.",
+  "image": ["https://munderdiffl.in/blog/assets/media/what-is-diagram-design/hero.png"],
+  "datePublished": "2026-11-26T00:00:00.000Z",
+  "dateModified": "2026-11-26T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/what-is-diagram-design/" },
+  "keywords": "diagram design skill, diagram-design, diagram-design claude code, claude code diagrams, agent skill for diagrams, editorial diagrams",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/what-is-diagram-design/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "What is diagram-design? The Diagram Skill for Claude Code and Codex", "item": "https://munderdiffl.in/blog/what-is-diagram-design/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is diagram-design open source?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The code is on GitHub at cathrynlavery/diagram-design under the MIT licence, per the GitHub API and the README, checked 26 Nov 2026. It has no GitHub releases; its plugin manifest was at version 2.6.179 on 25 Nov 2026." } },
+    { "@type": "Question", "name": "How do I install diagram-design in Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Per the README, run `/plugin marketplace add cathrynlavery/diagram-design`, then `/plugin install diagram-design@diagram-design`. Any host that reads Agent Skills can also use `npx skills add cathrynlavery/diagram-design`." } },
+    { "@type": "Question", "name": "Which agents does diagram-design work with?", "acceptedAnswer": { "@type": "Answer", "text": "The repo description names Claude Code, Codex, GitHub Copilot, Cursor, Factory Droid, Qoder and Pi. The README says it works with any host that reads Agent Skills, including Gemini CLI, Cline, Windsurf and Amp." } },
+    { "@type": "Question", "name": "What diagrams does diagram-design make?", "acceptedAnswer": { "@type": "Answer", "text": "The README counts 52 diagram types, each in three static variants, from Architecture, Flowchart and Sequence to Gantt, Sankey and Git graph. Each diagram is one HTML file with inline SVG, which you can export to SVG or PNG." } },
+    { "@type": "Question", "name": "Should I use diagram-design or Mermaid?", "acceptedAnswer": { "@type": "Answer", "text": "The README itself says that for docs that live in Git and change every sprint, \"Mermaid is still the better fit\", and that \"Diagram Design is for the diagram you are going to publish.\"" } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>What is diagram-design? The Diagram Skill for Claude Code and Codex</h1>
+    <p class="dek">diagram-design is an open source agent skill that draws diagrams as one HTML + SVG file. What it makes, how to install it, which agents it names.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/what-is-diagram-design/hero.png" alt="Title card on white. A sky pill reading Concepts, the title What is Diagram Design?, the line An agent skill that draws diagrams as one HTML + SVG file, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading 52 diagram types under a small yellow stencil, and a mint tile reading MIT licence under a small soft white easel." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Diagram Design, or diagram-design on GitHub, is an open source agent skill that “draws diagrams as one self-contained HTML + SVG file, in your brand”, per its <a href="https://github.com/cathrynlavery/diagram-design">README</a>. The code is at cathrynlavery/diagram-design under the MIT licence, and the README counts 52 diagram types. Checked 26 Nov 2026.</p>
+<p>If you run AI agents, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its agents run on engines such as Claude Code, Codex and Gemini CLI. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<h2 id="what-is-diagram-design" tabindex="-1">What is diagram-design? <a class="anchor" href="#what-is-diagram-design" aria-hidden="true">#</a></h2>
+<p>diagram-design is a skill: a folder of instructions and references that your agent loads when you ask for a diagram. Per the README, “At startup, the agent sees only the skill name and description. When a request matches, it loads <code>SKILL.md</code>”, and a type’s own reference file loads only when that type is chosen. For how skills work in general, see <a href="/blog/claude-code-skills/">Claude Code Skills: What They Are, Where They Live and How to Write One</a>.</p>
+<p>The README says Cathryn Lavery made it for blog post diagrams. Its “Why I built it” section reads: “The model already understood the content. What it was missing was taste, so I wrote the taste down: one accent color for the one or two things that matter, 1px hairlines, no shadows, every coordinate on a 4px grid.”</p>
+<p>Other skills we cover include <a href="/blog/what-is-ui-ux-pro-max-skill/">UI UX Pro Max</a>, a design skill for interfaces, and <a href="/blog/what-is-superpowers/">Superpowers</a>, a skills library for coding agents.</p>
+<h2 id="what-diagrams-does-diagram-design-make" tabindex="-1">What diagrams does diagram-design make? <a class="anchor" href="#what-diagrams-does-diagram-design-make" aria-hidden="true">#</a></h2>
+<p>diagram-design makes 52 diagram types, by the project’s own count in the README, read 26 Nov 2026. Each type comes “in three static variants: minimal light, minimal dark, and full-editorial.” The <a href="https://cathrynlavery.github.io/diagram-design/">gallery</a> numbered them 01 to 52 on 26 Nov 2026. They run from Architecture, Flowchart, Sequence, State machine and ER to Quadrant, Gantt, Sankey, Wardley map, Kanban, Exploded axonometric and Git graph.</p>
+<figure class="mg" data-scene="stencil"><img src="/blog/assets/media/what-is-diagram-design/stencil.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow stencil sheet lies flat with cut out shapes. One at a time, soft white cards slide out from under it, each with a shape and a label: a blue box for Architecture, a lilac diamond for Flowchart, a row of sky arrows for Sequence and a mint grid for Quadrant. A lilac tag on the sheet reads 52 diagram types. Tap the stencil sheet to slide the cards out or back."><figcaption>The README counts 52 diagram types, each in three static variants. Read 26 Nov 2026.</figcaption></figure>
+<p>Each diagram is one HTML file with inline SVG that you open in a browser. The README says “There is no build step, JavaScript, or external image dependency.” You can export the diagram itself to SVG or PNG. PNG export uses Playwright, and the README gives this setup for it: <code>pip install playwright &amp;&amp; playwright install chromium</code>.</p>
+<h2 id="how-do-you-install-diagram-design" tabindex="-1">How do you install diagram-design? <a class="anchor" href="#how-do-you-install-diagram-design" aria-hidden="true">#</a></h2>
+<p>The README gives one command for any host that reads Agent Skills, which it says includes Cursor, Claude Code, Codex, Qoder, GitHub Copilot, Gemini CLI, Cline, Windsurf and Amp:</p>
+<pre class="language-bash"><code class="language-bash">npx skills <span class="token function">add</span> cathrynlavery/diagram-design</code></pre>
+<p>In Claude Code, the README says the plugin marketplace “gets you updates and the slash commands”:</p>
+<pre class="language-text"><code class="language-text">/plugin marketplace add cathrynlavery/diagram-design
+/plugin install diagram-design@diagram-design</code></pre>
+<p>In Codex:</p>
+<pre class="language-bash"><code class="language-bash">codex plugin marketplace <span class="token function">add</span> cathrynlavery/diagram-design
+codex plugin <span class="token function">add</span> diagram-design@diagram-design</code></pre>
+<p>In GitHub Copilot:</p>
+<pre class="language-bash"><code class="language-bash">copilot plugin marketplace <span class="token function">add</span> cathrynlavery/diagram-design
+copilot plugin <span class="token function">install</span> diagram-design@diagram-design</code></pre>
+<p>In Factory Droid:</p>
+<pre class="language-bash"><code class="language-bash">droid plugin marketplace <span class="token function">add</span> https://github.com/cathrynlavery/diagram-design
+droid plugin <span class="token function">install</span> diagram-design@diagram-design <span class="token parameter variable">--scope</span> user</code></pre>
+<p>In Pi, install, then run <code>/reload</code> in an open Pi session:</p>
+<pre class="language-bash"><code class="language-bash">pi <span class="token function">install</span> https://github.com/cathrynlavery/diagram-design</code></pre>
+<p>The README also covers Qoder (clone the repo, validate it, then run <code>qoder plugins install ./diagram-design</code>), Kiro, OpenCode, Claude Cowork and Claude Desktop. Claude Desktop’s skill upload “rejects a ZIP with more than 200 files”, so you build a smaller ZIP with <code>python3 scripts/build-claude-skill-zip.py</code>. The README warns: “Official builds come only from this repository.” It says LittleMight, Cathryn Lavery’s company, publishes the plugin directory listings, and a listing under any other name is an unofficial copy.</p>
+<h2 id="how-do-you-ask-for-a-diagram" tabindex="-1">How do you ask for a diagram? <a class="anchor" href="#how-do-you-ask-for-a-diagram" aria-hidden="true">#</a></h2>
+<p>You ask your agent in plain words. These are the README’s examples:</p>
+<ul>
+<li>“Make me an architecture diagram of my app: frontend, backend, database, Redis cache.”</li>
+<li>“I need a quadrant showing Q2 projects by impact vs effort.”</li>
+<li>“Give me a sequence of a bearer call with token refresh on 401.”</li>
+</ul>
+<p>Per the README, “The agent picks the type, states its plan, and writes one <code>.html</code> file you can open by double-clicking.”</p>
+<figure class="mg" data-scene="easel"><img src="/blog/assets/media/what-is-diagram-design/easel.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow easel holds a soft white canvas, with a sky note pinned on top that reads Make me an architecture diagram of my app. Boxes draw themselves in a row on the canvas: a blue box labelled frontend, a lilac box labelled backend, a mint box labelled database and a sky box labelled Redis cache, joined by thin blue arrows. A yellow tag below reads one HTML file. Tap the easel to draw the diagram again."><figcaption>Per the README, the agent picks the type, states its plan, and writes one HTML file. Read 26 Nov 2026.</figcaption></figure>
+<p>The fourth README example is <code>Onboard diagram-design to https://yoursite.com</code>, which “pulls your palette and fonts so every diagram after this one matches your site”. On first use in a new project, the skill checks whether its style guide is still the default and asks before it draws. In Pi, <code>/skill:diagram-design</code> calls the skill directly. The README also lists slash commands to import and export, such as:</p>
+<pre class="language-text"><code class="language-text">/diagram-design:import-mermaid README.md --diagram=all
+/diagram-design:export-diagram path/to/diagram.html</code></pre>
+<h2 id="when-does-diagram-design-help-and-what-should-you-check" tabindex="-1">When does diagram-design help, and what should you check? <a class="anchor" href="#when-does-diagram-design-help-and-what-should-you-check" aria-hidden="true">#</a></h2>
+<p>Per the README, it is “for the diagram you are going to publish”. It can also redraw diagrams you already have: point it at a <a href="http://draw.io">draw.io</a>, Mermaid, Excalidraw or PlantUML file and it redraws the same content in its own style, ending with a “fidelity ledger” of what got merged, collapsed or dropped.</p>
+<figure class="mg" data-scene="lightbox"><img src="/blog/assets/media/what-is-diagram-design/lightbox.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow lightbox glows under a soft white sheet. A rough sketch of wobbly boxes and crossing lines shows through, then a clean diagram traces itself on top: three blue boxes on a straight grid, one lilac box as the single accent, and sky arrows between them. A mint tag reads One accent, 1px hairlines, no shadows. Tap the lightbox to switch between the sketch and the clean diagram."><figcaption>Per the README, the skill redraws draw.io, Mermaid, Excalidraw and PlantUML files in its own style. Read 26 Nov 2026.</figcaption></figure>
+<p>The README’s style rules start with “One accent color, 1 or 2 focal elements per diagram.” It uses three font families (Instrument Serif, Geist and Geist Mono), “1px hairline borders, no shadows, max border-radius 10px”, and “Every coordinate, width, and gap is divisible by 4.” The default palette is “jet-black + tangerine”; onboarding swaps in your site’s colours and fonts.</p>
+<p>What the README says to check:</p>
+<ul>
+<li><strong>Results vary.</strong> “Output quality depends on the model you run it with, and the same prompt can lay out differently twice.”</li>
+<li><strong>No editable source.</strong> “The result is not an editable source format: there is no text to diff in a pull request and no canvas to drag a box on.” For docs that live in Git and change every sprint, “Mermaid is still the better fit.”</li>
+<li><strong>A self check.</strong> <code>python3 skills/diagram-design/scripts/self_check.py &lt;file&gt;</code> should print <code>OK</code> on a generated file.</li>
+<li><strong>Updates.</strong> An <code>npx skills add</code> install “does not follow marketplace updates automatically”; run <code>npx skills update diagram-design</code>.</li>
+<li><strong>When not to draw.</strong> Lists go in a table or bullets, and before and after comparisons in a table. The README asks: “would a reader learn more from this than from a well-written paragraph? If no, don’t draw.”</li>
+</ul>
+<p>Our view: that last question is the most useful line in the README, and it works before any diagram, with or without the skill.</p>
+<h2 id="diagram-design-at-a-glance" tabindex="-1">diagram-design at a glance <a class="anchor" href="#diagram-design-at-a-glance" aria-hidden="true">#</a></h2>
+<p>Checked 26 Nov 2026.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What it is</td>
+<td>An agent skill that draws diagrams as one HTML + SVG file</td>
+</tr>
+<tr>
+<td>Code</td>
+<td>cathrynlavery/diagram-design on GitHub, created 16 Apr 2026</td>
+</tr>
+<tr>
+<td>Made by</td>
+<td>Cathryn Lavery</td>
+</tr>
+<tr>
+<td>Licence</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>Latest release</td>
+<td>None on GitHub; <a href="https://github.com/cathrynlavery/diagram-design/blob/main/.claude-plugin/plugin.json">plugin manifest</a> at version 2.6.179, bumped 25 Nov 2026</td>
+</tr>
+<tr>
+<td>Last push</td>
+<td>25 Nov 2026</td>
+</tr>
+<tr>
+<td>Stars</td>
+<td>73,163 at 03:37 UTC on 26 Nov 2026</td>
+</tr>
+<tr>
+<td>Agents in the repo description</td>
+<td>Claude Code, Codex, GitHub Copilot, Cursor, Factory Droid, Qoder and Pi</td>
+</tr>
+<tr>
+<td>Diagram types</td>
+<td>52 per the README, each in three static variants</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>HTML with inline SVG; export to SVG or PNG</td>
+</tr>
+<tr>
+<td>Website</td>
+<td><a href="https://diagramdesign.dev">diagramdesign.dev</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<link rel="stylesheet" href="/blog/assets/media/what-is-diagram-design/motion.css"><script defer src="/blog/assets/media/what-is-diagram-design/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is diagram-design open source?</p>
+          <p class="a">Yes. The code is on GitHub at cathrynlavery/diagram-design under the MIT licence, per the GitHub API and the README, checked 26 Nov 2026. It has no GitHub releases; its plugin manifest was at version 2.6.179 on 25 Nov 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I install diagram-design in Claude Code?</p>
+          <p class="a">Per the README, run `/plugin marketplace add cathrynlavery/diagram-design`, then `/plugin install diagram-design@diagram-design`. Any host that reads Agent Skills can also use `npx skills add cathrynlavery/diagram-design`.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Which agents does diagram-design work with?</p>
+          <p class="a">The repo description names Claude Code, Codex, GitHub Copilot, Cursor, Factory Droid, Qoder and Pi. The README says it works with any host that reads Agent Skills, including Gemini CLI, Cline, Windsurf and Amp.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What diagrams does diagram-design make?</p>
+          <p class="a">The README counts 52 diagram types, each in three static variants, from Architecture, Flowchart and Sequence to Gantt, Sankey and Git graph. Each diagram is one HTML file with inline SVG, which you can export to SVG or PNG.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Should I use diagram-design or Mermaid?</p>
+          <p class="a">The README itself says that for docs that live in Git and change every sprint, &quot;Mermaid is still the better fit&quot;, and that &quot;Diagram Design is for the diagram you are going to publish.&quot;</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/skills/">Skills</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-diagram-design">What is diagram-design?</a></li><li class="lvl-2"><a href="#what-diagrams-does-diagram-design-make">What diagrams does diagram-design make?</a></li><li class="lvl-2"><a href="#how-do-you-install-diagram-design">How do you install diagram-design?</a></li><li class="lvl-2"><a href="#how-do-you-ask-for-a-diagram">How do you ask for a diagram?</a></li><li class="lvl-2"><a href="#when-does-diagram-design-help-and-what-should-you-check">When does diagram-design help, and what should you check?</a></li><li class="lvl-2"><a href="#diagram-design-at-a-glance">diagram-design at a glance</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/agent-tools-today-2026-11-25/"><span class="k">← Older</span><span class="t">Agent Tools Today, 25 Nov 2026: Skills over MCP, Claude Apps and Ternary Bonsai 2.5</span></a>
+      <a class="pn next" href="/blog/what-is-cogentic/"><span class="k">Newer →</span><span class="t">What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-cli-anything/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-cli-anything/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-cli-anything/">What is CLI-Anything? A Command Line for Any App, for AI Agents</a></h3>
+    <p class="dek">CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-cli-anything/" aria-label="Read: What is CLI-Anything? A Command Line for Any App, for AI Agents">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-cogentic/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-cogentic/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-cogentic/">What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs</a></h3>
+    <p class="dek">Cogentic is a Google research harness where AI agents find and check proofs. Its factoring paper&#39;s bound is subexponential, not polynomial; it never names RSA.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-cogentic/" aria-label="Read: What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-caveman/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-caveman/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-caveman/">What is Caveman? The token saving skill for coding agents</a></h3>
+    <p class="dek">Caveman (JuliusBrussee/caveman) is an open source skill and local proxy that makes coding agents say less and read less. Install, levels, limits.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-caveman/" aria-label="Read: What is Caveman? The token saving skill for coding agents">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
