@@ -372,7 +372,7 @@ export interface HarnessConfig {
    *  and OFF by default from 0.5.8: unset means 'none', the general look,
    *  shown as "General" in Settings, General. The stored strings match
    *  renderer design/season.ts, which the renderer mirrors this into. */
-  seasonalTheme?: 'halloween' | 'none';
+  seasonalTheme?: 'halloween' | 'christmas' | 'none';
   /** Anonymous product analytics (PostHog) — the exact events/properties are
    *  documented in TELEMETRY.md. Default ON (opt-out, like autoUpdate); builds
    *  without an injected key and environments with DO_NOT_TRACK set never send

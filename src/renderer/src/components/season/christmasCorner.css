@@ -1,0 +1,108 @@
+/* The Christmas corner of a queue input area (ChristmasCorner.tsx). It lies
+   over the input area's root and changes no layout, like the Halloween one
+   (seasonCorner.css), and takes the same places: the tree stands on the top
+   edge where the pumpkin stands, the string of lights hangs where the web
+   hangs. Nothing takes the pointer but the tree's drawn shape. Every
+   animation moves only transform or opacity, and every loop stops with the
+   window (data-cth-window) and with reduced motion. */
+
+.cth-xc {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+:root[dir='rtl'] .cth-xc { transform: scaleX(-1); }
+
+.cth-xc-garland {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  opacity: 0.85;
+}
+
+/* The tree stands on the root's 1 px top border (its trunk ends 1 unit above
+   the bottom of the box: a 2 px sink lands it on the line). */
+.cth-xc-tree {
+  position: absolute;
+  top: calc(2px - 26px);
+  right: 20px;
+  width: 22px;
+  height: 26px;
+}
+.cth-xc-lean { position: absolute; inset: 0; transform-origin: 50% 100%; }
+.cth-xc-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cth-xc-hit { pointer-events: auto; cursor: pointer; }
+
+/* The star's glow: the outer box holds the context level (written by the
+   component), the inner one the mood's light. */
+.cth-xc-level { position: absolute; left: 1px; top: -10px; width: 20px; height: 20px; transition: opacity 0.8s ease; }
+.cth-xc-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--cth-season-glow), transparent);
+  transition: opacity 0.4s ease;
+}
+.cth-xc[data-mood='out'] .cth-xc-glow { opacity: 0; }
+
+/* The lights follow the mood. At work: each colour twinkles on its own beat.
+   Dozing: a slow breath, all together. Needs you: the tree jumps once and the
+   lights hold bright. No session: dark. */
+.cth-xc-bulb { transition: opacity 0.4s ease; }
+.cth-xc[data-mood='awake'] .cth-xc-bulb { animation: cth-xc-twinkle 1.6s ease-in-out infinite alternate; }
+.cth-xc[data-mood='awake'] .cth-xc-b1 { animation-delay: -0.4s; }
+.cth-xc[data-mood='awake'] .cth-xc-b2 { animation-delay: -0.8s; }
+.cth-xc[data-mood='awake'] .cth-xc-b3 { animation-delay: -1.2s; }
+@keyframes cth-xc-twinkle {
+  from { opacity: 1; }
+  to   { opacity: 0.35; }
+}
+.cth-xc[data-mood='dozing'] .cth-xc-bulb { animation: cth-xc-doze 5.5s ease-in-out infinite; }
+@keyframes cth-xc-doze {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.8; }
+}
+.cth-xc[data-mood='out'] .cth-xc-bulb { opacity: 0.15; }
+.cth-xc[data-mood='surprised'] .cth-xc-lean { animation: cth-xc-start 0.45s ease-out 1; }
+@keyframes cth-xc-start {
+  0%   { transform: translateY(0) scale(1); }
+  35%  { transform: translateY(-5px) scale(1.08); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Click: one hop. */
+.cth-xc-hop { animation: cth-xc-hop 0.5s ease-out 1; }
+@keyframes cth-xc-hop {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-7px); }
+  70%      { transform: translateY(0); }
+  85%      { transform: translateY(-2px); }
+}
+
+/* A gift leaves from the send button's corner, as the ghost mail does. */
+.cth-xc-gift {
+  position: absolute;
+  right: 40px;
+  bottom: 30px;
+  opacity: 0;
+}
+.cth-xc-gift svg { display: block; }
+.cth-xc-go { animation: cth-xc-send 0.9s ease-out 1; }
+@keyframes cth-xc-send {
+  0%   { transform: translate(0, 6px) scale(0.6) rotate(0deg); opacity: 0; }
+  18%  { transform: translate(0, -4px) scale(1) rotate(-6deg); opacity: 1; }
+  60%  { transform: translate(5px, -30px) scale(1) rotate(6deg); opacity: 0.9; }
+  100% { transform: translate(-3px, -54px) scale(0.92) rotate(0deg); opacity: 0; }
+}
+
+/* The window is off screen: nothing runs. */
+:root[data-cth-window='hidden'] .cth-xc * { animation-play-state: paused !important; }
+
+/* Reduced motion: every piece is still; the moods change by a plain swap. */
+@media (prefers-reduced-motion: reduce) {
+  .cth-xc *, .cth-xc-hop, .cth-xc-go { animation: none !important; transition: none !important; }
+  .cth-xc[data-mood='awake'] .cth-xc-bulb { opacity: 1; }
+  .cth-xc[data-mood='dozing'] .cth-xc-bulb { opacity: 0.55; }
+}

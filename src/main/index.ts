@@ -5337,9 +5337,10 @@ function updateLocalConfig(patch: Partial<HarnessConfig>): HarnessConfig {
   if ('webhookResponder' in patch) {
     patch.webhookResponder = typeof patch.webhookResponder === 'string' && patch.webhookResponder.trim() ? patch.webhookResponder.trim() : undefined;
   }
-  // 0.5.5: the season is one of two words or absent, and absent is Halloween.
+  // 0.5.5: the season is one of its words or absent; absent is 'none' since 0.5.8.
   if ('seasonalTheme' in patch) {
-    patch.seasonalTheme = patch.seasonalTheme === 'halloween' || patch.seasonalTheme === 'none' ? patch.seasonalTheme : undefined;
+    const s = patch.seasonalTheme;
+    patch.seasonalTheme = s === 'halloween' || s === 'christmas' || s === 'none' ? s : undefined;
   }
   const next = writeConfig(patch);
   // Live opt-in/out from Settings → Privacy (TELEMETRY.md).

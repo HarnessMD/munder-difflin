@@ -10,6 +10,7 @@ import { PixelPanel } from './PixelPanel';
 import { Icon } from './Icon';
 import { useIntegrityIssues } from './integrityIssues';
 import { GraphicsSetting } from './GraphicsSetting';
+import { SEASONS, normalizeSeason, type Season } from '@/design/season';
 import { CodexFoldersSection } from './CodexFoldersSection';
 import { CodexMemorySwitches } from './settings/CodexMemorySwitches';
 import { ResponseStyleSection } from './ResponseStyleSection';
@@ -174,6 +175,20 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
     const next = !openLastHive;
     if (next === openLastHiveSaved) draft.unstage(['openLastHiveOnLaunch']);
     else draft.stage({ openLastHiveOnLaunch: next });
+  };
+  // The season (0.5.5; Christmas beside Halloween): on the same draft, so it
+  // dresses the office on Save. Off, the saved value, writes nothing, so an
+  // unset season stays unset (design/season.ts).
+  const seasonSaved: Season = normalizeSeason(config.seasonalTheme);
+  const seasonShown = draft.value<Season>('seasonalTheme', seasonSaved);
+  const chooseSeason = (next: Season) => {
+    if (next === seasonSaved) draft.unstage(['seasonalTheme']);
+    else draft.stage({ seasonalTheme: next });
+  };
+  const seasonLabel: Record<Season, string> = {
+    none: t('settings.general.seasonNone'),
+    halloween: t('settings.general.seasonHalloween'),
+    christmas: t('settings.general.seasonChristmas')
   };
   const [simpleMode, setSimpleMode] = useState<boolean>(cfgX.audience === 'non-technical');
   // Renderer-local, not part of HarnessConfig — it only changes how this window
@@ -678,6 +693,22 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                             <PixelButton variant={simpleMode ? 'primary' : 'secondary'} size="sm" onClick={toggleSimpleMode}>
                               {simpleMode ? t('common.on') : t('common.off')}
                             </PixelButton>
+                          </div>
+                          {/* Season: Off, Halloween or Christmas, on Save. */}
+                          <div data-season-setting style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                              <span style={{ fontSize: 13, lineHeight: '20px', color: 'var(--cth-ink-900)' }}>{t('settings.general.season')}</span>
+                              <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
+                                {t('settings.general.seasonDesc')}
+                              </span>
+                            </div>
+                            <div aria-label={t('settings.general.season')} style={{ display: 'inline-flex', gap: 4, flexShrink: 0 }}>
+                              {(['none', ...SEASONS.filter((x) => x !== 'none')] as Season[]).map((x) => (
+                                <PixelButton key={x} variant={seasonShown === x ? 'primary' : 'secondary'} size="sm" dataAttrs={{ 'data-season': x }} onClick={() => chooseSeason(x)}>
+                                  {seasonLabel[x]}
+                                </PixelButton>
+                              ))}
+                            </div>
                           </div>
                           {/* Graphics: Auto, GPU or CPU only, from the next start. */}
                           <GraphicsSetting />

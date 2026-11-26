@@ -1,5 +1,5 @@
 /**
- * WHERE the Halloween props go on a Classic office floor (0.5.5, founder
+ * WHERE the season props go on a Classic office floor (Halloween 0.5.5, founder
  * 28 Sep 2026). Nothing here draws: SeasonDecor.ts does. This file only reads
  * the map (walls, walkable tiles, desks, the cafe counter) and answers with
  * positions, so every theme's map gets dressed by the same rules and none of
@@ -202,4 +202,114 @@ export function planHalloween(input: HalloweenPlanInput): HalloweenPlan {
   };
 
   return { pumpkins, cobwebs, candy, bats: BAT_COUNT, lamps };
+}
+
+// ─── Christmas ───────────────────────────────────────────────────────────────
+// WHERE the Christmas props go, by the same rules and from the same map reads
+// as Halloween's: trees stand where the floor pumpkins stand (the inside
+// corners of rooms), gifts sit where the desk pumpkins sit, strings of lights
+// hang along the wall faces where the red lamps hang, and a mug of cocoa takes
+// the candy bowl's place on the counter.
+
+export interface PlanTree extends PlanProp {
+  /** Where in its twinkle this tree's lights start, 0 to 1. */
+  phase: number;
+}
+export interface PlanGift extends PlanProp {
+  /** Which wrapping, 0 to 3: the paper and ribbon pair SeasonDecor picks. */
+  wrap: number;
+}
+/** A string of lights along a wall face, in map pixels: from x0 to x1 at y. */
+export interface PlanStrand {
+  x0: number;
+  x1: number;
+  y: number;
+  z: number;
+  phase: number;
+}
+export interface ChristmasPlan {
+  trees: PlanTree[];
+  gifts: PlanGift[];
+  strands: PlanStrand[];
+  cocoa: PlanProp;
+}
+
+export const MAX_TREES = 2;
+export const MAX_DESK_GIFTS = 5;
+export const MAX_FLOOR_GIFTS = 2;
+export const MAX_STRANDS = 6;
+/** A strand spans at least this many tiles, or it is not hung. */
+export const MIN_STRAND_TILES = 2;
+
+export function planChristmas(input: HalloweenPlanInput): ChristmasPlan {
+  const ts = input.tileSize;
+  const avoided = new Set(input.avoid.map((t) => `${t.x},${t.y}`));
+
+  // Gifts on every other desk, where the desk pumpkins go.
+  const desks = input.desks.filter((_, i) => i % 2 === 1);
+  const gifts: PlanGift[] = spread(desks, MAX_DESK_GIFTS).map((d) => ({
+    x: d.x * ts - 9,
+    y: d.y * ts + 27,
+    z: (d.y + 2) * ts - 2,
+    wrap: Math.floor(tileNoise(d.x, d.y) * 4)
+  }));
+
+  // Trees in the inside corners of rooms (the floor pumpkins' rule). The
+  // corners left over get a small pile of gifts instead.
+  const corners: PlanTile[] = [];
+  for (let y = 0; y < input.height; y++) {
+    for (let x = 0; x < input.width; x++) {
+      if (!input.isWalkable(x, y) || avoided.has(`${x},${y}`)) continue;
+      if (y + 1 >= input.height || input.isWalkable(x, y + 1)) continue;
+      if (!input.isWalkable(x, y - 1)) continue;
+      if (input.isWalkable(x - 1, y) === input.isWalkable(x + 1, y)) continue;
+      corners.push({ x, y });
+    }
+  }
+  const picked = spread(corners, MAX_TREES + MAX_FLOOR_GIFTS);
+  const trees: PlanTree[] = picked.slice(0, MAX_TREES).map((c) => ({
+    x: c.x * ts + ts / 2,
+    y: c.y * ts + ts - 1,
+    z: (c.y + 1) * ts,
+    phase: tileNoise(c.x, c.y)
+  }));
+  for (const c of picked.slice(MAX_TREES)) {
+    gifts.push({ x: c.x * ts + 3, y: c.y * ts + ts - 1, z: (c.y + 1) * ts, wrap: Math.floor(tileNoise(c.x, c.y) * 4) });
+  }
+
+  // Strings of lights: the red lamps' wall faces (the row right above the
+  // floor), joined into runs along the wall. A run breaks at a window, the
+  // clock or a board, and at the end of a wall, so no strand crosses one.
+  const decorAt = input.decorAt ?? (() => false);
+  const face = (x: number, y: number): boolean =>
+    input.wallAt(x, y) !== 0 && input.wallAt(x, y + 1) === 0 && !decorAt(x, y) && !decorAt(x, y - 1);
+  const runs: Array<PlanTile & { len: number }> = [];
+  for (let y = 0; y + 1 < input.height; y++) {
+    let start = -1;
+    for (let x = 0; x <= input.width; x++) {
+      const on = x < input.width && face(x, y) && input.wallAt(x - 1, y) !== 0 && input.wallAt(x + 1, y) !== 0;
+      if (on && start < 0) start = x;
+      if (!on && start >= 0) {
+        if (x - start >= MIN_STRAND_TILES) runs.push({ x: start, y, len: x - start });
+        start = -1;
+      }
+    }
+  }
+  const strands: PlanStrand[] = spread(runs, MAX_STRANDS).map((r) => ({
+    x0: r.x * ts + 2,
+    x1: (r.x + r.len) * ts - 2,
+    y: r.y * ts + 3,
+    z: (r.y + 1) * ts,
+    phase: tileNoise(r.x, r.y)
+  }));
+
+  // The cocoa sits where the candy bowl sits.
+  const cx = Math.floor((input.machineStand.x + input.sinkTile.x) / 2);
+  const cocoa: PlanProp = {
+    x: cx * ts + 10,
+    y: input.sinkTile.y * ts + 13,
+    z: (input.sinkTile.y + 1) * ts
+  };
+
+  return { trees, gifts, strands, cocoa };
 }
