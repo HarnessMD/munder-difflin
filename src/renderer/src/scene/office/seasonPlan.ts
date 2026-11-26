@@ -28,7 +28,12 @@ export interface HalloweenPlanInput {
   /** True where a furniture layer paints the tile: a window, the clock, a
    *  board. A wall lamp never hangs over one. Absent: nothing hangs anywhere. */
   decorAt?(x: number, y: number): boolean;
+  /** The shared parts of the floor, in tiles: Christmas stands one tree in
+   *  each. Absent: no trees. Halloween ignores it. */
+  commonAreas?: readonly PlanArea[];
 }
+
+export interface PlanArea { x: number; y: number; width: number; height: number; }
 
 /** A prop in map pixels. `z` is its sort key among the characters. */
 export interface PlanProp { x: number; y: number; z: number; }
@@ -206,8 +211,7 @@ export function planHalloween(input: HalloweenPlanInput): HalloweenPlan {
 
 // ─── Christmas ───────────────────────────────────────────────────────────────
 // WHERE the Christmas props go, by the same rules and from the same map reads
-// as Halloween's: trees stand where the floor pumpkins stand (the inside
-// corners of rooms), gifts sit where the desk pumpkins sit, strings of lights
+// as Halloween's: trees stand in the common areas, gifts sit where the desk pumpkins sit, strings of lights
 // hang along the wall faces where the red lamps hang, and a mug of cocoa takes
 // the candy bowl's place on the counter.
 
@@ -241,6 +245,59 @@ export const MAX_STRANDS = 6;
 /** A strand spans at least this many tiles, or it is not hung. */
 export const MIN_STRAND_TILES = 2;
 
+/** The tiles the characters walk over: a shortest path between every two of
+ *  the places they go (seats, stands, the entrance), stepping in the same
+ *  order as pathfinding.ts, so these are the routes really taken. */
+export function walkedTiles(input: HalloweenPlanInput): Set<string> {
+  const walked = new Set<string>();
+  const key = (t: PlanTile) => `${t.x},${t.y}`;
+  for (const from of input.avoid) {
+    const parent = new Map<string, PlanTile | null>([[key(from), null]]);
+    const queue: PlanTile[] = [from];
+    for (let i = 0; i < queue.length; i++) {
+      const { x, y } = queue[i];
+      for (const next of [{ x, y: y - 1 }, { x, y: y + 1 }, { x: x - 1, y }, { x: x + 1, y }]) {
+        if (parent.has(key(next)) || !input.isWalkable(next.x, next.y)) continue;
+        parent.set(key(next), queue[i]);
+        queue.push(next);
+      }
+    }
+    for (const to of input.avoid) {
+      if (!parent.has(key(to))) continue;
+      for (let t: PlanTile | null | undefined = to; t; t = parent.get(key(t))) walked.add(key(t));
+    }
+  }
+  return walked;
+}
+
+/** The best tile for a tree in one common area, or none. It is floor nobody
+ *  walks, stands or sits on, with no wall or furniture painted on it, and not
+ *  one of the room corners where the floor pumpkins go. Bare floor or air
+ *  above it is best (the tree is nearly two tiles tall), then the most closed
+ *  sides, so it hugs a wall or a counter. */
+function treeSpot(
+  input: HalloweenPlanInput,
+  area: PlanArea,
+  taken: ReadonlySet<string>,
+  corners: ReadonlySet<string>
+): PlanTile | null {
+  const decorAt = input.decorAt ?? (() => false);
+  const painted = (x: number, y: number) => input.wallAt(x, y) !== 0 || decorAt(x, y);
+  let best: PlanTile | null = null;
+  let bestScore = -1;
+  for (let y = area.y; y < area.y + area.height; y++) {
+    for (let x = area.x; x < area.x + area.width; x++) {
+      const k = `${x},${y}`;
+      if (!input.isWalkable(x, y) || painted(x, y) || taken.has(k) || corners.has(k)) continue;
+      const closed = [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]
+        .filter(([nx, ny]) => !input.isWalkable(nx, ny)).length;
+      const score = (painted(x, y - 1) ? 0 : 10) + closed;
+      if (score > bestScore) { bestScore = score; best = { x, y }; }
+    }
+  }
+  return best;
+}
+
 export function planChristmas(input: HalloweenPlanInput): ChristmasPlan {
   const ts = input.tileSize;
   const avoided = new Set(input.avoid.map((t) => `${t.x},${t.y}`));
@@ -254,8 +311,8 @@ export function planChristmas(input: HalloweenPlanInput): ChristmasPlan {
     wrap: Math.floor(tileNoise(d.x, d.y) * 4)
   }));
 
-  // Trees in the inside corners of rooms (the floor pumpkins' rule). The
-  // corners left over get a small pile of gifts instead.
+  // Small piles of gifts in the inside corners of rooms (the floor pumpkins'
+  // rule).
   const corners: PlanTile[] = [];
   for (let y = 0; y < input.height; y++) {
     for (let x = 0; x < input.width; x++) {
@@ -266,15 +323,21 @@ export function planChristmas(input: HalloweenPlanInput): ChristmasPlan {
       corners.push({ x, y });
     }
   }
-  const picked = spread(corners, MAX_TREES + MAX_FLOOR_GIFTS);
-  const trees: PlanTree[] = picked.slice(0, MAX_TREES).map((c) => ({
-    x: c.x * ts + ts / 2,
-    y: c.y * ts + ts - 1,
-    z: (c.y + 1) * ts,
-    phase: tileNoise(c.x, c.y)
-  }));
-  for (const c of picked.slice(MAX_TREES)) {
+  // The first two of the spread stay bare; the gift piles take the rest.
+  for (const c of spread(corners, MAX_TREES + MAX_FLOOR_GIFTS).slice(MAX_TREES)) {
     gifts.push({ x: c.x * ts + 3, y: c.y * ts + ts - 1, z: (c.y + 1) * ts, wrap: Math.floor(tileNoise(c.x, c.y) * 4) });
+  }
+
+  // Trees in the common areas, never in a private office.
+  const taken = walkedTiles(input);
+  for (const k of avoided) taken.add(k);
+  const cornerKeys = new Set(corners.map((c) => `${c.x},${c.y}`));
+  const trees: PlanTree[] = [];
+  for (const area of input.commonAreas ?? []) {
+    if (trees.length >= MAX_TREES) break;
+    const c = treeSpot(input, area, taken, cornerKeys);
+    if (!c) continue;
+    trees.push({ x: c.x * ts + ts / 2, y: c.y * ts + ts - 1, z: (c.y + 1) * ts, phase: tileNoise(c.x, c.y) });
   }
 
   // Strings of lights: the red lamps' wall faces (the row right above the

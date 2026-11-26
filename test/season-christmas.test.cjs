@@ -10,6 +10,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const loadTs = require('./load-ts.cjs');
 
 const { normalizeSeason, SEASONS, DEFAULT_SEASON } = loadTs('src/renderer/src/design/season.ts');
@@ -126,11 +128,12 @@ function office() {
     machineStand: { x: 11, y: 7 },
     sinkTile: { x: 13, y: 7 },
     avoid: [{ x: 2, y: 5 }],
+    commonAreas: [{ x: 1, y: 4, width: 7, height: 5 }, { x: 9, y: 4, width: 6, height: 5 }],
     decorAt: (x, y) => y === 1 && x >= 5 && x <= 6,
   };
 }
 
-test('the floor plan: trees in room corners, gifts, lights along the walls, cocoa', () => {
+test('the floor plan: trees in the common areas, gifts, lights along the walls, cocoa', () => {
   const input = office();
   const p = plan.planChristmas(input);
   assert.ok(p.trees.length >= 1 && p.trees.length <= plan.MAX_TREES);
@@ -140,7 +143,6 @@ test('the floor plan: trees in room corners, gifts, lights along the walls, coco
   for (const t of p.trees) {
     const tx = Math.floor(t.x / ts), ty = Math.floor(t.y / ts);
     assert.ok(input.isWalkable(tx, ty), 'a tree stands on the floor');
-    assert.equal(input.isWalkable(tx, ty + 1), false, 'against a wall below');
     for (const g of p.gifts) assert.ok(Math.floor(g.x / ts) !== tx || Math.floor(g.y / ts) !== ty, 'never a gift pile on a tree');
   }
   for (const s of p.strands) {
@@ -153,6 +155,55 @@ test('the floor plan: trees in room corners, gifts, lights along the walls, coco
     }
   }
   assert.equal(Math.floor(p.cocoa.x / ts), 12, 'the cocoa sits where the candy bowl sits');
+});
+
+// The real office map and theme, read the way OfficeFloor.tsx reads them.
+function realOffice() {
+  const read = (p) => fs.readFileSync(path.join(__dirname, '../src/renderer/src', p), 'utf8');
+  const map = JSON.parse(read('assets/maps/office.tmj'));
+  const ts = map.tilewidth;
+  const layer = (n) => map.layers.find((l) => l.name === n);
+  const gid = (n, x, y) => (x < 0 || y < 0 || x >= map.width || y >= map.height ? 0 : layer(n).data[y * map.width + x] & 0x1fffffff);
+  const tile = (o) => ({ x: Math.floor(o.x / ts), y: Math.floor(o.y / ts) });
+  const spawns = new Map(layer('spawn-points').objects.map((o) => [o.name, tile(o)]));
+  const seats = new Set([...spawns].filter(([n]) => /^(desk-|pc-|warroom-|entrance)/.test(n)).map(([, t]) => `${t.x},${t.y}`));
+  const theme = read('scene/office/themeRegistry.ts');
+  const stands = [...theme.matchAll(/(?:stand|trayStand|machineStand|sinkStand): \{ x: (\d+), y: (\d+) \}/gi)]
+    .map((m) => ({ x: Number(m[1]), y: Number(m[2]) }));
+  const hall = theme.match(/\{ x: (\d+), y: (\d+), width: (\d+), height: (\d+) \},\s*\/\/ open floor/).slice(1).map(Number);
+  const cafe = layer('zones').objects.find((o) => o.name === 'cafeteria');
+  return {
+    width: map.width, height: map.height, tileSize: ts,
+    wallAt: (x, y) => gid('walls', x, y),
+    isWalkable: (x, y) => x >= 0 && y >= 0 && x < map.width && y < map.height && (!gid('collision', x, y) || seats.has(`${x},${y}`)),
+    decorAt: (x, y) => gid('furniture-below', x, y) !== 0 || gid('furniture-above', x, y) !== 0,
+    desks: [],
+    machineStand: { x: 26, y: 20 }, sinkTile: { x: 28, y: 18 },
+    avoid: [...spawns.values(), ...stands],
+    commonAreas: [
+      { ...tile(cafe), width: cafe.width / ts, height: cafe.height / ts },
+      { x: hall[0], y: hall[1], width: hall[2], height: hall[3] },
+    ],
+  };
+}
+
+test('on the office map: a tree in each common area, off the walkways and the pumpkin spots', () => {
+  const input = realOffice();
+  const ts = input.tileSize;
+  assert.ok(input.avoid.length > 30, 'seats and stands were read');
+  const trees = plan.planChristmas(input).trees.map((t) => ({ x: Math.floor(t.x / ts), y: Math.floor(t.y / ts) }));
+  assert.equal(trees.length, input.commonAreas.length);
+  const walked = plan.walkedTiles(input);
+  const pumpkins = plan.planHalloween(input).pumpkins.filter((p) => p.size === 'floor')
+    .map((p) => `${Math.floor(p.x / ts)},${Math.floor((p.y - 1) / ts)}`);
+  trees.forEach((t, i) => {
+    const a = input.commonAreas[i], k = `${t.x},${t.y}`;
+    assert.ok(t.x >= a.x && t.x < a.x + a.width && t.y >= a.y && t.y < a.y + a.height, `${k} is in its common area`);
+    assert.ok(input.isWalkable(t.x, t.y) && !input.decorAt(t.x, t.y), `${k} is bare floor`);
+    assert.ok(!walked.has(k), `${k} is on nobody's path`);
+    assert.ok(!pumpkins.includes(k), `${k} is not a pumpkin spot`);
+  });
+  console.log('trees at', JSON.stringify(trees));
 });
 
 test('the floor plan is the same every time', () => {

@@ -116,6 +116,9 @@ export interface ThemeConfig {
   cafeStands: ReadonlyArray<readonly [string, 'coffee' | 'vending']>;
   coffee: CoffeeConfig;
   anchors: AnchorConfig;
+  /** Shared floor, in tiles, where the Christmas trees may stand: map zone
+   *  names or plain rectangles, one tree in each. Never a private office. */
+  commonAreas: ReadonlyArray<string | Readonly<{ x: number; y: number; width: number; height: number }>>;
   errandSpots: ErrandSpot[];
   monitor: MonitorConfig;
   palette: PaletteConfig;
@@ -159,6 +162,10 @@ export const OFFICE_THEME: ThemeConfig = {
     boards: { x: 6, y: 10 },
     clock: { x: 1, y: 1 },
   },
+  commonAreas: [
+    'cafeteria',                              // the break area
+    { x: 19, y: 8, width: 6, height: 3 },     // open floor beside the conference room
+  ],
   errandSpots: [
     // plants (droplets ride on the character via startWatering)
     { kind: 'water', stand: { x: 2, y: 20 }, facing: 'left', fx: { x: 1, y: 20 }, duration: 4.5 },

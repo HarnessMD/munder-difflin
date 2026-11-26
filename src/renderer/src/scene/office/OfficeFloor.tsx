@@ -1820,6 +1820,8 @@ export function OfficeFloor() {
           wallAt: (x, y) => mapRenderer.gidAt('walls', x, y),
           isWalkable: (x, y) => mapRenderer.isWalkable(x, y),
           desks,
+          commonAreas: theme.commonAreas.flatMap((a) =>
+            (typeof a === 'string' ? mapRenderer.getZone(a) ?? [] : a)),
           machineStand: theme.coffee.machineStand,
           sinkTile: theme.coffee.sinkTile,
           decorAt: (x, y) => mapRenderer.gidAt('furniture-below', x, y) !== 0
