@@ -34,7 +34,18 @@ export interface HalloweenPlanInput {
   /** The boss's private office, in tiles: it gets one tree of its own, the
    *  only private office that does. */
   bossOffice?: PlanArea;
+  /** The walls layer as it is drawn, in map pixels: Christmas lays a line of
+   *  snow on its top edges. Read only when asked. Absent: no snow line.
+   *  Halloween ignores it. */
+  wallArt?: () => WallArt;
 }
+
+/** RGBA pixels, row by row from the top left. */
+export interface WallArt { pixels: ArrayLike<number>; width: number; height: number; }
+
+/** One stretch of wall top that holds snow, in map pixels: from x0 up to, not
+ *  including, x1, with the wall starting at row y. */
+export interface PlanLedge { x0: number; x1: number; y: number; }
 
 export interface PlanArea { x: number; y: number; width: number; height: number; }
 
@@ -239,6 +250,7 @@ export interface ChristmasPlan {
   gifts: PlanGift[];
   strands: PlanStrand[];
   cocoa: PlanProp;
+  snow: PlanLedge[];
 }
 
 export const MAX_TREES = 2;
@@ -299,6 +311,34 @@ function treeSpot(
     }
   }
   return best;
+}
+
+/** Where the settled snow lies: every top edge of the walls as drawn (a run of
+ *  pixels that are wall with open air right above), and the back wall's roof
+ *  edge, which meets the dark top row rather than air. */
+export function snowLedges(input: HalloweenPlanInput): PlanLedge[] {
+  const art = input.wallArt?.();
+  if (!art) return [];
+  const { pixels, width, height } = art;
+  const solid = (x: number, y: number) => pixels[(y * width + x) * 4 + 3] > 128;
+  const out: PlanLedge[] = [];
+  for (let y = 1; y < height; y++) {
+    let start = -1;
+    for (let x = 0; x <= width; x++) {
+      const on = x < width && solid(x, y) && !solid(x, y - 1);
+      if (on && start < 0) start = x;
+      if (!on && start >= 0) { out.push({ x0: start, x1: x, y }); start = -1; }
+    }
+  }
+  // The back wall: the top two rows, between the outer side walls.
+  const ts = input.tileSize;
+  let start = -1;
+  for (let x = 1; x < input.width; x++) {
+    const on = x < input.width - 1 && input.wallAt(x, 0) !== 0 && input.wallAt(x, 1) !== 0;
+    if (on && start < 0) start = x;
+    if (!on && start >= 0) { out.push({ x0: start * ts, x1: x * ts, y: ts }); start = -1; }
+  }
+  return out;
 }
 
 export function planChristmas(input: HalloweenPlanInput): ChristmasPlan {
@@ -379,5 +419,5 @@ export function planChristmas(input: HalloweenPlanInput): ChristmasPlan {
     z: (input.sinkTile.y + 1) * ts
   };
 
-  return { trees, gifts, strands, cocoa };
+  return { trees, gifts, strands, cocoa, snow: snowLedges(input) };
 }

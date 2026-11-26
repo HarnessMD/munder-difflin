@@ -217,6 +217,63 @@ test('the floor plan is the same every time', () => {
   assert.deepEqual(plan.planChristmas(office()), plan.planChristmas(office()));
 });
 
+// Wall art for the office above, in map pixels: its walls filled solid.
+function wallArt(input) {
+  const ts = input.tileSize;
+  const width = input.width * ts, height = input.height * ts;
+  const pixels = new Uint8Array(width * height * 4);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    if (input.wallAt(Math.floor(x / ts), Math.floor(y / ts))) pixels[(y * width + x) * 4 + 3] = 255;
+  }
+  return { pixels, width, height };
+}
+
+test('settled snow: on the wall tops and the back wall roof edge, planned for Christmas only', () => {
+  const input = office();
+  const ts = input.tileSize;
+  let reads = 0;
+  const art = wallArt(input);
+  input.wallArt = () => { reads++; return art; };
+
+  assert.equal('snow' in plan.planHalloween(input), false);
+  assert.equal(reads, 0, 'Halloween never reads the wall art');
+
+  const ledges = plan.planChristmas(input).snow;
+  const has = (x0, x1, y) => ledges.some((l) => l.x0 === x0 && l.x1 === x1 && l.y === y);
+  assert.ok(has(ts, 15 * ts, ts), "the back wall's roof edge, between the side walls");
+  assert.ok(has(8 * ts, 9 * ts, 5 * ts), 'the top of the inner wall');
+  assert.ok(has(ts, 8 * ts, 9 * ts), 'the top of the front wall');
+  assert.equal(ledges.length, 4);
+  assert.deepEqual(plan.planChristmas(office()).snow, [], 'no wall art, no snow line');
+});
+
+test('settled snow shows only while the season is Christmas', () => {
+  const { Container } = require('pixi.js');
+  const { ChristmasDecor } = loadTs('src/renderer/src/scene/office/ChristmasDecor.ts');
+  const input = office();
+  input.wallArt = () => wallArt(input);
+  const root = new Container(), charLayer = new Container();
+  root.addChild(charLayer);
+  const snowLine = () => charLayer.children.find((c) => c.label === 'season-snow');
+
+  // Off and Halloween build no Christmas decor (OfficeFloor.tsx dressForSeason).
+  assert.equal(snowLine(), undefined);
+  const floor = fs.readFileSync(path.join(__dirname, '..', 'src/renderer/src/scene/office/OfficeFloor.tsx'), 'utf8');
+  assert.match(floor, /season === 'christmas' && !xmas\) xmas = new ChristmasDecor/);
+  assert.match(floor, /xmas\?\.setOn\(season === 'christmas'\)/);
+
+  const decor = new ChristmasDecor({
+    plan: plan.planChristmas(input), mapWidth: 16 * 32, mapHeight: 10 * 32, charLayer, root, reducedMotion: false,
+  });
+  decor.setOn(true);
+  assert.equal(snowLine().visible, true);
+  assert.ok(snowLine().getLocalBounds().width > 0, 'something is drawn');
+  decor.setOn(false); // the season turned to Off or Halloween
+  assert.equal(snowLine().visible, false);
+  decor.destroy();
+  assert.equal(snowLine(), undefined);
+});
+
 test('the snowfall is gentle, spread out and the same every launch', () => {
   const flakes = snow.planSnow();
   assert.equal(flakes.length, snow.FLAKE_COUNT);

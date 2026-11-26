@@ -1,16 +1,17 @@
 import { Container, Graphics } from 'pixi.js';
-import type { ChristmasPlan, PlanGift, PlanStrand, PlanTree } from './seasonPlan';
+import type { ChristmasPlan, PlanGift, PlanLedge, PlanStrand, PlanTree } from './seasonPlan';
 
 // The Christmas dressing of the Classic floor, the twin of SeasonDecor.ts
 // (Halloween): trees with twinkling lights in the common areas and the boss's
 // office, gifts under them and on desks, strings of lights along the walls, a mug of cocoa
-// on the cafe counter and a soft winter evening over the map. Every piece is
+// on the cafe counter, a line of settled snow on the wall tops and a soft
+// winter evening over the map. Every piece is
 // drawn here in code and added on top of the scene, so nothing is painted
 // into a map and turning the season off leaves exactly the floor there was.
 // The values are the season's palette, the one design/season.css and
 // christmasCostumes.ts use, so the floor matches the rest.
 //
-// The snow itself falls over the whole window (ChristmasLayer.tsx), not
+// The falling snow drifts over the whole window (ChristmasLayer.tsx), not
 // here, so it is one layer for both skins. With prefers-reduced-motion the
 // lights hold still at a steady glow.
 
@@ -27,6 +28,8 @@ const BLUE = 0x6fa8dc;
 const WIRE = 0x1b2a20;
 const EVENING = 0x1d2b45;
 const COCOA = 0x6b3f22;
+const SNOW = 0xffffff;
+const SNOW_SH = 0x9db8d2;
 /** The bulbs, in the order a strand repeats them. */
 const BULBS = [RED_HI, GOLD_HI, PINE_HI, BLUE] as const;
 /** Paper and ribbon of each wrapping (PlanGift.wrap). */
@@ -69,6 +72,7 @@ export class ChristmasDecor {
     root.addChildAt(this.tint, root.getChildIndex(charLayer));
     this.glows.eventMode = 'none';
 
+    this.addSnow(plan.snow);
     for (const s of plan.strands) this.addStrand(s);
     for (const tr of plan.trees) this.addTree(tr);
     for (const g of plan.gifts) this.addGift(g);
@@ -109,6 +113,18 @@ export class ChristmasDecor {
     }
     this.parts.length = 0;
     this.twinkles.length = 0;
+  }
+
+  /** The settled snow: one still drawing, over the map and the evening, under
+   *  everyone and everything standing. */
+  private addSnow(ledges: readonly PlanLedge[]): void {
+    const g = new Graphics();
+    g.label = 'season-snow';
+    g.eventMode = 'none';
+    for (const l of ledges) paintSnow(g, l);
+    g.zIndex = 0;
+    this.opts.charLayer.addChild(g);
+    this.parts.push(g);
   }
 
   private addStrand(s: PlanStrand): void {
@@ -216,6 +232,20 @@ function paintTree(g: Graphics): void {
   g.circle(3, -14, 1).fill(GOLD);
   // the star
   g.poly([0, -27, 1, -25, 3, -25, 1.5, -24, 2, -22, 0, -23, -2, -22, -1.5, -24, -3, -25, -1, -25]).fill(GOLD_HI);
+}
+
+/** Snow lying along a wall top, a column of map pixels at a time: it stands one
+ *  or two pixels proud in short humps, thins to nothing at both ends, and has
+ *  a blue underside that drips here and there. */
+function paintSnow(g: Graphics, { x0, x1, y }: PlanLedge): void {
+  for (let x = x0; x < x1; x++) {
+    // The same humps every launch, three columns wide.
+    const n = Math.abs(Math.sin(Math.floor(x / 3) * 12.9898) * 43758.5453) % 1;
+    const end = x === x0 || x === x1 - 1;
+    const up = end ? 0 : n > 0.62 ? 2 : 1;
+    g.rect(x, y - up, 1, up + 2).fill(SNOW);
+    g.rect(x, y + 2, 1, !end && n < 0.2 ? 2 : 1).fill(SNOW_SH);
+  }
 }
 
 /** A wrapped box drawn up from its base line: (0, 0) is its bottom-left. */

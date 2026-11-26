@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { floorPowerPreference, recordFloorRenderer } from '../graphicsProbe';
-import { Application, Container, Graphics, Ticker, Texture } from 'pixi.js';
+import { Application, Container, Graphics, Rectangle, Ticker, Texture } from 'pixi.js';
 // PixiJS uses new Function() internally, blocked by Electron CSP — this patches it.
 import 'pixi.js/unsafe-eval';
 import { useStore, type Agent } from '@/store/store';
@@ -1823,6 +1823,11 @@ export function OfficeFloor() {
           commonAreas: theme.commonAreas.flatMap((a) =>
             (typeof a === 'string' ? mapRenderer.getZone(a) ?? [] : a)),
           bossOffice: theme.bossOffice,
+          wallArt: () => app.renderer.extract.pixels({
+            target: mapRenderer.getContainer().getChildByLabel('walls') as Container,
+            frame: new Rectangle(0, 0, mapRenderer.width * tsD, mapRenderer.height * tsD),
+            resolution: 1
+          }),
           machineStand: theme.coffee.machineStand,
           sinkTile: theme.coffee.sinkTile,
           decorAt: (x, y) => mapRenderer.gidAt('furniture-below', x, y) !== 0
