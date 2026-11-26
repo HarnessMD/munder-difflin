@@ -26,6 +26,7 @@ import { initReactI18next } from 'react-i18next';
 import { DEFAULT_GOD_NAME } from '@shared/godIdentity';
 import en from './locales/en.json';
 import zhCN from './locales/zh-CN.json';
+import zhTW from './locales/zh-TW.json';
 import ar from './locales/ar.json';
 import es from './locales/es.json';
 import ptBR from './locales/pt-BR.json';
@@ -57,7 +58,8 @@ export const LANGUAGES = [
   { code: 'ar', label: 'العربية', dir: 'rtl' },
   { code: 'ja', label: '日本語', dir: 'ltr' },
   { code: 'ko', label: '한국어', dir: 'ltr' },
-  { code: 'zh-CN', label: '简体中文', dir: 'ltr' }
+  { code: 'zh-CN', label: '简体中文', dir: 'ltr' },
+  { code: 'zh-TW', label: '繁體中文', dir: 'ltr' }
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]['code'];
@@ -88,7 +90,7 @@ export function directionFor(lng: string | undefined | null): 'rtl' | 'ltr' {
 const STORAGE_KEY = 'cth.language';
 
 /** Every locale file, by code. */
-const RESOURCES: Record<LanguageCode, object> = { en, 'zh-CN': zhCN, ar, es, 'pt-BR': ptBR, de, fr, it, ja, ko, tr };
+const RESOURCES: Record<LanguageCode, object> = { en, 'zh-CN': zhCN, 'zh-TW': zhTW, ar, es, 'pt-BR': ptBR, de, fr, it, ja, ko, tr };
 
 /**
  * The languages the picker OFFERS: those whose file holds strings. A file that is
@@ -150,6 +152,7 @@ void i18n
     resources: {
       en: { translation: en },
       'zh-CN': { translation: zhCN },
+      'zh-TW': { translation: zhTW },
       ar: { translation: ar },
       es: { translation: es },
       'pt-BR': { translation: ptBR },
@@ -162,7 +165,7 @@ void i18n
     },
     lng: detectLanguage(),
     fallbackLng: 'en',
-    supportedLngs: ['en', 'zh-CN', 'ar', 'es', 'pt-BR', 'de', 'fr', 'it', 'ja', 'ko', 'tr'],
+    supportedLngs: ['en', 'zh-CN', 'zh-TW', 'ar', 'es', 'pt-BR', 'de', 'fr', 'it', 'ja', 'ko', 'tr'],
     // Resources are bundled inline, so nothing ever suspends — the string is
     // there at init time. Keeping this false lets every component call
     // useTranslation() without wrapping the tree in <Suspense>.
