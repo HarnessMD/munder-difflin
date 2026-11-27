@@ -134,7 +134,7 @@ Our view: the checklist is the part worth copying even without the skill, since 
 
 ## How does UI UX Pro Max relate to our pages?
 
-Our related pages: [Claude Code Skills: What They Are, Where They Live and How to Write One](/blog/claude-code-skills/), [What is Superpowers? The skills library for coding agents](/blog/what-is-superpowers/) and [What is A2UI? Google's A2UI 1.0, explained](/blog/what-is-a2ui/). Another design skill, diagram-design (cathrynlavery/diagram-design), is for diagrams; see [What is diagram-design?](/blog/what-is-diagram-design/).
+Our related pages: [Claude Code Skills: What They Are, Where They Live and How to Write One](/blog/claude-code-skills/), [What is Superpowers? The skills library for coding agents](/blog/what-is-superpowers/) and [What is A2UI? Google's A2UI 1.0, explained](/blog/what-is-a2ui/). Another design skill, diagram-design (cathrynlavery/diagram-design), is for diagrams; see [What is diagram-design?](/blog/what-is-diagram-design/). For mobile apps, the App Store Compliance Playbook (mjmirza/app-store-compliance) "puts the check in front of every submit" in an AI coding tool, per its [README](https://github.com/mjmirza/app-store-compliance); see [App Store Rejection Checklist](/blog/app-store-rejection-checklist/).
 
 ## UI UX Pro Max at a glance
 

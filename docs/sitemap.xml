@@ -22,6 +22,18 @@
   <url><loc>https://munderdiffl.in/blog/topics/</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://munderdiffl.in/blog/about/</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url>
+    <loc>https://munderdiffl.in/blog/agent-tools-today-2026-11-27/</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://munderdiffl.in/blog/app-store-rejection-checklist/</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://munderdiffl.in/blog/buzz-whisper-transcription/</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
@@ -35,6 +47,12 @@
   </url>
   <url>
     <loc>https://munderdiffl.in/blog/holiday-shipping-deadlines-gift-planner/</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://munderdiffl.in/blog/what-is-claude-bughunter/</loc>
     <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

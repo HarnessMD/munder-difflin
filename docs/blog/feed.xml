@@ -8,6 +8,22 @@
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
   <entry>
+    <title>Agent Tools Today, 27 Nov 2026: Workspace MCP Servers, Crush v0.103.0 and Browser Use 1.0.9</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-27/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-27/</id>
+    <published>2026-11-27T00:00:00.000Z</published>
+    <updated>2026-11-27T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 26 to 27 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>App Store Rejection Checklist: Catch It Before Review With AI</title>
+    <link href="https://munderdiffl.in/blog/app-store-rejection-checklist/" />
+    <id>https://munderdiffl.in/blog/app-store-rejection-checklist/</id>
+    <published>2026-11-27T00:00:00.000Z</published>
+    <updated>2026-11-27T00:00:00.000Z</updated><category term="Guides" />
+    <summary>An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run.</summary>
+  </entry>
+  <entry>
     <title>Buzz: free, offline Whisper transcription for a long recording</title>
     <link href="https://munderdiffl.in/blog/buzz-whisper-transcription/" />
     <id>https://munderdiffl.in/blog/buzz-whisper-transcription/</id>
@@ -30,6 +46,14 @@
     <published>2026-11-27T00:00:00.000Z</published>
     <updated>2026-11-27T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>Ship by Thursday, 17 Dec for USPS Ground Advantage. The 2026 USPS, FedEx and UPS Christmas ship by dates, a gift list template and a checklist.</summary>
+  </entry>
+  <entry>
+    <title>What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting</title>
+    <link href="https://munderdiffl.in/blog/what-is-claude-bughunter/" />
+    <id>https://munderdiffl.in/blog/what-is-claude-bughunter/</id>
+    <published>2026-11-27T00:00:00.000Z</published>
+    <updated>2026-11-27T00:00:00.000Z</updated><category term="Concepts" />
+    <summary>Claude-BugHunter (elementalsouls) is a Claude Code skill bundle for bug hunting. What is inside, how to install it, and the written authorisation it expects.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 26 Nov 2026: Cogentic Papers, GRH in Lean and OpenAI&#39;s Polytope Preprint</title>
@@ -462,29 +486,5 @@
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>How to stream GTA 6 from PS5 or Xbox, direct or through a capture card and OBS, plus overlays, the Rockstar, Twitch and YouTube rules, and agents off camera.</summary>
-  </entry>
-  <entry>
-    <title>GTA 6 Tracker: Build a Morning Brief of News, Servers and Sales With AI Agents</title>
-    <link href="https://munderdiffl.in/blog/gta-6-tracker/" />
-    <id>https://munderdiffl.in/blog/gta-6-tracker/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Build a GTA 6 tracker that AI agents run each morning: the public pages to watch, how to fetch politely, a sample brief and a Python diff.</summary>
-  </entry>
-  <entry>
-    <title>Is GTA 6 on PC? What Rockstar Has Said, and Your Options</title>
-    <link href="https://munderdiffl.in/blog/is-gta-6-on-pc/" />
-    <id>https://munderdiffl.in/blog/is-gta-6-on-pc/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="Guides" />
-    <summary>Is GTA 6 on PC? No PC version is announced. Rockstar&#39;s own words, its PC release history with dates, the real ways to play today and the scams to avoid.</summary>
-  </entry>
-  <entry>
-    <title>Make Real Money While Playing GTA 6: A Freelancer&#39;s AI Agent Setup</title>
-    <link href="https://munderdiffl.in/blog/make-money-while-playing-gta-6/" />
-    <id>https://munderdiffl.in/blog/make-money-while-playing-gta-6/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="Use Cases" />
-    <summary>GTA 6 pays nothing in real money; your client work can. What AI agents prepare for freelancers, what stays yours, and a 20 minute approval routine.</summary>
   </entry>
 </feed>

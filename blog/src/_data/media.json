@@ -6932,5 +6932,38 @@
       "prompt": "Title card: the hero scene in assets/media/holiday-shipping-deadlines-gift-planner/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "agent-tools-today-2026-11-27": {
+    "inline": {},
+    "title": "Agent Tools Today, 27 Nov 2026: Workspace MCP Servers, Crush v0.103.0 and Browser Use 1.0.9",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-27/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily brief, the title Agent Tools Today, 27 Nov 2026, the line Workspace MCP, Crush, Browser Use, and a Checked 27 Nov line, beside a small string of bunting between two yellow poles with three lilac pennants.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-27/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-is-claude-bughunter": {
+    "inline": {},
+    "title": "What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-is-claude-bughunter/hero.png",
+      "alt": "Title card on white. A sky pill reading Concepts, the title What is Claude-BugHunter?, the line A Claude Code skill bundle for bug hunting, and a Checked 27 Nov 2026 line. Two cards: a lilac card reading 85 skills under a small yellow tool roll, and a mint card reading Written authorization under a small soft white permit card.",
+      "prompt": "Title card: the hero scene in assets/media/what-is-claude-bughunter/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "app-store-rejection-checklist": {
+    "inline": {},
+    "title": "App Store Rejection Checklist: Catch It Before Review With AI",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/app-store-rejection-checklist/hero.png",
+      "alt": "Title card on white. A sky pill reading Guides, the title App Store Rejection Checklist, the line Catch it before review, and a Checked 27 Nov 2026 line. Two cards: a lilac card reading Eight common causes under a small yellow flip chart, and a mint card reading CLEAR: Not an approval under a small sky luggage scanner.",
+      "prompt": "Title card: the hero scene in assets/media/app-store-rejection-checklist/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
