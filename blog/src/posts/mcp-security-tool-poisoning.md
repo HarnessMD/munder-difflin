@@ -1,7 +1,8 @@
 ---
 title: "MCP Tool Poisoning: How to Secure the Model Context Protocol"
-description: "How the Model Context Protocol gets attacked — tool poisoning, rug pulls, command injection — and the layered defenses that secure your MCP tools."
+description: "MCP tool poisoning hides instructions in the tool descriptions a model reads. How it works, rug pulls, token risks and the layered defenses that help."
 date: 2026-06-05
+updated: 2026-11-27
 category: guides
 categoryLabel: Guides
 type: Technical
@@ -13,123 +14,65 @@ author:
   initials: CG
 faq:
   - q: "What is MCP tool poisoning?"
-    a: "Tool poisoning is an attack where malicious instructions are hidden in an MCP tool's metadata — its name, description, or schema. Because an MCP client passes those descriptions to the model as input the user never sees, a poisoned description can steer the agent into unsafe actions. It's a form of indirect prompt injection that exploits the client-server trust model."
-  - q: "What is an MCP rug pull attack?"
-    a: "A rug pull is a time-delayed tool poisoning. A server looks benign when you approve it, then later updates its tool descriptions to add malicious instructions — which the agent will follow on the next call. The defense is to treat tool descriptions as untrusted: scan them at install and on every update, and reject silent changes."
-  - q: "What's the most common MCP security risk?"
-    a: "Despite the attention tool poisoning gets, industry analyses point to something more mundane: token mismanagement — a leaked or over-privileged credential — as the most common real-world MCP breach vector. Least privilege and secret hygiene matter more than defending any single clever injection chain."
+    a: "An attack that embeds malicious instructions in an MCP tool's metadata, such as its description. The client passes that text to the model, so a poisoned description can steer the agent. A threat modeling paper submitted to arXiv on 23 Mar 2026 found it \"the most prevalent and impactful client-side vulnerability\" in its analysis."
+  - q: "What is an MCP rug pull?"
+    a: "Tool poisoning on a delay. A server looks safe when you install it, then a later update changes its tools. Red Hat's example is a weather tool that starts \"gathering confidential information and sending it to an attacker.\" Pin server versions, scan tool descriptions at install and on every update, and reject silent changes."
+  - q: "What is the biggest MCP security risk?"
+    a: "Sources differ. The March 2026 arXiv paper ranks tool poisoning first among client side flaws. Practical DevSecOps, in a post dated 26 May 2026, names \"Public, unauthenticated MCP servers.\" Our view: authentication and tightly scoped tokens deserve as much attention as any single injection."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>MCP's power — letting an agent discover and call
-external tools — is also its attack surface. The core flaw is a <strong>trust model</strong>: an MCP
-client hands the model tool <em>descriptions</em> it got from a server, usually <strong>without validating
-them</strong>. That makes tool metadata an injection vector (<strong>tool poisoning</strong>), enables
-time-bomb <strong>rug pulls</strong>, and — with unsanitized arguments — real command execution. Yet the
-most common real breach is mundane: a <strong>leaked or over-privileged token</strong>. Defense is
-layered: treat tool metadata as untrusted, scan and pin it, sanitize arguments, enforce OAuth 2.1 + least
-privilege, and contain execution in a sandbox.</p></div>
+MCP tool poisoning hides malicious instructions in an MCP tool's metadata, such as its description, and the agent then follows them. A threat modeling [paper on arXiv](https://arxiv.org/abs/2603.22489), submitted 23 Mar 2026, found it "the most prevalent and impactful client-side vulnerability" in its analysis. Treat tool descriptions as untrusted input. Checked 27 Nov 2026.
 
-The [Model Context Protocol](/blog/mcp-and-skills-in-a-hive/) made agents genuinely useful: a standard
-way to plug an LLM into tools, APIs, and data. It also opened a security surface that most teams wiring
-up MCP servers haven't thought through. This is a practical tour of how MCP gets attacked — and the
-layered defenses that actually hold.
+Running a team of agents with MCP tools? [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. The [install guide](/blog/how-to-install-and-use-munder-difflin/) covers setup, and the defenses below apply to any agent that calls MCP tools.
 
-## The MCP trust model (why it's attackable)
+## What is MCP tool poisoning, and why does it work?
 
-MCP works like this: a client asks a server "what tools do you offer?", gets back tool names,
-**descriptions**, and schemas, and passes those to the model so it can decide what to call. The weak
-point is subtle but serious — **the tool description is model input the user never sees**, and
-**most clients accept server-provided metadata without rigorous validation; the spec doesn't require it**
-([academic threat-modeling work](https://arxiv.org/abs/2603.22489) makes this the center of its analysis).
+It works because the MCP client hands the model the tool information it got from each server, and the model acts on that text. [Red Hat's overview](https://www.redhat.com/en/blog/model-context-protocol-mcp-understanding-security-risks-and-controls) says the client passes "the request from the user plus the information from the MCP servers to an LLM", which picks the tool and its parameters. So whoever controls a server controls part of what the model reads. New to the roles? See [what an MCP server is](/blog/what-is-an-mcp-server/).
 
-So whoever controls an MCP server controls text that goes straight into the model's decision-making. That
-single fact is the root of almost every MCP attack below.
+For example, a tool that looks like a weather lookup can carry a description that tells the model to read `~/.ssh/id_rsa` and pass it along. The agent is not jailbroken. It is following instructions from a source it was told to trust. [Practical DevSecOps](https://www.practical-devsecops.com/mcp-security-best-practices/) puts it in five words: "Tool descriptions are model input."
 
-## Tool poisoning: the headline attack
-
-**Tool poisoning** embeds malicious instructions in a tool's metadata — its description or schema. The
-user approves a benign-looking "weather" tool; its description quietly tells the model to also read
-`~/.ssh/id_rsa` and pass it along. It's a form of *indirect* prompt injection, and research identifies it
-as the most prevalent, impactful client-side MCP vulnerability. The agent isn't jailbroken — it's just
-following instructions it was handed by something it was told to trust.
-
-The mitigation starts with a mindset shift: **tool descriptions are untrusted model input, not
-documentation.** Treat them the way you'd treat any string from the internet that reaches your prompt.
+The arXiv paper compared how seven major MCP clients validate and defend against tool poisoning, and found significant security issues with most of them, which it puts down to "insufficient static validation and parameter visibility."
 
 {% img "note-1" %}
 
-## The rug pull: poisoning on a delay
+## What is an MCP rug pull?
 
-Approving a server once isn't enough, because descriptions can change. In a **rug pull**, a server is
-clean when you approve it, then **updates its tool descriptions later** to add exfiltration instructions
-the agent will follow on the next call. Approval is a moment; trust has to be continuous.
+A rug pull is tool poisoning on a delay: the server is clean when you approve it and changes later. Red Hat warns that a malicious server "might initially appear safe during installation, even with its source code and tool descriptions appearing normal. But the tools may be modified during a future update." Its example is a weather tool that, after an update, starts "gathering confidential information and sending it to an attacker."
 
-Defense: pin and **re-scan tool descriptions on every server update, and reject silent changes**. A tool
-whose description changed since you approved it should require re-approval, not be used quietly.
+Our view: approval is a moment, but trust has to be continuous. Red Hat says software that installs MCP servers should be able to pin their versions and notify the user "if any changes occur in their code or composition after installation." Practical DevSecOps adds: "Scan descriptions at install time and at every server update. Reject silent changes."
 
-## The rest of the catalog
+## Which other MCP attacks should you watch for?
 
-- **Resource / content poisoning.** Instead of the tool's metadata, the attacker hides instructions in
-  the **data** an MCP server retrieves — a poisoned document, a planted issue comment — achieving
-  *persistent* prompt injection through a trusted data channel.
-- **Line jumping / command injection.** Unsanitized tool arguments (pipes, `;`, `&`) flow straight to a
-  shell. One 2026 analysis attributes [roughly 43% of MCP CVEs](https://www.practical-devsecops.com/mcp-security-best-practices/)
-  to command injection — the unglamorous bug that does real damage. Never interpolate model output
-  straight into a command.
-- **Confused deputy.** A proxy MCP server acts with *its* privileges instead of the *user's*. The
-  [spec's mitigation](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) is
-  a per-user registry of approved `client_id`s, checked before any third-party authorization flow, with
-  consent stored securely.
+Watch for command injection, confused deputies, token passthrough and malicious local servers.
 
-## The boring truth: it's usually the token
+- **Command injection.** Red Hat warns that a local server's command execution "may be vulnerable to command injection vulnerabilities" and says to "sanitize the data before using it as an argument for a function that executes commands." Never pass model output straight into a shell.
+- **Confused deputy.** Practical DevSecOps describes proxy servers "acting with server privileges instead of user privileges." The [MCP spec's security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) say proxy servers MUST keep "a registry of approved client_id values per user", check it before the third party authorization flow starts, and store consent decisions securely.
+- **Token passthrough.** The same page calls it "an anti-pattern where an MCP server accepts tokens from an MCP client without validating that the tokens were properly issued to the MCP server" and says it "is explicitly forbidden in the authorization specification".
+- **Malicious local servers.** A client configuration can carry a harmful startup command. A client that offers one click setup must show "the exact command that will be executed, without truncation" and get explicit approval first, the spec says.
 
-Worth saying plainly, because it cuts against the spy-movie framing: industry analyses put **token
-mismanagement — a leaked or over-privileged API key — as the most common real-world MCP breach vector**,
-ahead of clever injection chains. The flashy attack gets the write-ups; the credential left in scope does
-the damage. If you do one thing, make it **least privilege**: scope every tool's token so it can only
-touch the data it explicitly needs.
+## Is tool poisoning the biggest MCP risk?
+
+Not on every list. Practical DevSecOps, in a post dated 26 May 2026, answers "What is the biggest MCP security risk today?" with "Public, unauthenticated MCP servers." The same post cites an analysis of "more than 5,000 open-source MCP servers" in which "over half relied on static secrets, while only a small fraction used OAuth for downstream connections."
+
+The spec's section on scope minimization explains why broad tokens hurt: "Poor scope design increases token compromise impact". Its fix is "a progressive, least-privilege scope model": start with a minimal scope set and ask for more only when a privileged operation is first attempted. Our view: if you do one thing, scope every token so a tool can reach only the data it needs.
+
+On the admin side, [Google's post of 24 Nov 2026](https://workspaceupdates.googleblog.com/2026/11/mcp-servers-cli-standardized-usage-tiers-now-available.html), which made [Workspace MCP servers](/blog/google-workspace-mcp-servers/) generally available, says that requiring external AI agents to identify themselves in OAuth and connect through those servers or the Workspace CLI "allows admins to manage agent access in the admin console just like traditional apps."
 
 {% img "note-2" %}
 
-## Defenses, layered
+## How do you defend against MCP tool poisoning?
 
-No single control is enough; MCP security is defense in depth.
+Layer your defenses, because each control covers a different gap.
 
-- **Treat tool metadata as untrusted.** Scan descriptions at install **and on every update**; reject
-  silent changes (the rug-pull defense).
-- **Sanitize tool arguments** before they reach a shell or API. Model output is never a safe command.
-- **AuthN/AuthZ + least privilege.** Modern MCP standardizes on **OAuth 2.1** for HTTP transports
-  (replacing custom auth and raw API keys), with Dynamic Client Registration; scope tokens tightly. The
-  [OWASP guide to secure MCP server development](https://genai.owasp.org/resource/a-practical-guide-for-secure-mcp-server-development/)
-  is the checklist to start from.
-- **Mitigate confused-deputy** with per-user `client_id` registries and stored consent for proxies.
-- **Vet and pin servers.** Prefer first-party or local servers; pin versions; review on update.
-- **Contain execution.** Even a perfectly-authed call can be hijacked by poisoned content, so pair MCP
-  hygiene with an execution sandbox and **default-deny network egress** — the same defense-in-depth
-  posture covered in [running AI agents safely](/blog/agent-security-and-sandboxing/). The protocol layer
-  and the infrastructure layer reinforce each other.
+- **Treat tool metadata as untrusted.** Scan descriptions at install and on every update, pin versions, and require approval again when a description changes.
+- **Validate arguments.** Practical DevSecOps says to "Validate types, ranges, lengths, and formats on every tool call." Model output is never a safe command.
+- **Use the spec's authorization for HTTP servers.** In the current [authorization spec](https://modelcontextprotocol.io/specification/latest/basic/authorization), version 2026-07-28, authorization is OPTIONAL; when it is supported, HTTP implementations SHOULD conform to it, a protected MCP server acts as an OAuth 2.1 resource server, and authorization servers MUST implement OAuth 2.1. Clients and authorization servers SHOULD support OAuth Client ID Metadata Documents; Dynamic Client Registration "is deprecated and retained for backwards compatibility". Implementations on stdio "SHOULD NOT follow this specification, and instead retrieve credentials from the environment."
+- **Stop confused deputies** with a registry of approved `client_id` values for each user and stored consent, as above.
+- **Contain execution.** The spec says clients SHOULD "Execute MCP server commands in a sandboxed environment with minimal default privileges". Pair that with the habits in [running AI agents safely](/blog/agent-security-and-sandboxing/).
+- **Gate and record risky actions.** [Human approval](/blog/human-in-the-loop-approving-ai-agents/) before actions that write, delete or send, and an [audit log that is only ever appended to](/blog/append-only-event-log-agents/), give you a check before damage and a record after it. Practical DevSecOps lists both: "Require human approval for high-risk actions" and "Log every tool call with full context".
 
-[Red Hat's overview](https://www.redhat.com/en/blog/model-context-protocol-mcp-understanding-security-risks-and-controls)
-and the [MCP spec's own security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)
-are the authoritative starting points to go deeper.
+The [OWASP guide to secure MCP server development](https://genai.owasp.org/resource/a-practical-guide-for-secure-mcp-server-development/), dated 16 Feb 2026, "outlines best practices for secure architecture, strong authentication and authorization, strict validation, session isolation, and hardened deployment." The arXiv authors propose "static metadata analysis, model decision path tracking, behavioral anomaly detection, and user transparency mechanisms."
 
-## Securing MCP in a hive
+## Should you stop using MCP servers?
 
-A [multi-agent harness](/#what) gives every agent MCP tools and skills — which means it inherits this
-whole threat surface, but also a local-first advantage in defending it. The trust problem shrinks when
-the servers are *yours*: prefer **local or first-party MCP servers** (no third party controlling your
-tool descriptions), keep **prod credentials out of agents' reach** and tokens least-privileged, and
-**version-pin** what you install. Layer that with what a hive already gives you — risky actions gated by
-[human-in-the-loop approval](/blog/human-in-the-loop-approving-ai-agents/) and every call recorded to an
-[append-only audit log](/blog/append-only-event-log-agents/) — and a poisoned tool has far fewer places
-to do damage.
-
-## The takeaway
-
-MCP didn't invent prompt injection; it gave it a standardized, high-trust delivery channel. The fix isn't
-to avoid MCP — it's to stop trusting tool metadata by default. Treat descriptions as untrusted input,
-scan and pin them, scope every token to least privilege, sanitize what reaches a shell, and contain
-execution. Do that and MCP is what it should be: a powerful, *bounded* way to give agents real tools.
-
-Want a hive where MCP tools run with least-privilege, human-gated, fully-audited by default? You can
-[download Munder Difflin](/#install) free — it's open source.
+No. Our view: stop trusting tool metadata by default instead of dropping MCP. Pin and scan descriptions, scope every token, sanitize what reaches a shell and contain execution. To decide which agent gets which server, see [bringing MCP servers and skills into a hive](/blog/mcp-and-skills-in-a-hive/).
