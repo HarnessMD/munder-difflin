@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>App Store Rejection Checklist: Catch It Before Review</title>
+<meta name="description" content="An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run." />
+<link rel="canonical" href="https://munderdiffl.in/blog/app-store-rejection-checklist/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="App Store Rejection Checklist: Catch It Before Review" />
+<meta property="og:description" content="An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run." />
+<meta property="og:url" content="https://munderdiffl.in/blog/app-store-rejection-checklist/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/app-store-rejection-checklist/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A sky pill reading Guides, the title App Store Rejection Checklist, the line Catch it before review, and a Checked 27 Nov 2026 line. Two cards: a lilac card reading Eight common causes under a small yellow flip chart, and a mint card reading CLEAR: Not an approval under a small sky luggage scanner." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-27T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="Skills" />
+<meta property="article:tag" content="Codex" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="App Store Rejection Checklist: Catch It Before Review" />
+<meta name="twitter:description" content="An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/app-store-rejection-checklist/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A sky pill reading Guides, the title App Store Rejection Checklist, the line Catch it before review, and a Checked 27 Nov 2026 line. Two cards: a lilac card reading Eight common causes under a small yellow flip chart, and a mint card reading CLEAR: Not an approval under a small sky luggage scanner." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "App Store Rejection Checklist: Catch It Before Review With AI",
+  "description": "An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run.",
+  "image": ["https://munderdiffl.in/blog/assets/media/app-store-rejection-checklist/hero.png"],
+  "datePublished": "2026-11-27T00:00:00.000Z",
+  "dateModified": "2026-11-27T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/app-store-rejection-checklist/" },
+  "keywords": "app store rejection checklist, app store rejection reasons, how to avoid app store rejection, google play rejection, app store review guidelines checklist, app store compliance playbook",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/app-store-rejection-checklist/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "App Store Rejection Checklist: Catch It Before Review With AI", "item": "https://munderdiffl.in/blog/app-store-rejection-checklist/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What are the most common App Store rejection reasons?", "acceptedAnswer": { "@type": "Answer", "text": "The App Store Compliance Playbook's README puts two checks first: a working demo account with a live backend, and a privacy declaration that matches what the app does at runtime, including every SDK. Apple's guideline 2.1 asks for demo account info and a live back end when an app has a login." } },
+    { "@type": "Question", "name": "How do I check my app before I submit it?", "acceptedAnswer": { "@type": "Answer", "text": "The README gives two commands. The first clones mjmirza/app-store-compliance, the second runs its guard script on your app folder. It needs git and bash, and per the README nothing is installed and nothing in your app is changed." } },
+    { "@type": "Question", "name": "Does a CLEAR result mean my app will be approved?", "acceptedAnswer": { "@type": "Answer", "text": "No. The README says CLEAR means \"No critical risk in your code. Not an approval, the reviewer still checks what a scan cannot see\". It sends you to the checklist for the account and listing checks." } },
+    { "@type": "Question", "name": "Which AI coding tools does the App Store Compliance Playbook work with?", "acceptedAnswer": { "@type": "Answer", "text": "Its installer table names Claude Code, Codex CLI, Gemini CLI, OpenCode, Cursor, GitHub Copilot, Grok, Qwen Code, Kimi Code, Kiro, Factory Droid, Augment Auggie and Windsurf, read 27 Nov 2026." } },
+    { "@type": "Question", "name": "Is the App Store Compliance Playbook free?", "acceptedAnswer": { "@type": "Answer", "text": "The README says the whole repository is under the OpenRoots Agent License 2.3. Its LICENSE summary says \"Free and unconditional at or below USD 20,000,000 annual revenue, and for any individual, nonprofit, school, or government body, at any size\", with a royalty above that, and AI training is not granted by either tier. The GitHub API lists the licence as Other." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>App Store Rejection Checklist: Catch It Before Review With AI</h1>
+    <p class="dek">An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/app-store-rejection-checklist/hero.png" alt="Title card on white. A sky pill reading Guides, the title App Store Rejection Checklist, the line Catch it before review, and a Checked 27 Nov 2026 line. Two cards: a lilac card reading Eight common causes under a small yellow flip chart, and a mint card reading CLEAR: Not an approval under a small sky luggage scanner." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>An app store rejection checklist is a list of the causes reviewers reject apps for, checked before you submit; the <a href="https://github.com/mjmirza/app-store-compliance">App Store Compliance Playbook</a> (mjmirza/app-store-compliance) turns one into a scan you can run from a terminal or an AI coding tool. Checked 27 Nov 2026.</p>
+<p>If you run AI agents, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its agents run on engines such as Claude Code, Codex and Gemini CLI, and can use skills, MCP servers and plugins. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<h2 id="why-do-apps-get-rejected" tabindex="-1">Why do apps get rejected? <a class="anchor" href="#why-do-apps-get-rejected" aria-hidden="true">#</a></h2>
+<p>Apps get rejected when the build, the listing or the account fails a store rule at review. Apple’s <a href="https://developer.apple.com/app-store/review/guidelines/">App Review Guidelines</a>, last updated 16 October 2026, say every app “is reviewed by experts”, and guideline 2.1 says “We will reject incomplete app bundles and binaries that crash or exhibit obvious technical problems.”</p>
+<p>Google’s <a href="https://play.google/developer-content-policy/">Developer Program Policy</a> page says that if you include an SDK, “you are responsible for ensuring that their third-party code and practices do not cause your app to violate Google Play Developer Program Policies.”</p>
+<h2 id="what-is-the-app-store-compliance-playbook" tabindex="-1">What is the App Store Compliance Playbook? <a class="anchor" href="#what-is-the-app-store-compliance-playbook" aria-hidden="true">#</a></h2>
+<p>It is, in its README’s words, “A reference and a pre-submission guard for iOS and Android apps”, published on GitHub by mjmirza. The README aims to “Catch App Store and Google Play rejection causes before the reviewer does”, says “It does not guarantee approval”, and defines the guard as “The script that scans your app and blocks a submit when it finds a critical risk”.</p>
+<figure class="mg" data-scene="scanner"><img src="/blog/assets/media/app-store-rejection-checklist/scanner.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow luggage scanner with a sky belt carries soft white app cards marked iOS and Android through its tunnel, one at a time. As each card rolls out, a tag drops onto it: a lilac tag reading BLOCKED or a mint tag reading CLEAR. A blue screen on the scanner reads critical risk. Tap the scanner to send the next card through."><figcaption>Per the README, the guard scans your app and blocks a submit when it finds a critical risk. Read 27 Nov 2026.</figcaption></figure>
+<p>The repo description counts “125 documented rejection patterns”; the project’s <a href="https://mjmirza.github.io/app-store-compliance/">site</a> says 126. These are the project’s own figures. The README ranks two checks first: “A working demo account with a live backend, and a privacy declaration that matches what your app actually does at runtime, including every SDK.”</p>
+<p>The README says the whole repository is under the <a href="https://openroots.org/licenses/ora/2.3">OpenRoots Agent License 2.3</a>. Its <code>LICENSE</code> summary says “Free and unconditional at or below USD 20,000,000 annual revenue, and for any individual, nonprofit, school, or government body, at any size”, with a royalty above that, and “AI training is not granted by either tier above.”</p>
+<h2 id="how-do-you-run-the-check-before-you-submit" tabindex="-1">How do you run the check before you submit? <a class="anchor" href="#how-do-you-run-the-check-before-you-submit" aria-hidden="true">#</a></h2>
+<p>You run the README’s two commands: one downloads the playbook, one scans your app. It “Needs git and bash”, and “Nothing is installed and nothing in your app is changed.”</p>
+<pre><code>git clone https://github.com/mjmirza/app-store-compliance ~/repositories/app-store-compliance
+bash ~/repositories/app-store-compliance/agent-os/hooks/app-store-compliance-guard.sh &quot;/path/to/your/app&quot;
+</code></pre>
+<p>Replace only <code>/path/to/your/app</code> “with the folder that holds your Xcode project or your Android app”. “The last lines tell you where you stand”:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Verdict line</th>
+<th>What the README says</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BLOCKED.</code></td>
+<td>“A critical rejection risk was found”. Fix each <code>[CRITICAL]</code> line, then run again</td>
+</tr>
+<tr>
+<td><code>CLEAR.</code></td>
+<td>“No critical risk in your code. Not an approval, the reviewer still checks what a scan cannot see”</td>
+</tr>
+<tr>
+<td><code>NOT CHECKED.</code></td>
+<td>“No iOS or Android project was found in that folder, or the guard could not write its scan files”</td>
+</tr>
+<tr>
+<td><code>Rule pack STALE.</code> (near the top)</td>
+<td>“The rules this scan used are more than 60 days old”. Run <code>git pull</code>, then scan again</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="mg" data-scene="signalbox"><img src="/blog/assets/media/app-store-rejection-checklist/signalbox.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow signal box holds four round lamps in a column, each beside a soft white label: a lilac lamp for BLOCKED, a mint lamp for CLEAR, a sky lamp for NOT CHECKED and a blue lamp for Rule pack STALE. One lamp lights at a time and the glow steps down the column. Under CLEAR a small soft white plate reads Not an approval. Tap the signal box to light the next verdict."><figcaption>The guard's last lines give the verdict; the README says CLEAR is "Not an approval". Read 27 Nov 2026.</figcaption></figure>
+<h2 id="what-should-an-app-store-rejection-checklist-cover" tabindex="-1">What should an app store rejection checklist cover? <a class="anchor" href="#what-should-an-app-store-rejection-checklist-cover" aria-hidden="true">#</a></h2>
+<p>Start with the causes the stores name in their own rules. Each of these eight has its guideline from Apple’s page or policy from Google’s page, read 27 Nov 2026, and the fix from the playbook’s <a href="https://github.com/mjmirza/app-store-compliance/blob/main/docs/MISTAKE-PATTERNS.md">root cause page</a> or <a href="https://github.com/mjmirza/app-store-compliance/blob/main/docs/PRE-SUBMISSION-CHECKLIST.md">checklist</a>:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Cause</th>
+<th>Apple</th>
+<th>Google Play</th>
+<th>The playbook’s fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No demo account, backend down</td>
+<td>2.1 App Completeness</td>
+<td></td>
+<td>“Provide a working demo account and a live backend at submission.”</td>
+</tr>
+<tr>
+<td>Privacy declaration does not match</td>
+<td>2.3 Accurate Metadata</td>
+<td>User Data</td>
+<td>“Audit actual runtime data flows, including every third party SDK, against every declaration.”</td>
+</tr>
+<tr>
+<td>Vague permission reason</td>
+<td>5.1.1 (ii) Permission</td>
+<td>Permissions and APIs that Access Sensitive Information</td>
+<td>“Every sensitive permission must trace to a visible core feature”</td>
+</tr>
+<tr>
+<td>No account deletion</td>
+<td>5.1.1 (v) Account Sign-In</td>
+<td>User Data</td>
+<td>“Every account creating app needs in app account deletion.”</td>
+</tr>
+<tr>
+<td>Personal data sent to an AI</td>
+<td>5.1.2 (i)</td>
+<td></td>
+<td>A “consent modal naming the provider and data types”</td>
+</tr>
+<tr>
+<td>Digital goods sold outside store billing</td>
+<td>3.1.1 In-App Purchase</td>
+<td>Payments</td>
+<td>“Use Apple in app purchase and Google Play Billing for all digital goods unless the app is a documented exempt category.”</td>
+</tr>
+<tr>
+<td>A website in an app shell</td>
+<td>4.2 Minimum Functionality</td>
+<td>Functionality, Content, and User Experience</td>
+<td>“Add genuine native capability, offline value, device integration, or content the web version does not have.”</td>
+</tr>
+<tr>
+<td>Near identical apps</td>
+<td>4.3 Spam</td>
+<td>Spam</td>
+<td>“One app per concept”</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A blank cell means no Google policy is cited. Apple’s 5.1.2 (i) names “third-party AI”.</p>
+<figure class="mg" data-scene="flipchart"><img src="/blog/assets/media/app-store-rejection-checklist/flipchart.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow flip chart on a blue stand shows a soft white page of lines: demo account, privacy declaration, permission reason, account deletion. A mint tick draws in beside each line in turn, then the page flips to digital goods, app shell and near identical apps. A lilac tab on the corner reads 2.1, 5.1.1, 3.1.1, 4.2, 4.3 in sky letters. Tap the chart to flip the page."><figcaption>The chart shows every cause in the checklist except personal data sent to an AI. Read 27 Nov 2026.</figcaption></figure>
+<h2 id="how-do-you-run-it-from-an-ai-coding-tool" tabindex="-1">How do you run it from an AI coding tool? <a class="anchor" href="#how-do-you-run-it-from-an-ai-coding-tool" aria-hidden="true">#</a></h2>
+<p>You run the README’s installer, which “puts the check in front of every submit”. Per the README, “Your agent runs the guard before any submit command, such as an upload to App Store Connect or Google Play, and stops the command when a critical rejection risk stands.”</p>
+<pre><code>git clone https://github.com/mjmirza/app-store-compliance ~/repositories/app-store-compliance
+bash ~/repositories/app-store-compliance/scripts/install.sh --tool all
+</code></pre>
+<p>“<code>--tool all</code> installs into every supported tool it finds in your home folder.” Claude Code gets “Hook, skill, <code>/app-store-audit</code>”, then “Restart Claude Code”. A run ends with <code>Install verified.</code> only after the hook has blocked a test submit command, per the README. Undo it “with the same command and <code>uninstall</code>”.</p>
+<p>Claude Code reads the skill from <code>~/.claude/skills/</code>; see <a href="/blog/claude-code-skills/">Claude Code Skills: What They Are, Where They Live and How to Write One</a>. Another skill built around a checklist: <a href="/blog/what-is-ui-ux-pro-max-skill/">What is UI UX Pro Max?</a>.</p>
+<h2 id="what-can-a-scan-not-check" tabindex="-1">What can a scan not check? <a class="anchor" href="#what-can-a-scan-not-check" aria-hidden="true">#</a></h2>
+<p>A scan reads your project, not your store account, your listing or the reviewer’s judgment. The README’s setup prompt says “The code scan cannot see whether my developer account is active, whether every agreement is accepted, or whether my Play account and package names are registered”. Its <a href="https://github.com/mjmirza/app-store-compliance/blob/main/docs/WHAT-THE-SCAN-PROVES.md">scan page</a> says “A static scan cannot decide 4.3”. After <code>CLEAR.</code>, the README says to do “the account and listing checks” in the checklist.</p>
+<p>Our view: treat <code>CLEAR.</code> as the start of the human checks. The two checks the README ranks first, a demo login and a privacy declaration that matches every SDK, both need a person on the release build.</p>
+<h2 id="app-store-compliance-playbook-at-a-glance" tabindex="-1">App Store Compliance Playbook at a glance <a class="anchor" href="#app-store-compliance-playbook-at-a-glance" aria-hidden="true">#</a></h2>
+<p>Checked 27 Nov 2026.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td>mjmirza/app-store-compliance on GitHub, created 6 Jun 2026</td>
+</tr>
+<tr>
+<td>Last push</td>
+<td>26 Nov 2026, 23:21 UTC</td>
+</tr>
+<tr>
+<td>Stars</td>
+<td>7,101 at 04:05 UTC on 27 Nov 2026</td>
+</tr>
+<tr>
+<td>Licence</td>
+<td>OpenRoots Agent License 2.3, per the README; the GitHub API lists “Other”</td>
+</tr>
+<tr>
+<td>Patterns</td>
+<td>125 in the repo description, 126 on the site, the project’s own figures</td>
+</tr>
+<tr>
+<td>Tools the installer names</td>
+<td>Claude Code, Codex CLI, Gemini CLI, OpenCode, Cursor, GitHub Copilot, Grok, Qwen Code, Kimi Code, Kiro, Factory Droid, Augment Auggie, Windsurf</td>
+</tr>
+<tr>
+<td>Needs</td>
+<td>git and bash; python3 for every tool other than Claude Code</td>
+</tr>
+</tbody>
+</table>
+</div>
+<link rel="stylesheet" href="/blog/assets/media/app-store-rejection-checklist/motion.css"><script defer src="/blog/assets/media/app-store-rejection-checklist/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">What are the most common App Store rejection reasons?</p>
+          <p class="a">The App Store Compliance Playbook&#39;s README puts two checks first: a working demo account with a live backend, and a privacy declaration that matches what the app does at runtime, including every SDK. Apple&#39;s guideline 2.1 asks for demo account info and a live back end when an app has a login.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I check my app before I submit it?</p>
+          <p class="a">The README gives two commands. The first clones mjmirza/app-store-compliance, the second runs its guard script on your app folder. It needs git and bash, and per the README nothing is installed and nothing in your app is changed.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does a CLEAR result mean my app will be approved?</p>
+          <p class="a">No. The README says CLEAR means &quot;No critical risk in your code. Not an approval, the reviewer still checks what a scan cannot see&quot;. It sends you to the checklist for the account and listing checks.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Which AI coding tools does the App Store Compliance Playbook work with?</p>
+          <p class="a">Its installer table names Claude Code, Codex CLI, Gemini CLI, OpenCode, Cursor, GitHub Copilot, Grok, Qwen Code, Kimi Code, Kiro, Factory Droid, Augment Auggie and Windsurf, read 27 Nov 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is the App Store Compliance Playbook free?</p>
+          <p class="a">The README says the whole repository is under the OpenRoots Agent License 2.3. Its LICENSE summary says &quot;Free and unconditional at or below USD 20,000,000 annual revenue, and for any individual, nonprofit, school, or government body, at any size&quot;, with a royalty above that, and AI training is not granted by either tier. The GitHub API lists the licence as Other.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/skills/">Skills</a><a class="tag" href="/blog/tags/codex/">Codex</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#why-do-apps-get-rejected">Why do apps get rejected?</a></li><li class="lvl-2"><a href="#what-is-the-app-store-compliance-playbook">What is the App Store Compliance Playbook?</a></li><li class="lvl-2"><a href="#how-do-you-run-the-check-before-you-submit">How do you run the check before you submit?</a></li><li class="lvl-2"><a href="#what-should-an-app-store-rejection-checklist-cover">What should an app store rejection checklist cover?</a></li><li class="lvl-2"><a href="#how-do-you-run-it-from-an-ai-coding-tool">How do you run it from an AI coding tool?</a></li><li class="lvl-2"><a href="#what-can-a-scan-not-check">What can a scan not check?</a></li><li class="lvl-2"><a href="#app-store-compliance-playbook-at-a-glance">App Store Compliance Playbook at a glance</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/buzz-whisper-transcription/"><span class="k">← Older</span><span class="t">Buzz: free, offline Whisper transcription for a long recording</span></a>
+      <a class="pn next" href="/blog/agent-tools-today-2026-11-27/"><span class="k">Newer →</span><span class="t">Agent Tools Today, 27 Nov 2026: Workspace MCP Servers, Crush v0.103.0 and Browser Use 1.0.9</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/google-workspace-mcp-servers/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/google-workspace-mcp-servers/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/google-workspace-mcp-servers/">Google Workspace MCP Servers: What They Can Do and How to Connect</a></h3>
+    <p class="dek">Google Workspace MCP servers went GA on 24 Nov 2026: the eight servers and their tools, setup for Claude and Antigravity, the agent OAuth rule and tiers.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/google-workspace-mcp-servers/" aria-label="Read: Google Workspace MCP Servers: What They Can Do and How to Connect">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/agents-md-best-practices/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/agents-md-best-practices/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-24">Nov 24, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/agents-md-best-practices/">AGENTS.md Best Practices: What to Write, Who Reads It (Nov 2026)</a></h3>
+    <p class="dek">AGENTS.md best practices from the format&#39;s site and vendor docs, checked 24 Nov 2026: what to write, where files go, which tools read it.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/agents-md-best-practices/" aria-label="Read: AGENTS.md Best Practices: What to Write, Who Reads It (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/gta-6-characters/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gta-6-characters/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-19">Nov 19, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/gta-6-characters/">GTA 6 Characters: Jason, Lucia and the Cast, Explained Without Spoilers</a></h3>
+    <p class="dek">GTA 6 characters without spoilers: Jason Duval, Lucia Caminos and all 8 entries on Rockstar&#39;s cast page, each in Rockstar&#39;s own words.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/gta-6-characters/" aria-label="Read: GTA 6 Characters: Jason, Lucia and the Cast, Explained Without Spoilers">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

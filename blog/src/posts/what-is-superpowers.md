@@ -121,7 +121,7 @@ The README names these limits:
 
 ## How does Superpowers relate to our pages?
 
-Our pages on skills and agents: [Claude Code Skills: What They Are, Where They Live and How to Write One](/blog/claude-code-skills/), [What Are Claude Code Agents? And How to Use Many at Once](/blog/what-are-claude-code-agents/) and [Claude Code Best Practices: 9 Habits From Anthropic's Docs](/blog/claude-code-best-practices/). For design work, [UI UX Pro Max](/blog/what-is-ui-ux-pro-max-skill/) (nextlevelbuilder/ui-ux-pro-max-skill) is a design skill for coding agents.
+Our pages on skills and agents: [Claude Code Skills: What They Are, Where They Live and How to Write One](/blog/claude-code-skills/), [What Are Claude Code Agents? And How to Use Many at Once](/blog/what-are-claude-code-agents/) and [Claude Code Best Practices: 9 Habits From Anthropic's Docs](/blog/claude-code-best-practices/). For design work, [UI UX Pro Max](/blog/what-is-ui-ux-pro-max-skill/) (nextlevelbuilder/ui-ux-pro-max-skill) is a design skill for coding agents. For bug bounty work, [Claude-BugHunter](/blog/what-is-claude-bughunter/) (elementalsouls/Claude-BugHunter) is, per its README, "a drop-in skill bundle for the Claude Code skills system".
 
 Our view: the brainstorming and plan steps are worth copying even without the plugin, since a written plan leaves any agent less room to drift.
 
