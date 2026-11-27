@@ -6921,5 +6921,16 @@
       "prompt": "Title card: the hero scene in assets/media/google-workspace-mcp-servers/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "holiday-shipping-deadlines-gift-planner": {
+    "inline": {},
+    "title": "Holiday Shipping Deadlines 2026: Plan Gifts With an AI Agent Team",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/holiday-shipping-deadlines-gift-planner/hero.png",
+      "alt": "Title card on white. A sky pill reading Use Cases, the title Holiday Shipping Deadlines 2026, the line Plan gifts with an AI agent team, and a Checked 27 Nov 2026 line. Two cards: a yellow card reading USPS Ground Advantage: Thursday 17 Dec under a small lilac gift box, and a mint card reading Priority Mail Express: Saturday 19 Dec under a small blue sleigh.",
+      "prompt": "Title card: the hero scene in assets/media/holiday-shipping-deadlines-gift-planner/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
