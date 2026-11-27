@@ -59,6 +59,8 @@ Into January at both stores below, but the dates differ. From each store's own p
 
 <figure class="mg" data-scene="receipt"><img src="/blog/assets/media/black-friday-deal-checker/receipt.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A soft white receipt prints line by line from a blue till. It reads Return by, then Amazon January 31, 2027, then Target electronics January 24, 2027. A yellow highlighter stripe slides over each date as it prints, and a mint tick lands at the bottom. Tapping the receipt prints it again, one store at a time."><figcaption>Holiday return dates from Amazon's and Target's own policy pages, read 25 Nov 2026.</figcaption></figure>
 
+If the gift has to travel, our [holiday shipping deadlines for 2026](/blog/holiday-shipping-deadlines-gift-planner/) list the USPS, FedEx and UPS dates to ship by for Christmas.
+
 ## Will a store match a lower price after you buy?
 
 At Target you can ask, for its own lower price. Its [Price Match Guarantee](https://www.target.com/help/articles/policies-guidelines/price-match-guarantee), read 25 Nov 2026, says: "Starting November 1, 2026, if you purchase an item in store or online and the price goes lower at Target on or before December 24, 2026, you can request a price match." The lower price "must be found at Target.com or in a local Target store", and "Screenshots or pictures cannot be accepted."
