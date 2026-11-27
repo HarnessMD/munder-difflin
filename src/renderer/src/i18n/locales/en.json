@@ -1083,6 +1083,71 @@
       }
     },
     "gpuError": "The office floor lost its GPU context.\n\nToo many terminals are using the GPU at once.\nClose a few agent terminals, or restart the app, to bring it back.",
+    "errand": {
+      "water": [
+        "watering the plants 🌿",
+        "giving the plants a drink",
+        "they grow so fast"
+      ],
+      "window": [
+        "letting some air in 🍃",
+        "a bit of fresh air",
+        "nice breeze today"
+      ],
+      "dispenser": [
+        "getting some water 💧",
+        "hydration break",
+        "staying sharp"
+      ],
+      "fridge": [
+        "anything good in the fridge?",
+        "who took my yogurt?",
+        "just looking…"
+      ],
+      "shelf": [
+        "checking out the shelf 📚",
+        "anything new in here?",
+        "so much good stuff"
+      ],
+      "bin": [
+        "out with the scrap paper 🗑️",
+        "desk cleanup day",
+        "tidying up a little"
+      ],
+      "smoke": [
+        "the floor runs itself 🚬",
+        "boss break.",
+        "thinking big thoughts 🚬",
+        "I DECLARE… a break"
+      ]
+    },
+    "suckUp": [
+      "already shipped {{done}} tasks, {{godName}}. raise? 🥺",
+      "{{done}} tasks done this week, boss!",
+      "great vision as always, boss!",
+      "I was JUST about to do exactly that!",
+      "love the tie today, {{godName}}",
+      "working hard, boss! 💪",
+      "best boss ever. genuinely."
+    ],
+    "gossip": [
+      "has he ever actually written code?",
+      "another 'quick sync' that took an hour…",
+      "'world's best boss' — he bought that mug himself",
+      "he pinned MY task as his idea",
+      "the cigar smell, honestly…",
+      "he watered the plant. ONE plant. his own.",
+      "did you hear him? 'I DECLARE… a break'"
+    ],
+    "cheer": [
+      "done! ✔",
+      "nailed it",
+      "that's a wrap",
+      "ship it 🚀",
+      "another one done",
+      "crushed it",
+      "in the books"
+    ],
     "mugs": {
       "empty": "no clean mugs left…",
       "brewing": "brewing a fresh one ☕",
