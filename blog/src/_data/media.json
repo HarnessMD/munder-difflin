@@ -6965,5 +6965,27 @@
       "prompt": "Title card: the hero scene in assets/media/app-store-rejection-checklist/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "audacity-remove-vocals": {
+    "inline": {},
+    "title": "How to remove vocals from a song with Audacity's free AI effects",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/audacity-remove-vocals/hero.png",
+      "alt": "Title card on white. A sky pill reading AI tools, the title Remove vocals in Audacity over a yellow underline, the line Split a song into vocals and instrumental tracks inside Audacity, and a Checked 27 Nov 2026 line. Two tiles: a lilac tile reading Windows: Audacity 3.7.1 under a small blue vinyl record, and a mint tile reading Mac: Audacity 3.7.4, pre release under a small yellow fader.",
+      "prompt": "Title card: the hero scene in assets/media/audacity-remove-vocals/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "firefox-translate-page": {
+    "inline": {},
+    "title": "How to translate a web page on your own computer with Firefox",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/firefox-translate-page/hero.png",
+      "alt": "Title card on white. A sky pill reading AI tools, the title Firefox translation over a yellow underline, the line Translates a web page on your own computer, and a Checked 27 Nov 2026 line. Two tiles: a lilac tile reading 52 languages on Firefox's list under a small blue postcard, and a mint tile reading Offline after a download under a small yellow luggage tag.",
+      "prompt": "Title card: the hero scene in assets/media/firefox-translate-page/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
