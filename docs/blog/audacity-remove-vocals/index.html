@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How to remove vocals from a song with Audacity&#39;s free AI effects — Munder Difflin Blog</title>
+<meta name="description" content="Intel&#39;s free OpenVINO AI effects split a song into vocals and instruments inside Audacity. Which version to install, the steps, limits and fixes." />
+<link rel="canonical" href="https://munderdiffl.in/blog/audacity-remove-vocals/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="How to remove vocals from a song with Audacity&#39;s free AI effects — Munder Difflin Blog" />
+<meta property="og:description" content="Intel&#39;s free OpenVINO AI effects split a song into vocals and instruments inside Audacity. Which version to install, the steps, limits and fixes." />
+<meta property="og:url" content="https://munderdiffl.in/blog/audacity-remove-vocals/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/audacity-remove-vocals/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A sky pill reading AI tools, the title Remove vocals in Audacity over a yellow underline, the line Split a song into vocals and instrumental tracks inside Audacity, and a Checked 27 Nov 2026 line. Two tiles: a lilac tile reading Windows: Audacity 3.7.1 under a small blue vinyl record, and a mint tile reading Mac: Audacity 3.7.4, pre release under a small yellow fader." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-27T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Getting Started" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="Local-First" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="How to remove vocals from a song with Audacity&#39;s free AI effects — Munder Difflin Blog" />
+<meta name="twitter:description" content="Intel&#39;s free OpenVINO AI effects split a song into vocals and instruments inside Audacity. Which version to install, the steps, limits and fixes." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/audacity-remove-vocals/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A sky pill reading AI tools, the title Remove vocals in Audacity over a yellow underline, the line Split a song into vocals and instrumental tracks inside Audacity, and a Checked 27 Nov 2026 line. Two tiles: a lilac tile reading Windows: Audacity 3.7.1 under a small blue vinyl record, and a mint tile reading Mac: Audacity 3.7.4, pre release under a small yellow fader." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to remove vocals from a song with Audacity's free AI effects",
+  "description": "Intel's free OpenVINO AI effects split a song into vocals and instruments inside Audacity. Which version to install, the steps, limits and fixes.",
+  "image": ["https://munderdiffl.in/blog/assets/media/audacity-remove-vocals/hero.png"],
+  "datePublished": "2026-11-27T00:00:00.000Z",
+  "dateModified": "2026-11-27T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/audacity-remove-vocals/" },
+  "keywords": "audacity remove vocals, remove vocals from a song, audacity openvino, audacity music separation, openvino ai plugins, free vocal remover",
+  "articleSection": "AI tools",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/audacity-remove-vocals/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "How to remove vocals from a song with Audacity's free AI effects", "item": "https://munderdiffl.in/blog/audacity-remove-vocals/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Audacity's blog says \"these effects are completely free\", and Audacity itself is free." } },
+    { "@type": "Question", "name": "Does it work with the newest Audacity?", "acceptedAnswer": { "@type": "Answer", "text": "Not yet. Install the older version named for your system first." } },
+    { "@type": "Question", "name": "Does the song leave your computer?", "acceptedAnswer": { "@type": "Answer", "text": "No, by Intel's account: the effects \"run 100% locally on your PC\"." } },
+    { "@type": "Question", "name": "Does it work on a Mac?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, as a release that Audacity calls \"a beta of sorts\"." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-ai-tools">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/ai-tools/">AI tools</a>
+    </nav>
+    <h1>How to remove vocals from a song with Audacity&#39;s free AI effects</h1>
+    <p class="dek">Intel&#39;s free OpenVINO AI effects split a song into vocals and instruments inside Audacity. Which version to install, the steps, limits and fixes.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">AI tools</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/audacity-remove-vocals/hero.png" alt="Title card on white. A sky pill reading AI tools, the title Remove vocals in Audacity over a yellow underline, the line Split a song into vocals and instrumental tracks inside Audacity, and a Checked 27 Nov 2026 line. Two tiles: a lilac tile reading Windows: Audacity 3.7.1 under a small blue vinyl record, and a mint tile reading Mac: Audacity 3.7.4, pre release under a small yellow fader." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>To remove vocals from a song in Audacity, add Intel’s <a href="https://www.audacityteam.org/blog/openvino-mac/">free</a> <a href="https://www.audacityteam.org/download/openvino/">OpenVINO AI effects</a>, select the track and run “OpenVINO Music Separation” with “2-Stem”. You get a vocals track and an instrumental track. The effects need an older Audacity: <a href="https://github.com/intel/openvino-plugins-ai-audacity/releases/tag/v3.7.1-R4.2">3.7.1 on Windows</a>, <a href="https://www.audacityteam.org/blog/openvino-mac/">3.7.4 on a Mac</a>. Checked 27 Nov 2026.</p>
+<p>This guide is on the blog of <a href="https://harnessmd.com/download">Munder Difflin</a>, which is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. You do not need it for this guide; its <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<p>Checked on 27 Nov 2026 against Audacity’s <a href="https://www.audacityteam.org/">website</a>, <a href="https://www.audacityteam.org/blog/openvino-mac/">blog</a> and <a href="https://support.audacityteam.org/music/isolating-or-removing-vocals-from-a-song">help pages</a> and Intel’s <a href="https://github.com/intel/openvino-plugins-ai-audacity">repository</a> for the effects. Names in quotes are the ones those pages use.</p>
+<h2 id="what-are-the-openvino-ai-effects" tabindex="-1">What are the OpenVINO AI effects? <a class="anchor" href="#what-are-the-openvino-ai-effects" aria-hidden="true">#</a></h2>
+<p>They are a free pack of AI effects that <a href="https://www.audacityteam.org/blog/openvino-ai-effects/">Intel built for Audacity</a>, the <a href="https://www.audacityteam.org/">free audio editor</a>. One of them, “Music Separation”, splits a song into separate tracks: <a href="https://www.audacityteam.org/download/openvino/">“Drums, Bass, Vocals, &amp; Other Instruments”</a>. <a href="https://www.audacityteam.org/blog/openvino-mac/">Audacity’s blog</a> says “these effects are completely free and run on your own machine, no internet connection required”.</p>
+<figure class="mg" data-scene="vinyl"><img src="/blog/assets/media/audacity-remove-vocals/vinyl.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a blue vinyl record with a soft white label that reads Music Separation spins, then splits into four rings that drift apart: a yellow ring that reads Drums, a lilac ring that reads Bass, a sky ring that reads Vocals and a mint ring that reads Other Instruments. Tap the record to join the rings and split it again."><figcaption>Music Separation splits a song into drums, bass, vocals and other instruments. Audacity's download page, read 27 Nov 2026.</figcaption></figure>
+<h2 id="what-do-you-need" tabindex="-1">What do you need? <a class="anchor" href="#what-do-you-need" aria-hidden="true">#</a></h2>
+<p>You need a computer, an older version of Audacity and the effects installer for your system. The <a href="https://www.audacityteam.org/download/openvino/">download page</a> warns: “The OpenVINO plugins are not yet compatible with the latest Audacity version”. The latest is <a href="https://www.audacityteam.org/download/windows/">4.0.2</a> today.</p>
+<ul>
+<li>Windows: Audacity 3.7.1, 64 bit. Intel’s <a href="https://github.com/intel/openvino-plugins-ai-audacity/releases/tag/v3.7.1-R4.2">release notes</a> say the effects are “only compatible with” that release, and add that 3.7.3 works too. Windows on ARM is out: there, plugins <a href="https://www.audacityteam.org/download/windows/">“are not supported”</a>.</li>
+<li>Mac: Audacity 3.7.4 and <a href="https://www.audacityteam.org/blog/openvino-mac/">macOS 12 or later</a>. Audacity calls this first Mac release “a beta of sorts”, and its <a href="https://github.com/audacity/mod-openvino-macos/releases">release page</a> marks it as a pre release.</li>
+<li>Linux: no installer. Intel <a href="https://github.com/intel/openvino-plugins-ai-audacity/releases/tag/v3.7.1-R4.2">says</a> it “can be compiled for Linux”. Its <a href="https://github.com/intel/openvino-plugins-ai-audacity/blob/main/doc/build_doc/linux/README.md">Linux guide</a> adds that the Audacity snap supports the effects, with the models fetched by a separate command.</li>
+</ul>
+<h2 id="how-do-you-take-the-vocals-out-step-by-step" tabindex="-1">How do you take the vocals out, step by step? <a class="anchor" href="#how-do-you-take-the-vocals-out-step-by-step" aria-hidden="true">#</a></h2>
+<p>You install the right Audacity, add the effects, then run “OpenVINO Music Separation” on your track.</p>
+<ol>
+<li>Open <a href="http://audacityteam.org">audacityteam.org</a>, go to Downloads, then <a href="https://www.audacityteam.org/download/older-versions/">“Older versions of Audacity”</a>, and install the version listed above for your system.</li>
+<li>Open the page <a href="https://www.audacityteam.org/download/openvino/">“Get AI effects for Audacity”</a> and choose “Download for Windows” or “Download for macOS”. Run the installer.</li>
+<li>On Windows, check the folder the installer picks. Intel <a href="https://github.com/intel/openvino-plugins-ai-audacity/releases/tag/v3.7.1-R4.2">warns</a> it “may select the wrong location by default” when more than one Audacity is installed. Use the browse button to point it at 3.7.1.</li>
+<li>Restart Audacity and bring your song in.</li>
+<li>Select the track, or the part of it you want.</li>
+<li>Open <a href="https://support.audacityteam.org/music/isolating-or-removing-vocals-from-a-song">“Effect &gt; OpenVINO AI Effects &gt; OpenVINO Music Separation”</a>.</li>
+<li>Under <a href="https://github.com/intel/openvino-plugins-ai-audacity/blob/main/doc/feature_doc/music_separation/README.md">“Separation Mode”</a>, choose “2-Stem” for two new tracks, “Instrumental, Vocals”, or “4-Stem” for four: “Drums, Bass, Other Instruments, Vocals”.</li>
+<li>Click “Apply” and wait. The new tracks show up in the Audacity workspace, each with the name of its part added to the track name.</li>
+<li>Mute the track you do not want, then export.</li>
+</ol>
+<figure class="mg" data-scene="faders"><img src="/blog/assets/media/audacity-remove-vocals/faders.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white mixing desk shows a blue button that reads Apply. The Apply button presses down, two lilac faders labelled Vocals and Instrumental rise, then the Vocals fader slides all the way down while a mint level light keeps blinking beside Instrumental. Tap the desk to slide the Vocals fader back up and play it again."><figcaption>"2-Stem" makes two new tracks, Instrumental and Vocals. Intel's Music Separation guide, read 27 Nov 2026.</figcaption></figure>
+<h2 id="which-settings-make-it-faster" tabindex="-1">Which settings make it faster? <a class="anchor" href="#which-settings-make-it-faster" aria-hidden="true">#</a></h2>
+<p>“OpenVINO Inference Device” matters most, because it decides which chip does the work. Audacity’s <a href="https://support.audacityteam.org/music/isolating-or-removing-vocals-from-a-song">help page</a> puts it this way:</p>
+<ul>
+<li>“CPU always works, but is typically slowest”</li>
+<li>“GPU is typically fastest on high-end computers”</li>
+<li>“NPU can only be used on modern Intel processors, and is similarly fast as GPU”</li>
+</ul>
+<figure class="mg" data-scene="speedometer"><img src="/blog/assets/media/audacity-remove-vocals/speedometer.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white speedometer with a blue dial and a yellow needle sits above three chips that read CPU, GPU and NPU, coloured mint, sky and lilac. While the mint CPU chip glows, the needle rests low; when the sky GPU chip or the lilac NPU chip lights up, the needle swings high. Tap a chip to move the needle to that setting."><figcaption>CPU is typically slowest; GPU is typically fastest on high end computers. Audacity Support, read 27 Nov 2026.</figcaption></figure>
+<p>The <a href="https://github.com/intel/openvino-plugins-ai-audacity/blob/main/doc/feature_doc/music_separation/README.md">“Device Details”</a> button shows which chip each name means. The first run is the slow one: loading the model “usually takes 10 to 30 seconds” the first time on a device. After that it is cached and “should run much faster the next time”. Tick “Advanced” to see “Shifts”, and leave it alone at first. A higher value “may produce better results”, but processing time grows in step with it.</p>
+<p>Our view: start with “2-Stem” on a short selection, see how long it takes, then run the whole song.</p>
+<h2 id="what-does-it-get-wrong" tabindex="-1">What does it get wrong? <a class="anchor" href="#what-does-it-get-wrong" aria-hidden="true">#</a></h2>
+<p>No page promises a clean split, so listen to every new track before you rely on it. The <a href="https://support.audacityteam.org/music/isolating-or-removing-vocals-from-a-song">help page</a> goes no further than saying the two stem mode “works well on most songs”. In four stem mode everything that is not drums, bass or vocals lands in one track, which <a href="https://www.audacityteam.org/blog/openvino-ai-effects/">Audacity’s blog</a> calls a combined “anything else” part. It is also <a href="https://support.audacityteam.org/music/isolating-or-removing-vocals-from-a-song">heavy work</a>: “This effect takes a lot of computing power, as do all AI effects.”</p>
+<h2 id="is-it-private" tabindex="-1">Is it private? <a class="anchor" href="#is-it-private" aria-hidden="true">#</a></h2>
+<p>Yes, by Intel’s description: <a href="https://github.com/intel/openvino-plugins-ai-audacity">“These AI features run 100% locally on your PC”</a>. Nothing on the pages says your song is sent anywhere to be processed. You do need the internet once, to download Audacity, the installer and the models.</p>
+<p>Privacy is not permission, though. Our view: use it on your own recordings and on music you have the right to edit, and do not share a split of somebody else’s song.</p>
+<h2 id="what-if-it-does-not-work" tabindex="-1">What if it does not work? <a class="anchor" href="#what-if-it-does-not-work" aria-hidden="true">#</a></h2>
+<p>Start with the Audacity version, because the effects only fit the older releases.</p>
+<ul>
+<li>The effects are missing from the Effect menu. Check that you opened the older Audacity, not 4.0.2, and that you restarted it after installing.</li>
+<li>It is very slow. Switch “OpenVINO Inference Device” to GPU if you have one, and try a shorter selection.</li>
+<li>It misbehaves on a Mac. The <a href="https://github.com/audacity/mod-openvino-macos/releases">release</a> has one build for Apple silicon and one for Intel, and <a href="https://www.audacityteam.org/blog/openvino-mac/">Audacity notes</a> that “in some cases, the Intel binaries perform better, even on Apple Silicon macs”.</li>
+<li>You want it gone. On Windows, uninstall “OpenVINO AI Plugins for Audacity” under “Settings &gt; Apps &gt; Installed Apps”. For a Mac, the help page <a href="https://support.audacityteam.org/troubleshooting/uninstalling-openvino-models">“Uninstalling OpenVINO models”</a> lists the folder to remove.</li>
+<li>Still stuck. The <a href="https://www.audacityteam.org/download/openvino/">download page</a> links a “Help forum” and Intel’s GitHub page, where Intel’s <a href="https://github.com/intel/openvino-plugins-ai-audacity">README</a> welcomes you to “submit an issue”.</li>
+</ul>
+<p>Also on this blog: <a href="/blog/firefox-translate-page/">How to translate a web page on your own computer with Firefox</a> and <a href="/blog/buzz-whisper-transcription/">Buzz: free, offline Whisper transcription for a long recording</a>. More guides are under <a href="/blog/topics/ai-tools/">AI tools</a>.</p>
+<h2 id="sources" tabindex="-1">Sources <a class="anchor" href="#sources" aria-hidden="true">#</a></h2>
+<p>Checked on 27 Nov 2026:</p>
+<ul>
+<li><a href="https://www.audacityteam.org/download/openvino/">Get AI effects for Audacity</a></li>
+<li><a href="https://www.audacityteam.org/download/older-versions/">Older versions</a></li>
+<li><a href="https://www.audacityteam.org/download/windows/">Download for Windows</a>, current version 4.0.2</li>
+<li><a href="https://www.audacityteam.org/blog/openvino-mac/">OpenVINO AI Plugins are now available for macOS</a>, 11 June 2025</li>
+<li><a href="https://www.audacityteam.org/blog/openvino-ai-effects/">Introducing OpenVINO AI effects for Audacity</a>, 2 January 2024</li>
+<li><a href="https://support.audacityteam.org/music/isolating-or-removing-vocals-from-a-song">Isolating or removing vocals from a song</a></li>
+<li><a href="https://support.audacityteam.org/troubleshooting/uninstalling-openvino-models">Uninstalling OpenVINO models</a></li>
+<li><a href="https://plugins.audacityteam.org/ai-plugins/ai-plugins">AI plugins</a></li>
+<li><a href="https://www.audacityteam.org/">Audacity home page</a> and <a href="https://www.audacityteam.org/faq/">FAQ</a></li>
+<li><a href="https://github.com/intel/openvino-plugins-ai-audacity">Intel’s repository</a> and <a href="https://github.com/intel/openvino-plugins-ai-audacity/releases">releases</a>, latest <code>v3.7.1-R4.2</code>, published 20 Dec 2024</li>
+<li><a href="https://github.com/intel/openvino-plugins-ai-audacity/blob/main/doc/feature_doc/music_separation/README.md">Music Separation guide</a></li>
+<li><a href="https://github.com/intel/openvino-plugins-ai-audacity/blob/main/doc/build_doc/linux/README.md">Linux guide</a></li>
+<li><a href="https://github.com/audacity/mod-openvino-macos">Mac package repository</a> and <a href="https://github.com/audacity/mod-openvino-macos/releases">releases</a>, latest <code>v3.7.1-R4.2-beta-3</code>, published 19 Jun 2025, marked pre release</li>
+</ul>
+<p>This guide is independent. It is not made, checked or paid for by Intel or Audacity.</p>
+<link rel="stylesheet" href="/blog/assets/media/audacity-remove-vocals/motion.css"><script defer src="/blog/assets/media/audacity-remove-vocals/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is it free?</p>
+          <p class="a">Yes. Audacity&#39;s blog says &quot;these effects are completely free&quot;, and Audacity itself is free.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does it work with the newest Audacity?</p>
+          <p class="a">Not yet. Install the older version named for your system first.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does the song leave your computer?</p>
+          <p class="a">No, by Intel&#39;s account: the effects &quot;run 100% locally on your PC&quot;.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does it work on a Mac?</p>
+          <p class="a">Yes, as a release that Audacity calls &quot;a beta of sorts&quot;.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/getting-started/">Getting Started</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/local-first/">Local-First</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-are-the-openvino-ai-effects">What are the OpenVINO AI effects?</a></li><li class="lvl-2"><a href="#what-do-you-need">What do you need?</a></li><li class="lvl-2"><a href="#how-do-you-take-the-vocals-out-step-by-step">How do you take the vocals out, step by step?</a></li><li class="lvl-2"><a href="#which-settings-make-it-faster">Which settings make it faster?</a></li><li class="lvl-2"><a href="#what-does-it-get-wrong">What does it get wrong?</a></li><li class="lvl-2"><a href="#is-it-private">Is it private?</a></li><li class="lvl-2"><a href="#what-if-it-does-not-work">What if it does not work?</a></li><li class="lvl-2"><a href="#sources">Sources</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/buzz-whisper-transcription/"><span class="k">← Older</span><span class="t">Buzz: free, offline Whisper transcription for a long recording</span></a>
+      <a class="pn next" href="/blog/app-store-rejection-checklist/"><span class="k">Newer →</span><span class="t">App Store Rejection Checklist: Catch It Before Review With AI</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in AI tools</h2>
+      <div class="post-grid">
+        <article class="card t-ai-tools">
+  <a class="thumb t-ai-tools" href="/blog/buzz-whisper-transcription/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/buzz-whisper-transcription/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/buzz-whisper-transcription/">Buzz: free, offline Whisper transcription for a long recording</a></h3>
+    <p class="dek">Buzz is a free, open source app that turns audio and video into text on your own computer. Setup, model choice, speaker labels, limits and fixes.</p>
+    <div class="foot">
+      <span class="tag kind">AI tools</span>
+      <a class="more" href="/blog/buzz-whisper-transcription/" aria-label="Read: Buzz: free, offline Whisper transcription for a long recording">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-ai-tools">
+  <a class="thumb t-ai-tools" href="/blog/duck-ai-private-chat/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/duck-ai-private-chat/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/duck-ai-private-chat/">How to ask AI a private question with Duck.ai, free, no account</a></h3>
+    <p class="dek">Duck.ai is DuckDuckGo&#39;s free AI chat with no account. What it hides, where chats are saved, how to delete them, the limits and the fixes.</p>
+    <div class="foot">
+      <span class="tag kind">AI tools</span>
+      <a class="more" href="/blog/duck-ai-private-chat/" aria-label="Read: How to ask AI a private question with Duck.ai, free, no account">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-ai-tools">
+  <a class="thumb t-ai-tools" href="/blog/firefox-translate-page/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/firefox-translate-page/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/firefox-translate-page/">How to translate a web page on your own computer with Firefox</a></h3>
+    <p class="dek">Firefox, a free browser, translates foreign web pages on your device. The steps, the offline setting, the limits and the fixes when a page will not translate.</p>
+    <div class="foot">
+      <span class="tag kind">AI tools</span>
+      <a class="more" href="/blog/firefox-translate-page/" aria-label="Read: How to translate a web page on your own computer with Firefox">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>
