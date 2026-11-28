@@ -29,6 +29,7 @@ import {
 } from 'node:fs';
 import { join, dirname, basename, isAbsolute, relative, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
+import { holdsAppData, unsafeAgentFolder } from './agentFolder';
 import { grokThemeEnv } from '../shared/grokTheme';
 import { redactSecrets } from '../shared/redactSecrets';
 import { integrationsBriefLine, type IntegrationListEntry } from '../shared/integrationList';
@@ -1532,12 +1533,14 @@ export class HiveManager {
     cwd = expandTilde(cwd);
     if (!isAbsolute(cwd)) return { valid: false, issue: 'not-absolute' };
     try {
-      return statSync(cwd).isDirectory()
-        ? { valid: true, issue: null }
-        : { valid: false, issue: 'not-a-directory' };
+      if (!statSync(cwd).isDirectory()) return { valid: false, issue: 'not-a-directory' };
     } catch {
       return { valid: false, issue: 'missing-dir' };
     }
+    // The disk root, the home folder, or a folder that holds the app's data folder:
+    // the spawn refuses these (spawnAgent.ts), and the roster says why.
+    const unsafe = unsafeAgentFolder(cwd);
+    return unsafe ? { valid: false, issue: unsafe } : { valid: true, issue: null };
   }
 
   /**
@@ -1761,7 +1764,10 @@ export class HiveManager {
               // The config key applies whenever the sandbox is workspace-write, from
               // a flag, a trusted project or the user's own sandbox_mode, and is
               // ignored otherwise, so no argv sniffing is needed.
-              const codexRoots = this.sandboxWritableDirs(meta, dir, root, opts.extraWritableDirs ?? []);
+              // Never a root that holds the app's data folder: Codex's workspace-write
+              // has no deny list to carve it back out, as Claude's sandbox does.
+              const codexRoots = this.sandboxWritableDirs(meta, dir, root, opts.extraWritableDirs ?? [])
+                .filter((d) => !holdsAppData(d));
               const codex = this.installCodexHooks(dir, meta.id, meta.cwd, codexRoots);
               env.CODEX_HOME = codex.home;
               // Codex refuses to run hooks from a config dir without persisted
@@ -4983,7 +4989,7 @@ process.stdin.on('end', () => {
     }
     if (sock) {
       try {
-        const c = net.createConnection(sock, () => { c.end(JSON.stringify(payload) + '\\n'); });
+        const c = net.createConnection(sock, () => { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); });
         c.on('error', () => {});
         c.on('close', () => process.exit(0));
       } catch (_) { process.exit(0); }
@@ -4996,7 +5002,7 @@ process.stdin.on('end', () => {
   if (!sock) { process.exit(0); }
   let resp = '';
   const done = (code) => { if (resp) process.stdout.write(resp); process.exit(code); };
-  const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+  const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
   c.setEncoding('utf8');
   c.on('data', (d) => { resp += d; });
   c.on('end', () => done(0));
@@ -5107,6 +5113,10 @@ process.stdin.on('end', () => {
       const reason = r.reason || r.stopReason || h.permissionDecisionReason || undefined;
       if (event === 'PreToolUse') {
         if (r.decision === 'block' || h.permissionDecision === 'deny' || r.continue === false) out = { decision: 'deny', reason: reason };
+        // A guardrail "ask" is agy's own force_ask (agy hooks guide): the person is asked
+        // every time, never answered from a remembered "Always Allow". Writing nothing
+        // would allow the call.
+        else if (h.permissionDecision === 'ask') out = { decision: 'force_ask', reason: reason };
       } else if (event === 'PreInvocation' || event === 'PostInvocation' || event === 'SessionStart') {
         const steps = h.additionalContext ? [{ ephemeralMessage: h.additionalContext }] : [];
         if (event === 'PostInvocation' && r.continue === false) out = { injectSteps: steps, terminationBehavior: 'terminate' };
@@ -5117,7 +5127,7 @@ process.stdin.on('end', () => {
     process.exit(0);
   };
   try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null, no_context_reply: !(event === 'PreInvocation' || event === 'PostInvocation' || event === 'SessionStart') || undefined })) + '\\n'));
     c.setEncoding('utf8');
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
@@ -5146,7 +5156,7 @@ function post(payload) {
     if (!SOCK) return;
     payload.agent_id = payload.agent_id || AGENT;
     fitFrame(payload);
-    var c = net.createConnection(SOCK, function () { try { c.end(JSON.stringify(payload) + '\\n'); } catch (e) {} });
+    var c = net.createConnection(SOCK, function () { try { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); } catch (e) {} });
     c.on('error', function () {});
   } catch (e) {}
 }
@@ -5204,7 +5214,7 @@ function post(payload) {
   try {
     if (!SOCK) return;
     payload.agent_id = payload.agent_id || AGENT;
-    const c = createConnection(SOCK, () => { try { c.end(JSON.stringify(payload) + '\\n'); } catch (e) {} });
+    const c = createConnection(SOCK, () => { try { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); } catch (e) {} });
     c.on('error', () => {});
   } catch (e) {}
 }
@@ -5275,7 +5285,7 @@ function emit(payload) {
   fitFrame(payload);
   if (!SOCK) return;
   try {
-    const c = net.createConnection(SOCK, function () { c.end(JSON.stringify(payload) + '\\n'); });
+    const c = net.createConnection(SOCK, function () { c.end(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'); });
     c.on('error', function () {});
   } catch (e) {}
 }
@@ -5500,6 +5510,10 @@ process.stdin.on('end', () => {
       else if (r.decision === 'block') out = { decision: 'deny', reason: r.reason };
       else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') {
         out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason };
+      } else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'ask') {
+        // A guardrail "ask": Gemini CLI's hook contract has only allow and deny, so the
+        // stricter one. Writing nothing would allow the call.
+        out = { decision: 'deny', reason: 'This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ' + (r.hookSpecificOutput.permissionDecisionReason || '') };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) {
         out = { hookSpecificOutput: { additionalContext: r.hookSpecificOutput.additionalContext } };
       }
@@ -5508,7 +5522,7 @@ process.stdin.on('end', () => {
     process.exit(0);
   };
   try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
     c.setEncoding('utf8');
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
@@ -5576,6 +5590,10 @@ process.stdin.on('end', () => {
       else if (r.decision === 'block') out = { decision: 'block', reason: r.reason };
       else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'deny') {
         out = { decision: 'deny', reason: r.hookSpecificOutput.permissionDecisionReason };
+      } else if (r.hookSpecificOutput && r.hookSpecificOutput.permissionDecision === 'ask') {
+        // A guardrail "ask" is Grok's own ask: Grok prompts the person, and its hooks still
+        // apply in always-approve mode (Grok's hook docs). Writing nothing would allow the call.
+        out = { decision: 'ask', reason: r.hookSpecificOutput.permissionDecisionReason };
       } else if (r.hookSpecificOutput && r.hookSpecificOutput.additionalContext) {
         out = r;
       }
@@ -5584,7 +5602,7 @@ process.stdin.on('end', () => {
     process.exit(0);
   };
   try {
-    const c = net.createConnection(sock, () => c.write(JSON.stringify(payload) + '\\n'));
+    const c = net.createConnection(sock, () => c.write(JSON.stringify(Object.assign(payload, { hive_agent: process.env.AGENT_ID || null })) + '\\n'));
     c.setEncoding('utf8');
     c.on('data', (d) => { resp += d; });
     c.on('end', done);
