@@ -29,6 +29,7 @@ import {
 } from 'node:fs';
 import { join, dirname, basename, isAbsolute, relative, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
+import { holdsAppData, unsafeAgentFolder } from './agentFolder';
 import { grokThemeEnv } from '../shared/grokTheme';
 import { redactSecrets } from '../shared/redactSecrets';
 import { integrationsBriefLine, type IntegrationListEntry } from '../shared/integrationList';
@@ -1532,12 +1533,14 @@ export class HiveManager {
     cwd = expandTilde(cwd);
     if (!isAbsolute(cwd)) return { valid: false, issue: 'not-absolute' };
     try {
-      return statSync(cwd).isDirectory()
-        ? { valid: true, issue: null }
-        : { valid: false, issue: 'not-a-directory' };
+      if (!statSync(cwd).isDirectory()) return { valid: false, issue: 'not-a-directory' };
     } catch {
       return { valid: false, issue: 'missing-dir' };
     }
+    // The disk root, the home folder, or a folder that holds the app's data folder:
+    // the spawn refuses these (spawnAgent.ts), and the roster says why.
+    const unsafe = unsafeAgentFolder(cwd);
+    return unsafe ? { valid: false, issue: unsafe } : { valid: true, issue: null };
   }
 
   /**
@@ -1761,7 +1764,10 @@ export class HiveManager {
               // The config key applies whenever the sandbox is workspace-write, from
               // a flag, a trusted project or the user's own sandbox_mode, and is
               // ignored otherwise, so no argv sniffing is needed.
-              const codexRoots = this.sandboxWritableDirs(meta, dir, root, opts.extraWritableDirs ?? []);
+              // Never a root that holds the app's data folder: Codex's workspace-write
+              // has no deny list to carve it back out, as Claude's sandbox does.
+              const codexRoots = this.sandboxWritableDirs(meta, dir, root, opts.extraWritableDirs ?? [])
+                .filter((d) => !holdsAppData(d));
               const codex = this.installCodexHooks(dir, meta.id, meta.cwd, codexRoots);
               env.CODEX_HOME = codex.home;
               // Codex refuses to run hooks from a config dir without persisted
