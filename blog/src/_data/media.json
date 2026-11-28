@@ -6987,5 +6987,16 @@
       "prompt": "Title card: the hero scene in assets/media/firefox-translate-page/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "giving-tuesday-charity-checker": {
+    "inline": {},
+    "title": "Giving Tuesday 2026: Check a Charity Before You Give, With AI Agents",
+    "category": "use-cases",
+    "hero": {
+      "file": "assets/media/giving-tuesday-charity-checker/hero.png",
+      "alt": "Title card on white. A sky pill reading Use Cases, the title Giving Tuesday 2026, the line Check a charity before you give, and a Checked 28 Nov 2026 line. Two cards: a yellow card reading Tuesday, 1 Dec 2026 under a small mint donation jar, and a lilac card reading $250 or more needs a written acknowledgment under a small sky file cabinet.",
+      "prompt": "Title card: the hero scene in assets/media/giving-tuesday-charity-checker/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
