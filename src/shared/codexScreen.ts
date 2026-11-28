@@ -33,7 +33,7 @@ const HEADER_BOX_ROWS = 8;
  *  row: `› [x] MCP servers` (the import screen's second step, "space to
  *  toggle"). Codex 0.153.4's strings do not show how it draws the mark, so
  *  every bracket form is taken: a list taken for a prompt is typed into. */
-const CHOICE_ROW = /^(› | {2})(\d+\. |\[[ xX✓✔•*]\] )\S/;
+const CHOICE_ROW = /^([›»] | {2})(\d+\. |\[[ xX✓✔•*]\] )\S/;
 /** The key hint at the bottom of every Codex popup, in its styles. LIST_HINT
  *  below is the list form of Codex 0.153.4's import screen ("Bring over
  *  supported setup from another coding agent", shown when a project holds
@@ -72,7 +72,7 @@ interface CodexBottom {
  */
 function codexBottom(rows: readonly string[]): CodexBottom | null {
   let at = -1;
-  for (let i = rows.length - 1; i >= 0; i--) if (rows[i].startsWith('› ') || rows[i] === '›') { at = i; break; }
+  for (let i = rows.length - 1; i >= 0; i--) if (/^[›»](?: |$)/.test(rows[i])) { at = i; break; }
   if (at < 0) return null;
   let end = rows.length - 1;
   while (end > at && !rows[end].trim()) end--;
@@ -81,9 +81,9 @@ function codexBottom(rows: readonly string[]): CodexBottom | null {
   const split = end > at && start - 1 > at; // a blank row sits between the prompt and the last run
   const own = rows.slice(at, split ? start : end + 1);
   const footer = split ? rows.slice(start, end + 1).filter((r) => r.trim()) : [];
-  const composer = rows[at] === CODEX_EMPTY_PROMPT_ROW && own.slice(1).every((r) => !r.trim())
+  const composer = /^[›»] Ask Codex to do anything$/.test(rows[at]) && own.slice(1).every((r) => !r.trim())
     ? ''
-    : [rows[at].replace(/^›\s?/, ''), ...own.slice(1)].join('\n');
+    : [rows[at].replace(/^[›»]\s?/, ''), ...own.slice(1)].join('\n');
   return { at, composer, footer, end: at + own.length - 1 };
 }
 
