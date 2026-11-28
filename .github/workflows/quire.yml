@@ -1,0 +1,367 @@
+name: Quire · main
+
+# What Quire checks on main. Today that is one thing: an issue the merged pull request
+# claimed to fix gets re-checked on main's own build. Anything else main should answer
+# for belongs in this file too.
+#
+# A Trail's main lane is what anyone reading it later sees first, and until something
+# runs there it keeps the last answer it was given. Triage answers it from main's build
+# ("this reproduces"); verification answers the pull request's own lane ("the fix
+# works"). Without this workflow the main lane would still say the bug reproduces long
+# after the fix landed.
+#
+# So when a push to main carries a merged pull request, every issue that pull request
+# closed gets one Run in its own Trail, on main. The lane flips from reproduces to
+# fixed at the moment the fix is actually in main, and lanes keep meaning what they say:
+# main is main, pr:<n> is that pull request.
+#
+# A push that closes no issues starts no Runs.
+#
+# Quire drives the built app on a virtual display over its DevTools port
+# (QUIRE_BROWSER_CDP). See .quire/runbook.md for what Runs may and may not do.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "resources/**"
+      - "package.json"
+      - "package-lock.json"
+      - "electron.vite.config.ts"
+      - "tsconfig*.json"
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Issue number to re-check on main
+        required: true
+
+permissions: {}
+
+concurrency:
+  # Only the newest main matters. An older re-check still in flight is answering about
+  # a commit that is no longer the tip.
+  group: quire-recheck-main
+  cancel-in-progress: true
+
+jobs:
+  # Which issues did this push just fix? One matrix entry per issue.
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - name: Resolve the issues this push closed
+        id: plan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const dispatched = context.payload.inputs?.issue;
+            if (dispatched) {
+              const number = Number(dispatched);
+              if (!Number.isInteger(number) || number <= 0) {
+                core.setFailed(`"${dispatched}" is not an issue number.`);
+                return;
+              }
+              core.setOutput('matrix', JSON.stringify([
+                { trail: `issue-${number}`, issue: String(number), title: '' },
+              ]));
+              return;
+            }
+
+            // A squash merge leaves one commit on main whose associated pull request is
+            // the one that landed. A direct push has none, and closes no issues.
+            const { data: prs } = await github.rest.repos
+              .listPullRequestsAssociatedWithCommit({ ...context.repo, commit_sha: context.sha });
+            const merged = prs.filter((pr) => pr.merged_at);
+            if (!merged.length) {
+              core.info('This push carries no merged pull request. Nothing to re-check.');
+              core.setOutput('matrix', '[]');
+              return;
+            }
+
+            const query = `query($owner:String!,$repo:String!,$number:Int!){
+              repository(owner:$owner,name:$repo){
+                pullRequest(number:$number){
+                  closingIssuesReferences(first:50){ nodes { number title } }
+                }
+              }
+            }`;
+            const seen = new Map();
+            for (const pr of merged) {
+              try {
+                const data = await github.graphql(query, { ...context.repo, number: pr.number });
+                for (const issue of data.repository.pullRequest.closingIssuesReferences.nodes) {
+                  seen.set(issue.number, issue.title || '');
+                }
+              } catch (error) {
+                core.warning(`Could not read issues closed by #${pr.number}: ${error.message}`);
+              }
+            }
+
+            const matrix = [...seen].map(([number, title]) => ({
+              trail: `issue-${number}`, issue: String(number), title,
+            }));
+            core.notice(
+              matrix.length
+                ? `Re-checking ${matrix.length} fixed issue(s) on main: ${
+                    matrix.map((m) => `#${m.issue}`).join(', ')}.`
+                : 'The merged pull request closed no issues. Nothing to re-check.',
+            );
+            core.setOutput('matrix', JSON.stringify(matrix));
+
+  recheck:
+    needs: plan
+    if: ${{ needs.plan.outputs.matrix != '[]' }}
+    name: recheck · ${{ matrix.trail }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    env:
+      QUIRE_BROWSER_CDP: "9222"
+      MD_USER_DATA: /tmp/md-userdata
+      # Signs Claude Code in so a Run can hire an agent and get a real reply. The app
+      # keeps this variable when it builds an agent's environment (CLAUDE_CONFIG_KEEP in
+      # src/main/ptyEnv.ts), so exporting it here is the operator path the app expects.
+      # Unset, the CLI is installed but signed out and agent-reply checks are blocked.
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Quire reads the commits since the Trail's previous Run.
+          fetch-depth: 0
+          # Nothing here pushes, and the Run must not inherit a credential it could use.
+          persist-credentials: false
+
+      - name: Install display and Electron libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgtk-3-0t64 libnss3 libgbm1 libasound2t64
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Build main
+        run: |
+          npm ci
+          npm run build
+
+      # The app spawns `claude` from PATH (AGENT_PROVIDER_PRESETS in
+      # src/shared/agentProvider.ts), so the binary has to exist before a Run can hire an
+      # agent. The app would self-heal if it were missing -- `installCommand` runs
+      # visibly in the agent's own terminal after pre-spawn detection -- but doing it
+      # here keeps an npm install out of the evidence, and keeps onboarding's engine step
+      # showing Claude Code as INSTALLED, which is what the onboarding Trail asserts.
+      # The token above signs this CLI in; it does not install it.
+      - name: Install Claude Code
+        run: npm install --global @anthropic-ai/claude-code
+
+      - name: Start the app with a fresh profile
+        run: |
+          rm -rf "$MD_USER_DATA"
+          mkdir -p /tmp/md-harness
+          nohup xvfb-run -a -s "-screen 0 1440x900x24" \
+            ./node_modules/.bin/electron . --no-sandbox --remote-debugging-port=9222 \
+            > "$RUNNER_TEMP/app.log" 2>&1 &
+          for _ in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:9222/json/list | grep -q '"type": "page"'; then exit 0; fi
+            sleep 1
+          done
+          echo "::error title=App::The app did not open a window on port 9222 within 60 s."
+          cat "$RUNNER_TEMP/app.log"
+          exit 1
+
+      # No context override: a push to the default branch already resolves to main, which
+      # is the whole point of this workflow.
+      #
+      # fail-on is `failed`, so a fix that does not survive the merge turns main red. An
+      # environment Quire could not reach does not, because that is our problem.
+      #
+      # github-token is deliberately empty, as in the other Quire workflows: the Run gets
+      # no GitHub credential it could be talked into using.
+      - name: "Quire: re-check on main"
+        id: quire
+        uses: quireco/quire-action@v1
+        with:
+          api-token: ${{ secrets.QUIRE_API_TOKEN }}
+          trail: ${{ matrix.trail }}
+          fail-on: failed
+          comment: "false"
+          github-token: ""
+          request: |
+            The fix for issue #${{ matrix.issue }}${{ matrix.title && format(', "{0}",', matrix.title) || '' }}
+            has landed on main. This Trail recorded that bug happening. The question now
+            is whether it still happens on main's build: show that it does not.
+
+            Follow .quire/runbook.md for how to reach the app, which actions are safe, and
+            what is out of reach. The branch checked out here is main at the commit that
+            just landed.
+
+            The app starts on a fresh profile showing the onboarding wizard. Unless the
+            issue is about onboarding, complete onboarding first and work from the office
+            floor: technical audience, harness home /tmp/md-harness, keep Claude Code as
+            Michael's engine, skip adding a repo, anonymous usage stats off.
+
+            Re-check the checks this Trail already carries, rather than inventing new
+            ones. If a check cannot be answered the same way it was before, say which and
+            why instead of quietly replacing it.
+
+            This is a throwaway CI runner, not anyone's laptop, so set up whatever state
+            the issue needs instead of stopping at it: install a skill into
+            ~/.claude/skills, write files or fixtures, and get the app into the state the
+            report described. Say in the handoff what you set up. Report a check blocked
+            only for something this machine cannot be given, such as a native OS dialog
+            the browser cannot see, or an agent that turns out not to be signed in. Claude
+            Code may be signed in here: if the issue needs an agent to actually do work,
+            hire one and wait for its reply rather than assuming it cannot. Keep to the
+            cheap models the runbook names.
+
+      # Job outputs cannot carry a handoff, and a matrix cannot carry per-entry outputs
+      # at all, so each entry's result travels as its own artifact.
+      - name: Stage the result
+        id: staged
+        if: ${{ !cancelled() && steps.quire.outputs.status != '' }}
+        env:
+          HANDOFF: ${{ steps.quire.outputs.handoff-path }}
+          TRAIL: ${{ matrix.trail }}
+          ISSUE: ${{ matrix.issue }}
+          STATUS: ${{ steps.quire.outputs.status }}
+          PASSED: ${{ steps.quire.outputs.passed }}
+          FAILED: ${{ steps.quire.outputs.failed }}
+          BLOCKED: ${{ steps.quire.outputs.blocked }}
+          WEB_URL: ${{ steps.quire.outputs.web-url }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/result"
+          if [ -n "$HANDOFF" ] && [ -f "$HANDOFF" ]; then
+            cp "$HANDOFF" "$RUNNER_TEMP/result/handoff.md"
+          fi
+          node -e '
+            const fs = require("fs");
+            const e = process.env;
+            fs.writeFileSync(`${e.RUNNER_TEMP}/result/result.json`, JSON.stringify({
+              trail: e.TRAIL, issue: e.ISSUE, status: e.STATUS,
+              passed: e.PASSED, failed: e.FAILED, blocked: e.BLOCKED, webUrl: e.WEB_URL,
+            }));
+          '
+
+      - name: Upload the result
+        if: ${{ !cancelled() && steps.staged.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: quire-result-${{ matrix.trail }}
+          path: ${{ runner.temp }}/result
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: App log
+        if: ${{ failure() }}
+        run: cat "$RUNNER_TEMP/app.log" || true
+
+  # The answer belongs on the issue that reported the bug, which is where someone will
+  # look to ask "is this actually fixed?". Separate job so the write-scoped token never
+  # shares an environment with a Run.
+  report:
+    needs: [plan, recheck]
+    if: ${{ !cancelled() && needs.plan.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: quire-result-*
+          path: results
+
+      - name: Comment on each re-checked issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            if (!fs.existsSync('results')) {
+              core.info('No Quire results to report.');
+              return;
+            }
+            const dirs = fs.readdirSync('results')
+              .map((d) => path.join('results', d))
+              .filter((d) => fs.existsSync(path.join(d, 'result.json')));
+
+            for (const dir of dirs) {
+              const r = JSON.parse(fs.readFileSync(path.join(dir, 'result.json'), 'utf8'));
+              if (!r.issue) continue;
+              const handoffPath = path.join(dir, 'handoff.md');
+              let handoff = fs.existsSync(handoffPath)
+                ? fs.readFileSync(handoffPath, 'utf8')
+                : '';
+
+              // Evidence URLs need authentication, so GitHub's anonymous image proxy
+              // cannot render them. Links keep the screenshots reachable.
+              handoff = handoff.replace(
+                /!\[([^\]]*)\]\(/g, (_, alt) => `[${alt || 'Evidence'}](`,
+              );
+
+              const lines = handoff.split('\n');
+              const titleAt = lines.findIndex((l) => /^#\s+/.test(l));
+              const title = titleAt >= 0 ? lines[titleAt].replace(/^#\s+/, '').trim() : '';
+              let cursor = titleAt + 1;
+              const summary = [];
+              while (cursor < lines.length) {
+                if (!lines[cursor].trim()) {
+                  if (summary.length) break;
+                  cursor += 1;
+                  continue;
+                }
+                summary.push(lines[cursor].trim());
+                cursor += 1;
+              }
+              // Headings drop two levels so folded detail cannot outshout the verdict.
+              const rest = lines.slice(cursor).join('\n').trim()
+                .replace(/^(#{1,4})\s/gm, (_, h) => `${'#'.repeat(Math.min(6, h.length + 2))} `);
+
+              const verdict = r.status !== 'completed'
+                ? `Run did not complete (\`${r.status}\`)`
+                : Number(r.failed) > 0
+                  ? 'Still happens on main'
+                  : Number(r.blocked) > 0
+                    ? 'Could not check'
+                    : 'Fixed on main';
+
+              const room = 55000;
+              const body = [
+                title ? `### ${verdict} · ${title}` : `### ${verdict}`,
+                ...(summary.length ? ['', summary.join(' ')] : []),
+                '',
+                `${r.passed} passed · ${r.failed} failed · ${r.blocked} blocked · [Run](${r.webUrl})`,
+                ...(rest ? [
+                  '',
+                  '<details><summary>Checks, evidence and how it was set up</summary>',
+                  '',
+                  rest.length > room
+                    ? `${rest.slice(0, room)}\n\n…truncated; the Run has the rest.`
+                    : rest,
+                  '',
+                  '</details>',
+                ] : []),
+                '',
+                `_Quire re-checked this on main at ${context.sha.slice(0, 7)}._`,
+              ].join('\n');
+
+              await core.summary.addRaw(body).write();
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: Number(r.issue), body,
+              });
+            }
