@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PixelButton } from './PixelButton';
 import { PixelBadge } from './PixelBadge';
+import { ApprovalsPanel } from './ApprovalsPanel';
 import { useStore } from '@/store/store';
 import { type HiveTask, type HumanQA, openQuestion, waitsOnHuman } from './TasksKanban';
 import { compareByNewestAsk } from './askMeOrder';
@@ -47,6 +48,8 @@ function dependentsTree(id: string, all: HiveTask[], seen = new Set<string>()): 
 }
 
 export function AskMeTab() {
+  // Open guardrail approvals (ApprovalsPanel), so the empty note is not shown over them.
+  const [approvals, setApprovals] = useState(0);
   const { t: translate } = useTranslation();
   const rtl = useRtl();
   const agents = useStore((s) => s.agents);
@@ -183,7 +186,9 @@ export function AskMeTab() {
     // memory viewer uses. Pixelify Sans (font-ui) is too chunky for prose like
     // questions and answers. Display/badge bits keep their explicit faces.
     <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', background: 'var(--cth-paper-200)', padding: 10, display: 'flex', flexDirection: 'column', gap: 10, fontFamily: 'var(--cth-font-mono)' }}>
-      {cards.length === 0 && (
+      {/* The guardrail's Approvals first: an agent is stopped until one is answered. */}
+      <ApprovalsPanel onCount={setApprovals} />
+      {cards.length === 0 && approvals === 0 && (
         <div style={{ textAlign: 'center', padding: '24px 12px', color: 'var(--cth-ink-500)', fontSize: 12 }}>
           {translate('askMe.emptyTitle')}<br />
           <span style={{ fontSize: 11, color: 'var(--cth-ink-300)' }}>

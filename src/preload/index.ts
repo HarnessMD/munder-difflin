@@ -22,6 +22,8 @@ export type { HeroPayload } from '../shared/heroPayload';
 import type { ModelCatalog } from '../shared/modelCatalogPayload';
 export type { ModelCatalog, CatalogModel } from '../shared/modelCatalogPayload';
 import type { HookEvent } from '../shared/hookEvents';
+import type { GuardrailFile, GuardrailResult, GuardrailView } from '../shared/guardrail';
+import type { ApprovalView } from '../shared/approvalView';
 export type { HookEvent } from '../shared/hookEvents';
 import type { LocalSkill, CatalogSkill } from '../main/skills';
 export type { LocalSkill, CatalogSkill } from '../main/skills';
@@ -946,6 +948,25 @@ const api = {
    *  hive picker, so fleet.json / log.jsonl can say so (#595). Fire-and-forget. */
   reportFloorState: (state: FloorState): void =>
     ipcRenderer.send('floor:state', state),
+  // ─── Guardrail (Settings > Rules) ─────────────────────────────────────────
+  guardrailRead: (): Promise<GuardrailView> => ipcRenderer.invoke('guardrail:read'),
+  /** Save the whole file. `stamp` is the fingerprint of the file the screen showed. */
+  guardrailSave: (file: GuardrailFile, stamp: string | null): Promise<GuardrailResult> =>
+    ipcRenderer.invoke('guardrail:save', file, stamp),
+  guardrailTurnOn: (stamp: string | null): Promise<GuardrailResult> => ipcRenderer.invoke('guardrail:turnOn', stamp),
+  guardrailTurnOff: (): Promise<GuardrailResult> => ipcRenderer.invoke('guardrail:turnOff'),
+  guardrailAccept: (stamp: string): Promise<GuardrailResult> => ipcRenderer.invoke('guardrail:accept', stamp),
+  /** The guardrail's open approval requests (the Approvals card in ASK ME). */
+  guardrailApprovals: (): Promise<ApprovalView[]> => ipcRenderer.invoke('guardrail:approvals'),
+  /** The operator's Approve or Deny of one request. The only way a grant is made. */
+  guardrailDecide: (id: string, approve: boolean): Promise<{ ok: boolean; error?: 'gone' | 'failed' }> =>
+    ipcRenderer.invoke('guardrail:decide', id, approve),
+  /** A request was raised, decided, used or expired; returns unsubscribe fn. */
+  onGuardrailApprovalsChanged: (cb: () => void): (() => void) => {
+    const listener = (): void => cb();
+    ipcRenderer.on('guardrail:approvalsChanged', listener);
+    return () => ipcRenderer.removeListener('guardrail:approvalsChanged', listener);
+  },
   ensureHarnessHome: (path: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('config:ensureHome', path),
   /** Change the harness home folder. 'move' copies the existing hive + palace

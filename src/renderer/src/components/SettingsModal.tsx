@@ -7,6 +7,7 @@ import { WorktreesPanel } from './WorktreesPanel';
 import { SetupPanel } from './SetupPanel';
 import { PixelButton } from './PixelButton';
 import { PixelPanel } from './PixelPanel';
+import { RulesPanel } from './RulesPanel';
 import { Icon } from './Icon';
 import { useIntegrityIssues } from './integrityIssues';
 import { GraphicsSetting } from './GraphicsSetting';
@@ -68,10 +69,10 @@ function clearLocalState(): void {
    footer are all DEFINED ONCE, in settings/classicChrome.ts, so no tab looks
    subtly unlike its neighbours. */
 
-export type Section = 'General' | 'Prerequisites' | 'Agents & Models' | 'Autonomy & Budgets' | 'Integrations' | 'MCP Servers' | 'Voice' | 'Memory & Knowledge';
+export type Section = 'General' | 'Prerequisites' | 'Agents & Models' | 'Autonomy & Budgets' | 'Rules' | 'Integrations' | 'MCP Servers' | 'Voice' | 'Memory & Knowledge';
 /* Integrations is ONE section of Settings: the Integrations screen, with its
    own draft and its own Save. */
-const NAV_SECTIONS: Section[] = ['General', 'Prerequisites', 'Agents & Models', 'Autonomy & Budgets', 'Integrations', 'MCP Servers', 'Voice', 'Memory & Knowledge'];
+const NAV_SECTIONS: Section[] = ['General', 'Prerequisites', 'Agents & Models', 'Autonomy & Budgets', 'Rules', 'Integrations', 'MCP Servers', 'Voice', 'Memory & Knowledge'];
 /** i18n key for each nav section's label — the Section values themselves stay
  *  as stable identifiers (tab state, deep links). */
 const NAV_SECTION_KEYS: Record<Section, string> = {
@@ -79,6 +80,7 @@ const NAV_SECTION_KEYS: Record<Section, string> = {
   'Prerequisites': 'settings.nav.prerequisites',
   'Agents & Models': 'settings.nav.agentsModels',
   'Autonomy & Budgets': 'settings.nav.autonomyBudgets',
+  'Rules': 'settings.nav.rules',
   'Integrations': 'integrations.screen.title',
   'MCP Servers': 'settings.nav.mcpServers',
   'Voice': 'settings.nav.voice',
@@ -820,6 +822,9 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                       something about the agent whose terminal you are reading. */}
                   {activeSection === 'Prerequisites' && <SetupPanel onDone={onClose} />}
 
+                  {/* RULES: the guardrail, its switch and its rules */}
+                  {activeSection === 'Rules' && <RulesPanel />}
+
                   {activeSection === 'Agents & Models' && (
                     <>
                       <div>
@@ -1241,8 +1246,8 @@ export function SettingsModal({ config, onClose, initialSection }: SettingsModal
                   <span style={{ fontSize: 12, color: 'var(--cth-ink-500)' }}>{t('settings.unsavedChanges')}</span>
                 )}
                 <PixelButton variant="secondary" onClick={requestClose}>{t('settings.close')}</PixelButton>
-                {/* Integrations has its own Save in its pane: one Save in view. */}
-                {activeSection !== 'Integrations' && (
+                {/* Integrations and Rules have their own Save in their pane: one Save in view. */}
+                {activeSection !== 'Integrations' && activeSection !== 'Rules' && (
                   <PixelButton variant="primary" onClick={() => void saveAll()} disabled={saveBusy || !dirty || settingsPaused}>
                     {saveBusy ? t('settings.saving') : t('settings.save')}
                   </PixelButton>
