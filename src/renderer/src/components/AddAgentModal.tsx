@@ -12,6 +12,7 @@ import { OFFICE_CAST, DEFAULT_CHARACTER, type OfficeCharacterName } from '@/scen
 import { type AccentColorName } from '@/design/tokens';
 import type { HireManifest } from '@shared/hire';
 import { hireQueueProgress } from '@shared/hireQueue';
+import { nameAfterPick } from '@shared/pickName';
 import { MCP_CATALOG } from '@shared/mcpCatalog';
 import { lastSegment } from '@shared/pathName';
 import {
@@ -216,6 +217,8 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
   const initialModel = isClaudeProvider(initialProvider) ? config.defaultModel : undefined;
 
   const [name, setName] = useState(pendingHire?.name ?? 'Jim');
+  // The person chose this name (typed, imported or handed over): picking a character keeps it.
+  const [nameChosen, setNameChosen] = useState(Boolean(pendingHire?.name));
   const [character, setCharacter] = useState<OfficeCharacterName>(knownCharacter(pendingHire?.character));
   const [accent, setAccent] = useState<AccentColorName>(knownAccent(pendingHire?.accent));
   const [cwd, setCwd] = useState<string>(config.registeredRepos[0] ?? '');
@@ -370,6 +373,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
   const applyManifest = (m: HireManifest) => {
     setHireMeta(m);
     setName(m.name);
+    setNameChosen(Boolean(m.name));
     // A manifest that names an agent but omits `character` should get the
     // matching avatar rather than the Jim default (issue #191).
     setCharacter(m.character ? knownCharacter(m.character) : (characterForName(m.name ?? '') ?? knownCharacter(undefined)));
@@ -735,6 +739,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                         onChange={(e) => {
                           const next = e.target.value;
                           setName(next);
+                          setNameChosen(true);
                           const match = characterForName(next);
                           if (match) setCharacter(match);
                         }}
@@ -748,7 +753,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                         value={character}
                         accent={accent}
                         scale={2}
-                        onPick={(c, displayName) => { setCharacter(c); if (displayName) setName(displayName); }}
+                        onPick={(c, displayName) => { setCharacter(c); setName((cur) => nameAfterPick(cur, nameChosen, displayName)); }}
                       />
                     </Row>
 
