@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { floorPowerPreference, recordFloorRenderer } from '../graphicsProbe';
-import { Application, Container, Graphics, Ticker, Texture } from 'pixi.js';
+import { Application, Container, Graphics, Rectangle, Ticker, Texture } from 'pixi.js';
 // PixiJS uses new Function() internally, blocked by Electron CSP — this patches it.
 import 'pixi.js/unsafe-eval';
 import { useStore, type Agent } from '@/store/store';
@@ -25,7 +25,8 @@ import {
 } from './glRecovery';
 import type { Tile, Facing, ErrandKind, ErrandSpot } from './themeRegistry';
 import { currentSeason, subscribeSeason } from '@/design/season';
-import { planHalloween } from './seasonPlan';
+import { planChristmas, planHalloween, type HalloweenPlanInput } from './seasonPlan';
+import { ChristmasDecor } from './ChristmasDecor';
 import { SeasonDecor } from './SeasonDecor';
 import { floorActionWord } from '@shared/floorActionWord';
 import type { TFunction } from 'i18next';
@@ -1784,61 +1785,75 @@ export function OfficeFloor() {
         }
       };
 
-      // ─── The season (0.5.5): Halloween on the floor ───────────────────────
-      // Built the first time the season is on and only shown or hidden after
-      // that, so Settings, General, Theme changes the floor as it is saved.
-      // Nothing is painted into the map: under 'none' the decor is never built
-      // and the floor is today's floor.
+      // ─── The season (0.5.5): Halloween or Christmas on the floor ──────────
+      // Each season's decor is built the first time that season is on and
+      // only shown or hidden after that, so Settings, General changes the
+      // floor as it is saved. Nothing is painted into the map: under 'none'
+      // no decor is built and the floor is today's floor. Both seasons read
+      // the same plan input; only what stands where differs (seasonPlan.ts).
       let decor: SeasonDecor | null = null;
-      const dressForSeason = (): void => {
-        const on = currentSeason() === 'halloween';
-        if (on && !decor) {
-          const tsD = mapRenderer.tileSize;
-          const spawns = [...mapRenderer.getAllSpawnPoints().values()];
-          const desks: Tile[] = [];
-          for (const name of theme.primarySeatNames) {
-            const seat = mapRenderer.getSpawnPoint(name);
-            if (!seat) continue;
-            if (mapRenderer.gidAt('furniture-above', seat.x, seat.y - 2) !== theme.monitor.offTopLeftGid) continue;
-            desks.push({ x: seat.x, y: seat.y - 2 });
-          }
-          // What hangs on the walls: the map's furniture, and the props drawn
-          // here in code (calendar, clock, task boards, Ask me). A red lamp
-          // never goes over one; the lamp needs about 4 px round its tile.
-          const hung = [calG, clockG, boardG, askG].map((g) => {
-            const b = g.getLocalBounds();
-            return { x0: g.x + b.minX, y0: g.y + b.minY, x1: g.x + b.maxX, y1: g.y + b.maxY };
-          });
-          const hungOver = (x: number, y: number): boolean => hung.some((r) =>
-            r.x0 < (x + 1) * tsD + 4 && r.x1 > x * tsD - 4 && r.y0 < (y + 1) * tsD && r.y1 > y * tsD);
-          decor = new SeasonDecor({
-            plan: planHalloween({
-              width: mapRenderer.width,
-              height: mapRenderer.height,
-              tileSize: tsD,
-              wallAt: (x, y) => mapRenderer.gidAt('walls', x, y),
-              isWalkable: (x, y) => mapRenderer.isWalkable(x, y),
-              desks,
-              machineStand: theme.coffee.machineStand,
-              sinkTile: theme.coffee.sinkTile,
-              decorAt: (x, y) => mapRenderer.gidAt('furniture-below', x, y) !== 0
-                || mapRenderer.gidAt('furniture-above', x, y) !== 0
-                || hungOver(x, y),
-              avoid: [
-                ...spawns,
-                ...theme.errandSpots.map((e) => e.stand),
-                theme.coffee.trayStand, theme.coffee.machineStand, theme.coffee.sinkStand
-              ]
-            }),
-            mapWidth: mapRenderer.width * tsD,
-            mapHeight: mapRenderer.height * tsD,
-            charLayer,
-            root: mapRenderer.getContainer(),
-            reducedMotion: typeof window.matchMedia === 'function'
-              && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          });
+      let xmas: ChristmasDecor | null = null;
+      const seasonPlanInput = (): HalloweenPlanInput => {
+        const tsD = mapRenderer.tileSize;
+        const spawns = [...mapRenderer.getAllSpawnPoints().values()];
+        const desks: Tile[] = [];
+        for (const name of theme.primarySeatNames) {
+          const seat = mapRenderer.getSpawnPoint(name);
+          if (!seat) continue;
+          if (mapRenderer.gidAt('furniture-above', seat.x, seat.y - 2) !== theme.monitor.offTopLeftGid) continue;
+          desks.push({ x: seat.x, y: seat.y - 2 });
         }
-        decor?.setOn(on);
+        // What hangs on the walls: the map's furniture, and the props drawn
+        // here in code (calendar, clock, task boards, Ask me). A red lamp or
+        // a string of lights never goes over one; it needs about 4 px round
+        // its tile.
+        const hung = [calG, clockG, boardG, askG].map((g) => {
+          const b = g.getLocalBounds();
+          return { x0: g.x + b.minX, y0: g.y + b.minY, x1: g.x + b.maxX, y1: g.y + b.maxY };
+        });
+        const hungOver = (x: number, y: number): boolean => hung.some((r) =>
+          r.x0 < (x + 1) * tsD + 4 && r.x1 > x * tsD - 4 && r.y0 < (y + 1) * tsD && r.y1 > y * tsD);
+        return {
+          width: mapRenderer.width,
+          height: mapRenderer.height,
+          tileSize: tsD,
+          wallAt: (x, y) => mapRenderer.gidAt('walls', x, y),
+          isWalkable: (x, y) => mapRenderer.isWalkable(x, y),
+          desks,
+          commonAreas: theme.commonAreas.flatMap((a) =>
+            (typeof a === 'string' ? mapRenderer.getZone(a) ?? [] : a)),
+          bossOffice: theme.bossOffice,
+          wallArt: () => app.renderer.extract.pixels({
+            target: mapRenderer.getContainer().getChildByLabel('walls') as Container,
+            frame: new Rectangle(0, 0, mapRenderer.width * tsD, mapRenderer.height * tsD),
+            resolution: 1
+          }),
+          machineStand: theme.coffee.machineStand,
+          sinkTile: theme.coffee.sinkTile,
+          decorAt: (x, y) => mapRenderer.gidAt('furniture-below', x, y) !== 0
+            || mapRenderer.gidAt('furniture-above', x, y) !== 0
+            || hungOver(x, y),
+          avoid: [
+            ...spawns,
+            ...theme.errandSpots.map((e) => e.stand),
+            theme.coffee.trayStand, theme.coffee.machineStand, theme.coffee.sinkStand
+          ]
+        };
+      };
+      const dressForSeason = (): void => {
+        const season = currentSeason();
+        const common = {
+          mapWidth: mapRenderer.width * mapRenderer.tileSize,
+          mapHeight: mapRenderer.height * mapRenderer.tileSize,
+          charLayer,
+          root: mapRenderer.getContainer(),
+          reducedMotion: typeof window.matchMedia === 'function'
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        };
+        if (season === 'halloween' && !decor) decor = new SeasonDecor({ plan: planHalloween(seasonPlanInput()), ...common });
+        if (season === 'christmas' && !xmas) xmas = new ChristmasDecor({ plan: planChristmas(seasonPlanInput()), ...common });
+        decor?.setOn(season === 'halloween');
+        xmas?.setOn(season === 'christmas');
       };
       dressForSeason();
       // The cast changes clothes with the season (costumes.ts). design/season
@@ -1858,6 +1873,7 @@ export function OfficeFloor() {
         const dt = ticker.deltaMS / 1000;
         camera.update(dt);
         decor?.update(dt);
+        xmas?.update(dt);
         // Thought clouds counter-scale against the camera so their text never
         // renders below 1:1 screen size when the window/world shrinks.
         const zoom = world.scale.x;

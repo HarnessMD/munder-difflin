@@ -387,8 +387,8 @@ export interface HarnessConfig {
   knowledgeGraph?: KnowledgeGraphConfig;
   /** Terminal theme, mirrored into each agent's per-session Claude settings. */
   terminalTheme?: 'light' | 'dark';
-  /** The season the office is dressed for (0.5.5); unset means 'halloween'. */
-  seasonalTheme?: 'halloween' | 'none';
+  /** The season the office is dressed for (0.5.5); unset means 'none' (0.5.8). */
+  seasonalTheme?: 'halloween' | 'christmas' | 'none';
   /** Settings, Graphics: 'auto' (absent), 'gpu' or 'cpu'; applies on the next start. */
   graphicsMode?: GraphicsMode;
   /** The project `.codex` folders a person allowed for hive Codex agents. */

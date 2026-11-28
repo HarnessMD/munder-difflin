@@ -5,7 +5,8 @@
  * (src/main/windowVisibility.ts). The floor keeps its own copy of this rule
  * because its ticker is not CSS.
  *
- * ONE listener for the app: HalloweenLayer starts it, and it is mounted once.
+ * ONE listener for the app: the season's layer starts it (HalloweenLayer or
+ * ChristmasLayer, only one of them draws at a time), and each is mounted once.
  */
 function stamp(hidden: boolean): void {
   const el = document.documentElement;

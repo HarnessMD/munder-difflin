@@ -5,13 +5,18 @@
  * 'halloween' from 28 Sep 2026, stored as nothing, so an unset value is a person
  * who never chose and is off now. Only the switch writes 'halloween' (Settings
  * writes nothing when the pick equals what is on disk), so a stored 'halloween'
- * is a person's own choice and stays on.
+ * is a person's own choice and stays on. 'christmas' (0.6.x) is a third pick
+ * beside it, written the same way: only the switch writes it, so nobody who
+ * never chose wakes up in December dressed for it.
  *
  * What reads it:
- *   - tokens.css keys its accents on `:root[data-cth-season='halloween']`;
- *   - portraitArt.ts dresses every character in a costume (costumes.ts);
- *   - HalloweenLayer.tsx draws the animated decorations;
- *   - the Classic floor draws its own props and bats (OfficeFloor).
+ *   - season.css keys its accents on `:root[data-cth-season='halloween']`
+ *     and `:root[data-cth-season='christmas']`;
+ *   - portraitArt.ts dresses every character in that season's costume
+ *     (costumes.ts, christmasCostumes.ts);
+ *   - HalloweenLayer.tsx draws the bats, ChristmasLayer.tsx the snow;
+ *   - the Classic floor draws its own props (OfficeFloor: SeasonDecor for
+ *     Halloween, ChristmasDecor for Christmas).
  *
  * The stored value is `config.seasonalTheme`. App.tsx mirrors it here, and the
  * localStorage key is only a boot cache so the first paint is already right.
@@ -19,8 +24,8 @@
  */
 import { useSyncExternalStore } from 'react';
 
-export type Season = 'halloween' | 'none';
-export const SEASONS: readonly Season[] = ['halloween', 'none'];
+export type Season = 'halloween' | 'christmas' | 'none';
+export const SEASONS: readonly Season[] = ['halloween', 'christmas', 'none'];
 export const DEFAULT_SEASON: Season = 'none';
 
 /** The boot cache's key. A new name in 0.5.8: the old one holds 'halloween' for
@@ -29,7 +34,7 @@ const LS_KEY = 'cth.season.v2';
 
 /** Any stored or config value to a Season; unknown and missing mean the default. */
 export function normalizeSeason(v: unknown): Season {
-  return v === 'none' || v === 'halloween' ? v : DEFAULT_SEASON;
+  return v === 'none' || v === 'halloween' || v === 'christmas' ? v : DEFAULT_SEASON;
 }
 
 function load(): Season {

@@ -42,7 +42,18 @@ import {
   recipeKey
 } from '@shared/avatars';
 import { getCustomAvatar } from './avatarRegistry';
-import { CAST_COSTUMES, costumeForRecipe, costumeRecipe, paintCostume, type Costume, type Px } from './costumes';
+import { CAST_COSTUMES, costumeForRecipe, costumeRecipe, paintCostume, type Costume as HalloweenCostume, type Px } from './costumes';
+import { CAST_CHRISTMAS, christmasForRecipe, christmasRecipe, isChristmasCostume, paintChristmas, type ChristmasCostume } from './christmasCostumes';
+
+/** A costume of either season. The two lists share no name, so the name alone
+ *  says which painter draws it. */
+type Costume = HalloweenCostume | ChristmasCostume;
+const dressRecipe = (r: AvatarRecipe, c: Costume): AvatarRecipe =>
+  (isChristmasCostume(c) ? christmasRecipe(r, c) : costumeRecipe(r, c));
+const paintDress = (p: Px, c: Costume, ctx: Parameters<typeof paintCostume>[2]): void => {
+  if (isChristmasCostume(c)) paintChristmas(p, c, ctx);
+  else paintCostume(p, c, ctx);
+};
 
 // Re-exported from castRoster so nothing that only needs the SIZE has to pull
 // this module in. See castRoster.ts.
@@ -807,7 +818,7 @@ function defaultPants(r: AvatarRecipe): RGB {
 function compose(r: AvatarRecipe, costume: Costume | null = null): Buf {
   CUR_W = PORTRAIT_W; CUR_H = PORTRAIT_H;
   const buf = new Uint8ClampedArray(PORTRAIT_W * PORTRAIT_H * 4);
-  if (costume) r = migrateRecipe(costumeRecipe(r, costume));
+  if (costume) r = migrateRecipe(dressRecipe(r, costume));
   const c = garmentCtx(r);
   const art = GARMENT_ART[r.cloth];
   drawClothing(buf, r.cloth, r.c1, r.c2, r.tie, r.skin, c.heavy);
@@ -815,7 +826,7 @@ function compose(r: AvatarRecipe, costume: Costume | null = null): Buf {
   collarNeck(buf, r.skin);
   drawHeadGroup(buf, r);
   art?.over?.(buf, c, false);
-  if (costume) paintCostume(pxFor(buf), costume, { T: 19, scene: false, back: false, r });
+  if (costume) paintDress(pxFor(buf), costume, { T: 19, scene: false, back: false, r });
   outlinePass(buf);
   return buf;
 }
@@ -824,7 +835,7 @@ function compose(r: AvatarRecipe, costume: Costume | null = null): Buf {
 function composeScene(r: AvatarRecipe, phase: number, back: boolean, costume: Costume | null = null): Buf {
   CUR_W = SCENE_W; CUR_H = SCENE_H;
   const buf = new Uint8ClampedArray(SCENE_W * SCENE_H * 4);
-  if (costume) r = migrateRecipe(costumeRecipe(r, costume));
+  if (costume) r = migrateRecipe(dressRecipe(r, costume));
   const c = garmentCtx(r);
   const art = GARMENT_ART[r.cloth];
   drawSceneTorso(buf, r, back);
@@ -834,7 +845,7 @@ function composeScene(r: AvatarRecipe, phase: number, back: boolean, costume: Co
   if (back) drawHeadBackAny(buf, r);
   else drawHeadGroup(buf, r);
   if (!back) art?.over?.(buf, c, true);
-  if (costume) paintCostume(pxFor(buf), costume, { T: 18, scene: true, back, r });
+  if (costume) paintDress(pxFor(buf), costume, { T: 18, scene: true, back, r });
   outlinePass(buf);
   return buf;
 }
@@ -862,24 +873,35 @@ function pxFor(buf: Buf): Px {
 }
 
 // ─── the season's costumes ───────────────────────────────────────────────────
-// Costumes are on while <html data-cth-season="halloween"> (design/season.ts
-// stamps it at boot). Read from the page, not imported, so the painter stays
-// free of React and a run with no page at all (node:test) always draws the
-// plain cast: the hashes in test/avatar-recipes.test.cjs hold with no setup.
-// A test that wants costumes calls setCostumeOverride(true).
-let costumeOverride: boolean | null = null;
-export function setCostumeOverride(on: boolean | null): void { costumeOverride = on; }
+// Costumes are on while <html data-cth-season> is "halloween" or "christmas"
+// (design/season.ts stamps it at boot), and the season picks the wardrobe.
+// Read from the page, not imported, so the painter stays free of React and a
+// run with no page at all (node:test) always draws the plain cast: the hashes
+// in test/avatar-recipes.test.cjs hold with no setup. A test that wants
+// costumes calls setCostumeOverride: true is Halloween, as it always was, or
+// it names the season.
+export type CostumeSeason = 'halloween' | 'christmas';
+let costumeOverride: boolean | CostumeSeason | null = null;
+export function setCostumeOverride(on: boolean | CostumeSeason | null): void { costumeOverride = on; }
+/** The season whose costumes the cast wears now, or null for none. */
+export function costumeSeason(): CostumeSeason | null {
+  if (costumeOverride !== null) return costumeOverride === true ? 'halloween' : costumeOverride || null;
+  try {
+    const s = (globalThis as { document?: Document }).document?.documentElement?.dataset?.cthSeason;
+    return s === 'halloween' || s === 'christmas' ? s : null;
+  } catch { return null; }
+}
 export function costumesOn(): boolean {
-  if (costumeOverride !== null) return costumeOverride;
-  try { return (globalThis as { document?: Document }).document?.documentElement?.dataset?.cthSeason === 'halloween'; }
-  catch { return false; }
+  return costumeSeason() !== null;
 }
 /** Which costume a recipe wears now, or null with the season off. Built-ins
  *  are matched by identity: resolveRecipe hands out CAST_RECIPES' own objects. */
 const CAST_NAME_OF = new Map<AvatarRecipe, string>(Object.entries(CAST_RECIPES).map(([n, r]) => [r, n]));
 export function costumeOf(recipe: AvatarRecipe): Costume | null {
-  if (!costumesOn()) return null;
+  const season = costumeSeason();
+  if (!season) return null;
   const name = CAST_NAME_OF.get(recipe);
+  if (season === 'christmas') return (name && CAST_CHRISTMAS[name]) || christmasForRecipe(recipe);
   return (name && CAST_COSTUMES[name]) || costumeForRecipe(recipe);
 }
 const cacheKey = (m: AvatarRecipe, c: Costume | null) => (c ? `${recipeKey(m)}|costume:${c}` : recipeKey(m));

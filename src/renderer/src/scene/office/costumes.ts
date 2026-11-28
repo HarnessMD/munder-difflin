@@ -125,8 +125,10 @@ export interface CostumeCtx {
   r: AvatarRecipe;
 }
 
-function row(p: Px, y: number, x0: number, x1: number, c: RGB): void { for (let x = x0; x <= x1; x++) p.set(x, y, c); }
-function clearRows(p: Px, y0: number, y1: number, x0 = 0, x1 = p.w - 1): void {
+// The helpers below are shared with christmasCostumes.ts, which draws the
+// other season's costumes through the same pixel API.
+export function row(p: Px, y: number, x0: number, x1: number, c: RGB): void { for (let x = x0; x <= x1; x++) p.set(x, y, c); }
+export function clearRows(p: Px, y0: number, y1: number, x0 = 0, x1 = p.w - 1): void {
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) p.clear(x, y);
 }
 
@@ -173,7 +175,7 @@ function mummyHead(p: Px): void {
 
 // ─── bodies ──────────────────────────────────────────────────────────────────
 /** Last row of the torso: the bust runs to the bottom, the figure to row 24. */
-const torsoEnd = (ctx: CostumeCtx, p: Px) => (ctx.scene ? 24 : p.h - 1);
+export const torsoEnd = (ctx: CostumeCtx, p: Px) => (ctx.scene ? 24 : p.h - 1);
 
 function skeletonBody(p: Px, ctx: CostumeCtx): void {
   const { T } = ctx;
@@ -267,7 +269,7 @@ const CARVED: RGB = [96, 46, 12];
 const RUST_SH: RGB = [136, 76, 34];
 
 /** Draw a grid of letters from (x0, y0). '.' leaves the pixel alone. */
-function stamp(p: Px, x0: number, y0: number, grid: readonly string[], pal: Readonly<Record<string, RGB>>): void {
+export function stamp(p: Px, x0: number, y0: number, grid: readonly string[], pal: Readonly<Record<string, RGB>>): void {
   grid.forEach((line, dy) => {
     for (let dx = 0; dx < line.length; dx++) {
       const c = pal[line[dx]];
@@ -276,8 +278,8 @@ function stamp(p: Px, x0: number, y0: number, grid: readonly string[], pal: Read
   });
 }
 /** The clothing pixels: at or below T, drawn, and inside the torso rows. */
-const onBody = (p: Px, ctx: CostumeCtx, x: number, y: number) => y >= ctx.T && y <= torsoEnd(ctx, p) && p.alpha(x, y) === 255;
-function paintBody(p: Px, ctx: CostumeCtx, x: number, y: number, c: RGB): void { if (onBody(p, ctx, x, y)) p.set(x, y, c); }
+export const onBody = (p: Px, ctx: CostumeCtx, x: number, y: number) => y >= ctx.T && y <= torsoEnd(ctx, p) && p.alpha(x, y) === 255;
+export function paintBody(p: Px, ctx: CostumeCtx, x: number, y: number, c: RGB): void { if (onBody(p, ctx, x, y)) p.set(x, y, c); }
 
 function topHat(p: Px, back: boolean): void {
   clearRows(p, 0, 4);

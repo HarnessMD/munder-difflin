@@ -3,3 +3,4 @@ export { Ghost, type GhostFace } from './Ghost';
 export { Wick, Flame } from './Candle';
 export { Cobweb, Spider, Bat } from './Night';
 export { WebStrands } from './Grave';
+export { Sleigh } from './Sleigh';

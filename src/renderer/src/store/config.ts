@@ -137,8 +137,8 @@ export interface HarnessConfig {
   /** 0.5.3: the agent a webhook call goes to when its endpoint names none. */
   webhookResponder?: string;
   /** The season the office is dressed for (0.5.5). Unset means 'none', the
-   *  general look (0.5.8); 'halloween' is a person's own choice. Mirrors main; read through design/season.ts. */
-  seasonalTheme?: 'halloween' | 'none';
+   *  general look (0.5.8); 'halloween' and 'christmas' are a person's own choice. Mirrors main; read through design/season.ts. */
+  seasonalTheme?: 'halloween' | 'christmas' | 'none';
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
    *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;

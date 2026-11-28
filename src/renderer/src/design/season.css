@@ -72,3 +72,80 @@
 :root[data-cth-season='halloween'][data-cth-skin='office'][data-cth-theme='dark'] {
   --cth-season-bat: #9A7AC6;
 }
+
+/* ── SEASON: Christmas (design/season.ts, a person's own pick) ──────────────
+   Same axis, same rule as Halloween: token VALUES only, never layout. The
+   accent becomes pine green (a light fill with dark ink on it, like the
+   lemon it replaces), its line and the decorations' light are gold, and red
+   is kept to the decorations (ornaments, hats, ribbons): never a button,
+   never a status, so red never reads as an error. Status colours never
+   change. Keyed on the season and the theme only, so it dresses every skin.
+   The grounds pick up a snowy pine white in light and a pine night in dark;
+   text and border inks stay, so every contrast holds. Setting the season to
+   'none' drops every rule below. */
+:root[data-cth-season='christmas'] {
+  --cth-cream-50:  #FBFCF8;
+  --cth-cream-100: #F3F7F0;
+  --cth-cream-200: #E4ECDD;
+  --cth-paper-100: #FBFCF8;
+  --cth-paper-200: #EAF0E4;
+  --cth-accent: #5DB075;
+  --cth-accent-hover: #79C28E;
+  --cth-accent-ink: #10210F;
+  --cth-accent-text: #1F6B39;
+  --cth-accent-soft: #E3F1E3;
+  --cth-accent-line: #D9B45A;
+  /* The selected row: a pale pine, lighter than the soft accent so a chip on
+     a selected row still shows. */
+  --cth-surface-active: #EAF4E6;
+  --cth-season-glow: rgba(232, 184, 74, 0.45);
+  --cth-season-red: #C8322E;
+  --cth-season-red-sh: #8E1F1C;
+  --cth-season-green: #2F7D45;
+  --cth-season-green-hi: #4E9F63;
+  --cth-season-green-sh: #1E5730;
+  --cth-season-gold: #E8B84A;
+  --cth-season-gold-hi: #FFE08A;
+  --cth-season-snow: #FFFFFF;
+  /* Snow falls over a light ground: a cool blue grey so the flakes show. */
+  --cth-season-flake: #A9BCD6;
+  --cth-season-ink: #1B2A20;
+  /* Santa's sleigh (season/sleighPlan.ts): the reindeer, antlers and Santa's face. */
+  --cth-season-deer: #8A5A34;
+  --cth-season-deer-sh: #5E3B20;
+  --cth-season-antler: #C9A86A;
+  --cth-season-skin: #F1C7A0;
+}
+:root[data-cth-season='christmas'][data-cth-theme='dark'] {
+  --cth-cream-50:  #121815;
+  --cth-cream-100: #17201B;
+  --cth-cream-200: #1F2A23;
+  --cth-cream-300: #29362D;
+  --cth-paper-100: #151D18;
+  --cth-paper-200: #1C251F;
+  --cth-accent: #6CC085;
+  --cth-accent-hover: #8AD29F;
+  --cth-accent-ink: #0E1A10;
+  --cth-accent-text: #85D39C;
+  --cth-accent-soft: #1D3324;
+  --cth-accent-line: #8A6E2A;
+  /* The selected row: a dim pine, above the rail ground, calmer than the
+     soft accent. */
+  --cth-surface-active: #1E2A20;
+  --cth-season-glow: rgba(242, 197, 92, 0.5);
+  --cth-season-red: #E5544E;
+  --cth-season-red-sh: #A8312C;
+  --cth-season-green: #4E9F63;
+  --cth-season-green-hi: #6CC085;
+  --cth-season-green-sh: #2F7D45;
+  --cth-season-gold: #F2C55C;
+  --cth-season-gold-hi: #FFE9A8;
+  --cth-season-snow: #EEF3FA;
+  --cth-season-flake: #EEF3FA;
+  --cth-season-ink: #0C130E;
+  /* Santa's sleigh (season/sleighPlan.ts): lighter browns so the deer show on the dark ground. */
+  --cth-season-deer: #B07A48;
+  --cth-season-deer-sh: #7A4E2C;
+  --cth-season-antler: #EAD7AE;
+  --cth-season-skin: #F4CFAB;
+}

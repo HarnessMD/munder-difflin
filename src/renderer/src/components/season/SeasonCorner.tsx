@@ -7,6 +7,7 @@ import {
   type SpiderState
 } from './seasonCornerPlan';
 import { Cobweb, Ghost, Spider } from './pieces';
+import { ChristmasCorner } from './ChristmasCorner';
 import './seasonCorner.css';
 
 /**
@@ -32,10 +33,24 @@ import './seasonCorner.css';
  * top of the input area. `crowded` says the queue header is drawn under the
  * web: the spider stays up and the web steps back, so the header's words
  * ("Clear all", the queue note) are never under a spider.
+ *
+ * With the season on Christmas it draws ChristmasCorner.tsx instead: a tree
+ * in the pumpkin's place, by the same rules.
  */
 export function SeasonCorner({ agent, quiet = false, crowded = false }: { agent: Agent; quiet?: boolean; crowded?: boolean }) {
   const season = useSeason();
-  if (season !== 'halloween' || quiet) return null;
+  if (quiet || season === 'none') return null;
+  if (season === 'christmas') {
+    return (
+      <ChristmasCorner
+        agentId={agent.id}
+        status={agent.status}
+        hasSession={!!agent.ptyId && !agent.exit}
+        contextTokens={agent.contextTokens}
+        contextLimit={agent.contextLimit}
+      />
+    );
+  }
   return (
     <Corner
       agentId={agent.id}
