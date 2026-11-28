@@ -87,7 +87,7 @@ Four other ways to box an agent in, each read on 11 Nov 2026:
 | Claude Code sandbox | Shell commands only | Your machine, enforced by the OS |
 | E2B | The whole agent session | A cloud microVM |
 
-**Plain Docker.** Docker's [overview](https://docs.docker.com/get-started/docker-overview/) calls a container "a loosely isolated environment" and says it is "relatively well isolated from other containers and its host machine" by default.
+**Plain Docker.** Docker's [Engine security docs](https://docs.docker.com/engine/security/), read 28 Nov 2026, say processes in a container "cannot see, and even less affect, processes running in another container, or in the host system." They also warn that "the default set of capabilities and mounts given to a container may provide incomplete isolation".
 
 **Gondolin for Pi.** Pi's [containerization guide](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/containerization.md) describes [Gondolin](https://github.com/earendil-works/gondolin) as "a local Linux micro-VM": Pi stays on the host and its built in tools run in the VM. It warns that commands there "inherit the host process environment", so it is no credential boundary by default. Gondolin's GitHub repo calls it experimental, and the GitHub API lists its last release as v0.14.0 on 22 Oct 2026.
 

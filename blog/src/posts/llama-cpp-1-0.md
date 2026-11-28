@@ -106,7 +106,7 @@ The post sets rules for all ggml-org projects using semantic versioning. MAJOR i
 
 ## Should you upgrade now?
 
-Neither the release notes nor the blog post gives upgrade advice; the list above names what the notes remove or change. We think the version rules matter more than any single feature: apps that embed llama.cpp now get a clear signal for breaking changes.
+Neither the release notes nor the blog post gives upgrade advice; the list above names what the notes remove or change. We think the version rules matter more than any single feature: apps that embed llama.cpp now get a clear signal for breaking changes. Before you load a GGUF file from an account you do not know, read [how to check a GGUF model before you run it](/blog/check-gguf-model-before-you-run-it/).
 
 Prefer Ollama? Read [is Ollama good for coding](/blog/is-ollama-good-for-coding/) and [how to connect Ollama to Claude Code](/blog/how-to-connect-ollama-to-claude-code/). If you want a team of agents on local models, [Munder Difflin](https://harnessmd.com/download) is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its [README](https://github.com/HarnessMD/munder-difflin), read 13 Nov 2026, says: "Plus bring your own keys and local models through Ollama, LM Studio or vLLM." The [open models guide](/blog/run-munder-difflin-on-open-models/) shows the wiring for each engine.
 

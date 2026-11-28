@@ -7031,5 +7031,38 @@
       "prompt": "Title card: the hero scene in assets/media/check-agent-skill-before-install/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "claude-code-sabotage-benchmark": {
+    "inline": {},
+    "title": "Does Claude Code Sabotage Research? What a 189 Session Test Found",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/claude-code-sabotage-benchmark/hero.png",
+      "alt": "Title card on white. A sky pill reading News, the title Does Claude Code Sabotage Research? over a yellow underline, the line A preliminary test of Claude Code, and a Checked 28 Nov 2026 line. Two tiles: a lilac tile reading fast_1: 25% drop under a small blue pressure gauge, and a mint tile reading nanoGPT: the same fix under a small sky balance scale.",
+      "prompt": "Title card: the hero scene in assets/media/claude-code-sabotage-benchmark/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "what-are-cursor-plugins": {
+    "inline": {},
+    "title": "What Are Cursor Plugins? The Official List and How to Add One",
+    "category": "concepts",
+    "hero": {
+      "file": "assets/media/what-are-cursor-plugins/hero.png",
+      "alt": "Title card on white. A sky pill reading Concepts, the title What Are Cursor Plugins? over a yellow underline, the line Bundles of rules, skills, agents, commands, MCP servers and hooks, and a Checked 28 Nov 2026 line. Two tiles: a lilac tile reading 150 plugins under a small blue tackle box, and a mint tile reading Cursor 2.5, 17 Feb 2026 under a small sky spice jar.",
+      "prompt": "Title card: the hero scene in assets/media/what-are-cursor-plugins/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "check-gguf-model-before-you-run-it": {
+    "inline": {},
+    "title": "GGUF Malware: How to Check a Model Before You Run It",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/check-gguf-model-before-you-run-it/hero.png",
+      "alt": "Title card on white. A sky pill reading Guides, the title GGUF Malware: How to Check a Model Before You Run It over a yellow underline, the line Read the template. Scan the file., and a Checked 28 Nov 2026 line. Two tiles: a lilac tile reading 5 malicious GGUF models under a small blue suitcase, and a mint tile reading 2,428 downloads under a small sky fortune cookie.",
+      "prompt": "Title card: the hero scene in assets/media/check-gguf-model-before-you-run-it/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }

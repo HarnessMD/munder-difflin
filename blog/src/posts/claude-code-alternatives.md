@@ -34,7 +34,7 @@ We see four reasons people look elsewhere: price, licence, model choice, or want
 
 <figure class="mg" data-scene="tipping"><img src="/blog/assets/media/claude-code-alternatives/tipping.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A balance starts tipped towards a block marked stay. Four weights drop on the other pan one by one, for price, licence, model choice and wanting an editor, and the balance tips the other way."><figcaption>Four reasons, one balance. Prices from Anthropic's pricing page, 5 Oct 2026.</figcaption></figure>
 
-The Claude Code repo is public, but its licence file says "All rights reserved", so it is not open source; [is Claude Code open source](/blog/is-claude-code-open-source/) explains why that matters. It is also built around Claude models. If none of that bothers you, stay: it is a good tool.
+The Claude Code repo is public, but its licence file says "All rights reserved", so it is not open source; [is Claude Code open source](/blog/is-claude-code-open-source/) explains why that matters. It is also built around Claude models. If the late November 2026 sabotage claim about Claude and research work is your reason, see [what one preliminary test found](/blog/claude-code-sabotage-benchmark/). If none of that bothers you, stay: it is a good tool.
 
 ## Seven alternatives, plus a different kind of tool
 
