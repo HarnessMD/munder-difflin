@@ -34,6 +34,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://munderdiffl.in/blog/check-gguf-model-before-you-run-it/</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://munderdiffl.in/blog/claude-code-sabotage-benchmark/</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://munderdiffl.in/blog/giving-tuesday-charity-checker/</loc>
     <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
@@ -41,6 +53,12 @@
   </url>
   <url>
     <loc>https://munderdiffl.in/blog/opusclip-alternatives/</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://munderdiffl.in/blog/what-are-cursor-plugins/</loc>
     <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
