@@ -4,9 +4,17 @@
   <subtitle>Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.</subtitle>
   <link href="https://munderdiffl.in/blog/feed.xml" rel="self" />
   <link href="https://munderdiffl.in/blog/" />
-  <updated>2026-11-27T00:00:00.000Z</updated>
+  <updated>2026-11-28T00:00:00.000Z</updated>
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
+  <entry>
+    <title>Giving Tuesday 2026: Check a Charity Before You Give, With AI Agents</title>
+    <link href="https://munderdiffl.in/blog/giving-tuesday-charity-checker/" />
+    <id>https://munderdiffl.in/blog/giving-tuesday-charity-checker/</id>
+    <published>2026-11-28T00:00:00.000Z</published>
+    <updated>2026-11-28T00:00:00.000Z</updated><category term="Use Cases" />
+    <summary>Giving Tuesday 2026 is Tuesday, 1 Dec. Check the charity on the IRS or Charity Commission register, keep receipts, and copy a giving plan and checklist.</summary>
+  </entry>
   <entry>
     <title>Agent Tools Today, 27 Nov 2026: Workspace MCP Servers, Crush v0.103.0 and Browser Use 1.0.9</title>
     <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-27/" />
@@ -478,13 +486,5 @@
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Guides" />
     <summary>GTA 6 refund rules on PlayStation and Xbox, quoted from each store&#39;s own pages: preorder windows, the 14 day limit, and where to ask.</summary>
-  </entry>
-  <entry>
-    <title>GTA 6 Review Scores: Metacritic, OpenCritic and What Critics Actually Said</title>
-    <link href="https://munderdiffl.in/blog/gta-6-review-scores/" />
-    <id>https://munderdiffl.in/blog/gta-6-review-scores/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="News" />
-    <summary>GTA 6 review scores on 19 Nov 2026: Metacritic 99 from 150 critics, OpenCritic 99. How each average works, 7 critics quoted, and is it worth it.</summary>
   </entry>
 </feed>

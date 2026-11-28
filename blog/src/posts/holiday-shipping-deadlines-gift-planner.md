@@ -116,7 +116,7 @@ Install it with [how to install and use Munder Difflin](/blog/how-to-install-and
 
 [harnessmd.com](https://harnessmd.com), read 27 Nov 2026, adds "Close your laptop and a Cloud Office keeps going". It says Pro adds "a task board, an inbox, automations" among other things, and "The free plan lets you use Pro features up to a monthly allowance of work tokens."
 
-More teams like this: [run an office of AI agents while you sleep](/blog/run-an-office-of-ai-agents/) and [every agent on our floor](/blog/ai-agent-use-cases-our-office/).
+More teams like this: [run an office of AI agents while you sleep](/blog/run-an-office-of-ai-agents/) and [every agent on our floor](/blog/ai-agent-use-cases-our-office/). For anyone who would rather have a donation, [check the charity first](/blog/giving-tuesday-charity-checker/) before Giving Tuesday, 1 Dec.
 
 Get [Munder Difflin](https://harnessmd.com/download) this weekend and let the Deadline Keeper watch the calendar while you wrap.
 
