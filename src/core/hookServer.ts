@@ -39,6 +39,10 @@ import type { HookHttpEndpoint } from '../main/hookTransport';
 
 /** Maximum JSON payload bytes in one newline-delimited hook frame. */
 const MAX_HOOK_FRAME_BYTES = 256 * 1024;
+/** Maximum body bytes of one HTTP hook POST. Claude Code posts the raw payload (no shim trims it), so a
+ *  tool result such as a screenshot can be several hundred KB. The listener is loopback-only and checks the
+ *  bearer token before buffering. The socket limit above is unchanged. */
+const MAX_HTTP_HOOK_BODY_BYTES = 4 * 1024 * 1024;
 
 interface HookPayload {
   /** Ownership probe from ensureListening(): answered with { pong, instance }, never a hook. */
@@ -54,6 +58,8 @@ interface HookPayload {
   cwd?: string;
   tool_name?: string;
   tool_input?: unknown;
+  /** What the tool gave back. Never read here; dropped in onHttp so a large result cannot cost the event. */
+  tool_response?: unknown;
   stop_hook_active?: boolean;
   prompt?: string;
   source?: string;
@@ -530,14 +536,14 @@ export class HookServer {
     req.on('data', (chunk: Buffer) => {
       if (rejected) return;
       bytes += chunk.length;
-      if (bytes > MAX_HOOK_FRAME_BYTES) {
-        // Same limit and the same log line as an oversized socket frame.
+      if (bytes > MAX_HTTP_HOOK_BODY_BYTES) {
+        // Same log line as an oversized socket frame, under the HTTP body cap.
         rejected = true;
         this.hive.appendLog({
           kind: 'hook-frame-rejected',
           reason: 'frame-too-large',
           bytes,
-          limit: MAX_HOOK_FRAME_BYTES,
+          limit: MAX_HTTP_HOOK_BODY_BYTES,
         });
         res.writeHead(413, { connection: 'close' }).end();
         return;
@@ -549,6 +555,8 @@ export class HookServer {
       let payload: HookPayload = {};
       try { payload = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { /* ignore */ }
       if (!payload || typeof payload !== 'object') payload = {};
+      // What a tool gave back is never read by the app (the command shims drop it the same way).
+      delete payload.tool_response;
       let urlId = '';
       try { urlId = decodeURIComponent(m[1]); } catch { /* an id that does not decode names no agent */ }
       // The shim's rule, exactly: a payload that names an agent keeps it (Claude's
