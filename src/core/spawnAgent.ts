@@ -35,6 +35,7 @@ import { detectNodeVersion, nodeIsUsable, resolveNodeInstaller } from '../main/n
 import type { PtyOwner } from './host';
 import type { PtyManager, SpawnOptions } from '../main/pty';
 import type { HiveManager, AgentMeta } from '../main/hive';
+import { unsafeAgentFolder, unsafeAgentFolderMessage } from '../main/agentFolder';
 import type { HookTransport } from '../main/hookTransport';
 import type { MemoryManager } from '../main/memory';
 import type { KnowledgeManager } from '../main/knowledge';
@@ -372,6 +373,13 @@ export function createSpawnAgent<O extends PtyOwner>(d: SpawnDeps<O>): (opts: Ag
     // the engine starts.
     if (opts.ownWorktreeOnly === true && opts.cwd === asGiven.cwd) {
       return { ok: false, error: 'no worktree of its own could be made, and it may not run in the folder it was given' };
+    }
+    // An agent's working folder is the first of its writable folders, so never the
+    // disk root, the home folder, or a folder that holds the app's data folder
+    // (agentFolder.ts). Refused before the hive provisions anything.
+    if (opts.hive) {
+      const unsafe = unsafeAgentFolder(opts.cwd);
+      if (unsafe) return { ok: false, error: unsafeAgentFolderMessage(opts.cwd, unsafe) };
     }
     // The same hold again in a worktree made just now: its committed `.codex` can differ
     // from the main checkout's files. Held, the worktree is taken back (folder,
