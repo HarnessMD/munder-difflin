@@ -26,6 +26,14 @@ jobs:
       # it on the release branch, before a tag, instead of on launch day.
       - name: Release links consistent
         run: npm run check:links
+      # Locale shape only: every translation has the key tree and {{placeholders}}
+      # of en.json, onboarding picks zh-TW for a Taiwan system, and
+      # zh-TW.json is in step with zh-CN.json. Deliberately NOT the whole
+      # test/*.test.cjs suite.
+      - name: i18n tests
+        run: node --test test/i18n-god-name.test.cjs test/system-language.test.cjs
+      - name: zh-TW in step with zh-CN
+        run: npm run i18n:fill-zh-tw -- --check
 
   build:
     name: Build
