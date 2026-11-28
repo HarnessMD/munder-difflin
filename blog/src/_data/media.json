@@ -7031,5 +7031,27 @@
       "prompt": "Title card: the hero scene in assets/media/check-agent-skill-before-install/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "jan-ai-offline-chat": {
+    "inline": {},
+    "title": "How to run a free AI chat offline on your laptop with Jan",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/jan-ai-offline-chat/hero.png",
+      "alt": "Title card on white. A sky pill reading AI tools, the title Jan, wifi off over a yellow underline, the line A free AI chat on your own laptop, and a Checked 28 Nov 2026 line. Two tiles: a lilac tile reading 8GB minimum, 16GB recommended under a small blue sandglass, and a mint tile reading Local is the default under a small sky snow globe.",
+      "prompt": "Title card: the hero scene in assets/media/jan-ai-offline-chat/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "bgsub-remove-background": {
+    "inline": {},
+    "title": "How to remove a photo background free with BgSub, in your browser",
+    "category": "ai-tools",
+    "hero": {
+      "file": "assets/media/bgsub-remove-background/hero.png",
+      "alt": "Title card on white. A sky pill reading AI tools, the title Remove a photo background with BgSub over a yellow underline, the line Free by its own FAQ, all in the browser, and a Checked 28 Nov 2026 line. Two tiles: a lilac tile reading Up to 4096 x 4096 under a small blue cookie cutter, and a mint tile reading One photo at a time under a small yellow paint palette.",
+      "prompt": "Title card: the hero scene in assets/media/bgsub-remove-background/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
