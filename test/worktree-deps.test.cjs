@@ -92,6 +92,22 @@ test('does not follow the dependency symlink when removing a worktree', async ()
   assert.equal(fs.readFileSync(sentinel, 'utf8'), 'still here\n');
 });
 
+test('gives Windows worktree removal more time than Git probes', async (t) => {
+  const { repo, wtRoot } = makeHarness();
+  const wtPath = addWorktree(repo, wtRoot, 'agent-timeout');
+  const gitSafe = loadTs('src/core/gitSafe.ts');
+  const safeGit = gitSafe.safeGit;
+  let removeTimeout;
+  t.mock.method(gitSafe, 'safeGit', (cwd, args, opts) => {
+    if (args[0] === 'worktree' && args[1] === 'remove') removeTimeout = opts.timeoutMs;
+    return safeGit(cwd, args, opts);
+  });
+
+  assert.deepEqual(await removeWorktree(repo, wtPath), { ok: true });
+  assert.equal(removeTimeout, process.platform === 'win32' ? 60_000 : 8_000);
+  assert.equal(fs.existsSync(wtPath), false);
+});
+
 test('leaves a dangling worktree dependency symlink untouched', async () => {
   const { repo, wtRoot } = makeHarness();
   fs.mkdirSync(path.join(repo, 'node_modules'));

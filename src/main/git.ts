@@ -459,7 +459,10 @@ export async function removeWorktree(
       error: `refused: ${links.failed.length} link(s) or folder(s) inside could not be removed as links or read, and --force could delete through them (${first.path}: ${first.error}); ${removed} link(s) were removed as links by this removal; no file or folder was deleted`
     };
   }
-  const res = await runGit(cwd, ['worktree', 'remove', '--force', wtPath]);
+  // Large worktrees can take longer to remove on Windows. Keep the usual
+  // Git deadline for probes such as the linked-worktree check above.
+  const removeTimeout = process.platform === 'win32' ? 60_000 : undefined;
+  const res = await runGit(cwd, ['worktree', 'remove', '--force', wtPath], removeTimeout);
   if (res.ok && !existsSync(wtPath)) return { ok: true };
   if (res.ok) return { ok: false, error: 'worktree directory still exists' };
   return { ok: false, error: res.error };
