@@ -8,12 +8,36 @@
   <id>https://munderdiffl.in/blog/</id>
   <author><name>Chaitanya Giri</name><uri>https://munderdiffl.in</uri></author>
   <entry>
+    <title>Agent Tools Today, 28 Nov 2026: Convex Skills Issue, DeepCrossAttention and Kimi for Science</title>
+    <link href="https://munderdiffl.in/blog/agent-tools-today-2026-11-28/" />
+    <id>https://munderdiffl.in/blog/agent-tools-today-2026-11-28/</id>
+    <published>2026-11-28T00:00:00.000Z</published>
+    <updated>2026-11-28T00:00:00.000Z</updated><category term="News" />
+    <summary>The top launches, skills, multi agent moves, rising repos and talking points in AI agents from 27 to 28 Nov 2026, each with its source and date.</summary>
+  </entry>
+  <entry>
+    <title>Agent Skill Security: How to Check a Skill Before You Install It</title>
+    <link href="https://munderdiffl.in/blog/check-agent-skill-before-install/" />
+    <id>https://munderdiffl.in/blog/check-agent-skill-before-install/</id>
+    <published>2026-11-28T00:00:00.000Z</published>
+    <updated>2026-11-28T00:00:00.000Z</updated><category term="Guides" />
+    <summary>Agent skill security in 8 checks: read SKILL.md and its scripts, find network calls and remote scripts, pin a commit, scan it, keep prompts on.</summary>
+  </entry>
+  <entry>
     <title>Giving Tuesday 2026: Check a Charity Before You Give, With AI Agents</title>
     <link href="https://munderdiffl.in/blog/giving-tuesday-charity-checker/" />
     <id>https://munderdiffl.in/blog/giving-tuesday-charity-checker/</id>
     <published>2026-11-28T00:00:00.000Z</published>
     <updated>2026-11-28T00:00:00.000Z</updated><category term="Use Cases" />
     <summary>Giving Tuesday 2026 is Tuesday, 1 Dec. Check the charity on the IRS or Charity Commission register, keep receipts, and copy a giving plan and checklist.</summary>
+  </entry>
+  <entry>
+    <title>OpusClip Alternatives: 6 Picks for AI Clips, Free and Open Source</title>
+    <link href="https://munderdiffl.in/blog/opusclip-alternatives/" />
+    <id>https://munderdiffl.in/blog/opusclip-alternatives/</id>
+    <published>2026-11-28T00:00:00.000Z</published>
+    <updated>2026-11-28T00:00:00.000Z</updated><category term="Comparisons" />
+    <summary>OpusClip&#39;s free plan gives 60 credits a month with a watermark. Six alternatives, from open source AutoClip to Klap and Descript, checked 28 Nov 2026.</summary>
   </entry>
   <entry>
     <title>Agent Tools Today, 27 Nov 2026: Workspace MCP Servers, Crush v0.103.0 and Browser Use 1.0.9</title>
@@ -462,29 +486,5 @@
     <published>2026-11-19T00:00:00.000Z</published>
     <updated>2026-11-19T00:00:00.000Z</updated><category term="Concepts" />
     <summary>GTA 6 marketing in seven dated lessons: the leak reply, rare trailers, plain delay notes, investor letters and one launch date, plus what a small team can copy.</summary>
-  </entry>
-  <entry>
-    <title>GTA 6 Online Release Date: What Rockstar Has Confirmed</title>
-    <link href="https://munderdiffl.in/blog/gta-6-online-release-date/" />
-    <id>https://munderdiffl.in/blog/gta-6-online-release-date/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="News" />
-    <summary>There is no GTA 6 Online release date. Rockstar calls GTA VI single player. What that means for friends, PS Plus, Game Pass and crossplay.</summary>
-  </entry>
-  <entry>
-    <title>GTA 6 Productivity: How Teams Keep Shipping in Launch Week (an AI Agent Playbook)</title>
-    <link href="https://munderdiffl.in/blog/gta-6-productivity/" />
-    <id>https://munderdiffl.in/blog/gta-6-productivity/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="Guides" />
-    <summary>A launch week playbook for PMs and team leads: what to freeze, async standups, a dependency board, batched approvals and AI agents that draft routine updates.</summary>
-  </entry>
-  <entry>
-    <title>GTA 6 Refund: How to Get Your Money Back on PlayStation and Xbox</title>
-    <link href="https://munderdiffl.in/blog/gta-6-refund/" />
-    <id>https://munderdiffl.in/blog/gta-6-refund/</id>
-    <published>2026-11-19T00:00:00.000Z</published>
-    <updated>2026-11-19T00:00:00.000Z</updated><category term="Guides" />
-    <summary>GTA 6 refund rules on PlayStation and Xbox, quoted from each store&#39;s own pages: preorder windows, the 14 day limit, and where to ask.</summary>
   </entry>
 </feed>

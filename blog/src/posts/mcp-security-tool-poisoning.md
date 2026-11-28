@@ -75,4 +75,4 @@ The [OWASP guide to secure MCP server development](https://genai.owasp.org/resou
 
 ## Should you stop using MCP servers?
 
-No. Our view: stop trusting tool metadata by default instead of dropping MCP. Pin and scan descriptions, scope every token, sanitize what reaches a shell and contain execution. To decide which agent gets which server, see [bringing MCP servers and skills into a hive](/blog/mcp-and-skills-in-a-hive/).
+No. Our view: stop trusting tool metadata by default instead of dropping MCP. Pin and scan descriptions, scope every token, sanitize what reaches a shell and contain execution. To decide which agent gets which server, see [bringing MCP servers and skills into a hive](/blog/mcp-and-skills-in-a-hive/). Skills and plugins deserve the same care, and [how to check an agent skill before you install it](/blog/check-agent-skill-before-install/) lists the files to read first.

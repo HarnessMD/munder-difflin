@@ -6998,5 +6998,38 @@
       "prompt": "Title card: the hero scene in assets/media/giving-tuesday-charity-checker/motion.js, shot at 1600 by 900.",
       "status": "ready"
     }
+  },
+  "agent-tools-today-2026-11-28": {
+    "inline": {},
+    "title": "Agent Tools Today, 28 Nov 2026: Convex Skills Issue, DeepCrossAttention and Kimi for Science",
+    "category": "news",
+    "hero": {
+      "file": "assets/media/agent-tools-today-2026-11-28/hero.png",
+      "alt": "Title card on white. A yellow pill reading Daily brief, the title Agent Tools Today, 28 Nov 2026, the line Convex, DeepCrossAttention, Kimi, and a Checked 28 Nov line, beside a small blue teapot pouring a sky stream into three lilac cups on a yellow saucer.",
+      "prompt": "Title card: the hero scene in assets/media/agent-tools-today-2026-11-28/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "opusclip-alternatives": {
+    "inline": {},
+    "title": "OpusClip Alternatives: 6 Picks for AI Clips, Free and Open Source",
+    "category": "comparisons",
+    "hero": {
+      "file": "assets/media/opusclip-alternatives/hero.png",
+      "alt": "Title card on white. A sky pill reading Comparisons, the title OpusClip Alternatives, the line Six picks for AI clips, free and open source, and a Checked 28 Nov 2026 line. Two cards: a mint card reading AutoClip: MIT, on your own computer under a small yellow filmstrip, and a lilac card reading OpusClip Free: 60 credits a month under a small blue clapperboard.",
+      "prompt": "Title card: the hero scene in assets/media/opusclip-alternatives/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
+  },
+  "check-agent-skill-before-install": {
+    "inline": {},
+    "title": "Agent Skill Security: How to Check a Skill Before You Install It",
+    "category": "guides",
+    "hero": {
+      "file": "assets/media/check-agent-skill-before-install/hero.png",
+      "alt": "Title card on white. A sky pill reading Guides, the title Check an agent skill before you install it, the line Treat like installing software., and a Checked 28 Nov 2026 line. Two cards: a yellow card reading Same network access as any other program under a small lilac x ray screen, and a mint card reading Issue 64, open on 28 Nov 2026 under a small blue customs desk.",
+      "prompt": "Title card: the hero scene in assets/media/check-agent-skill-before-install/motion.js, shot at 1600 by 900.",
+      "status": "ready"
+    }
   }
 }
