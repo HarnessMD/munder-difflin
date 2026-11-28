@@ -24,6 +24,7 @@ import {
   PTY_PROOF_POLL_MS,
   promptOnScreen,
   promptTail,
+  PROMPT_TAKEN_EVENTS,
   submitEncodingFor,
   submitStillPending,
   terminalReadyToReceive,
@@ -138,7 +139,7 @@ export class PtySubmitter {
   private typedAts = new Map<string, number>();
   /** Per terminal, the last text that ended with no proof, while it may still sit in the box (R7). `withdrawn`: its
    *  row was crossed out, so it never gets an Enter; the next send still waits while it is in the box. */
-  private unproved = new Map<string, { pid: number; text: string; key: string; typedAt: number; pressed: boolean; withdrawn?: boolean }>();
+  private unproved = new Map<string, { pid: number; text: string; key: string; typedAt: number; pressed: boolean; withdrawn?: boolean; idle?: boolean; typedPressed?: boolean }>();
   /** The queued messages main has been handed and has not finished, by QueuedMessage.id. */
   private flying = new Map<string, PtySubmitRequest>();
   /** Those whose row was crossed out while main had them: never typed from then on, and never pressed. */
@@ -423,7 +424,7 @@ export class PtySubmitter {
     if (!req.pressOnly && result.outcome !== 'held') {
       this.typedPids.set(req.ptyId, info.pid);
       this.typedAts.set(req.ptyId, this.now() - result.ms);
-      if (result.outcome === 'unconfirmed' && !encoding.slash) this.unproved.set(req.ptyId, { pid: info.pid, text: req.text, key: encoding.key, typedAt: this.now() - result.ms, pressed: false });
+      if (result.outcome === 'unconfirmed' && !encoding.slash) this.unproved.set(req.ptyId, { pid: info.pid, text: req.text, key: encoding.key, typedAt: this.now() - result.ms, pressed: false, idle, typedPressed: result.presses > 0 && result.moved !== true });
       else this.unproved.delete(req.ptyId);
     }
     // Never the text, never the tail. A draft or a hold is retried on every
@@ -509,6 +510,21 @@ export class PtySubmitter {
     if (seen === undefined) { this.unproved.delete(req.ptyId); return true; }
     const raw = seen?.lines ? inputBoxText(seen.lines) : null;
     if (raw !== null && inputBoxEmpty(raw)) { this.unproved.delete(req.ptyId); return true; }
+    // Antigravity sends no UserPromptSubmit, so promptSeen never comes for it: its PreInvocation is the prompt taken
+    // (PROMPT_TAKEN_EVENTS). On a screen the renderer answered it cannot read (a tab never opened: lines null) one
+    // after an idle send that was pressed lets it go: without this every later send was held for good (#875). The
+    // rule typeAndSubmit's 'activity' proof uses: idle, pressed, a prompt taken, never a tool.
+    // - Only a screen the renderer answered: a probe that timed out or threw (null) holds as before, so its next read
+    //   still decides (Yeman, f19e3bc3). A screen that shows the box decides above and below, since PreInvocation is
+    //   every model step and the text can still be there (Yeman, a597eaea).
+    // - Never a send that moved: a tool came after our Enter with no prompt taken, so a turn was running and its next
+    //   step's PreInvocation says nothing about our words, which can still sit in the box (Dwight, f19e3bc3).
+    // - No time limit (Dwight, a597eaea): otherwise an unread send ends unconfirmed only with no turn event yet from
+    //   this process (with one it ends stuck), so no turn was running when it was typed. Assumed, as the in-window
+    //   'activity' proof assumes: a wake typed while agy's launch turn (`-i`, its seed prompt) had not yet sent a hook
+    //   counts that turn's first PreInvocation as ours, though agy may have left it in the box (Dwight, f19e3bc3).
+    if (seen !== null && seen.lines === null && req.provider === 'antigravity' && left.idle === true && left.typedPressed === true && !left.withdrawn
+      && this.deps.proof.eventSeen(req.agentId, left.typedAt, PROMPT_TAKEN_EVENTS)) { this.unproved.delete(req.ptyId); return true; }
     // Something else in the box, or a box that cannot be read: held. Ours gets its one Enter below.
     if (raw === null || !boxHoldsTail(raw, left.text, 'in')) return false;
     // Crossed out: never pressed; the next send waits until the person clears it or the CLI takes it.
