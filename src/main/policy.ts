@@ -356,6 +356,10 @@ export class PolicyEngine {
   private rules: PolicyRule[] = [];
   private policyPath: string;
   private policyDir: string;
+  /** `<hive>/bin`: the hook shims every engine's hooks run through, and the launcher. */
+  private hookBinDir: string;
+  /** `<hive>/agents`: each Gemini agent keeps its own hook shim under its folder. */
+  private agentsDir: string;
   private loadError: string | null = null;
   /** True once a policy file has been found on disk. An install with no policy file
    *  behaves byte-identically: nothing evaluated, nothing logged. */
@@ -385,6 +389,8 @@ export class PolicyEngine {
     private turnedOn: () => boolean = () => false
   ) {
     this.policyDir = hiveRoot ? join(hiveRoot, 'policy') : '';
+    this.hookBinDir = hiveRoot ? join(hiveRoot, 'bin') : '';
+    this.agentsDir = hiveRoot ? join(hiveRoot, 'agents') : '';
     this.policyPath = this.policyDir ? join(this.policyDir, ENGINE_POLICY_FILE) : '';
   }
 
@@ -624,6 +630,53 @@ export class PolicyEngine {
     return false;
   }
 
+  /** A hook shim the app installs: anything in `<hive>/bin` (cth-hook.cjs, the proxy
+   *  bridge, the agy and Grok shims, hive-node and its runtime), or a Gemini agent's
+   *  own `<hive>/agents/<id>/.gemini-hive/gemini-hook.cjs`. */
+  private isHookShimPath(abs: string): boolean {
+    if (!this.hookBinDir) return false;
+    const bin = normalisePath(this.hookBinDir);
+    if (abs === bin || abs.startsWith(bin + '/')) return true;
+    const agents = normalisePath(this.agentsDir);
+    if (!abs.startsWith(agents + '/')) return false;
+    const rest = abs.slice(agents.length + 1).split('/');
+    return rest.length === 3 && rest[1] === '.gemini-hive' && rest[2] === 'gemini-hook.cjs';
+  }
+
+  /**
+   * True when this payload WRITES to a hook shim, or takes one away.
+   *
+   * Narrower than the policy check on purpose: agents run `<hive>/bin/hive-node`
+   * and the helpers beside it all day, so naming a path there is not a write. A
+   * resolved write or removal is, and so is taking away the folder that holds them,
+   * or an inline script that writes and names one. Git that rewrites anything in the
+   * hive is already denied by the policy check.
+   */
+  private targetsHookShim(p: PolicyPayload, ctx: EvalContext): boolean {
+    if (!this.hookBinDir) return false;
+    const hit = (path: string) => this.isHookShimPath(normalisePath(path, p.cwd));
+    const tool = p.tool_name;
+    if (tool === 'Write' || tool === 'Edit' || tool === 'NotebookEdit') return this.paths(p, ctx).some(hit);
+    if (tool !== 'Bash') return false;
+    const input = (p.tool_input ?? {}) as Record<string, unknown>;
+    const cmd = typeof input.command === 'string' ? input.command : '';
+    if (!cmd) return false;
+    const commands = this.commands(p, ctx);
+    for (const c of commands) if (c.writes.some(hit) || c.removes.some(hit)) return true;
+    const bin = normalisePath(this.hookBinDir);
+    for (const x of this.destroyPaths(p, ctx)) if (x === '/' || x === bin || bin.startsWith(x + '/')) return true;
+    for (const c of commands) {
+      const script = inlineScript(c.argv);
+      if (script === null || !scriptMutates(script)) continue;
+      if (scriptLiterals(script).some((l) => hit(l) || (normalisePath(l, p.cwd).replace(/\/+$/, '') || '/') === bin)) return true;
+    }
+    // A command the parser could not read that names the folder and looks like a write.
+    if (commands.some((c) => c.unresolved.some((u) => STRUCTURAL_UNRESOLVED.has(u.code)))) {
+      return (cmd.includes(this.hookBinDir) || cmd.includes(bin)) && POLICY_WRITE_SHAPE.test(cmd);
+    }
+    return false;
+  }
+
   /**
    * True when a git command in this call can rewrite the policy directory: a work tree
    * writer, or a setting that redirects a later one, run in the hive's repository.
@@ -789,6 +842,21 @@ export class PolicyEngine {
         reason:
           'The policy file governs every agent, so no agent may edit it. If a rule is wrong, '
           + 'say which rule and why in your reply: the operator changes it.',
+      };
+      this.record(p, verdict, ctx);
+      return verdict;
+    }
+    // The same invariant for the hook shims: every hook decision passes through them,
+    // so an agent that rewrites one makes every rule advisory for the engines on it.
+    if (this.configured && this.targetsHookShim(p, ctx)) {
+      const verdict: PolicyVerdict = {
+        decision: 'deny',
+        ruleId: 'policy-self-protection',
+        mode: 'live',
+        matchedOn: 'hook_shim_path',
+        reason:
+          'The hook scripts carry every agent\'s hook decisions, so no agent may change them. '
+          + 'If one is wrong, say why in your reply: the operator changes it.',
       };
       this.record(p, verdict, ctx);
       return verdict;
