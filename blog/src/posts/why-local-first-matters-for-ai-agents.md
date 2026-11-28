@@ -67,7 +67,7 @@ agents to a team, that difference compounds.
 
 It's only fair to name the trade. Cloud platforms can offer zero-setup onboarding, managed scaling,
 and team features out of the box. If you need a hosted, shared, always-on service for a distributed
-team, that convenience is real.
+team, that convenience is real. The same trade shows up in personal assistants, as our look at [Grok Bot alternatives](/blog/grok-bot-alternatives/) shows.
 
 But for an individual developer or a small team running agents against their own code, the
 convenience rarely outweighs handing over control, privacy, and predictable cost. You can have the

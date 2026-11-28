@@ -8,16 +8,32 @@
  * `mempalace` CLI isn't installed — the markdown memory still works.
  *
  *   init    : mempalace init <home> --yes --no-llm        (heuristics-only, no LLM)
- *   store   : mempalace mine <agentDir> --wing <id> --agent <id>
+ *   store   : mempalace mine <stageDir> --wing <id> --agent <id>
  *   recall  : mempalace search "<q>" --results N   /   mempalace wake-up
+ *
+ * 0.5.6: the store holds memory files only. `stageDir` is a folder of copies
+ * of one agent's memory files, never the agent folder itself, and the store
+ * from before is moved aside once. Both are in palaceScope.ts.
+ *
+ * 0.5.6: every run, the app's and an agent's (`md-memory`), takes one machine
+ * wide lock per store first, so only one MemPalace loads at a time
+ * (memoryGate.ts). See gatedSpawn.
  *
  * Runs in the Electron main process.
  */
-import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { ensureKilled } from './procKill';
+import { findCommandOnPath, shellPathGeneration, userShellPath } from './shellEnv';
 import { quarantineDirsToReap, quarantineStampMs, nextMineDelayMs } from './palaceReap';
+import {
+  MINE_STAGE_DIR, memoryFilesOf, memoryFilesStamp, pruneMineStage, rebuildPalaceOnce, syncMineStage
+} from './palaceScope';
+import { AGENT_IGNORE_LINES, mergeIgnoreLines } from '../shared/hiveRepo';
+import { redactSecrets } from '../shared/redactSecrets';
+import { syncCodexMemory, type OpenSqlite } from './codexMemory';
+import { MEMORY_GATE_BUSY_EXIT, ensureLockFile, gateEnv, gatedCommand, palaceLockPath, type GateOptions } from './memoryGate';
 
 /** Non-memory files `mempalace mine` must not ingest: the Claude Code hooks
  *  config (a large JSON blob that swamps the wake-up digest), the cursor, raw
@@ -25,12 +41,19 @@ import { quarantineDirsToReap, quarantineStampMs, nextMineDelayMs } from './pala
  *  mine` honors .gitignore, so we drop one in each agent dir rather than touch the
  *  mine command.
  *
- *  MUST STAY IN SYNC with MINE_IGNORE_LINES in hive.ts — that copy is written when
- *  an agent spawns, this one on every mine cycle, and only this one reaches agents
- *  that are not currently running. See hive.ts for why `.codex/` matters beyond
- *  mempalace: it is also what stopped the hive's git repo from versioning every
- *  Codex transcript and sqlite log into a 7.5GB history. */
-const MINE_IGNORE_LINES = ['settings.json', 'cursor.json', 'inbox/', 'outbox/', '.codex/'];
+ *  The list itself lives in shared/hiveRepo.ts. It used to be declared here AND
+ *  in hive.ts with a "MUST STAY IN SYNC" comment on both, which is the kind of
+ *  invariant that drifts with no symptom until a repo bloats again. There is one
+ *  copy now. See shared/hiveRepo.ts for why `.codex/` matters beyond mempalace:
+ *  it is also what stops the hive's git repo versioning every Codex transcript
+ *  and sqlite log, which reached 7.5GB of .git on one hive and far more on
+ *  others. This writer is still the important one: it runs on every mine cycle,
+ *  so it is the only one that reaches an agent that is not running.
+ *
+ *  0.5.6: the miner no longer reads the agent folder (it reads the staged
+ *  copies, palaceScope.ts), so this file no longer decides what is indexed. It
+ *  is still written here for the hive's git history, which is why it must stay
+ *  a list of things to leave out and never become an allow list. */
 
 /** Idempotently ensure `<agentDir>/.gitignore` excludes the non-memory files.
  *  Writes only the missing lines (append-only) so it's safe to call every cycle. */
@@ -38,11 +61,9 @@ function ensureMineIgnore(agentDir: string): void {
   const path = join(agentDir, '.gitignore');
   let existing = '';
   try { if (existsSync(path)) existing = readFileSync(path, 'utf8'); } catch { return; }
-  const have = new Set(existing.split('\n').map((l) => l.trim()));
-  const missing = MINE_IGNORE_LINES.filter((l) => !have.has(l));
-  if (missing.length === 0) return; // already covered — don't rewrite every cycle
-  const prefix = existing && !existing.endsWith('\n') ? existing + '\n' : existing;
-  try { writeFileSync(path, prefix + missing.join('\n') + '\n', 'utf8'); } catch { /* best-effort */ }
+  const merged = mergeIgnoreLines(existing, AGENT_IGNORE_LINES);
+  if (merged === null) return; // already covered — don't rewrite every cycle
+  try { writeFileSync(path, merged, 'utf8'); } catch { /* best-effort */ }
 }
 
 export type EmbeddingModel = 'minilm' | 'embeddinggemma';
@@ -78,6 +99,12 @@ const MINE_INTERVAL_MS = 600_000;
 // so there is nothing here worth making recall half an hour stale for.
 const MINE_BACKOFF_MAX_MS = 1_800_000;
 const MINE_TIMEOUT_MS = 10 * 60_000; // hard cap per mine (first run downloads the embedding model)
+/** 0.5.6: how long a mine waits for the machine wide MemPalace lock
+ *  (memoryGate.ts) before it counts as not done and is tried again on a later
+ *  pass. Longer than an agent's 60 s: a search holds the lock for at most 180 s.
+ *  The mine itself has no 180 s limit; MINE_TIMEOUT_MS still caps it, counted
+ *  after this wait. */
+const MINE_LOCK_WAIT_MS = 5 * 60_000;
 /** mempalace's device "auto" picks the CoreML execution provider on Apple
  *  Silicon, and CoreML runs the quantized embeddinggemma ONNX graph partially
  *  (330/1647 nodes) with fp16 partitions that overflow → EVERY vector comes
@@ -112,6 +139,8 @@ const MEMPALACE_DEVICE = mempalaceDevice(process.platform, process.env.MEMPALACE
 
 export class MemoryManager {
   private binCache: string | null | undefined;
+  /** The shell PATH generation `binCache` was resolved against. */
+  private binGen = -1;
   private mineTimer: NodeJS.Timeout | null = null;
   private mineStopped = false;
   /** Current gap between mine passes. Widens while the palace is quarantining. */
@@ -122,12 +151,20 @@ export class MemoryManager {
   private initStarted = false;
   /** True while a mineNow() pass is in flight — serializes palace writers. */
   private mining = false;
-  /** agentId → memory.md mtimeMs at last successful mine (skip unchanged). */
-  private lastMined = new Map<string, number>();
+  /** agentId → stamp of its memory files at last successful mine (skip
+   *  unchanged). 0.5.6: every memory file counts, not memory.md alone. */
+  private lastMined = new Map<string, string>();
+  /** 0.5.6: the one time rebuild is tried once per run (see rebuildOnce). */
+  private rebuildTried = false;
+  /** 0.5.6: a mine's wait for the MemPalace lock. A field so a test can shorten it. */
+  private mineLockWaitMs = MINE_LOCK_WAIT_MS;
 
   constructor(
     private getHome: () => string | null,
-    private getSettings: () => MemorySettings
+    private getSettings: () => MemorySettings,
+    /** Whose Codex memories are copied into codex-memory.md before a pass stages their files, and the
+     *  SQLite library to read them with (main/codexMemory.ts). Absent: nothing is copied or removed. */
+    private codex?: { on: (agentId: string) => boolean; open: OpenSqlite }
   ) {}
 
   palacePath(): string | null {
@@ -137,41 +174,52 @@ export class MemoryManager {
 
   /** Resolve the mempalace CLI against the user's PATH + common uv/pip spots. */
   bin(): string | null {
-    if (this.binCache !== undefined) return this.binCache;
-    let found: string | null = null;
+    const gen = shellPathGeneration();
+    // A found CLI is kept for the whole run, while the file is still there.
+    if (this.binCache && this.binGen === gen && existsSync(this.binCache)) return this.binCache;
     const isWin = process.platform === 'win32';
-    // 1) Ask the shell/PATH resolver. Windows has no POSIX shell + uses `where`
-    //    and a `.exe` suffix; everything else goes through the login shell.
+    // "Not found" is kept on Windows (looking again is a process); elsewhere
+    // looking again is a few file checks, so an install made from a terminal
+    // while the app runs is seen by the next caller.
+    if (isWin && this.binCache === null && this.binGen === gen) return null;
+    let found: string | null = null;
+    // 1) Ask the PATH. Windows uses `where` and a `.exe` suffix; everything
+    //    else walks the folders of the login shell's PATH. No shell is started
+    //    (0.5.5, Plan G: `$SHELL -ilc which mempalace` blocked the main
+    //    process for 1.5 s at launch and on every status request).
     try {
       if (isWin) {
         const res = spawnSync('where', ['mempalace'], { encoding: 'utf8', timeout: 3000 });
         const p = res.stdout.trim().split(/\r?\n/)[0]?.trim();
         if (p && existsSync(p)) found = p;
       } else {
-        const res = spawnSync(process.env.SHELL ?? '/bin/zsh', ['-ilc', 'which mempalace'], {
-          encoding: 'utf8', timeout: 3000
-        });
-        const p = res.stdout.trim().split('\n').pop();
-        if (p && existsSync(p)) found = p;
+        found = findCommandOnPath('mempalace', userShellPath());
       }
     } catch { /* fall through */ }
     // 2) Probe common install locations (uv tool / homebrew / pip).
-    if (!found) {
-      const home = process.env.HOME ?? process.env.USERPROFILE ?? '';
-      const candidates = isWin
-        ? [
-            join(home, '.local', 'bin', 'mempalace.exe'),
-            join(process.env.LOCALAPPDATA ?? '', 'Programs', 'Python', 'Scripts', 'mempalace.exe')
-          ]
-        : [
-            `${home}/.local/bin/mempalace`,
-            '/opt/homebrew/bin/mempalace',
-            '/usr/local/bin/mempalace'
-          ];
-      for (const c of candidates) if (c && existsSync(c)) { found = c; break; }
-    }
+    if (!found) found = this.fallbackBin();
     this.binCache = found;
+    this.binGen = gen;
     return found;
+  }
+
+  /** The common uv tool / homebrew / pip locations, checked with existsSync
+   *  only (no process). Used after a PATH lookup found nothing. */
+  fallbackBin(): string | null {
+    const isWin = process.platform === 'win32';
+    const home = process.env.HOME ?? process.env.USERPROFILE ?? '';
+    const candidates = isWin
+      ? [
+          join(home, '.local', 'bin', 'mempalace.exe'),
+          join(process.env.LOCALAPPDATA ?? '', 'Programs', 'Python', 'Scripts', 'mempalace.exe')
+        ]
+      : [
+          `${home}/.local/bin/mempalace`,
+          '/opt/homebrew/bin/mempalace',
+          '/usr/local/bin/mempalace'
+        ];
+    for (const c of candidates) if (c && existsSync(c)) return c;
+    return null;
   }
   /** Force re-resolution (e.g. after the user installs mempalace). */
   resetBinCache(): void { this.binCache = undefined; }
@@ -182,15 +230,23 @@ export class MemoryManager {
   model(): EmbeddingModel { return this.getSettings().model === 'embeddinggemma' ? 'embeddinggemma' : 'minilm'; }
 
   status(): MemoryStatus {
+    return this.statusWithBin(this.bin());
+  }
+
+  /** Build status from a CLI path an async batch resolver already found, so a
+   *  status probe does not have to launch a synchronous login shell (the setup
+   *  panel's tools:status, issue #446). */
+  statusWithBin(bin: string | null): MemoryStatus {
     const palace = this.palacePath();
+    const enabled = this.enabled();
     return {
-      available: this.available(),
-      enabled: this.enabled(),
-      active: this.active(),
+      available: bin !== null,
+      enabled,
+      active: bin !== null && enabled && this.getHome() !== null,
       initialized: !!palace && existsSync(palace),
       palacePath: palace,
       model: this.model(),
-      bin: this.bin()
+      bin
     };
   }
 
@@ -198,6 +254,10 @@ export class MemoryManager {
   env(): Record<string, string> {
     const palace = this.palacePath();
     if (!this.active() || !palace) return {};
+    // 0.5.6: the lock file `md-memory` takes. Made here, before the agent
+    // starts, because a sandboxed agent may write the store but not the folder
+    // the lock sits in; it can still lock a file it can only read.
+    ensureLockFile(palaceLockPath(palace));
     return {
       MEMPALACE_PALACE_PATH: palace,
       MEMPALACE_EMBEDDING_MODEL: this.model(),
@@ -212,6 +272,21 @@ export class MemoryManager {
       MEMPALACE_EMBEDDING_MODEL: this.model(),
       ...(MEMPALACE_DEVICE ? { MEMPALACE_EMBEDDING_DEVICE: MEMPALACE_DEVICE } : {})
     };
+  }
+
+  /**
+   * 0.5.6: how the app runs `mempalace <args>`: under the same machine wide
+   * lock as an agent's `md-memory` (memoryGate.ts), on the same lock file
+   * (`<palace>.lock`, from MEMPALACE_PALACE_PATH in childEnv). When no Python
+   * is found for the gate, mempalace runs directly, as before.
+   */
+  private gatedSpawn(bin: string, args: string[], gate: GateOptions): { command: string; args: string[]; env: NodeJS.ProcessEnv } {
+    const palace = this.palacePath();
+    const lock = palace ? palaceLockPath(palace) : '';
+    if (lock) ensureLockFile(lock);
+    const run = lock ? gatedCommand(bin, args, lock) : null;
+    if (!run) return { command: bin, args, env: this.childEnv() };
+    return { command: run.command, args: run.args, env: { ...this.childEnv(), ...gateEnv(gate) } };
   }
 
   // — lifecycle —
@@ -256,7 +331,9 @@ export class MemoryManager {
    * doesn't cover and that hangs a spawned child.
    */
   refresh(): MemoryStatus {
-    this.resetBinCache();
+    // A CLI that was found stays found (bin() checks the file is still there).
+    // Only "not found" is looked for again, so opening Settings starts nothing.
+    if (!this.binCache) this.resetBinCache();
     this.start();
     return this.status();
   }
@@ -295,18 +372,31 @@ export class MemoryManager {
     if (!existsSync(agentsDir)) return;
     let ids: string[];
     try { ids = readdirSync(agentsDir); } catch { return; }
+    const stageRoot = join(home, 'hive', MINE_STAGE_DIR);
     this.mining = true;
     try {
+      this.rebuildOnce(); // with `mining` set: no mine of ours is writing the store
       for (const id of ids) {
         const agentDir = join(agentsDir, id);
-        const mem = join(agentDir, 'memory.md');
-        if (!existsSync(mem)) continue;
-        let mtime = 0;
-        try { mtime = statSync(mem).mtimeMs; } catch { continue; }
-        if (this.lastMined.get(id) === mtime) continue; // unchanged — skip the model load
-        this.lastMined.set(id, mtime);
-        await this.mineAgent(agentDir, id); // one writer at a time
+        this.syncCodex(id, agentDir); // Before the files are listed, so the copy is staged this pass
+        // 0.5.6: memory files only, whatever else the agent keeps in its folder.
+        const files = memoryFilesOf(agentDir);
+        const stamp = memoryFilesStamp(files);
+        if (this.lastMined.get(id) === stamp) continue; // unchanged: skip the model load
+        this.lastMined.set(id, stamp);
+        const stageDir = join(stageRoot, id);
+        let staged = 0;
+        try { staged = syncMineStage(agentDir, stageDir, files); }
+        catch (e) {
+          console.error(`[memory] stage ${id} failed: ${e instanceof Error ? e.message : String(e)}`);
+          this.lastMined.delete(id); // let the next tick retry
+          continue;
+        }
+        if (!staged) continue; // no memory file, nothing to mine
+        ensureMineIgnore(agentDir); // for the hive's git history, not for the miner
+        await this.mineAgent(stageDir, id); // one writer at a time
       }
+      pruneMineStage(stageRoot, ids);
     } finally {
       this.mining = false;
     }
@@ -316,6 +406,20 @@ export class MemoryManager {
     this.mineDelayMs = nextMineDelayMs(
       this.mineDelayMs, MINE_INTERVAL_MS, MINE_BACKOFF_MAX_MS, quarantined
     );
+  }
+
+  /** Write or remove one agent's codex-memory.md (main/codexMemory.ts). On only for a Codex agent whose
+   *  switch is on; for every other agent this removes a copy left behind, and finds nothing. A database that
+   *  cannot be read leaves the last copy as it was. Never stops the pass. */
+  private syncCodex(id: string, agentDir: string): void {
+    const codex = this.codex;
+    if (!codex) return;
+    try {
+      const r = syncCodexMemory(agentDir, id, codex.on(id), codex.open, redactSecrets);
+      if (r === 'written' || r === 'removed') console.log(`[memory] codex memories of ${id}: ${r}`);
+    } catch (e) {
+      console.error(`[memory] codex memories of ${id} not read this pass: ${e instanceof Error ? e.message : String(e)}`);
+    }
   }
 
   /**
@@ -359,29 +463,70 @@ export class MemoryManager {
     return fresh;
   }
 
-  private mineAgent(agentDir: string, id: string): Promise<void> {
+  /**
+   * 0.5.6, once per store: move the store from before aside so the miner fills
+   * a new one from memory files only (rebuildPalaceOnce in palaceScope.ts has
+   * the rules and the marker). Called at the head of a mine pass with `mining`
+   * set, so it never runs while a mine of ours is writing the store. Tried
+   * once per run: when the rename fails the old store stays in use and the
+   * next launch tries again.
+   *
+   * Search needs no switch. Agents and the app read one path: it holds the old
+   * store until the rename and the new one from the first mine after it, and
+   * the new one answers with what has been mined so far. In the seconds
+   * between, `mempalace search` reports that there is no palace and exits.
+   */
+  private rebuildOnce(): void {
+    if (this.rebuildTried) return;
+    this.rebuildTried = true;
+    const palace = this.palacePath();
+    if (!palace) return;
+    const r = rebuildPalaceOnce(palace);
+    if (r.state === 'failed') {
+      console.error(`[memory] could not move the old search store aside (${r.error}); it stays in use, the next launch tries again`);
+      return;
+    }
+    if (r.state === 'renamed') {
+      this.lastMined.clear(); // the new store is empty: every agent is mined again
+      console.log(`[memory] search store is rebuilt from memory files only; the old one is kept at ${r.aside}`);
+    } else if (r.state === 'aside-exists') {
+      console.warn(`[memory] ${r.aside} already exists; the search store was not moved aside`);
+    }
+    if (r.error) console.error(`[memory] ${r.error}`);
+  }
+
+  private mineAgent(stageDir: string, id: string): Promise<void> {
     return new Promise((resolve) => {
       const bin = this.bin();
       if (!bin) { resolve(); return; }
-      ensureMineIgnore(agentDir); // keep settings.json / cursor / messages out of the index
+      // 0.5.6: under the machine wide MemPalace lock, with a longer wait than
+      // an agent's search and no 180 s limit (MINE_TIMEOUT_MS below is the cap).
+      // A lock that stays busy exits MEMORY_GATE_BUSY_EXIT: not done, retried.
+      const run = this.gatedSpawn(bin, ['mine', stageDir, '--wing', id, '--agent', id], {
+        waitSeconds: this.mineLockWaitMs / 1000, limitSeconds: 0, busyExit: MEMORY_GATE_BUSY_EXIT
+      });
       // stdin closed (mempalace can prompt); mempalace dedups so re-mining is safe.
-      const proc = spawn(bin, ['mine', agentDir, '--wing', id, '--agent', id], {
-        env: this.childEnv(), stdio: ['ignore', 'ignore', 'pipe']
+      const proc = spawn(run.command, run.args, {
+        env: run.env, stdio: ['ignore', 'ignore', 'pipe']
       });
       let err = '';
       proc.stderr?.on('data', (d) => { err += d.toString(); });
       // Hard ceiling: a wedged mine used to hold its PID forever AND leave
       // `mining` stuck true, silently stopping all future passes. Generous cap
-      // because the first run may lazily download the embedding model.
+      // because the first run may lazily download the embedding model. Counted
+      // after the lock wait, so a mine that waited still gets its full cap.
       const timer = setTimeout(() => {
         console.error(`[memory] mine ${id} timed out after ${MINE_TIMEOUT_MS / 60000}min — killing`);
         try { proc.kill('SIGTERM'); } catch { /* gone */ }
         ensureKilled(proc.pid); // SIGKILL sweep if SIGTERM is ignored
-      }, MINE_TIMEOUT_MS);
+      }, MINE_TIMEOUT_MS + this.mineLockWaitMs);
       timer.unref?.();
       proc.on('close', (code) => {
         clearTimeout(timer);
-        if (code !== 0) {
+        if (code === MEMORY_GATE_BUSY_EXIT) {
+          console.log(`[memory] mine ${id} waited for MemPalace and will be tried again on a later pass`);
+          this.lastMined.delete(id); // never ran: nothing is marked indexed
+        } else if (code !== 0) {
           console.error(`[memory] mine ${id} exited ${code}: ${err.slice(-300)}`);
           this.lastMined.delete(id); // let the next tick retry
         }
@@ -403,7 +548,10 @@ export class MemoryManager {
       if (!this.active() || !bin) { resolve({ ok: false, output: '', error: 'semantic memory not active' }); return; }
       let proc: ReturnType<typeof spawn>;
       try {
-        proc = spawn(bin, args, { env: this.childEnv(), stdio: ['ignore', 'pipe', 'pipe'] });
+        // 0.5.6: the same machine wide lock as an agent's `md-memory`, with its
+        // 60 s wait. A busy lock answers with the busy line, as an agent sees it.
+        const run = this.gatedSpawn(bin, args, {});
+        proc = spawn(run.command, run.args, { env: run.env, stdio: ['ignore', 'pipe', 'pipe'] });
       } catch (e) {
         resolve({ ok: false, output: '', error: e instanceof Error ? e.message : String(e) });
         return;
@@ -433,7 +581,12 @@ export class MemoryManager {
 
   /** Semantic search across the shared palace. Returns the CLI's text output. */
   search(query: string, opts: { wing?: string; results?: number } = {}): Promise<{ ok: boolean; output: string; error?: string }> {
-    const args = ['search', query, '--results', String(opts.results ?? 5)];
+    // Eight, not five (0.5.2): on a palace that also holds mined source, the
+    // notes often sit behind a few code hits, and the tool ranks notes first.
+    // 0.5.6: the store holds memory files only. Eight stays: a store from
+    // before can still be in use (a rename that failed), and the archives and
+    // handoff files now share the results with the notes.
+    const args = ['search', query, '--results', String(opts.results ?? 8)];
     if (opts.wing) args.push('--wing', opts.wing);
     return this.runCli(args, 'search');
   }

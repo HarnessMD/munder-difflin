@@ -5,6 +5,7 @@
 {%- set catLabel = categoryLabel or category or "Notes" -%}
 {%- set authorName = (author.name if author else site.author.name) -%}
 {%- set authorInitials = (author.initials if author and author.initials else "MD") -%}
+{%- set heroOg = false if ogImage else (page.fileSlug | heroOg) -%}
 {%- set kw = keywords or ((primaryKeyword + ", " + (secondaryKeywords | join(", "))) if primaryKeyword else (tags | join(", "))) -%}
 
 {% block head %}
@@ -14,7 +15,7 @@
   "@type": "BlogPosting",
   "headline": {{ title | dump | safe }},
   "description": {{ (description or site.description) | dump | safe }},
-  "image": [{{ (ogImage or site.defaultOgImage) | dump | safe }}],
+  "image": [{{ (ogImage or ((site.origin + heroOg.path) if heroOg else site.defaultOgImage)) | dump | safe }}],
   "datePublished": "{{ page.date | isoDate }}",
   "dateModified": "{{ (updated | isoDate) if updated else (page.date | isoDate) }}",
   "author": { "@type": "Person", "name": {{ authorName | dump | safe }} },

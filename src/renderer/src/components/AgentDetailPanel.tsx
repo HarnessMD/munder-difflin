@@ -7,9 +7,11 @@ import { SpritePortrait } from './SpritePortrait';
 import { PtyTerminalView } from './PtyTerminalView';
 import { terminalInstanceKey } from './terminalRecovery';
 import { MessageQueueComposer } from './MessageQueueComposer';
-import { CommandCenterPanel } from './CommandCenterPanel';
 import { disposeTerminal } from './terminalPool';
 import { SidebarTabs } from './SidebarTabs';
+import { HistoryView } from './HistoryView';
+import { ErrorBoundary } from './ErrorBoundary';
+import { pixelAction } from './classicAction';
 import { ThreadsPanel } from './ThreadsPanel';
 import { ToolWaterfall } from './ToolWaterfall';
 import { AgentControlStrip } from './AgentControlStrip';
@@ -26,6 +28,7 @@ export interface AgentDetailPanelProps {
 
 export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
   const { t } = useTranslation();
+  // While the agent is being moved between offices its Kill is left out: it would be refused.
   const [openTerminalState, setOpenTerminalState] = useState<'idle' | 'opening' | 'ok' | 'error'>('idle');
   const [openTerminalError, setOpenTerminalError] = useState<string | undefined>();
   const [editOpen, setEditOpen] = useState(false);
@@ -92,8 +95,10 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
 
   const onPtyStream = usePtyParser(agent.id);
 
-  // Michael gets the full command-center dashboard instead of the plain panel.
-  if (agent.isGod) return <CommandCenterPanel agent={agent} />;
+  // Michael's dashboard is the Command Center, mounted by the Classic layout
+  // (App.tsx) in this panel's place when the selected agent is the god. It
+  // used to branch here; the branch lives in App.tsx now, and the panel
+  // renders exactly what it did.
 
   const openTerminal = async () => {
     setOpenTerminalState('opening');
@@ -250,6 +255,7 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
                 <PtyTerminalView
                   key={terminalInstanceKey(agent.ptyId, agent.terminalGeneration)}
                   ptyId={agent.ptyId}
+                  provider={agent.provider}
                   onStreamData={onPtyStream}
                   onUserPrompt={(t) => {
                     updateAgent(agent.id, { lastPrompt: t });
@@ -271,6 +277,13 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
               {t('agentDetail.noPtyDesc')}
             </EmptyTab>
           )
+        )}
+
+        {/* A history that cannot be drawn stays in its own box (P7). */}
+        {sidebarTab === 'history' && (
+          <ErrorBoundary key={agent.id} where={t('where.history')} recover="remount" button={pixelAction}>
+            <HistoryView agentId={agent.id} />
+          </ErrorBoundary>
         )}
 
         {sidebarTab === 'git' && (

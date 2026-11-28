@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What is CLI-Anything? A Command Line for Any App</title>
+<meta name="description" content="CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it." />
+<link rel="canonical" href="https://munderdiffl.in/blog/what-is-cli-anything/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="What is CLI-Anything? A Command Line for Any App" />
+<meta property="og:description" content="CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it." />
+<meta property="og:url" content="https://munderdiffl.in/blog/what-is-cli-anything/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/what-is-cli-anything/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A sky pill reading Concepts, the title What is CLI-Anything?, the line Gives AI agents a command line for existing software, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading Apache 2.0, from HKUDS under a small yellow plug adapter, and a mint tile reading No screenshots, no clicking under a small soft white remote." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-26T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="CLI Agents" />
+<meta property="article:tag" content="Claude Code" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="What is CLI-Anything? A Command Line for Any App" />
+<meta name="twitter:description" content="CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/what-is-cli-anything/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A sky pill reading Concepts, the title What is CLI-Anything?, the line Gives AI agents a command line for existing software, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading Apache 2.0, from HKUDS under a small yellow plug adapter, and a mint tile reading No screenshots, no clicking under a small soft white remote." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What is CLI-Anything? A Command Line for Any App, for AI Agents",
+  "description": "CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it.",
+  "image": ["https://munderdiffl.in/blog/assets/media/what-is-cli-anything/hero.png"],
+  "datePublished": "2026-11-26T00:00:00.000Z",
+  "dateModified": "2026-11-26T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/what-is-cli-anything/" },
+  "keywords": "cli anything, cli-anything, cli hub, cli-anything hub, agent native software, cli for ai agents",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/what-is-cli-anything/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "What is CLI-Anything? A Command Line for Any App, for AI Agents", "item": "https://munderdiffl.in/blog/what-is-cli-anything/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is CLI-Anything?", "acceptedAnswer": { "@type": "Answer", "text": "An open source project from HKUDS, under the Apache 2.0 licence, whose README is titled \"CLI-Anything: Making ALL Software Agent-Native\". It has two parts: a generator that builds a command line for a piece of software, and CLI-Hub, a registry of CLIs you can install. Checked 26 Nov 2026." } },
+    { "@type": "Question", "name": "How do I install CLI-Anything in Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Per the README, run `/plugin marketplace add HKUDS/CLI-Anything`, then `/plugin install cli-anything`, then `/cli-anything <software-name>` to build a CLI. To install CLIs that already exist, run `pip install cli-anything-hub`, then `cli-hub install <name>`." } },
+    { "@type": "Question", "name": "What is CLI-Hub?", "acceptedAnswer": { "@type": "Answer", "text": "CLI-Hub, at clianything.cc, is the project's catalogue of CLIs. The site calls it \"an agent-friendly registry and package manager for CLI tools\". The `cli-hub` command can list, search, inspect, install, update, uninstall and launch them." } },
+    { "@type": "Question", "name": "Which agents does CLI-Anything work with?", "acceptedAnswer": { "@type": "Answer", "text": "For building CLIs, the README names Claude Code, Cursor, Pi, OpenClaw, OpenCode, Codex, Hermes, Reasonix, Qodercli and GitHub Copilot CLI, plus Goose through a CLI provider. Its CLI-Hub skill names OpenClaw, Nanobot, Claude Code, Codex, Reasonix and Antigravity." } },
+    { "@type": "Question", "name": "Is CLI-Anything free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Its pricing page, read 26 Nov 2026, says \"CLI-Anything and CLI-Anything Hub are open source and free to use.\" It adds that some third party CLIs, APIs or apps in the registry may have their own pricing." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>What is CLI-Anything? A Command Line for Any App, for AI Agents</h1>
+    <p class="dek">CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/what-is-cli-anything/hero.png" alt="Title card on white. A sky pill reading Concepts, the title What is CLI-Anything?, the line Gives AI agents a command line for existing software, and a Checked 26 Nov 2026 line. Two tiles: a lilac tile reading Apache 2.0, from HKUDS under a small yellow plug adapter, and a mint tile reading No screenshots, no clicking under a small soft white remote." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>CLI-Anything is an open source project that gives AI agents a command line for existing software, so they can drive apps like GIMP, Blender and LibreOffice with commands instead of clicks. Its <a href="https://github.com/HKUDS/CLI-Anything">README</a> pairs a CLI generator with CLI-Hub, a registry of CLIs. It comes from HKUDS under the Apache 2.0 licence. Checked 26 Nov 2026.</p>
+<p>If you run AI agents, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Its agents run on engines such as Claude Code, Codex and Gemini CLI, and can use skills, MCP servers and plugins. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<h2 id="what-is-cli-anything" tabindex="-1">What is CLI-Anything? <a class="anchor" href="#what-is-cli-anything" aria-hidden="true">#</a></h2>
+<p>CLI-Anything turns software built for people into tools an agent can run from a terminal. The README calls it “Bridging the Gap Between AI Agents and the World’s Software” and says: “Make any software agent-ready for Pi, OpenClaw, nanobot, Cursor, Claude Code, etc.” Each CLI it builds is called a harness.</p>
+<p>It is both a generator and a hub. The README says it “has two equally useful starting points”: install <code>cli-anything-hub</code> to “Use the existing CLI ecosystem now”, or install the plugin or skill for your agent to “Build a new agent-native CLI”. Software it names includes GIMP, Blender, LibreOffice, Zotero and FreeCAD, among many others.</p>
+<figure class="mg" data-scene="adapter"><img src="/blog/assets/media/what-is-cli-anything/adapter.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a yellow plug labelled command line slides into a blue adapter. The adapter has three soft white sockets labelled GIMP, Blender and LibreOffice, and a small mint light turns on beside each socket in turn. Tap the adapter to pull the plug out and push it in again."><figcaption>The README promises one command line to "Make any software agent-ready". Read 26 Nov 2026.</figcaption></figure>
+<h2 id="how-does-cli-anything-work" tabindex="-1">How does CLI-Anything work? <a class="anchor" href="#how-does-cli-anything-work" aria-hidden="true">#</a></h2>
+<p>You point your agent at a program’s source code or repo, and it builds a Python CLI in seven phases, per the README:</p>
+<ol>
+<li>Analyze: “Scans source code, maps GUI actions to APIs”.</li>
+<li>Design: command groups, a state model and output formats.</li>
+<li>Implement: a Click CLI with a REPL, JSON output, and undo and redo.</li>
+<li>Plan tests in a <code>TEST.md</code> file.</li>
+<li>Write the tests.</li>
+<li>Document the results.</li>
+<li>Publish: create <code>setup.py</code> and install the CLI to your PATH.</li>
+</ol>
+<p>The CLI calls the real program rather than copying it: “We build structured interfaces TO software, not replacements.” So LibreOffice still makes the PDFs and Blender still renders the 3D scenes. Each CLI also gets a <code>SKILL.md</code> with a name and description “for agent skill discovery”, the same idea as <a href="/blog/claude-code-skills/">Claude Code Skills: What They Are, Where They Live and How to Write One</a>. By the project’s own figures, read 26 Nov 2026, the README badge shows 2,461 tests passing, while its test summary totals 2,464.</p>
+<p>The README names three limits. It “relies on frontier-class models (e.g., Claude Opus 4.6, Claude Sonnet 4.6, GPT-5.4)”, and weaker or smaller models “may produce incomplete or incorrect CLIs”. When the software only provides compiled binaries that require decompilation, “harness quality and coverage will degrade substantially”. And one run may not cover everything: “Running <code>/refine</code> one or more times is often needed”.</p>
+<h2 id="how-do-you-install-and-use-cli-anything" tabindex="-1">How do you install and use CLI-Anything? <a class="anchor" href="#how-do-you-install-and-use-cli-anything" aria-hidden="true">#</a></h2>
+<p>There are two routes: install CLIs that already exist, or build a new one. For existing CLIs, the README starts with:</p>
+<pre class="language-bash"><code class="language-bash">pip <span class="token function">install</span> cli-anything-hub</code></pre>
+<pre class="language-bash"><code class="language-bash"><span class="token comment"># Browse what is available</span>
+cli-hub list
+cli-hub search image
+
+<span class="token comment"># Install and try a CLI immediately</span>
+cli-hub <span class="token function">install</span> gimp
+cli-hub info gimp
+cli-hub launch gimp</code></pre>
+<p>It warns: “If a selected CLI needs GIMP, Blender, LibreOffice, or another upstream tool, install that upstream application too.”</p>
+<p>To build a new CLI you need Python 3.10+ and a supported AI coding agent. In Claude Code, the README gives:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token comment"># Add marketplace &amp; install (recommended)</span>
+/plugin marketplace <span class="token function">add</span> HKUDS/CLI-Anything
+/plugin <span class="token function">install</span> cli-anything
+
+<span class="token comment"># Build a CLI for any software with a codebase</span>
+/cli-anything <span class="token operator">&lt;</span>software-name<span class="token operator">></span></code></pre>
+<p>Its example is <code>/cli-anything ./gimp</code>. The README also has install steps for Cursor, Pi, OpenClaw, OpenCode, Codex, Hermes, Reasonix, Qodercli and GitHub Copilot CLI, and Goose can run the same commands through a CLI provider such as Claude Code. It marks OpenCode, Goose, Codex, Hermes and Reasonix as Experimental.</p>
+<p>Then the agent uses the CLI like any other command. Per the README, “the generated CLI works the same way” whichever agent built it:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token comment"># Install to PATH</span>
+<span class="token builtin class-name">cd</span> gimp/agent-harness <span class="token operator">&amp;&amp;</span> pip <span class="token function">install</span> <span class="token parameter variable">-e</span> <span class="token builtin class-name">.</span>
+
+<span class="token comment"># Use from anywhere</span>
+cli-anything-gimp <span class="token parameter variable">--help</span>
+cli-anything-gimp project new <span class="token parameter variable">--width</span> <span class="token number">1920</span> <span class="token parameter variable">--height</span> <span class="token number">1080</span> <span class="token parameter variable">-o</span> poster.json
+cli-anything-gimp <span class="token parameter variable">--json</span> layer <span class="token function">add</span> <span class="token parameter variable">-n</span> <span class="token string">"Background"</span> <span class="token parameter variable">--type</span> solid <span class="token parameter variable">--color</span> <span class="token string">"#1a1a2e"</span>
+
+<span class="token comment"># Enter interactive REPL</span>
+cli-anything-gimp</code></pre>
+<p>Agents “discover capabilities via standard --help and which commands”, and a <code>--json</code> flag on every command returns structured data.</p>
+<figure class="mg" data-scene="remote"><img src="/blog/assets/media/what-is-cli-anything/remote.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white remote has three lilac buttons that read help, project new and layer add. The buttons press down one after another, and each press sends a sky pulse to a blue screen, where a yellow card reading poster.json appears, then a mint card reading Background. Tap the remote to clear the screen and press the buttons again."><figcaption>Per the README, a generated CLI works the same way whichever agent built it, with JSON output for agents. Read 26 Nov 2026.</figcaption></figure>
+<h2 id="what-is-cli-hub" tabindex="-1">What is CLI-Hub? <a class="anchor" href="#what-is-cli-hub" aria-hidden="true">#</a></h2>
+<p>CLI-Hub is the project’s catalogue of CLIs, at <a href="https://clianything.cc/">clianything.cc</a>. The site calls it “an agent-friendly registry and package manager for CLI tools”. It lists CLI-Anything CLIs and Public CLIs, which it says “remain the property of their respective software owners and maintainers”.</p>
+<p>The README’s meta skill lets agents “discover and install the right CLI for a task”, and it names OpenClaw, Nanobot, Claude Code, Codex, Reasonix and Antigravity:</p>
+<pre class="language-bash"><code class="language-bash">npx skills <span class="token function">add</span> HKUDS/CLI-Anything <span class="token parameter variable">--skill</span> cli-hub-meta-skill <span class="token parameter variable">-g</span> <span class="token parameter variable">-y</span></code></pre>
+<p>Then you prompt: “Find appropriate CLI software in CLI-Hub and complete the task: …”</p>
+<figure class="mg" data-scene="switchboard"><img src="/blog/assets/media/what-is-cli-anything/switchboard.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a sky switchboard holds a yellow card on the left that reads agent and three mint cards on the right that read GIMP, Blender and Zotero. A blue cable stretches from the agent card to the GIMP card, and a lilac lamp above it lights up with the word install. Tap the board to move the cable to the next card."><figcaption>Per the README, the CLI-Hub meta skill lets agents "discover and install the right CLI for a task". Read 26 Nov 2026.</figcaption></figure>
+<p>Release <a href="https://github.com/HKUDS/CLI-Anything/releases/tag/v0.4.0">v0.4.0</a>, out on 25 Jun 2026, added matrices, bundles of CLIs for a whole workflow, found with <code>cli-hub can &lt;task&gt;</code>. The <a href="https://clianything.cc/pricing.md">pricing page</a>, read 26 Nov 2026, says “CLI-Anything and CLI-Anything Hub are open source and free to use”, though some third party CLIs, APIs or apps in the registry “may have their own pricing”.</p>
+<h2 id="why-a-command-line-instead-of-a-browser-or-screen-clicks" tabindex="-1">Why a command line instead of a browser or screen clicks? <a class="anchor" href="#why-a-command-line-instead-of-a-browser-or-screen-clicks" aria-hidden="true">#</a></h2>
+<p>The README’s answer is reliability: “No screenshots, no clicking, no RPA fragility. Pure command-line reliability with structured interfaces”. Its list of reasons says text commands “match LLM format”, <code>--help</code> flags give “automatic documentation agents can discover”, and JSON output “eliminates parsing complexity”. The project’s <a href="https://arxiv.org/abs/2606.03854">technical report</a> on arXiv, dated 2 Jun 2026, adds that current GUI agents “struggle with brittle pixel-level interactions, timing dependencies, and coordinate-based actions that break with interface changes.”</p>
+<p>Our view: a command line suits work an agent repeats, because a fixed command is easier to check than a click on a moving screen. A browser still fits sites with no CLI, and the README’s own table lists a browser CLI, <code>cli-anything-browser</code>. For more, read <a href="/blog/why-cli-agents-are-powerful/">Why CLI Agents Are So Powerful</a> and <a href="/blog/browser-use-alternatives/">Browser Use Alternatives: 5 Picks After the 1.0 Rewrite (Nov 2026)</a>.</p>
+<h2 id="cli-anything-at-a-glance" tabindex="-1">CLI-Anything at a glance <a class="anchor" href="#cli-anything-at-a-glance" aria-hidden="true">#</a></h2>
+<p>Checked 26 Nov 2026.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What it is</td>
+<td>A CLI generator for software, plus CLI-Hub, a registry of CLIs</td>
+</tr>
+<tr>
+<td>Code</td>
+<td>HKUDS/CLI-Anything on GitHub, created 8 Mar 2026, last push 20 Nov 2026</td>
+</tr>
+<tr>
+<td>Licence</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td>Latest release</td>
+<td><a href="https://github.com/HKUDS/CLI-Anything/releases/tag/v0.4.0">v0.4.0</a>, 25 Jun 2026</td>
+</tr>
+<tr>
+<td>Stars</td>
+<td>65,782 at 03:54 UTC on 26 Nov 2026</td>
+</tr>
+<tr>
+<td>Agents with install steps</td>
+<td>Claude Code, Cursor, Pi, OpenClaw, OpenCode, Codex, Hermes, Reasonix, Qodercli, GitHub Copilot CLI, Goose</td>
+</tr>
+<tr>
+<td>Software named</td>
+<td>GIMP, Blender, Inkscape, Audacity, LibreOffice, OBS Studio, Kdenlive, Shotcut, Zotero, <a href="http://Draw.io">Draw.io</a>, Zoom, FreeCAD and more</td>
+</tr>
+<tr>
+<td>To build a CLI</td>
+<td>Python 3.10+ and a supported AI coding agent</td>
+</tr>
+<tr>
+<td>Price</td>
+<td>Free, per its pricing page</td>
+</tr>
+</tbody>
+</table>
+</div>
+<link rel="stylesheet" href="/blog/assets/media/what-is-cli-anything/motion.css"><script defer src="/blog/assets/media/what-is-cli-anything/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">What is CLI-Anything?</p>
+          <p class="a">An open source project from HKUDS, under the Apache 2.0 licence, whose README is titled &quot;CLI-Anything: Making ALL Software Agent-Native&quot;. It has two parts: a generator that builds a command line for a piece of software, and CLI-Hub, a registry of CLIs you can install. Checked 26 Nov 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I install CLI-Anything in Claude Code?</p>
+          <p class="a">Per the README, run `/plugin marketplace add HKUDS/CLI-Anything`, then `/plugin install cli-anything`, then `/cli-anything &lt;software-name&gt;` to build a CLI. To install CLIs that already exist, run `pip install cli-anything-hub`, then `cli-hub install &lt;name&gt;`.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What is CLI-Hub?</p>
+          <p class="a">CLI-Hub, at clianything.cc, is the project&#39;s catalogue of CLIs. The site calls it &quot;an agent-friendly registry and package manager for CLI tools&quot;. The `cli-hub` command can list, search, inspect, install, update, uninstall and launch them.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Which agents does CLI-Anything work with?</p>
+          <p class="a">For building CLIs, the README names Claude Code, Cursor, Pi, OpenClaw, OpenCode, Codex, Hermes, Reasonix, Qodercli and GitHub Copilot CLI, plus Goose through a CLI provider. Its CLI-Hub skill names OpenClaw, Nanobot, Claude Code, Codex, Reasonix and Antigravity.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is CLI-Anything free?</p>
+          <p class="a">Yes. Its pricing page, read 26 Nov 2026, says &quot;CLI-Anything and CLI-Anything Hub are open source and free to use.&quot; It adds that some third party CLIs, APIs or apps in the registry may have their own pricing.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/cli-agents/">CLI Agents</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-cli-anything">What is CLI-Anything?</a></li><li class="lvl-2"><a href="#how-does-cli-anything-work">How does CLI-Anything work?</a></li><li class="lvl-2"><a href="#how-do-you-install-and-use-cli-anything">How do you install and use CLI-Anything?</a></li><li class="lvl-2"><a href="#what-is-cli-hub">What is CLI-Hub?</a></li><li class="lvl-2"><a href="#why-a-command-line-instead-of-a-browser-or-screen-clicks">Why a command line instead of a browser or screen clicks?</a></li><li class="lvl-2"><a href="#cli-anything-at-a-glance">CLI-Anything at a glance</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/what-is-cogentic/"><span class="k">← Older</span><span class="t">What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs</span></a>
+      <a class="pn next" href="/blog/handy-speech-to-text/"><span class="k">Newer →</span><span class="t">How to talk instead of typing with Handy, free speech to text</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-claude-bughunter/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-claude-bughunter/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-claude-bughunter/">What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting</a></h3>
+    <p class="dek">Claude-BugHunter (elementalsouls) is a Claude Code skill bundle for bug hunting. What is inside, how to install it, and the written authorisation it expects.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-claude-bughunter/" aria-label="Read: What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-cogentic/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-cogentic/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-cogentic/">What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs</a></h3>
+    <p class="dek">Cogentic is a Google research harness where AI agents find and check proofs. Its factoring paper&#39;s bound is subexponential, not polynomial; it never names RSA.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-cogentic/" aria-label="Read: What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-diagram-design/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-diagram-design/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-diagram-design/">What is diagram-design? The Diagram Skill for Claude Code and Codex</a></h3>
+    <p class="dek">diagram-design is an open source agent skill that draws diagrams as one HTML + SVG file. What it makes, how to install it, which agents it names.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-diagram-design/" aria-label="Read: What is diagram-design? The Diagram Skill for Claude Code and Codex">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

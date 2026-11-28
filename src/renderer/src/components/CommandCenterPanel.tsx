@@ -21,22 +21,15 @@ import { COMMAND_GROUPS } from '@shared/claudeCommands';
 import { roleForHiveSpawn } from '@shared/agentRole';
 import { useStore, triggerHistoryVisible, type Agent } from '@/store/store';
 import { usePtyParser } from '@/hooks/usePtyParser';
-import {
-  buildSpawnCommand,
-  decodeProviderModel,
-  encodeProviderModel,
-  inferAgentProvider,
-  isClaudeProvider,
-  modelProvidersForAgent,
-  modelsForProvider,
-  providerPreset,
-  tokenizeCommand,
-  AGENT_PROVIDER_PRESETS,
-  type AgentProvider
-} from '@/store/config';
+import { useReopenAgent } from '@/hooks/useReopenAgent';
+import { AGENT_PROVIDER_PRESETS, type AgentProvider, buildSpawnCommand, type HarnessConfig, decodeProviderModel, encodeProviderModel, inferAgentProvider, isClaudeProvider, modelProvidersForAgent, modelsForProvider, modelWord, providerPreset, tokenizeCommand } from '@/store/config';
+import { orchestratorEngineOptions } from '../../../shared/engineOptions';
 import { canReceiveInbox } from '@shared/agentProvider';
 import { isComposingKey } from '@shared/imeGuard';
 import { useRtl } from '@/i18n/useDirection';
+import { CommandField } from './CommandField';
+import { planAgentRestart } from '@shared/agentRestart';
+import { applyFloorDelivery } from './floorDelivery';
 
 /** Michael's control surface. Shown instead of the plain terminal/files panel
  *  when the god agent is selected: terminal + queue, the floor roster (with
@@ -48,11 +41,6 @@ import { useRtl } from '@/i18n/useDirection';
 // whole surface lives in ./triggers (see src/shared/triggers.ts for the contract).
 type CCTab = 'terminal' | 'floor' | 'tasks' | 'human' | 'triggers' | 'trigger-history'
   | 'memory' | 'graph' | 'activity' | 'skills' | 'workers';
-
-/** Fallback denominator for the per-agent token meter when no floor token budget
- *  is configured — so the bar reads as a budget estimate (filled + remaining)
- *  rather than being pinned to 100% for whichever agent burns the most tokens. */
-const DEFAULT_TOKEN_CAP = 1_000_000;
 
 /** A GitHub issue as returned by `window.cth.githubIssues` (labels/assignees flattened). */
 interface GHIssue {
@@ -145,7 +133,9 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
     const next = !floorDeliveryPaused;
     setFloorDeliveryPaused(next);
     const all = useStore.getState().agents;
-    await Promise.all(all.map((a) => window.cth.controlAutoDelivery(a.id, next).catch(() => null)));
+    // Check each agent's real snapshot and re-sync the switch if any failed (#530).
+    const { shown } = await applyFloorDelivery(all.map((a) => a.id), next, agent.id, window.cth);
+    if (shown !== null && shown !== next) setFloorDeliveryPaused(shown);
   };
 
   return (
@@ -300,6 +290,7 @@ export function CommandCenterPanel({ agent, fullscreen = false }: { agent: Agent
                 <PtyTerminalView
                   key={terminalInstanceKey(agent.ptyId, agent.terminalGeneration)}
                   ptyId={agent.ptyId}
+                  provider={agent.provider}
                   onStreamData={onPtyStream}
                   onUserPrompt={(t) => {
                     updateAgent(agent.id, { lastPrompt: t });
@@ -356,14 +347,20 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
   // AND live cost/usage in one place).
   const { samples, spark, rate, lastTool, breakers } = useFleetTelemetry();
   const [repos, setRepos] = useState<string[]>([]);
-  // Floor-wide token budget (drives the breaker); also the token-meter denominator.
-  const [tokenCap, setTokenCap] = useState<number | undefined>(undefined);
-  // Per-agent token limit (overrides the floor budget for that agent), keyed by id.
-  const [agentTokenCaps, setAgentTokenCaps] = useState<Record<string, number>>({});
   const [restarting, setRestarting] = useState<string | null>(null);
+  // Each agent's own token cap (work tokens), keyed by id. Written only through
+  // window.cth.setAgentTokenCap, which main applies to its latest config.
+  const [agentTokenCaps, setAgentTokenCaps] = useState<Record<string, number>>({});
   const [engineProvider, setEngineProvider] = useState<AgentProvider>('claude');
   const [engineModel, setEngineModel] = useState<string | undefined>(undefined);
   const [restartErrors, setRestartErrors] = useState<Record<string, string>>({});
+  // Hand edits to an agent's command box, keyed by agent id. No entry means the
+  // box shows the stored line; a restart or a model pick drops the entry.
+  const [commandDrafts, setCommandDrafts] = useState<Record<string, string>>({});
+  const dropDraft = (id: string) => setCommandDrafts((d) => { const { [id]: _dropped, ...rest } = d; return rest; });
+  // The whole config, for the line an agent's picks resolve to (the box's
+  // "use resolved"). Loaded with the fields below.
+  const [floorConfig, setFloorConfig] = useState<HarnessConfig | null>(null);
   // The harness's own default model (Settings → default model). Michael and every
   // new agent spawn on this, so the picker marks it — otherwise the only entry
   // reading "default" was the CLI's, which is a different thing entirely.
@@ -379,8 +376,8 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
 
   useEffect(() => {
     window.cth.getConfig().then((c) => {
+      setFloorConfig(c);
       setRepos(c.registeredRepos ?? []);
-      setTokenCap(c.costCapTokens);
       setAgentTokenCaps(c.agentTokenCaps ?? {});
       setEngineProvider(c.godProvider ?? 'claude');
       setEngineModel(c.godModel);
@@ -413,6 +410,9 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
        *  error. A model change wants the soft one: the user asked to change
        *  model, and an agent with no recorded session still has to get one. */
       resumeOptional?: boolean;
+      /** The exact line to run, from the agent's command box. Unset rebuilds
+       *  the line from the model pick, as a model change always has. */
+      command?: string;
     } = {}
   ) => {
     if (!a.ptyId) return;
@@ -459,7 +459,9 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
         rows = oldEntry.term.rows;
       } catch { /* host not sized yet */ }
 
-      const killed = await window.cth.killPty(a.ptyId);
+      // 'restart': the person chose to restart, not to discard. Main keeps the
+      // worktree and keeps tracking it, and the agent comes back IN it.
+      const killed = await window.cth.killPty(a.ptyId, 'restart');
       // A pty that is ALREADY gone is the state this kill was trying to reach, so
       // it is not a failure. This is the single most common way to arrive at
       // "Restart & Continue": the session died on its own — a crash, or Ctrl-C
@@ -469,22 +471,22 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       if (!killed.ok && !/^no pty:/.test(killed.error ?? '')) {
         throw new Error(killed.error ?? 'Could not stop the current process.');
       }
-      if (resume) {
-        // A blank xterm can retain corrupt renderer/DOM/subscription state even
-        // after its PTY is healthy. Throw that one terminal away, acquire its
-        // replacement BEFORE spawning (so startup output has a listener), then
-        // bump the key so React remounts only this agent's terminal card.
-        disposeTerminal(a.ptyId);
-        acquireTerminal(a.ptyId);
-        updateAgent(a.id, {
-          terminalGeneration: (a.terminalGeneration ?? 0) + 1,
-          status: 'idle',
-          action: 'recreating terminal…'
-        });
-      } else {
+      // 0.5.3 bug 22, the agent restart half. The resume path used to throw
+      // this agent's terminal away HERE, before the spawn below that can still
+      // fail (a refused resume throws after it too). Every one of those throws
+      // then left a fresh blank xterm in the pool with the scrollback gone for
+      // good (node-pty keeps none) and the label stuck on "recreating
+      // terminal…": a pane that ignores the mouse because there is nothing on
+      // it. The replacement is now created only once spawnPty has accepted it.
+      // Ported from public PR #575 by TTAWDTT.
+      if (!resume) {
         resetTerminal(a.ptyId);
       }
-      const command = buildSpawnCommand(cfg, model, provider);
+      // The box, not a rebuild from the picks: a rebuild threw a hand edit away
+      // (founder, 24 Sep). Stored BEFORE the spawn, so an app restart starts on
+      // the same line even if this one fails half way.
+      const command = opts.command ?? buildSpawnCommand(cfg, model, provider);
+      if (opts.command) updateAgent(a.id, { command: command.trim(), model });
       const [exe, ...args] = tokenizeCommand(command.trim());
       const hive = {
         id: a.id,
@@ -497,7 +499,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       };
       const res = await window.cth.spawnPty({
         id: a.ptyId,
-        cwd: a.cwd,
+        cwd: a.worktreePath ?? a.cwd,
         command: exe,
         args,
         provider,
@@ -506,11 +508,39 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
         hive,
         resume,
         resumeSessionId,
-        requireResume: resume
+        // "Restart & Continue" wants the hard failure (see resumeOptional). A
+        // model change must NOT ask for one: the checks above can only see the
+        // registry's session id, and whether a session can really be reopened is
+        // known in the main process — a Codex rollout has to be in some agent's
+        // CODEX_HOME (spawnAgent). With requireResume the main process refused the
+        // spawn outright, and the old process had already been killed, so a model
+        // change on a Codex agent whose rollout had moved left the agent with NO
+        // process at all. Without it the main process starts a fresh session, which
+        // is what "resume if you can" asked for.
+        requireResume: resume && opts.resumeOptional !== true
       });
       if (!res.ok) throw new Error(res.error ?? 'Restart failed.');
-      if (resume && res.resumed !== true) {
+      const continued = resume && res.resumed === true;
+      if (resume && !continued && opts.resumeOptional !== true) {
         throw new Error('Resume was refused; no replacement session was accepted.');
+      }
+      if (resume) {
+        // The replacement is accepted, so NOW the old terminal can go. A blank
+        // xterm can retain corrupt renderer/DOM/subscription state even after
+        // its PTY is healthy, which is why the resume path replaces it at all.
+        // The spawn answer beat the CLI's first frame, so no startup output is
+        // missed, and the remount's attach asks the pty for a redraw for
+        // anything it raced. Bump the key so React remounts only this agent's
+        // terminal card.
+        disposeTerminal(a.ptyId);
+        acquireTerminal(a.ptyId);
+        updateAgent(a.id, {
+          terminalGeneration: (a.terminalGeneration ?? 0) + 1,
+          status: 'idle',
+          // An optional resume that came back fresh still owns this pty id, so
+          // its terminal is remounted the same way; only the word changes.
+          action: continued ? 'recreating terminal…' : 'starting a fresh session…'
+        });
       }
       if (res.ok) {
         // Record the model even on a resume. A same-provider model change now
@@ -526,7 +556,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
               provider,
               model,
               status: 'idle' as const,
-              action: 'continuing…'
+              action: continued ? 'continuing…' : 'started a fresh session'
             }
           : {
               command: command.trim(),
@@ -536,6 +566,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
               action: provider === previousProvider ? 'restarting…' : `switching to ${providerPreset(provider).label}…`
             };
         updateAgent(a.id, patch);
+        dropDraft(a.id);
       }
     } catch (error) {
       setRestartErrors((errors) => ({
@@ -599,9 +630,22 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
     setDispatchTo(''); // Michael decomposes and assigns — no more broadcast blasts
   };
 
-  // Set/clear one agent's token limit atomically in main. Renderer config objects
-  // are snapshots, so persisting this whole map could clobber a cap added by the
-  // hire flow after this panel loaded.
+  // Fleet totals across the roster (for the AGENTS summary band).
+  let sumTokens = 0, sumInput = 0, sumCacheRead = 0, sumRate = 0;
+  for (const a of agents) {
+    const s = samples[a.id];
+    if (s) {
+      sumTokens += s.input + s.output + s.cacheRead + s.cacheCreation;
+      sumInput += s.input + s.cacheRead + s.cacheCreation;
+      sumCacheRead += s.cacheRead;
+    }
+    sumRate += rate[a.id] ?? 0;
+  }
+  const fleetCachePct = sumInput > 0 ? Math.round((sumCacheRead / sumInput) * 100) : 0;
+
+  // Set or clear one agent's token cap atomically in main. Renderer config
+  // objects are snapshots, so persisting this whole map could clobber a cap
+  // added elsewhere after this panel loaded.
   const setAgentCap = (id: string, tokens: number | undefined) => {
     setAgentTokenCaps((current) => {
       const optimistic = { ...current };
@@ -618,23 +662,6 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
       }).catch(() => { /* noop */ });
     });
   };
-
-  // The token meter is scaled to the agent's own limit when set, else the floor
-  // token budget — so each bar reads as "tokens used vs budget" with the remaining
-  // headroom visible, never pinned to a useless 100%.
-  const floorCap = tokenCap && tokenCap > 0 ? tokenCap : DEFAULT_TOKEN_CAP;
-  // Fleet totals across the roster (for the AGENTS summary band).
-  let sumTokens = 0, sumInput = 0, sumCacheRead = 0, sumRate = 0;
-  for (const a of agents) {
-    const s = samples[a.id];
-    if (s) {
-      sumTokens += s.input + s.output + s.cacheRead + s.cacheCreation;
-      sumInput += s.input + s.cacheRead + s.cacheCreation;
-      sumCacheRead += s.cacheRead;
-    }
-    sumRate += rate[a.id] ?? 0;
-  }
-  const fleetCachePct = sumInput > 0 ? Math.round((sumCacheRead / sumInput) * 100) : 0;
 
   return (
     <Scroll>
@@ -674,19 +701,11 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
           const breaker = breakers[a.id];
           const armed = !!breaker && (breaker.level === 'constrained' || breaker.level === 'stopped');
           const tokens = sample ? sample.input + sample.output + sample.cacheRead + sample.cacheCreation : 0;
-          // The per-agent cap is measured in WORK tokens — input + output + cache
-          // writes, cache reads excluded (breaker.ts, #189) — so the meter against
-          // that cap reads the same figure; otherwise a cache-heavy agent shows a
-          // full red bar while the breaker is (correctly) calm. The floor budget
-          // sums all kinds, so its meter keeps `tokens`; the count beside the bar
-          // stays the all-kinds spend either way.
+          // The cap counts work tokens (cache reads excluded), as the breaker does.
           const workTokens = sample ? sample.input + sample.output + sample.cacheCreation : 0;
-          const agentCap = agentTokenCaps[a.id]; // per-agent limit, if set
-          const hasAgentCap = !!agentCap && agentCap > 0;
-          const denom = hasAgentCap ? agentCap : floorCap;
-          const used = hasAgentCap ? workTokens : tokens;
-          const pct = Math.min(100, Math.round((used / denom) * 100));
-          const meterColor = armed || pct >= 90 ? 'var(--cth-coral)' : pct >= 60 ? 'var(--cth-lemon)' : 'var(--cth-mint)';
+          const agentCap = agentTokenCaps[a.id];
+          const capPct = agentCap && agentCap > 0 ? Math.min(100, Math.round((workTokens / agentCap) * 100)) : null;
+          const capColor = armed || (capPct ?? 0) >= 90 ? 'var(--cth-coral)' : (capPct ?? 0) >= 60 ? 'var(--cth-lemon)' : 'var(--cth-mint)';
           // Sparkline only when the agent is actually burning tokens; otherwise the
           // flat baseline is just a mystery line. Label it with the live rate.
           const sparkSeries = spark[a.id] ?? [];
@@ -695,6 +714,17 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
           const rateLabel = rateVal > 0 ? `${fmtTokens(rateVal)}/m` : 'rate';
           const currentModelKnown = modelsForProvider(agentProvider)
             .some((model) => model.id === a.model);
+          // THE LINE THIS AGENT RUNS, editable here in the right panel next to
+          // its model and restart (founder, 24 Sep). planAgentRestart runs an empty box as the resolved
+          // line, refuses a line for another engine, and takes the model a
+          // `--model` names.
+          const resolvedLine = !floorConfig || agentProvider === 'custom' ? '' : buildSpawnCommand(floorConfig, a.model, agentProvider);
+          const storedLine = (a.command ?? '').trim() || resolvedLine;
+          const draftLine = commandDrafts[a.id] ?? storedLine;
+          const draftDirty = draftLine.trim() !== storedLine.trim();
+          const plan = planAgentRestart(draftLine, resolvedLine, agentProvider, a.model);
+          const conflictText = plan.conflict ? t('pro.sheet.commandOtherEngine', { engine: providerPreset(plan.conflict).label, picked: agentPreset.label }) : null;
+          const runBlocked = restarting === a.id || !a.ptyId || !!plan.conflict || !plan.command;
           return (
           <div key={a.id} style={{
             display: 'flex', flexDirection: 'column', gap: 4,
@@ -721,7 +751,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--cth-ink-500)' }}>
                 {t('commandCenter.toolCalls', { count: toolCounts[a.id] ?? 0 })}
               </span>
-              <TokenLimitEditor value={agentCap} onSet={(t) => setAgentCap(a.id, t)} />
+              {!a.isGod && <TokenLimitEditor value={agentCap} onSet={(n) => setAgentCap(a.id, n)} />}
             </div>
             <div style={{ fontSize: 11, color: 'var(--cth-ink-500)', wordBreak: 'break-all' }}>{a.cwd}</div>
             {/* Live telemetry (folded in from the old Fleet tab) */}
@@ -740,19 +770,25 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                   background: 'var(--cth-paper-200)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', color: 'var(--cth-ink-700)'
                 }}>{lastTool[a.id]}</span>
               )}
-              <span style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 10, color: 'var(--cth-ink-300)', flexShrink: 0 }}>{t('commandCenter.budget')}</span>
-              <span style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 11, color: 'var(--cth-ink-900)', width: 56, textAlign: 'right' }}>{fmtTokens(tokens)}</span>
-              <div
-                title={t('commandCenter.meterTitle', {
-                  used: used.toLocaleString(),
-                  limit: denom.toLocaleString(),
-                  note: hasAgentCap ? t('commandCenter.agentLimit') : t('commandCenter.floorBudget')
-                })}
-                style={{ width: 96, height: 8, background: 'var(--cth-cream-200)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', flexShrink: 0 }}
-              >
-                <div style={{ width: `${pct}%`, height: '100%', background: meterColor }} />
-              </div>
-              <span style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 11, color: 'var(--cth-ink-500)', width: 30, textAlign: 'right' }}>{pct}%</span>
+              <span style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 11, color: 'var(--cth-ink-900)', textAlign: 'right', flexShrink: 0 }}>{fmtTokens(tokens)} {t('costHud.tok')}</span>
+              {/* Against the agent's own cap, when it has one: work tokens, as the breaker counts them. */}
+              {capPct !== null && (
+                <>
+                  <div
+                    data-token-cap-meter={a.id}
+                    title={t('commandCenter.meterTitle', {
+                      used: workTokens.toLocaleString(),
+                      limit: (agentCap as number).toLocaleString(),
+                      note: t('commandCenter.agentLimit', ' (agent limit: work tokens, cache reads excluded)'),
+                      defaultValue: 'Session usage: {{used}} of {{limit}} tokens{{note}}, not the context window'
+                    })}
+                    style={{ width: 64, height: 8, background: 'var(--cth-cream-200)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', flexShrink: 0 }}
+                  >
+                    <div style={{ width: `${capPct}%`, height: '100%', background: capColor }} />
+                  </div>
+                  <span style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 11, color: 'var(--cth-ink-500)', width: 30, textAlign: 'right' }}>{capPct}%</span>
+                </>
+              )}
             </div>
             {/* Context window — the SAME exact statusLine-fed numbers as the
                 avatar-card gauge (tokens currently in the window vs the real
@@ -801,6 +837,8 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                 onChange={(value) => {
                   const choice = decodeProviderModel(value);
                   if (!choice) return;
+                  // A pick rewrites the line, so an unsaved edit goes with it.
+                  dropDraft(a.id);
                   // Switching model within the SAME provider continues the
                   // conversation — that's the whole point of switching mid-task
                   // ("this got hard, go up a tier"), and starting fresh threw
@@ -817,7 +855,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
               >
                 {(!agentPreset.supportsModel || !currentModelKnown) && (
                   <option value={encodeProviderModel(agentProvider, a.model)}>
-                    {agentPreset.label} · {a.model ?? 'current'}
+                    {agentPreset.label} · {modelWord(agentProvider, a.model) ?? 'current'}
                   </option>
                 )}
                 {modelProvidersForAgent(a.isGod).map((preset) => (
@@ -853,14 +891,42 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                 <PixelButton
                   variant="secondary"
                   size="sm"
-                  disabled={restarting === a.id}
-                  onClick={() => restartWithModel(a, a.model, { resume: true })}
+                  disabled={runBlocked}
+                  onClick={() => restartWithModel(a, plan.model, { resume: true, resumeOptional: draftDirty, command: plan.command })}
                 >
-                  <span title={t('commandCenter.restartContinueTitle')}>
+                  <span title={t('commandCenter.restartContinueTitle', { name: a.name })}>
                     {t('commandCenter.restartContinue')}
                   </span>
                 </PixelButton>
               </>}
+            </div>
+            )}
+            {!a.isGod && (
+            <div data-floor-command={a.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <CommandField
+                ariaLabel={t('pro.sheet.command')}
+                value={draftLine}
+                resolved={resolvedLine}
+                onChange={(next) => setCommandDrafts((d) => ({ ...d, [a.id]: next }))}
+                disabled={restarting === a.id}
+                testId="floor"
+                error={conflictText}
+              />
+              {/* ALWAYS here, for every engine (restart & continue shows only
+                  where a session can resume). Runs the line in the box. */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <PixelButton
+                  variant={draftDirty ? 'primary' : 'secondary'}
+                  size="sm"
+                  disabled={runBlocked}
+                  onClick={() => restartWithModel(a, plan.model, { resume: true, resumeOptional: true, command: plan.command })}
+                >
+                  {restarting === a.id ? t('common.restarting') : t('commandCenter.restartOnLine')}
+                </PixelButton>
+                <span style={{ fontSize: 11, color: 'var(--cth-ink-500)' }}>
+                  {draftDirty ? t('pro.agent.restartToApply') : t('commandCenter.commandLineHint')}
+                </span>
+              </div>
             </div>
             )}
             {restartErrors[a.id] && (
@@ -881,9 +947,11 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
                     setEngineModel(preset?.recommendedOrchestratorModel);
                   }}
                 >
-                  {AGENT_PROVIDER_PRESETS.filter((p) => canReceiveInbox(p.id)).map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.label}{p.id === 'claude' ? ' ★' : ''}
+                  {/* Every engine is listed; the ones that cannot run him are disabled
+                      and say why (0.5.3 feature 17, shared/engineOptions.ts). */}
+                  {orchestratorEngineOptions(t('onboarding.orchestrator.workersOnly')).map((o) => (
+                    <option key={o.value} value={o.value} disabled={o.disabled} title={o.disabled ? t('onboarding.orchestrator.workersOnlyHint') : undefined}>
+                      {o.label}{o.value === 'claude' ? ' ★' : ''}
                     </option>
                   ))}
                 </Select>
@@ -940,8 +1008,7 @@ function FloorTab({ seed }: { seed: { text: string; seq: number } }) {
         </div>
         <div style={{ marginTop: 6 }}>
           <Muted>
-            {t('commandCenter.telemetryNote', { cap: fmtTokens(floorCap) })}
-            {tokenCap && tokenCap > 0 ? '' : t('commandCenter.defaultBudgetNote')}
+            {t('commandCenter.telemetryNote')}
           </Muted>
         </div>
       </Section>
@@ -1026,7 +1093,13 @@ function ArchivedSection() {
   const archivedAgents = useStore((s) => s.archivedAgents);
   const removeArchivedAgent = useStore((s) => s.removeArchivedAgent);
   const [open, setOpen] = useState(false);
+  // Reopen puts a closed agent back on the floor: same id, same cwd, prior
+  // session resumed. Closing an agent RETAINS it, but the only button here
+  // used to be forget, so the record had no way back (#447). The logic is
+  // in hooks/useReopenAgent.ts.
+  const { reopen, reopening, errors } = useReopenAgent();
   if (archivedAgents.length === 0) return null;
+
   return (
     <Section title={t('commandCenter.archived', { count: archivedAgents.length })}>
       <button
@@ -1041,25 +1114,40 @@ function ArchivedSection() {
       >{open ? '▾' : '▸'} {open ? t('commandCenter.hideClosed') : t('commandCenter.showClosed')}</button>
       {open && archivedAgents.map((a) => (
         <div key={a.id} style={{
-          display: 'flex', alignItems: 'center', gap: 8,
+          display: 'flex', flexDirection: 'column', gap: 4,
           padding: 6, marginBottom: 6, opacity: 0.7,
           background: 'var(--cth-paper-100)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)'
         }}>
-          <div style={{
-            width: 24, height: 24, background: `var(--cth-${a.accent}-light)`,
-            boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
-            display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
-          }}>
-            <SpritePortrait character={a.character} scale={1} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              width: 24, height: 24, background: `var(--cth-${a.accent}-light)`,
+              boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)',
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden', flexShrink: 0
+            }}>
+              <SpritePortrait character={a.character} scale={1} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-700)' }}>{a.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--cth-ink-500)', wordBreak: 'break-all' }}>{a.cwd}</div>
+            </div>
+            {/* God has its own boot path (useHive); only workers reopen here. */}
+            {!a.isGod && (
+              <PixelButton
+                size="sm"
+                onClick={() => void reopen(a)}
+                disabled={reopening !== null}
+                title={t('commandCenter.reopenTitle')}
+              >{reopening === a.id ? t('commandCenter.reopening') : t('commandCenter.reopen')}</PixelButton>
+            )}
+            <button
+              onClick={() => removeArchivedAgent(a.id)}
+              title={t('commandCenter.forgetTitle')}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--cth-ink-500)', flexShrink: 0 }}
+            ><Icon name="x" /></button>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-700)' }}>{a.name}</div>
-            <div style={{ fontSize: 11, color: 'var(--cth-ink-500)', wordBreak: 'break-all' }}>{a.cwd}</div>
-          </div>
-          <button
-            onClick={() => removeArchivedAgent(a.id)}
-            style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--cth-ink-500)', flexShrink: 0 }}
-          ><Icon name="x" /></button>
+          {errors[a.id] && (
+            <div style={{ fontSize: 11, color: 'var(--cth-coral)', wordBreak: 'break-word' }}>{errors[a.id]}</div>
+          )}
         </div>
       ))}
     </Section>
@@ -1179,16 +1267,9 @@ function Sparkline({ series }: { series: number[] }) {
 }
 
 /** Compact token count: 1K / 10K / 100K / 1M / 100M / 1B (trailing .0 trimmed). */
-function fmtTokens(n: number): string {
-  if (n >= 1e9) return `${+(n / 1e9).toFixed(2)}B`;
-  if (n >= 1e6) return `${+(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `${+(n / 1e3).toFixed(1)}K`;
-  return String(Math.round(n));
-}
-
-/** Per-agent token-limit control (top-right of each agent card). Shows the
- *  current limit as a lemon chip, or "set limit"; click to edit a token number.
- *  Enter / ✓ / blur commit; Escape cancels. */
+/** One agent's token cap: a small button that shows it (or offers to set it),
+ *  and a number box while it is being edited. Enter or leaving the box saves;
+ *  Escape drops the edit; an empty box clears the cap. */
 function TokenLimitEditor({ value, onSet }: { value?: number; onSet: (tokens: number | undefined) => void }) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
@@ -1203,8 +1284,10 @@ function TokenLimitEditor({ value, onSet }: { value?: number; onSet: (tokens: nu
   if (!editing) {
     return (
       <button
+        type="button"
+        data-token-cap-edit
         onClick={() => { setText(value != null ? String(value) : ''); setEditing(true); }}
-        title={t('commandCenter.tokenLimitTitle')}
+        title={t('commandCenter.tokenLimitTitle', 'Set this agent\'s token limit (work tokens: input, output and cache writes; cache reads do not count)')}
         style={{
           flexShrink: 0, padding: '1px 6px', border: 'none', cursor: 'pointer',
           background: value && value > 0 ? 'var(--cth-lemon)' : 'var(--cth-cream-200)',
@@ -1212,8 +1295,8 @@ function TokenLimitEditor({ value, onSet }: { value?: number; onSet: (tokens: nu
           fontFamily: 'var(--cth-font-ui)', fontSize: 11, color: 'var(--cth-ink-900)'
         }}
       >{value && value > 0
-        ? <>{t('commandCenter.tokenLimit', { value: fmtTokens(value) })}</>
-        : t('commandCenter.setLimit')}</button>
+        ? t('commandCenter.tokenLimit', { value: fmtTokens(value), defaultValue: 'limit {{value}}' })
+        : t('commandCenter.setLimit', 'set limit')}</button>
     );
   }
   return (
@@ -1235,11 +1318,19 @@ function TokenLimitEditor({ value, onSet }: { value?: number; onSet: (tokens: nu
         }}
       />
       <button
+        type="button"
         onMouseDown={(e) => e.preventDefault()} onClick={commit} title={t('commandCenter.saveLimit')}
         style={{ flexShrink: 0, padding: '1px 5px', border: 'none', cursor: 'pointer', background: 'var(--cth-mint)', boxShadow: 'inset 0 0 0 1px var(--cth-ink-300)', fontSize: 11, color: 'var(--cth-ink-900)' }}
       >✓</button>
     </span>
   );
+}
+
+function fmtTokens(n: number): string {
+  if (n >= 1e9) return `${+(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `${+(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `${+(n / 1e3).toFixed(1)}K`;
+  return String(Math.round(n));
 }
 
 // ─── Activity tab — hive event log + board ───────────────────────────────────

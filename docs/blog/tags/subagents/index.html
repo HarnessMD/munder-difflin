@@ -1,12 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Subagents — Munder Difflin Blog</title>
 <meta name="description" content="Munder Difflin blog posts tagged Subagents." />
 <link rel="canonical" href="https://munderdiffl.in/blog/tags/subagents/" />
-
+<meta name="robots" content="noindex, follow" />
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
 <link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
 <meta name="theme-color" content="#F5F2E8" />
@@ -100,13 +115,13 @@
     <div class="meta">
       <time datetime="2026-05-23">May 23, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>5 min</span>
+      <span>7 min</span>
     </div>
-    <h3><a href="/blog/claude-code-subagents-vs-multi-agent-harness/">Claude Code Subagents vs a Multi-Agent Harness</a></h3>
-    <p class="dek">Claude Code subagents vs a multi-agent harness: where subagents stop and a harness with shared memory, messaging, and an orchestrator takes over.</p>
+    <h3><a href="/blog/claude-code-subagents-vs-multi-agent-harness/">Claude Code Subagents: How to Create and Use Them (vs Agent Teams)</a></h3>
+    <p class="dek">Claude Code subagents in 2026: the .claude/agents file, built-in Explore and Plan, models, nesting, and when agent teams or a harness fit better.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/claude-code-subagents-vs-multi-agent-harness/" aria-label="Read: Claude Code Subagents vs a Multi-Agent Harness">Read →</a>
+      <a class="more" href="/blog/claude-code-subagents-vs-multi-agent-harness/" aria-label="Read: Claude Code Subagents: How to Create and Use Them (vs Agent Teams)">Read →</a>
     </div>
   </div>
 </article>
@@ -154,9 +169,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

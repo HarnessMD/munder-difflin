@@ -79,6 +79,8 @@ This is a concrete feature in Munder Difflin, not just advice: the harness's per
 agents and an Opus-class model to the GOD orchestrator **today** — the cheap-workers/premium-lead pattern
 configured directly.
 
+For what each Claude plan and model costs as of September 2026, see [how much Claude Code costs](/blog/how-much-does-claude-code-cost/).
+
 ## Lever 4 — Context discipline: don't pay to re-read everything, N times
 
 The multiplier nobody budgets for: every agent's context window is a **recurring per-turn cost**, and in

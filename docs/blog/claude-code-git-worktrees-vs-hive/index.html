@@ -1,6 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Git Worktrees vs a Hive: Two Ways to Parallelize Claude Code — Munder Difflin Blog</title>
@@ -17,7 +32,10 @@
 <meta property="og:title" content="Git Worktrees vs a Hive: Two Ways to Parallelize Claude Code — Munder Difflin Blog" />
 <meta property="og:description" content="Claude Code git worktrees vs a hive: when isolated worktrees suffice for parallel agents, and when you need memory, messaging, and an orchestrator on top." />
 <meta property="og:url" content="https://munderdiffl.in/blog/claude-code-git-worktrees-vs-hive/" />
-<meta property="og:image" content="https://munderdiffl.in/media/og.png" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/claude-code-git-worktrees-vs-hive/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Illustration: Git Worktrees vs a Hive: Two Ways to Parallelize Claude Code" />
 <meta property="og:locale" content="en_US" />
 <meta property="article:published_time" content="2026-06-04T00:00:00.000Z" />
 <meta property="article:author" content="Chaitanya Giri" />
@@ -31,7 +49,8 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Git Worktrees vs a Hive: Two Ways to Parallelize Claude Code — Munder Difflin Blog" />
 <meta name="twitter:description" content="Claude Code git worktrees vs a hive: when isolated worktrees suffice for parallel agents, and when you need memory, messaging, and an orchestrator on top." />
-<meta name="twitter:image" content="https://munderdiffl.in/media/og.png" />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/claude-code-git-worktrees-vs-hive/hero.png" />
+<meta name="twitter:image:alt" content="Illustration: Git Worktrees vs a Hive: Two Ways to Parallelize Claude Code" />
 
 <link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -45,7 +64,7 @@
   "@type": "BlogPosting",
   "headline": "Git Worktrees vs a Hive: Two Ways to Parallelize Claude Code",
   "description": "Claude Code git worktrees vs a hive: when isolated worktrees suffice for parallel agents, and when you need memory, messaging, and an orchestrator on top.",
-  "image": ["https://munderdiffl.in/media/og.png"],
+  "image": ["https://munderdiffl.in/blog/assets/media/claude-code-git-worktrees-vs-hive/hero.png"],
   "datePublished": "2026-06-04T00:00:00.000Z",
   "dateModified": "2026-06-04T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
@@ -196,7 +215,7 @@ across all of them — no duplicate clones, no re-fetching.</li>
 </ul>
 <p>For <strong>independent</strong> parallel work, this is often all you need. Three agents, three feature branches,
 three worktrees: they run side by side, each on its own task, and you merge the branches when they’re
-done. Clean and native.</p>
+done. Clean and native. If you want a tool that wraps these commands for you, our <a href="/blog/worktrunk-alternatives/">Worktrunk alternatives</a> page compares the worktree managers and desktop apps built for parallel agents.</p>
 <h2 id="where-worktrees-stop" tabindex="-1">Where worktrees stop <a class="anchor" href="#where-worktrees-stop" aria-hidden="true">#</a></h2>
 <p>Worktrees isolate <em>workspaces</em>. They do nothing about <em>coordination</em>. The moment your parallel agents
 aren’t fully independent, the gaps show:</p>
@@ -420,9 +439,10 @@ team; it’s free and open source.</p>
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

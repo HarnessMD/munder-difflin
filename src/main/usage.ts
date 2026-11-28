@@ -87,6 +87,7 @@ export class StubUsageProvider implements UsageProvider {
     const info = this.resolve(agentId);
     if (!info) return null;
     const u = readAgentUsage(info.cwd); // cumulative running totals across transcripts
+    if (!u) return null; // first read still in the background
     return {
       agentId,
       sessionId: info.sessionId ?? null,
@@ -98,5 +99,49 @@ export class StubUsageProvider implements UsageProvider {
       model: normalizeModel(info.model),
       usd: u.estimatedCostUsd // interim fallback estimate; Oscar's provider supplies Claude-precomputed usd
     };
+  }
+}
+
+/**
+ * Duplicate gate for CUMULATIVE samples, applied to every provider's ledger row.
+ *
+ * `appendCostLedger` is fed a running TOTAL, not an increment, so re-appending
+ * an unchanged sample writes the same row over and over. That is #56: the
+ * transcript fallback did exactly this and left 2,417 identical rows behind,
+ * which is why it now reports an empty `sessionId` to disqualify itself from
+ * the ledger.
+ *
+ * The live OTel path had the same shape: an idle agent's aggregate is the same
+ * on every 30 s beat, so the ledger held 20,056 rows of which 688 were distinct
+ * (29 Sep 2026). Append only when the row would differ from the last one.
+ *
+ * `ts` IS part of the signature by default. On the OTel path it is the time the
+ * agent's last metric arrived, not the time of the beat, so a duplicate row is
+ * byte identical and dropping it loses nothing a reader could tell apart. A row
+ * whose ts alone moved still says "this agent reported at T", and
+ * daily-spend-check reads the newest ts as the ledger's heartbeat.
+ *
+ * Grok passes `ignoreTs`: its ts tracks when `usage.json` was written, not what
+ * it says, and a sample whose timestamp is the only thing to have changed
+ * carries no new cost.
+ */
+export class CumulativeSampleGate {
+  private readonly last = new Map<string, string>();
+
+  /** True when this sample differs from the last one admitted for the agent. */
+  admits(sample: AgentUsageSample, opts: { ignoreTs?: boolean } = {}): boolean {
+    const signature = [
+      sample.sessionId, sample.input, sample.output,
+      sample.cacheRead, sample.cacheCreation, sample.model, sample.usd,
+      opts.ignoreTs ? '' : sample.ts
+    ].join('|');
+    if (this.last.get(sample.agentId) === signature) return false;
+    this.last.set(sample.agentId, signature);
+    return true;
+  }
+
+  /** Drop an agent's memory (archived/despawned) so the map cannot grow forever. */
+  forget(agentId: string): void {
+    this.last.delete(agentId);
   }
 }

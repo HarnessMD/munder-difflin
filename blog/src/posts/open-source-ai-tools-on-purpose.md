@@ -5,8 +5,8 @@ date: 2026-06-04
 category: concepts
 categoryLabel: Concepts
 type: Non-technical
-primaryKeyword: "open source ai agents"
-secondaryKeywords: ["open source ai tools", "mit license", "building in public", "local-first ai"]
+primaryKeyword: "open source ai tools"
+secondaryKeywords: ["why open source ai agents", "mit license", "building in public", "local-first ai"]
 tags: ["Open Source", "Local-First", "Trust", "Multi-Agent"]
 author:
   name: Chaitanya Giri

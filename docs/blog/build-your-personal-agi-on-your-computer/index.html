@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin — Munder Difflin Blog</title>
+<meta name="description" content="Turn Claude Code into a personal AGI on your own computer: agents with memory, schedules, Gmail, Calendar, voice and Slack, set up in Munder Difflin 0.5.2." />
+<link rel="canonical" href="https://munderdiffl.in/blog/build-your-personal-agi-on-your-computer/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin — Munder Difflin Blog" />
+<meta property="og:description" content="Turn Claude Code into a personal AGI on your own computer: agents with memory, schedules, Gmail, Calendar, voice and Slack, set up in Munder Difflin 0.5.2." />
+<meta property="og:url" content="https://munderdiffl.in/blog/build-your-personal-agi-on-your-computer/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/build-your-personal-agi-on-your-computer/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="The Munder Difflin 0.5.2 Agents screen: Michael the orchestrator with spend, circuit breaker, tasks and one question waiting, above Jim, Dwight, Angela and Oscar" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-09-15T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="Automation" />
+<meta property="article:tag" content="Memory" />
+<meta property="article:tag" content="Voice" />
+<meta property="article:tag" content="Slack" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin — Munder Difflin Blog" />
+<meta name="twitter:description" content="Turn Claude Code into a personal AGI on your own computer: agents with memory, schedules, Gmail, Calendar, voice and Slack, set up in Munder Difflin 0.5.2." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/build-your-personal-agi-on-your-computer/hero.png" />
+<meta name="twitter:image:alt" content="The Munder Difflin 0.5.2 Agents screen: Michael the orchestrator with spend, circuit breaker, tasks and one question waiting, above Jim, Dwight, Angela and Oscar" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin",
+  "description": "Turn Claude Code into a personal AGI on your own computer: agents with memory, schedules, Gmail, Calendar, voice and Slack, set up in Munder Difflin 0.5.2.",
+  "image": ["https://munderdiffl.in/blog/assets/media/build-your-personal-agi-on-your-computer/hero.png"],
+  "datePublished": "2026-09-15T00:00:00.000Z",
+  "dateModified": "2026-09-15T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/build-your-personal-agi-on-your-computer/" },
+  "keywords": "build your personal agi, personal agi, personal ai assistant with claude code, claude code personal assistant, always on ai agent on your computer, claude code morning brief gmail calendar, local ai agent with memory",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/build-your-personal-agi-on-your-computer/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin", "item": "https://munderdiffl.in/blog/build-your-personal-agi-on-your-computer/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is a personal AGI built this way actually AGI?", "acceptedAnswer": { "@type": "Answer", "text": "No. It is an office of AI agents that keeps a memory, works on a schedule, uses your accounts and asks you when it needs a decision. It can do what today's models can do and nothing more, so treat it as the groundwork for AGI rather than the thing itself." } },
+    { "@type": "Question", "name": "Do I need a Claude subscription for this?", "acceptedAnswer": { "@type": "Answer", "text": "For the email and calendar parts, yes. Claude Code agents can run on an API key, but the claude.ai Gmail and Google Calendar connectors only load when Claude Code is signed in with a claude.ai subscription, per Claude Code's MCP docs. Everything else in this guide works either way." } },
+    { "@type": "Question", "name": "Does it keep working while my laptop sleeps?", "acceptedAnswer": { "@type": "Answer", "text": "No. Agents and schedules run while the computer is awake and Munder Difflin is open. If a weekly automation misses its slot, it still fires when the app comes back within six hours; after that it waits for the next slot. Claude Code's own cloud Routines can run with the laptop off, but they sit outside the office." } },
+    { "@type": "Question", "name": "Can the agents use models other than Claude?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each agent picks its own engine, so a Claude Code orchestrator can hand work to Codex, OpenCode and other CLI agents in the same office. Each CLI needs its own login or API key, and an agent without working credentials sits idle." } },
+    { "@type": "Question", "name": "Does the free version of Munder Difflin do this?", "acceptedAnswer": { "@type": "Answer", "text": "Mostly. The screenshots in this guide show the Pro workspace. The free version runs the Classic layout, which also has agents, schedules and the Slack connection. What each plan includes is on the Munder Difflin pricing page." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin</h1>
+    <p class="dek">Turn Claude Code into a personal AGI on your own computer: agents with memory, schedules, Gmail, Calendar, voice and Slack, set up in Munder Difflin 0.5.2.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-09-15">Sep 15, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>9 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/hero.png" alt="The Munder Difflin 0.5.2 Agents screen: Michael the orchestrator with spend, circuit breaker, tasks and one question waiting, above Jim, Dwight, Angela and Oscar" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <div class="callout note"><span class="ic">About AGI</span><p>AGI is not here yet. Models keep getting smarter, though, and our bet is that the first AGI most people experience will run on their own computer, with their own files, accounts and context. This guide builds the parts that already work today.</p></div>
+<p>To build a personal AGI on your computer today, give Claude Code what a chat window lacks: a standing team, memory that outlives a session, a clock, your accounts, a way to reach you and limits. Munder Difflin 0.5.2 wires those together, and you set up four things: a morning brief, a pull request sweep, memory, and voice with Slack.</p>
+<p>You can assemble this by hand with Claude Code, cron, a notes folder and a Slack bot, or use <a href="https://harnessmd.com/download">Munder Difflin</a>, a free and open source desktop app that runs Claude Code agents as an office on your own machine. An orchestrator hands out the work, every agent keeps notes on disk, and automations wake them up on time. If you have not installed it yet, start with the <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a>.</p>
+<h2 id="what-does-a-personal-agi-need-that-claude-code-alone-doesnt-have" tabindex="-1">What does a personal AGI need that Claude Code alone doesn’t have? <a class="anchor" href="#what-does-a-personal-agi-need-that-claude-code-alone-doesnt-have" aria-hidden="true">#</a></h2>
+<p>It needs a team that stays put. Claude Code already plans, edits files, runs commands and checks its own work, and it keeps adding pieces around that: <code>CLAUDE.md</code> and <a href="https://code.claude.com/docs/en/memory">auto memory</a>, <a href="https://code.claude.com/docs/en/scheduled-tasks">scheduled tasks</a>, experimental <a href="https://code.claude.com/docs/en/agent-teams">agent teams</a> and <a href="https://code.claude.com/docs/en/remote-control">Remote Control</a>. What it does not give you is several long lived agents on different engines sharing one task board, one memory search and one set of limits. That is the layer Munder Difflin adds:</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>In Munder Difflin 0.5.2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A standing team</td>
+<td>An orchestrator plus long lived agents, each on its own engine and model</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>A <code>memory.md</code> per agent, searchable across the team</td>
+</tr>
+<tr>
+<td>A clock</td>
+<td>Automations that message any agent: every 15 minutes to 24 hours, or weekly</td>
+</tr>
+<tr>
+<td>Your accounts</td>
+<td><a href="http://claude.ai">claude.ai</a> connectors in every Claude Code agent, plus workspace MCP servers</td>
+</tr>
+<tr>
+<td>A way to reach you</td>
+<td>Tasks that ask you, one Inbox for the whole office, voice and Slack</td>
+</tr>
+<tr>
+<td>Limits</td>
+<td>Token caps and a circuit breaker across the office, plus tasks that wait for your approval</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The rest of this guide sets each piece up, using a demo office we built for these screenshots on 14 September 2026.</p>
+<h2 id="what-does-the-office-look-like" tabindex="-1">What does the office look like? <a class="anchor" href="#what-does-the-office-look-like" aria-hidden="true">#</a></h2>
+<p>It is one window with an orchestrator on top and your agents below. Ours has Michael, the orchestrator, on Claude Code with Opus 4.8 and a 1M context window. Under him are four agents: Dwight on Claude Code with Opus 4.8, Jim on Claude Code with Sonnet 5, Angela on Codex and Oscar on OpenCode. The top cards show today’s spend, the circuit breaker, open tasks and the questions waiting on you.</p>
+<p>Each agent is hired with <strong>Add an agent</strong>: pick the provider and model, check the exact command it will run, and set a <strong>Token cap</strong>, the session budget before the breaker steps in. New Claude Code agents default to Fable 5, so pick the model per agent if you want to control cost. The full walkthrough from download to a working office is <a href="/blog/your-first-hour-with-munder-difflin/">your first hour with Munder Difflin</a>; this guide is about what the office does once it exists.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/d3-add-agent.png" alt="Add an agent: the Provider list, Model set to Sonnet 5, the exact command, and Token cap choices with 800k selected" loading="lazy" decoding="async" /></figure>
+<h2 id="what-happens-when-you-give-it-a-real-job" tabindex="-1">What happens when you give it a real job? <a class="anchor" href="#what-happens-when-you-give-it-a-real-job" aria-hidden="true">#</a></h2>
+<p>The orchestrator plans the work, splits it across agents and reports back only when it is finished. We gave Michael a small Node notes app called acme-notes and asked for one bug fix, edge case tests, a <code>CONTRIBUTING.md</code> and a review of every change. Before handing anything out, he ran <code>npm test</code> himself, found one real failure (<code>search()</code> used a case sensitive match) and wrote four tasks to the board.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/dispatch.png" alt="Michael's terminal after dispatching the acme-notes job: four tasks for Dwight, Angela, Oscar and Jim, and the failing test he found first" loading="lazy" decoding="async" /></figure>
+<p>Then the job hit a snag. Angela’s Codex account had no OpenAI credits and Oscar’s OpenCode key was invalid, so neither could start. Michael moved both tasks to Dwight, Jim reviewed all three changes, and the final report reads: <code>npm test</code> 6/6 green, main at commit 75cf086, every review PASS.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/summary.png" alt="Michael's final report: all four acme-notes tasks done, tasks 2 and 3 moved to Dwight, every review PASS, and two judgment calls he made without asking" loading="lazy" decoding="async" /></figure>
+<p>Nobody told Michael what to do when two agents failed. His report lists “two judgment calls I made without asking”: moving the tasks to Dwight, and landing the reviewed commits on main. It also says the one <code>git</code> fast forward ran with the sandbox disabled for the repo folder, run by Dwight as the branch owner. Both calls were reasonable, and both are why you read that summary instead of assuming, and why the limits section below exists.</p>
+<h2 id="how-do-you-get-a-morning-brief-from-gmail-and-calendar" tabindex="-1">How do you get a morning brief from Gmail and Calendar? <a class="anchor" href="#how-do-you-get-a-morning-brief-from-gmail-and-calendar" aria-hidden="true">#</a></h2>
+<p>Connect Gmail and Google Calendar to your Claude account, then schedule a weekly automation that asks a Claude Code agent to summarise them. The connectors live on <a href="http://claude.ai">claude.ai</a>, and every Claude Code session signed in with that <a href="http://claude.ai">claude.ai</a> subscription can call them, your agents included. <a href="https://code.claude.com/docs/en/mcp">Claude Code’s MCP docs</a> note they do not load when an API key is the active login. Type <code>/mcp</code> in an agent’s terminal to check. In Jim’s terminal on 14 September 2026 it listed <a href="http://claude.ai">claude.ai</a> Gmail with 29 tools and Google Calendar with 9.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/e7-connectors.png" alt="The /mcp list in a Claude Code agent's terminal showing claude.ai Gmail and Google Calendar connected" loading="lazy" decoding="async" /></figure>
+<p>In <strong>Automations</strong>, create a schedule, set <strong>When</strong> to <strong>Weekly</strong>, tick Monday to Friday, set 08:30 and send it to Dwight with this message:</p>
+<pre><code>Use the Gmail and Google Calendar connectors to summarise unread email and today's meetings. Write it to brief.md.
+</code></pre>
+<p>Two details matter if you are a developer relying on this. Weekly times use your computer’s local clock, so a daylight saving change does not shift the brief by an hour (<code>src/shared/weeklySchedule.ts</code>). And if the laptop was closed at 08:30, the brief still fires when the app comes back, as long as that is within six hours of the slot. Leave <strong>Compact full terminals when this fires</strong> off: 0.5.2 drops that setting from every automation when the app restarts, and the context rules in <strong>Automations</strong> handle compaction instead (<code>src/main/index.ts</code>). In the demo office this automation was saved switched off and never fired, so the screenshot shows the setup, not a run.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/e2-morning-brief.png" alt="A weekly automation named Morning brief, weekdays at 08:30, sent to Dwight with a message to summarise unread email and today's meetings" loading="lazy" decoding="async" /></figure>
+<h2 id="how-do-you-make-it-sweep-your-pull-requests" tabindex="-1">How do you make it sweep your pull requests? <a class="anchor" href="#how-do-you-make-it-sweep-your-pull-requests" aria-hidden="true">#</a></h2>
+<p>Schedule a message to a reviewer agent every 30 minutes and let it use the GitHub CLI. 0.5.2 has no built in GitHub trigger, so the schedule is the trigger. Sign in to <a href="https://cli.github.com/">GitHub CLI</a> on your machine first, then create an interval automation sent to Jim:</p>
+<pre><code>Run gh pr list for acme-notes. Review any pull request opened since the last sweep and post your review as a comment.
+</code></pre>
+<p>Pick the interval to match how often your team actually opens pull requests, not how often you wish they did. Like the brief, this schedule was saved switched off in the demo, and acme-notes had no GitHub remote, so nothing was swept.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/e1-pr-sweep.png" alt="An automation named PR review sweep, every 30 minutes, sent to Jim with a message to review new pull requests" loading="lazy" decoding="async" /></figure>
+<p>For a second round, we asked Michael for new work and added one rule: a task called “Publish acme-notes to npm”, blocked on our approval. It landed on the <strong>Tasks</strong> board in <strong>Blocked</strong> with an <strong>asks you</strong> chip, and the <strong>Asks me</strong> filter shows only those cards. That is the pattern for anything you cannot undo, such as publishing, deploying or emailing a customer: make it a task that waits for you, and say so in the brief. The task holds because the orchestrator follows the brief, not because anything locks it, so keep publish credentials out of your agents’ reach as well.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/f1-tasks.png" alt="The Tasks board with Publish acme-notes to npm in Blocked, marked asks you" loading="lazy" decoding="async" /></figure>
+<h2 id="how-does-it-remember-you" tabindex="-1">How does it remember you? <a class="anchor" href="#how-does-it-remember-you" aria-hidden="true">#</a></h2>
+<p>Every agent writes durable notes to its own <code>memory.md</code>, and the <strong>Memory</strong> screen searches all of them at once. Search for text and results come back as <strong>Tickets</strong>, <strong>Agents</strong> and <strong>Memories</strong>, filtered by whose memory and what kind of note. After the demo job, Dwight’s notes held a line saying tasks 2 and 3 were reassigned from Angela and Oscar because of billing and a bad API key. The next agent that picks up acme-notes can find that without asking you.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/f4-memory.png" alt="Memory search results grouped as Tickets, Agents and Memories, with Dwight's notes about the reassigned tasks" loading="lazy" decoding="async" /></figure>
+<p>Search by meaning is optional. When the MemPalace CLI is installed, Munder Difflin mines each agent’s <code>memory.md</code> into a shared palace and agents can run <code>mempalace search</code> to recall across the whole team (<code>src/main/memory.ts</code>). Without it, the markdown memory and exact text search still work.</p>
+<p>For a personal AGI, the useful move is to write yourself into it. Tell the orchestrator things like “I review pull requests before 10:00”, “never push to main without a review” or “my calendar is in IST”, and ask him to record them. They go into his <code>memory.md</code>, which the office protocol tells him to read at the start of every task (<code>src/main/hive.ts</code>).</p>
+<h2 id="how-do-you-talk-to-it-from-anywhere" tabindex="-1">How do you talk to it from anywhere? <a class="anchor" href="#how-do-you-talk-to-it-from-anywhere" aria-hidden="true">#</a></h2>
+<p>Press <strong>Talk</strong> to speak with the orchestrator, dictate into the message box, or reach the office from Slack. <strong>Talk</strong> is a live voice conversation over <a href="https://developers.openai.com/api/docs/guides/realtime">OpenAI’s Realtime API</a> on <code>gpt-realtime-2.1</code>, billed to the OpenAI key you save under <strong>Settings, Voice</strong>. The app mints a short lived session token for each call, so the page that handles your voice never holds the real key (<code>src/main/realtime.ts</code>). <strong>Free Flow</strong> dictation runs on <a href="https://console.groq.com/docs/speech-to-text">Groq’s speech to text</a> with <code>whisper-large-v3-turbo</code> by default and needs a Groq key.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/f8-voice.png" alt="Settings, Voice: Free Flow dictation with a Groq API key field, and Realtime Michael with an OpenAI API key field" loading="lazy" decoding="async" /></figure>
+<p>Slack gets you the office when you are away from the laptop. In <strong>Settings, Connections</strong>, choose who answers inbound messages (the orchestrator is the recommended default), paste a Slack bot token and pick how Slack reaches the office. The office answers when someone mentions the bot, or replies in a thread where it was mentioned. It does not post on its own unless you switch that on.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/slack-who.png" alt="The Who answers inbound messages list with Michael recommended" loading="lazy" decoding="async" /></figure>
+<p>The three connection modes are <strong>Check for messages</strong>, <strong>Stay connected</strong> and <strong>Let Slack call the office</strong>. The first two need no public URL, which suits a laptop. With <strong>Check for messages</strong>, a thread stops being checked 24 hours after its last activity. The Slack app setup, scopes and common failures are in <a href="/blog/connect-slack-to-munder-difflin/">how to connect Slack to Munder Difflin 0.5.2</a>.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/build-your-personal-agi-on-your-computer/slack-modes.png" alt="How Slack reaches the office: Check for messages, Stay connected and Let Slack call the office" loading="lazy" decoding="async" /></figure>
+<h2 id="how-do-you-stop-a-personal-agi-from-overstepping" tabindex="-1">How do you stop a personal AGI from overstepping? <a class="anchor" href="#how-do-you-stop-a-personal-agi-from-overstepping" aria-hidden="true">#</a></h2>
+<p>Set limits before you leave it alone: a token cap per agent, the approval gates, and a clear view of what Auto Mode does. These are the defaults we checked in the 0.5.2 source:</p>
+<ul>
+<li><strong>Auto Mode is on.</strong> It starts Claude Code agents with <code>--permission-mode bypassPermissions</code> (<code>src/shared/agentProvider.ts</code>), not Claude Code’s own auto mode, so agents run without stopping for permission prompts. That is what lets an 08:30 brief run while you are away from the keyboard. A change applies when an agent next starts, but switching it off does not remove the flag from agents hired while it was on (<code>src/renderer/src/store/config.ts</code>), so decide before you hire.</li>
+<li><strong>The orchestrator cannot hire on his own.</strong> <strong>Can start agents on its own</strong> is off until you turn it on in his <strong>Configuration</strong> tab (<code>src/main/config.ts</code>).</li>
+<li><strong>The circuit breaker steers first.</strong> Past a token cap it steers the agent, then constrains it, and stops it only if <strong>Hard stop</strong> is on, which it is not by default (<code>src/main/breaker.ts</code>).</li>
+<li><strong>The Hourly ops standup is on.</strong> It pings the orchestrator every hour. Keep it if you like check ins, or switch it off to save tokens.</li>
+</ul>
+<p>Add your own on top: blocked tasks for anything irreversible, agents working in folders you are happy for them to change, and a review of the orchestrator’s summary whenever it says it made a call without asking.</p>
+<h2 id="what-cant-it-do-yet" tabindex="-1">What can’t it do yet? <a class="anchor" href="#what-cant-it-do-yet" aria-hidden="true">#</a></h2>
+<p>It cannot outthink its models, and it cannot run while the computer is off. Every agent is still a Claude Code, Codex or OpenCode session, so the quality of the work is the quality of those models on that day. Agents without working credentials sit idle, as Angela and Oscar did. Search by meaning needs MemPalace installed. And it will make decisions you did not ask for, like any capable new hire, which is fine as long as it tells you.</p>
+<p>That is the honest shape of a personal AGI in September 2026: a team that remembers, keeps time, uses your tools and knows when to ask. When the models get smarter, the office is already set up for them. <a href="https://harnessmd.com/download">Download Munder Difflin</a>, start with the morning brief, and add one job a week.</p>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is a personal AGI built this way actually AGI?</p>
+          <p class="a">No. It is an office of AI agents that keeps a memory, works on a schedule, uses your accounts and asks you when it needs a decision. It can do what today&#39;s models can do and nothing more, so treat it as the groundwork for AGI rather than the thing itself.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Do I need a Claude subscription for this?</p>
+          <p class="a">For the email and calendar parts, yes. Claude Code agents can run on an API key, but the claude.ai Gmail and Google Calendar connectors only load when Claude Code is signed in with a claude.ai subscription, per Claude Code&#39;s MCP docs. Everything else in this guide works either way.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does it keep working while my laptop sleeps?</p>
+          <p class="a">No. Agents and schedules run while the computer is awake and Munder Difflin is open. If a weekly automation misses its slot, it still fires when the app comes back within six hours; after that it waits for the next slot. Claude Code&#39;s own cloud Routines can run with the laptop off, but they sit outside the office.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can the agents use models other than Claude?</p>
+          <p class="a">Yes. Each agent picks its own engine, so a Claude Code orchestrator can hand work to Codex, OpenCode and other CLI agents in the same office. Each CLI needs its own login or API key, and an agent without working credentials sits idle.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does the free version of Munder Difflin do this?</p>
+          <p class="a">Mostly. The screenshots in this guide show the Pro workspace. The free version runs the Classic layout, which also has agents, schedules and the Slack connection. What each plan includes is on the Munder Difflin pricing page.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/automation/">Automation</a><a class="tag" href="/blog/tags/memory/">Memory</a><a class="tag" href="/blog/tags/voice/">Voice</a><a class="tag" href="/blog/tags/slack/">Slack</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-does-a-personal-agi-need-that-claude-code-alone-doesnt-have">What does a personal AGI need that Claude Code alone doesn’t have?</a></li><li class="lvl-2"><a href="#what-does-the-office-look-like">What does the office look like?</a></li><li class="lvl-2"><a href="#what-happens-when-you-give-it-a-real-job">What happens when you give it a real job?</a></li><li class="lvl-2"><a href="#how-do-you-get-a-morning-brief-from-gmail-and-calendar">How do you get a morning brief from Gmail and Calendar?</a></li><li class="lvl-2"><a href="#how-do-you-make-it-sweep-your-pull-requests">How do you make it sweep your pull requests?</a></li><li class="lvl-2"><a href="#how-does-it-remember-you">How does it remember you?</a></li><li class="lvl-2"><a href="#how-do-you-talk-to-it-from-anywhere">How do you talk to it from anywhere?</a></li><li class="lvl-2"><a href="#how-do-you-stop-a-personal-agi-from-overstepping">How do you stop a personal AGI from overstepping?</a></li><li class="lvl-2"><a href="#what-cant-it-do-yet">What can’t it do yet?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/how-to-install-gemini-cli/"><span class="k">← Older</span><span class="t">How to Install Gemini CLI, and Can It Use Gemini 4 Yet?</span></a>
+      <a class="pn next" href="/blog/aider-vs-claude-code/"><span class="k">Newer →</span><span class="t">Aider vs Claude Code in 2026: Which Should You Use?</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/check-agent-skill-before-install/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/check-agent-skill-before-install/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-28">Nov 28, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/check-agent-skill-before-install/">Agent Skill Security: How to Check a Skill Before You Install It</a></h3>
+    <p class="dek">Agent skill security in 8 checks: read SKILL.md and its scripts, find network calls and remote scripts, pin a commit, scan it, keep prompts on.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/check-agent-skill-before-install/" aria-label="Read: Agent Skill Security: How to Check a Skill Before You Install It">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/app-store-rejection-checklist/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/app-store-rejection-checklist/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/app-store-rejection-checklist/">App Store Rejection Checklist: Catch It Before Review With AI</a></h3>
+    <p class="dek">An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/app-store-rejection-checklist/" aria-label="Read: App Store Rejection Checklist: Catch It Before Review With AI">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/google-workspace-mcp-servers/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/google-workspace-mcp-servers/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/google-workspace-mcp-servers/">Google Workspace MCP Servers: What They Can Do and How to Connect</a></h3>
+    <p class="dek">Google Workspace MCP servers went GA on 24 Nov 2026: the eight servers and their tools, setup for Claude and Antigravity, the agent OAuth rule and tiers.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/google-workspace-mcp-servers/" aria-label="Read: Google Workspace MCP Servers: What They Can Do and How to Connect">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

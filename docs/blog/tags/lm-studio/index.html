@@ -1,12 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>LM Studio — Munder Difflin Blog</title>
 <meta name="description" content="Munder Difflin blog posts tagged LM Studio." />
 <link rel="canonical" href="https://munderdiffl.in/blog/tags/lm-studio/" />
-
+<meta name="robots" content="noindex, follow" />
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
 <link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
 <meta name="theme-color" content="#F5F2E8" />
@@ -100,10 +115,10 @@
     <div class="meta">
       <time datetime="2026-06-22">Jun 22, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>8 min</span>
+      <span>5 min</span>
     </div>
     <h3><a href="/blog/run-munder-difflin-on-a-mac-mini/">Run Munder Difflin Locally on a Mac Mini</a></h3>
-    <p class="dek">A step-by-step guide to running a whole Munder Difflin hive offline on an Apple Silicon Mac Mini — how to size models to your unified memory, install Ollama or LM Studio, and wire OpenCode and Crush to a local endpoint.</p>
+    <p class="dek">Run a whole Munder Difflin office offline on an Apple silicon Mac mini: size the model to your unified memory, install Ollama or LM Studio, and wire OpenCode, Crush, Qwen and Pi to it. Current as of Munder Difflin 0.5.2 and the M6 and M5 Pro Mac mini.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
       <a class="more" href="/blog/run-munder-difflin-on-a-mac-mini/" aria-label="Read: Run Munder Difflin Locally on a Mac Mini">Read →</a>
@@ -154,9 +169,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

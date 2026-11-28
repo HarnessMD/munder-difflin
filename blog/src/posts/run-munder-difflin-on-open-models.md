@@ -1,152 +1,182 @@
 ---
-title: "Run Munder Difflin on Open-Source Models — Fully Local or via a Third-Party Provider"
-description: "Munder Difflin runs your agent floor on open-weight models — gpt-oss, Qwen3, DeepSeek, Llama, Mistral, GLM, Kimi — fully local (Ollama/LM Studio/vLLM), through a third-party OSS provider, or on the model-maker's own CLI. Here's the wiring, current as of v0.4.4."
+title: "Run Munder Difflin on Open Source Models: Fully Local or Through a Provider"
+description: "Munder Difflin can run your whole agent floor on open weight models like gpt-oss, Qwen3, DeepSeek, Llama, GLM and Kimi: fully local with Ollama, LM Studio or vLLM, or through a provider with your own key. The wiring for each engine, current as of 0.5.2."
 date: 2026-06-22
-updated: 2026-08-20
+updated: 2026-09-10
 category: guides
 categoryLabel: Guides
 type: Technical
 primaryKeyword: "run ai agents on open source models"
-secondaryKeywords: ["local llm coding agent", "ollama coding agent", "openrouter coding agent", "gpt-oss", "byok open models", "opencode crush pi", "qwen cli agent"]
+secondaryKeywords: ["local llm coding agent", "ollama coding agent", "openrouter coding agent", "gpt-oss", "byok open models", "opencode crush pi", "pi models.json ollama"]
 tags: ["Guides", "Local-First", "Open Source", "CLI Agents", "Tutorial"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
-  - q: "Can Munder Difflin run entirely on open-source models?"
-    a: "Yes. The OpenCode, Crush, and pi engines all support bring-your-own-key (BYOK) and local models, and the Qwen and Kimi CLIs are first-class engines whose flagship models are open-weight. You can run every agent — workers and Michael himself — on open models like gpt-oss, Qwen3, DeepSeek, Llama, Mistral, GLM, or Kimi: fully local on your own hardware, or through a third-party OSS provider with your own API key."
-  - q: "What's the difference between running local and using a third-party provider?"
-    a: "Local (Ollama, LM Studio, vLLM) runs the weights on your own machine — fully private, no per-token bill, but bounded by your RAM and GPU. A third-party OSS provider (OpenRouter, Groq, Together, Fireworks, DeepInfra) hosts the same open weights on their hardware and you pay per token with your own key — no local hardware limit, so you can reach the 100B–1T-parameter frontier models a laptop can't hold."
-  - q: "Which open model should I pick for the orchestrator seat?"
-    a: "Michael does the reasoning and long-context coordination, so give him a strong model: locally, gpt-oss-120b or Llama 3.3 70B on a 64–96 GB machine; via a provider, DeepSeek-V4-Flash, GLM-4.6, or Kimi-K2.6 on OpenRouter. Small local models (8B and under) are fine for routine workers but underpowered for orchestration."
-  - q: "Do I need a different model id for each engine?"
-    a: "No — the upstream model id is the same. All three BYOK engines use a provider/model slug; only the provider prefix and how the key or base-URL is wired differ. For local models, OpenCode uses local/<id> while Crush uses ollama/<id>."
+  - q: "Can Munder Difflin run entirely on open source models?"
+    a: "Yes. OpenCode, Crush, Qwen and Pi can all run open weight models, either on your own machine or through a provider with your own API key. You can put open models in every seat on the floor, including Michael's."
+  - q: "What is the difference between running local and using a provider?"
+    a: "Local means Ollama, LM Studio or vLLM runs the weights on your machine: private, no per token bill, and limited by your memory. A provider such as OpenRouter or Groq hosts the same open weights on its hardware and bills your own key per token, so you can reach models far too big for a laptop."
+  - q: "Which open model should I give the orchestrator?"
+    a: "A strong one, because Michael does the reasoning and the long context coordination. Locally that means gpt-oss 120B or Llama 3.3 70B on a machine with 64 to 96 GB of memory. Through a provider, DeepSeek V4 Flash or Kimi K2.6 on OpenRouter. Models of 8B and under make fine workers and thin orchestrators."
+  - q: "Does each engine need a different model name?"
+    a: "The model id stays the same and only the prefix changes. A local model is local/<tag> on OpenCode and ollama/<tag> on Crush and Pi, and a provider model carries the provider first, like openrouter/openai/gpt-oss-120b."
+  - q: "How do I run Pi on a local model?"
+    a: "Add your local server to Pi's own config file, ~/.pi/agent/models.json. Munder Difflin copies that file into every Pi agent it starts, so the models you define there are available to your Pi agents. The Pi base URL field in the app stays reserved."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p><strong>Munder Difflin runs entirely on open models.</strong> Three routes: <strong>fully local</strong> (Ollama / LM Studio / vLLM on your own machine — private, no per-token bill, bounded by RAM), a <strong>third-party OSS provider</strong> (OpenRouter, Groq, Together, Fireworks, DeepInfra — their hardware, your key, reaching frontier 100B–1T models a laptop can't hold), or the <strong>model-maker's own CLI</strong> — the Qwen and Kimi engines are first-class hires whose flagship models are open-weight. The BYOK engines (<strong>OpenCode</strong>, <strong>Crush</strong>, <strong>pi</strong>) all use a <code>provider/model</code> slug; keys and local base-URLs live in <strong>Settings → AI Engines</strong>, and <strong>Settings → Prerequisites</strong> tells you which engine binaries the app can actually see.</p></div>
+<div class="callout tldr"><span class="ic">TL;DR</span><p><strong>Munder Difflin can run on open models
+end to end.</strong> Two routes: <strong>fully local</strong> with Ollama, LM Studio or vLLM (private, no per
+token bill, limited by your memory), or a <strong>provider</strong> such as OpenRouter or Groq (their hardware,
+your key, much bigger models). Four engines do the wiring: <strong>OpenCode</strong>, <strong>Crush</strong> and
+<strong>Qwen</strong> take a local base URL in <strong>Settings → AI Engines</strong>, and <strong>Pi</strong> reads
+your own <code>~/.pi/agent/models.json</code>. Keys go in the same panel and are stored write only.</p></div>
 
-Munder Difflin started as a harness for the closed frontier CLIs — Claude Code, Codex, Antigravity. Useful, but it tied your agent floor to a handful of vendors and their pricing. That's long since broken open: of the **ten engines** the app now ships — Claude Code, Antigravity, Codex, Grok, Kimi, Qwen, OpenCode, Crush, pi, and GitHub Copilot CLI — three ([OpenCode](https://opencode.ai), [Crush](https://charm.land), [pi](https://pi.dev)) were built from the start to point at *any* model, and two more (Qwen, Kimi) are the model-makers' own CLIs for families whose weights are public.
+Munder Difflin started out wrapping the closed frontier CLIs. Today it supports twelve, and several of them will
+point at any model you like. That means a whole office of agents can run on models whose weights anyone can download.
 
-That means you can run an entire office of agents on models anyone can download. There are two honest ways to do it, and they trade off differently. This guide walks both, then shows the exact wiring for each engine — current as of **v0.4.4**. (For the why-bother, see [why local-first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/) and [why CLI agents are so powerful](/blog/why-cli-agents-are-powerful/).)
+There are two honest ways to do it, and they trade off differently. This guide walks through both, then gives the exact
+wiring for each engine, checked against Munder Difflin 0.5.2 on 10 September 2026. (For the why, see
+[why local first matters for AI agents](/blog/why-local-first-matters-for-ai-agents/).)
 
-## Two routes: your hardware, or someone else's
+## Should you run open models locally or through a provider?
 
-"Open source models" is one phrase covering two very different setups. Pick by what you're optimizing for.
+Local if privacy and a fixed cost matter and your machine can hold the model. A provider if you want the biggest models
+or have no spare hardware.
 
-| | Fully local | Third-party OSS provider |
+| | Fully local | Through a provider |
 |---|---|---|
-| **Runs on** | Your machine (Ollama, LM Studio, vLLM) | Their GPUs (OpenRouter, Groq, Together, Fireworks, DeepInfra, Novita) |
-| **Cost** | Electricity. No per-token bill. | Per-token, billed to your own key. |
-| **Privacy** | Total — code never leaves the box. | Prompts transit a third party. |
-| **Ceiling** | Bounded by RAM/VRAM (≈7B–70B realistic on a Mac). | The whole frontier — 235B, 480B, even 1T-parameter models. |
-| **Setup** | Pull a model + point the engine at `localhost`. | Paste one API key. |
-| **Best for** | Private work, 24/7 unattended, fixed cost. | Frontier quality, zero local hardware, bursty use. |
+| **Runs on** | Your machine (Ollama, LM Studio, vLLM) | Their GPUs (OpenRouter, Groq and others) |
+| **Cost** | Electricity. No per token bill. | Per token, billed to your own key. |
+| **Privacy** | Prompts never leave the machine. | Prompts go to the provider. |
+| **Ceiling** | Your memory: roughly 8B to 70B on a Mac, 120B on a very big one. | Open models with hundreds of billions of parameters. |
+| **Setup** | Pull a model and point the engine at localhost. | Paste one key. |
+| **Best for** | Private work, always on floors, fixed cost. | Top quality, bursty use, no local hardware. |
 
-You don't have to choose globally — Munder Difflin sets the engine and model *per agent*. A common pattern: a strong provider-hosted model in the orchestrator seat, and cheap local workers for the routine majority. That's exactly the [capability-routing](/blog/do-more-with-less-model-routing/) idea, now with open weights on both ends.
+You do not have to choose once for the whole floor. Engine and model are set per agent, so a strong provider model can sit
+in Michael's seat while cheap local workers handle the routine majority. That is
+[capability routing](/blog/do-more-with-less-model-routing/) with open weights at both ends.
 
-And route three, for the least wiring of all: **hire the model-maker's own CLI.** The Qwen and Kimi engines are first-class in the Add-Agent dialog — their vendor CLIs, their auth, no slug to compose — and Qwen3 and Kimi K2.6 are open-weight families. If all you want is "an open-model worker on my floor, now," that's one dropdown.
+## Which engines can run open models?
 
-## How the three BYOK engines name a model
+Four, and each one wires it a little differently.
 
-One thing to internalize before any wiring: **OpenCode, Crush, and pi all use the same `provider/model` slug form.** The *model* part is just the upstream's id (e.g. `openai/gpt-oss-120b`, `qwen3:30b-a3b`). The *provider* prefix resolves one of two ways:
+| Engine | Where the local server goes | What the app does with it | Local model slug |
+|---|---|---|---|
+| **OpenCode** | Base URL in Settings → AI Engines | Injects it as a local OpenAI compatible provider named `local` | `local/<tag>` |
+| **Crush** | Base URL in Settings → AI Engines | Uses it as the upstream of the local proxy Crush runs through | `ollama/<tag>` |
+| **Qwen** | Base URL and default model in Settings → AI Engines | The same proxy approach as Crush | the default model you set |
+| **Pi** | Your own `~/.pi/agent/models.json` | Copies that file into every Pi agent it starts | `ollama/<tag>` |
 
-- **A built-in provider** the engine already knows — supply the matching API-key env var and you're done: `openrouter`, `openai`, `anthropic`, `groq`, `deepseek`, `mistral`, and the local ones.
-- **A custom OpenAI-compatible provider** you define once (a `base_url` + key block) for any host that isn't built in — Together, Fireworks, DeepInfra, Novita, Z.ai, Moonshot. Then the slug is `<your-name>/<model-id>`.
+The usual endpoints: Ollama at `http://localhost:11434/v1`, LM Studio at `http://localhost:1234/v1`, and vLLM wherever you
+expose it, often `:8000/v1`.
 
-The *local* route differs slightly by engine — same id, different prefix and wiring:
+{% img "note-1", "Same model id everywhere. Only the prefix changes: local/ on OpenCode, ollama/ on Crush and Pi, and the provider name when you use a key." %}
 
-| Engine | How the app wires local | Local slug |
-|---|---|---|
-| **OpenCode** | Injects a custom provider named `local` (OpenAI-compatible) with your base-URL. | `local/<id>` |
-| **Crush** | Writes a provider block (`type: ollama / lmstudio / openai-compat`) into the agent's config. | `ollama/<id>` |
-| **pi** | Still **reserved** as of v0.4.4 — the harness doesn't yet write pi a `models.json`. Run open models on pi via a provider key (Path B). | — |
+## How do you run a model fully locally?
 
-Default endpoints are the usual ones: Ollama `http://localhost:11434/v1`, LM Studio `http://127.0.0.1:1234/v1`, vLLM whatever you exposed (often `:8000/v1`). You set these in the app — no shell exports required.
+Pull a model, tell the engine where it lives, and pick it for an agent.
 
-{% img "note-1", "Same model id everywhere — only the prefix changes: local/ on OpenCode, ollama/ on Crush, provider/ for BYOK." %}
+Want a local model behind Claude Code itself? That route is covered in [how to connect Ollama to Claude Code](/blog/how-to-connect-ollama-to-claude-code/). Hosted models instead? See [Claude Code Router](/blog/claude-code-router/). A newer open weight model to watch is [Reflection AI's Beam](/blog/reflection-beam/); its weights were not out when we checked on 6 Oct 2026.
 
-## Path A — fully local (Ollama / LM Studio / vLLM)
-
-Three steps: pull a model, tell Munder Difflin where it lives, pick it for an agent.
-
-**1. Pull a model.** With [Ollama](https://ollama.com) installed, grab one sized to your RAM:
+**1. Pull a model.** With [Ollama](https://ollama.com) installed, grab one sized to your memory:
 
 ```bash
-ollama pull gpt-oss:20b        # 14 GB — runs on a 16 GB Mac, the safe default
-ollama pull qwen3:30b-a3b      # 19 GB — fast MoE generalist, 32 GB
-ollama pull deepseek-r1:32b    # 20 GB — strong reasoning, 32 GB
-ollama serve                   # exposes the OpenAI-compatible API on :11434
+ollama pull gpt-oss:20b        # about 14 GB, fits a 16 GB Mac
+ollama pull qwen3:30b-a3b      # about 19 GB, a fast generalist for 32 GB
+ollama pull deepseek-r1:32b    # about 20 GB, strong reasoning for 32 GB
+ollama serve                   # serves the OpenAI compatible API on port 11434
 ```
 
-(LM Studio works the same way — load the model in the app and it serves on `:1234`. vLLM and llama.cpp expose their own OpenAI-compatible endpoint.)
+LM Studio works the same way: load a model in the app and start its local server on port 1234.
 
-**2. Point the engine at it.** Open **Settings → AI Engines**, find the engine you'll use (**OpenCode** or **Crush**), and set its **local base-URL** field to your endpoint — e.g. `http://localhost:11434/v1` for Ollama. The harness uses it to inject the right provider config when it spawns the agent. No API key needed for local.
-
-**3. Hire an agent on that model.** In the **Add-Agent** modal, choose the engine, then pick the local model. The picker offers the open-model quick-picks; the slug it sends is `local/gpt-oss:20b` on OpenCode, or `ollama/gpt-oss:20b` on Crush (keep the colon in the tag). That agent now runs fully on your hardware.
-
-Which local model? Match it to your machine. These picks are from the project's open-model catalog, by RAM tier:
-
-| Model | Ollama tag | Min RAM | Good for |
-|---|---|---|---|
-| gpt-oss 20B | `gpt-oss:20b` | 16 GB | Smallest capable default |
-| Mistral Small 24B | `mistral-small:24b` | 16–32 GB | Lightweight generalist |
-| Qwen3 30B-A3B (MoE) | `qwen3:30b-a3b` | 32 GB | Fast MoE generalist |
-| Qwen3-Coder 30B | `qwen3-coder:30b` | 32 GB | Coding |
-| DeepSeek-R1 32B | `deepseek-r1:32b` | 32 GB | Reasoning |
-| GLM-4.7-Flash | `glm-4.7-flash` | 32 GB | The only Mac-viable GLM |
-| Llama 3.3 70B | `llama3.3:70b` | 64 GB | Bigger generalist |
-| gpt-oss 120B | `gpt-oss:120b` | 96 GB | Top local (Studio-class) |
-
-A note on what *won't* fit: the headline frontier open models — DeepSeek-V4, Kimi K2.6, GLM-5.2, Qwen3-235B — are server-class. The Ollama tags exist, but no consumer Mac holds them. For those, you want Path B. (Choosing a local model by RAM is the whole subject of the companion [Mac Mini setup guide](/blog/run-munder-difflin-on-a-mac-mini/).)
-
-## Path B — a third-party OSS provider (BYOK)
-
-Same open weights, hosted on someone else's GPUs, billed to your own key. This is how you reach the big models, and it's a two-field setup.
-
-**1. Get a key.** Sign up with a provider and copy an API key. [OpenRouter](https://openrouter.ai) is the easiest start — one key, the widest catalog. [Groq](https://groq.com) is the fastest for the models it carries. Together, Fireworks, and DeepInfra host the heavyweights.
-
-**2. Paste it into the app.** In **Settings → AI Engines**, enter the key in the matching field. Keys are stored **write-only through the broker** — the renderer can set a key but never read it back; only the main process injects it as the right env var (`OPENROUTER_API_KEY`, `GROQ_API_KEY`, …) when an agent spawns, and only for the provider that agent actually uses. Nothing lands in plaintext config.
-
-**3. Pick a model.** In Add-Agent, select the engine and a provider-hosted model. The slug carries the provider prefix — e.g. `openrouter/deepseek/deepseek-v4-flash` or `groq/openai/gpt-oss-120b`. The recommended BYOK quick-picks:
-
-| Model | Route | Slug | Key env |
-|---|---|---|---|
-| gpt-oss 120B (fastest) | Groq | `groq/openai/gpt-oss-120b` | `GROQ_API_KEY` |
-| Llama 3.3 70B | Groq | `groq/llama-3.3-70b-versatile` | `GROQ_API_KEY` |
-| DeepSeek-V4-Flash | OpenRouter | `openrouter/deepseek/deepseek-v4-flash` | `OPENROUTER_API_KEY` |
-| GLM-4.6 | OpenRouter | `openrouter/z-ai/glm-4.6` | `OPENROUTER_API_KEY` |
-| Kimi K2.6 | OpenRouter | `openrouter/moonshotai/kimi-k2.6` | `OPENROUTER_API_KEY` |
-| Qwen3-Coder 480B | OpenRouter | `openrouter/qwen/qwen3-coder` | `OPENROUTER_API_KEY` |
-| gpt-oss 120B | OpenRouter | `openrouter/openai/gpt-oss-120b` | `OPENROUTER_API_KEY` |
-
-Prefer a model maker's own API? Those work too: DeepSeek (`deepseek/deepseek-v4-flash`, `DEEPSEEK_API_KEY`), Mistral (`mistral/...`, `MISTRAL_API_KEY`), Z.ai for GLM, Moonshot for Kimi. On Groq, stick to gpt-oss and `llama-3.3-70b-versatile`. The full slug-by-slug table, with citations, lives in the project's open-model catalog (the single source of truth this post and the Mac Mini guide both cite).
-
-One honest fix from v0.4.4 worth knowing: OpenCode used to preselect a BYOK slug **and silently fall back** to a different model when the key was absent — while every surface kept reporting the model it had asked for. That's gone. If a key is missing now, you find out; you never unknowingly run a model you didn't pick.
-
-{% img "note-2", "One key, the whole frontier: paste it once in Settings, and the write-only broker injects it per spawn — never into plaintext config." %}
-
-## Per-engine cheat-sheet
-
-You rarely touch these directly — the AI Engines panel writes them — but here's what each engine does under the hood, so the model field makes sense.
-
-**OpenCode** is OpenAI-SDK native and knows most providers out of the box. BYOK is just the env var; local is a custom provider named `local`. Slugs: `openrouter/openai/gpt-oss-120b`, `local/qwen3:30b-a3b`.
-
-**Crush** reads BYOK env vars for its built-in providers and uses a written config block for anything custom or local. For local Ollama it's literally:
+**2. Point the engine at it.** For OpenCode, Crush or Qwen, open **Settings → AI Engines** and set that engine's local base
+URL, for example `http://localhost:11434/v1`. Local servers need no key. For Pi, add the server to `~/.pi/agent/models.json`
+instead:
 
 ```json
-{ "providers": { "ollama": { "type": "ollama", "base_url": "http://localhost:11434/v1" } } }
+{
+  "providers": {
+    "ollama": {
+      "baseUrl": "http://localhost:11434/v1",
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "models": [{ "id": "gpt-oss:20b" }]
+    }
+  }
+}
 ```
 
-then select `ollama/qwen3:30b-a3b`. For a host like Together, it's an `openai-compat` block with that provider's `base_url` and your key.
+Munder Difflin copies that file into each Pi agent when it starts, so start the Pi agent again after you edit it.
 
-**pi** ships 15+ built-in providers, so BYOK is just the provider key. Slugs look like `groq/llama-3.3-70b-versatile` or `openrouter/qwen/qwen3-coder`. Its local base-URL field remains **reserved** as of v0.4.4 — run open models on pi through a provider key rather than a local endpoint.
+**3. Hire an agent on that model.** In **Add agent**, choose the engine and pick one of the open model quick picks, or type
+the slug yourself: `local/gpt-oss:20b` on OpenCode, `ollama/gpt-oss:20b` on Crush and Pi. Keep the colon in the tag. That
+agent now runs entirely on your hardware.
 
-**Qwen and Kimi** are the zero-wiring route: vendor CLIs as first-class engines. Sign in the way each CLI wants and hire away — no slugs, no base-URLs.
+Which local model? These are the app's local quick picks, by memory:
 
-All the BYOK engines are orchestrator-eligible, so you can put an open model in Michael's seat, not just the workers'. Give the seat a strong one — `gpt-oss:120b` or `llama3.3:70b` locally (64–96 GB), or a frontier provider model like `openrouter/deepseek/deepseek-v4-flash`. Sub-8B models are great workers but thin for orchestration.
+| Model | Ollama tag | Memory | Good for |
+|---|---|---|---|
+| gpt-oss 20B | `gpt-oss:20b` | 16 GB | The smallest capable default |
+| Mistral Small 24B | `mistral-small:24b` | 16 to 32 GB | A light generalist |
+| Qwen3 30B A3B | `qwen3:30b-a3b` | 32 GB | A fast generalist |
+| Qwen3 Coder 30B | `qwen3-coder:30b` | 32 GB | Coding |
+| DeepSeek R1 32B | `deepseek-r1:32b` | 32 GB | Reasoning |
+| GLM 4.7 Flash | `glm-4.7-flash` | 32 GB | The GLM that fits on a Mac |
+| Llama 3.3 70B | `llama3.3:70b` | 64 GB | A bigger generalist |
+| gpt-oss 120B | `gpt-oss:120b` | 96 GB | The top local pick |
+
+The headline open flagships, like DeepSeek V4, Kimi K2.6 and Qwen3 235B, are server class. No consumer Mac holds them, so
+use a provider for those. Sizing a model to your memory is the whole subject of the
+[Mac mini guide](/blog/run-munder-difflin-on-a-mac-mini/).
+
+## How do you run open models through a provider?
+
+Same open weights, someone else's GPUs, your own key.
+
+**1. Get a key.** [OpenRouter](https://openrouter.ai) is the easiest start, with one key for a wide catalog.
+[Groq](https://groq.com) is quick for the models it carries.
+
+**2. Paste it into Settings → AI Engines.** There are key fields for Anthropic, OpenAI, Google Gemini, OpenRouter and Groq.
+Keys are write only: the app stores a key but never shows it back, and it reaches an agent as the right environment variable
+only when that agent starts.
+
+**3. Pick a model.** In Add agent, choose OpenCode, Crush or Pi and a provider hosted quick pick:
+
+| Model | Route | Slug | Key |
+|---|---|---|---|
+| gpt-oss 120B | Groq | `groq/openai/gpt-oss-120b` | `GROQ_API_KEY` |
+| Llama 3.3 70B | Groq | `groq/llama-3.3-70b-versatile` | `GROQ_API_KEY` |
+| DeepSeek V4 Flash | OpenRouter | `openrouter/deepseek/deepseek-v4-flash` | `OPENROUTER_API_KEY` |
+| GLM 4.6 | OpenRouter | `openrouter/z-ai/glm-4.6` | `OPENROUTER_API_KEY` |
+| Kimi K2.6 | OpenRouter | `openrouter/moonshotai/kimi-k2.6` | `OPENROUTER_API_KEY` |
+| Qwen3 Coder 480B | OpenRouter | `openrouter/qwen/qwen3-coder` | `OPENROUTER_API_KEY` |
+| Qwen3 235B | OpenRouter | `openrouter/qwen/qwen3-235b-a22b-2507` | `OPENROUTER_API_KEY` |
+| gpt-oss 120B | OpenRouter | `openrouter/openai/gpt-oss-120b` | `OPENROUTER_API_KEY` |
+
+{% img "note-2", "One key, the whole catalog: paste it once, and it reaches an agent only when that agent starts." %}
+
+## What should go in Michael's seat?
+
+A strong model. Michael does the reasoning, holds the long context and decides who does what. Locally, that is `gpt-oss:120b`
+or `llama3.3:70b` on 64 to 96 GB of memory. Through a provider, DeepSeek V4 Flash or Kimi K2.6. Models under 8B make good
+workers and thin orchestrators.
+
+## What if it does not work?
+
+- **The model name is rejected.** Check the prefix: `local/` on OpenCode, `ollama/` on Crush and Pi. Keep the colon in the
+  Ollama tag.
+- **The agent cannot reach the server.** Make sure `ollama serve` or LM Studio's server is running, and that the base URL
+  ends in `/v1`.
+- **A Pi agent cannot see your model.** Check that `~/.pi/agent/models.json` is valid JSON, then start the Pi agent again so
+  the app copies the new file.
+- **An engine shows as missing.** Settings → Prerequisites lists which engine commands the app can actually find.
 
 ## The bottom line
 
-Open weights turn Munder Difflin from "a harness for three vendors' CLIs" into "a harness for the whole open ecosystem." Run it **fully local** when privacy and fixed cost matter and your RAM can hold the model; run it on a **third-party provider** when you want frontier quality or no local hardware at all; hire the **vendor CLI** when you want zero wiring — and mix all three across your floor, agent by agent. The setup is two fields in **Settings → AI Engines** and a pick in Add-Agent, with **Settings → Prerequisites** confirming every engine binary the app can see.
+Open weights turn Munder Difflin from a harness for a few vendors' CLIs into a harness for the whole open ecosystem. Go local
+when privacy and a fixed cost matter, use a provider when you want the biggest models, and mix both across your floor, agent
+by agent.
 
-That's the promise kept: a virtual office of CLI agents on your own computer, running on models whose weights anyone can read. [Download Munder Difflin](https://munderdiffl.in/#install) — free, open source, local-first — and point your favorite open model at it. (On a Mac and want the hardware-by-RAM walkthrough? Read the [Mac Mini setup guide](/blog/run-munder-difflin-on-a-mac-mini/).)
+[Download Munder Difflin](https://munderdiffl.in/), free and open source, and point your favourite open model at it. On a Mac
+and want the sizing walkthrough? Read the [Mac mini guide](/blog/run-munder-difflin-on-a-mac-mini/).

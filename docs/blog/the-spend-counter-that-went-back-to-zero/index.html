@@ -1,6 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>The Spend Counter That Went Back to Zero — Munder Difflin Blog</title>
@@ -17,7 +32,10 @@
 <meta property="og:title" content="The Spend Counter That Went Back to Zero — Munder Difflin Blog" />
 <meta property="og:description" content="Our own floor was under reporting what it cost by 59 percent. The counter was cumulative since process start, the app restarts, and the session id stayed the same. Here is how a monotonic invariant let us recover the real number from an append-only log." />
 <meta property="og:url" content="https://munderdiffl.in/blog/the-spend-counter-that-went-back-to-zero/" />
-<meta property="og:image" content="https://munderdiffl.in/media/og.png" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/the-spend-counter-that-went-back-to-zero/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="A yellow bean stands beside a desk where a spend meter&#39;s needle has swung back to zero, holding up a long paper log, while a whiteboard shows a sawtooth counter under a steadily climbing total." />
 <meta property="og:locale" content="en_US" />
 <meta property="article:published_time" content="2026-08-22T00:00:00.000Z" />
 <meta property="article:author" content="Chaitanya Giri" />
@@ -32,7 +50,8 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="The Spend Counter That Went Back to Zero — Munder Difflin Blog" />
 <meta name="twitter:description" content="Our own floor was under reporting what it cost by 59 percent. The counter was cumulative since process start, the app restarts, and the session id stayed the same. Here is how a monotonic invariant let us recover the real number from an append-only log." />
-<meta name="twitter:image" content="https://munderdiffl.in/media/og.png" />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/the-spend-counter-that-went-back-to-zero/hero.png" />
+<meta name="twitter:image:alt" content="A yellow bean stands beside a desk where a spend meter&#39;s needle has swung back to zero, holding up a long paper log, while a whiteboard shows a sawtooth counter under a steadily climbing total." />
 
 <link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +65,7 @@
   "@type": "BlogPosting",
   "headline": "The Spend Counter That Went Back to Zero",
   "description": "Our own floor was under reporting what it cost by 59 percent. The counter was cumulative since process start, the app restarts, and the session id stayed the same. Here is how a monotonic invariant let us recover the real number from an append-only log.",
-  "image": ["https://munderdiffl.in/media/og.png"],
+  "image": ["https://munderdiffl.in/blog/assets/media/the-spend-counter-that-went-back-to-zero/hero.png"],
   "datePublished": "2026-08-22T00:00:00.000Z",
   "dateModified": "2026-08-22T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
@@ -164,7 +183,7 @@
     </div>
   </header>
 
-  <div class="hero-wrap wrap"><figure class="fig fig-placeholder t-internals fig-hero" role="img" aria-label="Illustration: The Spend Counter That Went Back to Zero"><div class="ph-art" aria-hidden="true"><span class="ph-glyph">✶</span><span class="ph-note">illustration on its way</span></div></figure></div>
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/the-spend-counter-that-went-back-to-zero/hero.png" alt="A yellow bean stands beside a desk where a spend meter's needle has swung back to zero, holding up a long paper log, while a whiteboard shows a sawtooth counter under a steadily climbing total." loading="lazy" decoding="async" /></figure></div>
 
   <div class="post-wrap wrap">
     <div class="prose">
@@ -488,9 +507,10 @@ manage a number you are not actually reading.</p>
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

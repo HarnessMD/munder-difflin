@@ -1,15 +1,26 @@
-import { ClipboardEvent, DragEvent, KeyboardEvent, type MouseEvent as ReactMouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { ClipboardEvent, DragEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { StuckQueueNotice } from './StuckQueueNotice';
 import { useTranslation } from 'react-i18next';
+import { attachmentsFromPaste } from './pasteAttachments';
 import { PixelButton } from './PixelButton';
 import { Icon } from './Icon';
 import { useStore, type Agent, type QueuedMessage } from '@/store/store';
-import { clearTerminalDraft, dismissTerminalPicker, terminalAutomationBlockFor } from './terminalPool';
+import { clearTerminalDraft, dismissTerminalPicker, terminalAutomationBlockFor, terminalScreenLines } from './terminalPool';
+import { promptOnScreen } from '@shared/providerAutomation';
 import type { TerminalAutomationBlock } from './terminalAutomation';
-import { freeflowRecorder, useFreeflow } from '@/freeflow/recorder';
 import { useTerminalFontSize } from './terminalFontSize';
+
+/** Dispatched with `{ detail: { id } }` to focus the composer of that agent. */
+export const FOCUS_COMPOSER_EVENT = 'cth:focus-composer';
+export function requestComposerFocus(id: string): void {
+  window.dispatchEvent(new CustomEvent(FOCUS_COMPOSER_EVENT, { detail: { id } }));
+}
 import { isComposingKey } from '@shared/imeGuard';
 import { useRtl } from '@/i18n/useDirection';
+import { attachWants, type AttachWant } from '@shared/attachDialog';
+import { SeasonCorner } from './season/SeasonCorner';
+import { Ignite } from './season/Kit';
+import { notePersonSent } from './season/seasonEvents';
 
 const EMPTY_QUEUE: QueuedMessage[] = [];
 
@@ -32,10 +43,22 @@ export interface MessageQueueComposerProps {
  */
 export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   const { t } = useTranslation();
+  // The agent menu's Message (0.5.3, F25): open the agent, then put the
+  // caret here. A window event rather than a store field, because focus is
+  // a one-off, not state anyone else reads.
+  const boxRef = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    const onFocus = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id;
+      if (!id || id === agent.id) boxRef.current?.focus();
+    };
+    window.addEventListener(FOCUS_COMPOSER_EVENT, onFocus);
+    return () => window.removeEventListener(FOCUS_COMPOSER_EVENT, onFocus);
+  }, [agent.id]);
   const rtl = useRtl();
   const queue = useStore((s) => s.messageQueues[agent.id]) ?? EMPTY_QUEUE;
   const enqueueMessage = useStore((s) => s.enqueueMessage);
-  const removeQueuedMessage = useStore((s) => s.removeQueuedMessage);
+  const withdrawQueuedMessage = useStore((s) => s.withdrawQueuedMessage);
   const releaseQueuedMessage = useStore((s) => s.releaseQueuedMessage);
   const clearQueue = useStore((s) => s.clearQueue);
 
@@ -45,24 +68,6 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   const setDraft = useStore((s) => s.setDraft);
   const setText = (t: string) => setDraft(agent.id, t);
 
-  // Free Flow voice dictation (entry point A). The mic button shows only when the
-  // feature is enabled in Settings; a transcript is appended to this draft for
-  // review before sending (never auto-sent). When enabled but no Groq key is set,
-  // the button stays VISIBLE but DISABLED with a tooltip pointing to Settings
-  // (hasGroqKey is boolean presence only — the key value never reaches the store).
-  const freeflowEnabled = useStore((s) => s.freeflowEnabled);
-  const hasGroqKey = useStore((s) => s.hasGroqKey);
-  const ff = useFreeflow();
-  const ffMine = ff.targetAgentId === agent.id;
-  const ffHint = !freeflowEnabled
-    ? null
-    : ffMine && ff.status === 'recording'
-    ? t('queueComposer.recording')
-    : ffMine && ff.status === 'transcribing'
-    ? t('queueComposer.transcribing')
-    : ff.error && (ffMine || ff.targetAgentId === null)
-    ? `${t('queueComposer.voice')}: ${ff.error}`
-    : null;
 
   // The draft box is the terminal's twin — it should read at the same size the
   // agent's output does, at every zoom level.
@@ -89,9 +94,10 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   const removeAttachment = (path: string) =>
     setAttachments((prev) => prev.filter((a) => a.path !== path));
 
-  // '+' button → OS picker (images group + all files).
-  const pickFiles = async () => {
-    const res = await window.cth.attachFiles();
+  // '+' button → OS picker: any file, PDFs and videos included, and folders
+  // (0.5.3, I8); where one picker cannot take both, one button per kind.
+  const pickFiles = async (want: AttachWant) => {
+    const res = await window.cth.attachFiles(want);
     if (res.ok) addAttachments(res.files);
   };
 
@@ -109,25 +115,11 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
 
   // Paste a screenshot (no path → persist the native clipboard image to a temp
   // file) or paste files copied from the OS file manager (carry a real path).
+  // The rule and the handler are shared with the professional composers
+  // (0.5.3, bug 8): components/pasteAttachments.
   const onPaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = Array.from(e.clipboardData?.items ?? []);
-    const hasImage = items.some((it) => it.kind === 'file' && it.type.startsWith('image/'));
-    if (hasImage) {
-      e.preventDefault();
-      const res = await window.cth.saveClipboardImage();
-      if (res.ok) addAttachments([res.file]);
-      return;
-    }
-    const files = Array.from(e.clipboardData?.files ?? []);
-    if (files.length) {
-      const atts = files
-        .map((f) => ({ path: window.cth.pathForFile(f), name: f.name }))
-        .filter((a) => a.path);
-      if (atts.length) {
-        e.preventDefault();
-        addAttachments(atts);
-      }
-    }
+    const atts = await attachmentsFromPaste(e);
+    if (atts.length) addAttachments(atts);
   };
 
   const canSend = !!text.trim() || attachments.length > 0;
@@ -141,13 +133,14 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
           ? `${text}\n\nAttached files:\n`
           : 'Attached files:\n') + attachments.map((a) => `- ${a.path} (${a.name})`).join('\n')
       : text;
-    enqueueMessage(agent.id, body);
+    enqueueMessage(agent.id, body, { person: true });
     // Counted HERE, at the composer's submit, and NOT inside enqueueMessage:
     // that store action is also how work orders, Slack inbound, nudges and
     // compact commands reach an agent, and none of those is a person sending a
     // message. Past the isComposingKey guard in onKey, so an IME candidate
     // Enter never counts. (TELEMETRY.md → message_sent)
     void window.cth.trackMessageSent('composer');
+    notePersonSent(agent.id);
     setText('');
     setAttachments([]);
   };
@@ -167,6 +160,12 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
   // a user might have half-typed in the terminal above, and it is when the queue
   // is in use — so the hold must be reported then, not only once the agent idles.
   const block = useTerminalBlock(agent.ptyId, queue.length > 0);
+  // A permission or a question waits for the person on the terminal's screen: nothing is typed into it, and no Enter
+  // is pressed there (trigger-prompt-058, main/ptySubmit.ts), so the queue says why it waits.
+  const asking = useTerminalAsking(agent.ptyId, queue.length > 0);
+  // Mail a wake typed with no proof it was taken (trigger-prompt-058): never typed again by itself, so it is said here,
+  // and Type again is the person's word.
+  const [doubt, readDoubt] = useWakeUnconfirmed(agent.id);
 
   // Floor-wide auto-delivery pause (Command Center switch) also holds the queue.
   // Without saying so — and without the per-row "send now" override — messages
@@ -181,6 +180,8 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
     ? t('queueComposer.heldPicker', { name: agent.name })
     : block === 'exited'
     ? t('queueComposer.heldExited', { name: agent.name })
+    : asking
+    ? t('queueComposer.heldPrompt', { name: agent.name })
     : !idle
     ? t('queueComposer.busyQueued', { name: agent.name, count: queue.length })
     : deliveryPaused && !queue[0]?.manual
@@ -197,6 +198,8 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
       }}
       onDrop={onDrop}
       style={{
+        // The season's corner is placed against this root.
+        position: 'relative',
         flexShrink: 0,
         borderTop: '1px solid var(--cth-ink-700)',
         background: 'var(--cth-cream-100)',
@@ -206,11 +209,29 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
         padding: 8,
         boxShadow: dragOver ? 'inset 0 0 0 2px var(--cth-lilac)' : undefined
       }}>
+      <SeasonCorner agent={agent} crowded={queue.length > 0} />
       {dragOver && (
         <span style={{
           fontFamily: 'var(--cth-font-display)', fontSize: 9, lineHeight: '12px',
           color: 'var(--cth-ink-700)', textAlign: 'center'
         }}>{t('queueComposer.dropToAttach')}</span>
+      )}
+      {doubt.length > 0 && (
+        <div data-testid="wake-unconfirmed" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: 'var(--cth-font-ui)', fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-700)' }}>
+            {t('queueComposer.wakeUnconfirmed', { name: agent.name })}
+          </span>
+          <button
+            type="button"
+            onClick={() => { void window.cth.hiveWakeRetry(agent.id).then(readDoubt, readDoubt); }}
+            title={t('queueComposer.wakeUnconfirmedTitle', { name: agent.name })}
+            style={{
+              border: 'none', background: 'transparent', cursor: 'pointer', padding: 0,
+              fontFamily: 'var(--cth-font-ui)', fontSize: 12, lineHeight: '16px',
+              color: 'var(--cth-ink-900)', textDecoration: 'underline'
+            }}
+          >{t('queueComposer.typeAgain')}</button>
+        </div>
       )}
       {/* Header: label, count, status, clear-all */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -287,22 +308,15 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
             <QueuedMessageRow
               key={m.id}
               index={i}
+              agentId={agent.id}
+              agentName={agent.name}
               message={m}
               paused={deliveryPaused}
               onSendNow={() => releaseQueuedMessage(agent.id, m.id)}
-              onRemove={() => removeQueuedMessage(agent.id, m.id)}
+              onRemove={() => withdrawQueuedMessage(agent.id, m.id)}
             />
           ))}
         </div>
-      )}
-
-      {/* Free Flow recording / transcription status (entry point A) */}
-      {ffHint && (
-        <span style={{
-          fontSize: 12, lineHeight: '16px',
-          color: ff.error && !(ffMine && ff.status !== 'idle') ? 'var(--cth-coral)' : 'var(--cth-ink-500)',
-          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-        }}>{ffHint}</span>
       )}
 
       {/* Attached files/images — chips with a remove 'x', above the textarea. */}
@@ -346,6 +360,7 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
           with file/image attachment chips + paste-to-attach (rich-composer). */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <textarea
+          ref={boxRef}
           dir={rtl ? 'auto' : undefined}
           className="cth-input"
           value={text}
@@ -376,21 +391,24 @@ export function MessageQueueComposer({ agent }: MessageQueueComposerProps) {
             boxSizing: 'border-box'
           }}
         />
-        {/* Control bar: Attach + voice + Send aligned right. flexWrap so a
+        {/* Control bar: Attach + Send aligned right. flexWrap so a
             narrow sidebar wraps the buttons onto a second row instead of
             pushing Send off-screen. */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, rowGap: 6, flexWrap: 'wrap', minWidth: 0 }}>
           <span style={{ flex: 1 }} />
-          <PixelButton variant="secondary" size="sm" onClick={pickFiles}>
-            <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-              <Icon name="plus" /> {t('queueComposer.files')}
-            </span>
-          </PixelButton>
-          {freeflowEnabled && <FreeFlowButton agentId={agent.id} hasGroqKey={hasGroqKey} />}
-          <PixelButton variant="primary" size="sm" onClick={queueIt} disabled={!canSend}>
+          {attachWants(window.cth.platform).map((w) => (
+            <PixelButton key={w} variant="secondary" size="sm" onClick={() => { void pickFiles(w); }}>
+              <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+                <Icon name="plus" /> {t(w === 'folders' ? 'queueComposer.folder' : 'queueComposer.files')}
+              </span>
+            </PixelButton>
+          ))}
+          {/* Halloween (Track W4a): Send is a candle. */}
+          <PixelButton variant="primary" size="sm" onClick={queueIt} disabled={!canSend} dataAttrs={{ 'data-cth-ignite': '1' }} style={{ position: 'relative' }}>
             <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
               {t('commandBar.send')} <Icon name="arrow-right" />
             </span>
+            <Ignite />
           </PixelButton>
         </div>
       </div>
@@ -412,6 +430,36 @@ function useTerminalBlock(ptyId: string | undefined, active: boolean): TerminalA
   }, [ptyId, active]);
   // 'settling' is a sub-second gap between writes — not worth telling anyone.
   return block === 'settling' ? null : block;
+}
+
+/** Mail a wake typed to this agent with no proof it was taken (main's WakeFiling.unconfirmed), read every 5 s; and a
+ *  read now, after the person's Type again. */
+function useWakeUnconfirmed(agentId: string): [string[], () => void] {
+  const [ids, setIds] = useState<string[]>([]);
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    let live = true;
+    const read = () => {
+      void window.cth.hiveWakeUnconfirmed(agentId).then((v) => { if (live) setIds(Array.isArray(v) ? v : []); }, () => undefined);
+    };
+    read();
+    const iv = setInterval(read, 5000);
+    return () => { live = false; clearInterval(iv); };
+  }, [agentId, tick]);
+  return [ids, () => setTick((n) => n + 1)];
+}
+
+/** Poll the terminal's screen for a prompt that asks the person (promptOnScreen) while something waits on it. */
+function useTerminalAsking(ptyId: string | undefined, active: boolean): boolean {
+  const [asking, setAsking] = useState(false);
+  useEffect(() => {
+    if (!ptyId || !active) { setAsking(false); return; }
+    const read = () => { const lines = terminalScreenLines(ptyId); setAsking(!!lines && promptOnScreen(lines)); };
+    read();
+    const iv = setInterval(read, 1000);
+    return () => clearInterval(iv);
+  }, [ptyId, active]);
+  return asking;
 }
 
 /** Poll the floor-wide auto-delivery pause (main-process control state) while
@@ -440,8 +488,10 @@ function useDeliveryPaused(agentId: string, active: boolean): boolean {
  * toggle only renders when the text actually clips, so short messages stay tidy.
  */
 function QueuedMessageRow(
-  { index, message, paused, onSendNow, onRemove }: {
+  { index, agentId, agentName, message, paused, onSendNow, onRemove }: {
     index: number;
+    agentId: string;
+    agentName: string;
     message: QueuedMessage;
     /** Floor-wide auto-delivery is paused — offer the per-message override. */
     paused: boolean;
@@ -501,6 +551,7 @@ function QueuedMessageRow(
                 })
           }}
         >{message.text}</div>
+        {message.stuck && <StuckQueueNotice agentId={agentId} agentName={agentName} message={message} />}
         {(clipped || expanded || paused) && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {(clipped || expanded) && (
@@ -514,7 +565,7 @@ function QueuedMessageRow(
                 }}
               >{expanded ? t('queueComposer.seeLess') : t('queueComposer.seeMore')}</button>
             )}
-            {paused && !message.manual && (
+            {paused && !message.manual && !message.stuck && (
               <button
                 onClick={onSendNow}
                 title={t('queueComposer.sendNowTitle')}
@@ -546,188 +597,5 @@ function QueuedMessageRow(
         <Icon name="x" />
       </button>
     </div>
-  );
-}
-
-
-/**
- * Push-to-talk button for the queue composer. Click to start recording, click
- * again to stop → transcribe → the text is appended to this agent's draft. While
- * another agent is mid-dictation it's disabled (one shared recorder). The actual
- * capture + Groq call live in the freeflow recorder singleton.
- *
- * When no Groq key is configured the button stays visible but disabled, with a
- * tooltip pointing to Settings — it never starts a recording, so getUserMedia and
- * the Groq STT call are never reached (preserving the zero-call-when-unavailable
- * guarantee). `hasGroqKey` is boolean presence only; the key value never gets here.
- */
-function FreeFlowButton({ agentId, hasGroqKey }: { agentId: string; hasGroqKey: boolean }) {
-  const { t } = useTranslation();
-  const ff = useFreeflow();
-  const mine = ff.targetAgentId === agentId;
-  const recording = ff.status === 'recording' && mine;
-  const transcribing = ff.status === 'transcribing' && mine;
-  // Block while another agent's clip is recording/uploading (single recorder).
-  const busyElsewhere = ff.status !== 'idle' && !mine;
-  const noKey = !hasGroqKey;
-
-  const hintRef = useRef<HTMLSpanElement | null>(null);
-  const iconRef = useRef<HTMLButtonElement | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const [hint, setHint] = useState<{ left: number; top: number } | null>(null);
-  const hintOpen = hint !== null;
-
-  const HINT_W = 244;
-  const HINT_GAP = 8;
-  const EST_H = 188;
-
-  const title = noKey
-    ? t('queueComposer.ffNoKeyTitle')
-    : recording ? t('queueComposer.ffStopTranscribe')
-    : transcribing ? t('queueComposer.transcribing')
-    : t('queueComposer.ffTitle');
-
-  /** Same placement rule as RealtimeMichaelToggle's hint: prefer above (the
-   *  composer sits low in the panel), flip below only when there is no room, and
-   *  clamp both axes so it can never hang off an edge. */
-  const toggleHint = (e: ReactMouseEvent): void => {
-    e.stopPropagation();
-    if (hint) { setHint(null); return; }
-    const r = iconRef.current?.getBoundingClientRect();
-    if (!r) return;
-    const above = r.top - HINT_GAP - EST_H;
-    const top = above >= 8 ? above : Math.min(r.bottom + HINT_GAP, window.innerHeight - EST_H - 8);
-    const left = Math.max(8, Math.min(r.left, window.innerWidth - HINT_W - 8));
-    setHint({ left, top: Math.max(8, top) });
-  };
-
-  useEffect(() => {
-    if (!hintOpen) return;
-    const onDown = (ev: globalThis.MouseEvent): void => {
-      const t = ev.target as Node;
-      // Portalled, so an inside-click has to be tested against BOTH nodes.
-      if (hintRef.current?.contains(t) || panelRef.current?.contains(t)) return;
-      setHint(null);
-    };
-    const onKey = (ev: globalThis.KeyboardEvent): void => { if (ev.key === 'Escape') setHint(null); };
-    const onReflow = (): void => setHint(null);
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    window.addEventListener('resize', onReflow);
-    window.addEventListener('scroll', onReflow, true);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-      window.removeEventListener('resize', onReflow);
-      window.removeEventListener('scroll', onReflow, true);
-    };
-  }, [hintOpen]);
-
-  const openKeySettings = (e: ReactMouseEvent): void => {
-    e.stopPropagation();
-    setHint(null);
-    window.dispatchEvent(new CustomEvent('cth:open-settings', { detail: { section: 'Voice' } }));
-  };
-
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: noKey ? 4 : 0, minWidth: 0 }}>
-      {/* Wrap in a (non-disabled) span so the native tooltip still shows on hover
-          even when the inner button is disabled — Chromium suppresses tooltips on
-          a disabled <button> itself. */}
-      <span title={title} style={{ display: 'inline-flex' }}>
-        <PixelButton
-          variant={recording ? 'destructive' : 'secondary'}
-          size="sm"
-          onClick={() => { if (noKey) return; freeflowRecorder.toggle(agentId); }}
-          disabled={noKey || transcribing || busyElsewhere}
-        >
-          <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-            <Icon name="mic" />
-            {transcribing ? '…' : recording ? t('queueComposer.stop') : t('queueComposer.voice')}
-          </span>
-        </PixelButton>
-      </span>
-
-      {/* A missing key is a SETUP STATE, not a failure — the same treatment Talk
-          already gets. Without this the button is simply dead on click, and the
-          two facts that would make someone act (it is FREE, and there is a
-          hold-to-talk shortcut) were written down nowhere in the UI. */}
-      {noKey && (
-        <span ref={hintRef} style={{ display: 'inline-flex', flexShrink: 0 }}>
-          <button
-            ref={iconRef}
-            type="button"
-            aria-label={t('queueComposer.ffHowEnable')}
-            aria-expanded={hintOpen}
-            onClick={toggleHint}
-            style={{
-              border: 'none', background: 'none', padding: 0, cursor: 'pointer',
-              display: 'inline-flex', alignItems: 'center',
-              color: 'var(--cth-ink-500)',
-              opacity: hintOpen ? 1 : 0.75
-            }}
-          >
-            <Icon name="info" />
-          </button>
-
-          {hint && createPortal(
-            <div
-              ref={panelRef}
-              role="dialog"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                position: 'fixed', left: hint.left, top: hint.top, zIndex: 460,
-                width: HINT_W, padding: '10px 12px', boxSizing: 'border-box',
-                display: 'flex', flexDirection: 'column', gap: 7,
-                background: 'var(--cth-paper-100)',
-                boxShadow: 'inset 0 0 0 1.5px var(--cth-ink-500), 4px 4px 0 rgba(26,19,32,0.25)',
-                fontFamily: 'var(--cth-font-ui)', fontSize: 11, lineHeight: '15px',
-                color: 'var(--cth-ink-900)', textAlign: 'left', whiteSpace: 'normal'
-              }}
-            >
-              <span style={{
-                fontFamily: 'var(--cth-font-display)', fontSize: 9, letterSpacing: 0.5,
-                textTransform: 'uppercase', color: 'var(--cth-ink-500)'
-              }}>{t('queueComposer.ffSetupTitle')}</span>
-
-              {/* Lead with the cost, because "add an API key" reads as "this will
-                  bill me" and that assumption is what stops people here. */}
-              <span>
-                {t('queueComposer.ffSetupIntro')}
-              </span>
-
-              <ol style={{ margin: 0, paddingLeft: 16, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <li>
-                  {t('queueComposer.ffCreateKey')}{' '}
-                  <a
-                    href="https://console.groq.com/keys"
-                    onClick={(e) => { e.preventDefault(); void window.cth.openExternal('https://console.groq.com/keys'); }}
-                    style={{ color: 'var(--cth-ink-900)' }}
-                  >console.groq.com/keys</a>
-                </li>
-                <li>{t('queueComposer.ffPasteKey')}</li>
-                <li>{t('queueComposer.ffClickOrHold')}</li>
-              </ol>
-
-              <span style={{ color: 'var(--cth-ink-500)' }}>
-                {t('queueComposer.ffHoldHint')}
-              </span>
-
-              <button
-                type="button"
-                onClick={openKeySettings}
-                style={{
-                  border: 'none', background: 'none', padding: 0, cursor: 'pointer',
-                  alignSelf: 'flex-start',
-                  fontFamily: 'var(--cth-font-ui)', fontSize: 11, lineHeight: '15px',
-                  color: 'var(--cth-ink-900)', textDecoration: 'underline'
-                }}
-              >				{t('realtimeToggle.setItUpNow')}</button>
-            </div>,
-            document.body
-          )}
-        </span>
-      )}
-    </span>
   );
 }

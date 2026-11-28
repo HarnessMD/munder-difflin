@@ -18,7 +18,7 @@
  * spreading the caller's object: a caller that hands us a whole `WebhookTrigger`
  * (which carries `secret`) still gets only the ledger fields persisted.
  */
-import { app } from 'electron';
+import { officePaths } from '../core/paths';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { randomBytes } from 'node:crypto';
@@ -41,7 +41,7 @@ export type TriggerHistoryPatch = Partial<
 >;
 
 function historyPath(): string {
-  return join(app.getPath('userData'), 'trigger-history.json');
+  return join(officePaths().userData(), 'trigger-history.json');
 }
 
 /** Newest first ON DISK as well as in memory. `listTriggerHistory` is the hot

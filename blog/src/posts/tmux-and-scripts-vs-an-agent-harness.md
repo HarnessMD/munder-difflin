@@ -48,7 +48,7 @@ If you're running two agents on two branches and reviewing everything yourself, 
 
 **Cron is a trigger with no feedback loop.** Cron can start a session on a schedule, but it can't watch the result, retry a failure, or route the output anywhere. And there's no path at all from "a teammate posted in Slack" or "a webhook fired" to "an agent picked it up."
 
-None of these are tmux's fault. tmux is a terminal multiplexer, and it's excellent at multiplexing terminals. Everything above is a *coordination* problem, and coordination is a different program — one you end up writing yourself, script by script, incident by incident.
+None of these are tmux's fault. tmux is a terminal multiplexer, and it's excellent at multiplexing terminals. Everything above is a *coordination* problem, and coordination is a different program — one you end up writing yourself, script by script, incident by incident. Agent aware multiplexers such as herdr sit in between, and our [herdr alternatives](/blog/herdr-alternatives/) post compares them with the rest.
 
 {% img "note-1" %}
 

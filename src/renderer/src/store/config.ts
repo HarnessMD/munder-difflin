@@ -5,17 +5,21 @@ import {
   providerPreset,
   inferAgentProvider,
   isClaudeProvider,
+  configuredCommandServes,
   type AgentProvider,
   type AgentProviderPreset
 } from '@shared/agentProvider';
+import type { CustomAvatar } from '@shared/avatars';
 import type {
   ContextTriggerConfig,
-  OrgTriggerConfig,
   WebhookTrigger
 } from '@shared/triggers';
-import { isNewer } from '@shared/updateState';
+import type { TaskHygieneConfig } from '@shared/taskHygiene';
+import type { SlackMode, SlackTriage } from '@shared/slackMode';
+import { modelLabel } from '@shared/engine';
 import modelCatalog from '@shared/modelCatalog.json';
 import type { CatalogModel, ModelCatalog } from '@shared/modelCatalogPayload';
+import { mergeCatalogModels, offeredAtVersion } from '@shared/modelCatalogPayload';
 
 export {
   AGENT_PROVIDER_PRESETS,
@@ -37,6 +41,7 @@ export interface ScheduledMission {
   lastFiredAt?: number;
   kind?: 'dispatch' | 'heartbeat' | 'compact';
   quietThresholdMs?: number;
+  createdBy?: string;
 }
 
 /** Circuit-breaker thresholds (mirrors src/main/config.ts CircuitBreakerConfig). */
@@ -64,18 +69,30 @@ export interface HarnessConfig {
   /** Recently-opened hive home folders (most-recent first) for the launch picker.
    *  Mirrors src/main/config.ts. */
   recentHives?: string[];
+  /** Skip the launch-time hive picker and reopen harnessHome (#595). Default
+   *  false. Mirrors src/main/config.ts. */
+  openLastHiveOnLaunch?: boolean;
   registeredRepos: string[];
   autoMode: boolean;
   /** May the orchestrator ("Michael") spin up agents on its own? Default FALSE,
    *  so an absent value reads as off. Mirrors src/main/config.ts. */
   orchestratorMaySpawn?: boolean;
+  /** May the orchestrator add a lasting agent on its own (hire-requests/)? Default
+   *  FALSE, so an absent value reads as off. Mirrors src/main/config.ts. */
+  orchestratorMayAddLasting?: boolean;
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */
   defaultModel?: string;
+  /** Default model for orchestrator-started Claude temps; unset follows the
+   *  usual precedence. Mirrors src/main/config.ts. */
+  subAgentDefaultModel?: string;
   /** Which provider+model powers the GOD orchestrator ("Michael"). Default
-   *  'claude' / 'claude-opus-4-8'. Mirrors src/main/config.ts. */
+   *  'claude' / 'claude-opus-5-5'. Mirrors src/main/config.ts. */
   godProvider?: AgentProvider;
   godModel?: string;
+  /** A hand edited orchestrator command (0.5.3 bug 20). Wins over the line
+   *  derived from godProvider and godModel; see shared/godCommand.ts. */
+  godCommand?: string;
   /** Per-server consent for the default MCP bundle, keyed by catalog id (mirrors
    *  src/main/config.ts; seeded from MCP_CATALOG). */
   mcpDefaults?: { [id: string]: { enabled: boolean } };
@@ -89,8 +106,9 @@ export interface HarnessConfig {
    *  prevent-display-sleep so scheduled missions/terminals keep firing on time
    *  while away (battery cost; best on AC). Default off = survive + catch up on
    *  resume. Mirrors the main-process field (src/main/config.ts). */
+  agentIdleMinutes?: number;
   strongKeepalive?: boolean;
-  /** Auto-update from GitHub releases (default ON; Settings → General). */
+  /** Update notice from GitHub releases (default ON; Settings → General). */
   autoUpdate?: boolean;
   /** Anonymous product analytics (default ON, opt-out; see TELEMETRY.md).
    *  Mirrors the main-process field (src/main/config.ts). */
@@ -103,28 +121,49 @@ export interface HarnessConfig {
   /** Opt-in app/voice-initiated proactive Slack posting (default OFF). Mirrors
    *  src/main/config.ts; the Slack-origin done-reply round-trip is never gated. */
   slackProactivePosting?: boolean;
-  /** Free Flow voice dictation (mirrors src/main/config.ts). */
-  freeflowEnabled?: boolean;
-  groqApiKey?: string;
-  freeflowModel?: string;
+  /** How Slack reaches the office (0.4.11), the socket app token, the two
+   *  frequency pickers and the temps folder. Mirrors src/main/config.ts; the
+   *  names and ranges live in src/shared/slackMode.ts. */
+  slackMode?: SlackMode;
+  slackAppToken?: string;
+  slackPollSeconds?: number;
+  slackSocketCatchupSeconds?: number;
+  slackTempCwd?: string;
+  /** @deprecated 0.5.2: read by nothing; see `responder`. */
+  slackTriage?: SlackTriage;
+  /** 0.5.2: who answers an inbound message, an agent id; unset or '' is the
+   *  orchestrator. Mirrors src/main/config.ts. */
+  responder?: string;
+  /** 0.5.3: the agent a webhook call goes to when its endpoint names none. */
+  webhookResponder?: string;
+  /** The season the office is dressed for (0.5.5). Unset means 'none', the
+   *  general look (0.5.8); 'halloween' is a person's own choice. Mirrors main; read through design/season.ts. */
+  seasonalTheme?: 'halloween' | 'none';
   /** Realtime voice idle auto-disconnect (ms); default 180000 (3 min), 0 = never.
    *  Tuned in Settings → Realtime Michael; the cost cap stays the runaway guard. */
   realtimeIdleDisconnectMs?: number;
   costCapUsd?: number;
-  /** Hard total-token ceiling across active agents (the user-facing budget). */
-  costCapTokens?: number;
-  /** Per-agent total-token ceiling, keyed by agent id. Overrides the floor budget
-   *  for that agent's meter and trips the breaker for it alone. */
+  /** 0.5.6: a token limit per period, for the office and per agent (shared/tokenLimits). */
+  tokenLimits?: import('@shared/tokenLimits').TokenLimits;
+  /** Each agent's own token cap (agent id to work tokens); written only through `setAgentTokenCap`. */
   agentTokenCaps?: Record<string, number>;
+  /** Per-agent MCP overrides, agent id → catalog id → consent (shared/agentMcp.ts). */
+  agentMcp?: Record<string, Record<string, { enabled: boolean }>>;
+  /** Skills turned off per agent, agent id → skill folder names (shared/agentSkills.ts). */
+  agentSkillsOff?: Record<string, string[]>;
+  /** Codex agents whose own memories are copied into search; off for every other (shared/codexMemory.ts). */
+  agentCodexMemoryOn?: string[];
   autoDeliveryPausedAgents?: string[];
   maxTurns?: number;
+  /** How many ephemeral workers (temps) may run at once. Default 4. Mirrors
+   *  src/main/config.ts; edited on the orchestrator's Budget & breaker tab. */
+  maxConcurrentWorkers?: number;
+  maxTempsPerAgent?: number;
   circuitBreaker?: CircuitBreakerConfig;
   /** Enterprise Knowledge Graph (multimodal context for agents). Default OFF. */
   knowledgeGraph?: KnowledgeGraphConfig;
-  /** TV-show office themes feature flag (Settings picker + switch flow). Default OFF. */
-  tvShowOffices?: boolean;
-  /** Active office map/cast theme (honored only when tvShowOffices is on). */
-  officeTheme?: 'office' | 'friends' | 'brooklyn99' | 'siliconvalley' | 'got' | 'hogwarts';
+  /** Custom avatars from the sprite editor (mirrors src/main/config.ts). */
+  avatars?: CustomAvatar[];
   /** Per-CLI-provider local/self-hosted base URL (Ollama/LM Studio/vLLM, …) for the
    *  OpenCode/Crush/pi/qwen engines; applied at spawn. API KEYS are NOT stored here —
    *  they live write-only in the secret broker. */
@@ -147,10 +186,23 @@ export interface HarnessConfig {
   contextTrigger?: ContextTriggerConfig;
   /** Inbound HTTP endpoints, one per caller — replaces the legacy trio above. */
   webhookTriggers?: WebhookTrigger[];
-  /** Peer messaging between teammates' clone nodes (persistence + UI only). */
-  orgTrigger?: OrgTriggerConfig;
   /** One-time guard for the main-process triggers migration; read-only here. */
   triggersMigratedV1?: boolean;
+  /** Thresholds of the hourly hygiene sweep (days before a done card archives,
+   *  an untouched card is flagged then archived, an open question nags, and
+   *  the board's token cap). Missing keys read as the defaults in
+   *  shared/taskHygiene.ts. Mirrors src/main/config.ts. */
+  taskHygiene?: Partial<TaskHygieneConfig>;
+  /** 0.5.3: ticket key prefix (V53); see main config.ts. */
+  ticketPrefix?: string;
+  /** The standing house brief for HOW every agent answers (stick to the subject,
+   *  factual, short and crisp, plain language). User editable in Settings; an
+   *  absent or empty value reads as DEFAULT_RESPONSE_STYLE in
+   *  shared/responseStyle.ts. Mirrors src/main/config.ts. */
+  responseStyle?: string;
+  /** Claude Code's own output style for the agents this app starts (0.5.3
+   *  feature 19). Unset means Concise; 'default' turns it off. */
+  claudeOutputStyle?: string;
 }
 
 /** The Sonnet model with the 1M-token context window — used for Michael's prep
@@ -242,20 +294,16 @@ const BAKED: ModelCatalog = modelCatalog;
  *  function call, so a refresh reaches the next render with no plumbing. */
 let CATALOG: ModelCatalog = BAKED;
 
-/** Merge a validated remote catalog over the baked one.
- *
- *  Per PROVIDER, not per model: a provider present in the remote copy replaces
- *  that provider's list outright, and a provider the remote copy does not
- *  mention keeps the list this build shipped with. That means docs/model-catalog
- *  .json can carry only the providers being changed, and a provider dropped from
- *  it degrades to the built-in list rather than to an empty picker.
- *
- *  Returns whether anything actually changed, so the caller can skip a pointless
- *  event on the overwhelmingly common "nothing new" path. */
+export { mergeCatalogModels };
+
 export function applyRemoteModelCatalog(remote: ModelCatalog | null): boolean {
-  const next: ModelCatalog = remote
-    ? { version: BAKED.version, providers: { ...BAKED.providers, ...remote.providers } }
-    : BAKED;
+  const providers: Record<string, CatalogModel[]> = { ...BAKED.providers };
+  if (remote) {
+    for (const [name, list] of Object.entries(remote.providers)) {
+      providers[name] = mergeCatalogModels(BAKED.providers[name] ?? [], list);
+    }
+  }
+  const next: ModelCatalog = remote ? { version: BAKED.version, providers } : BAKED;
   if (JSON.stringify(next) === JSON.stringify(CATALOG)) return false;
   CATALOG = next;
   return true;
@@ -305,18 +353,6 @@ export function runningAppVersion(): string {
   return typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
 }
 
-/** Whether a catalog entry belongs in a picker on this build. Both bounds are
- *  inclusive of the release they name. Anything unparseable — an absent bound, a
- *  malformed one, an unknown app version — is ignored rather than hiding the
- *  model: a picker that silently loses every model is far worse than one that
- *  offers a model this build's CLI cannot run (the command field is editable and
- *  the CLI reports the bad slug). */
-function offeredAtVersion(model: CatalogModel, appVersion: string): boolean {
-  if (model.minAppVersion && isNewer(model.minAppVersion, appVersion)) return false;
-  if (model.maxAppVersion && isNewer(appVersion, model.maxAppVersion)) return false;
-  return true;
-}
-
 /** The model preset list for a provider's picker, as of a given app version.
  *  `providers` is injectable so the version filter can be exercised against
  *  bounded entries — the shipped catalog is deliberately all-unbounded. */
@@ -339,6 +375,21 @@ export function modelsForProviderAtVersion(
 // importers keep their path.
 export { tokenizeCommand } from '@shared/commandLine';
 
+/** The live catalog's providers: the baked lists with any remote copy merged
+ *  in. Everything that turns a model id into words reads THIS, so a model the
+ *  remote added is named in the badges too, not only in the pickers. */
+export function catalogProviders(): Record<string, CatalogModel[]> {
+  return CATALOG.providers;
+}
+
+/** A model id in words, from the live catalog: "Opus 5.5", never
+ *  `claude-opus-5-5`. Null only when there is no model at all and the catalog
+ *  has no "CLI default" row to name it. An id the catalog does not know is
+ *  tidied rather than dropped, so a hand typed slug still reads. */
+export function modelWord(provider: AgentProvider | undefined, model: string | undefined): string | null {
+  return modelLabel(provider, model, catalogProviders());
+}
+
 /** The model preset list for a given provider's picker, on this build. */
 export function modelsForProvider(provider: AgentProvider): ModelOption[] {
   return modelsForProviderAtVersion(provider, runningAppVersion());
@@ -350,6 +401,7 @@ export function modelsForProvider(provider: AgentProvider): ModelOption[] {
 export function agentModels(): ModelOption[] {
   return modelsForProvider('claude');
 }
+
 
 /** Providers shown in the Command Center's cross-provider model picker.
  *  God must remain on a provider with a working inbox drain; otherwise switching
@@ -402,21 +454,25 @@ export function decodeProviderModel(value: string): {
 }
 
 /** Build the command line to feed into spawnPty, honoring the provider's flags,
- *  autoMode, and an optional per-agent model override. Claude keeps the user's
- *  configured `defaultCommand`; other providers use their preset binary so the
- *  app works without Claude installed. */
+ *  autoMode, and an optional per-agent model override. An explicit provider
+ *  selects its own binary (#551); Claude keeps the user's configured
+ *  `defaultCommand` only while that command is Claude's or an unidentified
+ *  wrapper; other providers use their preset binary so the app works without
+ *  Claude installed. */
 export function buildSpawnCommand(
   config: Pick<HarnessConfig, 'defaultCommand' | 'autoMode'>,
   model?: string,
   provider: AgentProvider = inferAgentProvider(config.defaultCommand)
 ): string {
   const preset = providerPreset(provider);
-  // Claude keeps the user's configured defaultCommand; custom falls back to it
-  // too; every other provider (codex, grok, kimi, agy) uses its preset binary so the app
-  // works even without Claude installed.
+  // Claude keeps the user's configured defaultCommand when it serves Claude (the
+  // plain CLI, extra flags, or a wrapper); a Claude god with a Codex default
+  // used to launch codex. Custom falls back to it too; every other provider
+  // (codex, grok, kimi, agy) uses its preset binary so the app works even
+  // without Claude installed.
   const base =
     provider === 'claude'
-      ? config.defaultCommand || preset.defaultCommand
+      ? (configuredCommandServes('claude', config.defaultCommand) ? (config.defaultCommand ?? '').trim() : preset.defaultCommand)
       : provider === 'custom'
         ? config.defaultCommand || ''
         : preset.defaultCommand;

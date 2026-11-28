@@ -1,7 +1,8 @@
 ---
-title: "The Command Center: Kanban, Fleet, and Budgets in One Place"
-description: "A guide to Munder Difflin's Command Center — the task kanban, live fleet monitoring, per-agent budgets and cost telemetry — and when to watch the board instead of the floor."
+title: "The Command Center: Kanban, Fleet and Budgets in One Place"
+description: "A guide to Munder Difflin's Command Center in 0.5.2: the kanban with task dependencies, the ask me tab, triggers, memory, live token use against each agent's budget, and when to watch the board instead of the floor."
 date: 2026-07-03
+updated: 2026-09-10
 category: guides
 categoryLabel: Guides
 type: Non-technical
@@ -13,83 +14,108 @@ author:
   initials: CG
 faq:
   - q: "What is the Command Center in Munder Difflin?"
-    a: "It's Michael's control surface — the management view of the whole hive. It has tabs for the orchestrator Terminal, the Floor (roster, dispatch, per-agent model selector, live fleet monitoring), Memory (semantic search plus a memory graph), Activity (event log, board, real token telemetry, observability, and a CI watcher), Tasks (a dependency-aware kanban board), and Triggers (everything that starts work without you — schedules with last/next-fired times, context, webhooks, and organization)."
+    a: "It is the management view of your office, next to the floor. Its tabs are terminal, monitor, tasks, ask me, triggers, history, memory, graph, activity, skills and workers. The floor shows you who is busy. The Command Center shows what is queued, what is blocked, what it costs and what runs next."
   - q: "How does the task kanban work?"
-    a: "The Tasks tab is a dependency-aware kanban board. You assign tasks to agents and track them across todo, doing, blocked, and done. Because tasks can declare dependencies, downstream work waits until its prerequisites finish, so a chain of related tasks starts in the right order without you babysitting the handoffs."
-  - q: "How do per-agent budgets and cost tracking work?"
-    a: "You set a token budget per agent, and live fleet monitoring tracks consumption across the roster. Cost numbers are real, not estimates from vibes: the Activity tab reads the JSONL transcripts Claude Code writes and surfaces actual token counts plus estimated USD cost per agent per session, backed by a durable cost ledger that survives restarts. The budget pairs with a circuit breaker that steers, then constrains, then stops an agent that loops or blows its cap."
-  - q: "When should I watch the office floor versus the Command Center?"
-    a: "The floor is for ambient awareness and single-agent moments — seeing who's working, watching envelopes fly, dropping into one terminal. The Command Center is for management questions: what's queued and blocked, what each agent has spent, whether CI is green, and what fires next on the schedule. Roughly: floor for one agent right now, board for the whole fleet over time."
-  - q: "Does the Command Center include observability?"
-    a: "Yes. The Activity tab includes a live OpenTelemetry collector with per-model cost attribution, a fleet grid, and a per-agent tool-span waterfall, so you can see exactly what every agent is doing and what it costs in real time. Each agent card also carries a context-window gauge showing how much of the model's context that agent has consumed."
-  - q: "Can the Command Center pull in work from GitHub?"
-    a: "Yes. You can ingest open issues from any registered repo via the gh CLI and assign them to agents with one click, and a CI status watcher shows live pass/fail/in-progress state for GitHub Actions runs in the Activity tab. Work flows in from GitHub, gets tracked on the kanban, and its CI result lands back in the same view."
+    a: "Tasks move across todo, doing, blocked and done, and each one is assigned to an agent. A task can depend on other tasks, so downstream work waits for its prerequisites and you stop being the one who sequences handoffs."
+  - q: "How do budgets and cost tracking work?"
+    a: "Each agent can have a token budget, and a circuit breaker steers, then constrains, then stops an agent that loops or runs past its cap. The activity tab shows live token use from each agent's telemetry against its own limit, or against the floor budget when an agent has none."
+  - q: "Where do questions for me show up?"
+    a: "On the ask me tab. When the team blocks a task on your input, whether a question to answer or a to do only you can do, it lands there and on the ASK ME board on the floor. Answer it and the work carries on, or dismiss it and the history is kept."
+  - q: "When should I watch the floor instead of the Command Center?"
+    a: "Watch the floor for one agent right now: you just sent work, you want to type into a session, or you want ambient awareness. Watch the Command Center for the whole fleet over time: what is queued or blocked, who is near budget, and what runs tonight."
+  - q: "Can the Command Center take work from GitHub?"
+    a: "Yes. Open issues from a registered GitHub repo can come onto the board as tasks and be assigned to agents."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>The office floor is fun to watch, but you don't manage a team by staring at desks. Munder Difflin's <strong>Command Center</strong> is the management view: a <strong>dependency-aware task kanban</strong>, <strong>live fleet monitoring with per-agent token budgets</strong>, <strong>real cost telemetry</strong> backed by a durable ledger, <strong>OpenTelemetry observability</strong> with a per-agent tool-span waterfall, plus GitHub issue ingestion, a CI watcher, and a Triggers tab. Rule of thumb: <strong>watch the floor for one agent right now, watch the board for the whole fleet over time</strong>.</p></div>
+<div class="callout tldr"><span class="ic">TL;DR</span><p>The floor is fun to watch, but you do not manage a team
+by staring at desks. The <strong>Command Center</strong> is the management view: a <strong>kanban with task
+dependencies</strong>, an <strong>ask me</strong> tab for decisions only you can make, <strong>triggers</strong> for work
+that starts without you, <strong>memory</strong> and its <strong>graph</strong>, <strong>activity</strong> with live token use
+against each agent's budget, and a <strong>skills</strong> catalog. Rule of thumb: <strong>the floor for one agent right now,
+the Command Center for the whole fleet over time</strong>.</p></div>
 
 <video controls preload="none" playsinline poster="/media/demo/features-poster.jpg" style="width:100%; border-radius:12px; margin:12px 0 24px;">
   <source src="/media/demo/features.mp4" type="video/mp4" />
 </video>
 
-Munder Difflin has two ways of looking at the same hive. The **office floor** is the ambient view: avatars at desks, envelopes flying between them, speech bubbles when a tool fires. The **Command Center** is the management view — Michael's control surface, the place you go when the question stops being "what is Dwight doing?" and becomes "what is *everyone* doing, what has it cost, and what's next?"
+Munder Difflin gives you two views of the same office. The **floor** is the ambient one: characters at desks and envelopes
+flying between them. The **Command Center** is the management one, where you go when the question changes from "what is Dwight
+doing?" to "what is everyone doing, what has it cost, and what happens next?" This guide walks through it as of 0.5.2.
 
-This guide walks through what's in it and how the pieces fit together.
+## What is in the Command Center?
 
-## What's in the Command Center
+Eleven tabs on one control surface: terminal, monitor, tasks, ask me, triggers, history, memory, graph, activity, skills and
+workers. The ones you will use most:
 
-Six tabs, one control surface:
+- **terminal:** Michael's own terminal, where you talk to your clone.
+- **monitor:** the roster at a glance, with a context gauge on every agent.
+- **tasks:** the kanban board.
+- **ask me:** everything that is waiting on your answer.
+- **triggers:** everything that starts work without you.
+- **memory** and **graph:** search the office's shared memory, and see how it connects.
+- **activity:** live token use and each agent's tool calls.
+- **skills:** a catalog of skills to install for your agents.
 
-- **Terminal** — Michael's own terminal, the [GOD orchestrator](/blog/how-the-god-orchestrator-works/) you talk to directly.
-- **Floor** — the roster and dispatch controls: hire, dispatch work, pick a model per agent, and watch live fleet monitoring across everyone at once.
-- **Memory** — semantic search over the shared memory palace, plain text search, and a memory graph.
-- **Activity** — the append-only event log, the blackboard, real token telemetry, the observability view, and a CI watcher.
-- **Tasks** — the kanban board.
-- **Triggers** — everything that starts work without you, grouped by kind: schedules (recurring missions and the adaptive heartbeat, with last/next-fired times), context, webhooks, and organization.
+You could run a small office from the floor alone. Past two or three agents, the Command Center is where the real decisions
+happen.
 
-You could run the hive from the floor alone. But once you have more than two or three agents, the Command Center is where the actual decisions happen.
+## How does the task kanban work?
 
-## The task kanban: work as a board, not a chat log
+It turns work into a board instead of a chat log. Tasks move across four columns, todo, doing, blocked and done, and every task
+is assigned to an agent.
 
-The Tasks tab is a **dependency-aware kanban board**. Tasks move across four columns — todo, doing, blocked, done — and each task is assigned to a specific agent.
+The part that matters is dependencies. A task can depend on other tasks, and it waits until they are done. The refactor lands
+before the tests are updated. The migration runs before the endpoint. You stop being the sequencer, because the board does it.
 
-The load-bearing word is *dependency-aware*. Real work has ordering: the refactor has to land before the tests get updated; the schema migration comes before the endpoint. On the board you wire those dependencies explicitly, and downstream tasks wait until their prerequisites finish. You're not the sequencer anymore — the board is.
-
-Work gets onto the board a few ways: you create tasks yourself, Michael creates and assigns them as he routes requests, and you can **pull open GitHub issues from any registered repo** (via the `gh` CLI) and assign them to agents with one click. Issue in, task tracked, agent dispatched — and when the work ships, the **CI status watcher** in the Activity tab shows live pass/fail/in-progress for the repo's GitHub Actions runs. The loop closes in the same window it opened in.
+Work reaches the board three ways: you add it, Michael creates and assigns it while he routes your requests, or it comes in from
+an open issue on a registered GitHub repo.
 
 {% img "note-1" %}
 
-## Fleet status: the roster at a glance
+## What does the ask me tab do?
 
-The Floor tab is where the fleet stops being a set of individual terminals and becomes a roster. Each agent card shows what that agent is up to, and the card's progress bar doubles as a **context-window gauge** — a glanceable read on how much of the model's context each agent has burned. An agent near the top of its gauge is an agent about to compact or slow down; you can see it coming instead of discovering it.
+It collects every decision that needs you. When the team blocks a task on your input, whether that is a question to answer or a
+to do only you can do, it shows up here and on the ASK ME board on the floor. Questions render as formatted text, so a list of
+options reads like a list. Answer it and the work carries on. Dismiss it and the history is kept.
 
-Dispatch also lives here: pick an agent, pick a model (the **per-agent model selector** means your cheap-tier worker and your frontier-tier reviewer are one dropdown apart), and send work. Routine tasks go to the cheap tier; the frontier tier is reserved for the reasoning that needs it.
+This is what keeps a busy office from hiding its questions in five different scrollbacks.
 
-## Budgets and cost: real numbers, not vibes
+## How do budgets and cost tracking work?
 
-This is the part that makes a 24/7 fleet safe to leave running.
+This is the part that makes a floor safe to leave running.
 
-**Per-agent token budgets.** You set a budget per agent, and live fleet monitoring tracks consumption across the whole roster against it. Budgets pair with the **circuit breaker**, which handles the runaway case on a ladder: *steer* (nudge the agent), then *constrain*, then *stop*. An agent that loops, storms errors, or blows through its cap gets caught by machinery, not by you noticing the bill.
-
-**Real telemetry.** The Activity tab doesn't estimate from message counts — it reads the JSONL transcripts Claude Code writes to `~/.claude/projects/` and surfaces **actual token counts and estimated USD cost per agent, per session**, backed by a **durable cost ledger** that survives app restarts. Yesterday's spend is still there this morning, attributed to the agent that spent it.
-
-**Observability.** Also in Activity: a live **OpenTelemetry collector** with per-model cost attribution, a fleet grid, and a **per-agent tool-span waterfall** — the "what exactly is this agent doing, step by step, and what does each step cost" view. It's the same discipline we covered in [observability for agent fleets](/blog/observability-for-agent-fleets/), built into the harness instead of bolted on.
+- **Per agent token budgets.** Set a budget for each agent in Settings, under Autonomy & Budgets. The activity tab shows live
+  token use from each agent's telemetry as bars against its limit, or against the floor budget when an agent has no limit of its own.
+- **A circuit breaker.** An agent that loops or blows through its cap is steered, then constrained, then stopped, by the app
+  rather than by you noticing a bill.
+- **A tool waterfall.** Activity also lays out each agent's tool calls, so you can see exactly what it did, step by step.
+- **A context gauge.** On the monitor, every agent shows how much of its context window it has used, so you see a slowdown coming
+  before it arrives.
 
 {% img "note-2" %}
 
-## Triggers: the board's fourth dimension
+## What starts work without you?
 
-The kanban answers "what's in flight." The **Triggers tab** answers "what happens next without me" — every way the hive wakes up when you aren't typing. **Schedules** are the first and oldest of them: recurring missions carry a label, an interval, a target agent, and a body, and the tab shows last-fired and next-fired times, so drift is visible. A scheduler **heartbeat** re-engages the floor when it goes quiet. Together with the board, it turns the hive from something you drive into something you supervise — the full pattern is in [scheduling autonomous agent missions](/blog/scheduling-autonomous-agent-missions/).
+The triggers tab. **Schedules** run a prompt on an interval or on chosen weekdays at a set time, and the prompt is sent word for
+word on every run. **Context** rules decide what happens as an agent's memory fills up. **Webhooks** let outside systems post work
+in, and **organisation** lets a teammate's office send work to yours. Together with the board, triggers turn the office from
+something you drive into something you supervise. The full pattern is in
+[scheduling autonomous agent missions](/blog/scheduling-autonomous-agent-missions/).
 
-## Floor or board? A simple rule
+## Should you watch the floor or the Command Center?
 
-Both views are the same hive, so this is about attention, not data:
+Both show the same office, so this is about attention, not data:
 
-- **Watch the floor** when you care about *one agent right now* — you just dispatched something, you want to type into a session, or you want ambient awareness while doing other work. (Also: it's charming.)
-- **Watch the board** when you care about *the fleet over time* — what's queued, what's blocked on what, who's near budget, whether CI is green, what fires tonight.
+- **Watch the floor** for one agent right now: you just sent work, you want to type into a session, or you want ambient
+  awareness while you do something else. It is also, admittedly, charming.
+- **Watch the Command Center** for the whole fleet over time: what is queued, what is blocked on what, who is close to budget, and
+  what runs tonight.
 
-In practice: floor open while you work, Command Center when you check in. Morning check-in is the board — done column, spend per agent, blocked tasks, next scheduled missions. That's a two-minute read that would take twenty minutes of terminal-scrolling without it. And when something needs a human decision, escalations land in the [approvals queue](/blog/human-in-the-loop-approving-ai-agents/) rather than hiding in a scrollback buffer.
+In practice, keep the floor open while you work and check the Command Center when you check in. A morning check in takes two
+minutes: the done column, the ask me tab, spend per agent, and what is scheduled next. When something needs a human decision, it is
+already waiting for you on [the ask me tab](/blog/human-in-the-loop-approving-ai-agents/) rather than buried in a scrollback.
 
 ## Try it
 
-The Command Center ships in the current release, free and open source. [Download Munder Difflin](https://github.com/chaitanyagiri/munder-difflin/releases/latest) — and if the board earns its place in your morning routine, a [star on GitHub](https://github.com/chaitanyagiri/munder-difflin) helps more people find it.
+The Command Center is part of the free classic office. [Download Munder Difflin](https://munderdiffl.in/), and if the board earns a
+place in your morning routine, [a star on GitHub](https://github.com/chaitanyagiri/munder-difflin) helps other people find it.

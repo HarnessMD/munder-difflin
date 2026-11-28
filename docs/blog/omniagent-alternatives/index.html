@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OmniAgent Alternatives: What to Use Instead of Databricks Omnigent — Munder Difflin Blog</title>
+<meta name="description" content="OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits." />
+<link rel="canonical" href="https://munderdiffl.in/blog/omniagent-alternatives/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="OmniAgent Alternatives: What to Use Instead of Databricks Omnigent — Munder Difflin Blog" />
+<meta property="og:description" content="OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits." />
+<meta property="og:url" content="https://munderdiffl.in/blog/omniagent-alternatives/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/omniagent-alternatives/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Hand drawn sketch: two agents at their desks and a yellow character handing work to a todo, doing, done board, labelled one harness, many agents" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-09-14T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Comparisons" />
+<meta property="article:tag" content="Multi-Agent" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="Tools" />
+<meta property="article:tag" content="Open Source" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="OmniAgent Alternatives: What to Use Instead of Databricks Omnigent — Munder Difflin Blog" />
+<meta name="twitter:description" content="OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/omniagent-alternatives/hero.png" />
+<meta name="twitter:image:alt" content="Hand drawn sketch: two agents at their desks and a yellow character handing work to a todo, doing, done board, labelled one harness, many agents" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "OmniAgent Alternatives: What to Use Instead of Databricks Omnigent",
+  "description": "OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits.",
+  "image": ["https://munderdiffl.in/blog/assets/media/omniagent-alternatives/hero.png"],
+  "datePublished": "2026-09-14T00:00:00.000Z",
+  "dateModified": "2026-09-14T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/omniagent-alternatives/" },
+  "keywords": "omniagent alternatives, omnigent alternatives, omnigent databricks, omnigent meta harness, omniagent harness, omnigent vs opencode",
+  "articleSection": "Comparisons",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/omniagent-alternatives/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "OmniAgent Alternatives: What to Use Instead of Databricks Omnigent", "item": "https://munderdiffl.in/blog/omniagent-alternatives/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is OmniAgent the same as Omnigent?", "acceptedAnswer": { "@type": "Answer", "text": "If you mean the Databricks agent harness, yes: the project is called Omnigent and lives in the omnigent-ai/omnigent repository on GitHub. OmniAgent is also the name of unrelated projects, such as a personal assistant that answers across chat apps (plexusone/omniagent) and a terminal for CLI agents on remote servers (sbyoun/OmniAgent)." } },
+    { "@type": "Question", "name": "Is Omnigent open source?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Omnigent is licensed under Apache 2.0, and its NOTICE file carries a Databricks copyright, checked on 14 Sep 2026. Databricks also runs a managed version called Omnigent on Databricks, which its docs listed as Beta on 11 Sep 2026." } },
+    { "@type": "Question", "name": "Do you need Databricks to use Omnigent?", "acceptedAnswer": { "@type": "Answer", "text": "No. The open source release runs on your own machine or any server, and its README lists four kinds of model credentials: a vendor API key, a Claude or ChatGPT subscription through the official CLIs, a compatible gateway such as OpenRouter or Ollama, or a Databricks workspace. Databricks is one option, not a requirement." } },
+    { "@type": "Question", "name": "Does Omnigent work on Windows?", "acceptedAnswer": { "@type": "Answer", "text": "Partly. The README says Omnigent runs natively on Windows in a degraded mode: the server, the web UI and the SDK based harnesses work, but the native Claude, Codex and Cursor terminal wrappers and the filesystem and network sandbox do not. For those it points you to Linux, macOS or WSL." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-comparisons">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/comparisons/">Comparisons</a>
+    </nav>
+    <h1>OmniAgent Alternatives: What to Use Instead of Databricks Omnigent</h1>
+    <p class="dek">OmniAgent is really Omnigent, the open source meta harness from Databricks. Alternatives checked on 14 Sep 2026, and who each one fits.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-09-14">Sep 14, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Comparisons</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/omniagent-alternatives/hero.png" alt="Hand drawn sketch: two agents at their desks and a yellow character handing work to a todo, doing, done board, labelled one harness, many agents" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>The OmniAgent harness people search for is Omnigent, an Apache 2.0 meta harness from Databricks. Good alternatives: Claude Code agent teams for a lighter setup, Munder Difflin or Orca for a local desktop app, Paperclip for company style governance, and LangGraph or the OpenAI Agents SDK if you’d rather write the orchestration yourself.</p>
+<p>If Paperclip is the tool you are weighing, our <a href="/blog/paperclip-alternatives/">Paperclip alternatives</a> page compares six tools like it.</p>
+<p>The name is crowded. On GitHub, plexusone/omniagent is a personal assistant that replies for you across chat apps, and sbyoun/OmniAgent is a terminal for running CLI agents across servers. CallMiner also sells an unrelated customer service OmniAgent. If “harness” is a new word here, start with <a href="/blog/what-is-a-multi-agent-harness/">what a multi-agent harness is</a>. Everything below was checked on 14 Sep 2026.</p>
+<h2 id="is-it-called-omniagent-or-omnigent" tabindex="-1">Is it called OmniAgent or Omnigent? <a class="anchor" href="#is-it-called-omniagent-or-omnigent" aria-hidden="true">#</a></h2>
+<p>It is called Omnigent. Databricks announced it on 13 Jun 2026 in a <a href="https://www.databricks.com/blog/introducing-omnigent-meta-harness-combine-control-and-share-your-agents">post by Matei Zaharia, Kasey Uhlenhuth and Corey Zumar</a> and released it under Apache 2.0; the repo’s <code>NOTICE</code> file reads “Copyright (2026) Databricks, Inc.” A couple of explainers spell it OmniAgent, and Google autocomplete for “omniagent” suggests “omnigent databrick”, so both spellings lead to the same project. We pulled the basics from GitHub:</p>
+<pre><code>$ gh api repos/omnigent-ai/omnigent --jq '.license.spdx_id, .language, .created_at'
+Apache-2.0
+Python
+2026-06-11T12:18:13Z
+$ gh api repos/omnigent-ai/omnigent/releases/latest --jq '.tag_name, .published_at'
+v0.13.0
+2026-09-09T14:56:32Z
+</code></pre>
+<p>Omnigent does not replace Claude Code or Codex; it runs them under one server. Per its <a href="https://github.com/omnigent-ai/omnigent">README</a>, it puts Claude Code, Codex, Cursor, OpenCode, Hermes, Pi and your own YAML defined agents behind one layer: mix them in a single session, ask one to review another’s work, or swap the harness by changing one line. A server stores every session and serves a web UI (<code>http://localhost:6767</code> when it runs locally), so the same session opens in your terminal, a browser, the desktop app or a phone. Teammates can watch it live, co-drive it on your machine or fork it.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/omniagent-alternatives/note-1.png" alt="Hand drawn sketch: two agents working at their own desks" loading="lazy" decoding="async" /></figure>
+<h2 id="why-look-for-an-omnigent-alternative" tabindex="-1">Why look for an Omnigent alternative? <a class="anchor" href="#why-look-for-an-omnigent-alternative" aria-hidden="true">#</a></h2>
+<p>Four things can push you elsewhere: the setup, the server at the centre, the style of governance, or a wish to write the orchestration themselves. None of them makes Omnigent a bad tool.</p>
+<p>The setup is more than one download. The README lists Python 3.12 or newer, <code>uv</code>, <code>git</code>, Node 22 with <code>npm</code> and <code>pnpm</code>, <code>tmux</code> for the native Claude and Codex wrappers, and <code>bubblewrap</code> on Linux, though the one line installer offers uv, tmux and bubblewrap. On Windows it runs “in a degraded mode”, without the native terminal wrappers or the filesystem and network sandbox. The project still wears an alpha badge, and releases went from v0.9.0 on 11 Aug to v0.13.0 on 9 Sep 2026, so expect things to move under you.</p>
+<p>Everything goes through a server. Even solo, you run one on your laptop and every client attaches to it. That is what makes shared sessions possible, and it is more moving parts than one person at one desk needs. Our piece on <a href="/blog/local-first-vs-cloud-agent-sdks/">local first vs cloud agent SDKs</a> covers that trade in general.</p>
+<p>If a server is more than you need, <a href="https://harnessmd.com/download">Munder Difflin</a> is the local version of the idea: a free and open source desktop app for macOS, Windows and Linux where every agent is a real CLI in its own terminal, across twelve providers including Claude Code, Codex, Gemini CLI, Copilot and Cursor. Michael, your clone, takes your brief and hands out the work, agents share memory, and per agent token caps plus a circuit breaker keep spend in check. It has no server wide policy layer like Omnigent’s. Its agents run on your computer, or in its Cloud Office with your computer off.</p>
+<p>Governance is written as code. Omnigent policies return allow, deny or ask, and they stack at three levels: server wide for admins, per agent in the YAML, and per session in the UI, with session rules checked first. Built-in handlers ask before file and shell tool calls, cap tool calls per session and block expensive models past a spend limit, with optional warnings before that. You can toggle the built-ins in the UI, but a rule beyond them means writing a Python handler, which is either a relief or a chore depending on who owns Python on your team. On the managed service, <a href="https://docs.databricks.com/aws/en/omnigent/">Databricks’ docs</a> (updated 11 Sep 2026) say only the built-in contextual policies are supported.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/omniagent-alternatives/note-2.png" alt="Hand drawn sketch: a todo, doing, done board with task cards" loading="lazy" decoding="async" /></figure>
+<h2 id="which-omnigent-alternatives-are-worth-trying" tabindex="-1">Which Omnigent alternatives are worth trying? <a class="anchor" href="#which-omnigent-alternatives-are-worth-trying" aria-hidden="true">#</a></h2>
+<p>Five are worth a look, each checked on its own repo or docs on 14 Sep 2026.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Alternative</th>
+<th>What it is</th>
+<th>Fits you if</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code agent teams</td>
+<td>Built into Claude Code, experimental, switched on with <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code>. A lead session spawns teammates that share a task list and message each other (<a href="https://code.claude.com/docs/en/agent-teams">docs</a>).</td>
+<td>You only run Claude and want nothing new installed. It will not mix in Codex or Cursor.</td>
+</tr>
+<tr>
+<td><a href="https://harnessmd.com/download">Munder Difflin</a></td>
+<td>Our free and open source desktop app, described above.</td>
+<td>You want many CLIs working as one team on your own machine.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/stablyai/orca">Orca</a></td>
+<td>MIT licensed desktop app for macOS, Windows and Linux that runs Codex, Claude Code, OpenCode or Pi side by side, each in its own git worktree, with a mobile companion.</td>
+<td>You want parallel agents in a GUI and you compare their results yourself.</td>
+</tr>
+<tr>
+<td>Paperclip</td>
+<td>MIT licensed, self hosted Node server and React UI that runs agents as a company, with an org chart, monthly budgets per agent and approval for new hires (<a href="https://github.com/paperclipai/paperclip">repo</a>).</td>
+<td>Your governance question is who reports to whom and what each agent may spend, rather than rules on every tool call.</td>
+</tr>
+<tr>
+<td>LangGraph, OpenAI Agents SDK, Claude Agent SDK</td>
+<td>Libraries you build agents on.</td>
+<td>You are shipping an agent product, not supervising coding agents. See <a href="/blog/crewai-autogen-vs-a-local-agent-harness/">frameworks vs a local harness</a>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="when-is-omnigent-the-better-choice" tabindex="-1">When is Omnigent the better choice? <a class="anchor" href="#when-is-omnigent-the-better-choice" aria-hidden="true">#</a></h2>
+<p>Omnigent is the better pick when a team needs one policy layer and one audit story across agents from several vendors. That case is strongest inside Databricks. The managed service runs the server for you, tied to your workspace’s identity provider, with model access through Foundation Model APIs and AI Gateway. The repo’s <code>docs/databricks.md</code> guide for self managed installs adds audit logs and per key cost tracking at the gateway, with traces kept in MLflow Tracing in Unity Catalog.</p>
+<p>It also wins when people need to share, co-drive or fork a live session, or run agents in cloud sandboxes such as Modal or E2B with no laptop left open. A desktop app on one machine cannot stand in for that.</p>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is OmniAgent the same as Omnigent?</p>
+          <p class="a">If you mean the Databricks agent harness, yes: the project is called Omnigent and lives in the omnigent-ai/omnigent repository on GitHub. OmniAgent is also the name of unrelated projects, such as a personal assistant that answers across chat apps (plexusone/omniagent) and a terminal for CLI agents on remote servers (sbyoun/OmniAgent).</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is Omnigent open source?</p>
+          <p class="a">Yes. Omnigent is licensed under Apache 2.0, and its NOTICE file carries a Databricks copyright, checked on 14 Sep 2026. Databricks also runs a managed version called Omnigent on Databricks, which its docs listed as Beta on 11 Sep 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Do you need Databricks to use Omnigent?</p>
+          <p class="a">No. The open source release runs on your own machine or any server, and its README lists four kinds of model credentials: a vendor API key, a Claude or ChatGPT subscription through the official CLIs, a compatible gateway such as OpenRouter or Ollama, or a Databricks workspace. Databricks is one option, not a requirement.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does Omnigent work on Windows?</p>
+          <p class="a">Partly. The README says Omnigent runs natively on Windows in a degraded mode: the server, the web UI and the SDK based harnesses work, but the native Claude, Codex and Cursor terminal wrappers and the filesystem and network sandbox do not. For those it points you to Linux, macOS or WSL.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/comparisons/">Comparisons</a><a class="tag" href="/blog/tags/multi-agent/">Multi-Agent</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/tools/">Tools</a><a class="tag" href="/blog/tags/open-source/">Open Source</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#is-it-called-omniagent-or-omnigent">Is it called OmniAgent or Omnigent?</a></li><li class="lvl-2"><a href="#why-look-for-an-omnigent-alternative">Why look for an Omnigent alternative?</a></li><li class="lvl-2"><a href="#which-omnigent-alternatives-are-worth-trying">Which Omnigent alternatives are worth trying?</a></li><li class="lvl-2"><a href="#when-is-omnigent-the-better-choice">When is Omnigent the better choice?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/what-is-vibe-coding/"><span class="k">← Older</span><span class="t">What Is Vibe Coding? Meaning, Risks and Safer Habits</span></a>
+      <a class="pn next" href="/blog/is-claude-code-open-source/"><span class="k">Newer →</span><span class="t">Is Claude Code Open Source?</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Comparisons</h2>
+      <div class="post-grid">
+        <article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/opusclip-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opusclip-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-28">Nov 28, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/opusclip-alternatives/">OpusClip Alternatives: 6 Picks for AI Clips, Free and Open Source</a></h3>
+    <p class="dek">OpusClip&#39;s free plan gives 60 credits a month with a watermark. Six alternatives, from open source AutoClip to Klap and Descript, checked 28 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/opusclip-alternatives/" aria-label="Read: OpusClip Alternatives: 6 Picks for AI Clips, Free and Open Source">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/firecrawl-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/firecrawl-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/firecrawl-alternatives/">Firecrawl Alternatives: 5 Picks for AI Agent Web Data (Nov 2026)</a></h3>
+    <p class="dek">Firecrawl is mainly AGPL 3.0 and paid plans start at $16 a month billed yearly. Five alternatives for AI agent web data, checked 25 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/firecrawl-alternatives/" aria-label="Read: Firecrawl Alternatives: 5 Picks for AI Agent Web Data (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/crewai-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/crewai-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-24">Nov 24, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/crewai-alternatives/">CrewAI Alternatives: 6 Picks for Teams of Agents (Nov 2026)</a></h3>
+    <p class="dek">CrewAI is a free MIT framework with a cloud from Basic to Enterprise. Six CrewAI alternatives by licence, language and release, checked 24 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/crewai-alternatives/" aria-label="Read: CrewAI Alternatives: 6 Picks for Teams of Agents (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

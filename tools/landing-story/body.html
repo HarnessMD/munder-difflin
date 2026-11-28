@@ -1,0 +1,320 @@
+<div class="dayclock" id="dayclock" aria-hidden="true"><span class="dc-t" id="dcTime">9:00 AM</span><span class="dc-l" id="dcLabel">Clock in</span><i class="dc-bar"><b id="dcBar"></b></i></div>
+
+<main id="top">
+
+<!-- 0. HERO. The launch video is the product shot: it replaces the two loops that sat here (the classic office gif and the Pro gif).
+     It starts muted because browsers refuse sound without a click; one press turns the sound on and plays it from the top. -->
+<header class="hero s0" data-chapter="09:00|Clock in">
+  <div class="wrap">
+    {{RAW:357,366}}
+    <span class="eyebrow">Munder Difflin 0.5.5</span>
+    <h1>Agent harness to run an office of your clones</h1>
+    <p class="lead"><strong>Free, open source and performant</strong> multi-agent harness, works with your existing subscriptions (uses hourly limits).</p>
+    <div class="btn-row">
+      <a class="btn primary lg" href="https://harnessmd.com/download">⤓ Download free</a>
+      <a class="btn lg" href="#story">See a day at the office</a>
+    </div>
+    <p class="meta">macOS, Windows and Linux. Works with the subscriptions you already pay for.</p>
+
+    <figure class="cinema" id="cinema">
+      <div class="screen" id="screen">
+        <video id="launchVideo" poster="./media/munder-difflin-053-poster.jpg" preload="metadata" autoplay playsinline muted loop
+               aria-label="Munder Difflin 0.5.3 launch video: an office of coding agents, the Stapler, and the free download">
+          <source src="./media/munder-difflin-053.mp4" type="video/mp4">
+          <source src="https://munderdiffl.in/media/munder-difflin-053.mp4" type="video/mp4">
+        </video>
+        <div class="vload" id="vload"><span class="vl-face" id="vlFace"></span><span class="vl-t">Loading the launch video</span><i class="vl-bar"><b id="vlBar"></b></i></div>
+        <button type="button" class="sound" id="soundBtn" hidden><span class="sp-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></span><span>Watch with sound</span><small>0:54</small></button>
+      </div>
+      <figcaption>The 0.5.3 launch video. One shotted with Munder Difflin and Opus 5.5.</figcaption>
+    </figure>
+
+    <div class="floorline" aria-hidden="true">
+      <i class="walker w1"><i class="sp sp-michael"></i></i>
+      <i class="walker w2"><i class="sp sp-pam"></i></i>
+      <i class="walker w3"><i class="sp sp-dwight"></i></i>
+      <i class="walker w4"><i class="sp sp-jim"></i></i>
+      <i class="walker w5"><i class="sp sp-kevin"></i></i>
+    </div>
+  </div>
+</header>
+
+
+
+
+<section class="proofband" data-chapter="09:00|Clock in">
+  <div class="wrap center">
+    <div class="proof">
+      <span><span class="n" data-count="100" data-suffix="K+">100K+</span><span class="l">downloads</span></span>
+      <a href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener"><span class="n starct">6.7K</span><span class="l">GitHub stars</span></a>
+      <a href="https://trendshift.io/repositories/46562" target="_blank" rel="noopener"><span class="n">#1</span><span class="l">GitHub Trending</span></a>
+      <a href="https://www.producthunt.com/products/munder-difflin" target="_blank" rel="noopener"><span class="n">#5</span><span class="l">Product Hunt</span></a>
+      <span><span class="n" data-count="1" data-suffix="M+">1M+</span><span class="l">Reddit views</span></span>
+      <span><span class="n" data-count="5" data-suffix="M+">5M+</span><span class="l">Instagram and X</span></span>
+    </div>
+  </div>
+</section>
+
+<div class="daynote" id="daynote" data-rv>
+  <span class="dn-clock" aria-hidden="true"><i class="h"></i><i class="m"></i></span>
+  <p><span class="dn-l">Scroll through one workday at the office,</span><span class="dn-s">A workday at the office,</span> <b>9 AM to 5 PM</b></p>
+  <a class="dn-go" href="#story" aria-label="Start the day">↓</a>
+</div>
+
+<!-- 1. THE PROBLEM. Terminals pile up as you scroll, then fold into one floor. -->
+<section class="chap c1" id="story" data-chapter="09:15|The old way">
+  <div class="wrap split">
+    <div class="copy-col" data-rv>
+      <span class="stamp">9:15 AM</span>
+      <h2>Coding agents got really good. Then you opened six terminals.</h2>
+      <p>Claude Code in one tab. Codex in another. A third one has been waiting on you for twenty minutes. Every agent is brilliant alone, and nobody is watching the whole room.</p>
+      <p class="kicker">Munder Difflin gives them a floor, a boss and a memory.</p>
+    </div>
+    <div class="terms-pile" id="pile" aria-hidden="true">
+      <div class="tw t1"><b>claude</b><i>› fix the flaky signup test</i><i>✻ Thinking…</i></div>
+      <div class="tw t2"><b>codex</b><i>› review src/signup.ts</i><i>waiting for input</i></div>
+      <div class="tw t3"><b>gemini</b><i>› update the README</i><i>✻ Reading 142 lines</i></div>
+      <div class="tw t4"><b>claude</b><i>› which branch was it?</i><i>waiting for input</i></div>
+      <div class="tw t5"><b>copilot</b><i>› accept 8 character passwords</i><i>✻ Editing</i></div>
+      <div class="tw t6"><b>cursor</b><i>› match emails case insensitively</i><i>waiting for input</i></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. THE CAST. Twelve providers, twelve desks, twelve clones drawn by the app itself. -->
+<section class="chap c2 band" id="agents" data-chapter="09:45|Everyone arrives">
+  <div class="wrap center">
+    <span class="stamp">9:45 AM</span>
+    <h2 data-rv>Twelve coding agents. One office.</h2>
+    <p class="lead" data-rv>Every clone is a real CLI agent in a real terminal, on the plan you already have. Nothing to switch, nothing new to pay for.</p>
+    <div class="desks" id="desks">
+      {{DESKS}}
+    </div>
+    <p class="models" data-rv>New models reach you without a new version: the model pickers read the list at launch. <b>Opus 5.5</b> is the default Claude model in 0.5.3.</p>
+  </div>
+</section>
+
+<!-- 3. SELF COORDINATING. A drawn agent list, as in the video: the orchestrator hands out work and the rows light up in turn. -->
+<section class="chap c3" id="orchestrator" data-chapter="10:30|Standup">
+  <div class="wrap split rev">
+    <div class="copy-col" data-rv>
+      <span class="stamp">10:30 AM</span>
+      <h2>One orchestrator. Agents that hand work to each other.</h2>
+      <p>Give Michael, your orchestrator, one sentence. He breaks it into tasks, picks the right clone for each, and they pass work along without you in the middle. You only hear about what needs you, in one Ask me box.</p>
+      <ul class="ticks">
+        <li>A task board every clone can read</li>
+        <li>An inbox per agent, and Ask me for questions that need a human</li>
+        <li>A circuit breaker that stops runaway spend</li>
+        <li>Crashed agents restart in the same folder, work intact</li>
+      </ul>
+    </div>
+    <div class="roster" id="roster" aria-hidden="true">
+      <div class="rh"><b>AGENTS</b><span class="live">6 live</span></div>
+      {{ROSTER}}
+      <div class="handoff h1">Oscar, review acm-4</div>
+      <div class="handoff h2">Angela, test duplicate emails</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. MEMORY. A search that types itself and three result cards. -->
+<section class="chap c4 band" id="memory" data-chapter="11:30|Who did what">
+  <div class="wrap center">
+    <span class="stamp">11:30 AM</span>
+    <h2 data-rv>Memory that outlives the session.</h2>
+    <p class="lead" data-rv>Every clone remembers what it learned, who worked on what and why. Ask the office a question in plain words and it answers from its own history, on your machine.</p>
+    <div class="memsearch" id="memsearch" aria-hidden="true">
+      <div class="ms-bar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span class="ms-q" id="msq"></span><i class="caret"></i></div>
+      <div class="ms-cards">
+        <div class="ms-card"><h4>Who worked on it</h4>{{WHO}}</div>
+        <div class="ms-card"><h4>Tickets</h4><p><code>acm-1</code> Reproduce the signup bug <span class="ok">Done</span></p><p><code>acm-4</code> Review the signup branches <span class="ok">Done</span></p><p><code>acm-7</code> Ship the signup fix <span class="wip">Doing</span></p></div>
+        <div class="ms-card"><h4>Memories</h4><p>Signup failed on uppercase emails. Fixed with a case insensitive match.</p><p>Passwords need 8 characters, per the spec.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. STAPLER. The headline feature of 0.5.3. The ring opens and each action lights up as its line scrolls past. -->
+<section class="chap c5" id="stapler" data-chapter="12:30|Lunch meeting">
+  <div class="wrap">
+    <div class="stapler-grid">
+      <div class="stapler-stick">
+        <div class="scard">
+          <div class="field" id="field" aria-hidden="true"></div>
+          {{RAW:443,447}}
+        </div>
+      </div>
+      <div class="stapler-copy">
+        <span class="stamp">12:30 PM</span>
+        <span class="chip on">New in 0.5.3</span>
+        <h2>Cancel your Granola and Wispr Flow subscriptions</h2>
+        <p class="lead">Meet the Stapler: a small round window that floats over every app. It takes dictation, writes down your meetings and hands both to your agents. Transcription runs locally, so your voice never leaves the machine.</p>
+        <div class="acts">
+          <div class="act" data-act="message"><b>Dictate into any app.</b> Hold Option on a Mac, or Control+Alt+Space on Windows and Linux, and talk. Let go and the words land in whatever text field is in front of you.</div>
+          <div class="act" data-act="meeting"><b>Record the meeting, both sides.</b> Your microphone is written down as You and the call as Them, on Mac, Windows and Linux. Fix the transcript and send it to any agent.</div>
+          <div class="act" data-act="screenshot"><b>Screenshot it.</b> Drag a box, add a line, send it to an agent. The picture stays on your disk.</div>
+          <div class="act" data-act="message"><b>Record a message.</b> Talk for up to five minutes, read it back, pick who gets it.</div>
+          <div class="act" data-act="invisible"><b>Leave invisible.</b> One click and it drops out of every screen share and recording.</div>
+        </div>
+        <p class="proline"><b>The Stapler is part of Pro.</b> Dictation in the Munder Difflin message box works in the free version too. It understands 126 technical names out of the box, plus your own.</p>
+        <details class="make"><summary>Make your own Stapler</summary>{{RAW:462,482}}</details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. LOCAL. Your machine in the middle, your subscriptions and your tools around it. -->
+<section class="chap c6 band" id="local" data-chapter="13:30|Heads down">
+  <div class="wrap split">
+    <div class="copy-col" data-rv>
+      <span class="stamp">1:30 PM</span>
+      <h2>Local first. Your subscriptions, your keys, your machine.</h2>
+      <p>Munder Difflin runs on your laptop and drives the CLI agents you already pay for, so your hourly limits do the work. Code, keys and personal context stay on the machine.</p>
+      <p>Connect anything with an API key. GitHub, Linear, Telegram or your own webhook can wake a clone, and secrets are stored encrypted next to your provider keys.</p>
+    </div>
+    <div class="machine" id="machine">{{MACHINE}}</div>
+  </div>
+</section>
+
+<!-- 7. SECURITY. The sealed log: ciphertext on the wire, plain words inside the node, decrypted as it scrolls in. -->
+<section class="chap c7" id="security" data-chapter="14:30|Passing notes">
+  <div class="wrap center">
+    <span class="stamp">2:30 PM</span>
+    <h2 data-rv>Private by architecture, not by promise.</h2>
+    <p class="lead" data-rv>When clones on different machines talk, every message is signed on yours and sealed for theirs. The relay carries a box it cannot open.</p>
+    <div class="wire" id="wire">
+      <div class="wh"><span>SEALED MESSAGE LOG</span><span>X25519 · XChaCha20 · Ed25519</span></div>
+      <div class="wire-cols">
+        <div>
+          <h4>ON THE WIRE. WHAT ANYONE IN BETWEEN SEES</h4>
+          <div class="wl"><span class="m">03:12:07 · jim's clone → pam's clone · 1.2 KB</span><span class="c">nQf4x9Uc2mL8J1sKw0Yd7Rz3TgHveA5oP6iB4tCkXhSMDrEyWuNa8lF2mQ==</span></div>
+          <div class="wl"><span class="m">03:12:41 · pam's clone → jim's clone · 4.7 KB</span><span class="c">8vZjR3nT0qWaXe6KsYb1MoLdC9pHgU4wJfN7PiVt2ErkB5yQzD0mAhx==</span></div>
+          <div class="wl"><span class="m">03:14:22 · jim's clone → pam's clone · 0.9 KB</span><span class="c">Lw2mCk7RfXp0dYtG5uNqJ3aVzS8hEoK1cbP9WiT4xM6lDrB0nQvyF==</span></div>
+        </div>
+        <div>
+          <h4><span>INSIDE YOUR NODE.</span> WHAT YOUR CLONE SEES</h4>
+          <div class="wl"><span class="m">jim's clone</span><span class="p" data-plain="Payments refactor is blocked. Need the invoice state tokens.">Payments refactor is blocked. Need the invoice state tokens.</span></div>
+          <div class="wl"><span class="m">pam's clone</span><span class="p" data-plain="Sent. Tokens plus edge case flows in billing/tokens.json.">Sent. Tokens plus edge case flows in billing/tokens.json.</span></div>
+          <div class="wl"><span class="m">jim's clone</span><span class="p" data-plain="Unblocked. PR #147 open, tests green.">Unblocked. PR #147 open, tests green.</span></div>
+        </div>
+      </div>
+      <div class="wf">Sealed on yours. Opened on theirs. Keys never leave your machines.</div>
+    </div>
+    <p class="count"><b>What we count:</b> buckets and fixed words only, no email, no account id, no payment id, nothing you typed. The table is public in <a href="https://github.com/chaitanyagiri/munder-difflin/blob/main/TELEMETRY.md" target="_blank" rel="noopener">TELEMETRY.md</a> and Do Not Track turns it off.</p>
+  </div>
+</section>
+
+<!-- 7b. FLOORS. A second project walks in: New Floor opens another office on another folder, stacked in the same building. -->
+<section class="chap c7b band" id="floors" data-chapter="15:00|Second floor">
+  <div class="wrap split rev">
+    <div class="copy-col" data-rv>
+      <span class="stamp">3:00 PM</span>
+      <h2>A second project walks in. Open a second floor.</h2>
+      <p>File, New Floor asks where to start: pick a folder you already use or make a new one. A new office opens in its own window and runs next to the first, so the client work and the side project are both busy at once.</p>
+      <ul class="ticks">
+        <li>Every floor has its own agents, board and memory</li>
+        <li>Moving one floor to a new folder restarts only that floor</li>
+        <li>A folder only ever opens in one floor, so offices never collide</li>
+        <li>One licence covers every floor on your machine</li>
+      </ul>
+    </div>
+    <div class="tower" id="tower" role="img" aria-label="Two floors of agents in one building, each on its own project folder, with room for a new floor on top">{{TOWER}}</div>
+  </div>
+</section>
+
+<!-- 8. CLASSIC OR PRO. One download, two ways to see the office. -->
+<section class="chap c8" id="plans" data-chapter="15:15|Pick your view">
+  <div class="wrap center">
+    <span class="stamp">3:15 PM</span>
+    <h2 data-rv>Two ways to run the floor.</h2>
+    <p class="lead" data-rv>Same download. Watch your clones at their desks in Classic, or work beside them in Pro.</p>
+    <div class="modes">
+      <div class="mode classic" data-rv>
+        <div class="mode-art"><div class="pixfloor">{{FLOOR}}</div></div>
+        <div class="mode-t"><span class="chip">Free</span><h3>Classic</h3><p>A pixel office with a clone at every desk, each one a real agent in a real terminal. The floor is a simulation and uses no tokens. Unlimited local agents, twelve providers, MIT licensed.</p></div>
+      </div>
+      <div class="mode pro" data-rv>
+        <div class="mode-art"><div class="prorail">{{RAIL}}</div></div>
+        <div class="mode-t"><span class="chip on">Pro</span><h3>Pro</h3><p>The office in a sidebar, one screen at a time: orchestrator, agents, tasks, inbox, automations and memory in one window, with the Stapler floating over everything you do.</p></div>
+      </div>
+    </div>
+    <div class="soon" data-rv>
+      <div><span class="chip">Coming</span><b>Remote control from an app.</b> Your office, from wherever you are.</div>
+      <div><span class="chip">Coming</span><b>Sandboxes.</b> A clone that keeps working with the lid closed.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. PRICING. Figures from web/harnessmd/src/server/pricing.ts; the launch offer as the founder wrote it on 25 Sep 2026. Teams carries no figure (set up on a call since 16 Sep 2026). -->
+<section class="chap c9 band" id="pricing" data-chapter="16:00|The money bit">
+  <div class="wrap center">
+    <span class="stamp">4:00 PM</span>
+    <h2 data-rv>One download. Three plans.</h2>
+    <div class="tiers">
+      <div class="tier" data-rv>
+        <div class="th"><span class="tn">FREE</span></div>
+        <div class="price">$0</div>
+        <div class="price-alt">forever</div>
+        <ul>
+          <li>The Classic office, on your machine</li>
+          <li>Unlimited local agents, twelve providers</li>
+          <li>Free and open source, MIT licensed</li>
+        </ul>
+        <a class="btn" href="https://harnessmd.com/download">Download free</a>
+      </div>
+      <div class="tier hot" data-rv>
+        <div class="th"><span class="tn">PRO</span><span class="chip on">Launch offer</span></div>
+        <div class="price"><s>$200</s>$150<small> for 365 days</small></div>
+        <div class="price-alt">or $20 for 30 days</div>
+        <p class="ppp">Adjusted for purchasing power in different countries, as low as $100 for 365 days.</p>
+        <ul>
+          <li>The Pro workspace and the new sidebar</li>
+          <li>The Stapler: dictation and meetings, transcribed locally</li>
+          <li>One machine at a time</li>
+        </ul>
+        <a class="btn primary" href="https://app.harnessmd.com/console/license" target="_blank" rel="noreferrer">Get 365 days for $150</a>
+      </div>
+      <div class="tier" id="teams" data-rv>
+        <div class="th"><span class="tn">TEAMS</span></div>
+        <div class="price">By call</div>
+        <div class="price-alt">thirty minutes, set up with us</div>
+        <ul>
+          <li>Orchestrators that talk across machines, sealed per device</li>
+          <li>Seats by invite code, direct messages, files</li>
+          <li>The admin console: members, activity, settings</li>
+        </ul>
+        <a class="btn primary" href="https://cal.com/chaitanya-giri-dk45ov/30min" target="_blank" rel="noopener">Talk to us about Teams</a>
+      </div>
+    </div>
+    <p class="wall-cta"><a class="btn" data-support="wall-link" href="https://munderdiffl.in/wall.html" target="_blank" rel="noopener">See the Founding Supporters</a></p>
+  </div>
+</section>
+
+<section class="chap c10" id="faq" data-chapter="16:30|Questions">
+  <div class="wrap center">
+    <span class="stamp">4:30 PM</span>
+    <h2>That's what she... asked.</h2>
+    <div class="faq">
+      {{FAQ}}
+    </div>
+  </div>
+</section>
+
+<!-- 10. AFTER HOURS. The page goes dark: you leave, the office keeps working. -->
+<section class="afterhours" id="download" data-chapter="17:00|Clocking out">
+  <div class="wrap center">
+    <span class="stamp">5:00 PM</span>
+    <h2>You clock out. Your clones keep working.</h2>
+    <p>Download Munder Difflin, hire your first clone, and come back to finished work.</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn primary lg" href="https://harnessmd.com/download">⤓ Download free</a>
+      <a class="btn lg ghost" href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">★ <span class="starct">6.7K</span> on GitHub</a>
+    </div>
+    <div class="nightfloor" aria-hidden="true">
+      <i class="win"></i><i class="win"></i><i class="win"></i><i class="moon"></i>
+      <div class="deskrow">{{NIGHT}}</div>
+    </div>
+  </div>
+</section>
+
+</main>

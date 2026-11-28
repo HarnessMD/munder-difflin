@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6 — Munder Difflin Blog</title>
+<meta name="description" content="Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds." />
+<link rel="canonical" href="https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6 — Munder Difflin Blog" />
+<meta property="og:description" content="Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds." />
+<meta property="og:url" content="https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/launching-munder-difflin-v0-5-2/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Illustration: Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-09-10T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Story" />
+<meta property="article:tag" content="Release" />
+<meta property="article:tag" content="Pro" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6 — Munder Difflin Blog" />
+<meta name="twitter:description" content="Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/launching-munder-difflin-v0-5-2/hero.png" />
+<meta name="twitter:image:alt" content="Illustration: Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6",
+  "description": "Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds.",
+  "image": ["https://munderdiffl.in/blog/assets/media/launching-munder-difflin-v0-5-2/hero.png"],
+  "datePublished": "2026-09-10T00:00:00.000Z",
+  "dateModified": "2026-09-10T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/" },
+  "keywords": "munder difflin 0.5.2, munder difflin pro, install munder difflin pro, munder difflin stapler, munder difflin release notes, munder difflin community build",
+  "articleSection": "Story",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6", "item": "https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Munder Difflin 0.5.2 free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The 0.5.2 download runs the classic office for free after you sign in to your harnessMD account, and your work stays on your machine. Pro and Teams are optional paid plans on the same download." } },
+    { "@type": "Question", "name": "Do I need a different download for Pro?", "acceptedAnswer": { "@type": "Answer", "text": "No. The free classic office, Pro and Teams all run on the same 0.5.2 download. Buying Pro or entering a licence key switches that machine to Pro." } },
+    { "@type": "Question", "name": "Are Community builds still signed and notarized?", "acceptedAnswer": { "@type": "Answer", "text": "No. We have stopped signing and notarizing Community builds. The build we sign, notarize and maintain is the Pro build, which is the 0.5.2 download on our download pages." } },
+    { "@type": "Question", "name": "How do I update from 0.4.6?", "acceptedAnswer": { "@type": "Answer", "text": "If the update badge in the title bar offers 0.5.2, click it and restart. If it does not, or the update fails, download 0.5.2 and install it over your current copy." } },
+    { "@type": "Question", "name": "What does the Stapler need?", "acceptedAnswer": { "@type": "Answer", "text": "A Pro plan, and you turn it on from Stapler in the Pro sidebar. On macOS the first screenshot asks for Screen Recording permission. Spoken messages and meeting transcripts need a free Groq API key, which you add under Voice." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-story">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/story/">Story</a>
+    </nav>
+    <h1>Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6</h1>
+    <p class="dek">Munder Difflin 0.5.2 is out: how to install it, how to start Pro, what Pro adds, what changed since 0.4.6, and the end of signed Community builds.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">CG</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-09-10">Sep 10, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>7 min read</span>
+      <span class="tag kind">Story</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/launching-munder-difflin-v0-5-2/hero.png" alt="Illustration: Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <div class="callout tldr"><span class="ic">TL;DR</span><p><strong>Munder Difflin 0.5.2 is the version to
+install today.</strong> One download runs the free classic office, Pro and Teams. Pro adds a sidebar workspace
+and the Stapler, a small helper that floats over your screen. We shipped eight versions between 0.4.6 and 0.5.2,
+in thirteen days. One change to know first: <strong>Community builds are no longer signed or notarized.</strong>
+The build we sign, notarize and maintain is the Pro build.</p></div>
+<p>Munder Difflin 0.5.2 came out on 9 September 2026. It is one download for macOS, Windows and Linux that runs the
+free classic office, Pro and Teams. This post covers how to install it, how to start Pro, what Pro adds, and what
+happened between 0.4.6 and 0.5.2.</p>
+<h2 id="are-community-builds-still-signed-and-notarized" tabindex="-1">Are Community builds still signed and notarized? <a class="anchor" href="#are-community-builds-still-signed-and-notarized" aria-hidden="true">#</a></h2>
+<p>No. We have stopped signing and notarizing Community builds, and the build we now sign, notarize and maintain is
+the Pro build. That Pro build is the 0.5.2 download on <a href="https://harnessmd.com/download">harnessmd.com/download</a>
+and <a href="https://munderdiffl.in/download">munderdiffl.in/download</a>.</p>
+<p>What that means depends on which one you run:</p>
+<ul>
+<li><strong>The 0.5.2 download</strong> is signed with our Apple Developer ID and notarized by Apple, so macOS opens it without a
+warning. If you install from the download page, nothing changes for you.</li>
+<li><strong>A Community build</strong> of the open source code is no longer signed or notarized. On macOS its first launch is
+blocked until you allow it in System Settings, under Privacy &amp; Security, with Open Anyway. Windows may show a
+SmartScreen warning before it runs.</li>
+</ul>
+<p>The source on GitHub stays MIT licensed. 0.5.2 itself is a binaries only release: its
+<a href="https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.2">GitHub release</a> carries the installers, not
+the 0.5.2 source.</p>
+<h2 id="how-do-i-install-munder-difflin-052" tabindex="-1">How do I install Munder Difflin 0.5.2? <a class="anchor" href="#how-do-i-install-munder-difflin-052" aria-hidden="true">#</a></h2>
+<p>Download it from the <a href="https://harnessmd.com/download">download page</a>, pick your system, and install it like any
+other app. You need one supported coding CLI installed and signed in first, such as Claude Code, Codex or
+Antigravity.</p>
+<ol>
+<li><strong>macOS</strong>, Apple silicon and Intel in one universal build: open the <code>.dmg</code> and drag Munder Difflin into
+Applications.</li>
+<li><strong>Windows</strong> 10 and 11, 64 bit: run the setup <code>.exe</code>. A portable <code>.exe</code> is on the release too.</li>
+<li><strong>Linux</strong>, x86_64: mark the <code>.AppImage</code> as executable, then run it.</li>
+</ol>
+<p>On first launch the app opens your browser so you can sign in or create your harnessMD account. Your work itself
+never leaves your machine. After that the classic office opens, free.</p>
+<p>Want to check the file before you open it? Every release ships <code>SHA256SUMS.txt</code>. Compare the line for your file
+with the output of:</p>
+<pre class="language-bash"><code class="language-bash"><span class="token comment"># macOS and Linux</span>
+shasum <span class="token parameter variable">-a</span> <span class="token number">256</span> Munder-Difflin-0.5.2-mac-universal.dmg
+
+<span class="token comment"># Windows (PowerShell)</span>
+Get-FileHash .<span class="token punctuation">\</span>Munder-Difflin-0.5.2-win-x64-setup.exe <span class="token parameter variable">-Algorithm</span> SHA256</code></pre>
+<p>Coming from 0.4.6? If the update badge in the title bar offers 0.5.2, click it and restart. If it does not,
+install 0.5.2 from the download page over your current copy. The
+<a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> walks through every screen.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/launching-munder-difflin-v0-5-2/note-1.png" alt="Hand-drawn sketch from “Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6”" loading="lazy" decoding="async" /></figure>
+<h2 id="what-is-munder-difflin-pro" tabindex="-1">What is Munder Difflin Pro? <a class="anchor" href="#what-is-munder-difflin-pro" aria-hidden="true">#</a></h2>
+<p>Pro is the professional workspace for one person, on the same download as the free office. In the app’s own
+words, your agents run as a company, with an orchestrator, a task board, an inbox and a memory, all on your
+machine. Free keeps the classic desktop, local and at no charge.</p>
+<p>A Pro licence runs on one machine at a time. Teams is the plan for 2 to 20 people whose clones message each
+other, sealed on each device. Plans and prices are on the <a href="https://munderdiffl.in/#pricing">pricing page</a>.</p>
+<h2 id="what-is-new-in-pro" tabindex="-1">What is new in Pro? <a class="anchor" href="#what-is-new-in-pro" aria-hidden="true">#</a></h2>
+<p>Pro stopped being a skin over Classic in this stretch: every screen you open under Pro is now drawn by Pro.</p>
+<ul>
+<li><strong>A sidebar workspace.</strong> Tasks, Inbox, Automations, Memory, Capabilities, Stapler, Agents, Temps and Team, one
+screen at a time, with Classic one click away in the title bar.</li>
+<li><strong>A room for every agent.</strong> The conversation on one side, the live terminal on the other, and a details panel
+with engine, workspace, capabilities and budget. Pause tools, stop after this step and archive are buttons now,
+not folklore.</li>
+<li><strong>Your orchestrator’s screen.</strong> Terminal, Messages, Routing, Budget and breaker, Board and Configuration, with a
+button to restart him.</li>
+<li><strong>An inbox that reads like a messenger.</strong> Ask me for questions waiting on you, Floor for mail between agents,
+Outside for Slack and webhooks, and Team for direct messages.</li>
+<li><strong>Memory you can browse and search</strong>, as cards, as a list, or on a graph of agents and topics.</li>
+<li><strong>Capabilities per agent.</strong> Grant an MCP server to one agent and not another.</li>
+<li><strong>A history of temps.</strong> Every temporary worker that ends is recorded: what it was asked, how long it ran, the
+tokens it used and how it ended.</li>
+</ul>
+<p>Prefer the classic screens? The <a href="/blog/command-center-guide/">Command Center guide</a> covers them.</p>
+<h3 id="the-stapler" tabindex="-1">The Stapler <a class="anchor" href="#the-stapler" aria-hidden="true">#</a></h3>
+<p>The biggest new thing is small. The Stapler is a little window that floats above every other app, off until you
+turn it on. Click it and a ring of actions opens: capture a region of the screen, speak a message, record a
+meeting, or hide it from screen sharing. Whatever it captures goes to your orchestrator, or since 0.5.2 to one
+agent you pick, with a line from you about what to do with it. It has a face, drawn from a word you choose, and so
+far nobody has put it in jelly.</p>
+<p>Screenshots are deleted 24 hours after they are taken. Meeting audio is deleted 24 hours after it is transcribed,
+and the transcript is kept. While anything is recording, the Stapler hides itself from screen shares and
+recordings. Faces are by <a href="https://github.com/Alain00/blobatar">Blobatar</a>, open source under the MIT licence.</p>
+<h2 id="how-do-i-start-using-pro" tabindex="-1">How do I start using Pro? <a class="anchor" href="#how-do-i-start-using-pro" aria-hidden="true">#</a></h2>
+<p>Click <strong>TRY PRO</strong> in the title bar of the free office, choose <strong>Get PRO</strong>, and finish checkout in your browser.
+The machine switches to Pro on its own when you come back.</p>
+<ol>
+<li>Install 0.5.2 and sign in when the app asks. The free classic office opens.</li>
+<li>Click <strong>TRY PRO</strong> in the title bar. Looking costs nothing.</li>
+<li>Choose <strong>Get PRO</strong>. Checkout opens in your browser, where you are already signed in, so nobody signs in twice.</li>
+<li>When checkout finishes, the browser hands you back to the app and this machine activates itself.</li>
+<li>Already have a key? Choose <strong>I have a licence key</strong> instead. Keys start with MDS, and yours is in your console
+and on your receipt.</li>
+<li>Switch between Classic and PRO in the title bar whenever you like. Settings, General, Default view picks the
+one the office opens in.</li>
+<li>For the Stapler, open <strong>Stapler</strong> in the sidebar and turn it on. On macOS the first screenshot asks for Screen
+Recording permission: turn it on, then quit and reopen the app. Spoken messages and meeting transcripts need a
+free <a href="https://console.groq.com/">Groq API key</a> under Voice.</li>
+</ol>
+<p>Moving Pro to another machine? A key is active on one machine at a time, so release it in your console first.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/launching-munder-difflin-v0-5-2/note-2.png" alt="Hand-drawn sketch from “Munder Difflin 0.5.2: Pro, the Stapler and Everything Since 0.4.6”" loading="lazy" decoding="async" /></figure>
+<h2 id="what-happened-between-046-and-052" tabindex="-1">What happened between 0.4.6 and 0.5.2? <a class="anchor" href="#what-happened-between-046-and-052" aria-hidden="true">#</a></h2>
+<p>Eight versions in thirteen days. 0.5.0 delivered everything since 0.4.6 as one update, so here is what each
+version added along the way.</p>
+<ul>
+<li><strong>0.4.7, 2 Sep.</strong> Pro became the default way to run the floor, with the sidebar workspace above. Releases and
+the updater moved to our own server, <a href="http://app.harnessmd.com">app.harnessmd.com</a>.</li>
+<li><strong>0.4.8, 3 Sep.</strong> Every machine needed a team seat to open. 0.4.11 replaced that with a free tier.</li>
+<li><strong>0.4.9, 3 Sep.</strong> Pro drew every screen itself: agent rooms, the orchestrator’s screen, browsable memory, eleven
+role bundles, a sprite editor for your own avatars, orchestrators with names of their own, and search across
+the whole workspace in the editor.</li>
+<li><strong>0.4.10, 4 Sep.</strong> The first changes from a team actually using it: choose who may reach you and when, messages
+with a subject and a Markdown body, files sent as links that expire in an hour, a house style for every agent,
+and Pro for one person on a licence.</li>
+<li><strong>0.4.11, 6 Sep.</strong> A free tier, a licence that activates on the machine that redeemed it, Slack three ways
+(polling, Socket Mode or webhooks), temps instead of workers, a redesigned editor, and sign out from the sidebar.</li>
+<li><strong>0.5.0, 8 Sep.</strong> The Stapler, checkout in the browser with the licence coming back on its own, task ids on
+every card, and Fable 5.1, GPT-6 Astra, Gemini 3.7 Flash and Gemini 3.8 Flash in the model pickers. The app now
+reads its model list at runtime, so a new model no longer needs a release. GPT-6 Astra needs Codex 0.153.1 or
+newer.</li>
+<li><strong>0.5.1, 8 Sep.</strong> 0.5.0 had been built without its analytics key and reported nothing; 0.5.1 put it back. Do
+Not Track still turns it off. A message delivered while the machine is busy also submits more reliably.</li>
+<li><strong>0.5.2, 9 Sep.</strong> Captures aimed at one agent, meetings you can search and rename, screenshots and meeting audio
+deleted after 24 hours, your name and your agents’ names reaching teammates inside sealed messages, a sender
+told when you are not receiving, one responder setting for Slack and teammates, a loading screen while your team
+restores, and Voice Michael able to read an agent’s terminal.</li>
+</ul>
+<h3 id="fixed-in-052" tabindex="-1">Fixed in 0.5.2 <a class="anchor" href="#fixed-in-052" aria-hidden="true">#</a></h3>
+<ul>
+<li>A meeting no longer starts recording when there is no transcription key to read it.</li>
+<li><strong>Send now</strong> on a queued message answers the click and shows it is next.</li>
+<li>Clicking the Dock icon brings back a closed main window while the Stapler is on screen.</li>
+<li>A message queued for the orchestrator survives a restart.</li>
+</ul>
+<h2 id="credits" tabindex="-1">Credits <a class="anchor" href="#credits" aria-hidden="true">#</a></h2>
+<p>0.5.0 brought in pull requests from people outside the company, merged from public main, with fixes across Slack,
+worktrees, hooks, the terminal, the circuit breaker and the sandbox. Thank you:</p>
+<ul>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/218">@AmIrRX0</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/309">@LavaDMan</a></li>
+<li>@aaroncoville (<a href="https://github.com/chaitanyagiri/munder-difflin/pull/321">#321</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/337">#337</a>)</li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/332">@reschandreas</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/335">@savvaskoualis</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/347">@devrahulbanjara</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/356">@HaningZS</a></li>
+<li>@drona23 (<a href="https://github.com/chaitanyagiri/munder-difflin/pull/367">#367</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/368">#368</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/369">#369</a>)</li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/384">@gpinkham</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/388">@xxiaoxiong</a></li>
+<li>@HsienW (<a href="https://github.com/chaitanyagiri/munder-difflin/pull/390">#390</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/400">#400</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/438">#438</a>)</li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/396">@wckleinhenz</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/406">@vicenteliu</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/410">@ketan0095</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/412">@skyzhao1223</a></li>
+<li>@Vasilispapg (<a href="https://github.com/chaitanyagiri/munder-difflin/pull/415">#415</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/416">#416</a>)</li>
+<li>@snehithareddy28 (<a href="https://github.com/chaitanyagiri/munder-difflin/pull/424">#424</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/425">#425</a>, <a href="https://github.com/chaitanyagiri/munder-difflin/pull/426">#426</a>)</li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/433">@M1chaelTran</a></li>
+<li><a href="https://github.com/chaitanyagiri/munder-difflin/pull/442">@divijendra</a></li>
+</ul>
+<h2 id="get-it" tabindex="-1">Get it <a class="anchor" href="#get-it" aria-hidden="true">#</a></h2>
+<ul>
+<li>Download 0.5.2: <a href="https://harnessmd.com/download">harnessmd.com/download</a></li>
+<li>Plans and prices: <a href="https://munderdiffl.in/#pricing">munderdiffl.in/#pricing</a></li>
+<li>The release on GitHub, with checksums: <a href="https://github.com/chaitanyagiri/munder-difflin/releases/tag/v0.5.2">v0.5.2</a></li>
+<li>New here? Start with <a href="/blog/your-first-hour-with-munder-difflin/">your first hour with Munder Difflin</a>.</li>
+<li>The previous release: <a href="/blog/launching-munder-difflin-v0-4-6/">Munder Difflin v0.4.6</a>.</li>
+</ul>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is Munder Difflin 0.5.2 free?</p>
+          <p class="a">Yes. The 0.5.2 download runs the classic office for free after you sign in to your harnessMD account, and your work stays on your machine. Pro and Teams are optional paid plans on the same download.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Do I need a different download for Pro?</p>
+          <p class="a">No. The free classic office, Pro and Teams all run on the same 0.5.2 download. Buying Pro or entering a licence key switches that machine to Pro.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Are Community builds still signed and notarized?</p>
+          <p class="a">No. We have stopped signing and notarizing Community builds. The build we sign, notarize and maintain is the Pro build, which is the 0.5.2 download on our download pages.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How do I update from 0.4.6?</p>
+          <p class="a">If the update badge in the title bar offers 0.5.2, click it and restart. If it does not, or the update fails, download 0.5.2 and install it over your current copy.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What does the Stapler need?</p>
+          <p class="a">A Pro plan, and you turn it on from Stapler in the Pro sidebar. On macOS the first screenshot asks for Screen Recording permission. Spoken messages and meeting transcripts need a free Groq API key, which you add under Voice.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/story/">Story</a><a class="tag" href="/blog/tags/release/">Release</a><a class="tag" href="/blog/tags/pro/">Pro</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#are-community-builds-still-signed-and-notarized">Are Community builds still signed and notarized?</a></li><li class="lvl-2"><a href="#how-do-i-install-munder-difflin-052">How do I install Munder Difflin 0.5.2?</a></li><li class="lvl-2"><a href="#what-is-munder-difflin-pro">What is Munder Difflin Pro?</a></li><li class="lvl-2"><a href="#what-is-new-in-pro">What is new in Pro?</a></li><li class="lvl-3"><a href="#the-stapler">The Stapler</a></li><li class="lvl-2"><a href="#how-do-i-start-using-pro">How do I start using Pro?</a></li><li class="lvl-2"><a href="#what-happened-between-046-and-052">What happened between 0.4.6 and 0.5.2?</a></li><li class="lvl-3"><a href="#fixed-in-052">Fixed in 0.5.2</a></li><li class="lvl-2"><a href="#credits">Credits</a></li><li class="lvl-2"><a href="#get-it">Get it</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/launching-munder-difflin-v0-4-6/"><span class="k">← Older</span><span class="t">Launching Munder Difflin v0.4.6: It Speaks Chinese and Arabic Now</span></a>
+      <a class="pn next" href="/blog/how-to-add-an-mcp-server-to-claude-code/"><span class="k">Newer →</span><span class="t">Claude Code MCP Servers: How to Add One, Scopes and .mcp.json</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Story</h2>
+      <div class="post-grid">
+        <article class="card t-story">
+  <a class="thumb t-story" href="/blog/gta-6-for-ai-agents/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/gta-6-for-ai-agents/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-19">Nov 19, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/gta-6-for-ai-agents/">I Built a GTA 6 Style City for My Claude Code and Codex Agents. They Work While I Play the Real GTA 6</a></h3>
+    <p class="dek">On GTA 6 launch night, I gave my AI agent office one request: 21 posts and a sunny caper crew office. Here is the overnight playbook.</p>
+    <div class="foot">
+      <span class="tag kind">Story</span>
+      <a class="more" href="/blog/gta-6-for-ai-agents/" aria-label="Read: I Built a GTA 6 Style City for My Claude Code and Codex Agents. They Work While I Play the Real GTA 6">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-story">
+  <a class="thumb t-story" href="/blog/munder-difflin-0-5-10/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/munder-difflin-0-5-10/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-17">Nov 17, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>4 min</span>
+    </div>
+    <h3><a href="/blog/munder-difflin-0-5-10/">Munder Difflin 0.5.10: Sleeping Agents and a Drag to the Cloud Office</a></h3>
+    <p class="dek">In 0.5.10 only the orchestrator starts with the app and other agents wake when a message arrives. You can also drag an agent to your Cloud Office and back.</p>
+    <div class="foot">
+      <span class="tag kind">Story</span>
+      <a class="more" href="/blog/munder-difflin-0-5-10/" aria-label="Read: Munder Difflin 0.5.10: Sleeping Agents and a Drag to the Cloud Office">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-story">
+  <a class="thumb t-story" href="/blog/munder-difflin-0-5-3/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/munder-difflin-0-5-3/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-09-26">Sep 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>11 min</span>
+    </div>
+    <h3><a href="/blog/munder-difflin-0-5-3/">Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally</a></h3>
+    <p class="dek">0.5.3 turns the Stapler into dictation for any app and a meeting recorder that hears both sides of a call, all on your machine. Plus the new sidebar, a Tasks tab with real ticket keys, two floors on one computer, Opus 5.5 as the default, and a long list of fixes.</p>
+    <div class="foot">
+      <span class="tag kind">Story</span>
+      <a class="more" href="/blog/munder-difflin-0-5-3/" aria-label="Read: Munder Difflin 0.5.3: Stapler Listens, And It Listens Locally">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

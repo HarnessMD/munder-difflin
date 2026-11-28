@@ -1,12 +1,14 @@
 import * as pty from 'node-pty';
-import type { WebContents } from 'electron';
+import type { PtyOwner } from '../core/host';
+export type { PtyOwner };
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { delimiter, join, win32 } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { ensureKilled, hardKillTree } from './procKill';
+import type { AgentLedger } from './staleAgents';
 import { expandTilde } from './fs';
 import { buildPtyEnv } from './ptyEnv';
-import { captureFromLoginShell, isSafeCommandName, userShellPath } from './shellEnv';
+import { commonBinDirs, findCommandOnPath, forgetShellLookups, isSafeCommandName, shellPathGeneration, userShellPath, windowsFallbackCandidates } from './shellEnv';
 
 /** APPEND the hive's bundled-node dir (`<HIVE_ROOT>/bin/runtime`, which holds a
  *  shim literally named `node`) to a child's PATH.
@@ -34,6 +36,14 @@ export function withHiveRuntimeFallback(path: string, hiveRoot?: string): string
  *  agents cost kilobytes, not megabytes. */
 const TAIL_MAX = 8192;
 
+/** Output coalescing (see `flushOutput`). One animation frame: long enough to
+ *  collapse a TUI's redraw burst into a single IPC message, short enough that
+ *  typing still echoes at once. */
+const OUTPUT_FLUSH_MS = 16;
+/** Flush at once when this much has built up, so a large burst (a build log, a
+ *  `cat` of a big file) is never held back by the timer. */
+const OUTPUT_FLUSH_BYTES = 64 * 1024;
+
 /** What the exit handler is told about a process that just died. Passed by
  *  value because the session is deleted from the map before the handler runs. */
 export interface PtyExitInfo {
@@ -41,6 +51,12 @@ export interface PtyExitInfo {
   tail?: string;
   command?: string;
   cwd?: string;
+  /** Epoch ms the process was spawned, so the exit handler can bucket the
+   *  run's length (`agent_run_ended`, 0.5.1). A number and nothing else, which
+   *  is why it is the one field besides `signal` that telemetry may read:
+   *  `tail` is raw terminal output, `command` a command line and `cwd` a
+   *  path, and none of those may leave the machine (TELEMETRY.md). */
+  startedAt?: number;
 }
 
 interface PtySession {
@@ -53,13 +69,16 @@ interface PtySession {
    *  / `pty:exit:<id>` route ONLY here — never broadcast — so one floor's stream
    *  never leaks into another. Null falls back to the default attached sink
    *  (the primary window), preserving single-window behavior. */
-  owner: WebContents | null;
+  owner: PtyOwner | null;
   /** Epoch ms of the most recent byte this PTY emitted (bumped in onData). The
    *  heartbeat (Lane A #1) reads this for two things: floor-quiet detection (an
    *  agent printing/thinking counts as activity even before it writes a hive
    *  file) and the idle handshake that gates god's PTY nudge (never type into a
    *  PTY that produced output in the last few seconds = mid-stream). */
   lastOutputAt: number;
+  /** Epoch ms of the spawn. Only ever subtracted from Date.now() at exit, for
+   *  the run's coarse duration bucket. */
+  startedAt: number;
   /** A bounded ring of the most recent output bytes, kept ONLY so an abnormal
    *  exit can say what was on screen when the process died. A provider that
    *  crashes on startup (Bun SIGILL, a missing shared library, an auth failure)
@@ -70,6 +89,12 @@ interface PtySession {
   /** True after the child has emitted at least one frame. Automation waits for
    *  this before typing, so startup prompts cannot outrun the TUI subscription. */
   hasOutput: boolean;
+  /** Output held since the last flush, and the timer that will send it. See
+   *  `flushOutput` for why the stream is coalesced rather than forwarded chunk
+   *  by chunk. Only the IPC packaging waits: hasOutput, lastOutputAt, tail and
+   *  the data hook all still move on every chunk. */
+  pending: string;
+  flushTimer: NodeJS.Timeout | null;
 }
 
 export interface SpawnOptions {
@@ -323,9 +348,114 @@ export function parseNpmCmdShim(shimPath: string, content: string): NpmShimTarge
   return { interpreter, scriptPath };
 }
 
+/** How long the intermediate grid of a redraw stays in place. Long enough for
+ *  an idle child to take the first SIGWINCH and read the size; short enough that
+ *  the one row wobble is one frame on screen. */
+const REDRAW_STEP_MS = 80;
+
+/** A usable cell count: a positive whole number. FitAddon proposes 2 by 1 for
+ *  an unsized host and NaN for a hidden one; neither is a pane. */
+function validCell(n: unknown): number | undefined {
+  return typeof n === 'number' && Number.isInteger(n) && n >= 2 ? n : undefined;
+}
+
+/** How long a close waits for a write that is still in the thread pool. */
+export const PTY_WRITE_SETTLE_MS = 1_000;
+
+/** The part of node-pty 1.1.0's unix write stream the close below relies on. */
+interface PtyWriteStream {
+  _writeQueue: unknown[];
+  _writeImmediate?: unknown;
+  _processWriteQueue: () => void;
+}
+
+/** Empty node-pty's write queue, and say whether a write is still in flight
+ *  (0.5.6). node-pty 1.1.0 writes with `fs.write(fd)` and retries on EAGAIN,
+ *  and its dispose() only clears a waiting retry: a write already in the thread
+ *  pool lands, or comes back and retries, on the fd NUMBER after destroy()
+ *  closed it, and the next open has taken that number by then. A terminal
+ *  spawned in the same tick takes it while its master is still blocking, the
+ *  write sleeps in the kernel holding libuv's macOS write lock, and the next
+ *  sync file write on the main thread waits forever: the whole app freezes.
+ *  It needs unsent input, so a child that stopped reading (a TUI that never
+ *  took its prompt). Returns a function that calls `then` once the write in
+ *  flight has returned, or null when none is and the fd can close now. */
+export function dropPendingPtyWrites(proc: pty.IPty): ((then: () => void) => void) | null {
+  try {
+    const ws = (proc as unknown as { _writeStream?: PtyWriteStream })._writeStream;
+    if (!ws || !Array.isArray(ws._writeQueue) || typeof ws._processWriteQueue !== 'function') return null;
+    // A non-empty queue is either waiting on its retry (dispose() clears that)
+    // or has its first write in the thread pool.
+    const inFlight = ws._writeQueue.length > 0 && ws._writeImmediate === undefined;
+    ws._writeQueue.length = 0;
+    if (!inFlight) return null;
+    return (then) => {
+      let done = false;
+      const settle = (): void => { if (!done) { done = true; clearTimeout(timer); then(); } };
+      // node-pty calls this when the write returns (now, or one tick later on
+      // EAGAIN). It does not on any other error: the timer covers that.
+      ws._processWriteQueue = settle;
+      const timer = setTimeout(settle, PTY_WRITE_SETTLE_MS);
+      timer.unref?.();
+    };
+  } catch { return null; /* a node-pty without this queue has nothing to drop */ }
+}
+
+/** Close a PTY's master fd on demand. node-pty's public IPty hides destroy():
+ *  kill() only SIGNALS the child, and the master fd stays open until node-pty's
+ *  internal exit, EIO or timeout close chain runs. When that chain stalls (the
+ *  slave still held by a grandchild, or an exit event that never fires) the fd
+ *  leaks. macOS caps the whole SYSTEM at kern.tty.ptmx_max (511) ptys; enough
+ *  leaked masters and EVERY later spawn (agent terminals and, until 0.5.6,
+ *  hidden condense checks) dies with node-pty's errno-less
+ *  "posix_spawnp failed.". destroy()
+ *  is idempotent here: on an already-closed terminal the socket 'close' event
+ *  never fires again, so its deferred SIGHUP is skipped and only the dead fd
+ *  is closed. Never call this on a session whose child is still meant to live:
+ *  destroy() HUPs the foreground process group as the socket closes. */
+export function forceClosePty(proc: pty.IPty, platform: NodeJS.Platform = process.platform): void {
+  // Windows: node-pty 1.1.0's windowsTerminal destroy() calls kill() again, so
+  // after our own kill() it would re-run the agent kill and the native kill on a
+  // closed handle. The leak this fixes is the macOS pty cap; leave Windows alone.
+  if (platform === 'win32') return;
+  const destroy = (): void => {
+    try { (proc as unknown as { destroy?: () => void }).destroy?.(); } catch { /* already closed */ }
+  };
+  // The fd number must not be free while a write to it is still in the thread
+  // pool: close once that write has returned (see dropPendingPtyWrites).
+  const afterWrite = dropPendingPtyWrites(proc);
+  if (afterWrite) afterWrite(destroy); else destroy();
+}
+
 export class PtyManager {
   private sessions = new Map<string, PtySession>();
-  private webContents: WebContents | null = null;
+  /** Dead-session reaper timer (lazy-started on first spawn, cleared by
+   *  killAll). node-pty's close chain occasionally never completes: the app
+   *  then holds a master fd for a child that no longer exists, and masters
+   *  accumulate toward the system pty cap. The reaper bounds that. */
+  private reaper: NodeJS.Timeout | null = null;
+  private static readonly REAPER_INTERVAL_MS = 60_000;
+  /** Durable record of the PTYs this run started, so a run that never gets to
+   *  quit can be cleaned up by the NEXT one. Optional: the manager works
+   *  without it, and every call is guarded, so a ledger failure can never break
+   *  a spawn. See staleAgents.ts. */
+  private ledger: AgentLedger | null = null;
+  /** THE GRID THE RENDERER LAST ASKED FOR, per pty id, alive or not (0.5.3,
+   *  founder 24 Sep: Claude Code drew at about 70% of the pane). The visible
+   *  xterm is the only thing that knows how many cells fit the pane, and it
+   *  says so through resize(). But the pane is often measured BEFORE its
+   *  process exists: a restored orchestrator row mounts while his spawn is
+   *  still provisioning, a new agent's screen opens before its spawn answers,
+   *  a restart kills and respawns under the same id. resize() used to answer
+   *  "no pty" and forget, the spawn then took the caller's placeholder (100
+   *  by 30), and the renderer never repeated itself because its own grid had
+   *  not changed. The TUI stayed 100 columns wide in a 136 column pane.
+   *
+   *  So the ask is kept here and a spawn under that id starts at it; the
+   *  placeholder is only for a pane nobody has measured yet. The renderer
+   *  stays the truth: every later fit that moves the grid lands here too. */
+  private wanted = new Map<string, { cols: number; rows: number }>();
+  private webContents: PtyOwner | null = null;
   /** Fired when a PTY exits on its OWN (child finished/crashed/killed
    *  externally), so the main process can run the SAME lifecycle teardown
    *  (archive, worktree removal, map cleanup) that the explicit kill() path
@@ -335,13 +465,23 @@ export class PtyManager {
 
   /** The default/fallback output sink — set to the PRIMARY window. Used only for
    *  sessions with no recorded owner; owned sessions route to their owner. */
-  attachWebContents(wc: WebContents) {
+  attachWebContents(wc: PtyOwner) {
     this.webContents = wc;
+  }
+
+  /** Attach the stale agent ledger. Set once at startup, after the previous
+   *  run's ledger was taken off disk. */
+  setLedger(ledger: AgentLedger): void {
+    this.ledger = ledger;
+  }
+
+  private forgetPid(pid: number): void {
+    try { this.ledger?.remove(pid); } catch { /* best effort */ }
   }
 
   /** Count live PTYs owned by a given window — used to scope a floor's
    *  close-confirmation to its OWN terminals, not the whole app's. */
-  countByOwner(wc: WebContents): number {
+  countByOwner(wc: PtyOwner): number {
     let n = 0;
     for (const s of this.sessions.values()) if (s.owner === wc) n++;
     return n;
@@ -350,17 +490,58 @@ export class PtyManager {
   /** Kill every PTY owned by a window (its onExit runs the normal teardown:
    *  archive + worktree cleanup). Called when a floor window closes so its
    *  terminals don't linger as orphaned processes writing to a dead webContents. */
-  killByOwner(wc: WebContents): void {
+  killByOwner(wc: PtyOwner): void {
     for (const [id, s] of [...this.sessions.entries()]) {
       if (s.owner === wc) {
         try {
           const pid = s.proc.pid;
           s.proc.kill();
           ensureKilled(pid);
+          forceClosePty(s.proc);
         } catch { /* already gone */ }
+        // The sink is closing with the window: cancel the flush rather than
+        // aim it at a webContents that is about to be destroyed.
+        this.dropOutput(s);
         void id;
       }
     }
+  }
+
+  /** Release sessions whose child is already dead but whose exit event (and
+   *  with it node-pty's master fd close) never fired. kill(pid, 0) probes
+   *  liveness without signalling: ESRCH means gone (a zombie still answers,
+   *  but node-pty's waiter thread reaps those). The dead session gets the
+   *  SAME lifecycle teardown as a natural exit, then its fd is force-closed.
+   *  A pid reused by an unrelated process in the gap reads as alive and is
+   *  simply swept on a later pass: the leak is bounded, never unbounded.
+   *  Public so a test can drive one pass without waiting for the timer. */
+  reapDeadSessions(): string[] {
+    const reaped: string[] = [];
+    for (const [id, s] of [...this.sessions.entries()]) {
+      let alive = true;
+      try { process.kill(s.proc.pid, 0); } catch (e) {
+        // EPERM means the pid exists but belongs to someone else: alive.
+        alive = (e as NodeJS.ErrnoException)?.code === 'EPERM';
+      }
+      if (alive) continue;
+      // Same order as a natural exit: the last output, then the terminal's own
+      // exit event (an open terminal shows the end), then the teardown.
+      this.flushOutput(s);
+      this.safeSend(`pty:exit:${id}`, { exitCode: undefined, signal: undefined }, s.owner);
+      this.sessions.delete(id);
+      forceClosePty(s.proc);
+      this.forgetPid(s.proc.pid);
+      reaped.push(id);
+      try {
+        this.exitHandler?.(id, undefined, {
+          startedAt: s.startedAt,
+          tail: s.tail,
+          command: s.command,
+          cwd: s.cwd
+        });
+      } catch { /* never throw out of the reaper */ }
+    }
+    return reaped;
   }
 
   /** Register the natural-exit teardown callback. Invoked from inside node-pty's
@@ -373,11 +554,53 @@ export class PtyManager {
     this.exitHandler = handler;
   }
 
+  /** A tap on every pty's output, after it was routed to its window (I2: the
+   *  sign in watcher reads a fresh CLI's prompt from it). One hook, cheap,
+   *  never throws into node-pty's callback. */
+  private dataHook?: (id: string, data: string) => void;
+  setDataHook(hook: ((id: string, data: string) => void) | undefined): void { this.dataHook = hook; }
+
+  /** Buffer a chunk and make sure a flush is scheduled.
+   *
+   *  node-pty emits one callback per read, and an agent CLI redrawing a TUI
+   *  produces a long train of tiny writes. Forwarding each one as its own
+   *  `pty:data:<id>` cost a structured clone, an IPC hop and a separate
+   *  renderer main thread task PER CHUNK, for every session at once, whether
+   *  or not its terminal was even on screen. With a handful of busy agents that
+   *  is enough main thread work to starve the renderer: the office floor stops
+   *  painting and the window stops answering the compositor's ping.
+   *
+   *  Coalescing changes only the packaging, never the bytes or their order. */
+  private queueOutput(session: PtySession, chunk: string): void {
+    session.pending += chunk;
+    if (session.pending.length >= OUTPUT_FLUSH_BYTES) { this.flushOutput(session); return; }
+    if (session.flushTimer) return;
+    session.flushTimer = setTimeout(() => this.flushOutput(session), OUTPUT_FLUSH_MS);
+    // A pending flush must never hold the process open at quit.
+    session.flushTimer.unref?.();
+  }
+
+  /** Send everything buffered for a session as one message. Safe to call at any
+   *  time, including on an already drained or already dead session. */
+  private flushOutput(session: PtySession): void {
+    if (session.flushTimer) { clearTimeout(session.flushTimer); session.flushTimer = null; }
+    const data = session.pending;
+    if (!data) return;
+    session.pending = '';
+    this.safeSend(`pty:data:${session.id}`, data, session.owner);
+  }
+
+  /** Forget buffered output without sending it (its window is going away). */
+  private dropOutput(session: PtySession): void {
+    if (session.flushTimer) { clearTimeout(session.flushTimer); session.flushTimer = null; }
+    session.pending = '';
+  }
+
   /** Send to the renderer only if it's still alive. During app quit, killing a
    *  PTY fires onExit asynchronously — by then app.quit() may have destroyed the
    *  window, and `.send()` on a destroyed webContents throws "Object has been
    *  destroyed", which surfaces as the main-process crash dialog. Guard it. */
-  private safeSend(channel: string, payload: unknown, target?: WebContents | null): void {
+  private safeSend(channel: string, payload: unknown, target?: PtyOwner | null): void {
     // Route to the session's owner window when known (multi-window: keeps each
     // floor's stream private); fall back to the default attached sink otherwise.
     const wc = target ?? this.webContents;
@@ -390,6 +613,25 @@ export class PtyManager {
    *  that resolveCommand can't locate would otherwise be spawned and die with
    *  "process exited (code 1)". Reuses the exact same `which`/`where` +
    *  candidate-dir logic as spawn(), so detection and spawning never disagree. */
+  /** The environment a child spawned with this agent env would get (same user
+   *  PATH and the same strip as spawn()), for a short helper that must see
+   *  exactly what the agent sees: the sign in check (batch 2). */
+  childEnv(agentEnv?: Record<string, string>): Record<string, string> {
+    const userPath = withHiveRuntimeFallback(
+      process.platform === 'win32' ? (process.env.PATH || '') : userShellPath(),
+      agentEnv?.HIVE_ROOT
+    );
+    return buildPtyEnv(process.env, userPath, agentEnv);
+  }
+
+  /** Look again from scratch: a fresh login shell PATH and no cached `which`.
+   *  Called when a CLI may have just been installed where the startup lookup
+   *  could not see it (an install ended; manual setup's Start, batch 4). */
+  forgetLookups(): void {
+    forgetShellLookups();
+    this.resolvedCommands.clear();
+  }
+
   isCommandAvailable(command: string): boolean {
     return this.resolveCommand(command).found;
   }
@@ -403,14 +645,13 @@ export class PtyManager {
     return r.found ? r.path : null;
   }
 
-  /** Session cache of SUCCESSFUL command resolutions. Each miss costs a full
-   *  interactive-shell launch (`$SHELL -ilc which …` sources the user's whole
-   *  zshrc — nvm/asdf init is routinely ~1s) run synchronously on the main
-   *  process, and every agent spawn used to pay it TWICE (pre-check + spawn) —
-   *  a multi-second all-windows freeze per spawn, ×N on a team restore.
-   *  Negatives are deliberately NOT cached: the missing-CLI auto-install path
-   *  must see a just-installed binary on its re-check. */
-  private readonly resolvedCommands = new Map<string, { path: string; found: boolean }>();
+  /** Session cache of SUCCESSFUL command resolutions, each good for the PATH
+   *  it was made against (`gen`): a lookup made before the login shell
+   *  answered is made again once it has. A miss is a walk of the PATH's
+   *  folders, no shell (0.5.5, Plan G; it used to boot a blocking login shell
+   *  per command). Negatives are deliberately NOT cached: the missing-CLI
+   *  auto-install path must see a just-installed binary on its re-check. */
+  private readonly resolvedCommands = new Map<string, { path: string; found: boolean; gen: number }>();
 
   /** Resolve a bare command (e.g. 'claude') against the user's PATH +
    *  common install locations. Needed because Electron's spawn env on
@@ -420,11 +661,13 @@ export class PtyManager {
    *  ENOENT) and `found` is false — the signal the missing-CLI path keys on. */
   private resolveCommand(command: string): { path: string; found: boolean } {
     const cached = this.resolvedCommands.get(command);
+    const gen = shellPathGeneration();
     // Trust a positive hit only while the binary still exists (uninstall/update
-    // between spawns must re-probe rather than hand out a dead path).
-    if (cached && existsSync(cached.path)) return cached;
+    // between spawns must re-probe rather than hand out a dead path) and the
+    // PATH it was found on is still the one in use.
+    if (cached && cached.gen === gen && existsSync(cached.path)) return cached;
     const res = this.resolveCommandUncached(command);
-    if (res.found) this.resolvedCommands.set(command, res);
+    if (res.found) this.resolvedCommands.set(command, { ...res, gen });
     else this.resolvedCommands.delete(command);
     return res;
   }
@@ -462,35 +705,18 @@ export class PtyManager {
         if (exe) return { path: exe, found: true };
       } catch { /* fall through */ }
       // Common Windows install locations (npm global = %APPDATA%\npm\<cmd>.cmd).
-      const appData = process.env.APPDATA ?? '';
-      const localAppData = process.env.LOCALAPPDATA ?? '';
-      const home = process.env.USERPROFILE ?? process.env.HOME ?? '';
-      const winCandidates = [
-        `${appData}\\npm\\${command}.cmd`,
-        `${appData}\\npm\\${command}`,
-        `${localAppData}\\Programs\\claude\\${command}.exe`,
-        `${home}\\.claude\\local\\${command}.cmd`,
-        `${home}\\.claude\\local\\${command}`
-      ];
+      const winCandidates = windowsFallbackCandidates(command);
       for (const c of winCandidates) if (existsSync(c)) return { path: c, found: true };
       // Last resort — let node-pty try; will fail with ENOENT if missing.
       return { path: command, found: false };
     }
-    // macOS / Linux — `which` against an interactive shell so we pick up nvm/asdf/brew paths.
-    // Fenced capture (shellEnv): rc-file chatter can't poison the which output.
-    const which = captureFromLoginShell(`which ${command}`);
-    if (which) {
-      const path = which.trim().split('\n').map((l) => l.trim()).filter(Boolean).pop();
-      if (path && existsSync(path)) return { path, found: true };
-    }
+    // macOS / Linux: what `which` says in the person's login shell, so we pick
+    // up nvm/asdf/brew paths: the first file on that shell's PATH that can be
+    // run. Found by walking the folders, never by starting a shell.
+    const onPath = findCommandOnPath(command, userShellPath());
+    if (onPath) return { path: onPath, found: true };
     // Common explicit locations
-    const candidates = [
-      `/opt/homebrew/bin/${command}`,
-      `/usr/local/bin/${command}`,
-      `${process.env.HOME ?? ''}/.local/bin/${command}`,
-      `${process.env.HOME ?? ''}/.claude/local/${command}`,
-      `${process.env.HOME ?? ''}/.volta/bin/${command}`
-    ];
+    const candidates = commonBinDirs(process.env.HOME ?? '').map((d) => `${d}/${command}`);
     for (const c of candidates) if (existsSync(c)) return { path: c, found: true };
     // Last resort — let node-pty try; will fail with ENOENT if missing.
     return { path: command, found: false };
@@ -553,7 +779,7 @@ export class PtyManager {
     }
   }
 
-  spawn(opts: SpawnOptions, owner: WebContents | null = null): { ok: boolean; error?: string } {
+  spawn(opts: SpawnOptions, owner: PtyOwner | null = null): { ok: boolean; error?: string } {
     if (this.sessions.has(opts.id)) {
       return { ok: false, error: `pty already exists for id ${opts.id}` };
     }
@@ -665,10 +891,11 @@ export class PtyManager {
           );
         }
       }
+      const grid = this.gridFor(opts);
       const proc = pty.spawn(file, spawnArgs, {
         name: 'xterm-256color',
-        cols: opts.cols ?? 100,
-        rows: opts.rows ?? 30,
+        cols: grid.cols,
+        rows: grid.rows,
         cwd: opts.cwd,
         // Inherited env minus the parent Claude session's identity markers,
         // then the app's defaults and locale, then per-agent values — see
@@ -690,11 +917,18 @@ export class PtyManager {
         cwd: opts.cwd,
         command: resolved,
         lastOutputAt: Date.now(),
+        startedAt: Date.now(),
         hasOutput: false,
         tail: '',
-        owner
+        owner,
+        pending: '',
+        flushTimer: null
       };
       this.sessions.set(opts.id, session);
+      // Noted here, while the process is definitely ours. Only a Map insert:
+      // the identity (start time, command) is read by an async ps later, never
+      // on this path (see staleAgents.ts).
+      try { void this.ledger?.add(opts.id, proc.pid); } catch { /* never block a spawn */ }
 
       proc.onData((data) => {
         // Drop trailing output from a process whose id was already reclaimed by
@@ -705,15 +939,26 @@ export class PtyManager {
         // Keep only the trailing window; slice AFTER appending so a single
         // oversized write still leaves us its end (the part that explains a death).
         session.tail = (session.tail + data).slice(-TAIL_MAX);
-        // Route to the session's owner window (multi-window owner routing).
-        this.safeSend(`pty:data:${opts.id}`, data, session.owner);
+        // Route to the session's owner window (multi-window owner routing),
+        // coalesced rather than sent per chunk: see flushOutput(). The hook
+        // below still sees every chunk as it arrives.
+        this.queueOutput(session, data);
+        if (this.dataHook) { try { this.dataHook(opts.id, data); } catch (e) { console.error('[pty] data hook:', e); } }
       });
       proc.onExit(({ exitCode, signal }) => {
         // Stale exit from a process whose id was reclaimed (kill()+respawn) — do
         // NOT touch the live session or tell the renderer the new pty died.
         if (this.sessions.get(opts.id) !== session) return;
+        // Ordering: whatever the process printed on its way out must reach the
+        // terminal BEFORE the exit banner, so drain the buffer first.
+        this.flushOutput(session);
         this.safeSend(`pty:exit:${opts.id}`, { exitCode, signal }, session.owner);
+        this.forgetPid(proc.pid);
         this.sessions.delete(opts.id);
+        // node-pty closes the master fd before emitting exit, but that chain has
+        // observable failure modes. Close it again so an exit NEVER leaves the
+        // fd behind (idempotent; see forceClosePty).
+        forceClosePty(session.proc);
         // Natural exit must run the same lifecycle teardown as an explicit kill.
         // Guarded so a teardown error can never crash node-pty's exit callback.
         // `signal` is forwarded, not dropped: a provider killed by SIGILL/SIGSEGV
@@ -726,12 +971,20 @@ export class PtyManager {
         try {
           this.exitHandler?.(opts.id, exitCode, {
             signal,
+            startedAt: session.startedAt,
             tail: session.tail,
             command: session.command,
             cwd: session.cwd
           });
         } catch { /* never throw out of onExit */ }
       });
+
+      // Lazy-start the dead-session reaper (see reapDeadSessions). unref'd so
+      // the timer never keeps the main process alive on its own.
+      if (!this.reaper) {
+        this.reaper = setInterval(() => this.reapDeadSessions(), PtyManager.REAPER_INTERVAL_MS);
+        this.reaper.unref?.();
+      }
 
       return { ok: true };
     } catch (e) {
@@ -750,25 +1003,75 @@ export class PtyManager {
     }
   }
 
-  resize(id: string, cols: number, rows: number): { ok: boolean; error?: string } {
+  /** The grid a spawn starts at: the renderer's last measured one for this
+   *  id when there is one, else the caller's, else the placeholder. */
+  gridFor(opts: { id: string; cols?: number; rows?: number }): { cols: number; rows: number } {
+    const want = this.wanted.get(opts.id);
+    if (want) return want;
+    return { cols: validCell(opts.cols) ?? 100, rows: validCell(opts.rows) ?? 30 };
+  }
+
+  /** The renderer's last word on a pty's grid, or null. Tests read it. */
+  wantedGrid(id: string): { cols: number; rows: number } | null {
+    return this.wanted.get(id) ?? null;
+  }
+
+  /** Move the pty to the grid the visible xterm fitted. A same size call is
+   *  free (no SIGWINCH, see redraw). With no process under the id yet the ask
+   *  is REMEMBERED for the spawn, and answered `pending` rather than refused:
+   *  the pane measured first, and it is right. A grid no pane can have (0, NaN,
+   *  a negative) is a measuring accident, not a request, and is dropped. */
+  resize(id: string, cols: number, rows: number): { ok: boolean; error?: string; pending?: boolean } {
+    const c = validCell(cols);
+    const r = validCell(rows);
+    if (c === undefined || r === undefined) return { ok: false, error: `bad grid: ${cols}x${rows}` };
+    this.wanted.set(id, { cols: c, rows: r });
     const s = this.sessions.get(id);
-    if (!s) return { ok: false, error: `no pty: ${id}` };
+    if (!s) return { ok: true, pending: true };
     try {
-      s.proc.resize(cols, rows);
+      s.proc.resize(c, r);
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) };
     }
   }
 
-  /** Ask the foreground TUI for a fresh frame without changing its geometry.
+  /** Ask the foreground TUI for a fresh frame, ending at the geometry it had.
    *  Startup output may predate the renderer subscription, and a same-sized
-   *  first fit otherwise emits no resize. */
-  redraw(id: string): { ok: boolean; error?: string } {
+   *  first fit otherwise emits no resize.
+   *
+   *  0.5.3 bug 22. This used to resize the pty to the size it already had. A
+   *  same size TIOCSWINSZ delivers no SIGWINCH, so the TUI was never told
+   *  anything and never repainted: a restored agent's pane stayed blank until a
+   *  keystroke, and nothing on it scrolled or clicked because nothing was there.
+   *  Measured on de9e70aa: zero signals per same size resize, one per real
+   *  change (test/pty-redraw-winch.test.cjs).
+   *
+   *  So the grid is moved one row and moved back. The pause between the two is
+   *  not decoration: Node based TUIs (Claude Code among them) handle SIGWINCH by
+   *  re reading the size and comparing it with the last one, and two resizes
+   *  landing before that read would show the same size twice and repaint
+   *  nothing. The child has to see the intermediate grid. */
+  async redraw(id: string): Promise<{ ok: boolean; error?: string }> {
     const s = this.sessions.get(id);
     if (!s) return { ok: false, error: `no pty: ${id}` };
     try {
-      s.proc.resize(s.proc.cols, s.proc.rows);
+      const { cols, rows } = s.proc;
+      const step = rows > 1 ? rows - 1 : rows + 1;
+      s.proc.resize(cols, step);
+      await new Promise((r) => setTimeout(r, REDRAW_STEP_MS));
+      // A restart under the same id in that window owns a different process now.
+      if (this.sessions.get(id) !== s) return { ok: false, error: `pty replaced during redraw: ${id}` };
+      // THE GRID MAY HAVE MOVED DURING THE WAIT (0.5.3, founder 24 Sep: Claude
+      // Code drew at about 70% of the pane). This redraw is asked for at attach,
+      // and the view's first real fit lands a frame or two later, inside these
+      // 80 ms: it moved the pty from the spawn placeholder (100 by 30) to the
+      // pane's true grid, and the restore below then put the placeholder back.
+      // The view never asked again, because its own grid had not changed. So
+      // a grid that is no longer the one this redraw set is left alone: it is
+      // newer, and it is the pane's.
+      if (s.proc.cols !== cols || s.proc.rows !== step) return { ok: true };
+      s.proc.resize(cols, rows);
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) };
@@ -782,6 +1085,11 @@ export class PtyManager {
       const pid = s.proc.pid;
       s.proc.kill();
       ensureKilled(pid); // verify + sweep the process group so no PID leaks
+      forceClosePty(s.proc); // release the master fd now, not whenever node-pty's close chain runs
+      // Deliver the last buffered bytes (they may be the reason it was killed),
+      // and make sure no timer outlives the session.
+      this.flushOutput(s);
+      this.forgetPid(pid);
       this.sessions.delete(id);
       return { ok: true };
     } catch (e) {
@@ -789,15 +1097,46 @@ export class PtyManager {
     }
   }
 
-  list(): Array<{ id: string; cwd: string; command: string; pid: number; lastOutputAt: number; hasOutput: boolean }> {
+  /** `cols` and `rows` are the process grid: the renderer sizes a terminal
+   *  nobody has opened to it, so its screen can be read (autosend, 0.5.5). */
+  list(): Array<{ id: string; cwd: string; command: string; pid: number; lastOutputAt: number; hasOutput: boolean; cols: number; rows: number }> {
     return Array.from(this.sessions.values()).map(s => ({
       id: s.id,
       cwd: s.cwd,
       command: s.command,
       pid: s.proc.pid,
       lastOutputAt: s.lastOutputAt,
-      hasOutput: s.hasOutput
+      hasOutput: s.hasOutput,
+      cols: s.proc.cols,
+      rows: s.proc.rows
     }));
+  }
+
+  /** One pty's process facts for the submitter, or null. */
+  info(id: string): { pid: number; cols: number; rows: number; hasOutput: boolean; startedAt: number; command: string } | null {
+    const s = this.sessions.get(id);
+    if (!s) return null;
+    return { pid: s.proc.pid, cols: s.proc.cols, rows: s.proc.rows, hasOutput: s.hasOutput, startedAt: s.startedAt, command: s.command };
+  }
+
+  /** Send to the window that owns this pty (the default sink when none).
+   *  False when there is no live window to send to. */
+  sendToOwner(id: string, channel: string, payload: unknown): boolean {
+    // Output still held by the coalescer goes first: IPC to one webContents is
+    // ordered, so a terminal:probe then reads a screen that has every byte the
+    // pty printed before the question was asked.
+    const held = this.sessions.get(id);
+    if (held) this.flushOutput(held);
+    const wc = this.sessions.get(id)?.owner ?? this.webContents;
+    if (!wc || wc.isDestroyed()) return false;
+    try { wc.send(channel, payload); return true; } catch { return false; }
+  }
+
+  /** The bounded ring of recent raw output (TAIL_MAX bytes), or '' if no such
+   *  PTY. The voice read tool's fallback when no terminal has drawn this pty
+   *  in the renderer (0.5.2); escapes are stripped by the caller. */
+  tail(id: string): string {
+    return this.sessions.get(id)?.tail ?? '';
   }
 
   /** Epoch ms of this PTY's most recent output, or undefined if no such PTY. */
@@ -828,6 +1167,7 @@ export class PtyManager {
    *  trees die without us SIGKILLing mid-cleanup. */
   killAll() {
     this.exitHandler = null;
+    if (this.reaper) { clearInterval(this.reaper); this.reaper = null; }
     const sweepNow = process.platform === 'win32';
     for (const s of this.sessions.values()) {
       const pid = s.proc.pid;
@@ -842,6 +1182,12 @@ export class PtyManager {
         try { s.proc.kill(); } catch { /* noop */ }
         ensureKilled(pid);
       }
+      forceClosePty(s.proc);
+      this.flushOutput(s);
+      // Forget each PTY AS IT DIES, not the whole ledger at the end: a teardown
+      // that wedges part way must leave exactly its survivors recorded for the
+      // next launch to sweep.
+      this.forgetPid(pid);
     }
     this.sessions.clear();
   }

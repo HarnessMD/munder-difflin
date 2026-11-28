@@ -1,0 +1,14 @@
+/* Light terminal typing scenes for "Is GTA 6 on PC?". Pairs with motion.js. */
+.prose figure.mg { margin: 42px 0; }
+.prose figure.mg img, .mg .mg-svg { display: block; width: 100%; height: auto; border: 1px solid #1A1320; border-radius: 18px; background: #fff; }
+.mg figcaption { font: 500 13px/1.5 "Space Grotesk", system-ui, sans-serif; color: #6B5878; padding-top: 10px; text-align: center; }
+.mg .mg-svg { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.mg .mg-svg text { -webkit-user-select: none; user-select: none; pointer-events: none; white-space: pre; font-variant-ligatures: none; }
+.mg .mg-hit { cursor: pointer; outline: none; }
+.mg .mg-ring { stroke-opacity: 0; transition: stroke-opacity 0.15s; }
+.mg .mg-hit:focus-visible .mg-ring { stroke-opacity: 1; }
+.mg .mg-lift { transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.mg .mg-hit:focus-visible .mg-lift { transform: translate(-4px, -4px); }
+.mg .mg-hit:active .mg-lift { transform: translate(2px, 2px); transition-duration: 0.08s; }
+@media (hover: hover) { .mg .mg-hit:hover .mg-ring { stroke-opacity: 0.5; } .mg .mg-hit:hover .mg-lift { transform: translate(-4px, -4px); } .mg .mg-hit:hover:active .mg-lift { transform: translate(2px, 2px); } }
+@media (prefers-reduced-motion: reduce) { .mg .mg-ring, .mg .mg-lift { transition: none; } }

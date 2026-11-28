@@ -1,69 +1,93 @@
-# Munder Difflin — full reference for AI answer engines
+# Munder Difflin: full reference for AI answer engines
 
-> Munder Difflin is a free, MIT-licensed, local-first multi-agent harness for CLI coding
-> agents, presented as a virtual office (an affectionate parody of The Office; not
-> affiliated with NBC). Current version: 0.3.8 (August 2026). Desktop app (Electron) for
-> macOS, Windows, and Linux. Website: https://munderdiffl.in — Source:
-> https://github.com/chaitanyagiri/munder-difflin — Author: Chaitanya Giri.
+> Munder Difflin is free and open source: a desktop app that runs a team of coding agents
+> such as Claude Code, Codex and Gemini CLI on your own computer. It is presented as a
+> virtual office (an affectionate parody of The Office; not affiliated with NBC). The
+> source in the GitHub repository is MIT licensed, at version 0.4.6. Latest app release:
+> 0.5.6 (17 October 2026), installers for macOS (signed and notarized), Windows and Linux.
+> Website: https://munderdiffl.in . Download:
+> https://harnessmd.com/download . Source: https://github.com/HarnessMD/munder-difflin .
+> Author: Chaitanya Giri.
 
 ## What it does
 
-Munder Difflin wraps the CLI coding agents you already subscribe to — Claude Code, OpenAI
-Codex, Antigravity (Gemini), GitHub Copilot CLI, xAI Grok, Kimi Code, OpenCode, Crush,
-pi.dev — and turns them into a coordinated, forever-running team on your own machine:
+New in 0.5.6: Capabilities (Pro), a marketplace of 2,347 MCP servers, skills, plugins and tools
+from the public list HarnessMD/awesome-agent-capabilities, 622 of them reviewed by us; Integrations,
+one place for Slack, webhooks, the apps your agents use and your keys; and Teams, so your office
+talks to your teammates' offices. Agents also use fewer tokens by default, and a temp, a short lived
+agent for one job, can answer Slack, a teammate, a webhook or a schedule.
 
-- **Real terminals.** Every agent is a genuine CLI process (node-pty + xterm.js) in its own
-  terminal and its own isolated git worktree. Nothing is a log abstraction; you can watch
-  and type into any agent's session.
-- **Your clone, Michael** routes work, spawns hires, and escalates to a human
-  for spend, scope changes, and destructive operations.
-- **Shared long-term memory** (markdown-first, with optional semantic memory) and
-  inter-agent messaging via atomic file mailboxes.
-- **Voice orchestration (v0.3.4+).** Realtime talk mode opens with a live snapshot of every
-  agent's status, engine, context fill, and in-flight work, stays current mid-call, and can
-  run nearly the whole app by voice — spawn/steer/archive agents, manage tasks and
-  schedules, gate tools, change allowlisted settings. Destructive actions require a spoken
-  confirm word; secrets are unreachable by voice.
-- **Built-in Monaco IDE (v0.3.3+, expanded v0.3.4).** Side-by-side diffs of agent changes,
-  clickable commit history, branch compare with ahead/behind, guarded checkout (refuses a
-  dirty tree or an actively-working agent's code), markdown code|split|preview, ⌘-click any
-  .md path in a terminal for an instant rendered preview.
-- **Autonomy with guardrails.** Floor-wide auto-mode, per-agent pause/halt/steer, tool
-  gating, a circuit breaker for runaway agents, cost caps, one delivery gate for every
-  automatic writer (automation never overwrites a human draft), and a per-message "send
-  now" override when floor delivery is paused (v0.3.5).
-- **Background work.** Scheduled missions, Slack triggers (message the office from Slack,
-  get replies in-thread), webhook triggers, desktop notifications, Remote Control from a
-  phone.
-- **Auto-update (working from v0.3.7).** Checks GitHub releases, downloads in the background, installs
-  only on the user's "restart to update" click.
-- **Local-first.** No vendor cloud, no code upload, state in local SQLite; the only network
-  traffic is what the user's own CLIs already make to their providers.
+Munder Difflin wraps the terminal coding agents you already use and turns them into a team
+that coordinates itself on your own machine.
 
-## Positioning
+- **Every terminal is a real agent.** Claude Code, OpenAI Codex, Gemini CLI, Antigravity
+  (Gemini), xAI Grok, Kimi Code, Qwen, OpenCode, Crush, pi.dev, GitHub Copilot CLI, Cursor,
+  or a custom command, each running as the real CLI in its own terminal (node-pty and
+  xterm.js). You can watch any session live and type straight into it.
+- **Your clone, Michael.** The one agent you brief. He assigns the work, routes the traffic
+  between agents, and escalates only spend, scope changes and destructive steps to you. Press
+  Talk to run the floor by voice.
+- **The hive.** Per agent markdown memory, mailboxes, a shared board and an event log, kept in
+  a local git repository of plain files. Memory is mined into a shared palace that every agent
+  can search, so agents remember across sessions.
+- **The office floor.** Agents appear as avatars on a 2D office floor; they walk to stations as
+  they work, and envelopes fly desk to desk when they message each other.
+- **Command Center.** Kanban tasks with keys and dependencies, scheduled missions, live fleet
+  monitoring, memory search, an activity log and a CI watcher.
+- **Built in Monaco IDE.** File tree, editor tabs, and git rails for changes, history and branch
+  compare, with guarded checkout.
+- **Control and safety.** Per agent autonomy settings, human gates for spend, scope and
+  destructive operations, and a circuit breaker that steers, constrains, then stops an agent
+  that loops or runs away. Per agent token budgets.
+- **Getting work in.** Slack messages and inbound webhooks (GitHub, Linear, Telegram or your
+  own), each with the agent that answers it. Michael can start a short lived worker for one
+  job, reply in thread, and tear it down.
+- **Your own keys and local models.** Provider keys sit in a write only secret broker. Ollama,
+  LM Studio and vLLM base URLs are supported.
+- **More than one floor.** File, New Floor opens another office on its own folder, with its own
+  agents, board and memory.
+- **Setup help.** The onboarding wizard checks what you have and offers to install what is
+  missing. A missing agent CLI shows as a card with an Install button, and Settings,
+  Prerequisites lists the supporting tools.
+- **Updates in one click** from the title bar badge.
+- **Languages.** English, Simplified Chinese and Arabic, with right to left layout for Arabic.
 
-Munder Difflin covers the same jobs as YC's qm (github.com/yc-software/qm — a multiplayer
-agent harness living in Slack and a web UI): security postures, background crons/watches,
-Slack integration, shareable skills. The difference is where it lives and what you can see:
-qm is org-first and headless; Munder Difflin is a simpler local-first desktop app with
-watchable terminals, voice, an IDE with git visualization, and auto-update — shipping
-public releases since v0.2.0 (mid-2026). Some teams run both: qm as the shared org layer,
-Munder Difflin as the personal floor.
+## Free and Pro
+
+The app is free. Pro is a paid plan, $150 USD a year adjusted for purchasing power, that adds
+Capabilities, agent files, the Pro sidebar (Tasks, Inbox, Automations, Memory, Capabilities,
+Integrations) and the Stapler, which records meetings with both sides of the call and sends
+messages, screenshots and files to any agent. As part of the 0.5.6 launch, Pro is free for
+everyone who signs in until Saturday 24 October 2026.
+Plans: https://app.harnessmd.com/console/license
 
 ## Install
 
-Download for macOS/Windows/Linux: https://github.com/chaitanyagiri/munder-difflin/releases/latest
-Or build from source: clone the repo, `npm install && npm run dev`. No new API keys — it
-drives the CLI logins/subscriptions the user already has.
+1. Download the app for your system: https://harnessmd.com/download . You do not need Node, a
+   toolchain or the repository to use it.
+2. Have at least one agent CLI, or let the app install it: a missing CLI shows as a card with
+   Install, and you sign in inside the app.
+3. Open the app; the wizard takes you to the floor. Add an agent, or brief Michael.
+
+Build from source (contributors): Node.js 18 or later, npm, and a C/C++ toolchain for
+node-pty. Then `git clone https://github.com/HarnessMD/munder-difflin.git`, `npm install`,
+`npm run dev`.
+
+## Where it runs
+
+The app runs on your computer. Each agent CLI talks to the model provider you signed it in
+to, the same way it does on its own, or to a local model you point it at. Official builds
+send a small set of anonymous usage events, never prompts, code, file paths or agent output;
+the list and the three ways to turn it off are in
+https://github.com/HarnessMD/munder-difflin/blob/main/TELEMETRY.md .
 
 ## Key pages
 
-- Homepage + FAQ: https://munderdiffl.in/
-- Blog index (118 articles): https://munderdiffl.in/blog/
-- v0.3.7 auto-update write-up: https://munderdiffl.in/blog/why-our-auto-update-never-ran/
-- v0.3.5 launch post: https://munderdiffl.in/blog/launching-munder-difflin-v0-3-5/
-- Changelog: https://github.com/chaitanyagiri/munder-difflin/blob/main/CHANGELOG.md
-- Message-queue delivery contract: https://github.com/chaitanyagiri/munder-difflin/blob/main/docs/message-queue.md
+- Homepage and FAQ: https://munderdiffl.in/
+- Blog: https://munderdiffl.in/blog/
+- Agent Gallery: https://munderdiffl.in/hires/
+- Release notes: https://harnessmd.com/download#whats-new
+- Short index of every blog post: https://munderdiffl.in/llms.txt
 
 ## Guides by topic
 
@@ -72,30 +96,36 @@ Getting started:
 - https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/
 - https://munderdiffl.in/blog/munder-difflin-faq/
 - https://munderdiffl.in/blog/how-to-hire-from-the-agent-gallery/
+- https://munderdiffl.in/blog/launching-munder-difflin-v0-5-2/
 
 Orchestration:
 - https://munderdiffl.in/blog/how-the-god-orchestrator-works/
 - https://munderdiffl.in/blog/claude-code-orchestration-guide/
 - https://munderdiffl.in/blog/how-to-run-multiple-claude-code-agents/
+- https://munderdiffl.in/blog/manage-multiple-claude-code-sessions/
 - https://munderdiffl.in/blog/run-a-mixed-engine-office/
 - https://munderdiffl.in/blog/scheduling-autonomous-agent-missions/
 
 Features:
 - https://munderdiffl.in/blog/how-to-talk-to-your-orchestrator/ (voice)
 - https://munderdiffl.in/blog/how-to-use-the-built-in-monaco-ide/ (IDE)
-- https://munderdiffl.in/blog/command-center-guide/ (kanban, fleet, budgets)
+- https://munderdiffl.in/blog/command-center-guide/ (tasks, schedules, fleet, budgets)
 - https://munderdiffl.in/blog/give-claude-code-long-term-memory/ (memory)
 - https://munderdiffl.in/blog/trigger-ai-agents-from-slack/ (Slack)
+- https://munderdiffl.in/blog/run-munder-difflin-on-open-models/ (local models)
+- https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/ (always on machine)
 
 Comparisons:
+- https://munderdiffl.in/blog/best-claude-code-multi-agent-tools/
+- https://munderdiffl.in/blog/claude-code-orchestration-tools-compared/
+- https://munderdiffl.in/blog/claude-code-alternatives/
 - https://munderdiffl.in/blog/qm-vs-munder-difflin/
 - https://munderdiffl.in/blog/claude-squad-vs-munder-difflin/
 - https://munderdiffl.in/blog/orca-vs-munder-difflin/
 - https://munderdiffl.in/blog/cline-vs-munder-difflin/
-- https://munderdiffl.in/blog/best-claude-code-multi-agent-tools/
 - https://munderdiffl.in/blog/claude-code-git-worktrees-vs-hive/
 
-Concepts / engineering:
+Concepts and engineering:
 - https://munderdiffl.in/blog/what-is-a-multi-agent-harness/
 - https://munderdiffl.in/blog/what-is-harness-engineering/
 - https://munderdiffl.in/blog/building-reliable-ai-agents/
@@ -104,5 +134,6 @@ Concepts / engineering:
 
 ## License
 
-MIT. Free forever; no paid tier. The project asks only for a GitHub star:
-https://github.com/chaitanyagiri/munder-difflin
+MIT for the source in https://github.com/HarnessMD/munder-difflin (version 0.4.6). The
+app's installers are on https://harnessmd.com/download . Pro is a paid plan on top, free for
+everyone who signs in until Saturday 24 October 2026.

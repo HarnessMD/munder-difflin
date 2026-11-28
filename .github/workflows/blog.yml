@@ -1,26 +1,44 @@
 name: Build blog
 
-# Rebuilds the Eleventy blog into docs/blog whenever the blog source changes,
-# and commits the generated output. The site itself is served by the existing
-# GitHub Pages "deploy from branch" setup (docs/ + CNAME) — this workflow only
-# regenerates the static files under docs/blog, it does NOT change Pages config.
+# Checks that the built blog in docs/blog matches its source in blog/. The site
+# itself is served by the existing GitHub Pages "deploy from branch" setup
+# (docs/ + CNAME), so whatever docs/blog holds on main is what is live.
 #
-# Trigger is scoped to blog/** so the commit it makes (under docs/blog) never
-# re-triggers the workflow. Safe to run manually via workflow_dispatch.
+# This workflow used to rebuild after a merge and push the output to main. main
+# requires status checks, and a push from Actions cannot satisfy them, so that
+# push was rejected (GH006) and new posts never went live. The build now ships
+# inside the pull request: run `cd blog && npm ci && npm run build` and commit
+# docs/blog and docs/sitemap.xml together with the source change. This job
+# rebuilds from scratch and fails when the committed output differs. Two builds
+# of the same tree produce identical files, so a failure means stale output.
+#
+# On push to main it runs the same check, so a merge that leaves the live blog
+# stale shows up as a red run instead of passing silently. It never pushes.
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "blog/**"
+      - "docs/blog/**"
+      - "docs/sitemap.xml"
+      - ".github/workflows/blog.yml"
   push:
     branches: [main]
     paths:
       - "blog/**"
+      - "docs/blog/**"
+      - "docs/sitemap.xml"
       - ".github/workflows/blog.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
+    # Named so it can never be mistaken for CI's required "Build" check.
+    name: Built blog is current
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,16 +53,13 @@ jobs:
           npm ci
           npm run build
 
-      - name: Commit regenerated blog
+      - name: Committed output matches the build
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           # docs/blog = the built site; docs/sitemap.xml = root sitemap the
           # build regenerates (owned by this build, per the Kevin handoff).
           if [ -n "$(git status --porcelain docs/blog docs/sitemap.xml)" ]; then
-            git add docs/blog docs/sitemap.xml
-            git commit -m "chore(blog): rebuild static output [skip ci]"
-            git push
-          else
-            echo "No blog changes to commit."
+            git status --short docs/blog docs/sitemap.xml | head -50
+            echo "::error title=Built blog is out of date::Run 'cd blog && npm ci && npm run build' and commit docs/blog and docs/sitemap.xml in this pull request."
+            exit 1
           fi
+          echo "docs/blog matches a fresh build."

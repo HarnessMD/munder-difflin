@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900"><rect width="100%" height="100%" fill="#FCFAF0"/>
+<rect x="0" y="0" width="1600" height="900" fill="#FCFAF0"/>
+<text x="800" y="88" text-anchor="middle" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="54" font-weight="700" fill="#1A1320">Munder Difflin 0.5.3</text>
+<g transform="translate(800,120)"><rect x="-286" y="-4" width="572" height="40" rx="8" fill="#FFCA54"/><text x="0" y="26" text-anchor="middle" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="27" font-weight="600" fill="#1A1320">Stapler listens, and it listens locally</text></g>
+
+<!-- your machine boundary -->
+<rect x="96" y="214" width="1408" height="516" rx="22" fill="none" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="11 9"/>
+<g transform="translate(150,214)"><rect x="-16" y="-15" width="212" height="30" rx="15" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/><text x="90" y="5" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">YOUR MACHINE</text></g>
+
+<!-- cloud, plainly outside the machine and unused -->
+<g transform="translate(1316,744)" opacity=".6">
+  <path d="M22 44 a20 20 0 0 1 3-39 a26 26 0 0 1 49-6 a19 19 0 0 1 17 45 z" fill="none" stroke="#8C8577" stroke-width="2.5"/>
+  <path d="M12 8 L104 56" stroke="#8C8577" stroke-width="3" stroke-linecap="round"/>
+  <text x="-16" y="34" text-anchor="end" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#8C8577">no upload</text>
+</g>
+
+<!-- left: dictation into any app -->
+
+<g transform="translate(150,282)">
+  <rect x="0" y="0" width="470" height="300" rx="10" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <path d="M0 26 h470" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="14" cy="13" r="3.5" fill="#8C8577"/><circle cx="26" cy="13" r="3.5" fill="#8C8577"/><circle cx="38" cy="13" r="3.5" fill="#8C8577"/>
+  <text x="235" y="17" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#8C8577">any app</text>
+  <text x="24" y="62" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#8C8577">To: the whole team</text>
+   <path d="M24 78 h422" stroke="#EDE7D6" stroke-width="2"/>
+   <text x="24" y="112" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" fill="#1A1320">Ship the release notes today, and</text>
+   <text x="24" y="140" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" fill="#1A1320">make sure the Windows fixes are</text>
+   <text x="24" y="168" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" fill="#1A1320">credited to the people who sent</text>
+   <text x="24" y="196" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="17" fill="#1A1320">them<tspan fill="#8C8577">|</tspan></text>
+   <rect x="24" y="218" width="240" height="3" rx="1.5" fill="#FFCA54"/>
+   
+<g transform="translate(24,240)">
+  <rect x="0" y="4" width="104" height="30" rx="7" fill="#1A1320"/>
+  <rect x="0" y="0" width="104" height="30" rx="7" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/>
+  <text x="52" y="20" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">hold  ⌥</text>
+</g>
+   <text x="142" y="261" style="font-family:Menlo,Consolas,monospace" font-size="12.5" fill="#8C8577">talk, let go, it is typed</text>
+</g>
+
+<!-- right: meeting, both sides -->
+
+<g transform="translate(980,282)">
+  <rect x="0" y="0" width="470" height="300" rx="10" fill="#FCFAF0" stroke="#1A1320" stroke-width="2"/>
+  <path d="M0 26 h470" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="14" cy="13" r="3.5" fill="#8C8577"/><circle cx="26" cy="13" r="3.5" fill="#8C8577"/><circle cx="38" cy="13" r="3.5" fill="#8C8577"/>
+  <text x="235" y="17" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#8C8577">meeting</text>
+  <text x="24" y="60" style="font-family:Menlo,Consolas,monospace" font-size="12" fill="#8C8577">TRANSCRIPT</text>
+   <g transform="translate(24,76)">
+     <rect x="0" y="0" width="52" height="22" rx="11" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/>
+     <text x="26" y="15.5" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#1A1320">You</text>
+     <text x="64" y="16" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">Can you take the Windows list?</text>
+   </g>
+   <g transform="translate(24,118)">
+     <rect x="0" y="0" width="62" height="22" rx="11" fill="#FFF8E7" stroke="#1A1320" stroke-width="1.5"/>
+     <text x="31" y="15.5" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#1A1320">Them</text>
+     <text x="74" y="16" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">Already on it, three fixes in.</text>
+   </g>
+   <g transform="translate(24,160)">
+     <rect x="0" y="0" width="52" height="22" rx="11" fill="#FFCA54" stroke="#1A1320" stroke-width="1.5"/>
+     <text x="26" y="15.5" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="11" fill="#1A1320">You</text>
+     <text x="64" y="16" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="15" fill="#1A1320">Good. Send it to the agents.</text>
+   </g>
+   <path d="M24 200 h422" stroke="#EDE7D6" stroke-width="2"/>
+   <g transform="translate(24,216)">
+     <rect x="0" y="0" width="150" height="30" rx="8" fill="#1A1320"/>
+     <text x="75" y="20" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="12.5" fill="#FCFAF0">Send to agents</text>
+   </g>
+   <text x="186" y="236" style="font-family:Menlo,Consolas,monospace" font-size="12.5" fill="#8C8577">the work follows the words</text>
+</g>
+
+<!-- centre stapler + the two links -->
+<path d="M622 432 h118" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="7 7"/>
+<path d="M860 432 h118" stroke="#1A1320" stroke-width="2.5" stroke-dasharray="7 7"/>
+
+<g transform="translate(800,432)">
+  <circle cx="0" cy="0" r="67" fill="none" stroke="#FFCA54" stroke-width="3" opacity=".5"/>
+  <circle cx="0" cy="0" r="79" fill="none" stroke="#FFCA54" stroke-width="2" opacity=".28"/>
+  <circle cx="0" cy="4" r="54" fill="#1A1320"/>
+  <circle cx="0" cy="0" r="54" fill="#FFCA54" stroke="#1A1320" stroke-width="2.5"/>
+  <ellipse cx="-16" cy="-8" rx="8" ry="10" fill="#fff" stroke="#1A1320" stroke-width="2"/>
+  <ellipse cx="16" cy="-8" rx="8" ry="10" fill="#fff" stroke="#1A1320" stroke-width="2"/>
+  <circle cx="-14" cy="-5" r="4" fill="#1A1320"/><circle cx="18" cy="-5" r="4" fill="#1A1320"/>
+  <g transform="translate(0,22)">
+    <rect x="-22" y="-4.5" width="5" height="9" rx="2.5" fill="#1A1320"/><rect x="-13" y="-8.5" width="5" height="17" rx="2.5" fill="#1A1320"/><rect x="-4" y="-13" width="5" height="26" rx="2.5" fill="#1A1320"/><rect x="5" y="-7.5" width="5" height="15" rx="2.5" fill="#1A1320"/><rect x="14" y="-4" width="5" height="8" rx="2.5" fill="#1A1320"/>
+  </g>
+</g>
+<text x="800" y="556" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">on device</text>
+
+<!-- bottom strip of what else -->
+<g transform="translate(800,648)">
+  <g transform="translate(-302.3,0)"><rect x="0" y="0" width="98.6" height="34" rx="17" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/><text x="49.3" y="22" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">new sidebar</text></g><g transform="translate(-185.70000000000002,0)"><rect x="0" y="0" width="125" height="34" rx="17" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/><text x="62.5" y="22" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">Tasks + tickets</text></g><g transform="translate(-42.70000000000002,0)"><rect x="0" y="0" width="92" height="34" rx="17" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/><text x="46" y="22" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">two floors</text></g><g transform="translate(67.29999999999998,0)"><rect x="0" y="0" width="78.8" height="34" rx="17" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/><text x="39.4" y="22" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">Opus 5.5</text></g><g transform="translate(164.09999999999997,0)"><rect x="0" y="0" width="138.2" height="34" rx="17" fill="#FFF8E7" stroke="#1A1320" stroke-width="2"/><text x="69.1" y="22" text-anchor="middle" style="font-family:Menlo,Consolas,monospace" font-size="13" fill="#1A1320">compaction at 30%</text></g>
+</g>
+<text x="770" y="792" text-anchor="middle" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="19" fill="#8C8577">Dictate into any app. Hear both sides of a call. Nothing leaves the computer.</text>
+</svg>

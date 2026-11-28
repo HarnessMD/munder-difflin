@@ -1,10 +1,25 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Your First Hour With Munder Difflin — Munder Difflin Blog</title>
-<meta name="description" content="A minute-by-minute walkthrough of your first hour with Munder Difflin v0.4.4: install, the clone-of-you onboarding, your first brief to Michael, watching the floor, approving your first escalation, and leaving a schedule running." />
+<title>Munder Difflin Onboarding: Your First Hour With 0.5.10</title>
+<meta name="description" content="Your first hour with Munder Difflin 0.5.10: sign in, brief your orchestrator on Home, hire a team, schedule work, tour Pro, then meet the Cloud Office." />
 <link rel="canonical" href="https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/" />
 
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
@@ -14,10 +29,13 @@
 <!-- Open Graph -->
 <meta property="og:site_name" content="Munder Difflin Blog" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="Your First Hour With Munder Difflin — Munder Difflin Blog" />
-<meta property="og:description" content="A minute-by-minute walkthrough of your first hour with Munder Difflin v0.4.4: install, the clone-of-you onboarding, your first brief to Michael, watching the floor, approving your first escalation, and leaving a schedule running." />
+<meta property="og:title" content="Munder Difflin Onboarding: Your First Hour With 0.5.10" />
+<meta property="og:description" content="Your first hour with Munder Difflin 0.5.10: sign in, brief your orchestrator on Home, hire a team, schedule work, tour Pro, then meet the Cloud Office." />
 <meta property="og:url" content="https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/" />
-<meta property="og:image" content="https://munderdiffl.in/media/og.png" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/your-first-hour-with-munder-difflin/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.10, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings." />
 <meta property="og:locale" content="en_US" />
 <meta property="article:published_time" content="2026-07-03T00:00:00.000Z" />
 <meta property="article:author" content="Chaitanya Giri" />
@@ -25,14 +43,14 @@
 <meta property="article:tag" content="Onboarding" />
 <meta property="article:tag" content="Getting Started" />
 <meta property="article:tag" content="Multi-Agent" />
-<meta property="article:tag" content="Local-First" />
 
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Your First Hour With Munder Difflin — Munder Difflin Blog" />
-<meta name="twitter:description" content="A minute-by-minute walkthrough of your first hour with Munder Difflin v0.4.4: install, the clone-of-you onboarding, your first brief to Michael, watching the floor, approving your first escalation, and leaving a schedule running." />
-<meta name="twitter:image" content="https://munderdiffl.in/media/og.png" />
+<meta name="twitter:title" content="Munder Difflin Onboarding: Your First Hour With 0.5.10" />
+<meta name="twitter:description" content="Your first hour with Munder Difflin 0.5.10: sign in, brief your orchestrator on Home, hire a team, schedule work, tour Pro, then meet the Cloud Office." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/your-first-hour-with-munder-difflin/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.10, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings." />
 
 <link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -44,11 +62,11 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "Your First Hour With Munder Difflin",
-  "description": "A minute-by-minute walkthrough of your first hour with Munder Difflin v0.4.4: install, the clone-of-you onboarding, your first brief to Michael, watching the floor, approving your first escalation, and leaving a schedule running.",
-  "image": ["https://munderdiffl.in/media/og.png"],
+  "headline": "Your First Hour With Munder Difflin 0.5.10: Onboarding From First Sign In to a Working Office",
+  "description": "Your first hour with Munder Difflin 0.5.10: sign in, brief your orchestrator on Home, hire a team, schedule work, tour Pro, then meet the Cloud Office.",
+  "image": ["https://munderdiffl.in/blog/assets/media/your-first-hour-with-munder-difflin/hero.png"],
   "datePublished": "2026-07-03T00:00:00.000Z",
-  "dateModified": "2026-08-20T00:00:00.000Z",
+  "dateModified": "2026-11-23T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
   "publisher": {
     "@type": "Organization",
@@ -56,7 +74,7 @@
     "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
   },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/" },
-  "keywords": "munder difflin onboarding, getting started with munder difflin, multi-agent harness tutorial, first hour with a multi-agent harness, ai agent approval queue, scheduled agent missions, munder difflin skills",
+  "keywords": "munder difflin onboarding, getting started with munder difflin, munder difflin tutorial, munder difflin pro, munder difflin temps, munder difflin automations, munder difflin stapler, munder difflin first hour, munder difflin cloud office",
   "articleSection": "Guides",
   "inLanguage": "en-US",
   "url": "https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/"
@@ -69,7 +87,7 @@
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
     { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
-    { "@type": "ListItem", "position": 3, "name": "Your First Hour With Munder Difflin", "item": "https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/" }
+    { "@type": "ListItem", "position": 3, "name": "Your First Hour With Munder Difflin 0.5.10: Onboarding From First Sign In to a Working Office", "item": "https://munderdiffl.in/blog/your-first-hour-with-munder-difflin/" }
   ]
 }
 </script>
@@ -79,12 +97,12 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "How long does it take to get Munder Difflin running?", "acceptedAnswer": { "@type": "Answer", "text": "About five minutes. Grab the signed build for macOS, Windows, or Linux from the releases page, or run from source with Node.js 18+. Onboarding validates your setup at the very first step — as of v0.4.4 it checks your home folder immediately instead of failing four steps later, and the Prerequisites page in Settings shows live status for every tool an engine needs, with a button that asks Michael to install what's missing." } },
-    { "@type": "Question", "name": "What do I need before installing Munder Difflin?", "acceptedAnswer": { "@type": "Answer", "text": "At least one supported agent CLI — Claude Code, Antigravity, Codex, Grok, Kimi, Qwen, OpenCode, Crush, pi, or GitHub Copilot CLI. If you're missing one (or git, Node, uv, MemPalace), Settings → Prerequisites shows exactly what's absent with the platform-correct install command, and can hand the whole job to Michael." } },
-    { "@type": "Question", "name": "Who is Michael and how do I give him work?", "acceptedAnswer": { "@type": "Answer", "text": "Michael is a clone of you — the boss of the agents, while you stay the boss of him. You type a brief into his terminal (or talk to him by voice) and he adjudicates it: creating tasks, assigning them to workers, routing messages between inboxes, and escalating only critical items back to you. He seats himself in his office automatically on first launch." } },
-    { "@type": "Question", "name": "Do I have to approve everything the agents do?", "acceptedAnswer": { "@type": "Answer", "text": "No. Michael resolves routine requests himself so the system stays autonomous. Only critical items — spend, destructive operations, scope changes — land in the human-in-the-loop approvals queue for you to act on. A circuit breaker and per-agent token budgets guard the rest." } },
-    { "@type": "Question", "name": "How do I review what an agent actually changed?", "acceptedAnswer": { "@type": "Answer", "text": "Open the built-in Monaco IDE from the title-bar IDE button. Its git CHANGES rail lists every modified file, and clicking one opens a read-only side-by-side diff against HEAD. There's a per-agent git tab with status, log, and commit graph — and since v0.4.4 the IDE previews images too, so a design change is as reviewable as a code change." } },
-    { "@type": "Question", "name": "Can Munder Difflin keep working after I walk away?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — that's the point. The Triggers tab in the Command Center holds recurring missions with a label, interval, target agent, and body, plus a heartbeat that re-engages the floor when it goes quiet. It's local-first, so the office runs on hardware you already own — and the app keeps itself current, telling you exactly what's in each update before you restart into it." } }
+    { "@type": "Question", "name": "How long does it take to get Munder Difflin running?", "acceptedAnswer": { "@type": "Answer", "text": "Setup is four short steps when an AI engine is already installed and signed in: download, sign in, name your workspace and your orchestrator. The rest of the hour goes on a first job, a small team and the first work that starts without you." } },
+    { "@type": "Question", "name": "Do I need Pro for this first hour?", "acceptedAnswer": { "@type": "Answer", "text": "No, but you start in it. The app opens in the Pro view, and Pro is free up to 200M tokens a month. Agents, schedules, the context rules, webhooks, Slack and temps are in the Classic view too. The Pro view adds Home and screens for Tasks, Inbox, Automations, Memory and Capabilities, plus the Stapler, a small window above every app." } },
+    { "@type": "Question", "name": "What is a temp?", "acceptedAnswer": { "@type": "Answer", "text": "A temp is a short lived agent started for one job. The orchestrator or any lasting agent can start one, and the app can start one to answer an inbound message. It does the job, reports done and leaves." } },
+    { "@type": "Question", "name": "Can one office mix Claude Code, Codex and other engines?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each agent picks its own engine and model when you add it, and can have its own token limit per period. Claude Code and Codex use their own sign in; OpenCode, Crush, Pi and Qwen take a key." } },
+    { "@type": "Question", "name": "Does the office keep working when I close my laptop?", "acceptedAnswer": { "@type": "Answer", "text": "The office on your computer stops when the app closes or the laptop sleeps, because its agents, schedules, Slack and webhooks run there. A Cloud Office keeps working. It is an office on its own machine in the cloud, with its own orchestrator, and its agents work day and night while your computer sleeps. It comes with Max, and Teams can add one to a seat." } },
+    { "@type": "Question", "name": "Why did my agent's session clear itself?", "acceptedAnswer": { "@type": "Answer", "text": "That is the Clear on a switch of work rule, which saves tokens. When an agent is woken for other work than it is on and its session is old enough, it writes a handoff file in its folder, its context is cleared, and then it gets the new work. The handoff carries the thread across. A Sleeping agent is different: it wakes into the same conversation." } }
     
   ]
 }
@@ -153,64 +171,138 @@
       <span>/</span>
       <a href="/blog/topics/guides/">Guides</a>
     </nav>
-    <h1>Your First Hour With Munder Difflin</h1>
-    <p class="dek">A minute-by-minute walkthrough of your first hour with Munder Difflin v0.4.4: install, the clone-of-you onboarding, your first brief to Michael, watching the floor, approving your first escalation, and leaving a schedule running.</p>
+    <h1>Your First Hour With Munder Difflin 0.5.10: Onboarding From First Sign In to a Working Office</h1>
+    <p class="dek">Your first hour with Munder Difflin 0.5.10: sign in, brief your orchestrator on Home, hire a team, schedule work, tour Pro, then meet the Cloud Office.</p>
     <div class="byline">
       <span class="av" aria-hidden="true">CG</span>
       <strong>Chaitanya Giri</strong>
       <span class="dot" aria-hidden="true">·</span>
       <time datetime="2026-07-03">Jul 3, 2026</time>
       <span class="dot" aria-hidden="true">·</span>
-      <span>6 min read</span>
+      <span>13 min read</span>
       <span class="tag kind">Guides</span>
     </div>
   </header>
 
-  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/hero.png" alt="Illustration: Your First Hour With Munder Difflin" loading="lazy" decoding="async" /></figure></div>
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/hero.png" alt="Title card on white. Large ink type reads Your First Hour With Munder Difflin 0.5.10, with the line From first sign in to a working office and a pill reading Onboarding guide, beside a blue stopwatch whose yellow ring has gone once all the way round as it rings." loading="lazy" decoding="async" /></figure></div>
 
   <div class="post-wrap wrap">
     <div class="prose">
-      <div class="callout tldr"><span class="ic">TL;DR</span><p><strong>You can go from zero to a running AI office in one hour.</strong> Minute 0: install. Minute 5: onboarding — it opens on the honest pitch, <strong>a clone of you, working 24/7</strong>, and validates your setup at step one. Minute 10: your <strong>first brief to Michael</strong>. Minute 20: watch avatars work the floor and open a real desk terminal. Minute 40: your <strong>first approval</strong> and a side-by-side diff in the built-in <strong>Monaco IDE</strong>. Minute 60: set a <strong>schedule</strong> and walk away — the office keeps working.</p></div>
-<video controls preload="none" playsinline poster="/media/demo/intro-poster.jpg" style="width:100%; border-radius:12px; margin:12px 0 24px;">
-  <source src="/media/demo/intro.mp4" type="video/mp4" />
-</video>
-<p>Most tools ask you to learn them before they do anything. Munder Difflin is the other kind: within an hour you’ve briefed an orchestrator, watched agents work, approved a real change, and left the office running without you. Here’s that hour, minute by minute — current as of v0.4.4.</p>
-<div class="yt yt-placeholder" role="img" aria-label="Video coming soon: Your first hour with Munder Difflin — full walkthrough">
-  <div class="ph-art"><span class="yt-badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="ph-note">video on its way</span><span class="yt-ph-title">Your first hour with Munder Difflin — full walkthrough</span></div>
-</div>
-<h2 id="minute-0-install" tabindex="-1">Minute 0 — Install <a class="anchor" href="#minute-0-install" aria-hidden="true">#</a></h2>
-<p>Two paths: grab a signed build (macOS, Windows, Linux) from the <a href="https://github.com/chaitanyagiri/munder-difflin/releases/latest">releases page</a>, or clone and run from source with <code>npm install &amp;&amp; npm run dev</code>. You’ll want at least one supported agent CLI on your <code>PATH</code> — the engine card now honestly names all ten: Claude Code, Antigravity, Codex, Grok, Kimi, Qwen, OpenCode, Crush, pi, and GitHub Copilot CLI.</p>
-<p>Missing something? You no longer have to find out the hard way. <strong>Settings → Prerequisites</strong> shows live status for git, Node, uv, MemPalace and every engine — real paths, platform-correct install commands, and a button that simply asks Michael to fill the gaps for you. The <a href="/blog/how-to-install-and-use-munder-difflin/">install and usage guide</a> covers the deeper details. Budget five minutes.</p>
-<figure class="fig fig-inline"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/note-1.png" alt="Hand-drawn sketch from “Your First Hour With Munder Difflin”" loading="lazy" decoding="async" /><figcaption>Prerequisites, before they become surprises: live status for every tool, and a button that hands the gaps to Michael.</figcaption></figure>
-<h2 id="minute-5-onboarding-meet-your-clone" tabindex="-1">Minute 5 — Onboarding: meet your clone <a class="anchor" href="#minute-5-onboarding-meet-your-clone" aria-hidden="true">#</a></h2>
-<p>First launch opens on the pitch the whole product keeps: <strong>a clone of you, working 24/7.</strong> The wizard’s few questions are the actual shape of the product:</p>
+      <p>Your first hour of Munder Difflin onboarding goes like this: sign in, give your orchestrator one real job, hire a small team, set up work that starts without you, then learn the Pro screens and the Cloud Office. This guide is written for version 0.5.10 and follows the clock.</p>
+<p><a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. Not installed yet? The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers the download, the engines and every fix.</p>
+<figure class="mg" data-scene="hour"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/hour.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A bus route map on white: one road runs left to right, bends round a hairpin past a pond and comes back, with seven stops on it. Each stop has a minute mark and a name: Minute 0, sign in; Minute 10, a first job; Minute 20, a small team; Minute 35, work that starts without you; Minute 45, temps and tokens; Minute 50, the Pro screens; Minute 55, the Cloud Office. A small yellow bus drives from stop to stop, the road turns blue behind it, and each stop lights up yellow as the bus arrives. The bus leans through the hairpin and leaves two skid marks."><figcaption>The first hour as a route: sign in, a first job, a small team, work that starts without you, temps and tokens, the Pro screens, then the Cloud Office. Tap a stop to send the bus there.</figcaption></figure>
+<h2 id="minute-0-what-do-you-need-and-how-do-you-sign-in" tabindex="-1">Minute 0: what do you need, and how do you sign in? <a class="anchor" href="#minute-0-what-do-you-need-and-how-do-you-sign-in" aria-hidden="true">#</a></h2>
+<p>You need the app, one AI engine and an email address. The app can install a missing engine for you later.</p>
+<p>The first launch asks <strong>How are you using Munder Difflin?</strong> Pick <strong>On my own</strong>, then:</p>
+<ol>
+<li>Press <strong>Open browser to sign in</strong>. The browser does not open by itself.</li>
+<li>Sign in in the browser. If the screen does not move on by itself, paste the code into <strong>Code from the browser</strong> and press <strong>Use this code</strong>.</li>
+<li><strong>Name your workspace</strong>, <strong>Meet your orchestrator</strong>, then <strong>Open the workspace</strong>.</li>
+</ol>
+<p>A plans screen follows, <strong>Run your agents like a company</strong>: <em>Pick a plan, or start on Free.</em> Free is enough for this hour. <a href="https://harnessmd.com">harnessmd.com</a> says: “The free plan lets you use Pro features up to a monthly allowance of work tokens.” The <a href="https://harnessmd.com/download">release notes</a> put it at 200M tokens a month.</p>
+<p>You start in the Pro view: <em>Pro is the full office, and everyone starts here.</em> Classic, the pixel office, is one click away on the switch in the title bar. Most steps below work in both; the labels are the Pro view’s.</p>
+<h2 id="minute-10-how-do-you-give-your-orchestrator-a-first-job" tabindex="-1">Minute 10: how do you give your orchestrator a first job? <a class="anchor" href="#minute-10-how-do-you-give-your-orchestrator-a-first-job" aria-hidden="true">#</a></h2>
+<p>Write a brief in the box on Home and send it to your orchestrator. Home is where the Pro view opens: your office’s floor, with one box under it. Your orchestrator is the one agent that starts with you and runs the office; you named it during setup.</p>
+<p>Pick who it goes to under <strong>To</strong>, or click an agent on the floor, and press <strong>Send</strong>. Your orchestrator hands the work to the right agent. A message to a busy agent waits its turn, or you can <strong>Steer</strong> the agent with it.</p>
+<p>Brief it like a capable new hire: the outcome, the folder, and what done looks like. A vague brief gets a vague job. Compare:</p>
 <ul>
-<li><strong>Your clone’s engine</strong> — Michael runs on a pluggable engine; pick from the ten, change it later.</li>
-<li><strong>Harness home</strong> — the folder where the hive lives: per-agent memory, mailboxes, the blackboard, the event log. Plain files in a local git repo. The wizard validates this at step one — an empty or impossible folder fails immediately, not after step four.</li>
-<li><strong>Registered repos</strong> — the codebases your agents will work on.</li>
-<li><strong>Auto-mode</strong> — whether agents proceed without per-tool prompts (the approval gate still catches critical items).</li>
+<li>Weak: <em>“clean up my project”</em></li>
+<li>Better: <em>“In the folder notes, read last week’s meeting notes. Write one page of the decisions and the open questions, with who owns each one. Do not change the notes.”</em></li>
 </ul>
-<p>Finish the wizard and you land on the floor: a pixel-art office, empty except for Michael, who seats himself in his office automatically — with a <strong>BOSS</strong> tag on his card, because he’s the boss of the agents while you stay the boss of him. Everything the hive needs starts with him: as of v0.4.4 a brand-new install boots its message router, hook server and mission scheduler on the very first run.</p>
-<h2 id="minute-10-your-first-brief-to-michael" tabindex="-1">Minute 10 — Your first brief to Michael <a class="anchor" href="#minute-10-your-first-brief-to-michael" aria-hidden="true">#</a></h2>
-<p>You don’t manage the workers. You talk to your clone, and he runs the floor. Click into Michael’s terminal and type a brief the way you’d brief a colleague: what you want, which repo, what “done” looks like. Prefer talking? His voice mode opens with a live snapshot of the floor and can run nearly the whole app.</p>
-<p>Michael adjudicates. He creates tasks on the kanban, assigns them, and routes messages between agent inboxes. Workers you hire via <strong>Add agent</strong> each get a real CLI process in its own pseudo-terminal and, with the git-isolation toggle, their own worktree — so nobody collides on branches. How he decides what to route, resolve, or escalate is its own post: <a href="/blog/how-the-god-orchestrator-works/">how the orchestrator works</a>.</p>
-<p>A good first brief is small and self-contained: “read this repo and write a <a href="http://REPORT.md">REPORT.md</a> summarizing the architecture” beats “refactor everything” for hour one.</p>
-<h2 id="minute-20-watch-the-floor-then-open-a-desk" tabindex="-1">Minute 20 — Watch the floor, then open a desk <a class="anchor" href="#minute-20-watch-the-floor-then-open-a-desk" aria-hidden="true">#</a></h2>
-<p>Now the part that makes the product legible: the floor is not a decoration, it’s the state of the system. Avatars walk to stations as they work. When the hive routes a message, an envelope flies from sender to recipient; escalations fly to the door. The cast is an affectionate parody of The Office, and every movement maps to a real event.</p>
-<figure class="fig fig-inline"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/floor-view.png" alt="The office floor: suited agents at desks, one carrying a sticky note to the kanban wall" loading="lazy" decoding="async" /><figcaption>The floor mid-task: every movement maps to a real event.</figcaption></figure>
-<p>Click any agent and you get their desk: the live terminal (you can type back into it), a sandboxed file browser, and a git tab with status, log, and commit graph. Go fullscreen and the roster cards show each agent’s model, project, and a live context gauge — the fuel dial for every worker at a glance. This is the moment the abstraction clicks: that avatar is a real CLI process, and you’re reading its actual stdout.</p>
-<figure class="fig fig-inline"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/note-2.png" alt="Hand-drawn sketch from “Your First Hour With Munder Difflin”" loading="lazy" decoding="async" /><figcaption>Every desk is real: a live terminal, a file browser, a git tab — and a context gauge telling you how much runway the agent has left.</figcaption></figure>
-<h2 id="minute-40-your-first-approval-and-the-diff" tabindex="-1">Minute 40 — Your first approval, and the diff <a class="anchor" href="#minute-40-your-first-approval-and-the-diff" aria-hidden="true">#</a></h2>
-<p>Sometime in the first hour, something lands in the approvals queue — a spend threshold, a destructive operation, a scope change. This is by design: Michael resolves routine requests himself and escalates only critical items, so the queue stays short and every item in it deserves your attention. (The philosophy behind that gate: <a href="/blog/human-in-the-loop-approving-ai-agents/">approving AI agents without babysitting them</a>.)</p>
-<p>Before you click approve, look at the work. Hit the title-bar <strong>IDE</strong> button and the built-in Monaco editor — the VS Code editor engine, fully self-hosted — opens over the floor. The git CHANGES rail lists what changed; click a file for a read-only side-by-side diff against HEAD. Images preview right in the IDE now, so a screenshot or SVG an agent produced is one click to inspect. Read the diff, approve the item, watch the envelope fly.</p>
-<h2 id="minute-50-give-an-agent-a-skill" tabindex="-1">Minute 50 — Give an agent a skill <a class="anchor" href="#minute-50-give-an-agent-a-skill" aria-hidden="true">#</a></h2>
-<p>New in v0.4.4 and worth five minutes of your first hour: <strong>Skills.</strong> A browsable catalog of hundreds of skills — search, category and publisher filters — installable across Claude Code, OpenCode and Codex with scope precedence handled for you. Give your reviewer a review checklist, your writer a style guide, your researcher a source-citing discipline. It’s the difference between hiring generalists and hiring people who’ve read the manual. (Background: <a href="/blog/mcp-and-skills-in-a-hive/">MCP and skills in a hive</a>.)</p>
-<h2 id="minute-60-leave-it-running" tabindex="-1">Minute 60 — Leave it running <a class="anchor" href="#minute-60-leave-it-running" aria-hidden="true">#</a></h2>
-<p>The last move of the hour is the one that changes your relationship with the tool: schedule something. The Command Center’s <strong>Triggers</strong> tab takes a label, an interval, a target agent, and a mission body — “every morning, triage new GitHub issues,” say — and a heartbeat re-engages the floor if it goes quiet. Last-fired and next-fired times are right there in the tab.</p>
-<p>Close the laptop. It’s local-first, so tomorrow the office is exactly where you left it — probably with mail in your queue. And when the next release ships, the app tells you itself: the update toast says what’s actually inside before you restart into it. For patterns on what’s worth automating, see <a href="/blog/scheduling-autonomous-agent-missions/">scheduling autonomous agent missions</a>.</p>
-<h2 id="the-hour-in-one-line" tabindex="-1">The hour, in one line <a class="anchor" href="#the-hour-in-one-line" aria-hidden="true">#</a></h2>
-<p>Install, meet your clone, brief him once, watch the floor, read one diff, install one skill, set one schedule — and you’ve gone from “a CLI in a terminal” to “an office that works while you don’t.”</p>
-<p><a href="https://github.com/chaitanyagiri/munder-difflin/releases/latest">Download Munder Difflin</a> — free, MIT-licensed, local-first — and if the first hour earns it, <a href="https://github.com/chaitanyagiri/munder-difflin">a GitHub star</a> helps more people find it.</p>
+<p>Your orchestrator turns the brief into tasks, hands them to an agent, or starts a temp. There is no project to add first: it makes a folder inside your hive for each agent it starts. Click an agent to watch its terminal; press <strong>IDE</strong> to read what it wrote.</p>
+<figure class="mg" data-scene="brief"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/brief.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Two notepads on white above a long toaster marked your orchestrator. The pad tagged Weak reads clean up my project; the pad tagged Better reads the outcome, the folder, what done looks like. A slip drops from the weak pad into the first slot, the toaster works, and one grey card with a question mark pops up, wobbles and keeps smoking a little. A slip drops from the better pad into the second slot, and three task cards pop up, hop apart and each one gets a tick in its box."><figcaption>A brief with the outcome, the folder and what done looks like turns into clear tasks. A vague one turns into a question. Tap a note to drop it again.</figcaption></figure>
+<h2 id="minute-20-how-do-you-hire-a-small-team" tabindex="-1">Minute 20: how do you hire a small team? <a class="anchor" href="#minute-20-how-do-you-hire-a-small-team" aria-hidden="true">#</a></h2>
+<p>Press <strong>Add an agent</strong>. Pick a face, an engine, a model and the folder it works in. Each agent can run on a different engine, and that is the point: put your best model on the hard work and a cheaper one on the chores.</p>
+<p>One split to try on day one:</p>
+<ul>
+<li>a builder on <strong>Claude Code</strong>, writing the feature</li>
+<li>a reviewer on <strong>Codex</strong>, reading every change the builder makes</li>
+<li>a helper on a free engine such as Antigravity, for docs and tidying</li>
+</ul>
+<p>An agent can have its own token limit per period (<strong>Every 5 hours</strong>, <strong>Daily</strong>, <strong>Weekly</strong> or <strong>Monthly</strong>) under <strong>Budget</strong> in its side panel. Sign every engine in before you hire on it; a Claude Code, Codex or Cursor agent that is not signed in stops at <strong>Sign in needed</strong>.</p>
+<p>Your orchestrator can hire too: it adds lasting agents from agent files. Its switch, <strong>Can add lasting agents on its own</strong>, is in its <strong>Configuration</strong> tab and in <strong>Settings</strong>, <strong>Autonomy &amp; Budgets</strong>. It is on unless you turn it off; while it is off, its requests wait. Each agent it adds is listed in your Inbox.</p>
+<figure class="mg" data-scene="team"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/team.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three dotted outlines of office chairs stand in a row on white under a yellow button reading Add an agent, with the roles builder, reviewer and helper below them. A pointer presses the button three times; each press rolls in a chair, and an engine tag appears under it: on Claude Code, on Codex, on a free engine. The third chair arrives still spinning. A sheet of paper leaves the builder's chair, crosses to the reviewer's chair, is read line by line, gets a tick and comes back. Then the helper's heap of papers squares itself into a neat stack."><figcaption>A first team of three: a builder on Claude Code, a reviewer on Codex that reads every change, and a helper on a free engine for docs and tidying. Tap the builder to send another change for review.</figcaption></figure>
+<h2 id="minute-35-how-do-you-set-up-work-that-starts-without-you" tabindex="-1">Minute 35: how do you set up work that starts without you? <a class="anchor" href="#minute-35-how-do-you-set-up-work-that-starts-without-you" aria-hidden="true">#</a></h2>
+<p>With an automation. In the Pro view open <strong>Automations</strong> and press <strong>New automation</strong>; in Classic, the same things live under Triggers. Two kinds start there, a schedule and a webhook, and Slack is a third way in.</p>
+<p><strong>A schedule</strong> sends a message to an agent on a clock. Choose <strong>Schedule</strong>, then fill in four things: a <strong>Label</strong>, <strong>When</strong> (an <strong>Interval</strong> or <strong>Weekly</strong>), <strong>Sends to</strong>, and the <strong>Message</strong>, then press <strong>Save</strong>. A good first one: every weekday morning, ask an agent to check something and write you three lines.</p>
+<figure class="mg" data-scene="schedule"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/schedule.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A card on white titled Automations with a yellow New automation button; on the right, a horizon with an empty sky and an office chair. A pointer presses New automation, picks Schedule over Webhook endpoint, and four fields fill in: Label, morning check; When, Weekly rather than Interval; Sends to, an agent; Message, check something and write you three lines. The pointer leaves. A sun climbs over the horizon, the card fires by itself, and a paper slip flies to the chair and gets a tick. The pointer peeks back in to check, then leaves again."><figcaption>A schedule has four parts: a Label, When (an Interval or Weekly), Sends to, and the Message the agent gets every time it fires. Tap the card to fire it again.</figcaption></figure>
+<p><strong>A webhook</strong> lets any tool that can send a web request start work. Choose <strong>Webhook endpoint</strong>. A new endpoint starts switched off: choose how much you trust the caller, copy its address and secret into the sending tool, then turn it on and press <strong>Save</strong>.</p>
+<p><strong>Slack</strong> lets people send work from a channel or a direct message and read the answer in the same thread. It is under <strong>Integrations</strong> (in Classic, <strong>Settings</strong>, then <strong>Connections</strong>). Press <strong>Copy manifest</strong>, then in Slack choose <strong>Create New App</strong>, <strong>From a manifest</strong>. The channel list opens on <strong>All channels</strong>, every channel the bot is in, and direct messages are answered too. Pick the agent under <strong>Who answers inbound messages</strong>. If Slack fails to start, it comes back by itself. The <a href="/blog/connect-slack-to-munder-difflin/">Slack guide</a> has the full setup.</p>
+<figure class="mg" data-scene="slack"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/slack.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a Connections card under Settings with a Slack switch and a box for Every channel the bot is in; below it, three chat cards labelled a channel, another channel and a direct message. A pointer switches Slack on and ticks the box, and an office chair rolls into the empty seat under Who answers inbound messages. A string runs from each card to the chair. Each card posts a message, a note travels down its string to the chair, and a reply comes back and lands under that message as a thread. Then Slack switches itself off, the strings go slack, and it switches itself back on."><figcaption>One bot can hear every channel it is in, a direct message is always answered, and the reply comes back in the same thread. Tap a card to send a message.</figcaption></figure>
+<h2 id="minute-45-what-are-temps-and-how-do-you-keep-token-use-down" tabindex="-1">Minute 45: what are temps, and how do you keep token use down? <a class="anchor" href="#minute-45-what-are-temps-and-how-do-you-keep-token-use-down" aria-hidden="true">#</a></h2>
+<p>A temp is an agent for one job. It gets an objective, does the work, reports done and leaves. There is no button for one. You ask your orchestrator: <em>“Start a temp to rename every file in this folder to lower case.”</em></p>
+<ul>
+<li><strong>Any lasting agent can start a temp</strong>, not only the orchestrator. A temp cannot start a temp.</li>
+<li><strong>A temp can answer inbound messages.</strong> Wherever you pick who answers, the list offers <strong>A temp</strong> and <strong>A temp, clone of</strong> one of your agents.</li>
+<li><strong>You set the limits</strong> on the orchestrator’s <strong>Budget &amp; breaker</strong> tab: <strong>Temps per agent</strong>, from 0 to 4, and <strong>Max temps at once</strong> for the whole office.</li>
+</ul>
+<figure class="mg" data-scene="temp"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/temp.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. Three office chairs stand on white over the words your lasting agents, beside the dotted outline of a folding chair. A message card reading one job waits at the top left, then flies across while a yellow folding chair slides in folded, half opens, snaps shut, then opens properly and gets a tag reading A temp. The message lands on its seat, a done card pops up and flies to the first office chair, and the folding chair folds flat and slides away. The three office chairs never move."><figcaption>A temp answers one message or does one job, reports done and leaves; your lasting agents keep their seats. Tap the message to send another.</figcaption></figure>
+<p>Tokens are the other limit. A full context is slow and uses up your plan’s limits faster. Two rules under <strong>Automations</strong>, <strong>Context</strong> (Triggers in Classic) keep sessions small. Leave them on.</p>
+<ul>
+<li><strong>Compact when context fills</strong> summarises a long session and carries the summary forward. Any agent can also ask for its own compact.</li>
+<li><strong>Clear on a switch of work</strong>: when an agent is woken for other work and its session is old enough, it writes its handoff to <code>handoff.md</code> in its folder, its context is cleared, and then it gets the new work.</li>
+</ul>
+<figure class="mg" data-scene="tokens"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/tokens.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a tall glass on a coaster stands beside a card titled Context under Automations, with two rules switched on: Compact when context fills, and Clear on a switch of work. A pill below the card reads Leave them on. Paper slips drop into the glass until the pile nears a dashed line. The first rule lights up, a press with a yellow knob swings over and pushes down, and the slips squash into one slip labelled summary. A few more slips land on top. Then the second rule lights up: the glass turns upside down and is shaken, the slips fall out, the summary clings on until a second shake, and the glass turns back. A yellow note labelled with the handoff file's name drops into the empty glass and stays."><figcaption>Two rules keep sessions small: Compact when context fills summarises a long session, and Clear on a switch of work clears it and leaves a handoff file to carry the thread. Tap the glass to fill it again.</figcaption></figure>
+<p>Sleep saves resources too. Only the orchestrator starts with the app; other agents wake for messages and sleep after 60 minutes of inactivity, a time you can change. An agent shows <strong>Sleeping</strong> while it rests and <strong>Waking up</strong> while it starts again. Wake one with <strong>Wake</strong> on its screen or in its right click menu, or a click on its <strong>Sleeping</strong> label; it keeps the same conversation. A message sent as a note now wakes an idle agent at once, too.</p>
+<p>The top bar shows how close you are: percent used for each engine you pick, amber from 80 percent. A click opens each vendor’s own windows and reset times.</p>
+<h2 id="minute-50-what-does-the-pro-view-add" tabindex="-1">Minute 50: what does the Pro view add? <a class="anchor" href="#minute-50-what-does-the-pro-view-add" aria-hidden="true">#</a></h2>
+<p>One window with a sidebar, and a screen for each part of the office. <strong>Home</strong>, the floor and box from minute 10, comes first. <strong>Integrations</strong> holds your connected apps, chat apps, webhooks and keys. The switch in the title bar moves between <strong>Classic</strong> and <strong>PRO</strong>.</p>
+<figure class="mg" data-scene="sidebar"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/sidebar.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. An app window on white with a switch in the title bar reading Classic and PRO, with PRO selected, and a sidebar of six rows: Tasks, Inbox, Automations, Memory, Capabilities, Stapler. A yellow highlight walks down the rows, and as each one lights, its one line note writes itself into the pane beside it: every card in the office; one conversation per agent; Scheduled, Context and Webhooks; Search every agent's memory; what each agent can reach; a small window that floats above every app. When the highlight reaches Stapler, that row lifts off the sidebar and floats above it with a small shadow under it."><figcaption>The Pro view is one window with a sidebar, a row for each part of the office. Tap a row to see what it is for.</figcaption></figure>
+<figure class="fig fig-inline"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/pro-sidebar-0510.webp" alt="The Pro sidebar in Munder Difflin 0.5.10, with sample data: Home, Tasks, Inbox, Automations, Memory, Capabilities, Integrations and Stapler, then the Main Office with Add an agent and the agents Michael (orchestrator), Dwight, Jim and Pam, whose row shows Asked you, then Temps." loading="lazy" decoding="async" /><figcaption>The Pro sidebar in Munder Difflin 0.5.10, with sample data: Home, Tasks, Inbox, Automations, Memory, Capabilities, Integrations and Stapler, then the Main Office and its agents. Pam's row reads Asked you: her question waits on you.</figcaption></figure>
+<p>The <strong>Theme</strong> button sits in the top bar, right of the usage limits, on every screen. It opens <strong>Simulation</strong>: the looks your floor can take, such as Star Hike. <em>Simulations do not consume tokens.</em> Press <strong>Create your own</strong>, say what you want, and an agent builds it on a copy. Nothing changes until you save.</p>
+<p><strong>Tasks</strong> is every card in the office, as a <strong>Board</strong>, a <strong>List</strong> or <strong>Cards</strong>. Start the day on the <strong>Asks me</strong> filter: only the cards waiting on you. You can drag cards between columns; your orchestrator makes the change when you send your edits.</p>
+<p><strong>Inbox</strong> opens on <strong>For you</strong>: <strong>Ask me</strong>, then your orchestrator. <strong>Your team</strong> has one conversation per agent, and <strong>Everyone</strong> holds <strong>All routed messages</strong>. <strong>Slack</strong> and <strong>Webhooks</strong> get their own threads. When an agent asks you something, the question waits in <strong>Ask me</strong>, and the agent’s row in the sidebar reads <strong>Asked you</strong>. Type a short answer and press <strong>Answer</strong>. It goes to the agent that asked and unblocks the task.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/ask-me-0510.webp" alt="The Inbox in Munder Difflin 0.5.10, with sample data: the Ask me thread under For you is open, Pam asks whether the pricing page should show prices in euros as well as dollars, and an answer box sits above the buttons Answer and Dismiss." loading="lazy" decoding="async" /><figcaption>Ask me at the top of the Inbox, under For you, in Munder Difflin 0.5.10 with sample data: one question waits with an answer box, Answer and Dismiss.</figcaption></figure>
+<figure class="mg" data-scene="askme"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/askme.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a large card with an Ask me chip and the word Inbox shows a question as grey lines with a lilac question mark, an answer field reading Answer in one line, a blue send button and a chip reading waiting on you. Beside it, three smaller question cards wait in a column under the words waiting on a person. A short answer types itself in as one line and is sent; the question mark turns into a mint tick and the chip becomes unblocks the task. The card slides away, the next question card grows into its place, and the queue shuffles up; the last card arrives a little too fast and bumps the one ahead. The new question gets its one line answer and its tick too."><figcaption>Ask me collects the questions waiting on a person. A short answer unblocks the task, and the card moves on. Tap the card to ask again.</figcaption></figure>
+<p><strong>Automations</strong> is the list from minute 35, filtered by <strong>Scheduled</strong>, <strong>Context</strong> and <strong>Webhooks</strong>. Each schedule shows when it <strong>Last fired</strong>, and each webhook lists its <strong>Recent</strong> arrivals.</p>
+<p><strong>Memory</strong> lets you <strong>Search every agent’s memory</strong> at once, as a <strong>Graph</strong> or a <strong>List</strong>. Search before you brief: if an agent solved this last week, the note is here.</p>
+<p><strong>Capabilities</strong> is what each agent can reach: a marketplace of MCP servers, skills, plugins and tools from the public list <a href="https://github.com/HarnessMD/awesome-agent-capabilities">HarnessMD/awesome-agent-capabilities</a>. Entries we have not reviewed read <strong>Listed, not reviewed by us</strong> and have no <strong>Install</strong> button.</p>
+<p><strong>The Stapler</strong> is a small window that floats above every app. On the <strong>Stapler</strong> screen, turn on <strong>Show the stapler</strong>, then click it for its ring:</p>
+<ul>
+<li><strong>Screenshot</strong> sends a region of the screen, with a note, to the agent under <strong>Send captures to</strong>.</li>
+<li><strong>Record message</strong> shows you the transcript before it goes.</li>
+<li><strong>Record meeting</strong> records the microphone into a folder of transcripts, one folder per meeting.</li>
+<li><strong>Make invisible</strong> hides the Stapler from screen sharing and recordings.</li>
+</ul>
+<p>A fifth button, <strong>Computer use</strong>, cannot be turned on yet. The Stapler also transcribes meetings by their speech and keeps a history of dictations.</p>
+<p>The habit: when you see a bug in any app, do not describe it. Staple it.</p>
+<figure class="mg" data-scene="stapler"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/stapler.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On white, a plain app window made of grey bars, with a setting above it reading Show the stapler and a chip reading an agent. The setting switches on and a round stapler button pops up and floats over the corner of the app window. A pointer clicks it and a ring of four actions opens around it: Screenshot, Record message, Record meeting, Make invisible. Screenshot is picked, a crosshair drags a dashed box over part of the app, and the region lifts out as a capture. A note field reading your note slides in under it and a short line types itself in. The stapler's arm comes down and a staple joins the note to the capture, then the pair flies to the agent chip, which gets a tick. The ring opens again and stays."><figcaption>The Stapler floats above every app. Its ring offers Screenshot, Record message, Record meeting and Make invisible, and a capture goes to an agent with your note. Tap the stapler to open the ring.</figcaption></figure>
+<h2 id="minute-55-how-does-the-cloud-office-keep-work-going-while-you-sleep" tabindex="-1">Minute 55: how does the Cloud Office keep work going while you sleep? <a class="anchor" href="#minute-55-how-does-the-cloud-office-keep-work-going-while-you-sleep" aria-hidden="true">#</a></h2>
+<p>A Cloud Office is an office on its own machine in the cloud, with its own orchestrator. Its agents keep working day and night, while your computer sleeps or is closed. The office on your computer stops when the app closes or the laptop sleeps.</p>
+<p>It has the same screens as the office you know: Inbox, Tasks, Terminal, History and the details panel. Mail both ways: your agents here and its agents write to each other, and you can write to both. The two offices never sync, and an agent moves only when you ask.</p>
+<p>A Cloud Office comes with Max. The <a href="https://munderdiffl.in/pricing.html">pricing page</a>, read on 22 Nov 2026, lists Max from $138 a month at the launch price (list price $148 a month). Max includes “Everything in Pro, with no token cap”, “A Cloud Office of your own: 2 vCPU, 4 GB memory, 100 GB disk” and “Its own orchestrator, in the cloud”. The same page on 22 Nov 2026 lists a “Cloud Office add on: $99 a seat a month” for Teams.</p>
+<figure class="mg" data-scene="cloud"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/cloud.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white laptop on the left closes its lid and a small lilac moon rises over it. On the right a sky blue cloud holds a mint card reading Cloud Office, where three yellow dots keep blinking as its agents work. A yellow arrow reading Mail both ways runs between them. Tapping the cloud shows soft white tags: Its own orchestrator, 2 vCPU, 4 GB memory, 100 GB disk and From $138 a month."><figcaption>Its agents work while your computer sleeps. Max is from $138 a month at the launch price (pricing page, 22 Nov 2026). Tap the cloud to see what it holds.</figcaption></figure>
+<p>To get one, open <strong>Settings</strong>, <strong>Billing</strong>. Then switch to it at the top of the sidebar.</p>
+<h3 id="how-do-you-move-an-agent-to-the-cloud-office" tabindex="-1">How do you move an agent to the Cloud Office? <a class="anchor" href="#how-do-you-move-an-agent-to-the-cloud-office" aria-hidden="true">#</a></h3>
+<p>Drag it there in the sidebar, then confirm in the sheet. Nothing moves until you do. With an agent called Writer:</p>
+<ol>
+<li>Drag Writer’s row by its middle from the <strong>Main Office</strong> onto the <strong>Cloud Office</strong> section. Under the pointer the whole section lights up and reads <strong>Drop to run Writer in Cloud Office</strong>. The dots handle under the avatar works too, once <strong>Keep my agent order</strong> is on in <strong>Settings</strong>, <strong>General</strong>.</li>
+<li>Drop it. The Run in sheet opens, titled <strong>Run Writer in the Cloud Office</strong>: <em>Writer stops in your Main Office and starts in your Cloud Office. Its folder and files here are not touched.</em></li>
+<li>Read what comes and what does not. <strong>Comes with Writer</strong>: Memory, skills and settings (<em>Copied now, by the app.</em>) and pushed work. <strong>Does not come</strong>: the open conversation, keys, mail and tasks, and work that is not pushed (<em>Push first to bring them.</em>).</li>
+<li>Keep <strong>Stop Writer in your Main Office</strong> ticked to move it. <em>Untick to run a second copy there and keep this one going.</em></li>
+<li>Press <strong>Move</strong>, or <strong>Copy and start</strong> with the tick off. <strong>Cancel</strong> leaves Writer where it is.</li>
+</ol>
+<p>While it checks, the sheet says what it is checking, and when <strong>Move</strong> stays grey it says why. The way back: drag Writer’s Cloud Office row onto the <strong>Main Office</strong>, which reads <strong>Drop to bring Writer back to the Main Office</strong>. The sheet reads <strong>Run Writer in the Main Office</strong>, and <em>Writer knows here what it learned there.</em></p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/shot-move.webp" alt="Two screenshots of Munder Difflin 0.5.10 side by side. Left: the Pro sidebar with the Main Office agents and a faded Pam row, and the Cloud Office section lit up yellow under the line Drop to run Pam in Cloud Office. Right: the sheet Run Pam in the Cloud Office, with Stop Pam in your Main Office ticked, the groups Comes with Pam, Does not come and Good to know, and the buttons Cancel and Move." loading="lazy" decoding="async" /><figcaption>The real screens in Munder Difflin 0.5.10, from a sample office: the Cloud Office lit up under a dragged row, and the Run in sheet the drop opens. The sample agent there is Pam; the folder and the repository are made up.</figcaption></figure>
+<figure class="mg" data-scene="move"><img src="/blog/assets/media/your-first-hour-with-munder-difflin/move.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. A soft white sidebar shows two sections headed MAIN OFFICE and CLOUD OFFICE, with agent rows marked by lilac and sky dots. Under an ink pointer, the row reading Writer lifts out of the Main Office and its place fades. As it reaches the Cloud Office, the whole section turns soft yellow with a yellow outline and the line Drop to run Writer in Cloud Office. On the drop a white sheet slides in titled Run Writer in the Cloud Office, with a yellow tick reading Stop Writer in your Main Office, a group Comes with Writer listing Memory, skills and settings, a group Does not come listing The open conversation, Keys and Mail and tasks, and two buttons, Cancel and a yellow Move. Tapping the scene plays the way back: the Main Office lights up with Drop to bring Writer back to the Main Office, and the sheet title reads Run Writer in the Main Office."><figcaption>The drop opens the Run in sheet, and nothing moves until you press Move. Munder Difflin 0.5.10. Tap the scene to play the way back.</figcaption></figure>
+<h2 id="minute-58-what-about-accounts-and-teams" tabindex="-1">Minute 58: what about accounts and teams? <a class="anchor" href="#minute-58-what-about-accounts-and-teams" aria-hidden="true">#</a></h2>
+<p><strong>Switch to Teams</strong>, in the profile menu, opens one sheet for joining a team with an invite code or generating one. Your office talks to your teammates’ offices: one plain chat per teammate, you choose who answers each one, and files go as a link with a password, for one download.</p>
+<h2 id="what-trips-people-up-in-the-first-hour" tabindex="-1">What trips people up in the first hour? <a class="anchor" href="#what-trips-people-up-in-the-first-hour" aria-hidden="true">#</a></h2>
+<p>Nine things, all normal.</p>
+<ol>
+<li><strong>The plans screen comes after setup.</strong> Start on Free; it is enough for now.</li>
+<li><strong>The sign in browser does not open by itself.</strong> Press the button and sign in there. If the screen does not move on, paste the code.</li>
+<li><strong>“Installs on first start” still needs you.</strong> The engine installs when you press <strong>Install</strong>.</li>
+<li><strong>An agent reads “looping”.</strong> The circuit breaker warns an agent that repeats itself or spends fast. That is the app working, not a crash.</li>
+<li><strong>An agent reads Sleeping.</strong> Send it a message or press <strong>Wake</strong>; it keeps its conversation.</li>
+<li><strong>A session cleared itself.</strong> See the token rules above. <code>handoff.md</code> has the thread.</li>
+<li><strong>Auto mode decides how much agents ask.</strong> On, they ask only when blocked; off, before each tool call. Set it on the orchestrator’s <strong>Budget &amp; breaker</strong> tab; it applies when an agent next starts.</li>
+<li><strong>Many agents on 8 GB of memory run slowly.</strong> Run fewer at once.</li>
+<li><strong>On Linux with Wayland, dictation into other apps is refused.</strong> It needs X11.</li>
+</ol>
+<h2 id="what-should-you-do-after-the-first-hour" tabindex="-1">What should you do after the first hour? <a class="anchor" href="#what-should-you-do-after-the-first-hour" aria-hidden="true">#</a></h2>
+<p>Add one seat at a time. A reviewer first, then one scheduled job, then a scout. <a href="/blog/ai-agent-use-cases-our-office/">Every agent on our own floor</a> has starter messages for four seats. <a href="/blog/how-the-god-orchestrator-works/">How the orchestrator routes work</a> explains what your orchestrator does with your briefs, and <a href="/blog/build-your-personal-agi-on-your-computer/">build your personal AGI</a> turns the office into something that briefs you each morning.</p>
+<link rel="stylesheet" href="/blog/assets/media/your-first-hour-with-munder-difflin/motion.css"><script defer src="/blog/assets/media/your-first-hour-with-munder-difflin/motion.js"></script>
 
 
       
@@ -219,32 +311,32 @@
         
         <div class="qa">
           <p class="q">How long does it take to get Munder Difflin running?</p>
-          <p class="a">About five minutes. Grab the signed build for macOS, Windows, or Linux from the releases page, or run from source with Node.js 18+. Onboarding validates your setup at the very first step — as of v0.4.4 it checks your home folder immediately instead of failing four steps later, and the Prerequisites page in Settings shows live status for every tool an engine needs, with a button that asks Michael to install what&#39;s missing.</p>
+          <p class="a">Setup is four short steps when an AI engine is already installed and signed in: download, sign in, name your workspace and your orchestrator. The rest of the hour goes on a first job, a small team and the first work that starts without you.</p>
         </div>
         
         <div class="qa">
-          <p class="q">What do I need before installing Munder Difflin?</p>
-          <p class="a">At least one supported agent CLI — Claude Code, Antigravity, Codex, Grok, Kimi, Qwen, OpenCode, Crush, pi, or GitHub Copilot CLI. If you&#39;re missing one (or git, Node, uv, MemPalace), Settings → Prerequisites shows exactly what&#39;s absent with the platform-correct install command, and can hand the whole job to Michael.</p>
+          <p class="q">Do I need Pro for this first hour?</p>
+          <p class="a">No, but you start in it. The app opens in the Pro view, and Pro is free up to 200M tokens a month. Agents, schedules, the context rules, webhooks, Slack and temps are in the Classic view too. The Pro view adds Home and screens for Tasks, Inbox, Automations, Memory and Capabilities, plus the Stapler, a small window above every app.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Who is Michael and how do I give him work?</p>
-          <p class="a">Michael is a clone of you — the boss of the agents, while you stay the boss of him. You type a brief into his terminal (or talk to him by voice) and he adjudicates it: creating tasks, assigning them to workers, routing messages between inboxes, and escalating only critical items back to you. He seats himself in his office automatically on first launch.</p>
+          <p class="q">What is a temp?</p>
+          <p class="a">A temp is a short lived agent started for one job. The orchestrator or any lasting agent can start one, and the app can start one to answer an inbound message. It does the job, reports done and leaves.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Do I have to approve everything the agents do?</p>
-          <p class="a">No. Michael resolves routine requests himself so the system stays autonomous. Only critical items — spend, destructive operations, scope changes — land in the human-in-the-loop approvals queue for you to act on. A circuit breaker and per-agent token budgets guard the rest.</p>
+          <p class="q">Can one office mix Claude Code, Codex and other engines?</p>
+          <p class="a">Yes. Each agent picks its own engine and model when you add it, and can have its own token limit per period. Claude Code and Codex use their own sign in; OpenCode, Crush, Pi and Qwen take a key.</p>
         </div>
         
         <div class="qa">
-          <p class="q">How do I review what an agent actually changed?</p>
-          <p class="a">Open the built-in Monaco IDE from the title-bar IDE button. Its git CHANGES rail lists every modified file, and clicking one opens a read-only side-by-side diff against HEAD. There&#39;s a per-agent git tab with status, log, and commit graph — and since v0.4.4 the IDE previews images too, so a design change is as reviewable as a code change.</p>
+          <p class="q">Does the office keep working when I close my laptop?</p>
+          <p class="a">The office on your computer stops when the app closes or the laptop sleeps, because its agents, schedules, Slack and webhooks run there. A Cloud Office keeps working. It is an office on its own machine in the cloud, with its own orchestrator, and its agents work day and night while your computer sleeps. It comes with Max, and Teams can add one to a seat.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Can Munder Difflin keep working after I walk away?</p>
-          <p class="a">Yes — that&#39;s the point. The Triggers tab in the Command Center holds recurring missions with a label, interval, target agent, and body, plus a heartbeat that re-engages the floor when it goes quiet. It&#39;s local-first, so the office runs on hardware you already own — and the app keeps itself current, telling you exactly what&#39;s in each update before you restart into it.</p>
+          <p class="q">Why did my agent&#39;s session clear itself?</p>
+          <p class="a">That is the Clear on a switch of work rule, which saves tokens. When an agent is woken for other work than it is on and its session is old enough, it writes a handoff file in its folder, its context is cleared, and then it gets the new work. The handoff carries the thread across. A Sleeping agent is different: it wakes into the same conversation.</p>
         </div>
         
       </section>
@@ -254,7 +346,7 @@
       <hr />
       <div class="share">
         <span class="lbl">Tags</span>
-        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/onboarding/">Onboarding</a><a class="tag" href="/blog/tags/getting-started/">Getting Started</a><a class="tag" href="/blog/tags/multi-agent/">Multi-Agent</a><a class="tag" href="/blog/tags/local-first/">Local-First</a>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/onboarding/">Onboarding</a><a class="tag" href="/blog/tags/getting-started/">Getting Started</a><a class="tag" href="/blog/tags/multi-agent/">Multi-Agent</a>
       </div>
       
     </div>
@@ -263,7 +355,7 @@
     <aside class="toc-rail" aria-label="Table of contents">
       <div class="tt">On this page</div>
       <ol>
-        <li class="lvl-2"><a href="#minute-0-install">Minute 0 — Install</a></li><li class="lvl-2"><a href="#minute-5-onboarding-meet-your-clone">Minute 5 — Onboarding: meet your clone</a></li><li class="lvl-2"><a href="#minute-10-your-first-brief-to-michael">Minute 10 — Your first brief to Michael</a></li><li class="lvl-2"><a href="#minute-20-watch-the-floor-then-open-a-desk">Minute 20 — Watch the floor, then open a desk</a></li><li class="lvl-2"><a href="#minute-40-your-first-approval-and-the-diff">Minute 40 — Your first approval, and the diff</a></li><li class="lvl-2"><a href="#minute-50-give-an-agent-a-skill">Minute 50 — Give an agent a skill</a></li><li class="lvl-2"><a href="#minute-60-leave-it-running">Minute 60 — Leave it running</a></li><li class="lvl-2"><a href="#the-hour-in-one-line">The hour, in one line</a></li>
+        <li class="lvl-2"><a href="#minute-0-what-do-you-need-and-how-do-you-sign-in">Minute 0: what do you need, and how do you sign in?</a></li><li class="lvl-2"><a href="#minute-10-how-do-you-give-your-orchestrator-a-first-job">Minute 10: how do you give your orchestrator a first job?</a></li><li class="lvl-2"><a href="#minute-20-how-do-you-hire-a-small-team">Minute 20: how do you hire a small team?</a></li><li class="lvl-2"><a href="#minute-35-how-do-you-set-up-work-that-starts-without-you">Minute 35: how do you set up work that starts without you?</a></li><li class="lvl-2"><a href="#minute-45-what-are-temps-and-how-do-you-keep-token-use-down">Minute 45: what are temps, and how do you keep token use down?</a></li><li class="lvl-2"><a href="#minute-50-what-does-the-pro-view-add">Minute 50: what does the Pro view add?</a></li><li class="lvl-2"><a href="#minute-55-how-does-the-cloud-office-keep-work-going-while-you-sleep">Minute 55: how does the Cloud Office keep work going while you sleep?</a></li><li class="lvl-3"><a href="#how-do-you-move-an-agent-to-the-cloud-office">How do you move an agent to the Cloud Office?</a></li><li class="lvl-2"><a href="#minute-58-what-about-accounts-and-teams">Minute 58: what about accounts and teams?</a></li><li class="lvl-2"><a href="#what-trips-people-up-in-the-first-hour">What trips people up in the first hour?</a></li><li class="lvl-2"><a href="#what-should-you-do-after-the-first-hour">What should you do after the first hour?</a></li>
       </ol>
     </aside>
     
@@ -277,50 +369,50 @@
       <h2>Related in Guides</h2>
       <div class="post-grid">
         <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/command-center-guide/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/command-center-guide/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/check-agent-skill-before-install/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/check-agent-skill-before-install/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-07-03">Jul 3, 2026</time>
+      <time datetime="2026-11-28">Nov 28, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/command-center-guide/">The Command Center: Kanban, Fleet, and Budgets in One Place</a></h3>
-    <p class="dek">A guide to Munder Difflin&#39;s Command Center — the task kanban, live fleet monitoring, per-agent budgets and cost telemetry — and when to watch the board instead of the floor.</p>
+    <h3><a href="/blog/check-agent-skill-before-install/">Agent Skill Security: How to Check a Skill Before You Install It</a></h3>
+    <p class="dek">Agent skill security in 8 checks: read SKILL.md and its scripts, find network calls and remote scripts, pin a commit, scan it, keep prompts on.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/command-center-guide/" aria-label="Read: The Command Center: Kanban, Fleet, and Budgets in One Place">Read →</a>
+      <a class="more" href="/blog/check-agent-skill-before-install/" aria-label="Read: Agent Skill Security: How to Check a Skill Before You Install It">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/how-to-add-a-github-copilot-cli-agent/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-add-a-github-copilot-cli-agent/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/app-store-rejection-checklist/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/app-store-rejection-checklist/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-07-03">Jul 3, 2026</time>
+      <time datetime="2026-11-27">Nov 27, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>4 min</span>
+      <span>5 min</span>
     </div>
-    <h3><a href="/blog/how-to-add-a-github-copilot-cli-agent/">How to Add a GitHub Copilot CLI Agent to Your Floor</a></h3>
-    <p class="dek">A step-by-step v0.3.3 walkthrough: install GitHub Copilot CLI (or let the harness install it for you), hire a Copilot worker, pick a model, and know exactly what print mode can and can&#39;t do.</p>
+    <h3><a href="/blog/app-store-rejection-checklist/">App Store Rejection Checklist: Catch It Before Review With AI</a></h3>
+    <p class="dek">An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-add-a-github-copilot-cli-agent/" aria-label="Read: How to Add a GitHub Copilot CLI Agent to Your Floor">Read →</a>
+      <a class="more" href="/blog/app-store-rejection-checklist/" aria-label="Read: App Store Rejection Checklist: Catch It Before Review With AI">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/how-to-hire-from-the-agent-gallery/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-hire-from-the-agent-gallery/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/google-workspace-mcp-servers/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/google-workspace-mcp-servers/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-07-03">Jul 3, 2026</time>
+      <time datetime="2026-11-26">Nov 26, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/how-to-hire-from-the-agent-gallery/">How to Hire From the Agent Gallery</a></h3>
-    <p class="dek">A practical guide to Munder Difflin&#39;s Agent Gallery: browse six off-the-shelf hires, import one from a link or file, review the pre-filled manifest, customize identity, workspace, engine, and briefing — then spawn it yourself.</p>
+    <h3><a href="/blog/google-workspace-mcp-servers/">Google Workspace MCP Servers: What They Can Do and How to Connect</a></h3>
+    <p class="dek">Google Workspace MCP servers went GA on 24 Nov 2026: the eight servers and their tools, setup for Claude and Antigravity, the agent OAuth rule and tiers.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-hire-from-the-agent-gallery/" aria-label="Read: How to Hire From the Agent Gallery">Read →</a>
+      <a class="more" href="/blog/google-workspace-mcp-servers/" aria-label="Read: Google Workspace MCP Servers: What They Can Do and How to Connect">Read →</a>
     </div>
   </div>
 </article>
@@ -370,9 +462,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

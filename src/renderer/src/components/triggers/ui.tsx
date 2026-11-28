@@ -401,7 +401,7 @@ export function SecretField({ value, revealed, onReveal, onCopy, copied, placeho
 /** A weekly schedule the picker can hold mid-edit. Days may be empty while the
  *  user is deselecting, which `normalizeWeekly` would reject — so the draft type
  *  is looser than the stored one, and the SAVE is what has to be valid. */
-export type WeeklyDraft = { days: number[]; minute: number };
+export type WeeklyDraft = { days: number[]; minute: number; zone?: string };
 
 export const DEFAULT_WEEKLY: WeeklyDraft = { days: [1, 2, 3, 4, 5], minute: 9 * 60 };
 
@@ -515,7 +515,6 @@ export function SchedulePicker({ intervalMs, weekly, onInterval, onWeekly }: {
 
 /** Narrow a stored mission's `weekly` to a draft, or null for interval mode.
  *  One place decides what "this mission is weekly" means. */
-export function weeklyDraft(w: WeeklySchedule | { days: number[]; minute: number } | undefined): WeeklyDraft | null {
-  const n = normalizeWeekly(w);
-  return n ? { days: n.days, minute: n.minute } : null;
+export function weeklyDraft(w: WeeklySchedule | { days: number[]; minute: number; zone?: string } | undefined): WeeklyDraft | null {
+  return normalizeWeekly(w);
 }

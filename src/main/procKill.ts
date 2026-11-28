@@ -13,7 +13,7 @@
  * SIGKILL the whole group (POSIX) or `taskkill /T /F` the tree (Windows).
  *
  * Deliberate scope: callers apply this on EXPLICIT kills (breaker stop, archive,
- * respawn, app quit, hidden check sessions) — never on a natural exit, where a
+ * respawn, app quit), never on a natural exit, where a
  * daemon the agent intentionally left running (a dev server started via a Bash
  * tool) must survive its parent session.
  */

@@ -133,7 +133,7 @@ a plausible result. Make every claim earn a command.
 that works only because of leftover state. Same inputs, same commands, same green, on another machine.
 
 **Does this replace human review?** No — it front-loads it. Agents verify and re-verify each other to catch
-the obvious failures cheaply, so scarce human attention lands on the decisions that actually carry risk.
+the obvious failures cheaply, so scarce human attention lands on the decisions that actually carry risk. Skipping that review entirely is what [vibe coding](/blog/what-is-vibe-coding/) means.
 
 ---
 

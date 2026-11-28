@@ -1,12 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Cline — Munder Difflin Blog</title>
 <meta name="description" content="Munder Difflin blog posts tagged Cline." />
 <link rel="canonical" href="https://munderdiffl.in/blog/tags/cline/" />
-
+<meta name="robots" content="noindex, follow" />
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
 <link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
 <meta name="theme-color" content="#F5F2E8" />
@@ -102,11 +117,11 @@
       <span class="dot" aria-hidden="true"></span>
       <span>4 min</span>
     </div>
-    <h3><a href="/blog/cline-vs-munder-difflin/">Cline vs Munder Difflin: In-Editor Agent or Local Hive?</a></h3>
-    <p class="dek">A fair comparison of Cline and Munder Difflin — an in-editor BYOK coding agent vs a local multi-agent orchestration hive — and when to pick which.</p>
+    <h3><a href="/blog/cline-vs-munder-difflin/">Cline vs Munder Difflin: One Agent Everywhere, or a Team of Agents?</a></h3>
+    <p class="dek">Cline vs Munder Difflin on 17 Oct 2026: what each one is, how they compare on models, teams and price, and when to pick which.</p>
     <div class="foot">
       <span class="tag kind">Comparisons</span>
-      <a class="more" href="/blog/cline-vs-munder-difflin/" aria-label="Read: Cline vs Munder Difflin: In-Editor Agent or Local Hive?">Read →</a>
+      <a class="more" href="/blog/cline-vs-munder-difflin/" aria-label="Read: Cline vs Munder Difflin: One Agent Everywhere, or a Team of Agents?">Read →</a>
     </div>
   </div>
 </article>
@@ -154,9 +169,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

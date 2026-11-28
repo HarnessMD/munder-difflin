@@ -33,6 +33,8 @@ same file, a third pushes a half-finished branch, and you're refereeing instead 
 that succeed with agents don't have more agents — they have *structure*. This is a practical playbook for
 that structure: who does what, how the work flows, and which rails keep it from going off the road.
 
+Tools like Pentagon put such a team on one shared canvas; our [Pentagon alternatives](/blog/pentagon-alternatives/) guide compares five others.
+
 ## Roles: one orchestrator, a few specialists
 
 Treat your agents like a small team with a lead, not a pile of interchangeable workers.

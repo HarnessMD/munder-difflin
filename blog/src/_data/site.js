@@ -9,7 +9,7 @@ export default {
   baseUrl: "https://munderdiffl.in/blog/",
   // Blog-index description (Kevin's SEO_METADATA.md §3.9).
   description:
-    "Guides, deep dives, and comparisons on running multi-agent Claude Code: orchestration, agent memory, automation, and the tooling landscape.",
+    "Guides, comparisons and pricing for AI agents and coding tools such as Claude Code, Codex and Cursor, each checked and dated. From the makers of Munder Difflin.",
   tagline: "Notes from the office floor.",
   lang: "en",
   locale: "en_US",

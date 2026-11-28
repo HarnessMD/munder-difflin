@@ -57,7 +57,7 @@ The key properties:
 
 For **independent** parallel work, this is often all you need. Three agents, three feature branches,
 three worktrees: they run side by side, each on its own task, and you merge the branches when they're
-done. Clean and native.
+done. Clean and native. If you want a tool that wraps these commands for you, our [Worktrunk alternatives](/blog/worktrunk-alternatives/) page compares the worktree managers and desktop apps built for parallel agents.
 
 ## Where worktrees stop
 

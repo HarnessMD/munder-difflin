@@ -33,6 +33,8 @@ design principle that makes a hive practical is that **every agent is a genuine 
 so your existing setup is inherited, not replaced. This post explains exactly how that works and how to
 scope tools when you want different agents to have different capabilities.
 
+If you want your agents to drive a browser, [OpenCode Browse vs agent-browser](/blog/opencode-browse-vs-agent-browser/) compares an MCP server that uses your own browser with a CLI that runs its own.
+
 ## Why inheritance is automatic
 
 Start from what a hive agent actually *is*. When the harness spawns an agent, it doesn't reimplement
@@ -57,7 +59,7 @@ agent inside it. A harness wraps the agent you already run — which is the core
 
 MCP (Model Context Protocol) servers extend an agent with external tools and data — your database, your
 issue tracker, your internal APIs. Claude Code resolves MCP servers from configuration: user-scoped
-servers you've set up globally, and project-scoped servers defined in the project you're working in.
+servers you've set up globally, and project-scoped servers defined in the project you're working in. If you haven't set one up yet, [our guide to adding an MCP server to Claude Code](/blog/how-to-add-an-mcp-server-to-claude-code/) walks through the `claude mcp add` command and its scope flags.
 Because a hive agent runs as a real session in that project, it picks up both. Every agent in the hive
 can call the same MCP tools you'd have in a solo session — no per-agent re-registration.
 

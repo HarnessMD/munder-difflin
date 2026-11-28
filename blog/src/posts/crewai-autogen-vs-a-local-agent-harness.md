@@ -62,7 +62,7 @@ A [multi-agent harness](/blog/what-is-a-multi-agent-harness/) is the other answe
 
 The pieces you'd have built around a framework are already there: [human approval gates](/blog/human-in-the-loop-approving-ai-agents/) on spend, scope, and destructive ops; a circuit breaker with a steer → constrain → stop ladder; per-agent token budgets; OpenTelemetry observability; a Command Center with a kanban board and live fleet monitoring. And because it drives CLIs rather than calling model APIs, it rides the **subscriptions you already pay for** — no mandatory API key, with BYO keys and local LLMs as options.
 
-The honest flip side: you can't `import` Munder Difflin into your SaaS. It won't run your custom document pipeline inside your product. It's an app for a specific job — a team of agents working your repositories, visible on one screen — not a toolkit for arbitrary agent systems.
+The honest flip side: you can't `import` Munder Difflin into your SaaS. It won't run your custom document pipeline inside your product. It's an app for a specific job — a team of agents working your repositories, visible on one screen — not a toolkit for arbitrary agent systems. Server based meta harnesses such as Databricks' Omnigent sit in between, which our [OmniAgent alternatives](/blog/omniagent-alternatives/) post covers.
 
 {% img "note-2" %}
 

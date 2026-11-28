@@ -121,9 +121,9 @@ export interface AgentProviderPreset {
   /** For non-hive-aware CLIs that still take an INITIAL prompt to orient the
    *  session (Antigravity's `agy -i "<prompt>"`), the flag to pass it under. The
    *  hive identity+protocol rides in as the first turn — the closest thing to
-   *  Claude's `--append-system-prompt` these CLIs offer. undefined = the CLI
-   *  takes its initial prompt POSITIONALLY (Codex: `codex "<prompt>"`) and the
-   *  injection branch appends it as a quoted trailing arg instead of a flag. */
+   *  Claude's `--append-system-prompt` these CLIs offer. undefined means this
+   *  provider has no flag form; positional delivery must be declared explicitly
+   *  with `positionalInitialPrompt`. */
   initialPromptFlag?: string;
   /** How the hive protocol seed is delivered for a CLI that takes NEITHER a flag
    *  nor a positional seed. `'type-into-tui'` = the CLI is a bare interactive TUI
@@ -135,8 +135,8 @@ export interface AgentProviderPreset {
    *  collide). Absent/undefined = today's flag-or-positional behavior. (ondev-b) */
   seedDelivery?: 'type-into-tui';
   /** This CLI accepts the initial hive prompt as a trailing positional argument.
-   *  Codex does; Kimi/custom do not, so they must spawn bare when no prompt flag
-   *  exists instead of receiving an invalid positional argument. */
+   *  Codex/Grok/Pi do; Kimi/custom do not, so they must spawn bare when no prompt
+   *  flag exists instead of receiving an invalid positional argument. */
   positionalInitialPrompt?: boolean;
   /** Flag to resume a prior session on respawn, given the recorded session id
    *  (Claude `--resume <sid>`, Antigravity `--conversation <id>`). undefined = no
@@ -181,7 +181,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     canReceiveInbox: true,
     // Longest-context Claude variant — matches the "give Michael a bigger model"
     // advisory and the Recommended tag on the orchestrator picker.
-    recommendedOrchestratorModel: 'claude-opus-4-8[1m]',
+    recommendedOrchestratorModel: 'claude-opus-5-5',
     resumeFlag: '--resume',
     // Official Claude Code install (npm global). Used by the missing-CLI auto-install.
     installCommand: 'npm install -g @anthropic-ai/claude-code',
@@ -203,9 +203,10 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // `--dangerously-bypass-approvals-and-sandbox` for one reason only: a hive
     // worker must write to its agent folder at <harnessHome>/hive/agents/<id>/,
     // a different path tree from cwd, which workspace-write blocked. That is a
-    // path-layout problem, not a reason to drop the sandbox: codex's documented
-    // `--add-dir <DIR>` makes extra directories writable alongside the workspace,
-    // and the hive spawn path (hive.ts, which knows the agent dir) appends it.
+    // path-layout problem, not a reason to drop the sandbox: the hive spawn path
+    // (hive.ts, which knows the agent dir) writes those dirs into the agent's own
+    // config.toml as `sandbox_workspace_write.writable_roots`, the config twin
+    // of `--add-dir`, which Codex rejects outside a writable sandbox (#625).
     // So: approvals off, sandbox on, hive housekeeping still works.
     autoModeFlag: '-a never -s workspace-write',
     autoFlag: '-a never -s workspace-write',
@@ -232,9 +233,12 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     canReceiveInbox: true,
     initialPromptFlag: undefined,
     positionalInitialPrompt: true,
-    // Codex's long-context coding model for the orchestrator role. // TODO-verify
-    // the exact codex CLI model id (couldn't install the codex CLI to confirm).
-    recommendedOrchestratorModel: 'gpt-5-codex',
+    // `model/list` under a ChatGPT login reports this as Codex's default
+    // (verified 2026-08-25, #330). gpt-5-codex made a Codex god fail its first
+    // message there. gpt-6-astra leads the picker but needs codex 0.153.1 or
+    // later, so an older CLI would reject it. Must stay an id in the codex list
+    // of modelCatalog.json (provider-config.test.cjs checks it).
+    recommendedOrchestratorModel: 'gpt-5.6-sol',
     // Codex resumes via a SUBCOMMAND, not a flag: `codex resume [OPTIONS]
     // [SESSION_ID]`. A `--resume <id>` flag does not exist, which is why restarts
     // used to silently start a brand-new session instead of continuing.
@@ -263,7 +267,17 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // `grok [PROMPT]` accepts the initial hive protocol as a positional prompt.
     positionalInitialPrompt: true,
     // Grok resumes interactively with `grok --resume <session-id-or-title>`.
-    resumeFlag: '--resume'
+    resumeFlag: '--resume',
+    // xAI's own installer, a standalone binary under ~/.grok/bin, no Node (I2,
+    // 23 Sep): the URLs the grok binary itself prints for an update, both
+    // answering 200 on 23 Sep 2026. No npm package exists, so the native rung
+    // is the only rung. Trusted, hardcoded, no double quotes (win32 is wrapped
+    // verbatim in `cmd /d /s /c "…"`, hence `^|`).
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://x.ai/cli/install.sh | bash',
+      win32: 'powershell -c irm https://x.ai/cli/install.ps1 ^| iex'
+    },
+    docsUrl: 'https://x.ai/cli'
   },
   {
     id: 'kimi',
@@ -280,7 +294,22 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // Kimi's interactive TUI has no positional initial-prompt form. It supports
     // lifecycle hooks, but Munder Difflin does not yet install a Kimi hook bridge,
     // so mail must bounce rather than being delivered with no drain path.
-    canReceiveInbox: false
+    canReceiveInbox: false,
+    // `kimi --session <id>` resumes that session (kimi 2.1.0 --help, 24 Sep
+    // 2026). Sessions live under ~/.kimi-code/sessions/wd_*/session_<id>, so
+    // the restart path can check the id exists before attaching it
+    // (shared/resumeStore.ts).
+    resumeFlag: '--session',
+    // Moonshot's own installer, a standalone binary under ~/.kimi-code/bin
+    // (with its own fd and rg), no Node (I2, 23 Sep): the script the kimi
+    // binary itself names (`<cdn>/install.sh`, `<cdn>/install.ps1`), both on
+    // cdn.kimi.com answering 200 on 23 Sep 2026. No npm package, so the
+    // native rung is the only rung.
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://cdn.kimi.com/kimi-code/install.sh | bash',
+      win32: 'powershell -c irm https://cdn.kimi.com/kimi-code/install.ps1 ^| iex'
+    },
+    docsUrl: 'https://www.kimi.com/code/docs/en/'
   },
   {
     // Google's official Gemini CLI. Unlike Antigravity (`agy`), this is the
@@ -294,7 +323,7 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     autoModeFlag: '--approval-mode=yolo',
     autoFlag: '--approval-mode=yolo',
     // Gemini rejects combining either legacy yolo alias with --approval-mode.
-    // Treat every spelling as an explicit stance so the request remains owner.
+    // Treat every spelling as an explicit stance so the request stays in charge (#484).
     autoStanceTokens: ['--yolo', '-y'],
     supportsModel: true,
     modelFlag: '--model',
@@ -322,7 +351,15 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     canReceiveInbox: true, // via the agy-hook bridge (Stop→drain); verified agy honors hook decisions
     initialPromptFlag: '-i', // agy --prompt-interactive: orient the session, then continue
     recommendedOrchestratorModel: 'Gemini 3.1 Pro (High)', // agy takes the display-name label
-    resumeFlag: '--conversation' // agy: resume a previous conversation by ID
+    resumeFlag: '--conversation', // agy: resume a previous conversation by ID
+    // Google's own installer, a standalone binary into ~/.local/bin, no Node
+    // (I2, 23 Sep): the script the blog documents; both URLs answered 200 on
+    // 23 Sep 2026. No npm package, so the native rung is the only rung.
+    nativeInstallCommand: {
+      posix: 'curl -fsSL https://antigravity.google/cli/install.sh | bash',
+      win32: 'powershell -c irm https://antigravity.google/cli/install.ps1 ^| iex'
+    },
+    docsUrl: 'https://antigravity.google/docs/cli'
   },
   {
     // qwen-code — the Qwen CLI (a gemini-cli fork) driving any OpenAI-compatible
@@ -346,7 +383,14 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     initialPromptFlag: '-i',
     // Qwen's long-context coder model for the orchestrator. // TODO-verify
     recommendedOrchestratorModel: 'qwen3-coder-plus',
-    resumeFlag: undefined
+    // `qwen --resume <id>` resumes that session by id (qwen 0.24.x --help,
+    // 24 Sep 2026; --continue is most-recent-for-project). Chats live under
+    // ~/.qwen/projects/<cwd slug>/chats/<id>.*, checked in resumeStore.ts.
+    resumeFlag: '--resume',
+    // The npm package the blog and Qwen's README name (I2, 23 Sep): 0.24.4 on
+    // the registry on 23 Sep 2026. Trusted, hardcoded.
+    installCommand: 'npm install -g @qwen-code/qwen-code@latest',
+    docsUrl: 'https://github.com/QwenLM/qwen-code'
   },
   {
     // OpenCode — the TypeScript AI coding agent (opencode.ai / anomalyco/opencode,
@@ -356,14 +400,17 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     label: 'OpenCode',
     defaultCommand: 'opencode',
     commandGroups: [],
-    // OpenCode's TUI exposes no skip-permissions FLAG; headless auto-approve is a
-    // config concern (permission:allow). To keep auto-mode gated behind the floor
-    // `config.autoMode` toggle (Pam guardrail #2), the permission JSON is NOT a
-    // static nonInteractiveEnv — spawnAgentCore builds OPENCODE_CONFIG_CONTENT
-    // dynamically (permission:allow only when autoMode is on; + a local provider
-    // block when a base-URL is set). So no auto flag is spliced onto the command.
-    autoModeFlag: '',
-    autoFlag: '',
+    // Auto mode starts it as `opencode --auto`.
+    // `--auto` approves every permission that is not explicitly denied
+    // (opencode --help, 1.18.30 and 1.19.5). The permission JSON alone (OPENCODE_CONFIG_CONTENT,
+    // permission:allow for edit, bash and webfetch, built in spawnAgentCore only
+    // when autoMode is on) left the rest asking: an agent of f052 stopped on
+    // "Allow once / Allow always / Reject" for its own workspace folder. Gated
+    // by the floor's `config.autoMode` as every engine's flag is (Pam guardrail
+    // #2); an agent whose saved line has no flag gets it at its start
+    // (argsWithAutoModeFlag), and a line that has it keeps one.
+    autoModeFlag: '--auto',
+    autoFlag: '--auto',
     supportsModel: true,
     modelFlag: '--model', // value form: provider/model, e.g. anthropic/claude-sonnet-4-5
     hiveAware: false, // no --append-system-prompt/--settings; protocol rides in via --prompt
@@ -394,9 +441,11 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // every BYOK slug in the OpenCode model catalog stays one click away for
     // whoever has the key.
     recommendedOrchestratorModel: undefined,
-    // Capturing the TUI session id for resume is unverified; spawn fresh on respawn
-    // (protocol re-injected as the initial prompt), matching codex.
-    resumeFlag: undefined,
+    // `opencode --session <id>` continues that session (opencode 1.18 --help,
+    // 24 Sep 2026; -c/--continue is most-recent). OpenCode 1.x keeps sessions
+    // in opencode.db (SQLite), not a file per session, so resumeStore.ts has
+    // no spec for it: the recorded id is attached unchecked.
+    resumeFlag: '--session',
     installCommand: 'npm install -g opencode-ai@latest', // trusted, hardcoded
     // Node-free installers, for the rung that runs when npm is absent AND no Node
     // installer could be resolved (offline / unsupported platform) — until now
@@ -492,38 +541,46 @@ export const AGENT_PROVIDER_PRESETS: AgentProviderPreset[] = [
     // or we lean on the renderer idle nudge) is UNVERIFIED pending keys. Renderer nudge
     // is the guaranteed drain fallback either way.
     canReceiveInbox: true,
-    initialPromptFlag: undefined, // positional, like codex: pi "<prompt>"
+    initialPromptFlag: undefined,
+    // Pi's documented `pi [options] [messages...]` form takes the hive protocol
+    // as its initial user message and leaves the interactive session alive.
+    // Without this flag the injection branch spawned Pi bare, with no hive
+    // identity or protocol at all (#560).
+    positionalInitialPrompt: true,
     resumeFlag: '--session',
     // --ignore-scripts: don't run the package's postinstall on the user's machine.
     installCommand: 'npm install -g --ignore-scripts @earendil-works/pi-coding-agent',
     docsUrl: 'https://pi.dev/docs/latest'
   },
   {
-    // GitHub Copilot CLI (`copilot`, npm @github/copilot). Driven in print mode:
-    // `copilot -p "<prompt>" -s --allow-all-tools --no-ask-user [--model]`, the
-    // documented non-interactive shape (single prompt, clean stdout, exits when
-    // done). Non-hiveAware: it has no --append-system-prompt/--settings, so the
-    // hive identity+protocol rides in as the initial prompt via `-p`.
+    // GitHub Copilot CLI (`copilot`, npm @github/copilot). Driven INTERACTIVE
+    // (0.5.3, founder retest 25 Sep: after sign in the terminal stayed white):
+    // `copilot -i "<prompt>" --allow-all-tools --no-ask-user [--model]` opens
+    // Copilot's own screen and runs the brief there (1.0.88 `-i, --interactive
+    // <prompt>`), so the person sees Copilot working and can type to it. Print
+    // mode (`-p -s`) printed nothing until its final answer and then exited.
+    // Non-hiveAware: it has no --append-system-prompt/--settings, so the hive
+    // identity+protocol rides in as the initial prompt via `-i`.
     id: 'copilot',
     label: 'Copilot',
     defaultCommand: 'copilot',
     commandGroups: [],
-    // Non-interactive autonomy: -s prints only the agent's final response (clean
-    // stdout), --allow-all-tools never blocks on a permission prompt (env:
+    // Autonomy: --allow-all-tools never blocks on a permission prompt (env:
     // COPILOT_ALLOW_ALL), --no-ask-user disables the ask_user tool so it never
-    // stops to ask. Gated by the floor `config.autoMode` toggle like the rest.
-    autoModeFlag: '-s --allow-all-tools --no-ask-user',
-    autoFlag: '-s --allow-all-tools --no-ask-user',
+    // stops to ask. No -s: that is print mode only. Gated by the floor
+    // `config.autoMode` toggle like the rest.
+    autoModeFlag: '--allow-all-tools --no-ask-user',
+    autoFlag: '--allow-all-tools --no-ask-user',
     supportsModel: true,
     modelFlag: '--model', // e.g. claude-sonnet-4.5 (default), gpt-5.4, or 'auto'
-    hiveAware: false, // no --append-system-prompt/--settings; protocol rides in via -p
-    initialPromptFlag: '-p', // copilot -p "<orchestrator/worker brief>" runs it non-interactively
+    hiveAware: false, // no --append-system-prompt/--settings; protocol rides in via -i
+    initialPromptFlag: '-i', // copilot -i "<orchestrator/worker brief>": interactive, runs the brief first
     recommendedOrchestratorModel: 'claude-sonnet-4.5', // Copilot's default; user may pick gpt-5.4
     // Copilot supports session resume by id (`--resume=<id>`); attached only when a
     // prior session id was recorded (no hook bridge captures it yet → best-effort).
     resumeFlag: '--resume',
-    // Print mode exits per turn and there is no hook bridge to drain on idle, so a
-    // copilot worker can't receive routed inbox mail (it bounces to the god).
+    // No hook bridge to drain on idle and its live mail path is unverified, so
+    // routed inbox mail still bounces to the god (unchanged by -i).
     canReceiveInbox: false,
     installCommand: 'npm install -g @github/copilot', // trusted, hardcoded
     docsUrl: 'https://docs.github.com/copilot/concepts/agents/about-copilot-cli'
@@ -665,9 +722,29 @@ export function bridgeOf(provider: AgentProvider | undefined): BridgeDescriptor 
   return undefined;
 }
 
-export function defaultCommandForProvider(provider: AgentProvider, fallback = ''): string {
-  if (provider === 'custom') return fallback;
-  return providerPreset(provider).defaultCommand || fallback;
+/** Whether the user's configured command line can launch `provider`: it names
+ *  that provider's own CLI (`claude --foo`, `/opt/bin/codex -p work`), or it is
+ *  a wrapper the app cannot identify while Claude is wanted. The configured
+ *  command has always been the Claude command, so a custom wrapper there
+ *  (`my-claude.sh`) stays Claude's; a command that clearly names ANOTHER
+ *  provider (defaultCommand `codex` while Claude is picked) does not. */
+export function configuredCommandServes(provider: AgentProvider, configured: string | undefined): boolean {
+  const cmd = (configured ?? '').trim();
+  if (!cmd) return false;
+  const inferred = inferAgentProvider(cmd);
+  if (inferred === provider) return true;
+  return provider === 'claude' && inferred === 'custom';
+}
+
+/** The command line for a spawn that names a provider but no command (#499,
+ *  #551): an explicit provider wins over a configured default that belongs to a
+ *  different CLI, and a configured command that serves the same provider (a
+ *  wrapper or extra flags) is kept. `custom` has no binary of its own. */
+export function commandForExplicitProvider(provider: AgentProvider, configured: string | undefined): string {
+  const cmd = (configured ?? '').trim();
+  if (provider === 'custom') return cmd;
+  if (configuredCommandServes(provider, cmd)) return cmd;
+  return providerPreset(provider).defaultCommand || cmd;
 }
 
 /** Returns the preset's auto-mode CLI flag for the given provider. Empty string = no flag. */
@@ -691,7 +768,8 @@ export function argsWithAutoModeFlag(args: string[], autoMode: boolean, provider
   return [...args, ...flag.trim().split(/\s+/)];
 }
 
-/** Return a CLI option's identity while preserving positional values verbatim. */
+/** A CLI option's identity (`--approval-mode=plan` → `--approval-mode`);
+ *  positional values come back verbatim. */
 function cliOptionName(token: string): string {
   const trimmed = token.trim();
   if (!trimmed.startsWith('-')) return trimmed;
@@ -701,8 +779,9 @@ function cliOptionName(token: string): string {
 
 /** True when argv already states a permission posture for this provider: the
  *  auto flag's leading option, or any of the preset's `autoStanceTokens`.
- *  Compare normalized option identity (not prefix) and stop at `--`, after
- *  which option-looking tokens are positional literals. */
+ *  Compares option identity, so `--approval-mode=plan` counts (#484), but never
+ *  a prefix (copilot's flag starts with `-s`), and stops at `--`, after which
+ *  option-looking tokens are positional literals. */
 export function hasAutoModeStance(args: string[], provider: AgentProvider): boolean {
   const preset = providerPreset(provider);
   const flag = preset.autoModeFlag ?? '';
@@ -720,11 +799,6 @@ export function hasAutoModeStance(args: string[], provider: AgentProvider): bool
 /** Returns any env vars the provider needs for non-interactive / first-run suppression. */
 export function nonInteractiveEnvForProvider(provider: AgentProvider): Record<string, string> {
   return providerPreset(provider).nonInteractiveEnv ?? {};
-}
-
-/** Returns the command reference groups for the given provider. */
-export function commandGroupsForProvider(provider: AgentProvider): CmdGroup[] {
-  return providerPreset(provider).commandGroups ?? [];
 }
 
 /** Install metadata for a provider's engine CLI, consumed by the missing-CLI

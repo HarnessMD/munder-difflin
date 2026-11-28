@@ -1,170 +1,187 @@
 ---
 title: "The Best Tools to Run Multiple Claude Code Agents (2026)"
-description: "An honest 2026 roundup of tools to run multiple Claude Code agents — Claude Squad, Conductor, Crystal, vibe-kanban, and Munder Difflin — compared."
+description: "An honest September 2026 roundup of tools for running several Claude Code agents: Claude Code agent teams, Claude Squad, Conductor, Nimbalyst, Emdash, Vibe Kanban and Munder Difflin, and how to pick one."
 date: 2026-06-04
+updated: 2026-09-10
 category: comparisons
 categoryLabel: Comparisons
 type: Non-technical
 primaryKeyword: "best claude code multi-agent tools"
-secondaryKeywords: ["claude code multi-agent tool", "agentic coding tools", "best tools to run multiple claude code agents"]
+secondaryKeywords: ["claude code multi-agent tool", "best tools to run multiple claude code agents", "claude code agent teams", "crystal nimbalyst", "emdash coding agents", "conductor claude code"]
 tags: ["Comparisons", "Multi-Agent", "Claude Code", "Tools"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
   - q: "What is the best tool to run multiple Claude Code agents?"
-    a: "There's no single best — it depends on what you want. Claude Squad is the leanest terminal option; Conductor is the most polished on macOS; Crystal is a good open-source desktop GUI; vibe-kanban gives you a task board; and Munder Difflin adds shared memory, inter-agent messaging, and a GOD orchestrator so the agents act as one coordinated team."
-  - q: "Are these Claude Code multi-agent tools free?"
-    a: "Most are free and several are open source (Claude Squad, Crystal, vibe-kanban, and Munder Difflin are open source; Munder Difflin is MIT-licensed). Conductor is a free, native macOS app. Always check each project's current license and pricing before you commit."
-  - q: "Do I need a multi-agent tool to use Claude Code?"
-    a: "No. One Claude Code session handles most tasks. You start wanting a multi-agent tool once you're running three or more sessions at once and the coordination overhead — who's doing what, who knows what, who edits which file — starts costing you time."
+    a: "It depends on your bottleneck. Claude Code agent teams are the built in option for a single session. Claude Squad is the leanest terminal manager. Conductor is the polished Mac app, with cloud workspaces on paid plans. Nimbalyst and Emdash are open source desktop apps. Munder Difflin adds long term memory, messaging and an orchestrator across twelve CLIs."
+  - q: "Does Claude Code have a built in way to run multiple agents?"
+    a: "Yes, two. Subagents handle short helper jobs inside one session. Agent teams, which are experimental and stay off until you set CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1, let a lead session spawn teammates that share a task list and message each other."
+  - q: "What happened to Crystal?"
+    a: "Its maker deprecated Crystal in February 2026 and replaced it with Nimbalyst, an MIT licensed visual workspace for Claude Code and Codex."
+  - q: "Is Vibe Kanban still maintained?"
+    a: "Its website says Vibe Kanban is sunsetting and will continue as an open source, community maintained project."
+  - q: "Are these tools free?"
+    a: "Most have a free option. Claude Squad (AGPL 3.0), Nimbalyst (MIT), Emdash (Apache 2.0), Vibe Kanban (Apache 2.0) and the Munder Difflin app (MIT) are open source. Conductor has a free plan for local workspaces and paid plans for cloud and team features. Check pricing before you commit, because this space moves fast."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>The tools for running
-<strong>multiple Claude Code agents</strong> fall into three camps: <strong>terminal session
-managers</strong> (Claude Squad), <strong>parallel-worktree desktop apps</strong> (Conductor,
-Crystal), <strong>task boards</strong> (vibe-kanban), and <strong>coordinated hives</strong> (Munder
-Difflin). The first three help you run agents <em>side by side</em>; a hive adds shared memory,
-messaging, and an orchestrator so they run <em>as a team</em>. Pick by how much coordination you
-actually need.</p></div>
+<div class="callout tldr"><span class="ic">TL;DR</span><p>Tools for running <strong>multiple Claude Code
+agents</strong> come in four shapes: <strong>built in</strong> (Claude Code agent teams),
+<strong>session managers</strong> (Claude Squad), <strong>parallel workspace apps</strong> (Conductor,
+Nimbalyst, Emdash, and Vibe Kanban as a board), and <strong>coordinated offices</strong> (Munder Difflin).
+The first three help you run agents side by side. An office adds shared memory, messaging and an
+orchestrator so they run as a team.</p></div>
 
-If you've outgrown a single Claude Code window, the next question is *which tool* helps you run
-several at once without the chaos. The landscape moved fast in 2025–2026, so here's an honest,
-plain-English roundup of the main options — what each does well, where it stops, and who it's for.
+A lot changed since we first wrote this in June. Claude Code grew its own agent teams, Crystal became
+Nimbalyst, Conductor moved into the cloud, Vibe Kanban announced it is winding down, and Emdash arrived.
+Here is the current picture, checked on 10 September 2026.
 
-> **A note on fairness:** this space changes quickly. Features, platforms, and licenses below are
-> accurate to the best of our knowledge at the time of writing — always check each project's repo or
-> site for current details. Munder Difflin is our own tool; we've tried to describe the others on
-> their own terms, not as straw men.
+For a tool that takes coding agents from task to merged pull request, see [Orchestrator.inc vs Munder Difflin](/blog/orchestrator-inc-vs-munder-difflin/).
 
-## The four shapes of "multi-agent Claude Code"
+<div class="callout note"><span class="ic">Fair warning</span><p>Munder Difflin is our own tool. Everything
+about the others comes from their own sites, READMEs and docs as of 10 September 2026, and every tool is
+linked so you can check it yourself.</p></div>
 
-Before the tools, the categories — because they answer different questions:
+## What kinds of tools run multiple Claude Code agents?
 
-- **Terminal session managers** run each agent in its own shell and let you switch between them from
-  one keyboard-driven interface. Minimal, fast, SSH-friendly.
-- **Parallel-worktree desktop apps** give each agent an isolated [git
-  worktree](/blog/how-to-run-multiple-claude-code-agents/) and a GUI to launch tasks and review
-  diffs. Great for "try five approaches in parallel."
-- **Task boards** model the work as cards you assign to agents and move through columns — a
-  project-management view over agentic coding.
-- **Coordinated hives** add the layer the others leave to you: shared long-term memory, direct
-  agent-to-agent messaging, and an orchestrator that routes work. That's the [multi-agent
-  harness](/#what) idea.
+Four kinds, and knowing which one you need is most of the decision.
 
-Most tools live cleanly in one camp. Knowing which camp you need is most of the decision.
+- **Built in.** Features inside Claude Code itself. Nothing new to install, and the team lives in one session.
+- **Session managers.** Many agents in terminal sessions, driven from one keyboard friendly interface.
+- **Parallel workspace apps.** A desktop app that gives each agent an isolated workspace and a place to
+  review what it changed.
+- **Coordinated offices.** Agents with roles, mailboxes, shared long term memory and an orchestrator that
+  routes the work.
 
-## The tools, at a glance
+## The tools at a glance
 
-| Tool | What it is | How it parallelizes | Shared memory | Orchestrator | License |
-|---|---|---|---|---|---|
-| Claude Squad | Terminal (TUI) session manager | tmux + git worktrees | No | No (you assign) | Open source |
-| Conductor | Native macOS desktop app | Parallel git worktrees | No | No (you assign) | Free, macOS-only |
-| Crystal | Open-source desktop app | Parallel sessions + worktrees | No | No (you assign) | Open source |
-| vibe-kanban | Kanban board for agents | Task cards across agents | No | Board, not auto-routing | Open source |
-| Munder Difflin | Local coordinated hive | Roles + mailboxes + orchestrator | Yes (MemPalace) | Yes (GOD agent) | Open source (MIT) |
-
-The single row that most separates the field is **shared memory + orchestrator**: that's the jump
-from "running agents in parallel" to "running a team."
+| Tool | Shape | Agents it runs | Platforms | License |
+|---|---|---|---|---|
+| Claude Code agent teams | Built in, experimental | Claude Code | Wherever Claude Code runs | Part of Claude Code |
+| Claude Squad | Session manager | Claude Code, Codex, Gemini, Aider and more | Terminal, needs tmux | AGPL 3.0 |
+| Conductor | Parallel workspaces, cloud on paid plans | Claude Code, Codex, Cursor, OpenCode | macOS, iOS listed as coming | Free and paid plans |
+| Nimbalyst | Visual workspace, parallel sessions | Claude Code, Codex | macOS, Windows, Linux | MIT |
+| Emdash | Parallel workspaces | Any provider, including Claude Code, Codex, Amp, Antigravity | macOS, Windows, Linux | Apache 2.0 |
+| Vibe Kanban | Task board, sunsetting | Claude Code, Codex and others | Runs with npx | Apache 2.0 |
+| Munder Difflin | Coordinated office | Twelve CLIs, including Claude Code, Codex, Gemini CLI, Copilot, Cursor | macOS, Windows, Linux | MIT (free app) |
 
 {% img "note-1" %}
 
-## Claude Squad — the lean terminal option
+## Claude Code agent teams: the built in option
 
-[Claude Squad](https://github.com/smtg-ai/claude-squad) is a terminal UI that manages multiple AI
-coding agents — Claude Code among them — each in its own tmux session, with git worktrees keeping
-their changes isolated. You launch, switch, background, and review agents without leaving the
-terminal.
+[Agent teams](https://code.claude.com/docs/en/agent-teams) are Claude Code's own way to run a team, and
+they are still experimental. Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` and a lead session can spawn
+teammates. Each teammate is a separate Claude Code instance with its own context window. They share a task
+list, claim work, and message each other directly. You can keep them all in one terminal, or give each one
+a split pane with tmux or iTerm2.
 
-- **Strengths:** featherweight, keyboard-driven, works great over SSH, no GUI overhead. If you live
-  in the terminal and want parallel agents *now*, it's hard to beat for speed of setup.
-- **Where it stops:** agents don't share memory or message each other, and there's no orchestrator —
-  you decide who does what. It's a superb *session manager*, not a coordination layer.
+- **Strengths:** nothing to install, first party, and teammates genuinely talk to each other.
+- **Where it stops:** Anthropic's docs list the limits. A session has exactly one team, in process
+  teammates are not restored when you resume a session, and token use grows with every teammate. Every
+  teammate is Claude.
 
-Best for: terminal purists running a handful of independent tasks. If you want a deeper look at why
-isolation alone isn't coordination, see [Claude Squad alternative](/blog/claude-squad-alternative/).
+Best for: research, review and debugging jobs you finish in one sitting.
 
-## Conductor — the polished macOS experience
+## Claude Squad: the lean terminal manager
 
-[Conductor](https://conductor.build) is a native macOS app for running Claude Code agents in
-parallel, each in its own isolated git worktree, with a clean Mac-native interface for kicking off
-tasks and reviewing their diffs.
+[Claude Squad](https://github.com/smtg-ai/claude-squad) is a terminal app that manages several agents,
+including Claude Code, Codex, Gemini and Aider, each in its own workspace. It needs tmux and installs as `cs`.
 
-- **Strengths:** genuinely nice UX, fast diff review, and a low-friction way to run several
-  worktree-isolated agents at once on a Mac.
-- **Where it stops:** it's macOS-only, and it's built around *parallel isolated workspaces* rather
-  than a coordinated team — no shared cross-agent memory, no agent-to-agent messaging, no
-  plain-language orchestrator. Closed-source, so you can't read or extend the internals.
+- **Strengths:** light, fast, keyboard driven, and comfortable over SSH.
+- **Where it stops:** its README describes managing sessions. It does not describe shared memory or agents
+  messaging each other, so deciding who does what stays with you.
 
-Best for: Mac users who want a refined parallel-worktree workflow. If you're cross-platform or want a
-coordination layer, see [a Conductor alternative](/blog/conductor-claude-code-alternative/).
+Best for: terminal people running a handful of independent tasks. More in
+[Claude Squad vs Munder Difflin](/blog/claude-squad-vs-munder-difflin/).
 
-## Crystal — the open-source desktop GUI
+## Conductor: the polished Mac app, now with a cloud
 
-[Crystal](https://github.com/stravu/crystal) is an open-source desktop app that runs multiple Claude
-Code sessions in parallel, each in its own git worktree. You spin up sessions from prompts, run them
-concurrently, and review diffs and test results across worktrees in one window.
+[Conductor](https://conductor.build) started as a Mac app for running coding agents in parallel, each in its
+own workspace. It now runs Claude Code, Codex, Cursor and OpenCode, and pitches itself as a way to run a team
+of coding agents in the cloud. The free plan covers running agents in parallel in local workspaces on your
+Mac. Cloud workspaces come with paid plans, and its Teams plan adds live collaboration on shared workspaces.
 
-- **Strengths:** open source, a real GUI, and a tidy model for running several experiments in
-  parallel and comparing the results.
-- **Where it stops:** like the others in this camp, it's parallel isolated sessions — agents don't
-  pool memory or talk to each other, and there's no orchestrator routing work between them.
+- **Strengths:** a refined interface, quick review, and cloud workspaces that can run for hours.
+- **Where it stops:** the desktop app is macOS only today, with iOS listed as coming soon, and the cloud and
+  multiplayer parts are paid.
 
-Best for: developers who want an open, visual, worktree-based parallel workflow without the terminal.
-More on the trade-offs in [a Crystal alternative](/blog/crystal-claude-code-alternative/).
+Best for: Mac users who want polish and are happy to pay for cloud runs. See
+[a Conductor alternative](/blog/conductor-claude-code-alternative/).
+
+## Nimbalyst: what Crystal became
+
+[Crystal](https://github.com/stravu/crystal) was deprecated in February 2026 and replaced by
+[Nimbalyst](https://nimbalyst.com), which describes itself as an open source visual workspace for building
+with Codex, Claude Code and more. It runs parallel sessions with optional git worktree isolation, adds visual
+editors for markdown, mockups, diagrams and data models, and organises sessions on a kanban. The desktop apps
+for macOS, Windows and Linux are MIT licensed.
+
+- **Strengths:** open source, cross platform, and good at reviewing what agents change, including non code files.
+- **Worth checking:** its pricing page, for the team and collaboration features.
+
+Best for: developers who want an open, visual, cross platform workspace. Our older
+[Crystal comparison](/blog/crystal-claude-code-alternative/) still explains the worktree model it grew from.
 
 {% img "note-2" %}
 
-## vibe-kanban — the task board for agents
+## Emdash: the open source newcomer
 
-[vibe-kanban](https://github.com/BloopAI/vibe-kanban) takes a different angle: a kanban board where
-you create tasks as cards, assign them to coding agents (it's agent-agnostic — Claude Code, Gemini,
-Codex, and more), and move work through columns from to-do to review.
+[Emdash](https://emdash.sh) is an open source agentic development environment backed by Y Combinator. It runs
+coding agents in parallel with any provider, schedules repeat work, previews apps in a built in browser, pulls
+issues from Linear, Jira and GitHub, and manages prompts, skills and MCP tools. It runs on macOS, Windows and
+Linux under Apache 2.0.
 
-- **Strengths:** the board is a familiar, legible mental model; it's agent-agnostic; and it's great
-  for managing a *queue* of work and reviewing each agent's output before it lands.
-- **Where it stops:** a board is something *you* drive. Cards don't carry shared long-term memory
-  between agents, agents don't message each other, and nothing auto-routes work — the orchestration
-  is you, moving cards.
+- **Strengths:** wide agent support, issue tracker integrations, and every desktop platform.
+- **Worth checking:** remote development is its newest area, so test it on your own setup first.
 
-Best for: people who think in tasks and want a board over their agents. When you'd rather the routing
-happen for you, see [a vibe-kanban alternative](/blog/vibe-kanban-alternative/).
+Best for: teams that live in an issue tracker and want agents fed straight from it.
 
-## Munder Difflin — the coordinated hive
+## Vibe Kanban: the board, winding down
 
-[Munder Difflin](/#what) is our own take, and it's deliberately in a different camp. It turns the
-Claude Code terminals you already run into a *self-coordinating hive*: each agent gets a role and a
-mailbox, agents message each other directly, they share long-term **semantic memory** (MemPalace),
-and a [GOD orchestrator](/#how) you talk to in plain language decomposes your intent and routes work
-across the team. The whole floor is visualized as avatars at their desks, so you can actually watch
-it run.
+[Vibe Kanban](https://github.com/BloopAI/vibe-kanban) turns agent work into cards you plan, prompt and review.
+It runs with `npx vibe-kanban` and works with Claude Code, Codex and other agents. Its site now says the project
+is sunsetting and will continue as open source, maintained by the community.
 
-- **Strengths:** it adds the coordination the other tools leave to you — [shared
-  memory](/blog/give-claude-code-long-term-memory/), inter-agent messaging, an orchestrator, and
-  visibility. Local-first and MIT-licensed, on macOS, Windows, and Linux.
-- **Where it stops (honestly):** it's a younger project, and the office-floor visualization is
-  heavier than a TUI. For one or two quick parallel tasks, a lean session manager is less to think
-  about — a hive earns its keep once coordination is the real cost.
+- **Strengths:** a familiar board for planning work and reviewing agent output.
+- **Where it stops:** with its company stepping back, future fixes depend on the community.
 
-Best for: people running enough agents that *coordination* — not just parallelism — is the problem.
+Best for: people already on it who are comfortable with a community maintained tool. See
+[a Vibe Kanban alternative](/blog/vibe-kanban-alternative/).
 
-## How to choose
+## Munder Difflin: the coordinated office
+
+[Munder Difflin](https://munderdiffl.in/) is ours, and it lives in the fourth camp. It wraps twelve terminal
+coding CLIs (Claude Code, Codex, Gemini CLI, Antigravity, Grok, Kimi Code, Qwen, OpenCode, Crush, Pi, Copilot
+and Cursor) and runs them as real processes on your machine. Each agent gets a desk on an office floor, a
+mailbox and long term memory. Michael, your clone, turns what you ask for into tasks, hires workers and
+routes messages between them. Questions that need you land on an ASK ME board.
+
+- **Strengths:** memory and messaging that outlast a session, one orchestrator for the whole floor, engines
+  from different vendors on the same team, and it runs on the subscriptions you already pay for. Free and MIT
+  licensed on macOS, Windows and Linux.
+- **Where it stops, honestly:** an office floor is more app than a terminal manager, and your machine has to
+  stay on for the agents to keep working. Hosted sandboxes are not available yet. For one or two quick
+  parallel tasks, a lighter tool is less to think about.
+
+Best for: anyone running enough agents that coordination, not parallelism, is the real cost. The free app does
+all of the above. Optional paid plans exist too: Pro puts the office in one window and adds Stapler, and Teams
+lets your clone work with your teammates' clones. Details are on the [pricing page](https://munderdiffl.in/#pricing).
+
+## How do you choose?
 
 Match the tool to the bottleneck:
 
-- **"I just want parallel agents, fast."** → Claude Squad (terminal) or Crystal (GUI).
-- **"I'm on a Mac and want it to feel native."** → Conductor.
-- **"I want to manage work as tasks."** → vibe-kanban.
-- **"My agents need to share what they learn and stop colliding."** → Munder Difflin.
+- **"I only use Claude Code and need a team for one job."** Try agent teams first.
+- **"I want parallel agents in the terminal, now."** Claude Squad.
+- **"I am on a Mac, I want polish, and I will pay for cloud runs."** Conductor.
+- **"I want an open, visual, cross platform workspace."** Nimbalyst or Emdash.
+- **"My agents need to remember, talk to each other and stop colliding, across more than one vendor."**
+  Munder Difflin.
 
-If you want a structured way to weigh these, we wrote a [buyer's
-checklist](/blog/how-to-choose-a-multi-agent-tool/) and a criteria-based [orchestration tools
-comparison](/blog/claude-code-orchestration-tools-compared/). And if you've decided coordination is
-your real problem, the fastest way to feel the difference is to
-[download Munder Difflin](/#install) — it's free and open source.
+For a more structured pass, there is a [buyer's checklist](/blog/how-to-choose-a-multi-agent-tool/) and a
+criteria based [orchestration tools comparison](/blog/claude-code-orchestration-tools-compared/).
 
 ---
 
-The honest summary: there's no universal "best." The best tool is the one that solves *your*
-bottleneck — and the bottleneck shifts from parallelism to coordination the moment you're running a
-real team of agents.
+There is no universal best. The right tool is the one that removes your bottleneck, and that bottleneck moves
+from parallelism to coordination the day you start running a real team of agents.

@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aider vs Claude Code in 2026: Which Should You Use? — Munder Difflin Blog</title>
+<meta name="description" content="Aider vs Claude Code, checked 15 Sep 2026: how each edits code, which models it runs, what it costs, MCP, and Aider&#39;s stalled releases." />
+<link rel="canonical" href="https://munderdiffl.in/blog/aider-vs-claude-code/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Aider vs Claude Code in 2026: Which Should You Use? — Munder Difflin Blog" />
+<meta property="og:description" content="Aider vs Claude Code, checked 15 Sep 2026: how each edits code, which models it runs, what it costs, MCP, and Aider&#39;s stalled releases." />
+<meta property="og:url" content="https://munderdiffl.in/blog/aider-vs-claude-code/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/aider-vs-claude-code/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Illustration: Aider vs Claude Code in 2026: Which Should You Use?" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-09-15T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Comparisons" />
+<meta property="article:tag" content="Claude Code" />
+<meta property="article:tag" content="CLI Agents" />
+<meta property="article:tag" content="Open Source" />
+<meta property="article:tag" content="Cost" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Aider vs Claude Code in 2026: Which Should You Use? — Munder Difflin Blog" />
+<meta name="twitter:description" content="Aider vs Claude Code, checked 15 Sep 2026: how each edits code, which models it runs, what it costs, MCP, and Aider&#39;s stalled releases." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/aider-vs-claude-code/hero.png" />
+<meta name="twitter:image:alt" content="Illustration: Aider vs Claude Code in 2026: Which Should You Use?" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Aider vs Claude Code in 2026: Which Should You Use?",
+  "description": "Aider vs Claude Code, checked 15 Sep 2026: how each edits code, which models it runs, what it costs, MCP, and Aider's stalled releases.",
+  "image": ["https://munderdiffl.in/blog/assets/media/aider-vs-claude-code/hero.png"],
+  "datePublished": "2026-09-15T00:00:00.000Z",
+  "dateModified": "2026-09-15T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/aider-vs-claude-code/" },
+  "keywords": "aider vs claude code, claude code vs aider, aider vs claude code 2026, is aider still maintained, does aider support mcp, aider claude code subscription, claude code vs aider benchmark",
+  "articleSection": "Comparisons",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/aider-vs-claude-code/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Aider vs Claude Code in 2026: Which Should You Use?", "item": "https://munderdiffl.in/blog/aider-vs-claude-code/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is Aider free?", "acceptedAnswer": { "@type": "Answer", "text": "The tool is. Aider is an Apache 2.0 Python package with no paid plan, so the only bill comes from the model provider behind your API key, or nothing if you run a local model. Claude Code is not free: Claude's Free plan does not include it, per claude.com/pricing on 15 Sep 2026. Without a plan, you pay per token with an Anthropic API key." } },
+    { "@type": "Question", "name": "Can I use my Claude Pro or Max subscription with Aider?", "acceptedAnswer": { "@type": "Answer", "text": "No. Anthropic's legal and compliance page for Claude Code reserves subscription sign in for ordinary use of Claude Code and Anthropic's own apps. Aider reaches Claude models through an Anthropic API key or a cloud provider such as Amazon Bedrock, billed per token and separately from any plan." } },
+    { "@type": "Question", "name": "Is there a benchmark that compares Aider and Claude Code?", "acceptedAnswer": { "@type": "Answer", "text": "Not a head to head one. Aider's polyglot leaderboard scores models running inside Aider on 225 Exercism exercises, and the page says it was last updated on 20 Nov 2025, with gpt-5 (high) on top at 88.0%. Claude Code is not on it, so it tells you which model edits well in Aider, not which tool is better." } },
+    { "@type": "Question", "name": "Can Aider run shell commands?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, with you in the loop. The /run command runs a command and can add its output to the chat, /test adds the output when a command fails, and aider --help lists suggesting shell commands as on by default. Claude Code runs commands inside its own loop, gated by its permission mode." } },
+    { "@type": "Question", "name": "Is Aider dead?", "acceptedAnswer": { "@type": "Answer", "text": "It is not archived, but it has stalled. As of 15 Sep 2026 its latest release is 0.86.2 from 12 Feb 2026, the last commit on main is from 22 May 2026, and no pull request has been merged since. A community fork, cecli, published v1.5.1 on 12 Sep 2026." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-comparisons">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/comparisons/">Comparisons</a>
+    </nav>
+    <h1>Aider vs Claude Code in 2026: Which Should You Use?</h1>
+    <p class="dek">Aider vs Claude Code, checked 15 Sep 2026: how each edits code, which models it runs, what it costs, MCP, and Aider&#39;s stalled releases.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-09-15">Sep 15, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Comparisons</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/aider-vs-claude-code/hero.png" alt="Illustration: Aider vs Claude Code in 2026: Which Should You Use?" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Pick Claude Code if you want an agent that finds its own files, runs commands and splits work across subagents on Claude models. Pick Aider if you want a free, Apache 2.0 pair programmer that works with almost any model and commits every edit to git. The catch: Aider’s last release was 0.86.2, on 12 Feb 2026.</p>
+<p>Both run in a terminal inside your project. They differ on who picks what to read, who you pay, and whether the project still ships. We checked each point on 15 Sep 2026 against the projects’ own docs and repos and a fresh Aider install. Already paying for Claude? Read <a href="/blog/claude-code-max-plan-tips/">getting more out of a Claude Code Max plan</a>.</p>
+<h2 id="what-is-the-difference-between-aider-and-claude-code" tabindex="-1">What is the difference between Aider and Claude Code? <a class="anchor" href="#what-is-the-difference-between-aider-and-claude-code" aria-hidden="true">#</a></h2>
+<p>Aider is a pair programmer you steer file by file, and Claude Code is an agent that goes looking for itself.</p>
+<p>In Aider you add the files you want changed to the chat, and it sends the model a repo map: a ranked outline of classes and function signatures across the repo, 1k tokens by default. The model replies in an edit format Aider picks per model, usually search and replace blocks, and Aider applies the edit and commits it to git, so <code>/undo</code> takes it back. Claude Code starts from the task. It searches and reads files with its own tools, edits them, runs commands such as your tests, and commits when you ask. Instead of a commit per edit, it snapshots files before each prompt so <code>/rewind</code> can roll a turn back.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/aider-vs-claude-code/note-1.png" alt="Hand-drawn sketch from “Aider vs Claude Code in 2026: Which Should You Use?”" loading="lazy" decoding="async" /></figure>
+<p>Claude Code also has subagents with their own context window, tools and permissions, hooks around every tool call, MCP servers, and a <a href="/blog/how-to-use-claude-code-plan-mode/">plan mode</a> that researches without editing. Aider’s extras are more manual: an architect mode where one model plans and another writes the edits, <code>/run</code> and <code>/test</code> to feed command output back, and <code>--watch-files</code> for AI coding comments left in your files.</p>
+<h2 id="what-does-a-fresh-aider-install-show" tabindex="-1">What does a fresh Aider install show? <a class="anchor" href="#what-does-a-fresh-aider-install-show" aria-hidden="true">#</a></h2>
+<p>It shows version 0.86.2 and two git defaults worth knowing. We installed Aider into a throwaway folder with <code>uv tool install --python 3.12 aider-chat</code>, which took 28 seconds, then ran only version and help commands, with no key and no prompt:</p>
+<pre><code>$ aider --version
+aider 0.86.2
+$ aider --help | grep -A2 -e &quot;--auto-commits,&quot; -e &quot;--git-commit-verify,&quot;
+  --auto-commits, --no-auto-commits
+                        Enable/disable auto commit of LLM changes (default:
+                        True) [env var: AIDER_AUTO_COMMITS]
+--
+  --git-commit-verify, --no-git-commit-verify
+                        Enable/disable git pre-commit hooks with --no-verify
+                        (default: False) [env var: AIDER_GIT_COMMIT_VERIFY]
+$ aider --help | grep -ci mcp
+0
+</code></pre>
+<p>Aider will never forget to commit. It will also, by default, skip the pre-commit hooks you set up to stop bad commits: its git docs say it commits with <code>--no-verify</code> unless you pass <code>--git-commit-verify</code>. If your repo leans on a pre-commit linter or secret scanner, set that flag.</p>
+<h2 id="is-aider-still-maintained" tabindex="-1">Is Aider still maintained? <a class="anchor" href="#is-aider-still-maintained" aria-hidden="true">#</a></h2>
+<p>Barely: the repo is not archived, but its last commit on main landed on 22 May 2026. PyPI’s latest version is 0.86.2, uploaded 12 Feb 2026, the first release since August 2025. On 15 Sep 2026, GitHub’s API showed no pull request merged since and 493 open, while 280 new issues had arrived since 1 Jun 2026. When a user asked <a href="https://github.com/Aider-AI/aider/issues/4613">where the maintainer had gone</a> in October 2025, Paul Gauthier replied: “Unfortunately I’ve been occupied with other projects recently.” Aider’s <a href="https://aider.chat/docs/leaderboards/">LLM leaderboard</a> still says last updated 20 Nov 2025. Claude Code published 29 versions to npm between 17 Aug and 12 Sep 2026. Our <a href="/blog/aider-alternatives/">Aider alternatives</a> guide compares six tools you can switch to, checked 20 Nov 2026.</p>
+<h2 id="which-models-can-aider-and-claude-code-use" tabindex="-1">Which models can Aider and Claude Code use? <a class="anchor" href="#which-models-can-aider-and-claude-code-use" aria-hidden="true">#</a></h2>
+<p>Aider can use almost any model, and Claude Code is built for Claude only. Aider connects through LiteLLM to hundreds of models, including local ones through Ollama or any OpenAI compatible server. A bad LiteLLM release reached PyPI on 21 Oct 2026; see <a href="/blog/litellm-1-107-0-compromise/">the LiteLLM 1.107.0 compromise</a> for who was exposed. Claude Code runs Claude through Anthropic, Amazon Bedrock, Claude Platform on AWS, Google Cloud’s Agent Platform or Microsoft Foundry, and Anthropic’s <a href="https://code.claude.com/docs/en/llm-gateway">gateway docs</a> say it “doesn’t support routing Claude Code to non-Claude models through any gateway.” People point it at Ollama anyway; our <a href="/blog/how-to-connect-ollama-to-claude-code/">Ollama and Claude Code guide</a> covers what breaks when you do.</p>
+<h2 id="is-aider-cheaper-than-claude-code" tabindex="-1">Is Aider cheaper than Claude Code? <a class="anchor" href="#is-aider-cheaper-than-claude-code" aria-hidden="true">#</a></h2>
+<p>Aider itself is free, and every request bills your model provider per token. Claude Code needs a paid Claude plan or an Anthropic API key billed per token. Claude’s <a href="https://claude.com/pricing">pricing page</a> on 15 Sep 2026 shows Claude Code missing from the Free plan, Pro at $20 billed monthly (or $17 a month billed annually) with Claude Code included, and Max from $100 a month for 5x or 20x Pro’s usage, all with usage limits. That subscription does not carry over to Aider. Anthropic’s <a href="https://code.claude.com/docs/en/legal-and-compliance">legal and compliance page</a> says subscription sign in is for “ordinary use of Claude Code and other native Anthropic applications”, so Aider on Claude means an API key or a cloud provider account, billed per token. Our <a href="/blog/how-much-does-claude-code-cost/">Claude Code cost breakdown</a> has the per token side.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/aider-vs-claude-code/note-2.png" alt="Hand-drawn sketch from “Aider vs Claude Code in 2026: Which Should You Use?”" loading="lazy" decoding="async" /></figure>
+<h2 id="does-aider-support-mcp" tabindex="-1">Does Aider support MCP? <a class="anchor" href="#does-aider-support-mcp" aria-hidden="true">#</a></h2>
+<p>No, not as of 0.86.2. Its help output has no MCP option, a feature request for native MCP support has been open since 9 Sep 2025, and of four pull requests with MCP in the title, three were closed unmerged and one, opened 8 Aug 2026, still waits. Claude Code adds servers with <code>claude mcp</code> or <code>--mcp-config</code>.</p>
+<h2 id="what-are-the-options-if-aider-has-stalled" tabindex="-1">What are the options if Aider has stalled? <a class="anchor" href="#what-are-the-options-if-aider-has-stalled" aria-hidden="true">#</a></h2>
+<p>Four sensible moves, depending on what you liked about Aider:</p>
+<ol>
+<li><strong>Claude Code</strong>, if you want more autonomy and Claude models suit you. You trade a commit per edit for checkpoints, and you decide when to commit.</li>
+<li><strong><a href="https://harnessmd.com/download">Munder Difflin</a></strong>, if you are picking Claude Code and will want more than one session going. It is a free and open source desktop app that runs Claude Code agents side by side, each in a real terminal and optionally its own git worktree, with long term memory and a shared task board (todo, doing, blocked, done). Aider is not a built in engine as of 0.5.2. You can type <code>aider</code> into the Custom engine, but that agent gets no hooks, so the app cannot tell when it is idle and messages to it go back to the orchestrator.</li>
+<li><strong><a href="/blog/what-is-opencode/">OpenCode</a></strong>, if model choice was the point. It is MIT licensed, and its docs say it supports 75+ LLM providers and local models, checked 15 Sep 2026.</li>
+<li><strong>cecli</strong>, if you want to stay on Aider’s codebase. This GitHub fork of Aider (Apache 2.0, formerly aider-ce) published v1.5.1 on 12 Sep 2026, and its README links docs for MCP configuration and subagents.</li>
+</ol>
+<h2 id="should-you-choose-aider-or-claude-code-today" tabindex="-1">Should you choose Aider or Claude Code today? <a class="anchor" href="#should-you-choose-aider-or-claude-code-today" aria-hidden="true">#</a></h2>
+<p>Choose Claude Code if Claude models suit you and you want the agent to do the looking; it is the one still shipping. Choose Aider for a small tool on any model, local ones included, if you can accept that fixes may not come. Running several Claude Code sessions at once? The <a href="/blog/best-claude-code-multi-agent-tools/">multi-agent Claude Code tools roundup</a> compares the options.</p>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Is Aider free?</p>
+          <p class="a">The tool is. Aider is an Apache 2.0 Python package with no paid plan, so the only bill comes from the model provider behind your API key, or nothing if you run a local model. Claude Code is not free: Claude&#39;s Free plan does not include it, per claude.com/pricing on 15 Sep 2026. Without a plan, you pay per token with an Anthropic API key.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can I use my Claude Pro or Max subscription with Aider?</p>
+          <p class="a">No. Anthropic&#39;s legal and compliance page for Claude Code reserves subscription sign in for ordinary use of Claude Code and Anthropic&#39;s own apps. Aider reaches Claude models through an Anthropic API key or a cloud provider such as Amazon Bedrock, billed per token and separately from any plan.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is there a benchmark that compares Aider and Claude Code?</p>
+          <p class="a">Not a head to head one. Aider&#39;s polyglot leaderboard scores models running inside Aider on 225 Exercism exercises, and the page says it was last updated on 20 Nov 2025, with gpt-5 (high) on top at 88.0%. Claude Code is not on it, so it tells you which model edits well in Aider, not which tool is better.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can Aider run shell commands?</p>
+          <p class="a">Yes, with you in the loop. The /run command runs a command and can add its output to the chat, /test adds the output when a command fails, and aider --help lists suggesting shell commands as on by default. Claude Code runs commands inside its own loop, gated by its permission mode.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is Aider dead?</p>
+          <p class="a">It is not archived, but it has stalled. As of 15 Sep 2026 its latest release is 0.86.2 from 12 Feb 2026, the last commit on main is from 22 May 2026, and no pull request has been merged since. A community fork, cecli, published v1.5.1 on 12 Sep 2026.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/comparisons/">Comparisons</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a><a class="tag" href="/blog/tags/cli-agents/">CLI Agents</a><a class="tag" href="/blog/tags/open-source/">Open Source</a><a class="tag" href="/blog/tags/cost/">Cost</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-the-difference-between-aider-and-claude-code">What is the difference between Aider and Claude Code?</a></li><li class="lvl-2"><a href="#what-does-a-fresh-aider-install-show">What does a fresh Aider install show?</a></li><li class="lvl-2"><a href="#is-aider-still-maintained">Is Aider still maintained?</a></li><li class="lvl-2"><a href="#which-models-can-aider-and-claude-code-use">Which models can Aider and Claude Code use?</a></li><li class="lvl-2"><a href="#is-aider-cheaper-than-claude-code">Is Aider cheaper than Claude Code?</a></li><li class="lvl-2"><a href="#does-aider-support-mcp">Does Aider support MCP?</a></li><li class="lvl-2"><a href="#what-are-the-options-if-aider-has-stalled">What are the options if Aider has stalled?</a></li><li class="lvl-2"><a href="#should-you-choose-aider-or-claude-code-today">Should you choose Aider or Claude Code today?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/build-your-personal-agi-on-your-computer/"><span class="k">← Older</span><span class="t">Build Your Personal AGI on Your Computer Using Claude Code and Munder Difflin</span></a>
+      <a class="pn next" href="/blog/indian-open-source-ai-projects-vs-big-tech/"><span class="k">Newer →</span><span class="t">Top 10 Indian open source projects that are giving US big tech a tough time</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Comparisons</h2>
+      <div class="post-grid">
+        <article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/opusclip-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/opusclip-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-28">Nov 28, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/opusclip-alternatives/">OpusClip Alternatives: 6 Picks for AI Clips, Free and Open Source</a></h3>
+    <p class="dek">OpusClip&#39;s free plan gives 60 credits a month with a watermark. Six alternatives, from open source AutoClip to Klap and Descript, checked 28 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/opusclip-alternatives/" aria-label="Read: OpusClip Alternatives: 6 Picks for AI Clips, Free and Open Source">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/firecrawl-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/firecrawl-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-25">Nov 25, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/firecrawl-alternatives/">Firecrawl Alternatives: 5 Picks for AI Agent Web Data (Nov 2026)</a></h3>
+    <p class="dek">Firecrawl is mainly AGPL 3.0 and paid plans start at $16 a month billed yearly. Five alternatives for AI agent web data, checked 25 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/firecrawl-alternatives/" aria-label="Read: Firecrawl Alternatives: 5 Picks for AI Agent Web Data (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-comparisons">
+  <a class="thumb t-comparisons" href="/blog/crewai-alternatives/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/crewai-alternatives/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-24">Nov 24, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/crewai-alternatives/">CrewAI Alternatives: 6 Picks for Teams of Agents (Nov 2026)</a></h3>
+    <p class="dek">CrewAI is a free MIT framework with a cloud from Basic to Enterprise. Six CrewAI alternatives by licence, language and release, checked 24 Nov 2026.</p>
+    <div class="foot">
+      <span class="tag kind">Comparisons</span>
+      <a class="more" href="/blog/crewai-alternatives/" aria-label="Read: CrewAI Alternatives: 6 Picks for Teams of Agents (Nov 2026)">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

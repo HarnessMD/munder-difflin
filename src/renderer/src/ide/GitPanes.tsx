@@ -3,11 +3,18 @@
  * rail. Both operate at the repository's MAIN root (mainRepoRoot), so every
  * agent worktree branch appears in one graph. All git access stays in the main
  * process; these panes only render what the IPC returns.
+ *
+ * 0.4.11 (the IDE redesign, founder approved 5 Sep 2026): restyled to the
+ * sidebar's row language, 24px rows in the UI face, the icon set in
+ * ideIcons.tsx instead of the Classic pixel glyphs, and the git letters in
+ * gitCodeColor (added is the app's yellow, not green). The data flow is the
+ * one it was: the same IPC calls, the same confirmations before a checkout.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CommitGraph } from '@/components/git/CommitGraph';
-import { Icon } from '@/components/Icon';
+import { FileIcon, IdeIcon, gitCodeColor } from './ideIcons';
+import { IDE_ROW_CLASS, ensureIdeSidebarStyle } from './SidebarChrome';
 
 // Local mirrors of the main-side git shapes (renderer-local by convention —
 // importing the preload module would drag electron into the bundle).
@@ -17,40 +24,45 @@ interface GitCommitRow {
 }
 interface GitFileChange { path: string; status: string; oldPath?: string }
 
-function statusColor(code: string): string {
-  if (code === 'M') return 'var(--cth-lemon)';
-  if (code === 'A') return 'var(--cth-mint)';
-  if (code === 'D') return 'var(--cth-coral)';
-  if (code === 'R' || code === 'C') return 'var(--cth-lilac)';
-  return 'var(--cth-ink-500)';
-}
-
-const rowStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 6, padding: '2px 12px',
-  cursor: 'pointer', fontSize: 12, color: 'var(--cth-ink-900)'
-};
 const noteStyle: React.CSSProperties = {
-  padding: '6px 12px', fontSize: 12, color: 'var(--cth-ink-500)'
+  padding: '4px 12px 6px', fontFamily: 'var(--cth-font-ui)', fontSize: 11.5, lineHeight: 1.45, color: 'var(--cth-ink-500)'
 };
 const smallBtn: React.CSSProperties = {
-  padding: '0 6px', height: 20, fontFamily: 'var(--cth-font-ui)', fontSize: 11,
-  color: 'var(--cth-ink-900)', background: 'var(--cth-cream-100)', border: 'none',
-  boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)', cursor: 'pointer',
-  display: 'inline-flex', alignItems: 'center', gap: 3, flexShrink: 0
+  height: 24, padding: '0 8px', borderRadius: 6, border: '1px solid var(--cth-ink-300)',
+  background: 'var(--cth-cream-50)', color: 'var(--cth-ink-900)', cursor: 'pointer',
+  font: 'inherit', fontFamily: 'var(--cth-font-ui)', fontSize: 11.5, fontWeight: 500,
+  display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0, whiteSpace: 'nowrap'
+};
+
+const splitPath = (p: string): { name: string; folder: string } => {
+  const i = p.lastIndexOf('/');
+  return i === -1 ? { name: p, folder: '' } : { name: p.slice(i + 1), folder: p.slice(0, i) };
 };
 
 function FileRow({ f, onClick }: { f: GitFileChange; onClick: () => void }) {
+  const { name, folder } = splitPath(f.path);
   return (
-    <div onClick={onClick} title={f.oldPath ? `${f.oldPath} → ${f.path}` : f.path} style={rowStyle}>
+    <button
+      type="button"
+      className={IDE_ROW_CLASS}
+      onClick={onClick}
+      title={f.oldPath ? `${f.oldPath} → ${f.path}` : f.path}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 6, width: '100%', height: 24, padding: '0 8px 0 12px',
+        border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'start',
+        font: 'inherit', fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-700)', whiteSpace: 'nowrap'
+      }}
+    >
       <span style={{
-        width: 12, textAlign: 'center', fontFamily: 'var(--cth-font-mono)',
-        fontWeight: 'bold' as const, color: statusColor(f.status)
+        width: 14, textAlign: 'center', flexShrink: 0, fontFamily: 'var(--cth-font-mono)', fontSize: 10, fontWeight: 600,
+        color: gitCodeColor(f.status)
       }}>{f.status}</span>
-      <span style={{
-        flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-        fontFamily: 'var(--cth-font-mono)', direction: 'rtl', textAlign: 'left'
-      }}>{f.path}</span>
-    </div>
+      <FileIcon rel={f.path} size={14} />
+      <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</span>
+      {folder && (
+        <span style={{ minWidth: 0, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 11, color: 'var(--cth-ink-500)', marginLeft: 'auto' }}>{folder}</span>
+      )}
+    </button>
   );
 }
 
@@ -62,6 +74,7 @@ export function HistoryPane({ gitRoot, onOpenRevDiff }: {
   onOpenRevDiff: (revA: string, revB: string, path: string, label: string) => void;
 }) {
   const { t } = useTranslation();
+  ensureIdeSidebarStyle();
   const [commits, setCommits] = useState<GitCommitRow[]>([]);
   const [branch, setBranch] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -108,7 +121,7 @@ export function HistoryPane({ gitRoot, onOpenRevDiff }: {
         {!loading && commits.length === 0 && <div style={noteStyle}>{t('gitTab.noCommits')}</div>}
         <CommitGraph commits={commits} currentBranch={branch} onCommitClick={(sha) => { void pick(sha); }} />
         {commits.length >= page * 200 && (
-          <div style={{ padding: '4px 12px' }}>
+          <div style={{ padding: '6px 12px' }}>
             <button style={smallBtn} onClick={() => setPage((p) => p + 1)}>{t('gitPanes.loadOlder')}</button>
           </div>
         )}
@@ -119,17 +132,19 @@ export function HistoryPane({ gitRoot, onOpenRevDiff }: {
           borderTop: '1px solid var(--cth-ink-300)', background: 'var(--cth-cream-50)'
         }}>
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px 3px',
-            fontSize: 12, color: 'var(--cth-ink-700)'
+            display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px 4px 12px',
+            fontFamily: 'var(--cth-font-ui)', fontSize: 12, color: 'var(--cth-ink-700)'
           }}>
-            <span style={{ fontFamily: 'var(--cth-font-mono)', color: 'var(--cth-ink-900)' }}>{selected.shortSha}</span>
+            <span style={{ fontFamily: 'var(--cth-font-mono)', fontSize: 11, color: 'var(--cth-ink-900)' }}>{selected.shortSha}</span>
             <span style={{
               flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
             }} title={selected.subject}>{selected.subject}</span>
             <button style={smallBtn} onClick={() => void jump(selected)} title={t('gitPanes.checkoutTitle')}>
-              <Icon name="arrow-right" /> {t('gitPanes.jumpHere')}
+              <IdeIcon name="arrowRight" size={13} /> {t('gitPanes.jumpHere')}
             </button>
-            <button style={{ ...smallBtn, width: 20, justifyContent: 'center' }} onClick={() => setSelected(null)} title={t('common.close')}>✕</button>
+            <button style={{ ...smallBtn, width: 24, padding: 0, justifyContent: 'center' }} onClick={() => setSelected(null)} title={t('common.close')} aria-label={t('common.close')}>
+              <IdeIcon name="x" size={13} />
+            </button>
           </div>
           {/* `flex: 1` is load-bearing: without it this scroller sizes to its
               CONTENT, overflows the parent's maxHeight and never reaches its own
@@ -160,6 +175,7 @@ export function ComparePane({ gitRoot, onOpenRevDiff }: {
   onOpenRevDiff: (revA: string, revB: string, path: string, label: string) => void;
 }) {
   const { t } = useTranslation();
+  ensureIdeSidebarStyle();
   const [branches, setBranches] = useState<string[]>([]);
   const [base, setBase] = useState('');
   const [head, setHead] = useState('');
@@ -199,32 +215,32 @@ export function ComparePane({ gitRoot, onOpenRevDiff }: {
   };
 
   const sel: React.CSSProperties = {
-    flex: 1, minWidth: 0, height: 22, fontFamily: 'var(--cth-font-mono)', fontSize: 11,
-    background: 'var(--cth-paper-100)', color: 'var(--cth-ink-900)',
-    border: 'none', boxShadow: 'inset 0 0 0 1px var(--cth-ink-100)'
+    flex: 1, minWidth: 0, height: 24, borderRadius: 6, padding: '0 6px', outline: 'none',
+    font: 'inherit', fontFamily: 'var(--cth-font-mono)', fontSize: 11,
+    background: 'var(--cth-cream-50)', color: 'var(--cth-ink-900)', border: '1px solid var(--cth-ink-300)'
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1 }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '6px 12px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '6px 12px 8px', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           <select value={base} onChange={(e) => setBase(e.target.value)} style={sel} title={t('gitPanes.baseTitle')}>
             {branches.map((b) => <option key={b} value={b}>{b}</option>)}
           </select>
-          <button style={{ ...smallBtn, width: 22, justifyContent: 'center' }} title={t('gitPanes.swapTitle')}
-            onClick={() => { setBase(head); setHead(base); }}>⇄</button>
+          <button style={{ ...smallBtn, width: 24, padding: 0, justifyContent: 'center' }} title={t('gitPanes.swapTitle')} aria-label={t('gitPanes.swapTitle')}
+            onClick={() => { setBase(head); setHead(base); }}><IdeIcon name="compare" size={13} /></button>
           <select value={head} onChange={(e) => setHead(e.target.value)} style={sel} title={t('gitPanes.compareTitle')}>
             {branches.map((b) => <option key={b} value={b}>{b}</option>)}
           </select>
         </div>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 11, color: 'var(--cth-ink-500)' }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', fontFamily: 'var(--cth-font-ui)', fontSize: 11, color: 'var(--cth-ink-500)' }}>
           {result && (
-            <span title={t('gitPanes.aheadBehind', { head, ahead: result.ahead, behind: result.behind, base })}>
+            <span style={{ fontFamily: 'var(--cth-font-mono)' }} title={t('gitPanes.aheadBehind', { head, ahead: result.ahead, behind: result.behind, base })}>
               ↑{result.ahead} ↓{result.behind}
             </span>
           )}
           <button
-            style={{ ...smallBtn, background: mode === 'three' ? 'var(--cth-sky-light)' : 'var(--cth-cream-100)' }}
+            style={{ ...smallBtn, background: mode === 'three' ? 'var(--cth-accent-soft, var(--cth-lemon-light))' : 'var(--cth-cream-50)' }}
             onClick={() => setMode((m) => (m === 'three' ? 'two' : 'three'))}
             title={mode === 'three'
               ? t('gitPanes.modeThreeTitle')
@@ -232,11 +248,11 @@ export function ComparePane({ gitRoot, onOpenRevDiff }: {
           >{mode === 'three' ? t('gitPanes.sinceCommonAncestor') : t('gitPanes.literalDifference')}</button>
           <span style={{ flex: 1 }} />
           <button style={smallBtn} onClick={() => void switchTo()} title={t('gitPanes.switchToTitle', { head })}>
-            <Icon name="arrow-right" /> {t('gitPanes.switchTo', { branch: head.split('/').pop() })}
+            <IdeIcon name="arrowRight" size={13} /> {t('gitPanes.switchTo', { branch: head.split('/').pop() })}
           </button>
         </div>
       </div>
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', borderTop: '1px solid var(--cth-ink-100)' }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', borderTop: '1px solid var(--cth-ink-300)', paddingTop: 4 }}>
         {note && <div style={noteStyle}>{note}</div>}
         {result && result.files.length === 0 && !note && <div style={noteStyle}>{t('gitPanes.noDifferences')}</div>}
         {result?.files.map((f) => (

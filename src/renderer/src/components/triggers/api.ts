@@ -4,15 +4,15 @@ import {
   DEFAULT_WEBHOOK_SCHEMA,
   type ContextRule,
   type ContextTriggerConfig,
-  type OrgTriggerConfig,
   type WebhookTrigger
 } from '@shared/triggers';
+import { sanitizeSwitchClear } from '@shared/switchClear';
 
 /**
  * TRIGGER IPC — the renderer's side of the trigger config surface.
  *
  * Thin on purpose: `window.cth` already types every call (preload bridges
- * `triggers:*`, `webhooks:*` and `org:*`), so this module exists only for the
+ * `triggers:*` and `webhooks:*`), so this module exists only for the
  * three things a raw invoke does not do — deep-fill a half-written context rule
  * before it reaches a number input, turn a rejected read into "keep what you
  * have" rather than "adopt nothing", and mint a new endpoint in the same shape
@@ -26,6 +26,7 @@ export type WebhooksStatus = Awaited<ReturnType<typeof window.cth.webhooksStatus
 /* ───────────────────────────── context trigger ───────────────────────────── */
 
 function fillRule(partial: Partial<ContextRule> | undefined, fallback: ContextRule): ContextRule {
+  const force = typeof partial?.force === 'boolean' ? partial.force : fallback.force === true;
   return {
     enabled: partial?.enabled ?? fallback.enabled,
     everyMs: typeof partial?.everyMs === 'number' ? partial.everyMs : fallback.everyMs,
@@ -33,28 +34,71 @@ function fillRule(partial: Partial<ContextRule> | undefined, fallback: ContextRu
     minContextPctLargeWindow: typeof partial?.minContextPctLargeWindow === 'number'
       ? partial.minContextPctLargeWindow
       : fallback.minContextPctLargeWindow,
-    message: typeof partial?.message === 'string' ? partial.message : fallback.message
+    message: typeof partial?.message === 'string' ? partial.message : fallback.message,
+    ...(force ? { force: true } : {})
   };
 }
+
+/** Whether the last read failed, or a save since it failed: what the screen
+ *  shows is then not what is stored. */
+let contextReadFailed = false;
+/** A save is on its way, and the newest change made since it left, with the
+ *  callers waiting on it (a change replaced by a newer one is answered with it). */
+let contextSaving = false;
+let contextWaiting: { cfg: ContextTriggerConfig; answer: Array<(saved: boolean) => void> } | null = null;
 
 /** Read the context trigger, deep-filled. A half-written sub-object must never
  *  reach the number inputs as `undefined` — React would flip them uncontrolled. */
 export async function getContextTrigger(): Promise<ContextTriggerConfig> {
   try {
     const cfg: Partial<ContextTriggerConfig> | null = await window.cth.getContextTrigger();
+    contextReadFailed = false;
     return {
       compact: fillRule(cfg?.compact, DEFAULT_CONTEXT_TRIGGER.compact),
-      clear: fillRule(cfg?.clear, DEFAULT_CONTEXT_TRIGGER.clear)
+      clear: fillRule(cfg?.clear, DEFAULT_CONTEXT_TRIGGER.clear),
+      switchClear: sanitizeSwitchClear(cfg?.switchClear, DEFAULT_CONTEXT_TRIGGER.switchClear)
     };
-  } catch {
+  } catch (e: unknown) {
+    contextReadFailed = true;
+    console.warn('[triggers] the context trigger could not be read; showing the defaults:', e instanceof Error ? e.message : e);
     return DEFAULT_CONTEXT_TRIGGER;
   }
 }
 
-/** Fire and forget — the controls have already moved, which is the house
- *  pattern for config writes across the Command Center. */
-export function setContextTrigger(cfg: ContextTriggerConfig): void {
-  void window.cth.setContextTrigger(cfg).catch(() => { /* optimistic */ });
+/** Answers whether the rule was saved. The form does not wait for it (its
+ *  controls have already moved, the house pattern for config writes across
+ *  the Command Center).
+ *
+ *  Not sent after a read that failed: the screen then shows the defaults, and
+ *  a save built on them would overwrite the stored rule. That answers false,
+ *  as a failed save does. */
+export function setContextTrigger(cfg: ContextTriggerConfig): Promise<boolean> {
+  if (contextReadFailed) {
+    console.warn('[triggers] not saved: the context trigger was not read, so this change would overwrite the stored one');
+    return Promise.resolve(false);
+  }
+  // One save at a time. A save carries what this form last saw, so a second
+  // one sent while the first is on its way would be refused as built on an
+  // old read, and lock the form with nothing said. It waits instead, and the
+  // newest waiting change is the one sent (each change is the whole rule).
+  if (contextSaving) {
+    return new Promise((resolve) => {
+      contextWaiting = { cfg, answer: [...(contextWaiting?.answer ?? []), resolve] };
+    });
+  }
+  contextSaving = true;
+  return window.cth.setContextTrigger(cfg).then(() => true).catch((e: unknown) => {
+    // No further save from this screen until it has read again.
+    contextReadFailed = true;
+    console.warn('[triggers] the context trigger was not saved:', e instanceof Error ? e.message : e);
+    return false;
+  }).then((saved) => {
+    contextSaving = false;
+    const next = contextWaiting;
+    contextWaiting = null;
+    if (next) void setContextTrigger(next.cfg).then((s) => next.answer.forEach((a) => a(s)));
+    return saved;
+  });
 }
 
 /* ─────────────────────────────── webhooks ────────────────────────────────── */
@@ -134,21 +178,11 @@ export function newWebhook(secret: string, index: number): WebhookTrigger {
     enabled: false,
     mode: DEFAULT_TRIGGER_MODE,
     schema: DEFAULT_WEBHOOK_SCHEMA,
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    // ON for a NEW endpoint, and left alone on every endpoint that already
+    // exists: a caller nobody has vetted yet is the one to hold at arm's
+    // length, and quietly changing what a live endpoint sends is not ours to do.
+    guardrails: true
   };
 }
 
-/* ───────────────────────────── organisation ──────────────────────────────── */
-
-/** `null` on failure; the store mirror stands. */
-export async function getOrgTrigger(): Promise<OrgTriggerConfig | null> {
-  try {
-    return (await window.cth.getOrgTrigger()) ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export function setOrgTrigger(cfg: OrgTriggerConfig): void {
-  void window.cth.setOrgTrigger(cfg).catch(() => { /* optimistic */ });
-}

@@ -19,7 +19,8 @@
  * page even claimed the opposite ("stays correct across versions").
  *
  * Two modes:
- *   (default) offline — every advertised version string matches package.json.
+ *   (default) offline — every advertised version string matches package.json,
+ *             except the website fallback, which may be newer (see rule 3).
  *             Run this BEFORE tagging, when the assets do not exist yet.
  *   --live    also HEADs each URL and requires 200. Run this AFTER publishing
  *             the release, which is the only moment the answer is meaningful.
@@ -34,6 +35,13 @@ const releaseMd = fs.readFileSync(path.join(root, 'RELEASE.md'), 'utf8');
 
 const problems = [];
 
+// -1, 0 or 1 for plain x.y.z strings, which is all these files ever carry.
+function compareVersions(a, b) {
+  const [x, y] = [a, b].map((v) => v.split('.').map(Number));
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
+  return 0;
+}
+
 // — 1. every pinned artifact name must carry the current version —
 const assetRe = /Munder-Difflin-(\d+\.\d+\.\d+)-([^\s`)]+)/g;
 const assets = new Set();
@@ -43,7 +51,8 @@ for (const m of releaseMd.matchAll(assetRe)) {
   }
   assets.add(`Munder-Difflin-${m[1]}-${m[2]}`);
 }
-if (assets.size === 0) problems.push('RELEASE.md advertises no download assets at all — did the table move?');
+// From 0.6.0 releases are source only, so RELEASE.md may name no installer at
+// all. Any installer name it still carries must match package.json.
 
 // — 2. source tarball tags too; a stale tag silently ships last release's source —
 for (const m of releaseMd.matchAll(/archive\/refs\/tags\/v(\d+\.\d+\.\d+)/g)) {
@@ -52,12 +61,25 @@ for (const m of releaseMd.matchAll(/archive\/refs\/tags\/v(\d+\.\d+\.\d+)/g)) {
   }
 }
 
-// — 3. the website's fallback version (used when the GitHub API call fails) —
+// — 3. the website's direct download version —
+//   The site links straight to files on its own release host (BASE in
+//   docs/index.html), and that host can ship ahead of main: 0.5.2 went out as
+//   binaries while package.json on main stayed at 0.4.6, and this rule turned
+//   every PR red for a site that was correct. So a NEWER fallback is allowed and
+//   an OLDER one is still stale. --live proves the newer files really exist.
 const indexHtml = path.join(root, 'docs/index.html');
+const siteAssets = [];
 if (fs.existsSync(indexHtml)) {
-  const m = /var REL = '(\d+\.\d+\.\d+)'/.exec(fs.readFileSync(indexHtml, 'utf8'));
-  if (m && m[1] !== version) {
-    problems.push(`docs/index.html download fallback is ${m[1]}, package.json says ${version}`);
+  const html = fs.readFileSync(indexHtml, 'utf8');
+  const m = /var REL = '(\d+\.\d+\.\d+)'/.exec(html);
+  if (m && compareVersions(m[1], version) < 0) {
+    problems.push(`docs/index.html download fallback is ${m[1]}, older than package.json ${version}`);
+  }
+  const base = /var BASE = '([^']+)'/.exec(html);
+  if (m && base) {
+    for (const f of html.matchAll(/'Munder-Difflin-' \+ REL \+ '([^']+)'/g)) {
+      siteAssets.push(`${base[1]}Munder-Difflin-${m[1]}${f[1]}`);
+    }
   }
 }
 
@@ -73,20 +95,23 @@ if (fs.existsSync(llms)) {
   }
 }
 
-async function checkLive() {
-  const base = 'https://github.com/chaitanyagiri/munder-difflin/releases/latest/download/';
-  for (const name of [...assets, 'SHA256SUMS.txt']) {
-    let status = 0;
-    try {
-      // GitHub 302s asset downloads to a CDN, so follow it; HEAD is enough.
-      status = (await fetch(base + name, { method: 'HEAD', redirect: 'follow' })).status;
-    } catch (e) {
-      problems.push(`${name} — request failed: ${e.message}`);
-      continue;
-    }
-    if (status !== 200) problems.push(`${name} — HTTP ${status} (advertised but not downloadable)`);
-    else console.log(`  ok  ${name}`);
+async function head(url, label) {
+  let status = 0;
+  try {
+    // GitHub 302s asset downloads to a CDN, so follow it; HEAD is enough.
+    status = (await fetch(url, { method: 'HEAD', redirect: 'follow' })).status;
+  } catch (e) {
+    problems.push(`${label} — request failed: ${e.message}`);
+    return;
   }
+  if (status !== 200) problems.push(`${label} — HTTP ${status} (advertised but not downloadable)`);
+  else console.log(`  ok  ${label}`);
+}
+
+async function checkLive() {
+  const base = 'https://github.com/HarnessMD/munder-difflin/releases/latest/download/';
+  for (const name of assets) await head(base + name, name);
+  for (const url of siteAssets) await head(url, url);
 }
 
 (async () => {

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Pricing for munderdiffl.in (founder, 20 Nov 2026: "it should have all the newer prices and the page should be
+     redesigned"), drawn in the landing page's style. One of the pages a payment review reads.
+
+     EVERY FIGURE HERE IS THE SERVER'S, checked 20 Nov 2026 against four sources that agree:
+       1. teams-backend/src/cloudPlan.mjs on server-next: PLAN_PRICES, PRO_LAUNCH, CLOUD_OFFICE(_LAUNCH),
+          TEAMS_CLOUD_ADDON, TOKENS_TOP_UP, FREE_ALLOWANCE_TOKENS, TOP_UP_TOKENS, ANNUAL_MONTHS.
+       2. The Stripe test catalogue, read by lookup key (md_pro_launch_*, md_pro_*, md_office_launch_*, md_office_*,
+          md_teams_seat_*, md_teams_office_*, md_cloud_cpu_month, md_cloud_mem_gb_month, md_cloud_disk_10gb_month,
+          md_tokens_100m).
+       3. web/harnessmd/src/components/business-pages.tsx PLANS on server-next (the Console's own pricing page).
+       4. harnessmd.com/pricing as served.
+     When a price changes there, change it here: nothing on this page reads it live.
+     Monthly prices lead; a year is the second line. Plan words are the app's and the Console's own. -->
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Pricing · Munder Difflin</title>
+<meta name="description" content="Munder Difflin is free. Pro is $39 a month at launch, Max from $138 a month, Teams $49 a seat a month. Plans renew until you cancel." />
+<link rel="canonical" href="https://munderdiffl.in/pricing.html" />
+<link rel="icon" type="image/svg+xml" href="./logo.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<meta name="robots" content="index, follow" />
+<meta property="og:title" content="Pricing · Munder Difflin" />
+<meta property="og:description" content="Free to start. Pro $39 a month at launch, Max from $138 a month, Teams $49 a seat a month." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://munderdiffl.in/pricing.html" />
+<meta property="og:image" content="https://munderdiffl.in/media/og-landing.png" />
+<script>try{if(localStorage.getItem("md-dark")==="1")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Munder Difflin","applicationCategory":"BusinessApplication","operatingSystem":"macOS, Windows, Linux","url":"https://munderdiffl.in/pricing.html","offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD"},{"@type":"Offer","name":"Pro","price":"39","priceCurrency":"USD","priceSpecification":{"@type":"UnitPriceSpecification","price":"39","priceCurrency":"USD","billingDuration":"P1M"}},{"@type":"Offer","name":"Max","price":"138","priceCurrency":"USD","priceSpecification":{"@type":"UnitPriceSpecification","price":"138","priceCurrency":"USD","billingDuration":"P1M"}},{"@type":"Offer","name":"Teams, per seat","price":"49","priceCurrency":"USD","priceSpecification":{"@type":"UnitPriceSpecification","price":"49","priceCurrency":"USD","billingDuration":"P1M","referenceQuantity":{"@type":"QuantitativeValue","value":"1","unitText":"seat"}}}]}</script>
+<style>
+@font-face{font-family:"MD Inter";src:url(assets/fonts/inter-latin-var.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"MD Mono";src:url(assets/fonts/jetbrains-mono-latin-var.woff2) format("woff2");font-weight:100 800;font-display:swap}
+@font-face{font-family:"MD Pixel";src:url(assets/fonts/press-start-2p-latin-400.woff2) format("woff2");font-display:swap}
+/* the landing page's tokens (index.html :root and its dark block), so the two pages read as one site */
+:root{
+  --bg:#F5F4EF;--panel:#FFFFFF;--raise:#F7F6F1;--inset:#ECEAE3;
+  --ink:#1A1916;--ink2:#44423C;--ink3:#6B685F;--line:#DEDBD2;--line2:#ECEAE3;
+  --acc:#FFC94F;--acc-h:#FFD87A;--acc-ink:#17150E;--acc-text:#8A5A00;--acc-soft:#FFF3D2;--acc-line:#F0CF7A;
+  --ok:#3F8F5E;--blue:#4F9FD9;
+  --sans:"MD Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"MD Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --pixel:"MD Pixel","MD Mono",monospace;
+  --spring:cubic-bezier(.2,.9,.25,1.15);--out:cubic-bezier(.16,1,.3,1);
+  --sh1:0 1px 2px rgba(26,25,22,.05),0 6px 18px -6px rgba(26,25,22,.10);
+  --sh2:0 2px 6px rgba(26,25,22,.06),0 24px 60px -18px rgba(26,25,22,.24);
+  --gut:clamp(16px,4vw,32px);
+}
+html[data-theme="dark"]{--bg:#141311;--panel:#1D1C19;--raise:#211F1C;--inset:#2A2824;--ink:#F2EFE7;--ink2:#CDC8BC;--ink3:#9D988C;--line:#3A3832;--line2:#2C2A26;--acc-text:#FFD27A;--acc-soft:#3A3019;--acc-line:#6E5A26;--ok:#6FCF97;--sh1:0 1px 2px rgba(0,0,0,.4),0 6px 18px -6px rgba(0,0,0,.5);--sh2:0 2px 6px rgba(0,0,0,.35),0 24px 60px -18px rgba(0,0,0,.75);color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg) url(assets/office-pattern.svg) 0 0/880px 880px repeat;color:var(--ink);font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:"cv11","ss03"}
+html[data-theme="dark"] body{background-image:url(assets/office-pattern-dark.svg)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+.wrap{width:min(1240px,100% - 2*var(--gut));margin-inline:auto}
+
+/* buttons, as on the landing page */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 20px;border-radius:12px;font-weight:650;font-size:15.5px;letter-spacing:-.012em;white-space:nowrap;transition:transform .35s var(--spring),background .2s,border-color .2s}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-acc{background:var(--acc);color:var(--acc-ink);border:1px solid #E7B43E;box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 10px 28px -10px rgba(214,150,30,.75)}
+.btn-acc:hover{background:var(--acc-h)}
+.btn-ink{background:var(--ink);color:var(--bg);border:1px solid var(--ink)}
+.btn-line{background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh1)}
+.btn-line:hover{border-color:#C9C5BA}
+.btn:active{transform:scale(.965)}
+.btn-sm{height:38px;padding:0 14px;border-radius:9px;font-size:14px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:rgba(245,244,239,.82);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);box-shadow:0 1px 0 rgba(26,25,22,.07)}
+html[data-theme="dark"] .nav{background:rgba(20,19,17,.84);box-shadow:0 1px 0 rgba(255,255,255,.06)}
+.nav-in{display:flex;align-items:center;gap:20px;height:68px}
+.brand{display:flex;flex:none;align-items:center;gap:10px;font-weight:750;letter-spacing:-.03em;font-size:17px}
+.brand img{width:30px;height:30px;border-radius:8px}
+.nav-links{display:flex;gap:4px;margin-left:12px}
+.nav-links a{height:38px;display:flex;align-items:center;padding:0 12px;border-radius:9px;font-size:14.5px;font-weight:550;color:var(--ink2)}
+.nav-links a:hover{background:rgba(26,25,22,.06);color:var(--ink)}
+html[data-theme="dark"] .nav-links a:hover{background:rgba(255,255,255,.08)}
+.nav-links a[aria-current]{color:var(--ink)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* hero */
+.hero{padding:76px 0 40px;text-align:center}
+.kicker{display:inline-flex;align-items:center;gap:10px;font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.kicker b{font:400 9px/1 var(--pixel);letter-spacing:0;display:grid;place-items:center;height:22px;min-width:30px;padding:0 6px;border-radius:6px;background:var(--ink);color:var(--acc)}
+html[data-theme="dark"] .kicker b{background:#2A2824}
+.h1{margin:22px auto 0;max-width:13ch;font-weight:820;font-size:clamp(44px,7.4vw,104px);line-height:.92;letter-spacing:-.055em;text-wrap:balance}
+.h1 .mark{position:relative;z-index:0;white-space:nowrap}
+.h1 .mark::after{content:"";position:absolute;left:-.05em;right:-.06em;bottom:.04em;height:.36em;background:var(--acc);z-index:-1;border-radius:.06em}
+.lede{margin:26px auto 0;max-width:720px;font-size:clamp(17px,1.5vw,20px);line-height:1.5;color:var(--ink2);letter-spacing:-.012em;text-wrap:pretty}
+
+/* plans */
+.plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:44px;align-items:stretch}
+.plan{position:relative;display:flex;flex-direction:column;padding:24px 22px 22px;border-radius:16px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh1);text-align:left}
+.plan.pick{border-color:var(--ink);box-shadow:var(--sh2)}
+.plan-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:26px}
+.plan h2{font-size:20px;font-weight:750;letter-spacing:-.03em}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font:600 11.5px/1 var(--sans);border:1px solid var(--line);background:var(--raise);color:var(--ink2)}
+.chip.acc{background:var(--acc-soft);border-color:var(--acc-line);color:var(--acc-text)}
+.chip.ink{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.for{margin-top:8px;font-size:14px;line-height:1.45;color:var(--ink3);min-height:41px}
+.price{margin-top:18px;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.price .from{font-size:15px;color:var(--ink3);font-weight:550}
+.price .amt{font-size:46px;font-weight:800;letter-spacing:-.05em;line-height:1}
+.price .per{font-size:15px;color:var(--ink3);font-weight:550}
+.price s{font-size:17px;color:var(--ink3);font-weight:600;text-decoration-thickness:1.5px}
+.year{margin-top:8px;font-size:14px;color:var(--ink2);min-height:42px}
+.year small{display:block;color:var(--ink3);font-size:12.5px}
+.plan .btn{margin-top:18px;width:100%}
+.plan ul{list-style:none;margin-top:20px;padding-top:18px;border-top:1px solid var(--line2);display:grid;gap:10px;font-size:14px;line-height:1.45;color:var(--ink2)}
+.plan li{position:relative;padding-left:24px}
+.plan li svg{position:absolute;left:0;top:2px;width:16px;height:16px;color:var(--ok)}
+.plan li b{color:var(--ink);font-weight:650}
+
+/* Cloud Office parts and the top up */
+.extras{text-align:left;display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-top:16px}
+.box{padding:22px;border-radius:16px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh1)}
+.box h3{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.box p{margin-top:6px;font-size:14px;color:var(--ink3);line-height:1.5}
+.parts{margin-top:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.part{padding:12px;border-radius:12px;background:var(--raise);border:1px solid var(--line2)}
+.part b{display:block;font-size:17px;font-weight:750;letter-spacing:-.03em}
+.part span{display:block;margin-top:2px;font-size:12.5px;color:var(--ink3);line-height:1.35}
+.topup{display:flex;flex-direction:column}
+.topup .amt{margin-top:14px;font-size:34px;font-weight:800;letter-spacing:-.045em;line-height:1}
+.topup .amt small{font-size:14px;color:var(--ink3);font-weight:550;letter-spacing:0;margin-left:6px}
+
+/* how billing works */
+.facts{text-align:left;margin-top:72px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);gap:32px;align-items:start}
+.facts .h2{font-weight:800;font-size:clamp(30px,3.6vw,48px);line-height:.98;letter-spacing:-.045em;text-wrap:balance}
+.facts dl{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.facts dl div{padding:18px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.facts dt{font-size:15px;font-weight:700;letter-spacing:-.015em}
+.facts dd{margin-top:6px;font-size:14px;line-height:1.5;color:var(--ink3)}
+.facts dd a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.legal{margin-top:16px;font-size:14px;color:var(--ink3)}
+.legal a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* closing */
+.end{margin:80px 0 0;padding:64px 0 72px;background:var(--acc);color:var(--acc-ink);text-align:center}
+.end .h2{font-weight:800;font-size:clamp(34px,5vw,64px);line-height:.95;letter-spacing:-.05em}
+.end p{margin:16px auto 0;max-width:560px;font-size:17px;color:rgba(23,21,14,.78)}
+.end .row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:28px}
+.end .btn-ink{background:var(--acc-ink);color:#fff;border-color:var(--acc-ink)}
+.end .btn-line{background:rgba(255,255,255,.55);border-color:rgba(23,21,14,.25);box-shadow:none;color:var(--acc-ink)}
+
+/* footer */
+.foot{background:var(--acc-ink);color:#CFC9BC;padding:44px 0 36px;font-size:14px}
+html[data-theme="dark"] .foot{border-top:1px solid #2C2A26}
+.foot-in{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center}
+.foot .brand{color:#fff}
+.foot nav{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px 20px}
+.foot nav a{color:#E9E4D8}
+.foot nav a:hover{color:var(--acc)}
+.foot-b{margin-top:26px;padding-top:20px;border-top:1px solid #34312A;font-size:12.5px;line-height:1.6;color:#8E887A}
+.foot-b a{color:#CFC9BC;text-decoration:underline;text-underline-offset:3px}
+
+@media (max-width:1100px){.plans{grid-template-columns:repeat(2,minmax(0,1fr))}.for,.year{min-height:0}}
+@media (max-width:860px){.extras,.facts{grid-template-columns:1fr}.facts{gap:20px}.nav-links{display:none}}
+@media (max-width:640px){
+  .hero{padding:44px 0 24px}
+  .plans{grid-template-columns:1fr;margin-top:32px}
+  .parts{grid-template-columns:1fr 1fr}
+  .facts dl{grid-template-columns:1fr}
+  .nav-in{height:60px;gap:12px}
+  .nav-signin{display:none}
+  .brand span{display:none}
+  .foot nav{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
+<link rel="stylesheet" href="assets/download.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="/" aria-label="Munder Difflin home"><img src="assets/logo.png" alt="" width="30" height="30"><span>Munder Difflin</span></a>
+    <nav class="nav-links" aria-label="Site">
+      <a href="/">Home</a>
+      <a href="/pricing.html" aria-current="page">Pricing</a>
+      <a href="/#teams">Teams</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/blog/">Blog</a>
+    </nav>
+    <div class="nav-right">
+      <a class="btn btn-line btn-sm nav-signin" href="https://harnessmd.com/signin">Sign in</a>
+      <a class="btn btn-acc btn-sm" data-dl href="https://harnessmd.com/download">Download</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <span class="kicker"><b>$</b>Pricing</span>
+    <h1 class="h1">Start free. Pay when your office gets <span class="mark">busy</span>.</h1>
+    <p class="lede">Munder Difflin runs a team of AI agents on your computer for all kinds of knowledge work: research, writing, support, operations and code. The app is free and open source. Paid plans take away the token limit, add a Cloud Office that works while your computer sleeps, and bring your team in.</p>
+
+    <div class="plans">
+      <section class="plan" aria-labelledby="pFree">
+        <div class="plan-h"><h2 id="pFree">Free</h2></div>
+        <p class="for">The app on your computer, with Pro to try every month.</p>
+        <div class="price"><span class="amt">$0</span><span class="per">forever</span></div>
+        <p class="year">No card needed.</p>
+        <a class="btn btn-line" data-dl href="https://harnessmd.com/download">Download free</a>
+        <ul>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>The app on your computer, free and open source, MIT licensed</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>As many agents as you like in the Classic office</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg><b>Pro free for 200 million tokens a month</b></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Need more this month? A $19 top up, paid once</li>
+        </ul>
+      </section>
+
+      <section class="plan pick" aria-labelledby="pPro">
+        <div class="plan-h"><h2 id="pPro">Pro</h2><span class="chip ink">Recommended</span><span class="chip acc">Launch price</span></div>
+        <p class="for">Your agents work all month, with no token cap.</p>
+        <div class="price"><s>$49</s><span class="amt">$39</span><span class="per">a month</span></div>
+        <p class="year">or $350 a year<small>List price $49 a month or $490 a year</small></p>
+        <a class="btn btn-acc" href="https://harnessmd.com/account/plan?plan=pro">Get Pro</a>
+        <ul>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg><b>No token cap</b></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>An orchestrator that routes the work</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Automations on a schedule or a webhook</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Shared memory, searched by meaning</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>The Stapler: capture, record or dictate from any app</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Integrations with 10K+ tools, APIs and MCPs</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>One machine at a time</li>
+        </ul>
+      </section>
+
+      <section class="plan" aria-labelledby="pMax">
+        <div class="plan-h"><h2 id="pMax">Max</h2><span class="chip acc">Launch price</span></div>
+        <p class="for">Your office on our computer, day and night.</p>
+        <div class="price"><span class="from">from</span><span class="amt">$138</span><span class="per">a month</span></div>
+        <p class="year">or from $1,150 a year<small>List price $148 a month or $1,480 a year</small></p>
+        <a class="btn btn-line" href="https://harnessmd.com/account/plan?plan=cloud">Get Max</a>
+        <ul>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg><b>Everything in Pro</b>, with no token cap</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>A Cloud Office of your own: 2 vCPU, 4 GB memory, 100 GB disk</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Agents work while your computer sleeps</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Its own orchestrator, in the cloud</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>A bigger machine when you need it, priced by the part</li>
+        </ul>
+      </section>
+
+      <section class="plan" aria-labelledby="pTeams">
+        <div class="plan-h"><h2 id="pTeams">Teams</h2></div>
+        <p class="for">Pro for everyone, and agents that work together.</p>
+        <div class="price"><span class="amt">$49</span><span class="per">a seat a month</span></div>
+        <p class="year">or $490 a seat a year<small>The admin sets the number of seats</small></p>
+        <a class="btn btn-line" href="https://harnessmd.com/team/start">Start a team</a>
+        <ul>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg><b>Every seat gets Pro</b></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Teammates join with an invite code from the admin</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Their agents talk to each other, share files and pass work</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Cloud Office add on: $99 a seat a month or $990 a seat a year, for some or all seats</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="extras">
+      <section class="box" aria-labelledby="xParts">
+        <h3 id="xParts">A bigger Cloud Office</h3>
+        <p>Max starts with 2 vCPU, 4 GB memory and 100 GB disk. Add parts when the work needs them; each is added to the monthly price.</p>
+        <div class="parts">
+          <div class="part"><b>Included</b><span>2 vCPU, 4 GB memory, 100 GB disk</span></div>
+          <div class="part"><b>+$2</b><span>a month for each extra vCPU</span></div>
+          <div class="part"><b>+$18</b><span>a month for each extra GB of memory</span></div>
+          <div class="part"><b>+$5</b><span>a month for each extra 10 GB of disk</span></div>
+        </div>
+      </section>
+      <section class="box topup" aria-labelledby="xTop">
+        <h3 id="xTop">Tokens top up</h3>
+        <p>On Free and out of tokens this month? 2 billion tokens, paid once. It resets this month's usage. A non refundable recharge, not a subscription.</p>
+        <div class="amt">$19<small>once</small></div>
+      </section>
+    </div>
+
+    <div class="facts">
+      <h2 class="h2">How paying works.</h2>
+      <div>
+        <dl>
+          <div><dt>Monthly or yearly</dt><dd>Paid plans are subscriptions, paid through Stripe. They renew each month or each year until you cancel.</dd></div>
+          <div><dt>Cancel any time</dt><dd>Cancel in Manage billing. You keep access to the end of the period you paid for.</dd></div>
+          <div><dt>Already paying?</dt><dd>You keep your price.</dd></div>
+          <div><dt>Refunds</dt><dd>A full refund within 14 days of a plan's first payment. Renewals are not refunded, and the $19 top up is a non refundable recharge.</dd></div>
+          <div><dt>Tokens</dt><dd>Counted in total: input, output and cache, the number other tools show.</dd></div>
+          <div><dt>Currency and tax</dt><dd>Prices are in US dollars, and the price is shown before you pay. We may offer lower prices in some countries. Where the law requires tax on a purchase, it may be added.</dd></div>
+        </dl>
+        <p class="legal">Read the <a href="/refund.html">Refund and Cancellation Policy</a> and the <a href="/terms.html">Terms of Service</a>. Questions: <a href="/contact.html">Contact Us</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="end">
+  <div class="wrap">
+    <h2 class="h2">Your office is open.</h2>
+    <p>Download the app, hire your first agent and give it something to do. Pro is free up to 200 million tokens a month.</p>
+    <div class="row">
+      <a class="btn btn-ink" data-dl href="https://harnessmd.com/download"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10M5.5 8.5L10 13l4.5-4.5M4 17h12"/></svg>Download free</a>
+      <a class="btn btn-line" href="https://harnessmd.com/signin">Sign in</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-in">
+      <a class="brand" href="/"><img src="assets/logo.png" alt="" width="30" height="30"><span>Munder Difflin</span></a>
+      <nav aria-label="Footer">
+        <a href="/">Home</a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/refund.html">Refund and Cancellation</a>
+        <a href="/contact.html">Contact Us</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+    <div class="foot-b">Official domains: <a href="https://harnessmd.com">harnessmd.com</a>, <a href="https://munderdifflin.ai">munderdifflin.ai</a> and <a href="https://munderdiffl.in">munderdiffl.in</a>. Munder Difflin is a parody and is not affiliated with NBC&#39;s The Office or Dunder Mifflin.</div>
+  </div>
+</footer>
+
+<script src="assets/download.js" defer></script>
+</body>
+</html>

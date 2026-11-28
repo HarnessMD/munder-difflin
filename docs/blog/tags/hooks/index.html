@@ -1,12 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Hooks — Munder Difflin Blog</title>
 <meta name="description" content="Munder Difflin blog posts tagged Hooks." />
 <link rel="canonical" href="https://munderdiffl.in/blog/tags/hooks/" />
-
+<meta name="robots" content="noindex, follow" />
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
 <link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
 <meta name="theme-color" content="#F5F2E8" />
@@ -116,13 +131,13 @@
     <div class="meta">
       <time datetime="2026-06-03">Jun 3, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>6 min</span>
+      <span>8 min</span>
     </div>
-    <h3><a href="/blog/claude-code-hooks-explained/">Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)</a></h3>
-    <p class="dek">A practical tour of Claude Code hooks — the PreToolUse, PostToolUse, and Stop lifecycle — and how a Unix-socket hook shim drives a live office floor.</p>
+    <h3><a href="/blog/claude-code-hooks-explained/">Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes</a></h3>
+    <p class="dek">How Claude Code hooks work in 2026: the 33 events, where settings go, matcher syntax, exit code 2, and tested PreToolUse and Stop hook examples.</p>
     <div class="foot">
       <span class="tag kind">Internals</span>
-      <a class="more" href="/blog/claude-code-hooks-explained/" aria-label="Read: Claude Code Hooks, Explained (PreToolUse, PostToolUse, Stop)">Read →</a>
+      <a class="more" href="/blog/claude-code-hooks-explained/" aria-label="Read: Claude Code Hooks Explained: PreToolUse, PostToolUse, Stop and Exit Codes">Read →</a>
     </div>
   </div>
 </article>
@@ -170,9 +185,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

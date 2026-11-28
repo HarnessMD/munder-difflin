@@ -35,6 +35,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { buildDropSrcDoc } from '../../../shared/releaseDrop';
+import { useAppTheme } from '../design/theme';
 
 export interface ReleaseDropProps {
   version: string;
@@ -44,9 +45,51 @@ export interface ReleaseDropProps {
 }
 
 // Landing site palette (docs/DESIGN.md §2). Restated here because the modal is
-// app chrome and cannot reach the site's stylesheet; kept in one place so the
-// frame's tokens in shared/releaseDrop.ts and this chrome never drift apart.
+// app chrome and cannot reach the site's stylesheet.
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// THIS SURFACE IS A DELIBERATE EXEMPTION FROM THE SKIN SYSTEM. DO NOT TOKENISE IT.
+//
+// Every other surface in the renderer follows `--cth-*` and therefore follows
+// data-cth-skin and data-cth-theme. This one does not, and must not, and the
+// reason is STRUCTURAL rather than a matter of taste:
+//
+// The drop's content is an authored HTML document rendered into a `srcdoc`
+// iframe under `sandbox="allow-popups"` and a `default-src 'none'` CSP. A srcdoc
+// iframe is a SEPARATE DOCUMENT, so CSS custom properties do not cross into it —
+// the frame cannot read `--cth-*` from this document and no amount of work here
+// can make it. It carries its own `:root` palette in shared/releaseDrop.ts, and
+// that palette is fixed by the CSP-hardened contract the drop is authored
+// against.
+//
+// So tokenising THIS chrome would not make the drop follow the skin. It would
+// paint a Professional-dark window frame around a permanently warm-paper
+// document — the chrome and the thing it frames disagreeing, unfixably, because
+// the boundary that stops the mismatch is the same boundary that makes the drop
+// safe to render at all. Half-following is strictly worse than not following,
+// and here it is the only reachable outcome.
+//
+// The positive reason stands too: this is the `.win` window from munderdiffl.in,
+// so the drop reads as the same product the user downloaded from. It is the
+// site's surface hosted in the app, not the app's surface.
+//
+// WHAT THAT COSTS, STATED PLAINLY: the chrome does not follow dark mode and
+// never has, and it will not follow Professional either. That is the accepted
+// price of the exemption, not an oversight. The authored DOCUMENT inside does
+// follow the app's light or dark theme (pinColorScheme in shared/releaseDrop.ts),
+// and so does the ground under it (DROP_DARK), so a dark app never shows a
+// light drop.
+//
+// The six constants below MUST equal the matching `:root` values in
+// shared/releaseDrop.ts, or the chrome and the framed document drift apart.
+// test/release-drop-exemption.test.cjs asserts both halves of this comment: that
+// no `--cth-*` token appears in this file, and that these six still match.
+// ─────────────────────────────────────────────────────────────────────────────
 const PAPER = '#FFFDF7';
+// The drop's own dark ground (its `.m3` dark token), so a dark app shows no
+// paper flash under the frame before the dark drop paints. The frame cannot
+// read the drop's tokens, so the value is spelled out here.
+const DROP_DARK = '#15130F';
 const INK = '#1B1B1B';
 const INK_FAINT = '#8A867A';
 const YELLOW = '#FFCA54';
@@ -67,7 +110,11 @@ const MONO = '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monosp
 const REVEAL_TIMEOUT_MS = 2500;
 
 export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
-  const srcDoc = useMemo(() => buildDropSrcDoc(html), [html]);
+  // The drop follows the APP's theme, not the computer's (shared/releaseDrop.ts,
+  // pinColorScheme). Switching the theme with the drop open rebuilds the frame.
+  const theme = useAppTheme();
+  const srcDoc = useMemo(() => buildDropSrcDoc(html, theme), [html, theme]);
+  const ground = theme === 'dark' ? DROP_DARK : PAPER;
 
   // The loader covers the frame until it is ready to be seen. `revealed` latches
   // true on the FIRST of two signals — the iframe's onLoad or the timeout cap —
@@ -122,11 +169,17 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
           minHeight: 420,
           display: 'flex', flexDirection: 'column',
           background: PAPER,
-          // The neo-brutalist window: square, 3px ink border, hard 10px offset
-          // shadow with no blur. Depth comes from the offset, not elevation.
-          border: `3px solid ${INK}`,
-          borderRadius: 0,
-          boxShadow: `12px 12px 0 ${INK}`,
+          // A flat window (Round 7, R7-9, founder: "the overall design that
+          // shows two screen stacked one over other is bad make it flat and
+          // clean"): one 1px border all round, no shadow of any kind, and
+          // the radius the app's modals use (12, the value of the kit's
+          // radius for panels and modals, written out because this chrome
+          // reads no token: see the palette note above). The border is the
+          // faint ink so the edge still reads when the framed document is
+          // the dark one and the backdrop is dark too.
+          border: `1px solid ${INK_FAINT}`,
+          borderRadius: 12,
+          boxShadow: 'none',
           overflow: 'hidden',
           fontFamily: MONO
         }}
@@ -136,7 +189,7 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
         <div style={{
           flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12,
           padding: '10px 14px', background: INK, color: PAPER,
-          borderBottom: `3px solid ${INK}`
+          borderBottom: `1px solid ${INK}`
         }}>
           <span aria-hidden style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
             <i style={{ width: 10, height: 10, background: YELLOW, display: 'block' }} />
@@ -164,9 +217,10 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
             aria-label="Close release notes"
             title="Close (Esc)"
             style={{
+              // Flat: no fill, a 1px border, the same 26 px hit size.
               flexShrink: 0, width: 26, height: 26, padding: 0,
-              background: PAPER, color: INK, border: `2px solid ${PAPER}`,
-              borderRadius: 0, cursor: 'pointer',
+              background: 'transparent', color: PAPER, border: `1px solid ${INK_FAINT}`,
+              borderRadius: 6, cursor: 'pointer',
               fontFamily: MONO, fontSize: 13, fontWeight: 700, lineHeight: 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}
@@ -178,7 +232,7 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
             loader is a separate overlay that is REMOVED on reveal, so the failure
             mode of a broken reveal is a brief extra spinner, never a permanently
             hidden frame. */}
-        <div style={{ position: 'relative', flex: 1, minHeight: 0, background: PAPER }}>
+        <div style={{ position: 'relative', flex: 1, minHeight: 0, background: ground }}>
           {/* The drop itself. `allow-popups` is the ONLY grant: it is what lets an
               authored <a target="_blank"> reach the OS browser, and it carries no
               script, same-origin, form or navigation rights with it. */}
@@ -193,7 +247,7 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
             onLoad={reveal}
             style={{
               position: 'absolute', inset: 0, width: '100%', height: '100%',
-              border: 'none', background: PAPER
+              border: 'none', background: ground
             }}
           />
           {!revealed && <DropLoader />}
@@ -203,11 +257,13 @@ export function ReleaseDrop({ version, html, onDismiss }: ReleaseDropProps) {
   );
 }
 
-/** The window before the frame paints. Warm paper (never a white flash) with the
+/** The window before the frame paints. Warm paper in light, the drop's dark
+ *  ground in dark (never a white flash), with the
  *  title bar's three square dots marching, in the landing-site palette. Pure
  *  chrome — it carries no control; dismissal stays Esc / close / backdrop. It is
  *  removed the instant the frame is revealed, so it is only ever seen briefly. */
 function DropLoader() {
+  const ground = useAppTheme() === 'dark' ? DROP_DARK : PAPER;
   return (
     <div
       // aria-hidden: the dialog's own label already announces the drop, and a
@@ -218,7 +274,7 @@ function DropLoader() {
       style={{
         position: 'absolute', inset: 0, zIndex: 1,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: 18, background: PAPER
+        gap: 18, background: ground
       }}
     >
       <style>{`

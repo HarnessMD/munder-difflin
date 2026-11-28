@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { floorPowerPreference, recordFloorRenderer } from '../graphicsProbe';
 import { Application, Container, Graphics, Ticker, Texture } from 'pixi.js';
 // PixiJS uses new Function() internally, blocked by Electron CSP — this patches it.
 import 'pixi.js/unsafe-eval';
@@ -9,19 +10,30 @@ import { Camera } from './Camera';
 import { Character, paintCup } from './Character';
 import { DeskScreen } from './DeskScreen';
 import { MessageEnvelope, type MessageAct } from './MessageEnvelope';
-import { hexToNumber, DEFAULT_CHARACTER } from './cast';
+import { hexToNumber, DEFAULT_CHARACTER, castMemberFor } from './cast';
+import { subscribeAvatars } from './avatarRegistry';
+import { isCustomAvatarId } from '@shared/avatars';
+import { waitsOnHuman } from '@shared/humanAsk';
 import { pickSoloLine, pickExchange, type BreakSpot } from './cafeteriaLines';
 import { colors } from '@/design/tokens';
-import { loadTheme, resolveThemeMap, themeTilesetUrls } from './themeLoader';
+import { FloorEdge } from './FloorEdge';
+import { fitRect, OFFICE_FLOOR } from './framing';
+import { resolveThemeMap, themeTilesetUrls } from './themeLoader';
+import { OFFICE_THEME } from './themeRegistry';
 import {
   installContextLossRecovery, planInitFailure, DEFAULT_MAX_INIT_RETRIES
 } from './glRecovery';
 import type { Tile, Facing, ErrandKind, ErrandSpot } from './themeRegistry';
+import { currentSeason, subscribeSeason } from '@/design/season';
+import { planHalloween } from './seasonPlan';
+import { SeasonDecor } from './SeasonDecor';
+import { floorActionWord } from '@shared/floorActionWord';
+import type { TFunction } from 'i18next';
+import { floorPaused, applyFloorPause, drawOnceWhilePaused, drawSettledWhilePaused, FLOOR_MAX_FPS } from './floorPause';
 
 // The map, tileset atlases, desk-claim order, errand spots, coffee-economy
-// tiles, prop anchors, monitor gids and palette all come from the active
-// ThemeConfig now (see themeRegistry.ts / themeLoader.ts). Phase 0 ships the
-// existing office unchanged as `theme: 'office'`.
+// tiles, prop anchors, monitor gids and palette all come from OFFICE_THEME
+// (see themeRegistry.ts / themeLoader.ts).
 
 /** A cafeteria break in progress for one agent — set by the coffee-break
  *  director, cleared when the agent leaves or gets pulled back to work. */
@@ -81,6 +93,8 @@ interface Runtime {
  *  agents "celebrate" every few minutes over nothing, and the "done!" bubble
  *  reads like real work completed when none did. */
 const CHEER_MIN_BUSY_MS = 60_000;
+
+// FLOOR_MAX_FPS, the frame rate ceiling, lives in floorPause.ts.
 
 /** What an avatar mutters per errand, picked at random. i18n keys into
  *  `office.errand.*`. */
@@ -148,8 +162,10 @@ function loadTexture(url: string): Promise<Texture> {
  *  `action` (e.g. "edit App.tsx", "bash npm test"), fall back to the prompt we
  *  gave it, then to a caller-supplied generic. Returns '' for the working state
  *  with nothing concrete yet — the bubble renders an animated "…" for that. */
-function liveActivity(agent: Agent, fallback = ''): string {
+function liveActivity(agent: Agent, fallback: string, t: TFunction): string {
   const action = (agent.action || '').trim();
+  const word = floorActionWord(action);
+  if (word) return t(word.key, word.vars);
   if (action) return action;
   return firstWords(agent.lastPrompt) || fallback;
 }
@@ -165,9 +181,13 @@ function firstWords(prompt: string | undefined, maxWords = 6, maxChars = 42): st
   return out;
 }
 
+/** The office floor: the default office, drawn with Pixi inside the shared edge. */
 export function OfficeFloor() {
   const { t, i18n } = useTranslation();
+  const activity = (a: Agent, fallback = ''): string => liveActivity(a, fallback, t);
   const hostRef = useRef<HTMLDivElement | null>(null);
+  // Inside the shared edge (FloorEdge.tsx) the canvas is only as big as the office's floor
+  // (its art box, inside its own wall), fitted and centred; the rest is the floor's background.
   const appRef = useRef<Application | null>(null);
   const mountIdRef = useRef(0);
   // Bumped when the WebGL context is evicted; a dep of the effect below, so the
@@ -178,9 +198,6 @@ export function OfficeFloor() {
   // A ref, not state: the budget has to survive the rebuilds it schedules, which
   // re-run the effect below and would reset anything scoped to it.
   const initRetriesRef = useRef(0);
-  // The active office theme (store mirror of config.officeTheme). Changing it
-  // tears down and rebuilds the whole scene on the new map/cast (see deps below).
-  const officeTheme = useStore((s) => s.officeTheme);
 
   // Is the floor actually on screen? A fullscreen terminal or file editor covers
   // it completely, and a hidden window shows nothing at all — but the Pixi ticker
@@ -192,7 +209,7 @@ export function OfficeFloor() {
   //
   // Stop the ticker instead of unmounting: the WebGL context, textures and the
   // whole scene graph stay alive, so coming back out of fullscreen is instant
-  // rather than a full theme reload.
+  // rather than a full reload.
   //
   // A paused floor resumes where it left off. Two things make that true, and it is
   // worth being precise because the obvious claim — "nothing here reads wall-clock
@@ -214,15 +231,48 @@ export function OfficeFloor() {
     document.addEventListener('visibilitychange', onVis);
     return () => document.removeEventListener('visibilitychange', onVis);
   }, []);
-  const paused = !!fullscreenAgentId || ideOpen || docHidden;
+  // document.hidden never turns true here: the window keeps
+  // backgroundThrottling false for the hive's heartbeat loops, and with that
+  // Chromium reports a minimised, hidden or covered window as visible. So main
+  // tells this window when it goes off screen (src/main/windowVisibility.ts).
+  // Subscribe first, then ask: an event that lands before the answer wins, and
+  // a reload asks again, so the floor always starts from main's state.
+  const [windowHidden, setWindowHidden] = useState(false);
+  useEffect(() => {
+    let heard = false;
+    const off = window.cth.onWindowVisibility?.((v) => { heard = true; setWindowHidden(v.hidden === true); });
+    void window.cth.getWindowVisibility?.().then((v) => { if (!heard) setWindowHidden(v?.hidden === true); }).catch(() => {});
+    return () => { off?.(); };
+  }, []);
+  // A missed 'show' must not leave a frozen floor in front of the person: any
+  // pointer move, key press or resize of this window means it is on screen.
+  // Listened for only while hidden, so it costs nothing the rest of the time.
+  useEffect(() => {
+    if (!windowHidden) return;
+    const onScreen = () => setWindowHidden(false);
+    window.addEventListener('pointermove', onScreen, true);
+    window.addEventListener('keydown', onScreen, true);
+    window.addEventListener('resize', onScreen, true);
+    return () => {
+      window.removeEventListener('pointermove', onScreen, true);
+      window.removeEventListener('keydown', onScreen, true);
+      window.removeEventListener('resize', onScreen, true);
+    };
+  }, [windowHidden]);
+  const paused = floorPaused({ fullscreen: !!fullscreenAgentId, ideOpen, docHidden, windowHidden });
   // Read inside init(), which finishes asynchronously and would otherwise start a
   // ticker the effect below had already been asked to stop.
   const pausedRef = useRef(paused);
+  // The scene's task board poll, so a resume can run it at once (the scene
+  // effect owns the function; null while no scene is up).
+  const taskBoardPollRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     pausedRef.current = paused;
-    const ticker = appRef.current?.ticker;
-    if (!ticker) return; // app.init() hasn't created it yet — init() applies it
-    if (paused) ticker.stop(); else ticker.start();
+    // Both tickers: the floor's own and Pixi's Ticker.system (floorPause.ts).
+    // Before app.init() has made the floor's ticker, init() applies the state.
+    applyFloorPause([appRef.current?.ticker, Ticker.system], paused);
+    // The poll skipped its beats while paused; catch the board up now.
+    if (!paused) taskBoardPollRef.current?.();
   }, [paused]);
 
   useEffect(() => {
@@ -236,16 +286,22 @@ export function OfficeFloor() {
 
     const runtimes = new Map<string, Runtime>();
     const seatClaims = new Set<number>();
+    // Agent ids mid addCharacter (seat claimed, sprite frames still loading,
+    // not yet in runtimes). syncAgents runs on every store update, including
+    // the pty parser's per chunk status writes, so without this guard one agent
+    // could get addCharacter several times before the first call finished: each
+    // claimed its own seat and made its own Character, only the last landed in
+    // runtimes, and the others were orphaned with their seats drained.
+    const pendingAdds = new Set<string>();
     // In-flight message envelopes (sender desk → recipient desk). Capped so a
     // broadcast doesn't bury the floor in paper.
     const envelopes: MessageEnvelope[] = [];
     const MAX_ENVELOPES = 16;
 
     const init = async () => {
-      // Load the active theme bundle (falls back to 'office' on a bad/absent bundle).
-      const theme = await loadTheme(officeTheme);
+      const theme = OFFICE_THEME;
       await app.init({
-        background: hexNum(theme.palette.background),
+        background: theme.palette.background,
         antialias: false,
         roundPixels: true,
         // resolution: 1 let the OS/browser upscale the canvas on scaled and
@@ -258,10 +314,13 @@ export function OfficeFloor() {
         autoDensity: true,
         width: host.clientWidth || 800,
         height: host.clientHeight || 600,
+        // Graphics on GPU: ask for the faster graphics card (the mode this run started with).
+        ...(await floorPowerPreference()),
       });
       if (mountIdRef.current !== mountId) { safeDestroy(app); return; }
       while (host.firstChild) host.removeChild(host.firstChild);
       host.appendChild(app.canvas);
+      recordFloorRenderer(app); // the GPU this floor really got, for Settings' Graphics line
 
       // This canvas holds the OLDEST WebGL context in the process (it is built at
       // startup), so it is the one Chromium evicts once enough xterm terminals —
@@ -294,6 +353,8 @@ export function OfficeFloor() {
 
       const camera = new Camera(world);
       camera.setMapSize(mapRenderer.width * mapRenderer.tileSize, mapRenderer.height * mapRenderer.tileSize);
+      // Fit the art, so the outer wall meets the box's edges (themeRegistry art).
+      camera.setArt(theme.art.x, theme.art.y, theme.art.w, theme.art.h);
       camera.setViewSize(app.screen.width, app.screen.height);
       camera.fitToScreen();
 
@@ -899,12 +960,8 @@ export function OfficeFloor() {
         let agent: Agent | undefined;
         let rt: Runtime | undefined;
         if (spot.godOnly) {
-          const god = useStore.getState().agents.find((a) => a.isGod);
-          const grt = god ? runtimes.get(god.id) : undefined;
-          if (!god || !grt || grt.err || grt.brk
-            || (god.status !== 'idle' && god.status !== 'success')
-            || Math.random() >= 0.5) return;        // the boss is unhurried
-          agent = god; rt = grt;
+          // The orchestrator stays at the reserved chair, including while idle.
+          return;
         } else {
           const candidates: Array<[Agent, Runtime]> = [];
           for (const a of useStore.getState().agents) {
@@ -1117,8 +1174,8 @@ export function OfficeFloor() {
       // ─── The office clock: clicking it is CLOCKING OUT ─────────────────────
       // The wall clock beside Michael's window doubles as the quit entry:
       // a click runs the real close flow (window.close() → the main process
-      // intercepts while agents run → the "Quitting now?" dialog with its
-      // closing-time option). The office clock literally opens quitting time.
+      // intercepts while agents run → the two-door "Quitting now?" dialog:
+      // keep them running, or kill all and quit).
       const clockG = new Graphics();
       clockG.eventMode = 'static';
       clockG.cursor = 'pointer';
@@ -1299,12 +1356,12 @@ export function OfficeFloor() {
         }
       };
 
-      /** Pick who performs a ledger change: the assignee if on the floor, the
-       *  god for fresh pins / orphan cards. Returns undefined → instant redraw. */
+      /** A worker can carry its task; captain and unassigned changes redraw in place. */
       const actorFor = (assignee: string | undefined, preferGod: boolean): string | undefined => {
-        if (!preferGod && assignee && runtimes.has(assignee)) return assignee;
-        const god = useStore.getState().agents.find((a) => a.isGod);
-        return god && runtimes.has(god.id) ? god.id : undefined;
+        const agent = useStore.getState().agents.find((a) => a.id === assignee);
+        if (!preferGod && assignee && agent && !agent.isGod && runtimes.has(assignee)) return assignee;
+        // A captain's board changes redraw in place rather than leaving the chair.
+        return undefined;
       };
 
       let lastLedger: LedgerTask[] = [];
@@ -1318,12 +1375,10 @@ export function OfficeFloor() {
             status: String(t?.status ?? 'todo'),
             assignee: typeof t?.assignee === 'string' && t.assignee ? t.assignee : undefined
           }));
-          // tasks waiting on the HUMAN feed the ASK ME board's note count
-          const newAsk = arr.filter((t) =>
-            String(t?.status) === 'blocked'
-            && Array.isArray(t?.humanQA)
-            && t!.humanQA!.some((e) => e && typeof e.q === 'string' && !e.a)
-          ).length;
+          // tasks waiting on the HUMAN feed the ASK ME board's note count. The
+          // same test as the ASK ME tab (shared/humanAsk, #454), so the board
+          // and the tab never disagree: any card not done, dismissals resolve.
+          const newAsk = arr.filter((t) => waitsOnHuman(t)).length;
           if (newAsk !== askCount) {
             askCount = newAsk;
             drawAskBoard(askPulse);
@@ -1373,19 +1428,44 @@ export function OfficeFloor() {
           lastLedger = ledger;
         } catch { /* keep the last drawing */ }
       };
-      void pollTaskBoard();
-      const taskBoardPoll = setInterval(() => { void pollTaskBoard(); }, 5000);
+      // Nobody sees the board while the floor is paused: skip those beats, and
+      // the pause effect polls once at once on resume. The interval stays.
+      if (!pausedRef.current) void pollTaskBoard();
+      const taskBoardPoll = setInterval(() => { if (!pausedRef.current) void pollTaskBoard(); }, 5000);
       (app as any).__taskBoardPoll = taskBoardPoll;
+      taskBoardPollRef.current = () => { if (mountIdRef.current === mountId) void pollTaskBoard(); };
+
+      // An edited custom avatar repaints on the floor without a rebuild: every
+      // figure wearing it swaps frames. (A deleted one keeps its last frames
+      // until the next rebuild, the same grace the picker gives it.)
+      (app as any).__unsubAvatars = subscribeAvatars(() => {
+        for (const [id, rt] of runtimes) {
+          if (!isCustomAvatarId(rt.charName)) continue;
+          void theme.cast.getFrames(rt.charName).then((frames) => {
+            if (mountIdRef.current === mountId && runtimes.get(id) === rt) rt.character.setFrames(frames);
+          });
+        }
+      });
 
       const addCharacter = async (agent: Agent) => {
-        const charName = theme.cast.byName[agent.character] ? agent.character : theme.cast.defaultCharacter;
-        const member = theme.cast.byName[charName];
+        // A custom avatar or a preset is not in the theme's roster; castMemberFor
+        // gives it the same shape, and the painter draws it from its recipe.
+        const custom = theme.cast.byName[agent.character] ? undefined : castMemberFor(agent.character);
+        const charName = theme.cast.byName[agent.character] || custom ? agent.character : theme.cast.defaultCharacter;
+        const member = theme.cast.byName[charName] ?? custom ?? theme.cast.byName[theme.cast.defaultCharacter];
         const seatIndex = claimSeat(agent);
         const seatTile: Tile = (seatIndex != null ? seatTiles[seatIndex] : undefined)
           ?? mapRenderer.getSpawnPoint('entrance')
           ?? { x: 2, y: 2 };
         const waitTile = waitTiles[(seatIndex ?? 0) % waitTiles.length];
-        const frames = await theme.cast.getFrames(charName);
+        let frames: Awaited<ReturnType<typeof theme.cast.getFrames>>;
+        try {
+          frames = await theme.cast.getFrames(charName);
+        } catch (err) {
+          // Give the seat back, or a failed load would hold it for good.
+          if (seatIndex != null) seatClaims.delete(seatIndex);
+          throw err;
+        }
         // Bail if the agent was removed (or scene torn down) while loading.
         if (mountIdRef.current !== mountId) return;
         if (!useStore.getState().agents.some((a) => a.id === agent.id)) {
@@ -1394,13 +1474,15 @@ export function OfficeFloor() {
         }
         const character = new Character({
           agentId: agent.id,
+          displayName: agent.name,
           mapRenderer,
           frames,
           seatTile,
           seatDirection: facingForSeat(seatTile),
-          spawnTile: entrance, // walk in from the office door
-          glowColor: hexNum(colors.accent[agent.accent]) ?? hexToNumber(member.shirt),
+          spawnTile: agent.isGod ? seatTile : entrance, // captain starts at the reserved chair; others walk in
+          glowColor: colors.accent[agent.accent] ?? hexToNumber(member.shirt),
           onClick: (id) => useStore.getState().select(id),
+          bubbleArea: theme.art,
         });
         character.show(charLayer);
         const rt: Runtime = { character, seatIndex, waitTile, charName };
@@ -1472,6 +1554,16 @@ export function OfficeFloor() {
         const c = rt.character;
         c.setBaseAlpha(agent.status === 'ghost' ? 0.5 : 1);
 
+        // The orchestrator keeps the reserved chair in every status.
+        if (agent.isGod) {
+          if (rt.brk) releaseBreak(rt);
+          if (rt.err) releaseErrand(rt);
+          if (rt.run) releaseRun(rt);
+          c.sitAtDesk(true);
+          c.setStatusGlyph(agent.status === 'blocked' ? 'blocked' : 'none');
+          c.showThought(activity(agent, t('office.activity.runningFloor')));
+          return;
+        }
         // While an agent is on a coffee break the director owns its avatar — a
         // mere idle/success refresh must not yank it back to wandering. Any
         // other live status (work, blocked, …) cancels the break and falls
@@ -1510,7 +1602,7 @@ export function OfficeFloor() {
           case 'thinking':
             c.setStatusGlyph('none');
             c.sitAtDesk(true);
-            c.showThought(liveActivity(agent), agent.carrying);
+            c.showThought(activity(agent), agent.carrying);
             break;
           case 'waiting':
             // Parked at the desk awaiting god / another agent — not actively
@@ -1518,11 +1610,11 @@ export function OfficeFloor() {
             // agents that need the human).
             c.setStatusGlyph('none');
             c.sitAtDesk(false);
-            c.showThought(liveActivity(agent, t('office.activity.waiting')), agent.carrying);
+            c.showThought(activity(agent, t('office.activity.waiting')), agent.carrying);
             break;
           case 'blocked':
             c.setStatusGlyph('blocked');
-            c.showThought(liveActivity(agent, t('office.activity.needsYou')));
+            c.showThought(activity(agent, t('office.activity.needsYou')));
             c.walkToTile(rt.waitTile);
             break;
           case 'compacting':
@@ -1530,14 +1622,14 @@ export function OfficeFloor() {
             // so an agent compacting context reads as busy rather than frozen.
             c.setStatusGlyph('compacting');
             c.sitAtDesk(true);
-            c.showThought(liveActivity(agent, t('office.activity.compacting')));
+            c.showThought(activity(agent, t('office.activity.compacting')));
             break;
           case 'looping':
             // #5C — circuit-breaker armed (#6): hold position with the spinning
             // warning glyph so a runaway agent is visible on the floor.
             c.setStatusGlyph('looping');
             c.sitAtDesk(false);
-            c.showThought(liveActivity(agent, t('office.activity.looping')));
+            c.showThought(activity(agent, t('office.activity.looping')));
             break;
           case 'success':
             c.setStatusGlyph('success');
@@ -1559,14 +1651,14 @@ export function OfficeFloor() {
           default:
             c.setStatusGlyph('none');
             // The god runs the floor from its desk; everyone else wanders when idle.
-            if (agent.isGod) { c.sitAtDesk(true); c.showThought(liveActivity(agent, t('office.activity.runningFloor'))); }
+            if (agent.isGod) { c.sitAtDesk(true); c.showThought(activity(agent, t('office.activity.runningFloor'))); }
             else if (finishedWork) {
               // Task done → a quick cheer on the spot, then back to roaming.
               c.startWandering();
               c.cheer();
               c.showThought(t(CHEER_KEYS[Math.floor(Math.random() * CHEER_KEYS.length)]));
             }
-            else { c.startWandering(); c.showThought(liveActivity(agent, t('office.activity.idle'))); }
+            else { c.startWandering(); c.showThought(activity(agent, t('office.activity.idle'))); }
             break;
         }
       };
@@ -1579,8 +1671,24 @@ export function OfficeFloor() {
         }
         for (const agent of agents) {
           const rt = runtimes.get(agent.id);
-          if (!rt) void addCharacter(agent);
-          else applyState(agent, rt);
+          if (!rt) {
+            if (!pendingAdds.has(agent.id)) {
+              pendingAdds.add(agent.id);
+              // finally, so a getFrames throw cannot keep the agent off the
+              // floor for good: the next sync tries again.
+              void addCharacter(agent)
+                .catch((err) => console.warn('[office] addCharacter failed', err))
+                .finally(() => {
+                  pendingAdds.delete(agent.id);
+                  // A paused floor draws the person in, so the floor can be whole.
+                  if (mountIdRef.current === mountId) drawOnceWhilePaused(app.ticker, pausedRef.current);
+                });
+            }
+          }
+          else {
+            rt.character.setName(agent.name);
+            applyState(agent, rt);
+          }
         }
       };
 
@@ -1676,9 +1784,80 @@ export function OfficeFloor() {
         }
       };
 
+      // ─── The season (0.5.5): Halloween on the floor ───────────────────────
+      // Built the first time the season is on and only shown or hidden after
+      // that, so Settings, General, Theme changes the floor as it is saved.
+      // Nothing is painted into the map: under 'none' the decor is never built
+      // and the floor is today's floor.
+      let decor: SeasonDecor | null = null;
+      const dressForSeason = (): void => {
+        const on = currentSeason() === 'halloween';
+        if (on && !decor) {
+          const tsD = mapRenderer.tileSize;
+          const spawns = [...mapRenderer.getAllSpawnPoints().values()];
+          const desks: Tile[] = [];
+          for (const name of theme.primarySeatNames) {
+            const seat = mapRenderer.getSpawnPoint(name);
+            if (!seat) continue;
+            if (mapRenderer.gidAt('furniture-above', seat.x, seat.y - 2) !== theme.monitor.offTopLeftGid) continue;
+            desks.push({ x: seat.x, y: seat.y - 2 });
+          }
+          // What hangs on the walls: the map's furniture, and the props drawn
+          // here in code (calendar, clock, task boards, Ask me). A red lamp
+          // never goes over one; the lamp needs about 4 px round its tile.
+          const hung = [calG, clockG, boardG, askG].map((g) => {
+            const b = g.getLocalBounds();
+            return { x0: g.x + b.minX, y0: g.y + b.minY, x1: g.x + b.maxX, y1: g.y + b.maxY };
+          });
+          const hungOver = (x: number, y: number): boolean => hung.some((r) =>
+            r.x0 < (x + 1) * tsD + 4 && r.x1 > x * tsD - 4 && r.y0 < (y + 1) * tsD && r.y1 > y * tsD);
+          decor = new SeasonDecor({
+            plan: planHalloween({
+              width: mapRenderer.width,
+              height: mapRenderer.height,
+              tileSize: tsD,
+              wallAt: (x, y) => mapRenderer.gidAt('walls', x, y),
+              isWalkable: (x, y) => mapRenderer.isWalkable(x, y),
+              desks,
+              machineStand: theme.coffee.machineStand,
+              sinkTile: theme.coffee.sinkTile,
+              decorAt: (x, y) => mapRenderer.gidAt('furniture-below', x, y) !== 0
+                || mapRenderer.gidAt('furniture-above', x, y) !== 0
+                || hungOver(x, y),
+              avoid: [
+                ...spawns,
+                ...theme.errandSpots.map((e) => e.stand),
+                theme.coffee.trayStand, theme.coffee.machineStand, theme.coffee.sinkStand
+              ]
+            }),
+            mapWidth: mapRenderer.width * tsD,
+            mapHeight: mapRenderer.height * tsD,
+            charLayer,
+            root: mapRenderer.getContainer(),
+            reducedMotion: typeof window.matchMedia === 'function'
+              && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          });
+        }
+        decor?.setOn(on);
+      };
+      dressForSeason();
+      // The cast changes clothes with the season (costumes.ts). design/season
+      // stamps the page before it tells anyone, so the painter already draws
+      // the new look here, and cast.ts keys its frames on the costume: every
+      // figure on the floor swaps frames where it stands, like an edited avatar.
+      const redressCast = (): void => {
+        for (const [id, rt] of runtimes) {
+          void theme.cast.getFrames(rt.charName).then((frames) => {
+            if (mountIdRef.current === mountId && runtimes.get(id) === rt) rt.character.setFrames(frames);
+          });
+        }
+      };
+      (app as any).__unsubSeason = subscribeSeason(() => { dressForSeason(); redressCast(); });
+
       const onTick = (ticker: Ticker) => {
         const dt = ticker.deltaMS / 1000;
         camera.update(dt);
+        decor?.update(dt);
         // Thought clouds counter-scale against the camera so their text never
         // renders below 1:1 screen size when the window/world shrinks.
         const zoom = world.scale.x;
@@ -1701,9 +1880,27 @@ export function OfficeFloor() {
         }
       };
       app.ticker.add(onTick);
-      // init() is async: the floor may already be behind a fullscreen terminal by
-      // the time we get here, and app.init() starts the ticker itself.
-      if (pausedRef.current) app.ticker.stop();
+      // Cap the frame rate. Pixi's ticker follows requestAnimationFrame, which on a
+      // ProMotion Mac means 120 Hz: the whole scene re-renders 120 times a second at
+      // `resolution: 2` (four times the pixels of a logical one), and onTick above
+      // runs every character and every subsystem that often. Measured on a 16-inch
+      // MacBook Pro, rAF delivers 120.5 fps, so that is exactly twice the work a
+      // 60 Hz machine does for a floor nobody can see move any faster.
+      //
+      // Nothing on the floor is worth that. Every animation here is authored in
+      // seconds against ticker.deltaMS, so capping changes how SMOOTH the motion is
+      // and never how fast anything happens — the exceptions were the camera's
+      // per-frame lerp and the walk's per-frame waypoint, both fixed at their source
+      // (see Camera.update and Character.updateWalk). Without those a capped floor
+      // would take five seconds to settle its fit after a window resize instead of
+      // 1.6, and its characters would walk at 83% speed.
+      app.ticker.maxFPS = FLOOR_MAX_FPS;
+      // init() is async: the floor may already be behind a fullscreen terminal
+      // or in a hidden window by the time we get here, and app.init() starts the
+      // ticker itself (and attaching the canvas puts Pixi's event listener on
+      // Ticker.system). Apply the pause to both.
+      applyFloorPause([app.ticker, Ticker.system], pausedRef.current);
+      drawSettledWhilePaused(app.ticker, camera, pausedRef.current);
 
       const resize = new ResizeObserver((entries) => {
         for (const e of entries) {
@@ -1711,6 +1908,8 @@ export function OfficeFloor() {
           if (width === 0 || height === 0) continue;
           app.renderer?.resize(width, height);
           camera.setViewSize(width, height);
+          // A resize clears the canvas; a paused floor would stay blank, or show the camera half way to its new fit.
+          drawSettledWhilePaused(app.ticker, camera, pausedRef.current);
         }
       });
       resize.observe(host);
@@ -1762,24 +1961,27 @@ export function OfficeFloor() {
         try { (a as any).__unsub?.(); } catch { /* noop */ }
         try { (a as any).__offMessage?.(); } catch { /* noop */ }
         try { clearInterval((a as any).__taskBoardPoll); } catch { /* noop */ }
+      try { (a as any).__unsubAvatars?.(); } catch { /* noop */ }
+        try { (a as any).__unsubSeason?.(); } catch { /* noop */ }
         safeDestroy(a);
       }
       appRef.current = null;
+      taskBoardPollRef.current = null;
+      // Ticker.system is Pixi's, shared by the whole page: never leave it stopped
+      // for the next scene (a rebuild). The next init() stops it
+      // again if the floor is still paused.
+      try { Ticker.system.start(); } catch { /* noop */ }
       while (host.firstChild) host.removeChild(host.firstChild);
     };
-  }, [officeTheme, glGeneration, i18n.language]);
+  }, [glGeneration, i18n.language]);
 
   return (
-    <div
-      ref={hostRef}
-      style={{
-        width: '100%', height: '100%',
-        boxShadow: 'var(--cth-panel-border)',
-        overflow: 'hidden',
-        imageRendering: 'pixelated',
-        background: hex(colors.ink[900]),
+    <FloorEdge fill={hex(colors.ink[900])}>
+      {(inner) => {
+        const r = fitRect(inner.w, inner.h, OFFICE_FLOOR.w, OFFICE_FLOOR.h);
+        return <div ref={hostRef} style={{ position: 'absolute', left: r.x, top: r.y, width: r.w, height: r.h, overflow: 'hidden', imageRendering: 'pixelated' }} />;
       }}
-    />
+    </FloorEdge>
   );
 }
 
@@ -1793,7 +1995,6 @@ function floorNote(text: string): HTMLDivElement {
   note.textContent = text;
   return note;
 }
-function hexNum(n: number): number { return n; }
 function hex(n: number): string { return '#' + n.toString(16).padStart(6, '0'); }
 function safeDestroy(app: Application) {
   try { app.ticker?.stop(); } catch { /* noop */ }

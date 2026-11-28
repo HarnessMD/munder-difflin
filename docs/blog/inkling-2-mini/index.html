@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026) — Munder Difflin Blog</title>
+<meta name="description" content="Inkling 2 Mini is Thinking Machines&#39; open weights looped model: 26.4B parameters, about 20GB, its benchmarks, Hugging Face, Tinker and coding agents." />
+<link rel="canonical" href="https://munderdiffl.in/blog/inkling-2-mini/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026) — Munder Difflin Blog" />
+<meta property="og:description" content="Inkling 2 Mini is Thinking Machines&#39; open weights looped model: 26.4B parameters, about 20GB, its benchmarks, Hugging Face, Tinker and coding agents." />
+<meta property="og:url" content="https://munderdiffl.in/blog/inkling-2-mini/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/inkling-2-mini/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A pill reading Concepts, the title Inkling 2 Mini, the line Open weights, about 20GB and a Checked 21 Nov 2026 line. A small yellow car rides a sky blue rollercoaster loop three times and stops beside three cards: 26.4B total, 3.4B active and Apache 2.0." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-21T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="AI Agents" />
+<meta property="article:tag" content="Models" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026) — Munder Difflin Blog" />
+<meta name="twitter:description" content="Inkling 2 Mini is Thinking Machines&#39; open weights looped model: 26.4B parameters, about 20GB, its benchmarks, Hugging Face, Tinker and coding agents." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/inkling-2-mini/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A pill reading Concepts, the title Inkling 2 Mini, the line Open weights, about 20GB and a Checked 21 Nov 2026 line. A small yellow car rides a sky blue rollercoaster loop three times and stops beside three cards: 26.4B total, 3.4B active and Apache 2.0." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026)",
+  "description": "Inkling 2 Mini is Thinking Machines' open weights looped model: 26.4B parameters, about 20GB, its benchmarks, Hugging Face, Tinker and coding agents.",
+  "image": ["https://munderdiffl.in/blog/assets/media/inkling-2-mini/hero.png"],
+  "datePublished": "2026-11-21T00:00:00.000Z",
+  "dateModified": "2026-11-21T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/inkling-2-mini/" },
+  "keywords": "inkling 2 mini, inkling 2 mini run locally, inkling 2 mini benchmarks, inkling 2 mini hugging face, inkling 2 mini vs inkling 2 small, looped transformer, inkling 2 mini tinker",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/inkling-2-mini/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026)", "item": "https://munderdiffl.in/blog/inkling-2-mini/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How much memory does Inkling 2 Mini need?", "acceptedAnswer": { "@type": "Answer", "text": "Thinking Machines' launch post of 20 Nov 2026 gives a total memory footprint of about 20GB. The Hugging Face card, read 21 Nov 2026, supports one NVIDIA DGX Spark, \"Apple silicon devices with 32GB or more memory\", and other GPUs with 32GB or more of VRAM recommended." } },
+    { "@type": "Question", "name": "Is Inkling 2 Mini open source?", "acceptedAnswer": { "@type": "Answer", "text": "Its weights are open. The Hugging Face card for thinkingmachines/Inkling-2-Mini, read 21 Nov 2026, lists the licence as Apache 2.0 and a release date of November 20, 2026." } },
+    { "@type": "Question", "name": "Can Inkling 2 Mini run on a MacBook?", "acceptedAnswer": { "@type": "Answer", "text": "Thinking Machines says so. Its post of 20 Nov 2026 says \"At launch we support Inkling 2 Mini running on any Mac system (MacBook, Mac Mini) with at least 32GB RAM via Ollama.\" Its demo ran offline on a MacBook Pro (M5 Pro, 48GB)." } },
+    { "@type": "Question", "name": "Can I use Inkling 2 Mini with Aider or OpenCode?", "acceptedAnswer": { "@type": "Answer", "text": "Thinking Machines gives no setup for coding agents. The Hugging Face card lists Ollama and vLLM for local inference. Aider's docs say \"Aider can connect to local Ollama models\", and OpenCode's docs say it discovers local Ollama and vLLM models, both read 21 Nov 2026. Neither agent's docs name Inkling 2 Mini." } },
+    { "@type": "Question", "name": "How does Inkling 2 Mini compare to Inkling 2 Small?", "acceptedAnswer": { "@type": "Answer", "text": "Small is far bigger, with 594B total parameters and 17B active against Mini's 26.4B and 3.4B, and it scores higher on the vendor's own figures: 72.1% against 48.2% on DeepSWE v1.1. The Hugging Face card says Mini is less capable than Small across most of Thinking Machines' evaluations." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>Inkling 2 Mini: Size, Benchmarks and How to Run It (Nov 2026)</h1>
+    <p class="dek">Inkling 2 Mini is Thinking Machines&#39; open weights looped model: 26.4B parameters, about 20GB, its benchmarks, Hugging Face, Tinker and coding agents.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-21">Nov 21, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/inkling-2-mini/hero.png" alt="Title card on white. A pill reading Concepts, the title Inkling 2 Mini, the line Open weights, about 20GB and a Checked 21 Nov 2026 line. A small yellow car rides a sky blue rollercoaster loop three times and stops beside three cards: 26.4B total, 3.4B active and Apache 2.0." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>Inkling 2 Mini is an open weights model from Thinking Machines, released on 20 Nov 2026, that the company calls “small enough to run on your laptop”. Its <a href="https://thinkingmachines.ai/news/inkling-2-mini/">launch post</a> describes a looped transformer with 26.4B total parameters, 3.4B active, and a memory footprint of about 20GB.</p>
+<p>New models end up inside the agents you run. <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs engines such as Claude Code, Codex and Gemini CLI. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup, and <a href="/blog/omniagent-alternatives/">OmniAgent alternatives</a> compares other tools that run several agents.</p>
+<h2 id="what-is-inkling-2-mini" tabindex="-1">What is Inkling 2 Mini? <a class="anchor" href="#what-is-inkling-2-mini" aria-hidden="true">#</a></h2>
+<p>Inkling 2 Mini is a looped transformer: in Thinking Machines’ words, it runs “the middle layers of the model three times for every token”. The post says this lets it “apply more reasoning and reach the right answer with fewer tokens, especially on tasks such as agentic coding that depend on reasoning quality.”</p>
+<p>The model has 24 layers in four blocks of six, and “The two middle blocks run three times, while the first and last blocks each run once.” In the post’s diagram the Prelude runs once, the middle blocks run as Pass 1, Pass 2 and Pass 3, and the Final block runs once.</p>
+<figure class="mg" data-scene="rollercoaster"><img src="/blog/assets/media/inkling-2-mini/rollercoaster.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white rollercoaster track runs from a sky sign reading Prelude to a mint sign reading Final block, with one blue loop in the middle. A yellow car goes around the blue loop three times while a lilac board above it counts Pass 1, Pass 2 and Pass 3, then rolls on to Final block. Tap the track to send the car around again."><figcaption>The two middle blocks run three times for every token, per Thinking Machines' post of 20 Nov 2026.</figcaption></figure>
+<h2 id="how-big-is-inkling-2-mini-and-what-does-it-need-to-run" tabindex="-1">How big is Inkling 2 Mini, and what does it need to run? <a class="anchor" href="#how-big-is-inkling-2-mini-and-what-does-it-need-to-run" aria-hidden="true">#</a></h2>
+<p>Inkling 2 Mini has 26.4B total parameters with 3.4B active and needs about 20GB of memory, per the launch post of 20 Nov 2026. It is a Mixture of Experts model, and counting the loops the post gives “5.4B weight activations per token”.</p>
+<p>The post says most weights were “trained and are deployed natively in NVFP4, with the last four layers in MXFP8”, so “there is no conversion loss from quantization.”</p>
+<p>The <a href="https://huggingface.co/thinkingmachines/Inkling-2-Mini">Hugging Face card</a>, read 21 Nov 2026, describes “a single checkpoint of about 20GB” and supports one NVIDIA DGX Spark, “Apple silicon devices with 32GB or more memory (MacBooks, Mac minis and Studios)”, and other GPUs “with 32GB or more of VRAM recommended”.</p>
+<figure class="mg" data-scene="suitcase"><img src="/blog/assets/media/inkling-2-mini/suitcase.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white suitcase lies open. Blue blocks labelled NVFP4 slide in, then one smaller lilac block labelled MXFP8, and the lid closes. A yellow luggage tag on the handle reads About 20GB, and a mint tag beside it reads 32GB or more memory. Tap the suitcase to unpack and pack it again."><figcaption>About 20GB of weights, per Thinking Machines' post of 20 Nov 2026. The card supports Apple silicon with 32GB or more memory, read 21 Nov 2026.</figcaption></figure>
+<p>The vendor’s laptop demo: its researchers took the model on a flight, “where it ran offline on a MacBook Pro and built a playable flight simulator in a few minutes”. The video is labelled MacBook Pro (M5 Pro, 48GB) and Airplane mode. The card adds: “Support for looped models in local runtimes is new, and speed varies by runtime and hardware.”</p>
+<h2 id="what-do-inkling-2-minis-benchmarks-say" tabindex="-1">What do Inkling 2 Mini’s benchmarks say? <a class="anchor" href="#what-do-inkling-2-minis-benchmarks-say" aria-hidden="true">#</a></h2>
+<p>On the vendor’s own figures, Inkling 2 Mini scores 48.2% on DeepSWE v1.1 and 46.5% on Vals Index v2.2 (20 Nov 2026). The post says it “leads every open-weights model with less than 100B total parameters” on benchmarks such as these, and its chart note warns: “Evaluation setups vary by model.”</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>The vendor’s own figures, published 20 Nov 2026</th>
+<th>Inkling 2 Mini</th>
+<th>Qwen3.8-27B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DeepSWE v1.1</td>
+<td>48.2%</td>
+<td>42.2%</td>
+</tr>
+<tr>
+<td>Vals Index v2.2</td>
+<td>46.5%</td>
+<td>not listed</td>
+</tr>
+<tr>
+<td>SWEBench Verified</td>
+<td>79.2%</td>
+<td>77.8%</td>
+</tr>
+<tr>
+<td>Terminal Bench v2.1</td>
+<td>71.6%</td>
+<td>73.0%</td>
+</tr>
+<tr>
+<td>MCP Atlas</td>
+<td>82.7%</td>
+<td>77.3%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The post also says Mini “is not the strongest small model for multi-turn chat or for instructions with many constraints”, with 50.0% on MultiChallenge and 33.4% on ComplexConstraints v1.1, behind Qwen3.8-27B on both (20 Nov 2026). It compares Mini with Qwen3.8-27B, not with Qwen’s flagship <a href="/blog/qwen4-max/">Qwen4-Max</a>.</p>
+<p>Our view: these are the maker’s launch day numbers. Run your own tasks before you switch.</p>
+<h2 id="how-do-you-get-and-run-inkling-2-mini" tabindex="-1">How do you get and run Inkling 2 Mini? <a class="anchor" href="#how-do-you-get-and-run-inkling-2-mini" aria-hidden="true">#</a></h2>
+<p>Download the weights from Hugging Face as <code>thinkingmachines/Inkling-2-Mini</code>, under the Apache 2.0 licence, per the card read 21 Nov 2026. The card gives “a context window of up to 1M tokens” and shows no install commands.</p>
+<p>For local inference the card names frameworks including SGLang, vLLM, TokenSpeed, NVIDIA Dynamo, Llama App, Unsloth, llama.cpp “for quantized GGUF versions”, and “Ollama and Exo Labs, on Apple silicon”. At launch, the post says, Thinking Machines supports it on “any Mac system (MacBook, Mac Mini) with at least 32GB RAM via Ollama”.</p>
+<p>The launch post says Mini “is available on Tinker today for inference and customization.” Tinker’s <a href="https://thinkingmachines.ai/tinker/pricing/">pricing page</a>, read 21 Nov 2026, lists Mini for training and sampling: $0.15 prefill, $0.50 sample and $0.75 train per 1M tokens at 64K context, “as of October 19, 2026”. Its serverless inference beta is “Currently available for Inkling 2 Small, Inkling, and Inkling-Small only.” The <a href="https://thinkingmachines.ai/tinker/">overview</a> gives Mini a 256K max context and says “Pay for actual tokens used, not inactive time.”</p>
+<h2 id="how-do-you-use-inkling-2-mini-with-coding-agents" tabindex="-1">How do you use Inkling 2 Mini with coding agents? <a class="anchor" href="#how-do-you-use-inkling-2-mini-with-coding-agents" aria-hidden="true">#</a></h2>
+<p>Thinking Machines gives no setup for coding agents. The card names vLLM, and Ollama on Apple silicon, for local inference, and each agent’s docs below support one or both.</p>
+<p><a href="https://aider.chat/docs/llms/ollama.html">Aider’s Ollama docs</a>, read 21 Nov 2026, say “Aider can connect to local Ollama models.” They warn that “Ollama uses a 2k context window by default”, and say aider raises it to fit each request plus 8k tokens for the reply.</p>
+<p><a href="https://opencode.ai/docs/providers/">OpenCode’s provider docs</a>, read 21 Nov 2026, say it probes a local Ollama server and “discovers completion models”. They add that vLLM also has “built-in local discovery”, and “discovered vLLM models start with tools disabled”. Neither agent’s docs name Inkling 2 Mini.</p>
+<p>The card advises “setting limits on output tokens and agent turns”, warns the model “may take destructive actions, such as deleting or overwriting files, without confirmation”, and says to “Run agentic workloads in a sandbox”. <a href="/blog/aider-alternatives/">Aider alternatives</a> compares agents that take local models, and <a href="/blog/devin-alternatives/">Devin alternatives</a> covers more coding agents.</p>
+<h2 id="how-does-inkling-2-mini-compare-to-inkling-2-small" tabindex="-1">How does Inkling 2 Mini compare to Inkling 2 Small? <a class="anchor" href="#how-does-inkling-2-mini-compare-to-inkling-2-small" aria-hidden="true">#</a></h2>
+<p>Inkling 2 Small is much bigger and scores higher: 594B total parameters and 17B active, per Thinking Machines’ <a href="https://thinkingmachines.ai/news/inkling-2-small/">post</a> of 5 Nov 2026, against Mini’s 26.4B and 3.4B. The card says Mini “is less capable than Inkling 2 Small across most of our evaluations”.</p>
+<figure class="mg" data-scene="matryoshka"><img src="/blog/assets/media/inkling-2-mini/matryoshka.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, two nesting dolls stand side by side on a soft white shelf. A large blue doll labelled Inkling 2 Small wears a yellow tag reading 594B total. Next to it, a much smaller lilac doll labelled Inkling 2 Mini wears a mint tag reading 26.4B total. Tap a doll to make it wobble."><figcaption>Inkling 2 Small has 594B total parameters (5 Nov 2026) and Inkling 2 Mini has 26.4B (20 Nov 2026), per Thinking Machines' own posts.</figcaption></figure>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>The vendor’s own figures</th>
+<th>Inkling 2 Mini, 20 Nov 2026</th>
+<th>Inkling 2 Small, 5 Nov 2026</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameters</td>
+<td>26.4B total, 3.4B active</td>
+<td>594B total, 17B active</td>
+</tr>
+<tr>
+<td>DeepSWE v1.1</td>
+<td>48.2%</td>
+<td>72.1%</td>
+</tr>
+<tr>
+<td>Vals Index v2.2</td>
+<td>46.5%</td>
+<td>56.1%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Our view: Mini is the one its maker sizes for a laptop; Small leads every score above.</p>
+<h2 id="inkling-2-mini-at-a-glance-checked-21-nov-2026" tabindex="-1">Inkling 2 Mini at a glance, checked 21 Nov 2026 <a class="anchor" href="#inkling-2-mini-at-a-glance-checked-21-nov-2026" aria-hidden="true">#</a></h2>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Inkling 2 Mini</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Released</td>
+<td>20 Nov 2026</td>
+</tr>
+<tr>
+<td>Model id</td>
+<td><code>thinkingmachines/Inkling-2-Mini</code></td>
+</tr>
+<tr>
+<td>Licence</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td>Design</td>
+<td>Looped transformer, Mixture of Experts, 24 layers</td>
+</tr>
+<tr>
+<td>Parameters</td>
+<td>26.4B total, 3.4B active</td>
+</tr>
+<tr>
+<td>Weights</td>
+<td>About 20GB, NVFP4 with the last four layers in MXFP8</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>Up to 1M tokens per the card, 256K max on Tinker</td>
+</tr>
+<tr>
+<td>Local hardware</td>
+<td>Apple silicon with 32GB or more memory, one NVIDIA DGX Spark</td>
+</tr>
+<tr>
+<td>Tinker</td>
+<td>Training and sampling, paid per token</td>
+</tr>
+</tbody>
+</table>
+</div>
+<link rel="stylesheet" href="/blog/assets/media/inkling-2-mini/motion.css"><script defer src="/blog/assets/media/inkling-2-mini/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">How much memory does Inkling 2 Mini need?</p>
+          <p class="a">Thinking Machines&#39; launch post of 20 Nov 2026 gives a total memory footprint of about 20GB. The Hugging Face card, read 21 Nov 2026, supports one NVIDIA DGX Spark, &quot;Apple silicon devices with 32GB or more memory&quot;, and other GPUs with 32GB or more of VRAM recommended.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is Inkling 2 Mini open source?</p>
+          <p class="a">Its weights are open. The Hugging Face card for thinkingmachines/Inkling-2-Mini, read 21 Nov 2026, lists the licence as Apache 2.0 and a release date of November 20, 2026.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can Inkling 2 Mini run on a MacBook?</p>
+          <p class="a">Thinking Machines says so. Its post of 20 Nov 2026 says &quot;At launch we support Inkling 2 Mini running on any Mac system (MacBook, Mac Mini) with at least 32GB RAM via Ollama.&quot; Its demo ran offline on a MacBook Pro (M5 Pro, 48GB).</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can I use Inkling 2 Mini with Aider or OpenCode?</p>
+          <p class="a">Thinking Machines gives no setup for coding agents. The Hugging Face card lists Ollama and vLLM for local inference. Aider&#39;s docs say &quot;Aider can connect to local Ollama models&quot;, and OpenCode&#39;s docs say it discovers local Ollama and vLLM models, both read 21 Nov 2026. Neither agent&#39;s docs name Inkling 2 Mini.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How does Inkling 2 Mini compare to Inkling 2 Small?</p>
+          <p class="a">Small is far bigger, with 594B total parameters and 17B active against Mini&#39;s 26.4B and 3.4B, and it scores higher on the vendor&#39;s own figures: 72.1% against 48.2% on DeepSWE v1.1. The Hugging Face card says Mini is less capable than Small across most of Thinking Machines&#39; evaluations.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/ai-agents/">AI Agents</a><a class="tag" href="/blog/tags/models/">Models</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-is-inkling-2-mini">What is Inkling 2 Mini?</a></li><li class="lvl-2"><a href="#how-big-is-inkling-2-mini-and-what-does-it-need-to-run">How big is Inkling 2 Mini, and what does it need to run?</a></li><li class="lvl-2"><a href="#what-do-inkling-2-minis-benchmarks-say">What do Inkling 2 Mini’s benchmarks say?</a></li><li class="lvl-2"><a href="#how-do-you-get-and-run-inkling-2-mini">How do you get and run Inkling 2 Mini?</a></li><li class="lvl-2"><a href="#how-do-you-use-inkling-2-mini-with-coding-agents">How do you use Inkling 2 Mini with coding agents?</a></li><li class="lvl-2"><a href="#how-does-inkling-2-mini-compare-to-inkling-2-small">How does Inkling 2 Mini compare to Inkling 2 Small?</a></li><li class="lvl-2"><a href="#inkling-2-mini-at-a-glance-checked-21-nov-2026">Inkling 2 Mini at a glance, checked 21 Nov 2026</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/agent-tools-today-2026-11-20/"><span class="k">← Older</span><span class="t">Agent Tools Today, 20 Nov 2026: Codex 0.171.0, Claude Code v2.1.329 and Claude on Black Holes</span></a>
+      <a class="pn next" href="/blog/devin-alternatives/"><span class="k">Newer →</span><span class="t">Devin Alternatives: 6 Picks for Autonomous Coding (Nov 2026)</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-claude-bughunter/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-claude-bughunter/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-claude-bughunter/">What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting</a></h3>
+    <p class="dek">Claude-BugHunter (elementalsouls) is a Claude Code skill bundle for bug hunting. What is inside, how to install it, and the written authorisation it expects.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-claude-bughunter/" aria-label="Read: What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-cli-anything/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-cli-anything/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-cli-anything/">What is CLI-Anything? A Command Line for Any App, for AI Agents</a></h3>
+    <p class="dek">CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-cli-anything/" aria-label="Read: What is CLI-Anything? A Command Line for Any App, for AI Agents">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-cogentic/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-cogentic/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-cogentic/">What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs</a></h3>
+    <p class="dek">Cogentic is a Google research harness where AI agents find and check proofs. Its factoring paper&#39;s bound is subexponential, not polynomial; it never names RSA.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-cogentic/" aria-label="Read: What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

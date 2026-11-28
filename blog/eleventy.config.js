@@ -54,6 +54,53 @@ export default function (eleventyConfig) {
       .sort((a, b) => b.date - a.date)
   );
 
+  // Pinned pillar guides (`pinned: true`), in `pinOrder`. They sit above the
+  // newest post on the index and first on their topic page, so a fast publishing
+  // pace never pushes the reference guides off the top.
+  const pinRank = (p) => (p.data.pinned ? (p.data.pinOrder ?? 99) : 1e9);
+  eleventyConfig.addCollection("pinned", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && p.data.pinned)
+      .sort((a, b) => pinRank(a) - pinRank(b) || b.date - a.date)
+  );
+
+  // Everything else, newest first: the index features the first of these.
+  eleventyConfig.addCollection("unpinned", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && !p.data.pinned)
+      .sort((a, b) => b.date - a.date)
+  );
+
+  // "Start here" on the blog index: the guides marked `startHere: true`, in
+  // `startOrder`. The index adds the newest posts after them. Pillars keep
+  // `pinned` for topic pages; it no longer puts them in Start here.
+  eleventyConfig.addCollection("startHere", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && p.data.startHere)
+      .sort((a, b) => (a.data.startOrder ?? 99) - (b.data.startOrder ?? 99) || b.date - a.date)
+  );
+
+  // Every other post, newest first: the newest few join Start here and the
+  // rest fill the index grid, pillars included.
+  eleventyConfig.addCollection("notStartHere", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && !p.data.startHere)
+      .sort((a, b) => b.date - a.date)
+  );
+
+  // Featured posts for the blog home hero, newest first. Opt a post in with
+  // `featured: true` in its frontmatter; the newest one leads the hero.
+  eleventyConfig.addCollection("featured", (api) =>
+    api
+      .getFilteredByGlob("src/posts/*.md")
+      .filter((p) => !p.data.draft && p.data.featured)
+      .sort((a, b) => b.date - a.date)
+  );
+
   // Topic clusters (categories) — derived from each post's `category` field.
   eleventyConfig.addCollection("categories", (api) => {
     const map = {};
@@ -67,7 +114,7 @@ export default function (eleventyConfig) {
       .map(([name, posts]) => ({
         name,
         slug: slugify(name),
-        posts: posts.sort((a, b) => b.date - a.date),
+        posts: posts.sort((a, b) => pinRank(a) - pinRank(b) || b.date - a.date),
       }))
       .sort((a, b) => b.posts.length - a.posts.length);
   });
@@ -105,6 +152,14 @@ export default function (eleventyConfig) {
   );
   eleventyConfig.addFilter("htmlDate", (d) =>
     DateTime.fromJSDate(d, { zone: "utc" }).toFormat("yyyy-LL-dd")
+  );
+  // Newest publish or update date across posts. The sitemap uses it for the
+  // home page lastmod so a rebuild on a later day does not change the file.
+  eleventyConfig.addFilter("newestPostDate", (posts) =>
+    (posts || []).reduce((max, p) => {
+      const d = new Date(p.data.updated || p.date);
+      return d > max ? d : max;
+    }, new Date(0))
   );
 
   // Reading time from rendered HTML / raw content (~225 wpm).
@@ -206,6 +261,9 @@ export default function (eleventyConfig) {
   <div class="ph-art"><span class="yt-badge" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg></span><span class="ph-note">video on its way</span><span class="yt-ph-title">${safeTitle}</span></div>
 </div>`;
     }
+    if (!/^[A-Za-z0-9_-]{11}$/.test(String(id))) {
+      throw new Error(`youtube shortcode: "${id}" is not an 11 character YouTube video id`);
+    }
     return `<div class="yt" data-yt="${id}" data-title="${safeTitle}">
   <button type="button" class="yt-load" aria-label="Play video: ${safeTitle}">
     <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy" decoding="async" />
@@ -220,6 +278,23 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("heroReady", (slug) => media[slug]?.hero?.status === "ready");
   eleventyConfig.addFilter("heroFile", (slug) => media[slug]?.hero?.file || "");
   eleventyConfig.addFilter("heroAlt", (slug) => media[slug]?.hero?.alt || "");
+
+  // Link preview (og:image / twitter:image) for a post: its own hero once it is
+  // ready, so a shared link shows the post's picture instead of the site default.
+  // Width and height come from the PNG header so Facebook and LinkedIn can draw
+  // the card on the first share without fetching the file first.
+  eleventyConfig.addFilter("heroOg", (slug) => {
+    const hero = media[slug]?.hero;
+    if (hero?.status !== "ready" || !hero.file) return false;
+    const png = readFileSync(`src/${hero.file}`);
+    const isPng = png.toString("ascii", 12, 16) === "IHDR";
+    return {
+      path: `${BASE}/${hero.file}`,
+      alt: hero.alt || "",
+      width: isPng ? png.readUInt32BE(16) : 0,
+      height: isPng ? png.readUInt32BE(20) : 0,
+    };
+  });
 
   // ---- config ----
   return {

@@ -99,29 +99,80 @@ function dedupKey(ev) {
   return channel && ts ? `${channel}:${ts}` : '';
 }
 
+/** Shared messages kept per message, and the most text kept of each. */
+const MAX_SHARES_PER_MESSAGE = 3;
+const SHARE_TEXT_MAX = 500;
+
+/**
+ * Where a message was written (0.5.6): 'dm' for a direct message to the bot,
+ * 'group' for a group direct message, else 'channel'. Slack says it in
+ * `channel_type` on a message event; history rows and `app_mention` carry no
+ * type, so a `D…` id reads as a direct message and anything else as a channel.
+ */
+function slackPlace(ev) {
+  if (!ev) return 'channel';
+  if (ev.channel_type === 'im') return 'dm';
+  if (ev.channel_type === 'mpim') return 'group';
+  if (!ev.channel_type && typeof ev.channel === 'string' && ev.channel.startsWith('D')) return 'dm';
+  return 'channel';
+}
+
+/** The channel filter as a list: one id, several, or none (any channel). */
+function channelList(channelId) {
+  const raw = Array.isArray(channelId) ? channelId : (typeof channelId === 'string' ? channelId.split(',') : []);
+  return raw.map((c) => (typeof c === 'string' ? c.trim() : '')).filter(Boolean);
+}
+
+/** Messages shared or quoted into this one (Slack sends them as attachments):
+ *  who wrote it, its text and its link. Anything else in `attachments` (a link
+ *  preview, a bot card) is left out. */
+function sharedMessages(ev) {
+  return (Array.isArray(ev && ev.attachments) ? ev.attachments : [])
+    .filter((a) => a && (a.is_share === true || a.is_msg_unfurl === true))
+    .map((a) => {
+      const text = typeof a.text === 'string' && a.text ? a.text : (typeof a.fallback === 'string' ? a.fallback : '');
+      return {
+        text: text.length > SHARE_TEXT_MAX ? `${text.slice(0, SHARE_TEXT_MAX)}…` : text,
+        author: typeof a.author_name === 'string' && a.author_name ? a.author_name : (typeof a.author_id === 'string' ? a.author_id : undefined),
+        url: typeof a.from_url === 'string' && a.from_url ? a.from_url : undefined
+      };
+    })
+    .filter((a) => a.text)
+    .slice(0, MAX_SHARES_PER_MESSAGE);
+}
+
+const NO_TRIGGER = { trigger: false, text: '', files: [], place: 'channel', shares: [] };
+
 /**
  * Decide whether a Slack event should trigger onMessage.
  *
  * @param ev              - The `payload.event` object (any shape, may be partial)
  * @param botUserId       - Cached bot user id (string) or null if not yet known
- * @param channelId       - Channel filter (string) or null/undefined for any channel
+ * @param channelId       - Channel filter: one id, a list of ids, or null/undefined/empty
+ *                          for any channel. A direct message and a group direct message
+ *                          are never filtered: the filter names channels (0.5.6).
  * @param activatedThreads - Mutable ActivatedThreads instance (mutated on mention)
- * @returns {{ trigger: boolean, text: string, files: object[] }} — trigger: whether to
- *          fire onMessage; text: the raw ev.text string (stripping is done in the caller);
- *          files: raw Slack file metadata extracted from ev.files[] (empty when none).
+ * @returns {{ trigger: boolean, text: string, files: object[], place: string, shares: object[] }}
+ *          trigger: whether to fire onMessage; text: the raw ev.text string (stripping is
+ *          done in the caller); files: raw Slack file metadata extracted from ev.files[]
+ *          (empty when none); place: 'channel', 'group' or 'dm'; shares: messages shared
+ *          into this one.
  */
 function shouldTrigger(ev, botUserId, channelId, activatedThreads) {
-  if (!ev) return { trigger: false, text: '', files: [] };
+  if (!ev) return NO_TRIGGER;
+
+  const place = slackPlace(ev);
 
   // Channel filter
-  const channelOk = !channelId || ev.channel === channelId;
-  if (!channelOk) return { trigger: false, text: '', files: [] };
+  const allowed = channelList(channelId);
+  const channelOk = place !== 'channel' || allowed.length === 0 || allowed.includes(ev.channel);
+  if (!channelOk) return NO_TRIGGER;
 
   // Self-loop + subtype safety: never trigger on bot posts, edits, joins, etc.
   // file_share IS allowed through — a file upload is eligible if it @-mentions the
   // bot or lands in an activated thread. All other subtypes remain blocked.
   if (ev.bot_id || (ev.subtype && ev.subtype !== 'file_share')) {
-    return { trigger: false, text: '', files: [] };
+    return NO_TRIGGER;
   }
 
   const text = typeof ev.text === 'string' ? ev.text : '';
@@ -135,11 +186,15 @@ function shouldTrigger(ev, botUserId, channelId, activatedThreads) {
   // Is this a reply inside a thread where the bot was already mentioned?
   const isActivatedThread = !!(ev.thread_ts && activatedThreads.has(ev.thread_ts));
 
-  if (!isMention && !isActivatedThread) return { trigger: false, text: '', files: [] };
+  // A direct message is written to the bot: every one of them is for it, with
+  // no mention. A group direct message follows the channel rule.
+  const isDirect = place === 'dm';
+
+  if (!isMention && !isActivatedThread && !isDirect) return NO_TRIGGER;
 
   // On mention: activate the thread so future replies in it also trigger.
   // Use thread_ts if the mention is itself a reply, else the message's own ts.
-  if (isMention) {
+  if (isMention || isDirect) {
     const threadRoot = ev.thread_ts || ev.ts;
     if (threadRoot) activatedThreads.add(threadRoot);
   }
@@ -152,20 +207,71 @@ function shouldTrigger(ev, botUserId, channelId, activatedThreads) {
     .map((f) => ({
       id: f.id,
       url_private: f.url_private,
+      // Preferred fetch URL: forces a file download (Content-Disposition) and is
+      // less likely to bounce through an auth redirect than url_private.
+      url_private_download: typeof f.url_private_download === 'string' ? f.url_private_download : undefined,
       name: typeof f.name === 'string' ? f.name : undefined,
       mimetype: typeof f.mimetype === 'string' ? f.mimetype : undefined,
       size: typeof f.size === 'number' ? f.size : undefined,
     }));
 
-  return { trigger: true, text, files };
+  return { trigger: true, text, files, place, shares: sharedMessages(ev) };
 }
+
+// ─── Slack file download helpers (pure; used by index.ts downloadSlackFile) ───
+// Kept here so they are unit testable without importing electron.
+
+/** The URL to fetch for a Slack file: prefer `url_private_download` (forces an
+ *  attachment download and is less likely to bounce through an auth redirect),
+ *  falling back to `url_private`. Undefined when neither is present. */
+function slackFileUrl(file) {
+  if (!file) return undefined;
+  const dl = typeof file.url_private_download === 'string' && file.url_private_download ? file.url_private_download : null;
+  const pv = typeof file.url_private === 'string' && file.url_private ? file.url_private : null;
+  return dl || pv || undefined;
+}
+
+/** True only for Slack's own hosts. The bot token is sent ONLY to a Slack host,
+ *  on the first request and on every redirect, so it never leaks to a foreign
+ *  or CDN host (a signed redirect target is fetched WITHOUT Authorization). */
+function isSlackHost(host) {
+  if (typeof host !== 'string' || !host) return false;
+  const h = host.toLowerCase();
+  return h === 'slack.com' || h.endsWith('.slack.com');
+}
+
+/**
+ * Detect an auth redirect or login HTML stub so it is NEVER saved as the file.
+ * Slack answers a files-pri URL fetched without valid auth with a redirect to a
+ * login page (body: `<a href="…redir=…">Found</a>`); writing that body was a
+ * silent data loss bug.
+ * @param {string|undefined} contentType response content-type header
+ * @param {Buffer|string} head the first bytes of the body
+ */
+function looksLikeHtmlStub(contentType, head) {
+  if (typeof contentType === 'string' && /text\/html/i.test(contentType)) return true;
+  const s = (Buffer.isBuffer(head) ? head.subarray(0, 512).toString('utf8') : String(head || ''))
+    .trimStart().toLowerCase();
+  return s.startsWith('<!doctype html') || s.startsWith('<html') ||
+         s.startsWith('<head') || s.startsWith('<a href') || s.startsWith('<body');
+}
+
+/** Max redirects to follow before giving up (guards against redirect loops). */
+const SLACK_FILE_MAX_REDIRECTS = 5;
 
 module.exports = {
   shouldTrigger,
+  slackPlace,
+  channelList,
+  sharedMessages,
   ActivatedThreads,
   SeenEvents,
   dedupKey,
   ACTIVATED_THREADS_MAX,
   SEEN_EVENTS_MAX,
   MAX_FILES_PER_MESSAGE,
+  slackFileUrl,
+  isSlackHost,
+  looksLikeHtmlStub,
+  SLACK_FILE_MAX_REDIRECTS,
 };

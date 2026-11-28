@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How to Connect Slack to Munder Difflin 0.5.2 — Munder Difflin Blog</title>
+<meta name="description" content="Connect Slack to Munder Difflin 0.5.2: create the Slack app, add the bot scopes, pick one of three connection modes, and get answers in the thread." />
+<link rel="canonical" href="https://munderdiffl.in/blog/connect-slack-to-munder-difflin/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="How to Connect Slack to Munder Difflin 0.5.2 — Munder Difflin Blog" />
+<meta property="og:description" content="Connect Slack to Munder Difflin 0.5.2: create the Slack app, add the bot scopes, pick one of three connection modes, and get answers in the thread." />
+<meta property="og:url" content="https://munderdiffl.in/blog/connect-slack-to-munder-difflin/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/connect-slack-to-munder-difflin/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="The Slack card in Munder Difflin 0.5.2 settings, with the bot token field, required scopes and Test connection" />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-09-14T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Guides" />
+<meta property="article:tag" content="Slack" />
+<meta property="article:tag" content="Integrations" />
+<meta property="article:tag" content="Getting Started" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="How to Connect Slack to Munder Difflin 0.5.2 — Munder Difflin Blog" />
+<meta name="twitter:description" content="Connect Slack to Munder Difflin 0.5.2: create the Slack app, add the bot scopes, pick one of three connection modes, and get answers in the thread." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/connect-slack-to-munder-difflin/hero.png" />
+<meta name="twitter:image:alt" content="The Slack card in Munder Difflin 0.5.2 settings, with the bot token field, required scopes and Test connection" />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Connect Slack to Munder Difflin 0.5.2",
+  "description": "Connect Slack to Munder Difflin 0.5.2: create the Slack app, add the bot scopes, pick one of three connection modes, and get answers in the thread.",
+  "image": ["https://munderdiffl.in/blog/assets/media/connect-slack-to-munder-difflin/hero.png"],
+  "datePublished": "2026-09-14T00:00:00.000Z",
+  "dateModified": "2026-09-14T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/connect-slack-to-munder-difflin/" },
+  "keywords": "connect slack to munder difflin, munder difflin slack, slack bot token scopes for ai agents, slack socket mode ai agent, run ai agents from slack, slack polling vs socket mode",
+  "articleSection": "Guides",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/connect-slack-to-munder-difflin/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "How to Connect Slack to Munder Difflin 0.5.2", "item": "https://munderdiffl.in/blog/connect-slack-to-munder-difflin/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Do I need Pro to connect Slack?", "acceptedAnswer": { "@type": "Answer", "text": "No. Slack lives under Settings, Connections, which every plan has. Pro adds a Slack view to the Inbox, where you can see what came in and reply in the thread." } },
+    { "@type": "Question", "name": "Can I turn on more than one Slack mode at once?", "acceptedAnswer": { "@type": "Answer", "text": "No. Munder Difflin 0.5.2 runs one mode at a time. Switching stops the current one, and you press Turn on (or start, for Let Slack call the office) for the new mode." } },
+    { "@type": "Question", "name": "Do my agents get the Slack bot token?", "acceptedAnswer": { "@type": "Answer", "text": "Agents are never handed it. They reply through a small helper that sends the reply to a local endpoint inside the app, and the endpoint holds the token; the agent only passes the channel, the thread and the text. The token is still saved in the app's config file on your machine, which an agent with full file access could read." } },
+    { "@type": "Question", "name": "Does the bot answer direct messages?", "acceptedAnswer": { "@type": "Answer", "text": "Not in 0.5.2. It listens in channels the bot was invited to, public or private: the one channel you pick, or with Stay connected and no channel picked, every channel the bot is in. It acts on messages that mention it or reply in a thread where it was mentioned." } },
+    { "@type": "Question", "name": "What happens to messages sent while my laptop is asleep?", "acceptedAnswer": { "@type": "Answer", "text": "Check for messages picks them up on its next check. Stay connected picks them up with its catch up check if you picked a channel. Let Slack call the office loses them." } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-guides">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/guides/">Guides</a>
+    </nav>
+    <h1>How to Connect Slack to Munder Difflin 0.5.2</h1>
+    <p class="dek">Connect Slack to Munder Difflin 0.5.2: create the Slack app, add the bot scopes, pick one of three connection modes, and get answers in the thread.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-09-14">Sep 14, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Guides</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/connect-slack-to-munder-difflin/hero.png" alt="The Slack card in Munder Difflin 0.5.2 settings, with the bot token field, required scopes and Test connection" loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>To connect Slack to <a href="https://harnessmd.com/download">Munder Difflin</a> 0.5.2, create a Slack app with four bot scopes (six to list channels), paste the bot token under Settings, Connections, Slack, press Test connection, pick the channel and press Turn on. Then mention the bot in that channel, and your orchestrator or the agent you chose answers in the thread.</p>
+<p>Slack is on every plan, free included. If the app is not installed yet, start with <a href="/blog/how-to-install-and-use-munder-difflin/">how to install Munder Difflin</a>. Every mode needs the app open and the laptop awake, because the connection runs on your machine. This guide was checked against the 0.5.2 source and its Settings screens on 14 Sep 2026. Our <a href="/blog/run-ai-agent-hive-from-slack-setup/">older Slack guides</a> cover the ideas, and this page covers the current setup.</p>
+<h2 id="which-slack-mode-should-you-pick" tabindex="-1">Which Slack mode should you pick? <a class="anchor" href="#which-slack-mode-should-you-pick" aria-hidden="true">#</a></h2>
+<p>Pick <strong>Check for messages</strong> unless you need instant replies. Under <strong>How Slack reaches the office</strong>, 0.5.2 offers three modes, and only one runs at a time.</p>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>What it needs</th>
+<th>Speed</th>
+<th>While the laptop sleeps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Check for messages</td>
+<td>Bot token</td>
+<td>Checks every 30 seconds to 5 minutes, 1 minute by default</td>
+<td>Caught up on the next check</td>
+</tr>
+<tr>
+<td>Stay connected (Socket Mode)</td>
+<td>Bot token and app token</td>
+<td>Instant</td>
+<td>A catch up check (1 minute to 1 hour, 5 minutes by default, or off) picks it up, if you picked a channel</td>
+</tr>
+<tr>
+<td>Let Slack call the office (Events API)</td>
+<td>Bot token, signing secret, a port and a public tunnel</td>
+<td>Instant</td>
+<td>Lost</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The first two need no public URL. The app itself calls the third one Advanced, for a reason: its Request URL is a tunnel that changes every time you start it, so you paste it into Slack again after each restart.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/connect-slack-to-munder-difflin/modes.png" alt="How Slack reaches the office: Check for messages, Stay connected and Let Slack call the office, with Check every and Channel ID" loading="lazy" decoding="async" /></figure>
+<h2 id="how-do-you-create-the-slack-app" tabindex="-1">How do you create the Slack app? <a class="anchor" href="#how-do-you-create-the-slack-app" aria-hidden="true">#</a></h2>
+<p>These steps are for Check for messages, the recommended mode. Slack’s own <a href="https://docs.slack.dev/app-management/quickstart-app-settings">app settings quickstart</a> covers the same screens.</p>
+<ol>
+<li>Go to <a href="https://api.slack.com/apps">api.slack.com/apps</a>, choose <strong>Create New App</strong> and start from a blank app (older Slack screens say <strong>From scratch</strong>). Name it Munder Difflin and pick your workspace.</li>
+<li>Open <strong>OAuth &amp; Permissions</strong> and add these <strong>Bot Token Scopes</strong>: <code>channels:history</code>, <code>groups:history</code>, <code>chat:write</code> and <code>files:read</code>. Also add <code>channels:read</code> and <code>groups:read</code>, so the app can list the channels the bot is in instead of asking you for an id.</li>
+<li>Choose <strong>Install to Workspace</strong>. If your workspace needs admin approval, this is where you wait for it.</li>
+<li>Copy the <strong>Bot User OAuth Token</strong>. It starts with <code>xoxb-</code>.</li>
+<li>In the Slack channel you want the bot to watch, run <code>/invite @MunderDifflin</code>.</li>
+</ol>
+<p>The Slack card has a shorter version of these steps behind the <strong>i</strong> next to Slack integration.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/connect-slack-to-munder-difflin/steps.png" alt="The in app connect steps for Check for messages" loading="lazy" decoding="async" /></figure>
+<p>For <strong>Stay connected</strong>, do two more things in the same Slack app:</p>
+<ul>
+<li>Turn on <strong>Socket Mode</strong>. Under <strong>Basic Information</strong>, <strong>App-Level Tokens</strong>, generate a token with the <code>connections:write</code> scope. It starts with <code>xapp-</code>; Slack’s <a href="https://docs.slack.dev/authentication/tokens">token docs</a> explain the difference between bot and app-level tokens.</li>
+<li>Under <strong>Event Subscriptions</strong>, enable events and subscribe to the bot events <code>message.channels</code> and <code>message.groups</code>. No Request URL is needed. Reinstall if Slack asks.</li>
+</ul>
+<h2 id="where-do-the-tokens-go-in-munder-difflin" tabindex="-1">Where do the tokens go in Munder Difflin? <a class="anchor" href="#where-do-the-tokens-go-in-munder-difflin" aria-hidden="true">#</a></h2>
+<p>Open <strong>Settings</strong>, then <strong>Connections</strong>.</p>
+<ol>
+<li>At the top, <strong>Who answers inbound messages</strong> decides who gets Slack requests. The default is your orchestrator, Michael unless you renamed him, and the app recommends keeping it. You can pick any agent instead. If that agent is not running, the orchestrator takes the request.</li>
+<li>In the <strong>Slack</strong> card, open <strong>Advanced</strong>, then choose your mode under <strong>How Slack reaches the office</strong>. Check for messages is selected to begin with.</li>
+<li>Paste the <code>xoxb-</code> token into <strong>Bot token</strong>. For Stay connected, paste the <code>xapp-</code> token into <strong>App token</strong>.</li>
+<li>Press <strong>Test connection</strong>. If the bot is in one channel, the app uses it. If it is in several, pick one. If you skipped the two read scopes, type the channel id into <strong>Channel ID</strong> under Advanced instead; it starts with <code>C</code>. Stay connected needs no channel, because it hears every channel the bot is in, but pick one if you want the catch up check.</li>
+<li>Set <strong>Check every</strong> (or <strong>Catch up every</strong> for Stay connected), then press <strong>Turn on</strong>.</li>
+</ol>
+<p>When it works, the card shows a status line in the form “Checking <workspace> as @<bot>, last check <time>, next <time>”.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/connect-slack-to-munder-difflin/who.png" alt="The Who answers inbound messages list with Michael recommended" loading="lazy" decoding="async" /></figure>
+<p>For Stay connected, the card adds the <strong>App token</strong> field beside the bot token, and <strong>Check every</strong> becomes <strong>Catch up every</strong>.</p>
+<figure class="fig fig-inline"><img src="/blog/assets/media/connect-slack-to-munder-difflin/stay.png" alt="The Slack card set to Stay connected, with Bot token and App token fields and Catch up every" loading="lazy" decoding="async" /></figure>
+<h2 id="what-happens-when-someone-mentions-the-bot" tabindex="-1">What happens when someone mentions the bot? <a class="anchor" href="#what-happens-when-someone-mentions-the-bot" aria-hidden="true">#</a></h2>
+<p>Mention the bot in the watched channel. From then on, every reply in that thread counts too, without another mention; Check for messages follows threads active in the last 24 hours. The app ignores bot posts and edited messages, so the bot never answers itself. A file upload counts if it mentions the bot or lands in a watched thread, and attachments up to 10 MB are downloaded for the agent.</p>
+<p>The request lands as a Slack request with the agent set under <strong>Who answers inbound messages</strong>, your orchestrator by default. <a href="/blog/how-the-god-orchestrator-works/">How the orchestrator routes work</a> explains how he picks an agent from there. His instructions for these are strict: pick one agent quickly, hand over the exact reply command, ask no interactive questions, and pause only for high risk actions. The agent replies in the same thread through a helper that sends the reply to a local endpoint holding the bot token, so agents are never handed the token. It is still stored in the app’s config file, so keep agents that have full file access in mind. When the task card reaches done, the app posts one summary to the thread, unless the agent already replied itself.</p>
+<p>Two switches matter here:</p>
+<ul>
+<li><strong>Post in Slack on its own</strong> is off by default. While it is off, the office only answers inside a thread someone already started. Replies to work sent from Slack still go back to their own thread.</li>
+<li>If you want the orchestrator to bring in a temp for a Slack request, turn on <strong>Can start agents on its own</strong> in his <strong>Configuration</strong> tab. It is off after setup.</li>
+</ul>
+<p>On Pro, the <strong>Inbox</strong> has a <strong>Slack</strong> view under <strong>Outside</strong>, showing what came in and what was posted.</p>
+<h2 id="what-goes-wrong-most-often" tabindex="-1">What goes wrong most often? <a class="anchor" href="#what-goes-wrong-most-often" aria-hidden="true">#</a></h2>
+<p>Check these first: a missing scope, a missing invite, or a sleeping laptop.</p>
+<ul>
+<li><strong>Nothing answers.</strong> The app is closed or the laptop is asleep. Check for messages catches up when it wakes; Let Slack call the office does not.</li>
+<li><strong>“The bot is not in any channel yet.”</strong> Run <code>/invite @MunderDifflin</code> in the channel and press Test connection again.</li>
+<li><strong>It asks you to type the channel id.</strong> The app lacks <code>channels:read</code> and <code>groups:read</code>. Add them, reinstall the Slack app, and the list fills in.</li>
+<li><strong>A private channel stays silent.</strong> The bot needs <code>groups:history</code> and has to be invited to that channel.</li>
+<li><strong>Let Slack call the office stopped after a restart.</strong> The Request URL changed. Paste the new one into Event Subscriptions.</li>
+</ul>
+<p>Once Slack works, point it at real work. <a href="/blog/your-first-hour-with-munder-difflin/">Your First Hour With Munder Difflin</a> shows where a Slack agent fits beside scheduled automations, webhooks and the rest of a Pro office. <a href="https://harnessmd.com/download">Get Munder Difflin</a>.</p>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Do I need Pro to connect Slack?</p>
+          <p class="a">No. Slack lives under Settings, Connections, which every plan has. Pro adds a Slack view to the Inbox, where you can see what came in and reply in the thread.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Can I turn on more than one Slack mode at once?</p>
+          <p class="a">No. Munder Difflin 0.5.2 runs one mode at a time. Switching stops the current one, and you press Turn on (or start, for Let Slack call the office) for the new mode.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Do my agents get the Slack bot token?</p>
+          <p class="a">Agents are never handed it. They reply through a small helper that sends the reply to a local endpoint inside the app, and the endpoint holds the token; the agent only passes the channel, the thread and the text. The token is still saved in the app&#39;s config file on your machine, which an agent with full file access could read.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Does the bot answer direct messages?</p>
+          <p class="a">Not in 0.5.2. It listens in channels the bot was invited to, public or private: the one channel you pick, or with Stay connected and no channel picked, every channel the bot is in. It acts on messages that mention it or reply in a thread where it was mentioned.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What happens to messages sent while my laptop is asleep?</p>
+          <p class="a">Check for messages picks them up on its next check. Stay connected picks them up with its catch up check if you picked a channel. Let Slack call the office loses them.</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/guides/">Guides</a><a class="tag" href="/blog/tags/slack/">Slack</a><a class="tag" href="/blog/tags/integrations/">Integrations</a><a class="tag" href="/blog/tags/getting-started/">Getting Started</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#which-slack-mode-should-you-pick">Which Slack mode should you pick?</a></li><li class="lvl-2"><a href="#how-do-you-create-the-slack-app">How do you create the Slack app?</a></li><li class="lvl-2"><a href="#where-do-the-tokens-go-in-munder-difflin">Where do the tokens go in Munder Difflin?</a></li><li class="lvl-2"><a href="#what-happens-when-someone-mentions-the-bot">What happens when someone mentions the bot?</a></li><li class="lvl-2"><a href="#what-goes-wrong-most-often">What goes wrong most often?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/grok-bot-alternatives/"><span class="k">← Older</span><span class="t">Grok Bot Alternatives: 9 Picks, Hosted or on Your Computer</span></a>
+      <a class="pn next" href="/blog/codex-max-plan-tips/"><span class="k">Newer →</span><span class="t">Codex Max Plan? What ChatGPT Pro Gives You in Codex (Oct 2026)</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Guides</h2>
+      <div class="post-grid">
+        <article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/check-agent-skill-before-install/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/check-agent-skill-before-install/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-28">Nov 28, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/check-agent-skill-before-install/">Agent Skill Security: How to Check a Skill Before You Install It</a></h3>
+    <p class="dek">Agent skill security in 8 checks: read SKILL.md and its scripts, find network calls and remote scripts, pin a commit, scan it, keep prompts on.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/check-agent-skill-before-install/" aria-label="Read: Agent Skill Security: How to Check a Skill Before You Install It">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/app-store-rejection-checklist/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/app-store-rejection-checklist/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/app-store-rejection-checklist/">App Store Rejection Checklist: Catch It Before Review With AI</a></h3>
+    <p class="dek">An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/app-store-rejection-checklist/" aria-label="Read: App Store Rejection Checklist: Catch It Before Review With AI">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-guides">
+  <a class="thumb t-guides" href="/blog/google-workspace-mcp-servers/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/google-workspace-mcp-servers/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/google-workspace-mcp-servers/">Google Workspace MCP Servers: What They Can Do and How to Connect</a></h3>
+    <p class="dek">Google Workspace MCP servers went GA on 24 Nov 2026: the eight servers and their tools, setup for Claude and Antigravity, the agent OAuth rule and tiers.</p>
+    <div class="foot">
+      <span class="tag kind">Guides</span>
+      <a class="more" href="/blog/google-workspace-mcp-servers/" aria-label="Read: Google Workspace MCP Servers: What They Can Do and How to Connect">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -16,6 +16,7 @@
       <time datetime="{{ p.date | htmlDate }}">{{ p.date | readableDate }}</time>
       <span class="dot" aria-hidden="true"></span>
       <span>{{ p.content | readingTime }} min</span>
+      {%- if d.pinned %}<span class="pin">Pinned</span>{% endif %}
     </div>
     <h3><a href="{{ p.url | u }}">{{ d.title }}</a></h3>
     {% if d.description %}<p class="dek">{{ d.description }}</p>{% endif %}

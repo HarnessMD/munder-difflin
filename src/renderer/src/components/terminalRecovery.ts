@@ -29,7 +29,7 @@ export function normalizePtyChunk(value: unknown): string {
  *  set up front, before the fire-and-forget IPC resolved — so a redraw that
  *  failed or raced left a terminal that had already consumed its one chance,
  *  with no output to repaint it and no retry path. That is a blank pane with a
- *  perfectly healthy pty behind it. A rejected redraw now leaves the latch clear
+ *  perfectly healthy pty behind it. A refused or rejected redraw leaves the latch clear
  *  so the next attach tries again. */
 export function requestInitialPtyRedraw(
   state: TerminalRecoveryState,
@@ -42,7 +42,13 @@ export function requestInitialPtyRedraw(
   try {
     const result = requestRedraw();
     if (result && typeof (result as Promise<unknown>).then === 'function') {
-      void (result as Promise<unknown>).catch(() => {
+      void (result as Promise<unknown>).then((answer) => {
+        // IPC reports a missing/replaced process as a resolved refusal, not a
+        // rejected promise. A later attach must still be able to retry it.
+        if (answer && typeof answer === 'object' && 'ok' in answer && answer.ok === false) {
+          state.initialRedrawRequested = false;
+        }
+      }).catch(() => {
         state.initialRedrawRequested = false;
       });
     }

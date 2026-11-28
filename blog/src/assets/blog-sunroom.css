@@ -39,6 +39,7 @@
 .t-comparisons    { --c: #b5179e; --c-soft: #f8e0f4; }
 .t-use-cases      { --c: #ffb238; --c-soft: #fff1d8; }
 .t-story          { --c: #7bc950; --c-soft: #e9f7e0; }
+.t-news           { --c: #5b7a99; --c-soft: #e3ebf3; }
 .t-default        { --c: #5b5bd6; --c-soft: #e7e7fb; }
 
 * { box-sizing: border-box; }
@@ -327,3 +328,7 @@ footer.site-foot .wrap { padding: 34px 24px; }
 .yt-placeholder .ph-note { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #b7b5d8; }
 .yt-placeholder .yt-ph-title { display: block; color: #fff; font-weight: 800; font-size: 16px; max-width: 480px; text-align: center; }
 .yt-placeholder .ph-art { display: grid; gap: 10px; justify-items: center; padding: 20px; }
+
+/* Pinned pillar guides: "Start here" row on the index and a chip on the card. */
+.pinned-title { margin: 28px 0 12px; font-size: 1.5rem; }
+.card .meta .pin { background: var(--yellow, #FFCA54); color: var(--ink, #1A1320); padding: 2px 8px; border-radius: 999px; }

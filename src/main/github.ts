@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { safeGit } from '../core/gitSafe';
 
 /** A GitHub issue, normalized for the renderer (labels/assignees flattened to names). */
 export interface GHIssue {
@@ -28,12 +29,16 @@ interface RawGHIssue {
  * installed), non-zero exit (e.g. unauthenticated / not a repo), or a JSON
  * parse failure — so callers never have to try/catch.
  */
-export function listIssues(cwd: string): Promise<{ ok: boolean; issues?: GHIssue[]; error?: string }> {
-  return new Promise((resolve) => {
+export async function listIssues(cwd: string): Promise<{ ok: boolean; issues?: GHIssue[]; error?: string }> {
+  // gh runs git in `cwd` to find the repository: with the same safe start as
+  // the app's own git (src/core/gitSafe.ts), through the environment.
+  const safe = await safeGit(cwd, [], { program: 'gh' });
+  if (!safe.ok) return { ok: false, error: safe.error };
+  return new Promise<{ ok: boolean; issues?: GHIssue[]; error?: string }>((resolve) => {
     const proc = spawn(
-      'gh',
+      safe.program,
       ['issue', 'list', '--json', 'number,title,body,assignees,labels,url,state', '--limit', '30'],
-      { cwd }
+      { cwd: safe.cwd, env: safe.env }
     );
     let stdout = '';
     let stderr = '';
@@ -60,7 +65,7 @@ export function listIssues(cwd: string): Promise<{ ok: boolean; issues?: GHIssue
         resolve({ ok: false, error: e instanceof Error ? e.message : String(e) });
       }
     });
-  });
+  }).finally(safe.done);
 }
 
 /** A CI (GitHub Actions) workflow run, normalized for the renderer. */
@@ -88,12 +93,14 @@ interface RawCIRun {
  * installed), non-zero exit (e.g. unauthenticated / not a repo / no Actions),
  * or a JSON parse failure — so callers never have to try/catch.
  */
-export function listCIRuns(cwd: string): Promise<{ ok: boolean; runs?: CIRun[]; error?: string }> {
-  return new Promise((resolve) => {
+export async function listCIRuns(cwd: string): Promise<{ ok: boolean; runs?: CIRun[]; error?: string }> {
+  const safe = await safeGit(cwd, [], { program: 'gh' });
+  if (!safe.ok) return { ok: false, error: safe.error };
+  return new Promise<{ ok: boolean; runs?: CIRun[]; error?: string }>((resolve) => {
     const proc = spawn(
-      'gh',
+      safe.program,
       ['run', 'list', '--limit', '5', '--json', 'name,status,conclusion,url,databaseId'],
-      { cwd }
+      { cwd: safe.cwd, env: safe.env }
     );
     let stdout = '';
     let stderr = '';
@@ -118,5 +125,5 @@ export function listCIRuns(cwd: string): Promise<{ ok: boolean; runs?: CIRun[]; 
         resolve({ ok: false, error: e instanceof Error ? e.message : String(e) });
       }
     });
-  });
+  }).finally(safe.done);
 }

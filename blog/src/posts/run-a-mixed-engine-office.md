@@ -38,7 +38,7 @@ Seven engines can sit on one floor today, and they're not interchangeable — th
 
 - **Claude Code** — the deepest hive citizen. Native hooks drive lifecycle events, inbox draining, HITL gates, and mid-run steering. The natural orchestrator.
 - **Antigravity (Gemini)** — full hive participation via the native `agy-hook` bridge.
-- **OpenAI Codex** — receives the hive protocol as its initial prompt and participates through inbox/outbox routing. A strong pure-coding worker.
+- **OpenAI Codex** — receives the hive protocol as its initial prompt and participates through inbox/outbox routing. A strong pure-coding worker. New to it? Start with [how to install Codex CLI](/blog/how-to-install-codex-cli/).
 - **OpenCode, Crush, pi.dev** — the BYOK trio (shipped in v0.3.1), wired in via native-plugin, proxy, and hooks bridges respectively. Each works as a worker *and* as Michael, and each can point at your own keys or a local model.
 - **GitHub Copilot CLI** — new in [v0.3.3](/blog/launching-munder-difflin-v0-3-3/), the first community-contributed engine (PR #101). Runs in documented print mode (`copilot -p`) with a model picker and `--resume`, authenticated by your existing Copilot login.
 

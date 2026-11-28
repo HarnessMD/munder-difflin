@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import '@xterm/xterm/css/xterm.css';
 import { Icon } from './Icon';
-import { acquireTerminal, attachTerminal, detachTerminal, reflowTerminal } from './terminalPool';
+import { acquireTerminal, attachTerminal, detachTerminal, reflowTerminal, useCliLogin, useCliMissing, type TerminalEntry } from './terminalPool';
+import { createPtyResizeCoalescer, type PtyResizeCoalescer } from './ptyResizeCoalescer';
+import { CliMissingCard } from './CliMissingCard';
+import { CodexFolderCard, useCodexCard } from './CodexFolderCard';
+import { CliLoginModal } from './CliLoginModal';
+import { SleepOverlay } from './SleepOverlay';
 import {
   DEFAULT_TERMINAL_FONT_SIZE,
   MAX_TERMINAL_FONT_SIZE,
@@ -12,12 +18,37 @@ import {
   useTerminalFontSize
 } from './terminalFontSize';
 import { useAppTheme } from '@/design/theme';
+import { useStore } from '@/store/store';
+import { xtermTheme } from '@/design/surfaceTheme';
 
 // Zoom lives in ./terminalFontSize so anything outside the terminal (the message
 // composer) can scale with it too; these aliases keep the call sites below short.
 const DEFAULT_FONT_SIZE = DEFAULT_TERMINAL_FONT_SIZE;
 const MIN_FONT_SIZE = MIN_TERMINAL_FONT_SIZE;
 const MAX_FONT_SIZE = MAX_TERMINAL_FONT_SIZE;
+
+// One per pty, outside the component, so a view that remounts mid drag does
+// not lose the size it was settling.
+const resizeCoalescers = new Map<string, PtyResizeCoalescer>();
+function resizeCoalescerFor(ptyId: string): PtyResizeCoalescer {
+  let c = resizeCoalescers.get(ptyId);
+  if (!c) {
+    c = createPtyResizeCoalescer((g) => { window.cth.resizePty(ptyId, g.cols, g.rows); });
+    resizeCoalescers.set(ptyId, c);
+  }
+  return c;
+}
+
+/** Is the person scrolled up, reading history, rather than at the newest
+ *  output? A tab that comes back keeps that place. */
+function readingHistory(term: { buffer: { active: { viewportY: number; baseY: number } } }): boolean {
+  try {
+    const buf = term.buffer.active;
+    return buf.viewportY < buf.baseY;
+  } catch {
+    return false;
+  }
+}
 
 // v0.3.4: the terminal follows the APP-WIDE theme (design/theme.ts, toggled in
 // the title bar) instead of keeping its own light/dark switch — one theme for
@@ -40,75 +71,10 @@ const zoomBtnStyle: CSSProperties = {
   padding: 0
 };
 
-// Light theme — cream paper. The ANSI "white" / "yellow" / bright slots are
-// remapped to readable dark inks: programs that print white or pale-yellow text
-// (expecting a dark terminal) were previously invisible on the cream background.
-// A single ANSI slot has to serve both roles — coloured *foreground* on cream and
-// a coloured *background* under the dark default ink — which no fixed luminance
-// can satisfy at once. The terminal's `minimumContrastRatio` (see terminalPool.ts)
-// dynamically adjusts the per-cell foreground to keep both roles legible; these
-// values are tuned so the colours stay recognisable and read well natively. The
-// green/yellow are kept deep enough to read as text on cream (the brighter
-// variants are the lighter shades, per terminal convention).
-const lightTheme = {
-  background: '#FCFAF0',
-  foreground: '#1A1320',
-  cursor: '#D96A62',
-  cursorAccent: '#FCFAF0',
-  selectionBackground: '#FFEC99',
-  selectionForeground: '#1A1320',
-  black:        '#1A1320',
-  red:          '#D1453B',
-  green:        '#20904B',    // deep green → readable as text on cream
-  yellow:       '#9C6B00',    // deep amber → readable as text on cream
-  blue:         '#2B6CB0',
-  magenta:      '#8A5CF0',
-  cyan:         '#1F9C94',
-  white:        '#3A2F44',   // default "white" text → dark, so it's visible
-  brightBlack:  '#6B5878',
-  brightRed:    '#E0584E',
-  brightGreen:  '#2E9E54',
-  brightYellow: '#B8860B',
-  brightBlue:   '#3B7DC4',
-  brightMagenta:'#9B72F2',
-  brightCyan:   '#2BA89F',
-  brightWhite:  '#1A1320'
-};
-
-// Dark theme — mirrors the app's dark surface ramp (tokens.css
-// data-cth-theme='dark'). xterm takes literal colours and cannot read CSS
-// custom properties, so these values are RE-STATED rather than referenced, and
-// drift the moment the tokens move: this set was still on the pre-readability
-// ramp (background #1D1C21, the old paper-100) after tokens.css dropped to
-// a softer ground, which would have left every terminal sitting a visible step
-// apart from the panel holding it. Muted-professional ANSI: recognizable hues, no
-// fluorescing on the dark ground; brights are one legible step up, not pastels.
-const darkTheme = {
-  background: '#1A1A1F',        // = --cth-paper-100
-  foreground: '#DEDBD6',        // = --cth-ink-900
-  cursor: '#E08C82',
-  cursorAccent: '#1A1A1F',
-  selectionBackground: '#37363F',
-  selectionForeground: '#DEDBD6',
-  black:        '#222229',
-  red:          '#E08C82',
-  green:        '#74C096',
-  yellow:       '#CFAA57',
-  blue:         '#6FB3C4',
-  magenta:      '#A896E3',
-  cyan:         '#6FB3C4',
-  white:        '#DEDBD6',
-  brightBlack:  '#96919F',
-  brightRed:    '#EBA39C',
-  brightGreen:  '#96CDA9',
-  brightYellow: '#E5C87E',
-  brightBlue:   '#8FC5D1',
-  brightMagenta:'#C0B3EB',
-  brightCyan:   '#8FC5D1',
-  brightWhite:  '#EFEDE9'
-};
-
-const THEMES: Record<PtyTheme, typeof lightTheme> = { light: lightTheme, dark: darkTheme };
+// The palette now comes from design/surfaceTheme.ts. The two hand-maintained
+// literal maps that used to live here are gone: the surface half is READ back off
+// the resolved --cth-* tokens, so it is correct for both themes and cannot drift
+// from tokens.css again. The sixteen ANSI slots stay a table, keyed by theme.
 
 export interface PtyTerminalViewProps {
   ptyId: string;
@@ -122,9 +88,26 @@ export interface PtyTerminalViewProps {
   fullscreen?: boolean;
   /** Edge-to-edge mode for the sidebar tab: no outer chrome/border. */
   embedded?: boolean;
+  /** The agent's engine. Only Grok changes anything: see ansiForProvider. */
+  provider?: string;
+  /** False while the view sits under a tab that is not shown. The
+   *  terminal then leaves the page: no renderer, nothing painted. The view stays
+   *  mounted, so its stream taps stay as they are; true again puts it back at once, painted. */
+  shown?: boolean;
 }
 
-export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFullscreen, fullscreen, embedded }: PtyTerminalViewProps) {
+/** Nothing from the program yet. A resume of a long session can take minutes to print its first byte, and
+ *  until then the pane was blank (the founder's RC4). Read from the terminal itself: nothing held for the grid, and
+ *  the screen untouched (no history, the cursor home, the first row empty). */
+export function noOutputYet(entry: TerminalEntry): boolean {
+  if (entry.exited || (entry.held?.length ?? 0) > 0) return false;
+  const b = entry.term.buffer?.active;
+  if (!b || b.baseY > 0 || b.cursorX > 0 || b.cursorY > 0) return false;
+  const first = b.getLine?.(0);
+  return !first || first.translateToString(true) === '';
+}
+
+export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFullscreen, fullscreen, embedded, provider, shown = true }: PtyTerminalViewProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const onStreamDataRef = useRef(onStreamData);
   onStreamDataRef.current = onStreamData;
@@ -132,38 +115,96 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
   onUserPromptRef.current = onUserPrompt;
   const fontSize = useTerminalFontSize();
   const fontSizeRef = useRef(fontSize);
+  // I2: the engine CLI is not installed; the card sits over the grid until the
+  // person presses its button and the installer (or the CLI) paints below.
+  const cliMissing = useCliMissing(ptyId);
+  // R3 (P8): a hive Codex start held until the person allows the folder's own Codex settings.
+  const codexCard = useCodexCard(ptyId);
+  const heldAgentName = useStore((s) => s.agents.find((a) => a.ptyId === ptyId)?.name ?? '');
+  const login = useCliLogin(ptyId);
   const ptyTheme: PtyTheme = useAppTheme();
+  // Rebuilt whenever the theme moves. xterm cannot read CSS, so this is read
+  // from the resolved tokens at the moment it is needed, after theme.ts has
+  // stamped <html>, which it does synchronously before notifying.
+  const termTheme = xtermTheme(ptyTheme, provider);
   const ptyThemeRef = useRef(ptyTheme);
   ptyThemeRef.current = ptyTheme;
+  // The attach effect runs on [ptyId] only, so it needs the CURRENT theme
+  // without taking it as a dependency, otherwise every theme flip
+  // would tear the terminal down and re-attach it, losing scrollback position.
+  const termThemeRef = useRef(termTheme);
+  termThemeRef.current = termTheme;
+  /** The pty this mount has already put on screen: showing it again is a tab
+   *  coming back, not a new view. */
+  const shownBefore = useRef<string | null>(null);
+  const shownRef = useRef(shown);
+  shownRef.current = shown;
+  const { t } = useTranslation();
+  // "Starting <name>'s session…" over a pane whose program has printed nothing yet, gone at its first output.
+  const [starting, setStarting] = useState(false);
+  useEffect(() => {
+    const entry = acquireTerminal(ptyId, termThemeRef.current, fontSizeRef.current);
+    const quiet = noOutputYet(entry);
+    setStarting(quiet);
+    if (!quiet || typeof entry.term.onWriteParsed !== 'function') return;
+    const first = entry.term.onWriteParsed(() => { setStarting(false); first.dispose(); });
+    return () => { first.dispose(); };
+  }, [ptyId]);
+
+  // The stream taps belong to the mounted view, shown or not: the agent
+  // screen's parser reads every chunk while its Inbox tab is up.
+  useEffect(() => {
+    const entry = acquireTerminal(ptyId, termThemeRef.current, fontSizeRef.current);
+    const onData = (chunk: string) => onStreamDataRef.current?.(chunk);
+    const onPrompt = (text: string) => onUserPromptRef.current?.(text);
+    entry.onData = onData;
+    entry.onPrompt = onPrompt;
+    return () => {
+      if (entry.onData === onData) entry.onData = undefined;
+      if (entry.onPrompt === onPrompt) entry.onPrompt = undefined;
+    };
+  }, [ptyId]);
 
   // Attach this view to the pty's persistent terminal. The terminal and its
   // buffer live in the pool across mounts, so re-parenting its host element
   // here shows the already-rendered content immediately — no blank pane while
   // switching agents or toggling fullscreen.
+  //
+  // Only while shown. Under a hidden tab the host was kept on the
+  // page under visibility: hidden with its WebGL renderer, and xterm paints
+  // whatever is on the page: a hidden terminal drew every chunk its agent
+  // printed. Off the page xterm pauses its renderer and the lease is released;
+  // the buffer, the scrollback and the stream are untouched.
   useEffect(() => {
     const container = hostRef.current;
-    if (!container) return;
-    const entry = acquireTerminal(ptyId, THEMES[ptyThemeRef.current], fontSizeRef.current);
-    entry.term.options.theme = THEMES[ptyThemeRef.current];
+    if (!container || !shown) return;
+    const entry = acquireTerminal(ptyId, termThemeRef.current, fontSizeRef.current);
+    // A tab coming back keeps the person's place in the history; anything
+    // else lands on the newest output, as before.
+    const back = shownBefore.current === ptyId;
+    shownBefore.current = ptyId;
+    entry.term.options.theme = termThemeRef.current;
     entry.term.options.fontSize = fontSizeRef.current;
     attachTerminal(entry, container);
-    entry.onData = (chunk) => onStreamDataRef.current?.(chunk);
-    entry.onPrompt = (text) => onUserPromptRef.current?.(text);
+    const firstPlace = back && readingHistory(entry.term) ? 'keep' : 'end';
 
     // Snap to bottom immediately on re-attach before fit settles
-    try { entry.term.scrollToBottom(); } catch { /* not yet open */ }
+    if (firstPlace === 'end') {
+      try { entry.term.scrollToBottom(); } catch { /* not yet open */ }
+    }
 
-    // `scrollToEnd` is true only for the initial attach (switching agents /
+    // `place` is 'end' only for the initial attach (switching agents /
     // toggling fullscreen) so we land on the most recent output. Re-parenting
-    // the pooled terminal resets its viewport to the top otherwise. Later
-    // resize-driven fits pass false so they don't yank a user who has scrolled
-    // up to read history back down to the bottom.
+    // the pooled terminal resets its viewport to the top otherwise. A tab
+    // coming back to someone reading history passes 'keep', which
+    // re-syncs the viewport at that place. Later resize-driven fits pass false
+    // so they don't yank a user who has scrolled up back down to the bottom.
     // Tracks the first fit that actually ran against a real (non-zero) host, so
     // the ResizeObserver below can snap to the bottom on the FIRST effective fit
     // even when the initial rAF/timeout fits no-op (terminal mounted under an
     // inactive tab whose host has no size yet).
     let initialFitDone = false;
-    const tryFit = (scrollToEnd = false) => {
+    const tryFit = (place: 'end' | 'keep' | false = false) => {
       // Never fit while the host has no real size. Fitting a 0×0 host makes
       // xterm propose a tiny grid and resize the pty to it, so the boot banner
       // renders oversized/clipped and only "fixes" on a later manual resize.
@@ -176,14 +217,30 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
         // the Claude TUI repaint its whole screen, and each repaint pushes the
         // previous frame into scrollback — the attach-time refit cascade (rAF,
         // 60ms, 240ms, font-load) used to stack the boot banner three times
-        // before the user ever typed anything.
-        if (entry.term.cols !== before.cols || entry.term.rows !== before.rows) {
+        // before the user ever typed anything. The FIRST real fit is always
+        // sent, changed or not: the pty may have been spawned (or respawned
+        // under the same id) at a placeholder grid since this xterm was last
+        // measured, and main keeps the ask for a pty that is not there yet
+        // (PtyManager.resize), so the process starts at the pane's true width
+        // (0.5.3, founder 24 Sep: Claude Code drawn at 70% of the pane).
+        // Later changes are settled first (ptyResizeCoalescer.ts): a drag or
+        // the box under the terminal growing and shrinking would otherwise
+        // make Codex draw its whole conversation again on every tick.
+        const resizes = resizeCoalescerFor(ptyId);
+        if (!initialFitDone) {
+          resizes.cancel();
           window.cth.resizePty(ptyId, entry.term.cols, entry.term.rows);
+        } else if (entry.term.cols !== before.cols || entry.term.rows !== before.rows) {
+          resizes.request(before, { cols: entry.term.cols, rows: entry.term.rows });
         }
         entry.term.refresh(0, Math.max(0, entry.term.rows - 1));
         initialFitDone = true;
       } catch { /* host may not be sized yet */ }
-      if (scrollToEnd) {
+      if (place === 'keep') {
+        // The same re-sync as below without moving: one line down and back.
+        // Taken only while reading history, so there is a line below.
+        try { entry.term.scrollLines(1); entry.term.scrollLines(-1); } catch { /* noop */ }
+      } else if (place === 'end') {
         try {
           // Re-parenting the pooled terminal resets the DOM viewport's
           // scrollTop to 0 while xterm's internal scroll state stays at the
@@ -208,8 +265,8 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
     // these are the initial-attach fits, so snap to the bottom. They no-op
     // until the host has a real size, so a terminal mounted under an inactive
     // tab simply waits for the ResizeObserver below to fire the first fit.
-    requestAnimationFrame(() => requestAnimationFrame(() => tryFit(true)));
-    const retries = [setTimeout(() => tryFit(true), 60), setTimeout(() => tryFit(true), 240)];
+    requestAnimationFrame(() => requestAnimationFrame(() => tryFit(firstPlace)));
+    const retries = [setTimeout(() => tryFit(firstPlace), 60), setTimeout(() => tryFit(firstPlace), 240)];
     if (typeof document !== 'undefined' && document.fonts?.ready) {
       document.fonts.ready
         .then(() => {
@@ -225,7 +282,7 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
             entry.term.options.fontSize = fontSizeRef.current;
             entry.term.clearTextureAtlas?.();
           } catch { /* noop */ }
-          tryFit(true);
+          tryFit(firstPlace);
         })
         .catch(() => { /* noop */ });
     }
@@ -234,7 +291,7 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
     // first gets a real size (e.g. its tab becomes visible) and on every later
     // resize. Snap to the bottom on the first effective fit, then never again
     // (so a user who scrolled up to read history isn't yanked back down).
-    const ro = new ResizeObserver(() => tryFit(!initialFitDone));
+    const ro = new ResizeObserver(() => tryFit(initialFitDone ? false : firstPlace));
     ro.observe(container);
     const onWinResize = () => tryFit(false);
     window.addEventListener('resize', onWinResize);
@@ -258,6 +315,10 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
 
     return () => {
       retries.forEach(clearTimeout);
+      // A settled size still pending reaches the pty now, not never; then the
+      // entry goes, so the map does not keep one per pty for the app's life.
+      resizeCoalescers.get(ptyId)?.flush();
+      resizeCoalescers.delete(ptyId);
       ro.disconnect();
       window.removeEventListener('resize', onWinResize);
       document.removeEventListener('visibilitychange', onWake);
@@ -265,25 +326,35 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
       // Detach (but DON'T dispose) the terminal — it keeps running in the pool.
       // detachTerminal also releases the WebGL lease, so a terminal nobody is
       // looking at stops holding a GPU context that an on-screen one needs.
-      entry.onData = undefined;
-      entry.onPrompt = undefined;
       detachTerminal(entry, container);
     };
-  }, [ptyId]);
+  }, [ptyId, shown]);
 
-  // Apply app-theme changes to the pooled terminal (persistence lives in
-  // design/theme.ts — the title-bar toggle owns it).
+  // Apply theme changes to the pooled terminal (persistence lives in
+  // design/theme.ts; the title bar toggle owns it).
   useEffect(() => {
-    acquireTerminal(ptyId, THEMES[ptyTheme], fontSizeRef.current).term.options.theme = THEMES[ptyTheme];
-  }, [ptyTheme, ptyId]);
+    acquireTerminal(ptyId, termTheme, fontSizeRef.current).term.options.theme = termTheme;
+  }, [ptyTheme, ptyId, provider]);
 
   // Apply font-size (zoom) changes to the pooled terminal and re-fit cols/rows.
   useEffect(() => {
     fontSizeRef.current = fontSize;
-    const entry = acquireTerminal(ptyId, THEMES[ptyThemeRef.current], fontSize);
+    // Hidden: the terminal is off the page, so a fit measures
+    // nothing and the grid it would send is whatever the terminal last had (a
+    // terminal never opened has xterm's 80 by 24). Showing it applies this size
+    // and fits it.
+    if (!shownRef.current) return;
+    const entry = acquireTerminal(ptyId, termThemeRef.current, fontSize);
     entry.term.options.fontSize = fontSize;
+    // An unsized host fits to 2 by 1; the ResizeObserver above fits it for
+    // real once it has a size, so never send that grid to the pty.
+    const host = hostRef.current;
+    if (!host || !host.clientWidth || !host.clientHeight) return;
     try {
       entry.fit.fit();
+      // The zoom's grid is the newest: a drag or queue change still settling
+      // would otherwise reach the pty after it with an older size.
+      resizeCoalescers.get(ptyId)?.cancel();
       window.cth.resizePty(ptyId, entry.term.cols, entry.term.rows);
     } catch { /* host may not be sized yet */ }
   }, [fontSize, ptyId]);
@@ -410,10 +481,22 @@ export function PtyTerminalView({ ptyId, onStreamData, onUserPrompt, onToggleFul
           )}
         </div>
       </div>
-      <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
-        flex: 1, minHeight: 0,
-        padding: embedded ? '0 8px 8px' : 0
-      }} />
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        <div ref={hostRef} onDragOver={onDragOver} onDrop={onDrop} style={{
+          flex: 1, minHeight: 0,
+          padding: embedded ? '0 8px 8px' : 0
+        }} />
+        {starting && heldAgentName && !cliMissing && !login && (
+          <div data-terminal-starting style={{
+            position: 'absolute', top: embedded ? 6 : 2, insetInlineStart: embedded ? 12 : 4, pointerEvents: 'none',
+            fontFamily: 'var(--cth-font-mono)', fontSize: 12.5, lineHeight: '18px', color: 'var(--cth-ink-500)'
+          }}>{t('terminal.starting', { name: heldAgentName })}</div>
+        )}
+        {cliMissing && <CliMissingCard ptyId={ptyId} state={cliMissing} />}
+        {!cliMissing && codexCard.state && <CodexFolderCard ptyId={ptyId} agentName={heldAgentName} state={codexCard.state} onAllow={codexCard.keep} onStarted={codexCard.drop} onNotNow={codexCard.drop} />}
+        {!cliMissing && login && <CliLoginModal ptyId={ptyId} prompt={login} />}
+        {!cliMissing && !login && <SleepOverlay ptyId={ptyId} />}
+      </div>
     </div>
   );
 }

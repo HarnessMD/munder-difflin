@@ -8,15 +8,15 @@ export interface McpDefaultsSettingsProps {
 }
 
 const TIER_ORDER: McpTier[] = ['safe-readonly', 'write', 'secret'];
-const TIER_LABEL_KEY: Record<McpTier, string> = {
-  'safe-readonly': 'mcpDefaults.tiers.safeReadonly',
-  'write': 'mcpDefaults.tiers.write',
-  'secret': 'mcpDefaults.tiers.secret'
+const TIER_LABEL: Record<McpTier, [string, string]> = {
+  'safe-readonly': ['mcpDefaults.tiers.safeReadonly', 'Safe and read only (on by default)'],
+  'write': ['mcpDefaults.tiers.write', 'Write access (consent required)'],
+  'secret': ['mcpDefaults.tiers.secret', 'Needs a secret or API key (consent required)']
 };
-const TIER_NOTE_KEY: Record<McpTier, string> = {
-  'safe-readonly': 'mcpDefaults.tiers.safeReadonlyNote',
-  'write': 'mcpDefaults.tiers.writeNote',
-  'secret': 'mcpDefaults.tiers.secretNote'
+const TIER_NOTE: Record<McpTier, [string, string]> = {
+  'safe-readonly': ['mcpDefaults.tiers.safeReadonlyNote', 'These servers read data only, need no secrets, and are scoped to the agent workspace. They are on for every new agent.'],
+  'write': ['mcpDefaults.tiers.writeNote', 'These servers can change things beyond the workspace. Off by default: turn one on only after reviewing it.'],
+  'secret': ['mcpDefaults.tiers.secretNote', 'These servers need an API key or credentials. Off by default: add your credentials and turn one on after consent.']
 };
 
 const labelStyle: React.CSSProperties = {
@@ -40,10 +40,10 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
       await window.cth.updateConfig({
         mcpDefaults: { ...(config.mcpDefaults ?? {}), [id]: { enabled: next } }
       });
-      setNote(t('mcpDefaults.toggleNote', { id, state: next ? t('common.on') : t('common.off') }));
+      setNote(t('mcpDefaults.toggleNote', { id, state: next ? t('common.on') : t('common.off'), defaultValue: '{{id}}: {{state}}' }));
       setTimeout(() => setNote(''), 1800);
     } catch {
-      setNote(t('mcpDefaults.couldNotSave'));
+      setNote(t('mcpDefaults.couldNotSave', 'could not save'));
       setTimeout(() => setNote(''), 2000);
     }
   };
@@ -53,9 +53,9 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
-        <div style={{ ...labelStyle, marginBottom: 6 }}>{t('mcpDefaults.title')}</div>
+        <div style={{ ...labelStyle, marginBottom: 6 }}>{t('mcpDefaults.title', 'Default MCP servers')}</div>
         <span style={{ fontSize: 12, lineHeight: '16px', color: 'var(--cth-ink-500)' }}>
-          {t('mcpDefaults.desc')}
+          {t('mcpDefaults.desc', 'These servers are merged into each new agent\'s session settings. Safe servers are on by default; write and secret servers are off until you consent. Changes take effect the next time an agent starts; running agents are not affected.')}
         </span>
       </div>
 
@@ -71,10 +71,10 @@ export function McpDefaultsSettings({ config }: McpDefaultsSettingsProps) {
                 color: isConsent ? '#6E1423' : 'var(--cth-ink-500)',
                 textTransform: 'uppercase'
               }}>
-                {t(TIER_LABEL_KEY[tier])}
+                {t(TIER_LABEL[tier][0], TIER_LABEL[tier][1])}
               </span>
               <span style={{ fontSize: 11, lineHeight: '15px', color: 'var(--cth-ink-400, var(--cth-ink-500))' }}>
-                {t(TIER_NOTE_KEY[tier])}
+                {t(TIER_NOTE[tier][0], TIER_NOTE[tier][1])}
               </span>
             </div>
 

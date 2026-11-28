@@ -1,6 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>memory — Munder Difflin Blog</title>
@@ -99,19 +114,23 @@
   <div class="filters" role="navigation" aria-label="Topics">
     <a class="chip" href="/blog/">All</a>
     
-    <a class="chip" href="/blog/topics/guides/">guides<span class="ct">34</span></a>
+    <a class="chip" href="/blog/topics/comparisons/">comparisons<span class="ct">102</span></a>
     
-    <a class="chip" href="/blog/topics/concepts/">concepts<span class="ct">21</span></a>
+    <a class="chip" href="/blog/topics/concepts/">concepts<span class="ct">87</span></a>
+    
+    <a class="chip" href="/blog/topics/guides/">guides<span class="ct">77</span></a>
+    
+    <a class="chip" href="/blog/topics/news/">news<span class="ct">53</span></a>
+    
+    <a class="chip" href="/blog/topics/story/">story<span class="ct">21</span></a>
+    
+    <a class="chip" href="/blog/topics/use-cases/">use-cases<span class="ct">20</span></a>
     
     <a class="chip" href="/blog/topics/internals/">internals<span class="ct">19</span></a>
     
-    <a class="chip" href="/blog/topics/comparisons/">comparisons<span class="ct">17</span></a>
-    
-    <a class="chip" href="/blog/topics/story/">story<span class="ct">17</span></a>
-    
     <a class="chip" href="/blog/topics/orchestration/">orchestration<span class="ct">9</span></a>
     
-    <a class="chip" href="/blog/topics/use-cases/">use-cases<span class="ct">9</span></a>
+    <a class="chip" href="/blog/topics/ai-tools/">ai-tools<span class="ct">8</span></a>
     
     <a class="chip" href="/blog/topics/memory/" aria-current="page">memory<span class="ct">5</span></a>
     
@@ -244,9 +263,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

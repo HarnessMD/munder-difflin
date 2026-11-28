@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026) — Munder Difflin Blog</title>
+<meta name="description" content="Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean&#39;s community certified it on 21 Nov 2026. What happened and how it was checked." />
+<link rel="canonical" href="https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/" />
+
+<link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
+<link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
+<meta name="theme-color" content="#F5F2E8" />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Munder Difflin Blog" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026) — Munder Difflin Blog" />
+<meta property="og:description" content="Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean&#39;s community certified it on 21 Nov 2026. What happened and how it was checked." />
+<meta property="og:url" content="https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/riemann-hypothesis-ai-proof/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Title card on white. A lilac pill reading Concepts, the title Riemann Hypothesis proof, the line Made with Claude, checked in Lean and a Checked 22 Nov 2026 line. A blue telescope sweeps a row of soft white tiles that light yellow, then three mint cards appear: 17 million lines, Lean and 20 Nov 2026." />
+<meta property="og:locale" content="en_US" />
+<meta property="article:published_time" content="2026-11-22T00:00:00.000Z" />
+<meta property="article:author" content="Chaitanya Giri" />
+<meta property="article:tag" content="Concepts" />
+<meta property="article:tag" content="AI Agents" />
+<meta property="article:tag" content="Claude Code" />
+
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026) — Munder Difflin Blog" />
+<meta name="twitter:description" content="Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean&#39;s community certified it on 21 Nov 2026. What happened and how it was checked." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/riemann-hypothesis-ai-proof/hero.png" />
+<meta name="twitter:image:alt" content="Title card on white. A lilac pill reading Concepts, the title Riemann Hypothesis proof, the line Made with Claude, checked in Lean and a Checked 22 Nov 2026 line. A blue telescope sweeps a row of soft white tiles that light yellow, then three mint cards appear: 17 million lines, Lean and 20 Nov 2026." />
+
+<link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/blog/assets/blog-press.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026)",
+  "description": "Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean's community certified it on 21 Nov 2026. What happened and how it was checked.",
+  "image": ["https://munderdiffl.in/blog/assets/media/riemann-hypothesis-ai-proof/hero.png"],
+  "datePublished": "2026-11-22T00:00:00.000Z",
+  "dateModified": "2026-11-26T00:00:00.000Z",
+  "author": { "@type": "Person", "name": "Chaitanya Giri" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Munder Difflin",
+    "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
+  },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/" },
+  "keywords": "riemann hypothesis proof, riemann hypothesis solved, claude riemann hypothesis, ai proof riemann hypothesis, lean proof, levent alpoge, generalized riemann hypothesis",
+  "articleSection": "Concepts",
+  "inLanguage": "en-US",
+  "url": "https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://munderdiffl.in/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://munderdiffl.in/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026)", "item": "https://munderdiffl.in/blog/riemann-hypothesis-ai-proof/" }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Has the Riemann Hypothesis been proved?", "acceptedAnswer": { "@type": "Answer", "text": "Levent Alpöge announced a proof, and the Lean and Mathlib communities certified it. Their statement of 21 Nov 2026 says \"We hereby certify that both the statement and the proof of the Riemann Hypothesis are correct.\" For now Alpöge presents it only as Lean code." } },
+    { "@type": "Question", "name": "What did Claude do in the Riemann Hypothesis proof?", "acceptedAnswer": { "@type": "Answer", "text": "In Alpöge's words: \"I believe I have, working with Claude, discovered a proof of the Riemann Hypothesis.\" He writes that \"Claude far outpaced me near the finish line\" and that \"Claude and I have also formalized the arguments without assumptions.\" Terence Tao describes Alpöge as \"using an internal AI model\"." } },
+    { "@type": "Question", "name": "How was the Riemann Hypothesis proof checked?", "acceptedAnswer": { "@type": "Answer", "text": "In Lean, by people and programs. The Lean community statement of 21 Nov 2026 says experts vetted the statement and several proof checkers, including Lean's official kernel, checked the exported proof. Andrew Sutherland's MIT page, with \"checks run with Claude Code\", showed at 04:35 UTC on 22 Nov 2026 the nanoda and con-leche kernels accepting the export and the Lean kernel on the export still running." } },
+    { "@type": "Question", "name": "Is there a shorter Lean proof?", "acceptedAnswer": { "@type": "Answer", "text": "One appeared on 25 Nov 2026: grh-lean, published on GitHub by lsernau. Its README says \"The proof is based on Levent Alpöge's, with Claude\" and \"This repository is a shorter version, produced in collaboration with my colleagues at Anthropic, and Claude.\" Its two editions are about 300,000 and 76,000 lines. Under Status it says: \"The proof has passed machine checks only, listed in each folder's README. No mathematician has read it through, and no paper comes with it.\"" } },
+    { "@type": "Question", "name": "What is the Riemann Hypothesis?", "acceptedAnswer": { "@type": "Answer", "text": "It is a question about how prime numbers are spread out. Alpöge's note says \"It asks for optimal control on the count of prime numbers of a given size.\" Wikipedia's lead, read 22 Nov 2026, says it was first posed in 1859 by Bernhard Riemann." } },
+    { "@type": "Question", "name": "Was there a second proof of GRH on 20 Nov 2026?", "acceptedAnswer": { "@type": "Answer", "text": "Ravi Vakil posted a separate proposed proof by Alessandro Maria Masullo that day and called it \"all human, with no AI\". About 8 hours later he wrote that people had reported problems \"identified with the assistance of different AI models\", and that \"all issues need to be resolved to the satisfaction of the community before this proof would be accepted as true.\"" } }
+    
+  ]
+}
+</script>
+
+
+<script>
+  // Anonymous blog analytics (PostHog) — same posture as the main site and the
+  // app's TELEMETRY.md: public write-only token ('' = inert), anonymous-only
+  // (person_profiles 'never'), no autocapture/recording, DNT respected.
+  (function () {
+    var PH_KEY = 'phc_qJzsokwcbtTGHemnvywR3nSqivNNgMjHeNVEWkZNydFB';
+    if (!PH_KEY || navigator.doNotTrack === '1') return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://us-assets.i.posthog.com/static/array.js';
+    s.onload = function () {
+      if (!window.posthog) return;
+      window.posthog.init(PH_KEY, {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'never',
+        autocapture: false,
+        before_send: function (event) {
+          // PostHog fills $ip from the connection unless the event carries one.
+          // Null it here and disable the GeoIP lookup so no IP, city, postal
+          // code or lat/long is ever derived or stored for this page view.
+          if (event && event.properties) {
+            event.properties.$ip = null;
+            event.properties.$geoip_disable = true;
+          }
+          return event;
+        },
+        disable_session_recording: true,
+        respect_dnt: true
+      });
+    };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body class="theme-press">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav id="nav">
+  <a class="brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+    <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+  </a>
+  <span class="spacer"></span>
+  <div class="links">
+    <a href="/blog/">Latest</a>
+    <a href="/blog/topics/">Topics</a>
+    <a href="/blog/about/">About</a>
+    <a href="https://munderdiffl.in">↗ Product</a>
+  </div>
+  <div class="nav-actions">
+    <a class="btn sm" href="https://munderdiffl.in/blog/feed.xml" aria-label="RSS feed">⤵ RSS</a>
+    <a class="btn sm primary" href="https://munderdiffl.in/#install">⤓ Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="t-concepts">
+  <header class="post-head wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/blog/">Blog</a>
+      <span>/</span>
+      <a href="/blog/topics/concepts/">Concepts</a>
+    </nav>
+    <h1>Riemann Hypothesis Proof With Claude, Checked in Lean (Nov 2026)</h1>
+    <p class="dek">Levent Alpöge says he found a Riemann Hypothesis proof working with Claude. Lean&#39;s community certified it on 21 Nov 2026. What happened and how it was checked.</p>
+    <div class="byline">
+      <span class="av" aria-hidden="true">MD</span>
+      <strong>Chaitanya Giri</strong>
+      <span class="dot" aria-hidden="true">·</span>
+      <time datetime="2026-11-22">Nov 22, 2026</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>5 min read</span>
+      <span class="tag kind">Concepts</span>
+    </div>
+  </header>
+
+  <div class="hero-wrap wrap"><figure class="fig fig-hero"><img src="/blog/assets/media/riemann-hypothesis-ai-proof/hero.png" alt="Title card on white. A lilac pill reading Concepts, the title Riemann Hypothesis proof, the line Made with Claude, checked in Lean and a Checked 22 Nov 2026 line. A blue telescope sweeps a row of soft white tiles that light yellow, then three mint cards appear: 17 million lines, Lean and 20 Nov 2026." loading="lazy" decoding="async" /></figure></div>
+
+  <div class="post-wrap wrap">
+    <div class="prose">
+      <p>On 20 Nov 2026 the mathematician Levent Alpöge announced a <a href="https://alpo.ge/remark.pdf">proof of the Riemann Hypothesis</a> that he says he found “working with Claude”, presented only as Lean code. On 21 Nov the <a href="https://leanprover-community.github.io/blog/posts/riemann-hypothesis/">Lean and Mathlib communities</a> wrote: “We have full confidence that Alpöge’s proof of the Riemann Hypothesis is correct.” Updated 26 Nov 2026.</p>
+<p>If you run Claude yourself, <a href="https://harnessmd.com/download">Munder Difflin</a> is free and open source: a desktop app that runs a team of AI agents for all kinds of knowledge work, coding included, on your own computer. It runs engines such as Claude Code, Codex and Gemini CLI. People use it to run long Claude Code jobs on their own computer or in the Cloud Office, where agents run in the cloud, always on, even with your computer off. The <a href="/blog/how-to-install-and-use-munder-difflin/">install guide</a> covers setup.</p>
+<h2 id="what-happened-with-the-riemann-hypothesis-proof" tabindex="-1">What happened with the Riemann Hypothesis proof? <a class="anchor" href="#what-happened-with-the-riemann-hypothesis-proof" aria-hidden="true">#</a></h2>
+<p>Alpöge’s undated <a href="https://alpo.ge/remark.pdf">note</a> says “I believe I have, working with Claude, discovered a proof of the Riemann Hypothesis” and “the method easily extends much further, resolving the so-called Generalized Riemann Hypothesis”, or GRH. The Lean and MIT pages date it to 20 Nov 2026.</p>
+<p><a href="https://terrytao.wordpress.com/2026/11/20/unforced-euler-singularity-unforced-navier-stokes-singularity-and-the-generalized-riemann-hypothesis/">Terence Tao</a> wrote on 20 Nov 2026 that Alpöge, “using an internal AI model, has generated an (enormous) Lean-only proof of the Generalized Riemann Hypothesis.” Tao also lists two fluid results. Alpöge, Tristan Buckmaster and Matei Coiculescu, “with heavy AI assistance”, wrote “a human-readable proof” of finite time blowup for the “unforced incompressible Euler equations in three dimensions”, formalized in Lean. Alpöge and Buckmaster, “again with heavy AI usage”, generated one for the Navier Stokes equations, “again with a Lean formalization”. Tao calls that paper “technically human-readable” and says “more work needs to be done to create a proper, professionally written proof”.</p>
+<p><a href="https://scottaaronson.blog/?p=10344">Scott Aaronson</a> titled his post of 20 Nov “The stochastic parrots have apparently proved the Riemann Hypothesis”. On 22 Nov, <a href="https://news.ycombinator.com/item?id=50574968">Hacker News</a> shows 2,882 points for “Levent Alpöge claims proof of the Generalized Riemann Hypothesis”. Our <a href="/blog/agent-tools-today-2026-11-21/">brief of 21 Nov</a> covered the first reports.</p>
+<h2 id="what-is-the-riemann-hypothesis" tabindex="-1">What is the Riemann Hypothesis? <a class="anchor" href="#what-is-the-riemann-hypothesis" aria-hidden="true">#</a></h2>
+<p>The Riemann Hypothesis is a question about how prime numbers are spread out. Alpöge’s note says: “It asks for optimal control on the count of prime numbers of a given size.” <a href="https://en.wikipedia.org/wiki/Riemann_hypothesis">Wikipedia’s lead</a>, read 22 Nov 2026, says it was first posed in 1859 by Bernhard Riemann and “implies bounds on the distribution of prime numbers.”</p>
+<figure class="mg" data-scene="telescope"><img src="/blog/assets/media/riemann-hypothesis-ai-proof/telescope.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a blue telescope on a soft white stand sweeps slowly along a long row of soft white tiles. As it passes, some tiles light up yellow at uneven gaps, and a lilac sign above the row reads prime numbers. Tap the telescope to sweep the row again."><figcaption>The Riemann Hypothesis "implies bounds on the distribution of prime numbers", per Wikipedia's lead, read 22 Nov 2026.</figcaption></figure>
+<h2 id="what-did-claude-do-in-alpges-words" tabindex="-1">What did Claude do, in Alpöge’s words? <a class="anchor" href="#what-did-claude-do-in-alpges-words" aria-hidden="true">#</a></h2>
+<p>By his account, Claude worked with him on both the proof and its Lean code. In his words, “this time Claude far outpaced me near the finish line.” He adds: “I guided us to the right situation analogous to that toy setting, and then Claude began to leave me in awe.”</p>
+<p>“Claude and I have also formalized the arguments without assumptions,” the note says. Formalized means written as Lean code, which programs can check.</p>
+<p>He gives “a rough timeline Claude provided after a thorough search”, running from 6 Oct 2026 to its last line, “11/16/26: GRH”. Tao writes that the strategy of proof, “from very initial analysis”, “appears to use the full power of modern developments on the Langlands program and arithmetic geometry”.</p>
+<p>Why Lean only? He writes that it would be “obviously inappropriate to attempt to post some massive unreadable travesty”, so “I decided to only present Lean.” In a footnote he writes that he hit 250,000+ pages, and that Claude called it the GRH “book”. He calls the argument “incredibly long at the moment” and says he will do his best “to write it properly”.</p>
+<h2 id="how-was-the-riemann-hypothesis-proof-checked" tabindex="-1">How was the Riemann Hypothesis proof checked? <a class="anchor" href="#how-was-the-riemann-hypothesis-proof-checked" aria-hidden="true">#</a></h2>
+<p>In Lean, by people and programs: the Lean and Mathlib communities, and Andrew Sutherland at MIT.</p>
+<p>The communities’ <a href="https://leanprover-community.github.io/blog/posts/riemann-hypothesis/">joint statement</a>, posted 21 Nov 2026 at 13:55 UTC, describes “a Lean library comprising 17 million lines of code” and says: “We hereby certify that both the statement and the proof of the Riemann Hypothesis are correct.” It says four criteria “are all satisfied”:</p>
+<ol>
+<li>The statement is Mathlib’s own, “carefully vetted by experts in Lean and number theory”.</li>
+<li>The library compiles: “dozens of people have reported correct compilation”.</li>
+<li>Two independent tools confirm the code proves exactly that statement.</li>
+<li>The exported proof “has been checked by several proof checkers, including Lean’s official kernel”. Two, con-leche and con-ron, “come with a formal proof, relative to set theory, that they cannot accept a false proof”.</li>
+</ol>
+<p>Sutherland’s <a href="https://math.mit.edu/~drew/grh/">MIT page</a> says “checks run with Claude Code”. As of its last update, 04:35 UTC on 22 Nov 2026, all 175,187 modules compile, and two independently written kernels, nanoda and con-leche, accept the full exported proof, which is 61,570,595,788 bytes. Two checks were still running: the Lean kernel, in its default and paranoid modes, on the export (“no verdict yet”), and an end to end lake comparator run.</p>
+<p>Its GRH checks cover Dirichlet L-functions; “automorphic L-functions in general are not among the statements that were checked.” It adds that a passing check “relies on those kernels and on Mathlib’s definitions being what they are intended to be.”</p>
+<figure class="mg" data-scene="beacon"><img src="/blog/assets/media/riemann-hypothesis-ai-proof/beacon.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, three beacons stand on a soft white rail. The first, labelled 175,187 modules, lights up mint, then the second, labelled nanoda, lights up mint. The third, labelled Lean kernel, blinks sky under a yellow tag reading still running. Tap a beacon to replay the checks in order."><figcaption>The MIT page at 04:35 UTC on 22 Nov 2026: 175,187 modules compile, nanoda accepts, the Lean kernel on the export is still running.</figcaption></figure>
+<h2 id="what-changed-on-25-nov-2026" tabindex="-1">What changed on 25 Nov 2026? <a class="anchor" href="#what-changed-on-25-nov-2026" aria-hidden="true">#</a></h2>
+<p>On 25 Nov 2026 lsernau published <a href="https://github.com/lsernau/grh-lean">grh-lean</a> on GitHub, which its README calls “A Lean 4 proof of the Riemann Hypothesis and of the Generalized Riemann Hypothesis for Dirichlet L-functions”. It says “The proof is based on Levent Alpöge’s, with Claude” and “This repository is a shorter version, produced in collaboration with my colleagues at Anthropic, and Claude.” It comes in two editions: <code>grh/</code>, a “readable edition, about 300,000 lines”, and <code>grh-compact/</code>, “the same five theorems, about 76,000 lines”. Under Status it says: “The proof has passed machine checks only, listed in each folder’s README. No mathematician has read it through, and no paper comes with it.”</p>
+<h2 id="what-about-the-other-grh-proof-announced-the-same-day" tabindex="-1">What about the other GRH proof announced the same day? <a class="anchor" href="#what-about-the-other-grh-proof-announced-the-same-day" aria-hidden="true">#</a></h2>
+<p>A separate proposed proof of GRH, by Alessandro Maria Masullo, appeared on 20 Nov 2026 in a <a href="https://math216.wordpress.com/2026/11/20/hurried-announcement-alessandro-masullo-grh/">post by Ravi Vakil</a>, who wrote: “It is all human, with no AI.”</p>
+<p>About 8 hours later Vakil added that people had reported problems, “identified with the assistance of different AI models”, and that “all issues need to be resolved to the satisfaction of the community before this proof would be accepted as true.” He also wrote: “I make no claim as to the correctness of the proof strategy.”</p>
+<figure class="mg" data-scene="scale"><img src="/blog/assets/media/riemann-hypothesis-ai-proof/scale.png" width="1600" height="1200" loading="lazy" decoding="async" alt="Animation. On a white background, a soft white balance scale holds two cards. The left pan holds a blue card reading Alpöge with a mint tag reading with Claude. The right pan holds a lilac card reading Masullo with a yellow tag reading all human. The scale sways gently and settles level. Tap the scale to make it sway again."><figcaption>Two proposed proofs of GRH, both 20 Nov 2026: Alpöge's, working with Claude, and Masullo's, "all human, with no AI", per Vakil.</figcaption></figure>
+<h2 id="what-does-the-riemann-hypothesis-proof-mean-for-ai-agents" tabindex="-1">What does the Riemann Hypothesis proof mean for AI agents? <a class="anchor" href="#what-does-the-riemann-hypothesis-proof-mean-for-ai-agents" aria-hidden="true">#</a></h2>
+<p>Our view: this is long running AI work checked largely by machines. Three of the Lean community’s four criteria rest on programs that ran, and the MIT page lists “checks run with Claude Code”. We think that pairing, a long job plus an independent automatic check, is worth copying in everyday agent work. For long Claude Code jobs, see <a href="/blog/how-to-use-claude-code/">how to use Claude Code</a> and <a href="/blog/claude-code-automation-while-you-sleep/">Claude Code automation while you sleep</a>.</p>
+<link rel="stylesheet" href="/blog/assets/media/riemann-hypothesis-ai-proof/motion.css"><script defer src="/blog/assets/media/riemann-hypothesis-ai-proof/motion.js"></script>
+
+
+      
+      <section class="faq" aria-label="Frequently asked questions">
+        <h2 id="faq">FAQ</h2>
+        
+        <div class="qa">
+          <p class="q">Has the Riemann Hypothesis been proved?</p>
+          <p class="a">Levent Alpöge announced a proof, and the Lean and Mathlib communities certified it. Their statement of 21 Nov 2026 says &quot;We hereby certify that both the statement and the proof of the Riemann Hypothesis are correct.&quot; For now Alpöge presents it only as Lean code.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What did Claude do in the Riemann Hypothesis proof?</p>
+          <p class="a">In Alpöge&#39;s words: &quot;I believe I have, working with Claude, discovered a proof of the Riemann Hypothesis.&quot; He writes that &quot;Claude far outpaced me near the finish line&quot; and that &quot;Claude and I have also formalized the arguments without assumptions.&quot; Terence Tao describes Alpöge as &quot;using an internal AI model&quot;.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How was the Riemann Hypothesis proof checked?</p>
+          <p class="a">In Lean, by people and programs. The Lean community statement of 21 Nov 2026 says experts vetted the statement and several proof checkers, including Lean&#39;s official kernel, checked the exported proof. Andrew Sutherland&#39;s MIT page, with &quot;checks run with Claude Code&quot;, showed at 04:35 UTC on 22 Nov 2026 the nanoda and con-leche kernels accepting the export and the Lean kernel on the export still running.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Is there a shorter Lean proof?</p>
+          <p class="a">One appeared on 25 Nov 2026: grh-lean, published on GitHub by lsernau. Its README says &quot;The proof is based on Levent Alpöge&#39;s, with Claude&quot; and &quot;This repository is a shorter version, produced in collaboration with my colleagues at Anthropic, and Claude.&quot; Its two editions are about 300,000 and 76,000 lines. Under Status it says: &quot;The proof has passed machine checks only, listed in each folder&#39;s README. No mathematician has read it through, and no paper comes with it.&quot;</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">What is the Riemann Hypothesis?</p>
+          <p class="a">It is a question about how prime numbers are spread out. Alpöge&#39;s note says &quot;It asks for optimal control on the count of prime numbers of a given size.&quot; Wikipedia&#39;s lead, read 22 Nov 2026, says it was first posed in 1859 by Bernhard Riemann.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">Was there a second proof of GRH on 20 Nov 2026?</p>
+          <p class="a">Ravi Vakil posted a separate proposed proof by Alessandro Maria Masullo that day and called it &quot;all human, with no AI&quot;. About 8 hours later he wrote that people had reported problems &quot;identified with the assistance of different AI models&quot;, and that &quot;all issues need to be resolved to the satisfaction of the community before this proof would be accepted as true.&quot;</p>
+        </div>
+        
+      </section>
+      
+
+      
+      <hr />
+      <div class="share">
+        <span class="lbl">Tags</span>
+        <a class="tag" href="/blog/tags/concepts/">Concepts</a><a class="tag" href="/blog/tags/ai-agents/">AI Agents</a><a class="tag" href="/blog/tags/claude-code/">Claude Code</a>
+      </div>
+      
+    </div>
+
+    
+    <aside class="toc-rail" aria-label="Table of contents">
+      <div class="tt">On this page</div>
+      <ol>
+        <li class="lvl-2"><a href="#what-happened-with-the-riemann-hypothesis-proof">What happened with the Riemann Hypothesis proof?</a></li><li class="lvl-2"><a href="#what-is-the-riemann-hypothesis">What is the Riemann Hypothesis?</a></li><li class="lvl-2"><a href="#what-did-claude-do-in-alpges-words">What did Claude do, in Alpöge’s words?</a></li><li class="lvl-2"><a href="#how-was-the-riemann-hypothesis-proof-checked">How was the Riemann Hypothesis proof checked?</a></li><li class="lvl-2"><a href="#what-changed-on-25-nov-2026">What changed on 25 Nov 2026?</a></li><li class="lvl-2"><a href="#what-about-the-other-grh-proof-announced-the-same-day">What about the other GRH proof announced the same day?</a></li><li class="lvl-2"><a href="#what-does-the-riemann-hypothesis-proof-mean-for-ai-agents">What does the Riemann Hypothesis proof mean for AI agents?</a></li>
+      </ol>
+    </aside>
+    
+  </div>
+
+  <footer class="post-foot wrap"><div class="prevnext">
+      <a class="pn prev" href="/blog/agent-tools-today-2026-11-21/"><span class="k">← Older</span><span class="t">Agent Tools Today, 21 Nov 2026: Inkling 2 Mini, Claude Code v2.1.330 and DreamCoder</span></a>
+      <a class="pn next" href="/blog/what-is-superpowers/"><span class="k">Newer →</span><span class="t">What is Superpowers? The skills library for coding agents</span></a>
+    </div>
+    <section class="related">
+      <h2>Related in Concepts</h2>
+      <div class="post-grid">
+        <article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-claude-bughunter/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-claude-bughunter/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-27">Nov 27, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-claude-bughunter/">What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting</a></h3>
+    <p class="dek">Claude-BugHunter (elementalsouls) is a Claude Code skill bundle for bug hunting. What is inside, how to install it, and the written authorisation it expects.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-claude-bughunter/" aria-label="Read: What is Claude-BugHunter? A Claude Code Skill Bundle for Bug Hunting">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-cli-anything/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-cli-anything/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-cli-anything/">What is CLI-Anything? A Command Line for Any App, for AI Agents</a></h3>
+    <p class="dek">CLI-Anything (HKUDS/CLI-Anything) gives AI agents a command line for existing software. What it is, how CLI-Hub works and how to install it.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-cli-anything/" aria-label="Read: What is CLI-Anything? A Command Line for Any App, for AI Agents">Read →</a>
+    </div>
+  </div>
+</article>
+<article class="card t-concepts">
+  <a class="thumb t-concepts" href="/blog/what-is-cogentic/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/what-is-cogentic/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <div class="body">
+    <div class="meta">
+      <time datetime="2026-11-26">Nov 26, 2026</time>
+      <span class="dot" aria-hidden="true"></span>
+      <span>5 min</span>
+    </div>
+    <h3><a href="/blog/what-is-cogentic/">What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs</a></h3>
+    <p class="dek">Cogentic is a Google research harness where AI agents find and check proofs. Its factoring paper&#39;s bound is subexponential, not polynomial; it never names RSA.</p>
+    <div class="foot">
+      <span class="tag kind">Concepts</span>
+      <a class="more" href="/blog/what-is-cogentic/" aria-label="Read: What is Cogentic? Google&#39;s AI Agent Team That Writes Math Proofs">Read →</a>
+    </div>
+  </div>
+</article>
+
+      </div>
+    </section>
+    
+  </footer>
+</article>
+
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="foot-brand brand" href="https://munderdiffl.in" aria-label="Munder Difflin home">
+        <img class="brand-logo" src="https://munderdiffl.in/logo.png" width="1318" height="840" alt="Munder Difflin, Inc. — Multi-Agent Harness" />
+      </a>
+      <div class="foot-links">
+        <a href="/blog/">Latest</a>
+        <a href="/blog/topics/">Topics</a>
+        <a href="/blog/about/">About</a>
+        <a href="https://munderdiffl.in/blog/feed.xml">RSS</a>
+        <a href="https://github.com/chaitanyagiri/munder-difflin">GitHub</a>
+        <a href="https://munderdiffl.in">munderdiffl.in ↗</a>
+      </div>
+    </div>
+    <div class="foot-meta">
+      © 2026 Munder Difflin · Local-first · MIT-licensed ·
+      Built on <a href="https://munderdiffl.in">Electron, React, Pixi.js, xterm.js &amp; node-pty</a>.
+      Run an office of agents while you sleep.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky-nav border on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  // YouTube click-to-load: thumbnail button → youtube-nocookie iframe
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.yt-load');
+      if (!btn) return;
+      var box = btn.closest('.yt');
+      var id = box && box.getAttribute('data-yt');
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
+      frame.title = box.getAttribute('data-title') || 'YouTube video';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      frame.setAttribute('allowfullscreen', '');
+      box.replaceChildren(frame);
+    });
+  })();
+</script>
+
+</body>
+</html>

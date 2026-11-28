@@ -1,160 +1,139 @@
 ---
-title: "Deploy a Blog-Writer Agent: The One That Wrote This Post"
-description: "How Munder Difflin's blog is written by an automated writer agent in the hive — drafts in a worktree, single-committer integration, Eleventy build, human-gated deploy, and now hand-drawn illustrations from the same office. Build your own."
+title: "Deploy a Blog Writer Agent: The One That Wrote This Post"
+description: "How the Munder Difflin blog is written by agents in our own office: a brief, a house style, a draft in its own worktree, drawings made in code, a pull request, and one human merge. The pipeline, and how to build your own."
 date: 2026-06-10
-updated: 2026-08-20
+updated: 2026-09-10
 category: use-cases
 categoryLabel: Use Cases
 type: Non-technical
 primaryKeyword: "automated blog writer agent"
-secondaryKeywords: ["ai blog automation", "content agent", "multi-agent blogging", "automated content pipeline"]
+secondaryKeywords: ["ai blog automation", "content agent", "multi-agent blogging", "automated content pipeline", "ai blog writing workflow"]
 tags: ["Use Cases", "Automation", "Content", "Multi-Agent", "Open Source"]
 author:
   name: Chaitanya Giri
   initials: CG
 faq:
   - q: "Did an AI actually write the Munder Difflin blog?"
-    a: "Yes — most of it. A writer agent in the hive drafts each post from a topic brief and a house-style reference, Michael integrates it as the single committer, Eleventy builds the markdown into the static site, and a human approves the final deploy to munderdiffl.in. This very post is an example of that pipeline running — and as of August 2026, the same office also draws every post's illustrations as code."
-  - q: "Is the blog-writer agent fully autonomous?"
-    a: "Almost — it's deliberately human-gated at one point: publish. The agent drafts and self-reviews against a style reference in an isolated worktree; the orchestrator integrates and builds; a person reviews the diff and approves the deploy. That keeps the volume high and hands-off without putting an unreviewed post on the live domain."
-  - q: "How do I build my own blog-writer agent?"
-    a: "Give one agent in the hive three things: a topic or brief, a house-style reference (a few of your best existing posts), and write access to an isolated worktree. Let it draft, have a reviewer agent or the orchestrator check it, then human-approve the build and deploy. Munder Difflin gives you the worktree isolation, single-committer git, skills, and approval queue out of the box."
-  - q: "Why use a multi-agent hive instead of one prompt to write blog posts?"
-    a: "One prompt writes one post. A hive runs a content function: a writer drafts, a reviewer checks, the orchestrator integrates and builds, and a scheduled mission can fire the loop on a cadence — so you get a steady, compounding stream of on-topic posts rather than a single output you have to re-prompt for each time."
+    a: "Mostly, yes. Agents in our own Munder Difflin office draft posts from a brief and a house style, and the illustrations are drawn in code. The change goes up as a pull request, a person reads it and merges it, and the merge publishes it. This post was rewritten that way in September 2026."
+  - q: "Is the blog writer agent fully autonomous?"
+    a: "Everything before publishing is. Research, drafting, checks and the pull request run without a person. Publishing waits for a human merge on purpose, so nothing unreviewed reaches the live site."
+  - q: "How do I build my own blog writer agent?"
+    a: "Give one agent a brief, a house style reference and its own workspace. Have a second agent or a checklist review the draft, then send it wherever a human approves changes, like a pull request. Put the loop on a schedule once a few posts come out right."
+  - q: "What makes an AI written post worth reading?"
+    a: "Something only you can say: a command you ran, a screenshot of the real screen, a result you measured and dated, a mistake you made. Without that, a draft is a summary of whatever already ranks, and readers can tell."
+  - q: "Why use a team of agents instead of one prompt?"
+    a: "One prompt writes one post. A team runs a content function: one agent researches, one drafts, one reviews, and a schedule starts the loop again. You stop prompting for posts and start reviewing them."
 ---
 
-<div class="callout tldr"><span class="ic">TL;DR</span><p>The Munder Difflin blog is written by an
-<strong>automated writer agent</strong> living in the hive. The loop: a writer agent drafts a post in an
-<strong>isolated worktree</strong> from a topic brief + a house-style reference; <strong>Michael</strong>
-integrates it as the single committer; <strong>Eleventy</strong> builds
-<code>blog/src/posts</code> → <code>docs/blog</code>; and a human approves the deploy to
-<strong>munderdiffl.in</strong>. The outcome is a steady, on-topic stream — <strong>well over a hundred
-posts and counting</strong>, every one now illustrated by code the same office wrote.
-<em>This post was made that way.</em></p></div>
+<div class="callout tldr"><span class="ic">TL;DR</span><p>The blog you are reading is <strong>mostly
+written by agents</strong> in our own office. An agent takes a <strong>brief</strong> and a <strong>house
+style</strong>, drafts in its <strong>own worktree</strong>, the draft gets checked, the pictures are
+<strong>drawn in code</strong>, and the change goes up as a <strong>pull request</strong>. A person merges
+it, and the merge publishes it. <em>This post was rewritten exactly that way.</em></p></div>
 
-Here's a fact that's either a confession or a flex, depending on how you read it: the blog you're reading
-is mostly written by one of our own agents. Not "AI-assisted." Not "drafted then heavily rewritten." A
-**writer agent** in the Munder Difflin hive takes a brief, drafts a full post, and hands it down a pipeline
-that ends — after one human nod — on the live site.
+Here is a fact that is either a confession or a flex: most of this blog is written by agents. Not "AI
+assisted" in the vague marketing sense. Agents in a Munder Difflin office take a brief, write the post and
+open the pull request. A human does one thing: reads it and merges it.
 
-This very post is an instance of that system working. So let me do the most on-brand thing possible and use
-it as the worked example. Here's how the blog-writer agent is automated, why the outcome compounds, and how
-to stand up your own.
+This post describes that pipeline, and in September 2026 the pipeline rewrote this post, so it doubles as
+the worked example. Here is how it runs and how to build your own.
 
-## The outcome first: a library, not a launch post
+## What does a blog writer agent actually do?
 
-Before the *how*, the *why it matters*. This blog now holds **well over a hundred published posts** —
-the topic chips at the top of [the index](/blog/) show the live counts. They're not filler — they
-cluster into a real content strategy: guides, internals deep-dives, concept explainers, comparisons,
-orchestration patterns, and a pointed story set, including [why we built
-Munder Difflin](/blog/why-we-built-munder-difflin/) and the
-[launch-week retros](/blog/what-reddit-told-us-about-munder-difflin/). The thought-leadership thread
-does the heavy SEO lifting — the [multi-agent cost playbook](/blog/the-multi-agent-cost-playbook/),
-[compressing agent memory](/blog/compressing-agent-memory/),
-[context engineering for AI agents](/blog/context-engineering-for-ai-agents/), and more.
+It turns a brief into a finished change that is ready for review. It reads the brief and the house style,
+researches the topic, drafts the post with its frontmatter and the questions a reader would type, checks its
+own work, and hands the result on. It does not publish.
 
-That's the whole point of automating the writer: **volume that stays on-topic compounds**. A hundred-plus
-internally-linked, keyword-targeted posts is a discoverability moat you cannot hand-write at a startup's
-spare-time pace. When someone — or an AI answer engine — searches "single-committer git multi-agent" or
-"compressing agent memory," there's a post for that, and it links to five neighbors. The blog-writer agent
-is how a one-person project publishes like a content team.
+## How does the pipeline work, end to end?
 
-And crucially: it's *largely hands-off*. The expensive part of blogging isn't typing — it's the discipline
-to keep shipping. An agent has no problem with discipline.
+Five stages, and only the last one needs a person.
 
-{% img "note-1", "The content function: brief in, draft in a worktree, one committer, one build, one human gate — on a timer." %}
+### 1. Brief
 
-## The pipeline, end to end
+Every post starts from a brief: the topic, the question a reader is trying to answer, and the angle. Briefs
+come from a backlog, so the agent is always writing something somebody is looking for, not whatever it
+happens to feel like.
 
-The writer agent isn't a magic monolith. It's one role in a hive, and the post moves through the same
-machinery any work does. Four stages:
+### 2. Draft, in its own worktree
 
-### 1. Draft — in an isolated worktree
+The writer works in its **own git worktree**, a separate checkout, so a half written draft never collides
+with anyone else's files. ([Why that isolation matters](/blog/claude-code-git-worktrees-vs-hive/).) It reads a
+handful of existing posts for structure, and it can carry the house style as an installed **skill**, a
+checklist it rereads on every draft instead of a prompt we hope it remembers.
 
-The writer agent gets a **brief** (a topic + intent, usually straight from our SEO backlog) and a
-**house-style reference**: a handful of existing posts to mirror for voice, front-matter, and structure. It
-works in its **own git worktree** — a separate working directory so its in-progress draft never collides
-with anyone else's files. (We wrote about why that isolation matters in
-[git worktrees vs a hive](/blog/claude-code-git-worktrees-vs-hive/).) Since v0.4.4 the writer can also
-carry an installed **skill** — a house-style checklist it re-reads on every draft, instead of a prompt
-we hope it remembers.
+Our house style is short and blunt: no dashes, get to the point, one light joke at most, and nothing we cannot
+back up. The output is a single markdown file, and its filename becomes the URL.
 
-The agent reads the reference posts, picks internal links to neighbors, writes the front-matter (title,
-description, category, keywords, FAQ schema), and drafts ~1,000–1,400 words of body. It self-checks
-against the style reference before handing off. The output is a single `.md` file in
-`blog/src/posts/` — filename becomes the URL slug.
+### 3. Check
 
-### 2. Integrate — the orchestrator is the single committer
+A second pass holds the draft against the brief and the style. Are the facts sourced and dated? Does every
+heading answer a question a real person asks? Do the links work? A draft that fails goes back with the reason.
 
-The writer **never commits**. It writes a plain file; **Michael** owns every commit. This is
-the [single-committer pattern](/blog/single-committer-git-pattern/) — agents write files, one process
-serializes all the git, so parallel agents never race on `.git/index.lock` and the repo stays a clean audit
-log. The orchestrator picks up the finished draft, reviews routing, and commits it into the real tree.
+### 4. Pictures, drawn in code
 
-### 3. Build — Eleventy turns markdown into a site
+Every hero image and inline sketch on this blog is [drawn as code by an agent](/blog/an-agent-redesigned-this-blog/):
+a library of SVG parts, a set of scene layouts and one spec file, rendered in a headless browser. No image API
+bills. One manifest lists every image, and a post shows a designed placeholder until its drawings land, so a page
+never renders broken.
 
-A static [Eleventy](https://www.11ty.dev/) build compiles `blog/src/posts` → `docs/blog`. Dropping one
-markdown file is the entire authoring action: the build auto-adds the post to the index, its topic page,
-each tag page, the sitemap, and the RSS feed — plus the SEO that's already wired (canonical URLs, OpenGraph,
-`BlogPosting` + `FAQPage` JSON-LD). No other file gets touched. That's deliberate: the agent's job is *write
-one file correctly*, and the build does the rest.
+### 5. Pull request, then one human merge
 
-**And since August 2026, the pictures are part of the pipeline too.** Every post's hero and inline
-sketches are [drawn as code by an agent](/blog/an-agent-redesigned-this-blog/) — an SVG parts library,
-composition archetypes, and one spec file, rendered through a headless browser for exactly $0 in image
-APIs. One `media.json` manifest drives every image on the blog; a post ships with designed placeholders
-until its drawings land, so nothing is ever broken.
+The agent opens a pull request with the new post and the rebuilt pages. A person reads it and merges it. Merging
+to main rebuilds the site with [Eleventy](https://www.11ty.dev/), and GitHub Pages serves it at munderdiffl.in/blog.
+The build adds the post to the index, its topic and tag pages, the sitemap and the RSS feed, with the structured
+data already wired in.
 
-### 4. Deploy — human-gated, on purpose
+That split is the whole lesson: **writing is automated, publishing is reviewed.** You get an agent's stamina and
+a human's final read. Nobody wants a confidently wrong claim on their front page.
 
-This is the one stage that is **not** automated, by design. The build output under `docs/blog` is served by
-GitHub Pages at **munderdiffl.in/blog**. Before that goes live, a person reviews the diff and approves the
-deploy. The orchestrator [escalates exactly this kind of "publish to the world"
-action](/blog/how-the-god-orchestrator-works/) to the human-approval queue rather than shipping it itself.
+{% img "note-1", "Brief in, draft in its own worktree, one human gate at the very end." %}
 
-The split is the lesson: **drafting and integration are autonomous; publishing is human-gated.** You get the
-throughput of an agent and the safety of a final human read. Nobody wants a hallucinated claim on their
-front page — so that one gate stays manual while everything upstream runs hands-off.
+## How do you build your own blog writer agent?
 
-{% img "note-2", "One gate stays human on purpose: the deploy. Everything upstream of it runs itself." %}
+Five steps, and none of them needs our exact stack.
 
-## Build your own blog-writer agent
+**1. Keep a backlog of briefs.** One topic, one reader question and one angle per brief.
 
-You don't need our exact stack. The pattern transfers to any static site or CMS. Here's the recipe.
+**2. Write the house style down.** Point the agent at three to five of your best posts and list the rules you
+actually care about. Install it as a skill so every draft rereads it. A writer with a sharp reference produces
+something publishable. A writer without one produces beige.
 
-**1. Give it a brief.** One topic, the search intent, and the angle. Pull it from a keyword backlog so the
-agent is always writing something discoverable, not random.
+**3. Give the draft its own workspace.** A worktree, a branch or a scratch folder. In Munder Difflin this is the
+git isolation toggle on the agent.
 
-**2. Give it a house-style reference.** This is the highest-leverage input. Point the agent at three to five
-of your *best* existing posts and tell it to mirror their front-matter, voice, length, and link density —
-or install that guidance as a **skill**, so every draft re-reads it. A writer with a strong reference
-produces something publishable; a writer without one produces generic AI slop.
+**4. Check, then gate publishing.** A reviewer agent or a checklist first, then a pull request or an approval that
+only a human can complete.
 
-**3. Isolate the draft.** Let the agent write in its own worktree (or branch, or scratch directory) so an
-in-flight draft can't clobber live files. In Munder Difflin this is a per-agent Git isolation toggle.
+**5. Put it on a schedule.** Once a few posts come out right, open the Triggers tab and create a schedule: a label,
+who it goes to, and the prompt that starts the loop. It is the same move that stood up
+[an hourly PR reviewer](/blog/one-prompt-automated-pr-review/) for us.
 
-**4. Review before publish.** Have a reviewer agent or your orchestrator check the draft against the brief,
-then put the **deploy** behind a human approval. Draft and integrate automatically; publish on a click.
+{% img "note-2", "One gate stays human on purpose: publishing. Everything before it runs on its own." %}
 
-**5. Make it recurring.** The real unlock is a scheduled mission: fire the writer on a cadence, feeding it
-the next backlog item each time. One prompt to the orchestrator stood up [an hourly PR
-reviewer](/blog/one-prompt-automated-pr-review/) for us the same way — automation that just keeps running.
-Point that same scheduling at content and the blog writes itself on a timer.
+## What makes an AI written post worth reading?
 
-## The meta-point
+Something only you can say. A draft built only from what already ranks is a summary of other people's posts, and
+readers smell it quickly. Give the writer real material: a command you ran, a screenshot of the actual screen, a
+number you measured and dated, a mistake you made and fixed. The agent brings structure and stamina. You bring the
+proof.
 
-A multi-agent hive isn't only for code. Once you have a writer that drafts, an orchestrator that integrates
-and commits, a build that publishes, and one human gate, you have a **content function** — not a one-off
-prompt. The difference shows up as a library instead of a launch post.
+Two more rules we follow:
 
-So consider this post Exhibit A. It was briefed, drafted in a worktree against a style reference, integrated
-single-committer, Eleventy-built, illustrated by code, and human-approved to the domain — the exact loop it
-describes. The system is, quite literally, writing about itself.
+- **Write for a job someone is doing.** "How do I run pi on a local model?" beats "Some thoughts on local AI".
+- **Refresh instead of duplicating.** When the product changes, update the post that already exists rather than
+  writing a second one that competes with it. This rewrite is that rule in action.
+
+## The meta point
+
+A multi agent office is not only for code. Once you have a writer that drafts, a check that catches mistakes, a build
+that publishes and one human gate, you have a content function instead of a one off prompt. The same pipeline can run
+[a GTA 6 guide site](/blog/gta-6-guide-site/), with your own play notes as the source the checker holds every claim to.
+
+So this post is exhibit A: briefed, rewritten in a worktree against a house style, checked, and handed to a human as
+a pull request.
 
 ---
 
-Munder Difflin runs a [hive of agents on ten engines](https://munderdiffl.in/#how) on
-your own machine — with isolated worktrees, single-committer git, skills, and a human-approval queue built
-in, so an agent can draft and integrate while you keep the one gate that matters.
-[Download Munder Difflin](https://munderdiffl.in/#install) to put a blog-writer (or any worker) on your
-floor; it's free and open source.
+Munder Difflin runs an office of agents on twelve terminal CLIs on your own machine, with worktrees, skills, schedules
+and an ASK ME board for the decisions that need you. [Download it free](https://munderdiffl.in/) and put a writer, or
+any other worker, on your floor.

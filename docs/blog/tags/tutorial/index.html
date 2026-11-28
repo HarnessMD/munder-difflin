@@ -1,12 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Tutorial — Munder Difflin Blog</title>
 <meta name="description" content="Munder Difflin blog posts tagged Tutorial." />
 <link rel="canonical" href="https://munderdiffl.in/blog/tags/tutorial/" />
-
+<meta name="robots" content="noindex, follow" />
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
 <link rel="apple-touch-icon" href="https://munderdiffl.in/logo.png" />
 <meta name="theme-color" content="#F5F2E8" />
@@ -100,13 +115,13 @@
     <div class="meta">
       <time datetime="2026-06-22">Jun 22, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>8 min</span>
+      <span>6 min</span>
     </div>
-    <h3><a href="/blog/run-munder-difflin-on-open-models/">Run Munder Difflin on Open-Source Models — Fully Local or via a Third-Party Provider</a></h3>
-    <p class="dek">Munder Difflin runs your agent floor on open-weight models — gpt-oss, Qwen3, DeepSeek, Llama, Mistral, GLM, Kimi — fully local (Ollama/LM Studio/vLLM), through a third-party OSS provider, or on the model-maker&#39;s own CLI. Here&#39;s the wiring, current as of v0.4.4.</p>
+    <h3><a href="/blog/run-munder-difflin-on-open-models/">Run Munder Difflin on Open Source Models: Fully Local or Through a Provider</a></h3>
+    <p class="dek">Munder Difflin can run your whole agent floor on open weight models like gpt-oss, Qwen3, DeepSeek, Llama, GLM and Kimi: fully local with Ollama, LM Studio or vLLM, or through a provider with your own key. The wiring for each engine, current as of 0.5.2.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/run-munder-difflin-on-open-models/" aria-label="Read: Run Munder Difflin on Open-Source Models — Fully Local or via a Third-Party Provider">Read →</a>
+      <a class="more" href="/blog/run-munder-difflin-on-open-models/" aria-label="Read: Run Munder Difflin on Open Source Models: Fully Local or Through a Provider">Read →</a>
     </div>
   </div>
 </article>
@@ -116,13 +131,13 @@
     <div class="meta">
       <time datetime="2026-06-05">Jun 5, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>14 min</span>
+      <span>17 min</span><span class="pin">Pinned</span>
     </div>
-    <h3><a href="/blog/how-to-install-and-use-munder-difflin/">How to Install and Use Munder Difflin: A Beginner&#39;s Guide</a></h3>
-    <p class="dek">A plain-language guide to Munder Difflin v0.4.6. What a coding agent is, which AI engine to pick based on what you already pay for, the one terminal command you&#39;ll ever run, and how to install and set it up on macOS, Windows or Linux.</p>
+    <h3><a href="/blog/how-to-install-and-use-munder-difflin/">How to Install Munder Difflin 0.5.10: A Beginner&#39;s Guide From Zero to a Working Office</a></h3>
+    <p class="dek">Install Munder Difflin 0.5.10 on macOS, Windows or Linux: which AI engine to pick, the sign in, first open, the Cloud Office and a fix for each failure.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-install-and-use-munder-difflin/" aria-label="Read: How to Install and Use Munder Difflin: A Beginner&#39;s Guide">Read →</a>
+      <a class="more" href="/blog/how-to-install-and-use-munder-difflin/" aria-label="Read: How to Install Munder Difflin 0.5.10: A Beginner&#39;s Guide From Zero to a Working Office">Read →</a>
     </div>
   </div>
 </article>
@@ -170,9 +185,10 @@
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

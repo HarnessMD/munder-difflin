@@ -22,6 +22,8 @@ faq:
     a: "Clicking the update badge now runs the real download and restart instead of handing you a disk image and install instructions. The check can no longer hang forever on a stalled connection, and the what's new list shows real features."
 ---
 
+*Newer release: [Munder Difflin 0.5.2](/blog/launching-munder-difflin-v0-5-2/) is out, with Pro and the Stapler.*
+
 <div class="callout tldr"><span class="ic">TL;DR</span><p><strong>v0.4.6 is the release where the
 app stops assuming everyone reads English left to right.</strong> Simplified Chinese and Arabic
 interfaces, right-to-left support, fonts that ship inside the app instead of loading from a host

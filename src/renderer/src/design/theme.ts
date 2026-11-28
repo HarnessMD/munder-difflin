@@ -47,6 +47,16 @@ export function setAppTheme(next: AppTheme): void {
   subscribers.forEach((fn) => fn());
 }
 
+/** Take the theme another window of this office chose, WITHOUT writing it
+ *  back: the detached IDE (0.5.5 rc2, Track D) follows its owner through the
+ *  shared localStorage's `storage` event and must never be the one to change it. */
+export function adoptAppTheme(next: AppTheme): void {
+  if (next === theme) return;
+  theme = next;
+  apply();
+  subscribers.forEach((fn) => fn());
+}
+
 export function toggleAppTheme(): AppTheme {
   const next: AppTheme = theme === 'dark' ? 'light' : 'dark';
   setAppTheme(next);

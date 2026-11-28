@@ -1,16 +1,19 @@
 import { useEffect, useLayoutEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { namedAgentId } from '@shared/tempAgent';
 import { PixelPanel } from './PixelPanel';
 import { PixelButton } from './PixelButton';
-import { SpritePortrait } from './SpritePortrait';
+import { CharacterPicker } from './CharacterPicker';
+import { CodexFolderCard, useCodexCard, type CodexStartAnswer } from './CodexFolderCard';
 import { Icon } from './Icon';
 import { ProviderLogo } from './ProviderLogo';
 import { useStore, type Agent } from '@/store/store';
-import { OFFICE_CAST, DEFAULT_CHARACTER, type OfficeCharacterName } from '@/scene/office/cast';
+import { OFFICE_CAST, DEFAULT_CHARACTER, type OfficeCharacterName } from '@/scene/office/castRoster';
 import { type AccentColorName } from '@/design/tokens';
 import type { HireManifest } from '@shared/hire';
 import { hireQueueProgress } from '@shared/hireQueue';
 import { MCP_CATALOG } from '@shared/mcpCatalog';
+import { lastSegment } from '@shared/pathName';
 import {
   OSS_LOCAL_PICKS,
   OSS_PROVIDER_PICKS,
@@ -30,6 +33,7 @@ import {
   isClaudeProvider
 } from '@/store/config';
 import { useRtl } from '@/i18n/useDirection';
+import { BooCopied, WebTick, settle, useKitOn } from './season/Kit';
 
 const ACCENTS: AccentColorName[] = ['coral', 'mint', 'sky', 'lemon', 'lilac', 'peach'];
 
@@ -127,11 +131,33 @@ const SECTIONS: { key: SectionKey; labelKey: string; hintKey: string }[] = [
 ];
 
 function basename(path: string): string {
-  return path.split('/').filter(Boolean).pop() ?? path;
+  return lastSegment(path);
+}
+
+/** One press of spawn: what the agent is added with. A held Codex start
+ *  finishes from these once allowed, never from what the fields
+ *  show by then: main starts what was held. */
+interface StartAttempt {
+  id: string;
+  ptyId: string;
+  name: string;
+  character: OfficeCharacterName;
+  accent: AccentColorName;
+  description: string;
+  cwd: string;
+  goal?: string;
+  command: string;
+  provider: AgentProvider;
+  model?: string;
+  isolate: boolean;
+  resuming: boolean;
+  resumeSessionId: string;
+  /** The imported hire's per agent token budget, applied once the agent is added. */
+  tokenCap?: number;
 }
 
 function uniqueId(name: string): string {
-  return `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString(36)}`;
+  return namedAgentId(name, Date.now().toString(36));
 }
 
 export interface AddAgentModalProps {
@@ -145,6 +171,7 @@ export interface AddAgentModalProps {
 export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModalProps) {
   const { t: tr } = useTranslation();
   const rtl = useRtl();
+  const kit = useKitOn();
   const addAgent = useStore(s => s.addAgent);
   // Deep links and file batches share one FIFO. The head alone seeds the form;
   // every item still requires an explicit spawn or skip.
@@ -244,6 +271,11 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
   const [folderNote, setFolderNote] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
+  // A start main held for the folder's own Codex settings: the P8 card shows in
+  // place of the error line until it is allowed or put off.
+  const [held, setHeld] = useState<StartAttempt | null>(null);
+  // Its card stays from Allow's press until the start answers (main ends the hold first).
+  const heldCard = useCodexCard(held?.ptyId);
   // Which config section the left sidebar index is showing.
   const [section, setSection] = useState<SectionKey>('identity');
   // "Generate a hire with AI" helper — reveals a copy-paste prompt (item 7).
@@ -390,6 +422,8 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
 
   const submit = async () => {
     setError(undefined);
+    setHeld(null);
+    heldCard.drop();
     // A required field can live in a section the user hasn't opened, so jump to
     // the offending section as we surface the error — the field is never hidden.
     if (!name.trim()) { setError(tr('addAgent.errName')); setSection('identity'); return; }
@@ -399,6 +433,23 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
     setBusy(true);
     const id = uniqueId(name);
     const ptyId = `pty-${id}`;
+    const attempt: StartAttempt = {
+      id,
+      ptyId,
+      name: name.trim(),
+      character,
+      accent,
+      description: description.trim() || 'a fresh harness',
+      cwd,
+      goal: goal.trim() || undefined,
+      command: command.trim(),
+      provider,
+      model,
+      isolate,
+      resuming,
+      resumeSessionId: resumeSessionId.trim(),
+      tokenCap: hireMeta?.tokenCap
+    };
     // Split the editable command field into argv-style pieces for node-pty.
     // Quote-aware so an agy model label like "Gemini 3.1 Pro (High)" — or any
     // auto-mode flags appended to the command — stays one argument.
@@ -430,44 +481,53 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
     });
     if (!spawnRes.ok) {
       setBusy(false);
+      // The folder's own Codex settings wait for the person's OK.
+      // No agent is added, so the card shows here; its Allow finishes this press.
+      if (spawnRes.codexFolders?.length) { setHeld(attempt); return; }
       setError(spawnRes.error ?? 'spawn failed');
       return;
     }
+    await finishStart(attempt, spawnRes);
+  };
+
+  /** A good start, direct or through the card's Allow: add the agent as pressed. */
+  const finishStart = async (a: StartAttempt, spawnRes: CodexStartAnswer) => {
+    setHeld(null);
     // #2 — the requested resume session id wasn't found anywhere; main fell back
     // to a fresh session. Don't block the spawn, but make it visible.
-    if (resuming && spawnRes.resumeNotFound) {
-      console.warn(`[add-agent] resume session "${resumeSessionId.trim()}" not found — started a fresh session`);
+    if (a.resuming && spawnRes.resumeNotFound) {
+      console.warn(`[add-agent] resume session "${a.resumeSessionId}" not found — started a fresh session`);
     }
 
     // Main expands `~` at ingestion and echoes back the absolute path it actually
     // spawned into — record THAT, so this agent's cwd matches the hive registry
     // (and survives a restart, where nothing re-expands it).
-    const spawnedCwd = spawnRes.cwd || cwd;
+    const spawnedCwd = spawnRes.cwd || a.cwd;
     // With git isolation the agent RUNS in its own worktree, but its PROJECT is
     // still the folder the user picked. Labelling the agent with the worktree's
     // name was the visible half; the damaging half was promoting that worktree
     // into registeredRepos below, which turned the project quick-picks into a
     // list of throwaway worktrees. Mirrors the `isolate` sent to main, which is
     // forced off while resuming.
-    const projectCwd = (!resuming && isolate) ? cwd.trim() : spawnedCwd;
+    const projectCwd = (!a.resuming && a.isolate) ? a.cwd.trim() : spawnedCwd;
     const agent: Agent = {
-      id,
-      name: name.trim(),
-      character,
-      accent,
-      description: description.trim() || 'a fresh harness',
+      id: a.id,
+      name: a.name,
+      character: a.character,
+      accent: a.accent,
+      description: a.description,
       project: basename(projectCwd),
       tmuxTarget: '',
       cwd: spawnedCwd,
-      goal: goal.trim() || undefined,
+      goal: a.goal,
       status: 'idle',
-      action: resuming && spawnRes.resumeNotFound ? 'session not found — fresh start' : 'starting up',
+      action: a.resuming && spawnRes.resumeNotFound ? 'session not found — fresh start' : 'starting up',
       progress: 0,
       currentStation: 'desk',
-      ptyId,
-      command: command.trim(),
-      provider,
-      model,
+      ptyId: a.ptyId,
+      command: a.command,
+      provider: a.provider,
+      model: a.model,
       // Persist the resolved worktree path (set only when isolation provisioned
       // one) so a restart can re-enter this exact worktree — see restoreTeam.
       worktreePath: spawnRes.worktreePath,
@@ -481,20 +541,20 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
     // registeredRepos quick-picks (the modal's default cwd) so back-to-back
     // hires land in the same project without re-picking.
     if (projectCwd && repos[0] !== projectCwd) {
-      const nextRepos = [projectCwd, ...repos.filter((r) => r !== projectCwd && r !== cwd)];
+      const nextRepos = [projectCwd, ...repos.filter((r) => r !== projectCwd && r !== a.cwd)];
       try {
         const updated = await window.cth.updateConfig({ registeredRepos: nextRepos });
         onConfigChange?.(updated);
       } catch { /* best-effort */ }
     }
-    // A hire manifest may carry a per-agent token budget — apply it to the
+    // A hire manifest may carry a per agent token budget: apply it to the
     // latest agentTokenCaps map in main. Await it before advancing a batch: the
     // next hire reuses this mounted modal and must not race a stale config write.
-    if (hireMeta?.tokenCap) {
+    if (a.tokenCap) {
       try {
-        const updated = await window.cth.setAgentTokenCap(id, hireMeta.tokenCap);
+        const updated = await window.cth.setAgentTokenCap(a.id, a.tokenCap);
         onConfigChange?.(updated);
-      } catch { /* best-effort */ }
+      } catch { /* best effort */ }
     }
     setBusy(false);
     if (pendingHire) {
@@ -516,7 +576,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
         zIndex: 500
       }}
     >
-      <div onClick={(e) => e.stopPropagation()} style={{ width: 940, maxWidth: '95vw' }}>
+      <div onClick={(e) => e.stopPropagation()} className={settle(kit)} style={{ width: 940, maxWidth: '95vw' }}>
         <PixelPanel
           variant="dialog"
           title={tr('addAgent.title')}
@@ -684,30 +744,12 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                     </Row>
 
                     <Row label={tr('addAgent.character')}>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {OFFICE_CAST.map(c => (
-                          <button
-                            key={c.name}
-                            onClick={() => { setCharacter(c.name); setName(c.displayName); }}
-                            title={c.blurb}
-                            style={{
-                              padding: 4,
-                              background: character === c.name ? `var(--cth-${accent}-light)` : 'var(--cth-cream-100)',
-                              boxShadow: character === c.name
-                                ? 'inset 0 0 0 1.5px var(--cth-ink-500)'
-                                : 'inset 0 0 0 1px var(--cth-ink-100)',
-                              cursor: 'pointer',
-                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                              border: 'none', width: 56
-                            }}
-                          >
-                            <div style={{ width: 44, height: 56, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden' }}>
-                              <SpritePortrait character={c.name} scale={2} />
-                            </div>
-                            <span style={{ fontSize: 11, color: 'var(--cth-ink-700)' }}>{c.displayName}</span>
-                          </button>
-                        ))}
-                      </div>
+                      <CharacterPicker
+                        value={character}
+                        accent={accent}
+                        scale={2}
+                        onPick={(c, displayName) => { setCharacter(c); if (displayName) setName(displayName); }}
+                      />
                     </Row>
 
                     <Row label={tr('addAgent.color')}>
@@ -837,6 +879,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                     </Row>
 
                     <label style={{ display: 'flex', gap: 8, alignItems: 'center', cursor: resuming ? 'not-allowed' : 'pointer', opacity: resuming ? 0.5 : 1 }}>
+                      <WebTick on={resuming ? false : isolate}>
                       <input
                         type="checkbox"
                         checked={resuming ? false : isolate}
@@ -844,6 +887,7 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                         onChange={(e) => setIsolate(e.target.checked)}
                         style={{ width: 16, height: 16, cursor: resuming ? 'not-allowed' : 'pointer' }}
                       />
+                      </WebTick>
                       <span style={{ fontFamily: 'var(--cth-font-ui)', fontSize: 13, color: 'var(--cth-ink-900)' }}>
                         {tr('addAgent.gitIsolation')}
                       </span>
@@ -1077,6 +1121,20 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
               </div>
             </div>
 
+            {/* A held Codex start asks here, in place of the error line. */}
+            {held && heldCard.state && (
+              <CodexFolderCard
+                ptyId={held.ptyId}
+                agentName={held.name}
+                state={heldCard.state}
+                placement="dialog"
+                onAllow={() => { heldCard.keep(); setBusy(true); }}
+                onStarted={(res) => { heldCard.drop(); void finishStart(held, res); }}
+                onRefused={() => setBusy(false)}
+                onNotNow={() => { heldCard.drop(); setHeld(null); }}
+              />
+            )}
+
             {error && (
               <div style={{
                 padding: '6px 10px',
@@ -1131,8 +1189,9 @@ export function AddAgentModal({ onClose, config, onConfigChange }: AddAgentModal
                     }}
                   />
                   <div>
-                    <PixelButton variant="secondary" size="sm" onClick={copyHirePrompt}>
+                    <PixelButton variant="secondary" size="sm" onClick={copyHirePrompt} style={{ position: 'relative', isolation: 'isolate' }}>
                       {copiedPrompt ? tr('addAgent.copied') : tr('addAgent.copyPrompt')}
+                      {copiedPrompt && <BooCopied />}
                     </PixelButton>
                   </div>
                 </div>

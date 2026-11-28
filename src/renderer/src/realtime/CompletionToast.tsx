@@ -87,10 +87,9 @@ export function CompletionToast(): JSX.Element | null {
   return (
     <div
       style={{
-        position: 'fixed',
-        right: 16,
-        bottom: 16,
-        zIndex: 9999,
+        // Position is NOT set here — AppOverlaySlot owns the transient corner.
+        // This column still stacks ITS OWN toasts; the slot stacks it against
+        // the other app-level ones.
         display: 'flex',
         flexDirection: 'column',
         gap: 8,

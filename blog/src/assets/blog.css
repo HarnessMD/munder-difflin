@@ -254,6 +254,7 @@ nav .links a:hover, nav .links a[aria-current="page"] { color: var(--ink); }
 .t-comparisons { background: var(--rose); }
 .t-use-cases { background: var(--sky-soft); }
 .t-story { background: var(--peach); }
+.t-news { background: var(--sky-soft); }
 .t-default { background: var(--tan); }
 
 /* ---------- post article ---------- */
@@ -472,3 +473,7 @@ footer { border-top: 2px solid var(--ink); background: var(--cream); margin-top:
   .card, .btn, .chip, .pn { transition: none !important; }
   .card:hover, .btn:hover, .chip:hover, .pn:hover { transform: none !important; }
 }
+
+/* Pinned pillar guides: "Start here" row on the index and a chip on the card. */
+.pinned-title { margin: 28px 0 12px; font-size: 1.5rem; }
+.card .meta .pin { background: var(--yellow, #FFCA54); color: var(--ink, #1A1320); padding: 2px 8px; border-radius: 999px; }

@@ -1,10 +1,25 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js), Google Ads AW-18388216863. Loaded only when Do Not Track is
+     off, so it follows the same rule as the PostHog block on this site. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (navigator.doNotTrack !== '1') {
+    var gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18388216863';
+    document.head.appendChild(gtagScript);
+    gtag('js', new Date());
+    gtag('config', 'AW-18388216863');
+  }
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Run Munder Difflin Locally on a Mac Mini — Munder Difflin Blog</title>
-<meta name="description" content="A step-by-step guide to running a whole Munder Difflin hive offline on an Apple Silicon Mac Mini — how to size models to your unified memory, install Ollama or LM Studio, and wire OpenCode and Crush to a local endpoint." />
+<meta name="description" content="Run a whole Munder Difflin office offline on an Apple silicon Mac mini: size the model to your unified memory, install Ollama or LM Studio, and wire OpenCode, Crush, Qwen and Pi to it. Current as of Munder Difflin 0.5.2 and the M6 and M5 Pro Mac mini." />
 <link rel="canonical" href="https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/" />
 
 <link rel="icon" type="image/png" href="https://munderdiffl.in/logo.png" />
@@ -15,9 +30,12 @@
 <meta property="og:site_name" content="Munder Difflin Blog" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="Run Munder Difflin Locally on a Mac Mini — Munder Difflin Blog" />
-<meta property="og:description" content="A step-by-step guide to running a whole Munder Difflin hive offline on an Apple Silicon Mac Mini — how to size models to your unified memory, install Ollama or LM Studio, and wire OpenCode and Crush to a local endpoint." />
+<meta property="og:description" content="Run a whole Munder Difflin office offline on an Apple silicon Mac mini: size the model to your unified memory, install Ollama or LM Studio, and wire OpenCode, Crush, Qwen and Pi to it. Current as of Munder Difflin 0.5.2 and the M6 and M5 Pro Mac mini." />
 <meta property="og:url" content="https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/" />
-<meta property="og:image" content="https://munderdiffl.in/media/og.png" />
+<meta property="og:image" content="https://munderdiffl.in/blog/assets/media/run-munder-difflin-on-a-mac-mini/hero.png" />
+<meta property="og:image:width" content="1600" />
+<meta property="og:image:height" content="900" />
+<meta property="og:image:alt" content="Illustration: Run Munder Difflin Locally on a Mac Mini" />
 <meta property="og:locale" content="en_US" />
 <meta property="article:published_time" content="2026-06-22T00:00:00.000Z" />
 <meta property="article:author" content="Chaitanya Giri" />
@@ -32,8 +50,9 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Run Munder Difflin Locally on a Mac Mini — Munder Difflin Blog" />
-<meta name="twitter:description" content="A step-by-step guide to running a whole Munder Difflin hive offline on an Apple Silicon Mac Mini — how to size models to your unified memory, install Ollama or LM Studio, and wire OpenCode and Crush to a local endpoint." />
-<meta name="twitter:image" content="https://munderdiffl.in/media/og.png" />
+<meta name="twitter:description" content="Run a whole Munder Difflin office offline on an Apple silicon Mac mini: size the model to your unified memory, install Ollama or LM Studio, and wire OpenCode, Crush, Qwen and Pi to it. Current as of Munder Difflin 0.5.2 and the M6 and M5 Pro Mac mini." />
+<meta name="twitter:image" content="https://munderdiffl.in/blog/assets/media/run-munder-difflin-on-a-mac-mini/hero.png" />
+<meta name="twitter:image:alt" content="Illustration: Run Munder Difflin Locally on a Mac Mini" />
 
 <link rel="alternate" type="application/atom+xml" title="Munder Difflin Blog" href="https://munderdiffl.in/blog/feed.xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,10 +65,10 @@
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Run Munder Difflin Locally on a Mac Mini",
-  "description": "A step-by-step guide to running a whole Munder Difflin hive offline on an Apple Silicon Mac Mini — how to size models to your unified memory, install Ollama or LM Studio, and wire OpenCode and Crush to a local endpoint.",
-  "image": ["https://munderdiffl.in/media/og.png"],
+  "description": "Run a whole Munder Difflin office offline on an Apple silicon Mac mini: size the model to your unified memory, install Ollama or LM Studio, and wire OpenCode, Crush, Qwen and Pi to it. Current as of Munder Difflin 0.5.2 and the M6 and M5 Pro Mac mini.",
+  "image": ["https://munderdiffl.in/blog/assets/media/run-munder-difflin-on-a-mac-mini/hero.png"],
   "datePublished": "2026-06-22T00:00:00.000Z",
-  "dateModified": "2026-06-22T00:00:00.000Z",
+  "dateModified": "2026-09-10T00:00:00.000Z",
   "author": { "@type": "Person", "name": "Chaitanya Giri" },
   "publisher": {
     "@type": "Organization",
@@ -57,7 +76,7 @@
     "logo": { "@type": "ImageObject", "url": "https://munderdiffl.in/logo.png" }
   },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/" },
-  "keywords": "run munder difflin on a mac mini, local llm mac mini, ollama mac mini, apple silicon unified memory llm, offline ai agents mac, lm studio mac mini agents",
+  "keywords": "run munder difflin on a mac mini, local llm mac mini, ollama mac mini, apple silicon unified memory llm, offline ai agents mac, lm studio mac mini agents, m6 mac mini local llm",
   "articleSection": "Guides",
   "inLanguage": "en-US",
   "url": "https://munderdiffl.in/blog/run-munder-difflin-on-a-mac-mini/"
@@ -80,10 +99,11 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "Can a Mac Mini run a Munder Difflin hive offline?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. An Apple Silicon Mac Mini runs the model locally through Ollama or LM Studio, and Munder Difflin points OpenCode and Crush at that local OpenAI-compatible endpoint (in v0.3.1 pi reaches models through a third-party provider key rather than a local server). The hive's control plane (router, scheduler, mailboxes, audit log) is already local-first, so once the model is local there is no cloud dependency at all." } },
-    { "@type": "Question", "name": "How much RAM does the Mac Mini need for local AI agents?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on the model size, not the agent count — every worker shares one local model server. As a rule of thumb on Apple Silicon's unified memory: 16GB comfortably runs 7–8B models, 24GB runs up to ~14B, 32GB up to ~32B (tight), and 48–64GB (M4 Pro) runs a 70B-class model quantized to 4-bit. See the RAM-tier table below." } },
-    { "@type": "Question", "name": "Ollama or LM Studio — which should I use on a Mac Mini?", "acceptedAnswer": { "@type": "Answer", "text": "Either works; both expose an OpenAI-compatible server that Munder Difflin's engines can target. Ollama is a lightweight CLI/daemon (great for headless, always-on hives); LM Studio is a GUI with a model browser and a one-click local server. You can even run both and point different engines at different ports." } },
-    { "@type": "Question", "name": "Which open-source models run best on each engine?", "acceptedAnswer": { "@type": "Answer", "text": "All three engines — OpenCode, Crush, and pi — select models in `provider/model` form. For the fully-local path, OpenCode and Crush point at a local OpenAI-compatible endpoint, so the same locally-served model works across both; in v0.3.1 pi runs through a third-party provider key instead. For the exact, version-verified model slugs and per-RAM-tier picks, see the open-source model catalog linked below — that's the single source of truth we keep current." } }
+    { "@type": "Question", "name": "Can a Mac mini run a Munder Difflin office offline?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Mac mini serves an open model through Ollama or LM Studio, and OpenCode, Crush, Qwen and Pi agents point at that local server. Munder Difflin's routing, mailboxes, memory and schedules already run on your machine, so once the model is local, the agents' work loop does not need the internet." } },
+    { "@type": "Question", "name": "How much memory does a Mac mini need for local AI agents?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on the size of the model, not the number of agents, because every agent shares one model server. As a rule of thumb for 4 bit models: 16 GB runs about 8B comfortably, 24 GB up to about 14B, 32 GB up to about 32B, and 64 GB runs a 70B class model." } },
+    { "@type": "Question", "name": "Which Mac mini should I buy for local models?", "acceptedAnswer": { "@type": "Answer", "text": "Buy for the biggest model you want to run, because the memory cannot be upgraded later. As of September 2026 the M6 Mac mini goes up to 32 GB and the M5 Pro model goes up to 64 GB. For 30B class models, 32 GB is the sweet spot. For 70B class models, get the M5 Pro with 64 GB." } },
+    { "@type": "Question", "name": "Ollama or LM Studio on a Mac mini?", "acceptedAnswer": { "@type": "Answer", "text": "Either works. Both serve an OpenAI compatible endpoint the engines can use. Ollama is a light background service that suits an always on box, and LM Studio is an app with a model browser and a one click local server. You can run both on different ports." } },
+    { "@type": "Question", "name": "How does Pi use a local model?", "acceptedAnswer": { "@type": "Answer", "text": "Through Pi's own config. Add the local server to ~/.pi/agent/models.json, and Munder Difflin copies that file into every Pi agent it starts." } }
     
   ]
 }
@@ -153,14 +173,14 @@
       <a href="/blog/topics/guides/">Guides</a>
     </nav>
     <h1>Run Munder Difflin Locally on a Mac Mini</h1>
-    <p class="dek">A step-by-step guide to running a whole Munder Difflin hive offline on an Apple Silicon Mac Mini — how to size models to your unified memory, install Ollama or LM Studio, and wire OpenCode and Crush to a local endpoint.</p>
+    <p class="dek">Run a whole Munder Difflin office offline on an Apple silicon Mac mini: size the model to your unified memory, install Ollama or LM Studio, and wire OpenCode, Crush, Qwen and Pi to it. Current as of Munder Difflin 0.5.2 and the M6 and M5 Pro Mac mini.</p>
     <div class="byline">
       <span class="av" aria-hidden="true">CG</span>
       <strong>Chaitanya Giri</strong>
       <span class="dot" aria-hidden="true">·</span>
       <time datetime="2026-06-22">Jun 22, 2026</time>
       <span class="dot" aria-hidden="true">·</span>
-      <span>8 min read</span>
+      <span>5 min read</span>
       <span class="tag kind">Guides</span>
     </div>
   </header>
@@ -169,249 +189,174 @@
 
   <div class="post-wrap wrap">
     <div class="prose">
-      <div class="callout tldr"><span class="ic">TL;DR</span><p>A <strong>Mac Mini</strong> with Apple
-Silicon can run an entire <strong>Munder Difflin</strong> hive <em>offline</em>. Serve an open-source
-model locally with <strong>Ollama</strong> or <strong>LM Studio</strong>, size the model to your
-<strong>unified memory</strong> (16GB → ~7–8B, 24GB → ~14B, 32GB → ~32B, 48–64GB → 70B-class at 4-bit),
-then point <a href="/blog/why-cli-agents-are-powerful/">OpenCode and Crush</a> at the local endpoint via
-<strong>Settings → AI Engines</strong> (pi uses a third-party provider key in v0.3.1). The hive's control plane is
-<a href="/blog/local-first-ai-agent-orchestration/">already local-first</a>, so nothing leaves the box.</p></div>
-<p>It’s one thing to run a single local model in a chat window. It’s another to put a whole <em>team</em> of
-agents to work on your own hardware, with no API bill and no data leaving the room. That’s the promise
-of running Munder Difflin on a Mac Mini: the <a href="/blog/local-first-ai-agent-orchestration/">orchestration is already
-local-first</a> — the message router, scheduler, mailboxes, and
-git audit log are all processes on your machine — so the only remaining cloud dependency is the model
-call itself. Move that local, and the hive is fully offline.</p>
-<p>This guide walks the whole setup: picking a Mac Mini tier, understanding how Apple Silicon’s unified
-memory bounds what you can run, installing a local model server, and wiring each CLI engine to it.</p>
-<h2 id="why-the-mac-mini-is-a-good-hive-box" tabindex="-1">Why the Mac Mini is a good hive box <a class="anchor" href="#why-the-mac-mini-is-a-good-hive-box" aria-hidden="true">#</a></h2>
-<p>The Mac Mini is the cheapest way into Apple Silicon’s <strong>unified memory</strong> architecture, and unified
-memory is exactly what local LLMs want. On a Mac, the CPU, GPU, and Neural Engine all share one pool of
-high-bandwidth RAM — so the model’s weights live in the same memory the GPU computes against, with no
-copy across a PCIe bus. A 32GB Mac Mini can hold a model that would need a 32GB <em>discrete</em> GPU on a PC,
-at a fraction of the price and power draw. And because the Mini is small, quiet, and sips power, it’s a
-natural always-on box for a hive you leave running for hours.</p>
-<p>One catch worth knowing up front: <strong>Apple Silicon RAM is soldered to the chip and cannot be upgraded
-after purchase.</strong> Buy the memory you’ll want for the largest model you intend to run — it’s the one
-spec you can’t change later.</p>
-<h2 id="step-1-pick-a-mac-mini-tier-for-the-model-you-want-to-run" tabindex="-1">Step 1 — Pick a Mac Mini tier for the model you want to run <a class="anchor" href="#step-1-pick-a-mac-mini-tier-for-the-model-you-want-to-run" aria-hidden="true">#</a></h2>
-<p>Model count doesn’t drive your RAM — <em>model size</em> does. Every worker in the hive shares one local model
-server, so a ten-agent hive and a two-agent hive on the same model need roughly the same memory. What
-you’re really choosing is <strong>how large a model the box can hold.</strong></p>
-<p>A 4-bit-quantized model needs roughly <strong>0.6 GB of memory per billion parameters</strong> for its weights, plus
-headroom for the KV cache (grows with context length), the model server, and macOS itself. macOS also
-caps how much unified memory the GPU may pin — by default around 65–75% — though you can raise that
-ceiling on a dedicated box with <code>sudo sysctl iogpu.wired_limit_mb=&lt;MB&gt;</code> when you need to fit a large
-model. A practical rule: <strong>plan for the model to use about two-thirds of your unified memory</strong> and leave
-the rest for context and the OS.</p>
-<p>Current Mac Mini lineup and what each tier comfortably runs (4-bit quant):</p>
+      <div class="callout tldr"><span class="ic">TL;DR</span><p>An Apple silicon <strong>Mac mini</strong> can run
+a whole <strong>Munder Difflin</strong> office offline. Serve an open model with <strong>Ollama</strong> or
+<strong>LM Studio</strong>, size it to your <strong>unified memory</strong> (16 GB about 8B, 24 GB about 14B, 32 GB
+about 32B, 64 GB a 70B class model at 4 bit), then point <strong>OpenCode</strong>, <strong>Crush</strong> and
+<strong>Qwen</strong> at it in <strong>Settings → AI Engines</strong> and add it to <strong>Pi</strong>'s own models file.
+The office's routing, mailboxes and schedules are <a href="/blog/local-first-ai-agent-orchestration/">already local
+first</a>.</p></div>
+<p>Running one local model in a chat window is a hobby. Putting a whole team of agents to work on your own hardware, with no
+API bill and nothing leaving the room, is a different project. Munder Difflin’s plumbing already runs on your machine: message
+routing, mailboxes, memory, schedules and git history. The one piece that usually calls out to the internet is the model. Move
+that onto the Mac mini and the agents’ whole loop stays in the room.</p>
+<p>This guide covers picking a Mac mini, sizing a model to its memory, installing a model server and wiring each engine, checked
+against Munder Difflin 0.5.2 and Apple’s Mac mini lineup on 10 September 2026.</p>
+<h2 id="why-is-a-mac-mini-a-good-box-for-local-agents" tabindex="-1">Why is a Mac mini a good box for local agents? <a class="anchor" href="#why-is-a-mac-mini-a-good-box-for-local-agents" aria-hidden="true">#</a></h2>
+<p>Unified memory. On Apple silicon the CPU and GPU share one pool of fast memory, so the model’s weights sit right where the GPU
+works on them, with no copying across a bus. A 32 GB Mac mini holds a model that would need a 32 GB graphics card on a PC, for
+a fraction of the power. It is also small and quiet, which makes it a natural always on box.</p>
+<p>One catch up front: <strong>the memory is part of the chip and cannot be upgraded later.</strong> Buy for the largest model you plan to run.</p>
+<h2 id="how-much-memory-do-you-need" tabindex="-1">How much memory do you need? <a class="anchor" href="#how-much-memory-do-you-need" aria-hidden="true">#</a></h2>
+<p>Enough for the model, not for the agents. Every agent shares one model server, so ten agents and two agents on the same model
+need about the same memory.</p>
+<p>A 4 bit model needs roughly <strong>0.6 GB per billion parameters</strong>, plus room for context, the model server and macOS. macOS also
+caps how much memory the GPU can hold by default, somewhere around two thirds to three quarters of it. On a dedicated box you can
+raise that ceiling with <code>sudo sysctl iogpu.wired_limit_mb=&lt;MB&gt;</code>. A practical rule: <strong>plan for the model to use about two thirds of
+your memory.</strong></p>
+<p>Here is the Mac mini range as of September 2026, and what each memory size runs comfortably at 4 bit:</p>
 <div class="table-scroll">
 <table>
 <thead>
 <tr>
-<th>Mac Mini</th>
-<th>Unified memory</th>
-<th>Memory bandwidth</th>
-<th>Comfortable model size (Q4)</th>
+<th>Mac mini</th>
+<th>Memory</th>
+<th>Comfortable model size</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>M4 (base)</td>
-<td>16GB</td>
-<td>120 GB/s</td>
-<td>~7–8B (e.g. an 8B-class coder)</td>
+<td>M6</td>
+<td>16 GB</td>
+<td>About 8B</td>
 </tr>
 <tr>
-<td>M4</td>
-<td>24GB</td>
-<td>120 GB/s</td>
-<td>up to ~14B</td>
+<td>M6</td>
+<td>24 GB</td>
+<td>Up to about 14B</td>
 </tr>
 <tr>
-<td>M4</td>
-<td>32GB</td>
-<td>120 GB/s</td>
-<td>up to ~32B (tight; short context)</td>
+<td>M6</td>
+<td>32 GB</td>
+<td>Up to about 32B, with shorter context</td>
 </tr>
 <tr>
-<td>M4 Pro</td>
-<td>48GB</td>
-<td>273 GB/s</td>
-<td>~32B with room, or a 70B at heavy quant</td>
+<td>M5 Pro</td>
+<td>24 GB</td>
+<td>Up to about 14B, generated faster</td>
 </tr>
 <tr>
-<td>M4 Pro</td>
-<td>64GB</td>
-<td>273 GB/s</td>
-<td>70B-class at 4-bit</td>
+<td>M5 Pro</td>
+<td>48 GB</td>
+<td>32B with room, or 70B at heavy quantization</td>
+</tr>
+<tr>
+<td>M5 Pro</td>
+<td>64 GB</td>
+<td>70B class at 4 bit</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><em>(Newer Mac Mini chips raise bandwidth and the memory ceiling, but the same “model ≈ two-thirds of
-unified memory” sizing rule carries over — pick the tier by the model size you want.)</em></p>
-<p>Here’s a concrete pick for each tier. Pull these with Ollama (LM Studio carries the same models as
-GGUF/MLX): <code>ollama pull &lt;tag&gt;</code>, then reference the model as <code>local/&lt;tag&gt;</code> in OpenCode or <code>ollama/&lt;tag&gt;</code> in
-Crush (more on that in Step 3).</p>
+<p>The M5 Pro also has much faster memory, 307 GB/s against up to 170 GB/s on the M6, and that shows up as tokens per second.</p>
+<p>A concrete pick for each memory size, pulled with <code>ollama pull &lt;tag&gt;</code>:</p>
 <div class="table-scroll">
 <table>
 <thead>
 <tr>
-<th>Mac Mini RAM</th>
-<th>Recommended pick (Ollama tag)</th>
-<th>Weights (Q4)</th>
+<th>Memory</th>
+<th>Pick (Ollama tag)</th>
 <th>Good for</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>16GB</td>
-<td><code>gpt-oss:20b</code> (tight) — or lighter <code>qwen3:8b</code> / <code>deepseek-r1:8b</code></td>
-<td>~14GB / ~5GB</td>
-<td>Smallest genuinely capable default; the 8B picks leave more context headroom</td>
+<td>16 GB</td>
+<td><code>gpt-oss:20b</code> (tight), or <code>qwen3:8b</code> or <code>deepseek-r1:8b</code> for more context room</td>
+<td>The smallest capable default</td>
 </tr>
 <tr>
-<td>24GB</td>
-<td><code>qwen3:14b</code> · <code>mistral-small:24b</code></td>
-<td>9–14GB</td>
-<td>Roomy generalist with context to spare</td>
+<td>24 GB</td>
+<td><code>qwen3:14b</code> or <code>mistral-small:24b</code></td>
+<td>A roomy generalist</td>
 </tr>
 <tr>
-<td>32GB</td>
-<td><code>qwen3:30b-a3b</code> (MoE) · <code>qwen3-coder:30b</code> · <code>deepseek-r1:32b</code></td>
-<td>~19–20GB</td>
-<td>The sweet spot — fast MoE generalist, coding, or reasoning</td>
+<td>32 GB</td>
+<td><code>qwen3:30b-a3b</code>, <code>qwen3-coder:30b</code> or <code>deepseek-r1:32b</code></td>
+<td>The sweet spot: generalist, coding or reasoning</td>
 </tr>
 <tr>
-<td>48GB (M4 Pro)</td>
-<td><code>glm-4.7-flash</code> (q8) · <code>mixtral:8x7b</code></td>
-<td>26–32GB</td>
-<td>Bigger context, plus the only Mac-viable GLM</td>
+<td>48 GB</td>
+<td><code>glm-4.7-flash</code> at 8 bit, or <code>mixtral:8x7b</code></td>
+<td>Bigger context</td>
 </tr>
 <tr>
-<td>64GB (M4 Pro)</td>
-<td><code>llama3.3:70b</code> · <code>deepseek-r1:70b</code></td>
-<td>~43GB</td>
-<td>A 70B-class generalist or reasoner at 4-bit</td>
-</tr>
-<tr>
-<td>96GB+ (Studio-class)</td>
-<td><code>gpt-oss:120b</code> · <code>llama4:scout</code></td>
-<td>65–67GB</td>
-<td>Top local models; need ~80GB resident</td>
+<td>64 GB</td>
+<td><code>llama3.3:70b</code> or <code>deepseek-r1:70b</code></td>
+<td>A 70B class generalist or reasoner</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>These picks are drawn from the model families our open-source model catalog tracks — the single source of
-truth we keep version-current.
-The companion guide, <a href="/blog/run-munder-difflin-on-open-models/">running Munder Difflin on open
-models</a>, pairs each tier with the same picks and adds the third-party-provider route.</p>
-<div class="callout"><span class="ic">⚠️</span><p><strong>What a Mac Mini <em>can't</em> run
-locally.</strong> The frontier open-weight flagships — <strong>Kimi K2.x</strong> (~1&nbsp;trillion
-parameters) and <strong>GLM-5.2</strong> (744B) — are server-class: their 4-bit weights run to hundreds of
-gigabytes, far past any Mac Mini. To use those, skip the local server and point an engine at a third-party
-open-source-model provider (OpenRouter, Groq, DeepInfra, and friends) with an API key — covered in the
-<a href="/blog/run-munder-difflin-on-open-models/">open-models guide</a>. For a genuinely local GLM,
-<code>glm-4.7-flash</code> (~30B) is the Mac-friendly member of the family.</p></div>
+<div class="callout note"><span class="ic">Heads up</span><p><strong>What a Mac mini cannot run.</strong> The frontier open
+flagships, like Kimi K2.6 and Qwen3 235B, are server class and far beyond 64 GB. Use a provider for those, which the
+<a href="/blog/run-munder-difflin-on-open-models/">open models guide</a> covers. And <code>gpt-oss:120b</code> needs about 96 GB,
+which means a Mac Studio rather than a mini.</p></div>
 <figure class="fig fig-inline"><img src="/blog/assets/media/run-munder-difflin-on-a-mac-mini/note-1.png" alt="Hand-drawn sketch from “Run Munder Difflin Locally on a Mac Mini”" loading="lazy" decoding="async" /></figure>
-<h2 id="step-2-install-a-local-model-server" tabindex="-1">Step 2 — Install a local model server <a class="anchor" href="#step-2-install-a-local-model-server" aria-hidden="true">#</a></h2>
-<p>You have two solid options. Both expose an <strong>OpenAI-compatible HTTP endpoint</strong>, which is exactly what
-Munder Difflin’s engines target.</p>
-<h3 id="option-a-ollama-lightweight-headless-friendly" tabindex="-1">Option A — Ollama (lightweight, headless-friendly) <a class="anchor" href="#option-a-ollama-lightweight-headless-friendly" aria-hidden="true">#</a></h3>
-<pre class="language-bash"><code class="language-bash"><span class="token comment"># Install (Homebrew) and start the daemon</span>
-brew <span class="token function">install</span> ollama
-ollama serve              <span class="token comment"># runs the API on http://localhost:11434</span>
-
-<span class="token comment"># Pull a model (pick the tag for your RAM tier — see Step 1)</span>
-ollama pull gpt-oss:20b   <span class="token comment"># 16GB-friendly default; swap for your tier's tag</span></code></pre>
-<p>Ollama’s OpenAI-compatible API is served at <strong><code>http://localhost:11434/v1</code></strong>. It runs as a background
-daemon, which makes it the natural choice for an always-on hive box.</p>
-<h3 id="option-b-lm-studio-gui-model-browser-one-click-server" tabindex="-1">Option B — LM Studio (GUI, model browser, one-click server) <a class="anchor" href="#option-b-lm-studio-gui-model-browser-one-click-server" aria-hidden="true">#</a></h3>
-<p>Download LM Studio from <a href="https://lmstudio.ai">lmstudio.ai</a>, search and download a model in its UI, then
-start the <strong>Local Server</strong> (the “Developer” / server tab). LM Studio serves an OpenAI-compatible API at
-<strong><code>http://localhost:1234/v1</code></strong>.</p>
-<div class="callout"><span class="ic">💡</span><p>You can run <em>both</em> — Ollama on :11434 and LM
-Studio on :1234 — and point different engines at different ports if you want to compare models side by
-side across your workers.</p></div>
-<h2 id="step-3-wire-each-cli-engine-to-the-local-endpoint" tabindex="-1">Step 3 — Wire each CLI engine to the local endpoint <a class="anchor" href="#step-3-wire-each-cli-engine-to-the-local-endpoint" aria-hidden="true">#</a></h2>
-<p>Munder Difflin runs each agent on a pluggable <a href="/blog/why-cli-agents-are-powerful/">CLI engine</a>. All three engines select models in <strong><code>provider/model</code></strong> form, but for the fully-local path it’s <strong>two</strong> —
-OpenCode and Crush — that wire a local OpenAI-compatible endpoint in v0.3.1, so the same locally-served
-model works across both. (pi reaches models through a third-party provider key in this release — see its
-note below.) The fastest path
-is <strong>Settings → AI Engines</strong>: set the per-engine base URL to your local server and pick the model; the
-harness writes the right per-agent config for you. Here’s what that maps to under the hood for each
-engine.</p>
+<h2 id="step-1-install-a-model-server" tabindex="-1">Step 1: Install a model server <a class="anchor" href="#step-1-install-a-model-server" aria-hidden="true">#</a></h2>
+<p>Ollama or LM Studio. Both serve an OpenAI compatible endpoint, which is what the engines talk to.</p>
+<h3 id="ollama-light-good-for-an-always-on-box" tabindex="-1">Ollama: light, good for an always on box <a class="anchor" href="#ollama-light-good-for-an-always-on-box" aria-hidden="true">#</a></h3>
+<pre class="language-bash"><code class="language-bash">brew <span class="token function">install</span> ollama
+ollama serve              <span class="token comment"># serves the API on http://localhost:11434</span>
+ollama pull gpt-oss:20b   <span class="token comment"># swap in the tag for your memory size</span></code></pre>
+<p>Its OpenAI compatible API lives at <strong><code>http://localhost:11434/v1</code></strong>. It runs as a background service, which suits a box you leave on.</p>
+<h3 id="lm-studio-an-app-with-a-model-browser" tabindex="-1">LM Studio: an app with a model browser <a class="anchor" href="#lm-studio-an-app-with-a-model-browser" aria-hidden="true">#</a></h3>
+<p>Download it from <a href="https://lmstudio.ai">lmstudio.ai</a>, find and download a model inside the app, then start its local server from the
+Developer section. It serves an OpenAI compatible API at <strong><code>http://localhost:1234/v1</code></strong>.</p>
+<p>You can run both, Ollama on 11434 and LM Studio on 1234, and point different engines at different ports to compare models.</p>
+<h2 id="step-2-wire-each-engine-to-the-local-server" tabindex="-1">Step 2: Wire each engine to the local server <a class="anchor" href="#step-2-wire-each-engine-to-the-local-server" aria-hidden="true">#</a></h2>
+<p>Four engines can use a local model on your Mac mini floor.</p>
+<h3 id="opencode" tabindex="-1">OpenCode <a class="anchor" href="#opencode" aria-hidden="true">#</a></h3>
+<p>Open <strong>Settings → AI Engines</strong> and set OpenCode’s local base URL to <code>http://localhost:11434/v1</code>. The app injects it as a local
+provider when the agent starts. Pick the model as <code>local/&lt;tag&gt;</code>, for example <code>local/gpt-oss:20b</code>.</p>
 <h3 id="crush" tabindex="-1">Crush <a class="anchor" href="#crush" aria-hidden="true">#</a></h3>
-<p>Crush reads a JSON config. Define the local server as an <strong><code>openai-compat</code></strong> provider (this keeps it on
-the OpenAI wire, which is what the harness proxy expects — don’t use Crush’s native <code>ollama</code>/<code>lmstudio</code>
-discovery types for the hive path):</p>
+<p>Set Crush’s local base URL in the same panel. Crush runs through a small local proxy inside the app, and your server becomes that
+proxy’s upstream, so there is no Crush config to edit by hand. Pick the model as <code>ollama/&lt;tag&gt;</code>, for example <code>ollama/gpt-oss:20b</code>.</p>
+<h3 id="qwen" tabindex="-1">Qwen <a class="anchor" href="#qwen" aria-hidden="true">#</a></h3>
+<p>Set Qwen’s local base URL and default model in the same panel. Qwen uses the same proxy approach as Crush.</p>
+<h3 id="pi" tabindex="-1">Pi <a class="anchor" href="#pi" aria-hidden="true">#</a></h3>
+<p>Pi reads local models from its own file, <code>~/.pi/agent/models.json</code>, and Munder Difflin copies that file into every Pi agent it
+starts. The app’s base URL field for Pi stays reserved. Add Ollama like this, then pick <code>ollama/gpt-oss:20b</code>:</p>
 <pre class="language-json"><code class="language-json"><span class="token punctuation">{</span>
   <span class="token property">"providers"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"ollama"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-      <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Ollama"</span><span class="token punctuation">,</span>
-      <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"openai-compat"</span><span class="token punctuation">,</span>
-      <span class="token property">"base_url"</span><span class="token operator">:</span> <span class="token string">"http://localhost:11434/v1"</span><span class="token punctuation">,</span>
-      <span class="token property">"api_key"</span><span class="token operator">:</span> <span class="token string">"ollama"</span><span class="token punctuation">,</span>
-      <span class="token property">"models"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
-        <span class="token punctuation">{</span> <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"gpt-oss 20B"</span><span class="token punctuation">,</span> <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"gpt-oss:20b"</span><span class="token punctuation">,</span> <span class="token property">"context_window"</span><span class="token operator">:</span> <span class="token number">131072</span><span class="token punctuation">,</span> <span class="token property">"default_max_tokens"</span><span class="token operator">:</span> <span class="token number">8192</span> <span class="token punctuation">}</span>
-      <span class="token punctuation">]</span>
+      <span class="token property">"baseUrl"</span><span class="token operator">:</span> <span class="token string">"http://localhost:11434/v1"</span><span class="token punctuation">,</span>
+      <span class="token property">"api"</span><span class="token operator">:</span> <span class="token string">"openai-completions"</span><span class="token punctuation">,</span>
+      <span class="token property">"apiKey"</span><span class="token operator">:</span> <span class="token string">"ollama"</span><span class="token punctuation">,</span>
+      <span class="token property">"models"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span> <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"gpt-oss:20b"</span> <span class="token punctuation">}</span><span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></code></pre>
-<p>Then select the model as <code>ollama/gpt-oss:20b</code> (swap in the tag for your RAM tier from Step 1). For LM
-Studio, use <code>base_url: &quot;http://localhost:1234/v1&quot;</code>, <code>api_key: &quot;lm-studio&quot;</code>, and a <code>lmstudio</code> provider key,
-then select <code>lmstudio/&lt;model-id&gt;</code>.</p>
-<h3 id="opencode" tabindex="-1">OpenCode <a class="anchor" href="#opencode" aria-hidden="true">#</a></h3>
-<p>OpenCode reaches a local model through a custom OpenAI-compatible provider (the <code>@ai-sdk/openai-compatible</code>
-adapter with <code>options.baseURL</code>). In Munder Difflin, set the OpenCode base URL in Settings → AI Engines to
-your local server and choose the model in <code>provider/model</code> form; the harness supplies the engine config.</p>
-<h3 id="pi" tabindex="-1">pi <a class="anchor" href="#pi" aria-hidden="true">#</a></h3>
-<p>A heads-up specific to <strong>v0.3.1</strong>: pi’s local-endpoint field is <strong>reserved.</strong> This release wires a local
-base URL for OpenCode and Crush only — it does not yet write a local provider into pi’s <code>models.json</code> — so
-the fully-offline path today runs on <strong>OpenCode or Crush.</strong> To put pi to work in this release, point it at
-a third-party open-source-model provider instead of a local server: set a provider key in <strong>Settings → AI
-Engines</strong> (e.g. an OpenRouter or Groq key) and pick an open-model slug such as
-<code>openrouter/openai/gpt-oss-120b</code> or <code>groq/llama-3.3-70b-versatile</code>. pi joins the local path once its
-local-endpoint field ships; until then, build your offline hive on OpenCode and Crush.</p>
-<div class="callout"><span class="ic">📋</span><p><strong>The same local model, three prefixes.</strong>
-Once a model is served locally, each engine names it slightly differently: OpenCode as
-<code>local/&lt;tag&gt;</code>, Crush as <code>ollama/&lt;tag&gt;</code>. For example, gpt-oss 20B is
-<code>local/gpt-oss:20b</code> in OpenCode and <code>ollama/gpt-oss:20b</code> in Crush. (In v0.3.1, pi
-points at a third-party <code>provider/model</code> slug instead, per the note above.) The exact slugs for
-every tier live in the <a href="/blog/run-munder-difflin-on-open-models/">open-source model catalog</a>,
-kept in one place so they don't drift.</p></div>
+<p>For LM Studio, use <code>http://localhost:1234/v1</code> and the model id LM Studio shows you.</p>
 <figure class="fig fig-inline"><img src="/blog/assets/media/run-munder-difflin-on-a-mac-mini/note-2.png" alt="Hand-drawn sketch from “Run Munder Difflin Locally on a Mac Mini”" loading="lazy" decoding="async" /></figure>
-<h2 id="step-4-run-the-hive-offline" tabindex="-1">Step 4 — Run the hive offline <a class="anchor" href="#step-4-run-the-hive-offline" aria-hidden="true">#</a></h2>
-<p>With a model served locally and the engines pointed at it, the rest of Munder Difflin is already
-local-first. Spin up your workers from the <a href="/blog/how-to-install-and-use-munder-difflin/">Agent Gallery or Add Agent</a>,
-give the hive a goal, and let it run. The <a href="/blog/atomic-file-mailboxes-for-agents/">message router</a> moves
-work between agents through file mailboxes, the scheduler fires tasks on local timers, and git records
-the audit trail — none of it touches a network. Pull the Ethernet cable and the hive keeps working.</p>
-<p>A few operational notes for an offline Mac Mini hive:</p>
+<h2 id="step-3-run-the-office" tabindex="-1">Step 3: Run the office <a class="anchor" href="#step-3-run-the-office" aria-hidden="true">#</a></h2>
+<p>With a model served and the engines pointed at it, hire workers from the
+<a href="/blog/how-to-hire-from-the-agent-gallery/">Agent Gallery or Add agent</a>, give Michael a goal, and let it run. Messages move between
+agents through <a href="/blog/atomic-file-mailboxes-for-agents/">file mailboxes</a>, schedules fire on local timers, and git keeps the history.</p>
+<p>A few notes for an always on Mac mini:</p>
 <ul>
-<li><strong>One model, many workers.</strong> Every agent shares the local server, so concurrency is bounded by the
-Mac Mini’s compute, not by per-agent memory. Watch tokens/sec under load and keep contexts trim on the
-16/24GB tiers.</li>
-<li><strong>Keep it awake.</strong> A headless always-on hive wants the Mini to not sleep — set Energy settings to
-prevent sleep (or <code>caffeinate</code> the session) so the router and scheduler keep ticking.</li>
-<li><strong>Quantization is your lever.</strong> If a model won’t fit, drop to a heavier quant before dropping a tier —
-4-bit is the usual sweet spot for coder models on these boxes.</li>
-<li><strong>Fully offline means OpenCode or Crush.</strong> In v0.3.1 those are the two engines that wire a local base
-URL, so a hive built on them runs with the cable pulled. pi currently reaches models through a
-third-party provider key (its local field is reserved), so pi workers need a network — mix engines
-accordingly if total isolation is the goal.</li>
+<li><strong>One model, many workers.</strong> Every agent shares the model server, so the limit is the chip’s speed, not memory per agent. Watch
+tokens per second under load, and keep contexts trim on 16 and 24 GB.</li>
+<li><strong>Keep it awake.</strong> Set the Mac mini not to sleep, or run <code>caffeinate</code>, so schedules keep firing. Munder Difflin also holds the
+machine awake while at least one agent is running.</li>
+<li><strong>Quantization is your lever.</strong> If a model does not fit, try a smaller quantization before you try a smaller model.</li>
+<li><strong>Mix engines freely.</strong> OpenCode, Crush, Qwen and Pi can all share the same local server, so choose per agent.</li>
 </ul>
 <h2 id="where-to-go-next" tabindex="-1">Where to go next <a class="anchor" href="#where-to-go-next" aria-hidden="true">#</a></h2>
 <ul>
-<li>The companion guide, <a href="/blog/run-munder-difflin-on-open-models/">run Munder Difflin on open models</a>,
-covers running fully local <em>or</em> through a third-party open-source provider, and pairs each RAM tier
-with a concrete model pick.</li>
-<li>For the <em>why</em> behind keeping it all on your machine, see <a href="/blog/why-local-first-matters-for-ai-agents/">why local-first matters for AI
-agents</a>.</li>
-<li>New to the app? Start with <a href="/blog/how-to-install-and-use-munder-difflin/">how to install and use Munder
-Difflin</a>.</li>
+<li><a href="/blog/run-munder-difflin-on-open-models/">Run Munder Difflin on open models</a> adds the provider route and the full list of quick picks.</li>
+<li><a href="/blog/why-local-first-matters-for-ai-agents/">Why local first matters for AI agents</a>, for the reasoning behind all of this.</li>
+<li>New to the app? Start with <a href="/blog/how-to-install-and-use-munder-difflin/">how to install and use Munder Difflin</a>.</li>
 </ul>
 
 
@@ -420,23 +365,28 @@ Difflin</a>.</li>
         <h2 id="faq">FAQ</h2>
         
         <div class="qa">
-          <p class="q">Can a Mac Mini run a Munder Difflin hive offline?</p>
-          <p class="a">Yes. An Apple Silicon Mac Mini runs the model locally through Ollama or LM Studio, and Munder Difflin points OpenCode and Crush at that local OpenAI-compatible endpoint (in v0.3.1 pi reaches models through a third-party provider key rather than a local server). The hive&#39;s control plane (router, scheduler, mailboxes, audit log) is already local-first, so once the model is local there is no cloud dependency at all.</p>
+          <p class="q">Can a Mac mini run a Munder Difflin office offline?</p>
+          <p class="a">Yes. The Mac mini serves an open model through Ollama or LM Studio, and OpenCode, Crush, Qwen and Pi agents point at that local server. Munder Difflin&#39;s routing, mailboxes, memory and schedules already run on your machine, so once the model is local, the agents&#39; work loop does not need the internet.</p>
         </div>
         
         <div class="qa">
-          <p class="q">How much RAM does the Mac Mini need for local AI agents?</p>
-          <p class="a">It depends on the model size, not the agent count — every worker shares one local model server. As a rule of thumb on Apple Silicon&#39;s unified memory: 16GB comfortably runs 7–8B models, 24GB runs up to ~14B, 32GB up to ~32B (tight), and 48–64GB (M4 Pro) runs a 70B-class model quantized to 4-bit. See the RAM-tier table below.</p>
+          <p class="q">How much memory does a Mac mini need for local AI agents?</p>
+          <p class="a">It depends on the size of the model, not the number of agents, because every agent shares one model server. As a rule of thumb for 4 bit models: 16 GB runs about 8B comfortably, 24 GB up to about 14B, 32 GB up to about 32B, and 64 GB runs a 70B class model.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Ollama or LM Studio — which should I use on a Mac Mini?</p>
-          <p class="a">Either works; both expose an OpenAI-compatible server that Munder Difflin&#39;s engines can target. Ollama is a lightweight CLI/daemon (great for headless, always-on hives); LM Studio is a GUI with a model browser and a one-click local server. You can even run both and point different engines at different ports.</p>
+          <p class="q">Which Mac mini should I buy for local models?</p>
+          <p class="a">Buy for the biggest model you want to run, because the memory cannot be upgraded later. As of September 2026 the M6 Mac mini goes up to 32 GB and the M5 Pro model goes up to 64 GB. For 30B class models, 32 GB is the sweet spot. For 70B class models, get the M5 Pro with 64 GB.</p>
         </div>
         
         <div class="qa">
-          <p class="q">Which open-source models run best on each engine?</p>
-          <p class="a">All three engines — OpenCode, Crush, and pi — select models in `provider/model` form. For the fully-local path, OpenCode and Crush point at a local OpenAI-compatible endpoint, so the same locally-served model works across both; in v0.3.1 pi runs through a third-party provider key instead. For the exact, version-verified model slugs and per-RAM-tier picks, see the open-source model catalog linked below — that&#39;s the single source of truth we keep current.</p>
+          <p class="q">Ollama or LM Studio on a Mac mini?</p>
+          <p class="a">Either works. Both serve an OpenAI compatible endpoint the engines can use. Ollama is a light background service that suits an always on box, and LM Studio is an app with a model browser and a one click local server. You can run both on different ports.</p>
+        </div>
+        
+        <div class="qa">
+          <p class="q">How does Pi use a local model?</p>
+          <p class="a">Through Pi&#39;s own config. Add the local server to ~/.pi/agent/models.json, and Munder Difflin copies that file into every Pi agent it starts.</p>
         </div>
         
       </section>
@@ -455,64 +405,64 @@ Difflin</a>.</li>
     <aside class="toc-rail" aria-label="Table of contents">
       <div class="tt">On this page</div>
       <ol>
-        <li class="lvl-2"><a href="#why-the-mac-mini-is-a-good-hive-box">Why the Mac Mini is a good hive box</a></li><li class="lvl-2"><a href="#step-1-pick-a-mac-mini-tier-for-the-model-you-want-to-run">Step 1 — Pick a Mac Mini tier for the model you want to run</a></li><li class="lvl-2"><a href="#step-2-install-a-local-model-server">Step 2 — Install a local model server</a></li><li class="lvl-3"><a href="#option-a-ollama-lightweight-headless-friendly">Option A — Ollama (lightweight, headless-friendly)</a></li><li class="lvl-3"><a href="#option-b-lm-studio-gui-model-browser-one-click-server">Option B — LM Studio (GUI, model browser, one-click server)</a></li><li class="lvl-2"><a href="#step-3-wire-each-cli-engine-to-the-local-endpoint">Step 3 — Wire each CLI engine to the local endpoint</a></li><li class="lvl-3"><a href="#crush">Crush</a></li><li class="lvl-3"><a href="#opencode">OpenCode</a></li><li class="lvl-3"><a href="#pi">pi</a></li><li class="lvl-2"><a href="#step-4-run-the-hive-offline">Step 4 — Run the hive offline</a></li><li class="lvl-2"><a href="#where-to-go-next">Where to go next</a></li>
+        <li class="lvl-2"><a href="#why-is-a-mac-mini-a-good-box-for-local-agents">Why is a Mac mini a good box for local agents?</a></li><li class="lvl-2"><a href="#how-much-memory-do-you-need">How much memory do you need?</a></li><li class="lvl-2"><a href="#step-1-install-a-model-server">Step 1: Install a model server</a></li><li class="lvl-3"><a href="#ollama-light-good-for-an-always-on-box">Ollama: light, good for an always on box</a></li><li class="lvl-3"><a href="#lm-studio-an-app-with-a-model-browser">LM Studio: an app with a model browser</a></li><li class="lvl-2"><a href="#step-2-wire-each-engine-to-the-local-server">Step 2: Wire each engine to the local server</a></li><li class="lvl-3"><a href="#opencode">OpenCode</a></li><li class="lvl-3"><a href="#crush">Crush</a></li><li class="lvl-3"><a href="#qwen">Qwen</a></li><li class="lvl-3"><a href="#pi">Pi</a></li><li class="lvl-2"><a href="#step-3-run-the-office">Step 3: Run the office</a></li><li class="lvl-2"><a href="#where-to-go-next">Where to go next</a></li>
       </ol>
     </aside>
     
   </div>
 
   <footer class="post-foot wrap"><div class="prevnext">
-      <a class="pn prev" href="/blog/run-munder-difflin-on-open-models/"><span class="k">← Older</span><span class="t">Run Munder Difflin on Open-Source Models — Fully Local or via a Third-Party Provider</span></a>
+      <a class="pn prev" href="/blog/run-munder-difflin-on-open-models/"><span class="k">← Older</span><span class="t">Run Munder Difflin on Open Source Models: Fully Local or Through a Provider</span></a>
       <a class="pn next" href="/blog/launching-munder-difflin-v0-3-2/"><span class="k">Newer →</span><span class="t">Launching Munder Difflin v0.3.2: Talk to Michael, a Realtime Voice Orchestrator</span></a>
     </div>
     <section class="related">
       <h2>Related in Guides</h2>
       <div class="post-grid">
         <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/command-center-guide/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/command-center-guide/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/check-agent-skill-before-install/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/check-agent-skill-before-install/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-07-03">Jul 3, 2026</time>
+      <time datetime="2026-11-28">Nov 28, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/command-center-guide/">The Command Center: Kanban, Fleet, and Budgets in One Place</a></h3>
-    <p class="dek">A guide to Munder Difflin&#39;s Command Center — the task kanban, live fleet monitoring, per-agent budgets and cost telemetry — and when to watch the board instead of the floor.</p>
+    <h3><a href="/blog/check-agent-skill-before-install/">Agent Skill Security: How to Check a Skill Before You Install It</a></h3>
+    <p class="dek">Agent skill security in 8 checks: read SKILL.md and its scripts, find network calls and remote scripts, pin a commit, scan it, keep prompts on.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/command-center-guide/" aria-label="Read: The Command Center: Kanban, Fleet, and Budgets in One Place">Read →</a>
+      <a class="more" href="/blog/check-agent-skill-before-install/" aria-label="Read: Agent Skill Security: How to Check a Skill Before You Install It">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/how-to-add-a-github-copilot-cli-agent/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-add-a-github-copilot-cli-agent/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/app-store-rejection-checklist/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/app-store-rejection-checklist/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-07-03">Jul 3, 2026</time>
+      <time datetime="2026-11-27">Nov 27, 2026</time>
       <span class="dot" aria-hidden="true"></span>
-      <span>4 min</span>
+      <span>5 min</span>
     </div>
-    <h3><a href="/blog/how-to-add-a-github-copilot-cli-agent/">How to Add a GitHub Copilot CLI Agent to Your Floor</a></h3>
-    <p class="dek">A step-by-step v0.3.3 walkthrough: install GitHub Copilot CLI (or let the harness install it for you), hire a Copilot worker, pick a model, and know exactly what print mode can and can&#39;t do.</p>
+    <h3><a href="/blog/app-store-rejection-checklist/">App Store Rejection Checklist: Catch It Before Review With AI</a></h3>
+    <p class="dek">An app store rejection checklist from the App Store Compliance Playbook: eight common causes, the Apple guideline or Play policy, the fix, and the scan to run.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-add-a-github-copilot-cli-agent/" aria-label="Read: How to Add a GitHub Copilot CLI Agent to Your Floor">Read →</a>
+      <a class="more" href="/blog/app-store-rejection-checklist/" aria-label="Read: App Store Rejection Checklist: Catch It Before Review With AI">Read →</a>
     </div>
   </div>
 </article>
 <article class="card t-guides">
-  <a class="thumb t-guides" href="/blog/how-to-hire-from-the-agent-gallery/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/how-to-hire-from-the-agent-gallery/hero.png" alt="" loading="lazy" decoding="async" /></a>
+  <a class="thumb t-guides" href="/blog/google-workspace-mcp-servers/" aria-hidden="true" tabindex="-1"><img src="/blog/assets/media/google-workspace-mcp-servers/hero.png" alt="" loading="lazy" decoding="async" /></a>
   <div class="body">
     <div class="meta">
-      <time datetime="2026-07-03">Jul 3, 2026</time>
+      <time datetime="2026-11-26">Nov 26, 2026</time>
       <span class="dot" aria-hidden="true"></span>
       <span>5 min</span>
     </div>
-    <h3><a href="/blog/how-to-hire-from-the-agent-gallery/">How to Hire From the Agent Gallery</a></h3>
-    <p class="dek">A practical guide to Munder Difflin&#39;s Agent Gallery: browse six off-the-shelf hires, import one from a link or file, review the pre-filled manifest, customize identity, workspace, engine, and briefing — then spawn it yourself.</p>
+    <h3><a href="/blog/google-workspace-mcp-servers/">Google Workspace MCP Servers: What They Can Do and How to Connect</a></h3>
+    <p class="dek">Google Workspace MCP servers went GA on 24 Nov 2026: the eight servers and their tools, setup for Claude and Antigravity, the agent OAuth rule and tiers.</p>
     <div class="foot">
       <span class="tag kind">Guides</span>
-      <a class="more" href="/blog/how-to-hire-from-the-agent-gallery/" aria-label="Read: How to Hire From the Agent Gallery">Read →</a>
+      <a class="more" href="/blog/google-workspace-mcp-servers/" aria-label="Read: Google Workspace MCP Servers: What They Can Do and How to Connect">Read →</a>
     </div>
   </div>
 </article>
@@ -562,9 +512,10 @@ Difflin</a>.</li>
       if (!btn) return;
       var box = btn.closest('.yt');
       var id = box && box.getAttribute('data-yt');
-      if (!id) return;
+      // Only an 11 character YouTube video id may reach the iframe URL.
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return;
       var frame = document.createElement('iframe');
-      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1';
       frame.title = box.getAttribute('data-title') || 'YouTube video';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
       frame.setAttribute('allowfullscreen', '');

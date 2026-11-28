@@ -6,6 +6,31 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### 0.6.0: the engine catches up
+
+- **The engine of 0.5.10.** Mail and wake, temps, compaction by size, a clear when an agent
+  switches work, handoff, memory trim and the memory index, restart and resume, the circuit
+  breaker and the token ledger, safe git and worktree admin, hooks over HTTP, the retention
+  sweep, board hygiene, two floors, recovery of a crashed window, and Windows fixes.
+- **Agents sleep.** An idle agent sleeps after the time set in Settings and shows a Sleeping
+  card with a Wake button on its terminal.
+- **Integrations.** Slack in every mode, inbound webhooks (GitHub, Linear, Telegram and your
+  own), the tunnel, an integration broker every agent can use, and an inbound message handled
+  by a temp.
+- **Keys reach running agents.** A key or secret saved in Settings is available to an agent
+  through `md-secret` at once, with no restart.
+- **MCP servers per agent**, over the floor wide defaults, and a **token cap per agent** in the
+  command center.
+- **A top bar** with the version, auto mode, usage limits, theme, settings and focus.
+- **Updates are a notice.** The app tells you when a newer release is out and links to its
+  notes. Releases are source only from 0.6.0, so it no longer downloads or installs builds.
+- **Node 20 or 22** to install (`.nvmrc`). Node 26 cannot run the native rebuild.
+
+### Removed
+
+- Downloading and installing updates inside the app. Releases carry the source code only.
+- Freeflow dictation and the office theme picker. The floor keeps its default office.
+
 ### Added
 
 - **Tasks show their id.** The one thing people actually refer to a card by — `bmt-12` — was not

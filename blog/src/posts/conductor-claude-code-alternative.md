@@ -23,6 +23,8 @@ a coordinator — rather than parallel isolated workspaces.</p></div>
 run parallel Claude Code on a Mac. So this isn't a takedown — it's a map of when its model fits and
 when you'd reach for something else.
 
+Conductor's announcement of 4 Nov 2026 says Conductor is joining Meta and new users can no longer sign up, so see our [Conductor alternatives](/blog/conductor-alternatives/) for where to move.
+
 ## What Conductor does well
 
 Conductor is a native macOS app that runs Claude Code agents in parallel, each in its own isolated
@@ -85,7 +87,8 @@ language, shared MemPalace memory, inter-agent messaging, and a watchable office
 
 For the broader field, see [the best tools to run multiple Claude Code
 agents](/blog/best-claude-code-multi-agent-tools/) and a criteria-based [orchestration tools
-comparison](/blog/claude-code-orchestration-tools-compared/).
+comparison](/blog/claude-code-orchestration-tools-compared/). To replace the agent itself, see our
+[Claude Code alternatives](/blog/claude-code-alternatives/). If you are weighing Conductor against T3 Code, see our [T3 Code alternatives](/blog/t3-code-alternatives/).
 
 ---
 
