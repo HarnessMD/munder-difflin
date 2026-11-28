@@ -36,6 +36,7 @@ import { liveModelOf } from '../shared/liveModel';
 import type { HookFacts } from '../shared/switchClear';
 import { renderResponseStyle } from '../shared/responseStyle';
 import type { HookHttpEndpoint } from '../main/hookTransport';
+import { PolicyEngine, type PolicyStatus } from '../main/policy';
 
 /** Maximum JSON payload bytes in one newline-delimited hook frame. */
 const MAX_HOOK_FRAME_BYTES = 256 * 1024;
@@ -232,6 +233,7 @@ export class HookServer {
   }
   start(): void {
     this.stopped = false;
+    this.announceOnce();
     void this.ensureListening();
   }
 
@@ -342,6 +344,7 @@ export class HookServer {
       this.alerted = false;
       console.log(`[hive] hook server listening on ${sock}${recovered ? ' (recovered)' : ''}`);
       this.hive.appendLog({ kind: 'hooks', state: 'listening', path: sock, ...(recovered ? { recovered: true } : {}) });
+      this.announceOnce();
     } finally {
       this.binding = false;
     }
@@ -575,6 +578,76 @@ export class HookServer {
     return this.contextById.get(agentId);
   }
 
+  /** The guardrail engine (policy.ts). Built on first use, so a hive with no
+   *  guardrail.json pays nothing. */
+  private policy: PolicyEngine | null = null;
+
+  private policyAnnounced = false;
+  /** The guardrail's load status, once per app run: from start(), or from the first
+   *  bind when start() ran before the hive had a root. Never throws: it runs inside
+   *  start() and inside bind(), and a throw there would reject the bind for the sake
+   *  of a log row. */
+  private announceOnce(): void {
+    try {
+      if (this.policyAnnounced || !this.hive.root()) return;
+      this.policyAnnounced = true;
+      this.announcePolicy();
+    } catch (e) {
+      console.error('[policy] announce failed:', e);
+    }
+  }
+
+  /**
+   * Load the guardrail at START, not on the first tool call, and say what loaded: a
+   * `policy-status` row in log.jsonl and a line on stdout. A guardrail.json that loads
+   * no rules is also sent to god as a message, once per start, where somebody reads
+   * it; a row nobody reads is how a broken rules file goes unnoticed.
+   */
+  private announcePolicy(): void {
+    let status: PolicyStatus;
+    try { status = this.policyEngine().status; } catch (e) {
+      console.error('[policy] load threw:', e);
+      return;
+    }
+    if (!status.configured) return; // unconfigured → inert, and quiet about it
+    this.hive.appendLog({
+      kind: 'policy-status',
+      rules_loaded: status.rulesLoaded,
+      rule_ids: status.ruleIds,
+      file: status.file,
+      error: status.error,
+    } as Parameters<HiveManager['appendLog']>[0]);
+    console.log(`[policy] rules loaded: ${status.rulesLoaded} (${status.file})${status.error ? ` FAILED: ${status.error}` : ''}`);
+    if (status.error) {
+      try {
+        this.hive.send({
+          to: 'god',
+          act: 'inform',
+          subject: 'Guardrail failed to load: no rules are checked',
+          body: `The guardrail found ${status.file} but could not load it, so no backstop is being checked. `
+            + `Reason: ${status.error}\nFix the file and restart the app.`,
+          requires_reply: false,
+        }, 'guardrail');
+      } catch (e) { console.error('[policy] could not notify god:', e); }
+    }
+  }
+
+  /** Build the guardrail engine once. */
+  private policyEngine(): PolicyEngine {
+    if (!this.policy) {
+      this.policy = new PolicyEngine(
+        this.hive.root(),
+        (row) => this.hive.appendLog(row as Parameters<HiveManager['appendLog']>[0]),
+        // Providers whose bridge cannot receive a decision, named at load time rather
+        // than left to be discovered: pi and opencode post fire-and-forget, and the
+        // qwen proxy synthesizes PostToolUse only.
+        () => ['pi', 'opencode', 'qwen']
+      );
+      this.policy.load();
+    }
+    return this.policy;
+  }
+
   private handle(p: HookPayload): unknown {
     const agentId = p.agent_id ?? undefined;
     const event = p.hook_event_name ?? 'Unknown';
@@ -747,6 +820,29 @@ export class HookServer {
             permissionDecisionReason: d.reason ?? 'Denied by operator.'
           }
         };
+      }
+    }
+
+    // Guardrail, LOG ONLY: every backstop is evaluated and a match is recorded
+    // (policy-match rows), but the reply never changes. Evaluated after
+    // operator control, which stays byte-identical. Fully inert with no guardrail.json:
+    // `active` is false, nothing is evaluated and nothing is logged.
+    if (event === 'PreToolUse') {
+      try {
+        const policy = this.policyEngine();
+        if (policy.active) {
+          policy.evaluate({
+            hook_event_name: event,
+            agent_id: agentId ?? null,
+            tool_name: p.tool_name,
+            tool_input: p.tool_input,
+            // The agent shell's cwd, not ours: a relative write target means nothing
+            // without it.
+            cwd: p.cwd
+          });
+        }
+      } catch (e) {
+        console.error('[policy] evaluate failed:', e);
       }
     }
 
