@@ -95,6 +95,9 @@ export const HIVE_IGNORE_LINES: string[] = [
   '.floor-lock',
   'cost-ledger.jsonl',
   'log.jsonl',
+  // The guardrail's append-only ledger: its rows are already in log.jsonl, so committing it would store
+  // every row twice.
+  'policy/guardrail.jsonl',
   '.DS_Store',
   'crashes/',
   'node_modules/',

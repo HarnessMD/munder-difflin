@@ -33,7 +33,10 @@ test('a "~/…" cwd is expanded before it reaches the registry', async (t) => {
   const agent = registryOf(home).agents.a1;
   assert.equal(agent.cwd, os.homedir(), 'the registry must hold the resolved path');
   assert.equal(path.isAbsolute(agent.cwd), true);
-  assert.equal(agent.cwdValid, true, 'the raw "~" is what made this false');
+  // The home folder itself is not a working folder an agent may have (agentFolder.ts),
+  // so the expanded "~" is marked invalid for that reason, not for being unexpanded.
+  assert.equal(agent.cwdValid, false);
+  assert.equal(hive.cwdValidity(agent.cwd).issue, 'home');
 });
 
 test('an absolute cwd is unchanged', async (t) => {
@@ -55,7 +58,9 @@ test('cwdValidity repairs a "~" left in an older registry', async (t) => {
 
   // Entries written before the fix are still on disk; reading one must not
   // report it as permanently invalid.
-  assert.equal(hive.cwdValidity('~').valid, true);
+  // "~" is expanded: an unexpanded one would read as not-absolute. The home folder
+  // itself is refused as a working folder, so the issue names that instead.
+  assert.equal(hive.cwdValidity('~').issue, 'home');
   assert.equal(hive.cwdValidity(path.join('~', 'definitely-not-here-xyz')).valid, false,
     'expansion must not paper over a genuinely missing directory');
   assert.equal(hive.cwdValidity('relative/path').valid, false,

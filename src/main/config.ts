@@ -220,6 +220,13 @@ export interface HarnessConfig {
    *  Off does not FAIL a queued spawn request, it declines to consume one. The
    *  request sits in HIVE_ROOT/spawn-requests until the toggle is turned on. */
   orchestratorMaySpawn: boolean;
+  /** Is the guardrail turned on? Default off.
+   *
+   *  guardrail.json lives in the hive, which every agent can write. So the file is
+   *  only loaded when the operator has also turned the guardrail on here, in the
+   *  app's own config, which no agent's sandbox can reach. Otherwise a file an agent
+   *  wrote would be loaded at the next start as the operator's rules. */
+  guardrail?: boolean;
   /** The command we run when spawning a new agent. */
   defaultCommand: string;
   /** Default model for newly spawned agents (e.g. 'claude-sonnet-4-6[1m]'); unset = CLI default. */

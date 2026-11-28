@@ -1,0 +1,99 @@
+/**
+ * guardrail.json: the rules file, at `<hive>/policy/guardrail.json`.
+ *
+ * A rule is a principle (a sentence) with an optional BACKSTOP: the check the hook
+ * server runs on every tool call. A backstop can `block` the call, `ask` the operator,
+ * or only `log` what it would have done. With no file, nothing is evaluated and
+ * nothing is logged.
+ *
+ * The engine reads the backstops through `toEngineRules`. This module only reads and
+ * validates; nothing here writes the file.
+ */
+import { readFileSync } from 'node:fs';
+import type { PolicyRule } from './policy';
+import type { BackstopDoes, Backstop, GuardrailRule, GuardrailFile } from '../shared/guardrail';
+
+export const GUARDRAIL_FILE = 'guardrail.json';
+
+/** The keys a backstop may match on. Every present key must match (AND). */
+export const MATCHERS = [
+  'tool',
+  'path_glob',
+  'path_not_glob',
+  'command_matches',
+  'command_not_matches',
+] as const;
+
+export type { BackstopDoes, Backstop, GuardrailRule, GuardrailFile } from '../shared/guardrail';
+
+const DOES: readonly BackstopDoes[] = ['block', 'ask', 'log'];
+
+/** Every problem with the file's shape, as "<rule id>: <what>". Empty when valid.
+ *  The engine's own checks (regexes, matcher values) still run when it loads. */
+export function validateGuardrail(g: unknown): string[] {
+  if (!g || typeof g !== 'object' || Array.isArray(g)) return ['the file must be a JSON object with a "rules" array'];
+  const f = g as Partial<GuardrailFile>;
+  const out: string[] = [];
+  if (f.version !== 1) out.push(`version must be 1, got ${JSON.stringify(f.version)}`);
+  if (typeof f.rev !== 'number' || !Number.isInteger(f.rev) || f.rev < 0) out.push('rev must be a whole number');
+  if (f.defaults !== undefined) {
+    const oe = (f.defaults as { on_error?: unknown })?.on_error;
+    if (oe !== undefined && oe !== 'allow' && oe !== 'deny') out.push('defaults.on_error must be allow or deny');
+  }
+  if (!Array.isArray(f.rules)) return [...out, '"rules" must be an array'];
+  const seen = new Set<string>();
+  for (const r of f.rules as unknown[]) {
+    const rule = (r ?? {}) as Partial<GuardrailRule>;
+    const id = typeof rule.id === 'string' && rule.id.trim() ? rule.id : '(no id)';
+    const bad = (what: string) => out.push(`${id}: ${what}`);
+    if (id === '(no id)') bad('id must be a non-empty string');
+    else if (seen.has(id)) bad('duplicate id');
+    seen.add(id);
+    if (typeof rule.principle !== 'string' || !rule.principle.trim()) bad('principle must be a non-empty sentence');
+    const a = rule.agents;
+    if (a !== 'all' && !(Array.isArray(a) && a.every((x) => typeof x === 'string' && x))) bad('agents must be "all" or a list of agent ids');
+    if (rule.backstop === undefined) continue;
+    const b = rule.backstop as Partial<Backstop>;
+    if (!b || typeof b !== 'object') { bad('backstop must be an object'); continue; }
+    if (typeof b.on !== 'boolean') bad('backstop.on must be true or false');
+    if (!DOES.includes(b.does as BackstopDoes)) bad(`backstop.does must be block, ask or log, got ${JSON.stringify(b.does)}`);
+    if (b.on_error !== undefined && b.on_error !== 'allow' && b.on_error !== 'deny') bad('backstop.on_error must be allow or deny');
+    if (b.message !== undefined && typeof b.message !== 'string') bad('backstop.message must be text');
+    if (!b.match || typeof b.match !== 'object' || Array.isArray(b.match)) { bad('backstop.match must be an object'); continue; }
+    const keys = Object.keys(b.match);
+    if (!keys.length) bad('backstop.match is empty: it would fire on every tool call');
+    const unknown = keys.find((k) => !(MATCHERS as readonly string[]).includes(k));
+    if (unknown) bad(`unknown matcher "${unknown}" (known: ${MATCHERS.join(', ')})`);
+  }
+  return out;
+}
+
+/** The backstops that are on, as the engine's rules, in file order. `block` is a live
+ *  deny, `ask` a live ask, `log` a dry_run rule (recorded, never applied). */
+export function toEngineRules(g: GuardrailFile): PolicyRule[] {
+  const out: PolicyRule[] = [];
+  for (const r of g.rules) {
+    const b = r.backstop;
+    if (!b || !b.on) continue;
+    out.push({
+      id: r.id,
+      decision: b.does === 'ask' ? 'ask' : 'deny',
+      mode: b.does === 'log' ? 'dry_run' : 'live',
+      reason: b.message?.trim() ? b.message : r.principle,
+      match: b.match,
+      ...(b.on_error ? { on_error: b.on_error } : {}),
+      ...(r.agents !== 'all' ? { agents: [...r.agents] } : {}),
+    });
+  }
+  return out;
+}
+
+/** Read guardrail.json: the file, or why it cannot be used. Never throws. */
+export function readGuardrail(path: string): { ok: true; file: GuardrailFile } | { ok: false; error: string } {
+  let parsed: unknown;
+  try { parsed = JSON.parse(readFileSync(path, 'utf8')); } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+  const problems = validateGuardrail(parsed);
+  return problems.length ? { ok: false, error: problems.join('; ') } : { ok: true, file: parsed as GuardrailFile };
+}

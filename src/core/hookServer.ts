@@ -36,6 +36,8 @@ import { liveModelOf } from '../shared/liveModel';
 import type { HookFacts } from '../shared/switchClear';
 import { renderResponseStyle } from '../shared/responseStyle';
 import type { HookHttpEndpoint } from '../main/hookTransport';
+import { PolicyEngine, type PolicyStatus } from '../main/policy';
+import { renderPrinciples } from '../main/principles';
 
 /** Maximum JSON payload bytes in one newline-delimited hook frame. */
 const MAX_HOOK_FRAME_BYTES = 256 * 1024;
@@ -45,6 +47,11 @@ interface HookPayload {
   ping?: string;
   hook_event_name?: string;
   agent_id?: string | null;
+  /** The floor agent whose process sent this: AGENT_ID as a socket shim found it,
+   *  or the agent in the URL on the HTTP path (set by onHttp, never taken from the
+   *  body there). Differs from agent_id inside a Claude Code subagent, whose payload
+   *  carries its own id. Not proof of who sent it: see the hook token note in onHttp. */
+  hive_agent?: string | null;
   session_id?: string;
   transcript_path?: string;
   /** Status-line payloads only: the session's live context accounting. */
@@ -66,6 +73,9 @@ interface HookPayload {
   model?: string | { id?: string; display_name?: string };
   /** Set by Claude Code and Codex on payloads sent from INSIDE a sub agent. */
   agent_type?: string;
+  /** Set by a shim whose engine drops this event's reply (agy's PostToolUse):
+   *  context sent back would never be read. */
+  no_context_reply?: boolean;
   input?: number;
   output?: number;
   cache_read?: number;
@@ -181,6 +191,10 @@ export class HookServer {
   private deliveredIdentityByAgent = new Map<string, string | null>();
   /** The steer a hook's reply carries, until that reply is written. */
   private steersOut = new WeakMap<HookPayload, { agentId: string; event: string; text: string }>();
+  /** The guardrail principles last delivered to each agent's current session, and the
+   *  agents owed them again after a compaction or a resume. */
+  private deliveredRulesByAgent = new Map<string, { sessionId: string | null; key: string; count: number }>();
+  private rulesDue = new Set<string>();
 
   constructor(
     private hive: HiveManager,
@@ -232,6 +246,7 @@ export class HookServer {
   }
   start(): void {
     this.stopped = false;
+    this.announceOnce();
     void this.ensureListening();
   }
 
@@ -342,6 +357,7 @@ export class HookServer {
       this.alerted = false;
       console.log(`[hive] hook server listening on ${sock}${recovered ? ' (recovered)' : ''}`);
       this.hive.appendLog({ kind: 'hooks', state: 'listening', path: sock, ...(recovered ? { recovered: true } : {}) });
+      this.announceOnce();
     } finally {
       this.binding = false;
     }
@@ -554,6 +570,12 @@ export class HookServer {
       // The shim's rule, exactly: a payload that names an agent keeps it (Claude's
       // own sub agent id, today), and the URL id only fills a missing one.
       if (!payload.agent_id) payload.agent_id = urlId || null;
+      // The URL names the floor agent whose CLI sent this (httpHookEntry), and a body
+      // agent_id that differs is Claude's sub agent id: the gates answer as the URL
+      // agent (handle). Always the URL, never a hive_agent from the body. The shared
+      // hook token proves only that the sender holds the app's token, not which agent
+      // it is: any agent can name another here. A per-agent token is a later item.
+      payload.hive_agent = urlId || null;
       let out: unknown = {};
       try { out = this.handle(payload); } catch { out = {}; }
       // The CLI gave up on this hook and hung up: the steer goes back for the next one, not into a closed socket.
@@ -575,9 +597,221 @@ export class HookServer {
     return this.contextById.get(agentId);
   }
 
-  private handle(p: HookPayload): unknown {
+  /** The guardrail engine (policy.ts). Built on first use, so a hive with no
+   *  guardrail.json pays nothing. */
+  private policy: PolicyEngine | null = null;
+
+  private policyAnnounced = false;
+  /** The guardrail's load status, once per app run: from start(), or from the first
+   *  bind when start() ran before the hive had a root. Never throws: it runs inside
+   *  start() and inside bind(), and a throw there would reject the bind for the sake
+   *  of a log row. */
+  private announceOnce(): void {
+    try {
+      if (this.policyAnnounced || !this.hive.root()) return;
+      this.policyAnnounced = true;
+      this.announcePolicy();
+    } catch (e) {
+      console.error('[policy] announce failed:', e);
+    }
+  }
+
+  /**
+   * Load the guardrail at START, not on the first tool call, and say what loaded: a
+   * `policy-status` row in log.jsonl and a line on stdout. A guardrail.json that loads
+   * no rules is also sent to god as a message, once per start, where somebody reads
+   * it; a row nobody reads is how a broken rules file goes unnoticed.
+   */
+  private announcePolicy(): void {
+    let status: PolicyStatus;
+    try { status = this.policyEngine().status; } catch (e) {
+      console.error('[policy] load threw:', e);
+      return;
+    }
+    if (status.ignored) {
+      console.log(`[policy] not turned on; ignoring ${status.ignored}`);
+      try {
+        this.hive.send({
+          to: 'god',
+          act: 'inform',
+          subject: 'A guardrail.json exists but the guardrail is not turned on',
+          body: `${status.ignored} exists, but the guardrail is not turned on in the app config, `
+            + 'so the file was not loaded and nothing in it is checked or delivered. '
+            + 'If the operator wrote it, they can turn the guardrail on and restart the app. '
+            + 'If nobody did, an agent wrote it: tell the operator.',
+          requires_reply: false,
+        }, 'guardrail');
+      } catch (e) { console.error('[policy] could not notify god:', e); }
+      return;
+    }
+    if (!status.configured) return; // unconfigured → inert, and quiet about it
+    this.hive.appendLog({
+      kind: 'policy-status',
+      rules_loaded: status.rulesLoaded,
+      rule_ids: status.ruleIds,
+      file: status.file,
+      error: status.error,
+    } as Parameters<HiveManager['appendLog']>[0]);
+    console.log(`[policy] rules loaded: ${status.rulesLoaded} (${status.file})${status.error ? ` FAILED: ${status.error}` : ''}`);
+    if (status.error) {
+      try {
+        this.hive.send({
+          to: 'god',
+          act: 'inform',
+          subject: 'Guardrail failed to load: no rules are checked',
+          body: `The guardrail found ${status.file} but could not load it, so no backstop is being checked `
+            + '(writes to the policy folder are still refused). '
+            + `Reason: ${status.error}\nFix the file and restart the app.`,
+          requires_reply: false,
+        }, 'guardrail');
+      } catch (e) { console.error('[policy] could not notify god:', e); }
+    }
+  }
+
+  /** Build the guardrail engine once. */
+  private policyEngine(): PolicyEngine {
+    if (!this.policy) {
+      this.policy = new PolicyEngine(
+        this.hive.root(),
+        (row) => this.hive.appendLog(row as Parameters<HiveManager['appendLog']>[0]),
+        // Providers whose bridge cannot receive a decision, named at load time rather
+        // than left to be discovered: pi and opencode post fire-and-forget, and the
+        // qwen proxy synthesizes PostToolUse only.
+        () => ['pi', 'opencode', 'qwen'],
+        // config.json is outside every agent's writable folders; the hive is not.
+        () => this.getConfig().guardrail === true
+      );
+      this.policy.load();
+    }
+    return this.policy;
+  }
+
+  /**
+   * The agent's guardrail principles, when this hook should carry them: at the start of
+   * a session, on the first prompt of a new session, on the first hook that can carry
+   * context after a compaction or resume (a PostToolUse counts: an agent that compacts
+   * mid-task may not see another prompt for a long time), and when a reload changed
+   * them. Otherwise null, so an unchanged set is not repeated on every prompt. agy
+   * has no prompt hook, so its PreInvocation counts as the prompt, as it does for
+   * identity: the checks below keep that to once a session. A reply the engine will
+   * drop (`noReply`) carries nothing and uses up no mark. The principles come from
+   * the engine, which read guardrail.json at start; with no file then, always null.
+   */
+  private rulesToDeliver(agentId: string, event: string, sessionId: string | null, noReply = false): string | null {
+    if (noReply) return null;
+    const due = this.rulesDue.has(agentId);
+    if (!(event === 'SessionStart' || event === 'UserPromptSubmit' || event === 'PreInvocation' || (event === 'PostToolUse' && due))) return null;
+    let mine;
+    try { mine = this.policyEngine().principles(agentId); } catch { return null; }
+    if (!mine) return null; // nothing loaded: deliver nothing, keep any mark for later
+    const key = `${mine.rev}\n${mine.texts.join('\n')}`;
+    const delivered = this.deliveredRulesByAgent.get(agentId);
+    const newSession = !delivered || delivered.sessionId !== sessionId;
+    const changed = !!delivered && delivered.key !== key;
+    if (!(event === 'SessionStart' || newSession || due || changed)) return null;
+    this.rulesDue.delete(agentId);
+    this.deliveredRulesByAgent.set(agentId, { sessionId, key, count: mine.texts.length });
+    if (mine.texts.length) return renderPrinciples(mine);
+    // An empty set is only worth saying when it takes back rules this session was given.
+    return changed && !newSession && delivered.count > 0 ? renderPrinciples(mine) : null;
+  }
+
+  /**
+   * Only the gates, answered for `agentId`: the operator's HALT, the pause/gated-tool
+   * deny, and the guardrail. Nothing reaches the floor, the breaker or the registry.
+   */
+  private guardOnly(agentId: string, event: string, p: HookPayload): unknown {
+    if (this.control?.shouldHalt(agentId)) {
+      return { continue: false, stopReason: 'Halted by the operator from the floor.' };
+    }
+    if (event === 'PreToolUse' && this.control) {
+      const d = this.control.toolDecision(agentId, p.tool_name ?? '');
+      if (d.deny) {
+        return {
+          hookSpecificOutput: {
+            hookEventName: 'PreToolUse',
+            permissionDecision: 'deny',
+            permissionDecisionReason: d.reason ?? 'Denied by operator.'
+          }
+        };
+      }
+    }
+    if (event === 'PreToolUse') return this.policyReply(agentId, p) ?? {};
+    return {};
+  }
+
+  /**
+   * The guardrail's answer to a PreToolUse, or null to let the call run: a `block`
+   * backstop denies, an `ask` backstop asks (Claude Code's permission prompt), a `log`
+   * backstop only records. Fully inert with no guardrail.json. An engine error lets
+   * the call run, the same posture as the hook transport itself.
+   */
+  private policyReply(agentId: string | undefined, p: HookPayload): unknown | null {
+    try {
+      const policy = this.policyEngine();
+      if (!policy.active) return null;
+      const v = policy.evaluate({
+        hook_event_name: 'PreToolUse',
+        agent_id: agentId ?? null,
+        tool_name: p.tool_name,
+        tool_input: p.tool_input,
+        // The agent shell's cwd, not ours: a relative write target means nothing
+        // without it.
+        cwd: p.cwd
+      });
+      if (v.decision === 'allow') return null;
+      const why = `[policy:${v.ruleId}] ${v.reason ?? 'Denied by policy.'}`;
+      // Codex shares Claude's shim, so it would get this "ask" as is. Codex parses a
+      // PreToolUse "ask" but does not support it: it marks the hook failed and runs the
+      // call (Codex hooks guide). So a Codex agent is denied and told why, the same
+      // answer the Gemini shim gives.
+      if (v.decision === 'ask' && agentId && this.hive.registry().agents[agentId]?.provider === 'codex') {
+        return {
+          hookSpecificOutput: {
+            hookEventName: 'PreToolUse',
+            permissionDecision: 'deny',
+            permissionDecisionReason: `This rule asks for an OK from the operator. This engine cannot ask, so the call is denied. ${why}`
+          }
+        };
+      }
+      return {
+        hookSpecificOutput: {
+          hookEventName: 'PreToolUse',
+          permissionDecision: v.decision,
+          permissionDecisionReason: why
+        }
+      };
+    } catch (e) {
+      console.error('[policy] evaluate failed:', e);
+      return null;
+    }
+  }
+
+  private handle(payload: HookPayload): unknown {
+    // A different agent_id with no agent_type is not a subagent (see below). An engine
+    // that puts its own id in agent_id (the Claude/Codex shim keeps one) speaks for the
+    // floor agent that sent it, so the sender's id wins and the floor still hears it.
+    // In place, never a copy: the socket and HTTP handlers find a delivered steer by
+    // this same object (steersOut), so a copy would lose the steer's proof and return.
+    const sender = typeof payload.hive_agent === 'string' && payload.hive_agent ? payload.hive_agent : undefined;
+    if (sender && payload.agent_id && payload.agent_id !== sender && !payload.agent_type) payload.agent_id = sender;
+    const p = payload;
     const agentId = p.agent_id ?? undefined;
     const event = p.hook_event_name ?? 'Unknown';
+    // Inside a Claude Code subagent, agent_id is the subagent's own id, agent_type is
+    // set, and hive_agent is the floor agent that launched it. The gates and the
+    // guardrail answer as that floor agent: its own-folder exemption, its scoped rules,
+    // its pause and HALT. A subagent is not a floor agent, so nothing else happens for
+    // it. agent_type is how upstream's own switchClear tells a subagent's payload too.
+    const hiveAgent = typeof p.hive_agent === 'string' && p.hive_agent ? p.hive_agent : undefined;
+    if (hiveAgent && agentId && hiveAgent !== agentId) {
+      // The observer still hears it: switchClear counts a sub agent's SubagentStop,
+      // which Claude sends with the sub agent's own id, against the session's owner.
+      try {
+        this.onFacts?.({ agentId, event, tool: p.tool_name, toolInput: p.tool_input, sessionId: p.session_id, agentType: p.agent_type, source: p.source });
+      } catch { /* an observer must never affect the hook reply */ }
+      return this.guardOnly(hiveAgent, event, p);
+    }
     // Autosend proof first, before any other work here can delay it.
     this.proof.note(agentId, event, p.prompt, { message: p.message, tool: p.tool_name });
     // The session and turn events as they arrive, so a hook lost in the CLI can be told from one lost here.
@@ -718,6 +952,13 @@ export class HookServer {
     if ((event === 'PostCompact' || event === 'SessionStart') && agentId) {
       this.breaker?.recordCompactEnd(agentId);
     }
+    // A compaction summarises the context the principles were delivered into, and a
+    // resume rebuilds it from a transcript that may have been compacted: either way the
+    // principles go back in on the next hook that can carry context.
+    if (agentId && (event === 'PreCompact' || event === 'PostCompact'
+      || (event === 'SessionStart' && (p.source === 'compact' || p.source === 'resume')))) {
+      this.rulesDue.add(agentId);
+    }
 
     if ((event === 'Stop' || event === 'SubagentStop') && agentId) {
       // Respect any upstream Stop hook that already re-entered this boundary.
@@ -747,6 +988,16 @@ export class HookServer {
             permissionDecisionReason: d.reason ?? 'Denied by operator.'
           }
         };
+      }
+    }
+
+    // Guardrail: a standing rule, evaluated AFTER operator control, so a live operator
+    // instruction always outranks it and the branch above stays byte-identical.
+    if (event === 'PreToolUse') {
+      const reply = this.policyReply(agentId, p);
+      if (reply) {
+        this.emit(agentId, event, p);
+        return reply;
       }
     }
 
@@ -836,12 +1087,16 @@ export class HookServer {
       }
     }
 
-    if (steer || roster || goal || style || identity) {
+    // The guardrail's principles (rulesToDeliver): with the goal, at the start of a
+    // session and again after a compaction or a change.
+    const rules = agentId ? this.rulesToDeliver(agentId, event, p.session_id ?? null, p.no_context_reply === true) : null;
+
+    if (steer || roster || goal || style || identity || rules) {
       this.emit(agentId, event, p);
       return {
         hookSpecificOutput: {
           hookEventName: event,
-          // ORDER, deliberately: style, stable identity, roster, goal, steer.
+          // ORDER, deliberately: style, stable identity, roster, goal, rules, steer.
           //  - The style leads because it is the only invariant piece. It is the
           //    same text on every turn for every agent, so putting it ahead of the
           //    roster (whose token/cost/ctx numbers move every turn) keeps the
@@ -849,10 +1104,12 @@ export class HookServer {
           //  - The style is HOW to answer and the goal is WHAT to do, so the goal
           //    sits closer to the work: a standing tone brief must never read as
           //    if it outranks the mission.
+          //  - The guardrail's principles follow the goal: standing rules for how the
+          //    work is done, read before this turn's steer.
           //  - The steer stays last, where it already was. It is the operator
           //    speaking about THIS turn, and the most immediate instruction is
           //    the one that should be read last.
-          additionalContext: [style, identity, roster, goal, steer].filter(Boolean).join('\n\n')
+          additionalContext: [style, identity, roster, goal, rules, steer].filter(Boolean).join('\n\n')
         }
       };
     }
